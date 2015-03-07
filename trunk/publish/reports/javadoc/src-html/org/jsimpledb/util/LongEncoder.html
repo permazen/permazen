@@ -212,37 +212,39 @@
 <span class="sourceLineNo">204</span><a name="line.204"></a>
 <span class="sourceLineNo">205</span>    /**<a name="line.205"></a>
 <span class="sourceLineNo">206</span>     * Test routine.<a name="line.206"></a>
-<span class="sourceLineNo">207</span>     */<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    public static void main(String[] args) throws Exception {<a name="line.208"></a>
-<span class="sourceLineNo">209</span>        for (String arg : args) {<a name="line.209"></a>
-<span class="sourceLineNo">210</span>            byte[] bytes = null;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>            try {<a name="line.211"></a>
-<span class="sourceLineNo">212</span>                bytes = ByteUtil.parse(arg);<a name="line.212"></a>
-<span class="sourceLineNo">213</span>            } catch (IllegalArgumentException e) {<a name="line.213"></a>
-<span class="sourceLineNo">214</span>                if (arg.startsWith("0x"))<a name="line.214"></a>
-<span class="sourceLineNo">215</span>                    bytes = ByteUtil.parse(arg.substring(2));<a name="line.215"></a>
-<span class="sourceLineNo">216</span>            }<a name="line.216"></a>
-<span class="sourceLineNo">217</span>            if (bytes != null) {<a name="line.217"></a>
-<span class="sourceLineNo">218</span>                final long value = LongEncoder.read(new ByteReader(bytes));<a name="line.218"></a>
-<span class="sourceLineNo">219</span>                System.out.println("0x" + ByteUtil.toString(bytes)<a name="line.219"></a>
-<span class="sourceLineNo">220</span>                  + " decodes to " + value + " (" + String.format("0x%016x", value) + ")");<a name="line.220"></a>
-<span class="sourceLineNo">221</span>            }<a name="line.221"></a>
-<span class="sourceLineNo">222</span>            Long value = null;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>            try {<a name="line.223"></a>
-<span class="sourceLineNo">224</span>                value = Long.parseLong(arg);<a name="line.224"></a>
-<span class="sourceLineNo">225</span>            } catch (IllegalArgumentException e) {<a name="line.225"></a>
-<span class="sourceLineNo">226</span>                // ignore<a name="line.226"></a>
-<span class="sourceLineNo">227</span>            }<a name="line.227"></a>
-<span class="sourceLineNo">228</span>            if (value != null) {<a name="line.228"></a>
-<span class="sourceLineNo">229</span>                final ByteWriter writer = new ByteWriter();<a name="line.229"></a>
-<span class="sourceLineNo">230</span>                LongEncoder.write(writer, value);<a name="line.230"></a>
-<span class="sourceLineNo">231</span>                System.out.println(value + " (" + String.format("0x%016x", value)<a name="line.231"></a>
-<span class="sourceLineNo">232</span>                  + ") encodes to " + ByteUtil.toString(writer.getBytes()));<a name="line.232"></a>
-<span class="sourceLineNo">233</span>            }<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        }<a name="line.234"></a>
-<span class="sourceLineNo">235</span>    }<a name="line.235"></a>
-<span class="sourceLineNo">236</span>}<a name="line.236"></a>
-<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">207</span>     *<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * @param args command line arguments<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     */<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    public static void main(String[] args) {<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        for (String arg : args) {<a name="line.211"></a>
+<span class="sourceLineNo">212</span>            byte[] bytes = null;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            try {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                bytes = ByteUtil.parse(arg);<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            } catch (IllegalArgumentException e) {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>                if (arg.startsWith("0x"))<a name="line.216"></a>
+<span class="sourceLineNo">217</span>                    bytes = ByteUtil.parse(arg.substring(2));<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            }<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            if (bytes != null) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                final long value = LongEncoder.read(new ByteReader(bytes));<a name="line.220"></a>
+<span class="sourceLineNo">221</span>                System.out.println("0x" + ByteUtil.toString(bytes)<a name="line.221"></a>
+<span class="sourceLineNo">222</span>                  + " decodes to " + value + " (" + String.format("0x%016x", value) + ")");<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            }<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            Long value = null;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>            try {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                value = Long.parseLong(arg);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>            } catch (IllegalArgumentException e) {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                // ignore<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            }<a name="line.229"></a>
+<span class="sourceLineNo">230</span>            if (value != null) {<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                final ByteWriter writer = new ByteWriter();<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                LongEncoder.write(writer, value);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                System.out.println(value + " (" + String.format("0x%016x", value)<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                  + ") encodes to " + ByteUtil.toString(writer.getBytes()));<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            }<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        }<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    }<a name="line.237"></a>
+<span class="sourceLineNo">238</span>}<a name="line.238"></a>
+<span class="sourceLineNo">239</span><a name="line.239"></a>
 
 
 

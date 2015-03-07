@@ -26,402 +26,517 @@
 <span class="sourceLineNo">018</span>import java.util.Arrays;<a name="line.18"></a>
 <span class="sourceLineNo">019</span>import java.util.Comparator;<a name="line.19"></a>
 <span class="sourceLineNo">020</span>import java.util.HashSet;<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.dellroad.stuff.main.MainClass;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.JSimpleDBFactory;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.annotation.JFieldType;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.core.Database;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jsimpledb.core.FieldType;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jsimpledb.kv.KVDatabase;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.jsimpledb.kv.fdb.FoundationKVDatabase;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jsimpledb.kv.simple.SimpleKVDatabase;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.jsimpledb.kv.simple.XMLKVDatabase;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.jsimpledb.spring.JSimpleDBClassScanner;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>/**<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * Support superclass for main entry point classes.<a name="line.36"></a>
-<span class="sourceLineNo">037</span> */<a name="line.37"></a>
-<span class="sourceLineNo">038</span>public abstract class AbstractMain extends MainClass {<a name="line.38"></a>
-<span class="sourceLineNo">039</span><a name="line.39"></a>
-<span class="sourceLineNo">040</span>    protected static final int KV_MEM = 0;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    protected static final int KV_FDB = 1;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    protected static final int KV_XML = 2;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    protected static final int KV_BDB = 3;<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    private static final File DEMO_XML_FILE = new File("demo-database.xml");<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    private static final File DEMO_SUBDIR = new File("demo-classes");<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    protected int kvType = KV_MEM;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    protected String fdbClusterFile;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    protected File bdbDirectory;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    protected File xmlFile;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    protected byte[] keyPrefix;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    protected int schemaVersion;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    protected HashSet&lt;Class&lt;?&gt;&gt; schemaClasses;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    protected HashSet&lt;Class&lt;? extends FieldType&lt;?&gt;&gt;&gt; fieldTypeClasses;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    protected boolean allowNewSchema;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    protected boolean verbose;<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    protected boolean readOnly;<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>    protected KVDatabase kvdb;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    protected String databaseDescription;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    protected boolean allowAutoDemo = true;<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>    /**<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * Parse command line options.<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     *<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * @return -1 to proceed, otherwise process exit value<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public int parseOptions(ArrayDeque&lt;String&gt; params) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>        // Parse options<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        while (!params.isEmpty() &amp;&amp; params.peekFirst().startsWith("-")) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            final String option = params.removeFirst();<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            if (option.equals("-h") || option.equals("--help")) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                this.usageMessage();<a name="line.76"></a>
-<span class="sourceLineNo">077</span>                return 0;<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            } else if (option.equals("-ro") || option.equals("--read-only"))<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                this.readOnly = true;<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            else if (option.equals("-cp") || option.equals("--classpath")) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>                if (params.isEmpty())<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                    this.usageError();<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                if (!this.appendClasspath(params.removeFirst()))<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                    return 1;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            } else if (option.equals("--verbose"))<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                this.verbose = true;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            else if (option.equals("-v") || option.equals("--schema-version")) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                if (params.isEmpty())<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                    this.usageError();<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                final String vstring = params.removeFirst();<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                try {<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                    this.schemaVersion = Integer.parseInt(vstring);<a name="line.92"></a>
-<span class="sourceLineNo">093</span>                    if (this.schemaVersion &lt; 0)<a name="line.93"></a>
-<span class="sourceLineNo">094</span>                        throw new IllegalArgumentException("schema version is negative");<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                } catch (Exception e) {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>                    System.err.println(this.getName() + ": invalid schema version `" + vstring + "': " + e.getMessage());<a name="line.96"></a>
+<span class="sourceLineNo">021</span>import java.util.LinkedHashSet;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.dellroad.stuff.main.MainClass;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jsimpledb.JSimpleDB;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jsimpledb.JSimpleDBFactory;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jsimpledb.ValidationMode;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jsimpledb.annotation.JFieldType;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jsimpledb.core.Database;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jsimpledb.core.FieldType;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jsimpledb.core.Transaction;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jsimpledb.kv.KVDatabase;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jsimpledb.kv.fdb.FoundationKVDatabase;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jsimpledb.kv.simple.SimpleKVDatabase;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.jsimpledb.kv.simple.XMLKVDatabase;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.jsimpledb.kv.sql.MySQLKVDatabase;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jsimpledb.schema.SchemaModel;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.jsimpledb.spring.JSimpleDBClassScanner;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.springframework.jdbc.datasource.DriverManagerDataSource;<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>/**<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * Support superclass for main entry point classes.<a name="line.43"></a>
+<span class="sourceLineNo">044</span> */<a name="line.44"></a>
+<span class="sourceLineNo">045</span>public abstract class AbstractMain extends MainClass {<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    protected static final int KV_MEM = 0;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    protected static final int KV_FDB = 1;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    protected static final int KV_XML = 2;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    protected static final int KV_BDB = 3;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    protected static final int KV_MYSQL = 4;<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    private static final File DEMO_XML_FILE = new File("demo-database.xml");<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    private static final File DEMO_SUBDIR = new File("demo-classes");<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    private static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>    protected int kvType = -1;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    protected String fdbClusterFile;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    protected File bdbDirectory;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    protected File xmlFile;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    protected String jdbcUrl;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    protected byte[] keyPrefix;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    protected int schemaVersion;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    protected HashSet&lt;Class&lt;?&gt;&gt; schemaClasses;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    protected HashSet&lt;Class&lt;? extends FieldType&lt;?&gt;&gt;&gt; fieldTypeClasses;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    protected boolean allowNewSchema;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    protected boolean verbose;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    protected boolean readOnly;<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>    protected KVDatabase kvdb;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    protected String databaseDescription;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    protected boolean allowAutoDemo = true;<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Parse command line options.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @param params command line parameters<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @return -1 to proceed, otherwise process exit value<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    public int parseOptions(ArrayDeque&lt;String&gt; params) {<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>        // Parse options<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        final LinkedHashSet&lt;String&gt; modelPackages = new LinkedHashSet&lt;&gt;();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        final LinkedHashSet&lt;String&gt; typePackages = new LinkedHashSet&lt;&gt;();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        while (!params.isEmpty() &amp;&amp; params.peekFirst().startsWith("-")) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            final String option = params.removeFirst();<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            if (option.equals("-h") || option.equals("--help")) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                this.usageMessage();<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                return 0;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            } else if (option.equals("-ro") || option.equals("--read-only"))<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                this.readOnly = true;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            else if (option.equals("-cp") || option.equals("--classpath")) {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                if (params.isEmpty())<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                    this.usageError();<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                if (!this.appendClasspath(params.removeFirst()))<a name="line.96"></a>
 <span class="sourceLineNo">097</span>                    return 1;<a name="line.97"></a>
-<span class="sourceLineNo">098</span>                }<a name="line.98"></a>
-<span class="sourceLineNo">099</span>            } else if (option.equals("--model-pkg")) {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>                if (params.isEmpty())<a name="line.100"></a>
-<span class="sourceLineNo">101</span>                    this.usageError();<a name="line.101"></a>
-<span class="sourceLineNo">102</span>                final String packageName = params.removeFirst();<a name="line.102"></a>
-<span class="sourceLineNo">103</span>                if (this.scanModelClasses(packageName) == 0)<a name="line.103"></a>
-<span class="sourceLineNo">104</span>                    this.log.warn("no Java model classes found under package `" + packageName + "'");<a name="line.104"></a>
-<span class="sourceLineNo">105</span>                this.allowAutoDemo = false;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            } else if (option.equals("--type-pkg")) {<a name="line.106"></a>
-<span class="sourceLineNo">107</span>                if (params.isEmpty())<a name="line.107"></a>
-<span class="sourceLineNo">108</span>                    this.usageError();<a name="line.108"></a>
-<span class="sourceLineNo">109</span>                final String packageName = params.removeFirst();<a name="line.109"></a>
-<span class="sourceLineNo">110</span>                if (this.scanTypeClasses(packageName) == 0)<a name="line.110"></a>
-<span class="sourceLineNo">111</span>                    this.log.warn("no custom FieldType classes found under package `" + packageName + "'");<a name="line.111"></a>
-<span class="sourceLineNo">112</span>            } else if (option.equals("-p") || option.equals("--pkg")) {<a name="line.112"></a>
+<span class="sourceLineNo">098</span>            } else if (option.equals("--verbose"))<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                this.verbose = true;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            else if (option.equals("-v") || option.equals("--schema-version")) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                if (params.isEmpty())<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                    this.usageError();<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                final String vstring = params.removeFirst();<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                try {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                    this.schemaVersion = Integer.parseInt(vstring);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                    if (this.schemaVersion &lt; 0)<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                        throw new IllegalArgumentException("schema version is negative");<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                } catch (Exception e) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                    System.err.println(this.getName() + ": invalid schema version `" + vstring + "': " + e.getMessage());<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                    return 1;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            } else if (option.equals("--model-pkg")) {<a name="line.112"></a>
 <span class="sourceLineNo">113</span>                if (params.isEmpty())<a name="line.113"></a>
 <span class="sourceLineNo">114</span>                    this.usageError();<a name="line.114"></a>
-<span class="sourceLineNo">115</span>                final String packageName = params.removeFirst();<a name="line.115"></a>
-<span class="sourceLineNo">116</span>                final int numModelClasses = this.scanModelClasses(packageName);<a name="line.116"></a>
-<span class="sourceLineNo">117</span>                final int numTypeClasses = this.scanTypeClasses(packageName);<a name="line.117"></a>
-<span class="sourceLineNo">118</span>                if (numModelClasses + numTypeClasses == 0)<a name="line.118"></a>
-<span class="sourceLineNo">119</span>                    this.log.warn("no Java model or custom FieldType classes found under package `" + packageName + "'");<a name="line.119"></a>
-<span class="sourceLineNo">120</span>                this.allowAutoDemo = false;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>            } else if (option.equals("--new-schema")) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>                this.allowNewSchema = true;<a name="line.122"></a>
-<span class="sourceLineNo">123</span>                this.allowAutoDemo = false;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>            } else if (option.equals("--mem")) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>                this.kvType = KV_MEM;<a name="line.125"></a>
-<span class="sourceLineNo">126</span>                this.allowAutoDemo = false;<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            } else if (option.equals("--prefix")) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>                if (params.isEmpty())<a name="line.128"></a>
-<span class="sourceLineNo">129</span>                    this.usageError();<a name="line.129"></a>
-<span class="sourceLineNo">130</span>                final String value = params.removeFirst();<a name="line.130"></a>
-<span class="sourceLineNo">131</span>                try {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>                    this.keyPrefix = ByteUtil.parse(value);<a name="line.132"></a>
-<span class="sourceLineNo">133</span>                } catch (IllegalArgumentException e) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>                    this.keyPrefix = value.getBytes(Charset.forName("UTF-8"));<a name="line.134"></a>
-<span class="sourceLineNo">135</span>                }<a name="line.135"></a>
-<span class="sourceLineNo">136</span>                if (this.keyPrefix.length &gt; 0)<a name="line.136"></a>
-<span class="sourceLineNo">137</span>                    this.allowAutoDemo = false;<a name="line.137"></a>
-<span class="sourceLineNo">138</span>            } else if (option.equals("--fdb")) {<a name="line.138"></a>
-<span class="sourceLineNo">139</span>                if (params.isEmpty())<a name="line.139"></a>
-<span class="sourceLineNo">140</span>                    this.usageError();<a name="line.140"></a>
-<span class="sourceLineNo">141</span>                this.kvType = KV_FDB;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>                this.fdbClusterFile = params.removeFirst();<a name="line.142"></a>
-<span class="sourceLineNo">143</span>                if (!new File(this.fdbClusterFile).exists()) {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>                    System.err.println(this.getName() + ": file `" + this.fdbClusterFile + "' does not exist");<a name="line.144"></a>
-<span class="sourceLineNo">145</span>                    return 1;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>                }<a name="line.146"></a>
-<span class="sourceLineNo">147</span>                this.allowAutoDemo = false;<a name="line.147"></a>
-<span class="sourceLineNo">148</span>            } else if (option.equals("--xml")) {<a name="line.148"></a>
-<span class="sourceLineNo">149</span>                if (params.isEmpty())<a name="line.149"></a>
-<span class="sourceLineNo">150</span>                    this.usageError();<a name="line.150"></a>
-<span class="sourceLineNo">151</span>                this.kvType = KV_XML;<a name="line.151"></a>
-<span class="sourceLineNo">152</span>                this.xmlFile = new File(params.removeFirst());<a name="line.152"></a>
-<span class="sourceLineNo">153</span>                this.allowAutoDemo = false;<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            } else if (option.equals("--bdb")) {<a name="line.154"></a>
-<span class="sourceLineNo">155</span>                if (params.isEmpty())<a name="line.155"></a>
-<span class="sourceLineNo">156</span>                    this.usageError();<a name="line.156"></a>
-<span class="sourceLineNo">157</span>                this.kvType = KV_BDB;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>                this.bdbDirectory = new File(params.removeFirst());<a name="line.158"></a>
-<span class="sourceLineNo">159</span>                if (!this.bdbDirectory.exists()) {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>                    System.err.println(this.getName() + ": directory `" + this.bdbDirectory + "' does not exist");<a name="line.160"></a>
-<span class="sourceLineNo">161</span>                    return 1;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>                }<a name="line.162"></a>
-<span class="sourceLineNo">163</span>                if (!this.bdbDirectory.isDirectory()) {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>                    System.err.println(this.getName() + ": file `" + this.bdbDirectory + "' is not a directory");<a name="line.164"></a>
-<span class="sourceLineNo">165</span>                    return 1;<a name="line.165"></a>
-<span class="sourceLineNo">166</span>                }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>                this.allowAutoDemo = false;<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            } else if (option.equals("--bdb-database")) {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>                if (params.isEmpty())<a name="line.169"></a>
-<span class="sourceLineNo">170</span>                    this.usageError();<a name="line.170"></a>
-<span class="sourceLineNo">171</span>                this.bdbDatabaseName = params.removeFirst();<a name="line.171"></a>
-<span class="sourceLineNo">172</span>            } else if (option.equals("--"))<a name="line.172"></a>
-<span class="sourceLineNo">173</span>                break;<a name="line.173"></a>
-<span class="sourceLineNo">174</span>            else if (!this.parseOption(option, params)) {<a name="line.174"></a>
-<span class="sourceLineNo">175</span>                System.err.println(this.getName() + ": unknown option `" + option + "'");<a name="line.175"></a>
-<span class="sourceLineNo">176</span>                this.usageError();<a name="line.176"></a>
-<span class="sourceLineNo">177</span>                return 1;<a name="line.177"></a>
-<span class="sourceLineNo">178</span>            }<a name="line.178"></a>
-<span class="sourceLineNo">179</span>        }<a name="line.179"></a>
-<span class="sourceLineNo">180</span>        if (this.kvType != KV_FDB &amp;&amp; this.keyPrefix != null) {<a name="line.180"></a>
-<span class="sourceLineNo">181</span>            System.err.println(this.getName() + ": option `--prefix' is only valid in combination with `--fdb'");<a name="line.181"></a>
-<span class="sourceLineNo">182</span>            this.usageError();<a name="line.182"></a>
-<span class="sourceLineNo">183</span>            return 1;<a name="line.183"></a>
-<span class="sourceLineNo">184</span>        }<a name="line.184"></a>
-<span class="sourceLineNo">185</span><a name="line.185"></a>
-<span class="sourceLineNo">186</span>        // Automatically go into demo mode if appropriate<a name="line.186"></a>
-<span class="sourceLineNo">187</span>        if (this.allowAutoDemo &amp;&amp; DEMO_XML_FILE.exists() &amp;&amp; DEMO_SUBDIR.exists())<a name="line.187"></a>
-<span class="sourceLineNo">188</span>            this.configureDemoMode();<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>        // Done<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        return -1;<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    }<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>    public int getSchemaVersion() {<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        return this.schemaVersion;<a name="line.195"></a>
-<span class="sourceLineNo">196</span>    }<a name="line.196"></a>
-<span class="sourceLineNo">197</span><a name="line.197"></a>
-<span class="sourceLineNo">198</span>    public boolean isAllowNewSchema() {<a name="line.198"></a>
-<span class="sourceLineNo">199</span>        return this.allowNewSchema;<a name="line.199"></a>
-<span class="sourceLineNo">200</span>    }<a name="line.200"></a>
-<span class="sourceLineNo">201</span><a name="line.201"></a>
-<span class="sourceLineNo">202</span>    public boolean isReadOnly() {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        return this.readOnly;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>    }<a name="line.204"></a>
-<span class="sourceLineNo">205</span><a name="line.205"></a>
-<span class="sourceLineNo">206</span>    public String getDatabaseDescription() {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>        return this.databaseDescription;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    }<a name="line.208"></a>
-<span class="sourceLineNo">209</span><a name="line.209"></a>
-<span class="sourceLineNo">210</span>    public JSimpleDBFactory getJSimpleDBFactory(Database db) {<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        return new JSimpleDBFactory()<a name="line.211"></a>
-<span class="sourceLineNo">212</span>          .setModelClasses(this.schemaClasses)<a name="line.212"></a>
-<span class="sourceLineNo">213</span>          .setSchemaVersion(this.schemaVersion)<a name="line.213"></a>
-<span class="sourceLineNo">214</span>          .setDatabase(db);<a name="line.214"></a>
-<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
-<span class="sourceLineNo">216</span><a name="line.216"></a>
-<span class="sourceLineNo">217</span>    /**<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     * Subclass hook to parse unrecognized command line options.<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     *<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     * @return true if successful, false otherwise<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     */<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    protected boolean parseOption(String option, ArrayDeque&lt;String&gt; params) {<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        return false;<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span><a name="line.225"></a>
-<span class="sourceLineNo">226</span>    protected void configureDemoMode() {<a name="line.226"></a>
-<span class="sourceLineNo">227</span><a name="line.227"></a>
-<span class="sourceLineNo">228</span>        // Configure database<a name="line.228"></a>
-<span class="sourceLineNo">229</span>        System.err.println(this.getName() + ": auto-configuring use of demo database `" + DEMO_XML_FILE + "'");<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        this.kvType = KV_XML;<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        this.xmlFile = DEMO_XML_FILE;<a name="line.231"></a>
-<span class="sourceLineNo">232</span><a name="line.232"></a>
-<span class="sourceLineNo">233</span>        // Add demo subdirectory to class path<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        this.appendClasspath(DEMO_SUBDIR.toString());<a name="line.234"></a>
-<span class="sourceLineNo">235</span><a name="line.235"></a>
-<span class="sourceLineNo">236</span>        // Scan classes<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        this.scanModelClasses("org.jsimpledb.demo");<a name="line.237"></a>
-<span class="sourceLineNo">238</span>    }<a name="line.238"></a>
-<span class="sourceLineNo">239</span><a name="line.239"></a>
-<span class="sourceLineNo">240</span>    /**<a name="line.240"></a>
-<span class="sourceLineNo">241</span>     * Append path(s) to the classpath.<a name="line.241"></a>
-<span class="sourceLineNo">242</span>     */<a name="line.242"></a>
-<span class="sourceLineNo">243</span>    protected boolean appendClasspath(String path) {<a name="line.243"></a>
-<span class="sourceLineNo">244</span>        this.log.trace("adding classpath `" + path + "' to system classpath");<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        try {<a name="line.245"></a>
-<span class="sourceLineNo">246</span><a name="line.246"></a>
-<span class="sourceLineNo">247</span>            // Get URLClassLoader.addURL() method and make accessible<a name="line.247"></a>
-<span class="sourceLineNo">248</span>            final Method addURLMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);<a name="line.248"></a>
-<span class="sourceLineNo">249</span>            addURLMethod.setAccessible(true);<a name="line.249"></a>
-<span class="sourceLineNo">250</span><a name="line.250"></a>
-<span class="sourceLineNo">251</span>            // Split path and add components<a name="line.251"></a>
-<span class="sourceLineNo">252</span>            for (String file : path.split(System.getProperty("path.separator", ":"))) {<a name="line.252"></a>
-<span class="sourceLineNo">253</span>                if (file.length() == 0)<a name="line.253"></a>
-<span class="sourceLineNo">254</span>                    continue;<a name="line.254"></a>
-<span class="sourceLineNo">255</span>                addURLMethod.invoke(ClassLoader.getSystemClassLoader(), new Object[] { new File(file).toURI().toURL() });<a name="line.255"></a>
-<span class="sourceLineNo">256</span>                this.log.trace("added path component `" + file + "' to system classpath");<a name="line.256"></a>
-<span class="sourceLineNo">257</span>            }<a name="line.257"></a>
-<span class="sourceLineNo">258</span>            return true;<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        } catch (Exception e) {<a name="line.259"></a>
-<span class="sourceLineNo">260</span>            this.log.error("can't append `" + path + " to classpath: " + e, e);<a name="line.260"></a>
-<span class="sourceLineNo">261</span>            return false;<a name="line.261"></a>
-<span class="sourceLineNo">262</span>        }<a name="line.262"></a>
-<span class="sourceLineNo">263</span>    }<a name="line.263"></a>
-<span class="sourceLineNo">264</span><a name="line.264"></a>
-<span class="sourceLineNo">265</span>    private int scanModelClasses(String pkgname) {<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        if (this.schemaClasses == null)<a name="line.266"></a>
-<span class="sourceLineNo">267</span>            this.schemaClasses = new HashSet&lt;&gt;();<a name="line.267"></a>
-<span class="sourceLineNo">268</span>        int count = 0;<a name="line.268"></a>
-<span class="sourceLineNo">269</span>        for (String className : new JSimpleDBClassScanner().scanForClasses(pkgname.split("[\\s,]"))) {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>            this.log.debug("loading Java model class " + className);<a name="line.270"></a>
-<span class="sourceLineNo">271</span>            this.schemaClasses.add(this.loadClass(className));<a name="line.271"></a>
-<span class="sourceLineNo">272</span>            count++;<a name="line.272"></a>
-<span class="sourceLineNo">273</span>        }<a name="line.273"></a>
-<span class="sourceLineNo">274</span>        return count;<a name="line.274"></a>
-<span class="sourceLineNo">275</span>    }<a name="line.275"></a>
-<span class="sourceLineNo">276</span><a name="line.276"></a>
-<span class="sourceLineNo">277</span>    private int scanTypeClasses(String pkgname) {<a name="line.277"></a>
-<span class="sourceLineNo">278</span><a name="line.278"></a>
-<span class="sourceLineNo">279</span>        // Check types of annotated classes as we scan them<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        final Function&lt;Class&lt;?&gt;, Class&lt;? extends FieldType&lt;?&gt;&gt;&gt; checkFunction<a name="line.280"></a>
-<span class="sourceLineNo">281</span>          = new Function&lt;Class&lt;?&gt;, Class&lt;? extends FieldType&lt;?&gt;&gt;&gt;() {<a name="line.281"></a>
-<span class="sourceLineNo">282</span>            @Override<a name="line.282"></a>
-<span class="sourceLineNo">283</span>            @SuppressWarnings("unchecked")<a name="line.283"></a>
-<span class="sourceLineNo">284</span>            public Class&lt;? extends FieldType&lt;?&gt;&gt; apply(Class&lt;?&gt; type) {<a name="line.284"></a>
-<span class="sourceLineNo">285</span>                try {<a name="line.285"></a>
-<span class="sourceLineNo">286</span>                    return (Class&lt;? extends FieldType&lt;?&gt;&gt;)type.asSubclass(FieldType.class);<a name="line.286"></a>
-<span class="sourceLineNo">287</span>                } catch (ClassCastException e) {<a name="line.287"></a>
-<span class="sourceLineNo">288</span>                    throw new IllegalArgumentException("invalid @" + JFieldType.class.getSimpleName() + " annotation on "<a name="line.288"></a>
-<span class="sourceLineNo">289</span>                      + type + ": type is not a subclass of " + FieldType.class);<a name="line.289"></a>
-<span class="sourceLineNo">290</span>                }<a name="line.290"></a>
-<span class="sourceLineNo">291</span>            }<a name="line.291"></a>
-<span class="sourceLineNo">292</span>        };<a name="line.292"></a>
-<span class="sourceLineNo">293</span><a name="line.293"></a>
-<span class="sourceLineNo">294</span>        // Scan classes<a name="line.294"></a>
-<span class="sourceLineNo">295</span>        if (this.fieldTypeClasses == null)<a name="line.295"></a>
-<span class="sourceLineNo">296</span>            this.fieldTypeClasses = new HashSet&lt;&gt;();<a name="line.296"></a>
-<span class="sourceLineNo">297</span>        int count = 0;<a name="line.297"></a>
-<span class="sourceLineNo">298</span>        for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]"))) {<a name="line.298"></a>
-<span class="sourceLineNo">299</span>            this.log.debug("loading custom FieldType class " + className);<a name="line.299"></a>
-<span class="sourceLineNo">300</span>            this.fieldTypeClasses.add(checkFunction.apply(this.loadClass(className)));<a name="line.300"></a>
-<span class="sourceLineNo">301</span>            count++;<a name="line.301"></a>
-<span class="sourceLineNo">302</span>        }<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        return count;<a name="line.303"></a>
-<span class="sourceLineNo">304</span>    }<a name="line.304"></a>
-<span class="sourceLineNo">305</span><a name="line.305"></a>
-<span class="sourceLineNo">306</span>    /**<a name="line.306"></a>
-<span class="sourceLineNo">307</span>     * Load a class.<a name="line.307"></a>
-<span class="sourceLineNo">308</span>     *<a name="line.308"></a>
-<span class="sourceLineNo">309</span>     * @throws RuntimeException if load fails<a name="line.309"></a>
-<span class="sourceLineNo">310</span>     */<a name="line.310"></a>
-<span class="sourceLineNo">311</span>    protected Class&lt;?&gt; loadClass(String className) {<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        try {<a name="line.312"></a>
-<span class="sourceLineNo">313</span>            return Class.forName(className, false, Thread.currentThread().getContextClassLoader());<a name="line.313"></a>
-<span class="sourceLineNo">314</span>        } catch (ClassNotFoundException e) {<a name="line.314"></a>
-<span class="sourceLineNo">315</span>            throw new RuntimeException("failed to load class `" + className + "'", e);<a name="line.315"></a>
-<span class="sourceLineNo">316</span>        }<a name="line.316"></a>
-<span class="sourceLineNo">317</span>    }<a name="line.317"></a>
-<span class="sourceLineNo">318</span><a name="line.318"></a>
-<span class="sourceLineNo">319</span>    protected void startupKVDatabase() {<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        if (this.kvdb != null)<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            this.shutdownKVDatabase();<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        switch (this.kvType) {<a name="line.322"></a>
-<span class="sourceLineNo">323</span>        case KV_MEM:<a name="line.323"></a>
-<span class="sourceLineNo">324</span>            this.kvdb = new SimpleKVDatabase();<a name="line.324"></a>
-<span class="sourceLineNo">325</span>            this.databaseDescription = "In-Memory Database";<a name="line.325"></a>
-<span class="sourceLineNo">326</span>            break;<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        case KV_FDB:<a name="line.327"></a>
-<span class="sourceLineNo">328</span>        {<a name="line.328"></a>
-<span class="sourceLineNo">329</span>            final FoundationKVDatabase fdb = new FoundationKVDatabase();<a name="line.329"></a>
-<span class="sourceLineNo">330</span>            fdb.setClusterFilePath(this.fdbClusterFile);<a name="line.330"></a>
-<span class="sourceLineNo">331</span>            fdb.setKeyPrefix(this.keyPrefix);<a name="line.331"></a>
-<span class="sourceLineNo">332</span>            fdb.start();<a name="line.332"></a>
-<span class="sourceLineNo">333</span>            this.kvdb = fdb;<a name="line.333"></a>
-<span class="sourceLineNo">334</span>            this.databaseDescription = "FoundationDB " + new File(this.fdbClusterFile).getName();<a name="line.334"></a>
-<span class="sourceLineNo">335</span>            if (this.keyPrefix != null)<a name="line.335"></a>
-<span class="sourceLineNo">336</span>                this.databaseDescription += " [0x" + ByteUtil.toString(this.keyPrefix) + "]";<a name="line.336"></a>
-<span class="sourceLineNo">337</span>            break;<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        }<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        case KV_BDB:<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        {<a name="line.340"></a>
-<span class="sourceLineNo">341</span>            final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();<a name="line.341"></a>
-<span class="sourceLineNo">342</span>            bdb.setDirectory(this.bdbDirectory);<a name="line.342"></a>
-<span class="sourceLineNo">343</span>            bdb.setDatabaseName(this.bdbDatabaseName);<a name="line.343"></a>
-<span class="sourceLineNo">344</span>//            if (this.readOnly)<a name="line.344"></a>
-<span class="sourceLineNo">345</span>//                bdb.setDatabaseConfig(bdb.getDatabaseConfig().setReadOnly(true));<a name="line.345"></a>
-<span class="sourceLineNo">346</span>            bdb.start();<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            this.kvdb = bdb;<a name="line.347"></a>
-<span class="sourceLineNo">348</span>            this.databaseDescription = "BerkeleyDB " + this.bdbDirectory.getName();<a name="line.348"></a>
-<span class="sourceLineNo">349</span>            break;<a name="line.349"></a>
-<span class="sourceLineNo">350</span>        }<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        case KV_XML:<a name="line.351"></a>
-<span class="sourceLineNo">352</span>            this.kvdb = new XMLKVDatabase(this.xmlFile);<a name="line.352"></a>
-<span class="sourceLineNo">353</span>            this.databaseDescription = "XML DB " + this.xmlFile.getName();<a name="line.353"></a>
-<span class="sourceLineNo">354</span>            break;<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        default:<a name="line.355"></a>
-<span class="sourceLineNo">356</span>            throw new RuntimeException("internal error");<a name="line.356"></a>
-<span class="sourceLineNo">357</span>        }<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    }<a name="line.358"></a>
-<span class="sourceLineNo">359</span><a name="line.359"></a>
-<span class="sourceLineNo">360</span>    protected void shutdownKVDatabase() {<a name="line.360"></a>
-<span class="sourceLineNo">361</span>        if (this.kvdb != null) {<a name="line.361"></a>
-<span class="sourceLineNo">362</span>            switch (this.kvType) {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>            case KV_FDB:<a name="line.363"></a>
-<span class="sourceLineNo">364</span>                ((FoundationKVDatabase)this.kvdb).stop();<a name="line.364"></a>
-<span class="sourceLineNo">365</span>                break;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>            case KV_BDB:<a name="line.366"></a>
-<span class="sourceLineNo">367</span>                ((BerkeleyKVDatabase)this.kvdb).stop();<a name="line.367"></a>
-<span class="sourceLineNo">368</span>                break;<a name="line.368"></a>
-<span class="sourceLineNo">369</span>            default:<a name="line.369"></a>
-<span class="sourceLineNo">370</span>                break;<a name="line.370"></a>
-<span class="sourceLineNo">371</span>            }<a name="line.371"></a>
-<span class="sourceLineNo">372</span>            this.kvdb = null;<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        }<a name="line.373"></a>
-<span class="sourceLineNo">374</span>    }<a name="line.374"></a>
-<span class="sourceLineNo">375</span><a name="line.375"></a>
-<span class="sourceLineNo">376</span>    protected abstract String getName();<a name="line.376"></a>
-<span class="sourceLineNo">377</span><a name="line.377"></a>
-<span class="sourceLineNo">378</span>    /**<a name="line.378"></a>
-<span class="sourceLineNo">379</span>     * Output usage message flag listing.<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     */<a name="line.380"></a>
-<span class="sourceLineNo">381</span>    protected void outputFlags(String[][] subclassOpts) {<a name="line.381"></a>
-<span class="sourceLineNo">382</span>        final String[][] baseOpts = new String[][] {<a name="line.382"></a>
-<span class="sourceLineNo">383</span>            { "--classpath, -cp path",      "Append to the classpath (useful with `java -jar ...')" },<a name="line.383"></a>
-<span class="sourceLineNo">384</span>            { "--fdb file",                 "Use FoundationDB with specified cluster file" },<a name="line.384"></a>
-<span class="sourceLineNo">385</span>            { "--bdb directory",            "Use Berkeley DB Java Edition in specified directory" },<a name="line.385"></a>
-<span class="sourceLineNo">386</span>            { "--bdb-database",             "Specify Berkeley DB database name (default `"<a name="line.386"></a>
-<span class="sourceLineNo">387</span>                                              + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },<a name="line.387"></a>
-<span class="sourceLineNo">388</span>            { "--mem",                      "Use an empty in-memory database (default)" },<a name="line.388"></a>
-<span class="sourceLineNo">389</span>            { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            { "--read-only, -ro",           "Disallow database modifications" },<a name="line.390"></a>
-<span class="sourceLineNo">391</span>            { "--new-schema",               "Allow recording of a new database schema version" },<a name="line.391"></a>
-<span class="sourceLineNo">392</span>            { "--xml file",                 "Use the specified XML flat file database" },<a name="line.392"></a>
-<span class="sourceLineNo">393</span>            { "--schema-version, -v num",   "Specify database schema version (default highest recorded)" },<a name="line.393"></a>
-<span class="sourceLineNo">394</span>            { "--model-pkg package",        "Scan for @JSimpleClass model classes under Java package (=&gt; JSimpleDB mode)" },<a name="line.394"></a>
-<span class="sourceLineNo">395</span>            { "--type-pkg package",         "Scan for @JFieldType types under Java package to register custom types" },<a name="line.395"></a>
-<span class="sourceLineNo">396</span>            { "--pkg, -p package",          "Equivalent to `--model-pkg package --type-pkg package'" },<a name="line.396"></a>
-<span class="sourceLineNo">397</span>            { "--help, -h",                 "Show this help message" },<a name="line.397"></a>
-<span class="sourceLineNo">398</span>            { "--verbose",                  "Show verbose error messages" },<a name="line.398"></a>
-<span class="sourceLineNo">399</span>        };<a name="line.399"></a>
-<span class="sourceLineNo">400</span>        final String[][] combinedOpts = new String[baseOpts.length + subclassOpts.length][];<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        System.arraycopy(baseOpts, 0, combinedOpts, 0, baseOpts.length);<a name="line.401"></a>
-<span class="sourceLineNo">402</span>        System.arraycopy(subclassOpts, 0, combinedOpts, baseOpts.length, subclassOpts.length);<a name="line.402"></a>
-<span class="sourceLineNo">403</span>        Arrays.sort(combinedOpts, new Comparator&lt;String[]&gt;() {<a name="line.403"></a>
-<span class="sourceLineNo">404</span>            @Override<a name="line.404"></a>
-<span class="sourceLineNo">405</span>            public int compare(String[] opt1, String[] opt2) {<a name="line.405"></a>
-<span class="sourceLineNo">406</span>                return opt1[0].compareTo(opt2[0]);<a name="line.406"></a>
-<span class="sourceLineNo">407</span>            }<a name="line.407"></a>
-<span class="sourceLineNo">408</span>        });<a name="line.408"></a>
-<span class="sourceLineNo">409</span>        int width = 0;<a name="line.409"></a>
-<span class="sourceLineNo">410</span>        for (String[] opt : combinedOpts)<a name="line.410"></a>
-<span class="sourceLineNo">411</span>            width = Math.max(width, opt[0].length());<a name="line.411"></a>
-<span class="sourceLineNo">412</span>        for (String[] opt : combinedOpts)<a name="line.412"></a>
-<span class="sourceLineNo">413</span>            System.err.println(String.format("  %-" + width + "s  %s", opt[0], opt[1]));<a name="line.413"></a>
-<span class="sourceLineNo">414</span>    }<a name="line.414"></a>
-<span class="sourceLineNo">415</span>}<a name="line.415"></a>
-<span class="sourceLineNo">416</span><a name="line.416"></a>
+<span class="sourceLineNo">115</span>                modelPackages.add(params.removeFirst());<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            } else if (option.equals("--type-pkg")) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                if (params.isEmpty())<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                    this.usageError();<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                typePackages.add(params.removeFirst());<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            } else if (option.equals("-p") || option.equals("--pkg")) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                if (params.isEmpty())<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                    this.usageError();<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                final String packageName = params.removeFirst();<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                modelPackages.add(packageName);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                typePackages.add(packageName);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            } else if (option.equals("--new-schema")) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                this.allowNewSchema = true;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                this.allowAutoDemo = false;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            } else if (option.equals("--mem"))<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                this.kvType = KV_MEM;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            else if (option.equals("--prefix")) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                if (params.isEmpty())<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                    this.usageError();<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                final String value = params.removeFirst();<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                try {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                    this.keyPrefix = ByteUtil.parse(value);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                } catch (IllegalArgumentException e) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                    this.keyPrefix = value.getBytes(Charset.forName("UTF-8"));<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                if (this.keyPrefix.length &gt; 0)<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                    this.allowAutoDemo = false;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            } else if (option.equals("--fdb")) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                if (params.isEmpty())<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                    this.usageError();<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                this.kvType = KV_FDB;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                this.fdbClusterFile = params.removeFirst();<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                if (!new File(this.fdbClusterFile).exists()) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                    System.err.println(this.getName() + ": file `" + this.fdbClusterFile + "' does not exist");<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                    return 1;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            } else if (option.equals("--xml")) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                if (params.isEmpty())<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                    this.usageError();<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                this.kvType = KV_XML;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                this.xmlFile = new File(params.removeFirst());<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            } else if (option.equals("--bdb")) {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                if (params.isEmpty())<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                    this.usageError();<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                this.kvType = KV_BDB;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                this.bdbDirectory = new File(params.removeFirst());<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                if (!this.bdbDirectory.exists()) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                    System.err.println(this.getName() + ": directory `" + this.bdbDirectory + "' does not exist");<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                    return 1;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                }<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                if (!this.bdbDirectory.isDirectory()) {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                    System.err.println(this.getName() + ": file `" + this.bdbDirectory + "' is not a directory");<a name="line.166"></a>
+<span class="sourceLineNo">167</span>                    return 1;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                }<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            } else if (option.equals("--bdb-database")) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                if (params.isEmpty())<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                    this.usageError();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                this.bdbDatabaseName = params.removeFirst();<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            } else if (option.equals("--mysql")) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                if (params.isEmpty())<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                    this.usageError();<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                this.jdbcUrl = params.removeFirst();<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                this.kvType = KV_MYSQL;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            } else if (option.equals("--"))<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                break;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            else if (!this.parseOption(option, params)) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                System.err.println(this.getName() + ": unknown option `" + option + "'");<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                this.usageError();<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                return 1;<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        }<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>        // Additional logic post-processing of options<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        if (!modelPackages.isEmpty() || !typePackages.isEmpty())<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            this.allowAutoDemo = false;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        if (this.kvType != KV_FDB &amp;&amp; this.keyPrefix != null) {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            System.err.println(this.getName() + ": option `--prefix' is only valid in combination with `--fdb'");<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            this.usageError();<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            return 1;<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        }<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        if (this.kvType == -1) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>            if (this.allowAutoDemo &amp;&amp; DEMO_XML_FILE.exists() &amp;&amp; DEMO_SUBDIR.exists())<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                this.configureDemoMode();<a name="line.197"></a>
+<span class="sourceLineNo">198</span>            else {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                System.err.println(this.getName() + ": no key/value store specified; use one of `--mem', `--fdb', etc.");<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                this.usageError();<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                return 1;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>            }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>        // Scan for model and type classes<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        final LinkedHashSet&lt;String&gt; emptyPackages = new LinkedHashSet&lt;&gt;();<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        emptyPackages.addAll(modelPackages);<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        emptyPackages.addAll(typePackages);<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        for (String packageName : modelPackages) {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>            if (this.scanModelClasses(packageName) &gt; 0)<a name="line.210"></a>
+<span class="sourceLineNo">211</span>                emptyPackages.remove(packageName);<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        }<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        for (String packageName : typePackages) {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            if (this.scanTypeClasses(packageName) &gt; 0)<a name="line.214"></a>
+<span class="sourceLineNo">215</span>                emptyPackages.remove(packageName);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        }<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>        // Warn if we didn't find anything<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        for (String packageName : emptyPackages) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>            final boolean isModel = modelPackages.contains(packageName);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            final boolean isType = typePackages.contains(packageName);<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            if (isModel &amp;&amp; isType)<a name="line.222"></a>
+<span class="sourceLineNo">223</span>                this.log.warn("no Java model or custom FieldType classes found under package `" + packageName + "'");<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            else if (isModel)<a name="line.224"></a>
+<span class="sourceLineNo">225</span>                this.log.warn("no Java model classes found under package `" + packageName + "'");<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            else<a name="line.226"></a>
+<span class="sourceLineNo">227</span>                this.log.warn("no custom FieldType classes found under package `" + packageName + "'");<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        }<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>        // Done<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        return -1;<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    }<a name="line.232"></a>
+<span class="sourceLineNo">233</span><a name="line.233"></a>
+<span class="sourceLineNo">234</span>    public int getSchemaVersion() {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        return this.schemaVersion;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    }<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>    public boolean isAllowNewSchema() {<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        return this.allowNewSchema;<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    }<a name="line.240"></a>
+<span class="sourceLineNo">241</span><a name="line.241"></a>
+<span class="sourceLineNo">242</span>    public boolean isReadOnly() {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        return this.readOnly;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    }<a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
+<span class="sourceLineNo">246</span>    public String getDatabaseDescription() {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        return this.databaseDescription;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>    public JSimpleDBFactory getJSimpleDBFactory(Database db) {<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        return new JSimpleDBFactory()<a name="line.251"></a>
+<span class="sourceLineNo">252</span>          .setModelClasses(this.schemaClasses)<a name="line.252"></a>
+<span class="sourceLineNo">253</span>          .setSchemaVersion(this.schemaVersion)<a name="line.253"></a>
+<span class="sourceLineNo">254</span>          .setDatabase(db);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    }<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>    /**<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * Subclass hook to parse unrecognized command line options.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     *<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * @param option command line option (starting with `-')<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * @param params subsequent command line parameters<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * @return true if successful, false otherwise<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     */<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    protected boolean parseOption(String option, ArrayDeque&lt;String&gt; params) {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        return false;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    }<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>    protected void configureDemoMode() {<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>        // Configure database<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        System.err.println(this.getName() + ": auto-configuring use of demo database `" + DEMO_XML_FILE + "'");<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        this.kvType = KV_XML;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        this.xmlFile = DEMO_XML_FILE;<a name="line.273"></a>
+<span class="sourceLineNo">274</span><a name="line.274"></a>
+<span class="sourceLineNo">275</span>        // Add demo subdirectory to class path<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        this.appendClasspath(DEMO_SUBDIR.toString());<a name="line.276"></a>
+<span class="sourceLineNo">277</span><a name="line.277"></a>
+<span class="sourceLineNo">278</span>        // Scan classes<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        this.scanModelClasses("org.jsimpledb.demo");<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    }<a name="line.280"></a>
+<span class="sourceLineNo">281</span><a name="line.281"></a>
+<span class="sourceLineNo">282</span>    /**<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * Append path(s) to the classpath.<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     *<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * @param path classpath path component<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * @return true if successful, false if an error occured<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     */<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    protected boolean appendClasspath(String path) {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        this.log.trace("adding classpath `" + path + "' to system classpath");<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        try {<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>            // Get URLClassLoader.addURL() method and make accessible<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            final Method addURLMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);<a name="line.293"></a>
+<span class="sourceLineNo">294</span>            addURLMethod.setAccessible(true);<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>            // Split path and add components<a name="line.296"></a>
+<span class="sourceLineNo">297</span>            for (String file : path.split(System.getProperty("path.separator", ":"))) {<a name="line.297"></a>
+<span class="sourceLineNo">298</span>                if (file.length() == 0)<a name="line.298"></a>
+<span class="sourceLineNo">299</span>                    continue;<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                addURLMethod.invoke(ClassLoader.getSystemClassLoader(), new Object[] { new File(file).toURI().toURL() });<a name="line.300"></a>
+<span class="sourceLineNo">301</span>                this.log.trace("added path component `" + file + "' to system classpath");<a name="line.301"></a>
+<span class="sourceLineNo">302</span>            }<a name="line.302"></a>
+<span class="sourceLineNo">303</span>            return true;<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        } catch (Exception e) {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>            this.log.error("can't append `" + path + " to classpath: " + e, e);<a name="line.305"></a>
+<span class="sourceLineNo">306</span>            return false;<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        }<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    }<a name="line.308"></a>
+<span class="sourceLineNo">309</span><a name="line.309"></a>
+<span class="sourceLineNo">310</span>    private int scanModelClasses(String pkgname) {<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        if (this.schemaClasses == null)<a name="line.311"></a>
+<span class="sourceLineNo">312</span>            this.schemaClasses = new HashSet&lt;&gt;();<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        int count = 0;<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        for (String className : new JSimpleDBClassScanner().scanForClasses(pkgname.split("[\\s,]"))) {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>            this.log.debug("loading Java model class " + className);<a name="line.315"></a>
+<span class="sourceLineNo">316</span>            this.schemaClasses.add(this.loadClass(className));<a name="line.316"></a>
+<span class="sourceLineNo">317</span>            count++;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        }<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        return count;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>    }<a name="line.320"></a>
+<span class="sourceLineNo">321</span><a name="line.321"></a>
+<span class="sourceLineNo">322</span>    private int scanTypeClasses(String pkgname) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>        // Check types of annotated classes as we scan them<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        final Function&lt;Class&lt;?&gt;, Class&lt;? extends FieldType&lt;?&gt;&gt;&gt; checkFunction<a name="line.325"></a>
+<span class="sourceLineNo">326</span>          = new Function&lt;Class&lt;?&gt;, Class&lt;? extends FieldType&lt;?&gt;&gt;&gt;() {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            @Override<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            @SuppressWarnings("unchecked")<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            public Class&lt;? extends FieldType&lt;?&gt;&gt; apply(Class&lt;?&gt; type) {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>                try {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                    return (Class&lt;? extends FieldType&lt;?&gt;&gt;)type.asSubclass(FieldType.class);<a name="line.331"></a>
+<span class="sourceLineNo">332</span>                } catch (ClassCastException e) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                    throw new IllegalArgumentException("invalid @" + JFieldType.class.getSimpleName() + " annotation on "<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                      + type + ": type is not a subclass of " + FieldType.class);<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                }<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            }<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        };<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>        // Scan classes<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        if (this.fieldTypeClasses == null)<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            this.fieldTypeClasses = new HashSet&lt;&gt;();<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        int count = 0;<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(pkgname.split("[\\s,]"))) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>            this.log.debug("loading custom FieldType class " + className);<a name="line.344"></a>
+<span class="sourceLineNo">345</span>            this.fieldTypeClasses.add(checkFunction.apply(this.loadClass(className)));<a name="line.345"></a>
+<span class="sourceLineNo">346</span>            count++;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        return count;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>    }<a name="line.349"></a>
+<span class="sourceLineNo">350</span><a name="line.350"></a>
+<span class="sourceLineNo">351</span>    /**<a name="line.351"></a>
+<span class="sourceLineNo">352</span>     * Load a class.<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     *<a name="line.353"></a>
+<span class="sourceLineNo">354</span>     * @param className class name<a name="line.354"></a>
+<span class="sourceLineNo">355</span>     * @return class with name {@code className}<a name="line.355"></a>
+<span class="sourceLineNo">356</span>     * @throws RuntimeException if load fails<a name="line.356"></a>
+<span class="sourceLineNo">357</span>     */<a name="line.357"></a>
+<span class="sourceLineNo">358</span>    protected Class&lt;?&gt; loadClass(String className) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        try {<a name="line.359"></a>
+<span class="sourceLineNo">360</span>            return Class.forName(className, false, Thread.currentThread().getContextClassLoader());<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        } catch (ClassNotFoundException e) {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>            throw new RuntimeException("failed to load class `" + className + "'", e);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        }<a name="line.363"></a>
+<span class="sourceLineNo">364</span>    }<a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>    /**<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     * Start the {@link Database} based on the configured {@link KVDatabase} and {@link #fieldTypeClasses} and return it.<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     *<a name="line.368"></a>
+<span class="sourceLineNo">369</span>     * @return initialized database<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     */<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    protected Database startupKVDatabase() {<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>        // Construct KVDatabase<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        if (this.kvdb != null)<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            this.shutdownKVDatabase();<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        switch (this.kvType) {<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        case KV_MEM:<a name="line.377"></a>
+<span class="sourceLineNo">378</span>            this.kvdb = new SimpleKVDatabase();<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            this.databaseDescription = "In-Memory Database";<a name="line.379"></a>
+<span class="sourceLineNo">380</span>            break;<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        case KV_FDB:<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>            final FoundationKVDatabase fdb = new FoundationKVDatabase();<a name="line.383"></a>
+<span class="sourceLineNo">384</span>            fdb.setClusterFilePath(this.fdbClusterFile);<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            fdb.setKeyPrefix(this.keyPrefix);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>            fdb.start();<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            this.kvdb = fdb;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>            this.databaseDescription = "FoundationDB " + new File(this.fdbClusterFile).getName();<a name="line.388"></a>
+<span class="sourceLineNo">389</span>            if (this.keyPrefix != null)<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                this.databaseDescription += " [0x" + ByteUtil.toString(this.keyPrefix) + "]";<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            break;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        }<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        case KV_BDB:<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();<a name="line.395"></a>
+<span class="sourceLineNo">396</span>            bdb.setDirectory(this.bdbDirectory);<a name="line.396"></a>
+<span class="sourceLineNo">397</span>            bdb.setDatabaseName(this.bdbDatabaseName);<a name="line.397"></a>
+<span class="sourceLineNo">398</span>//            if (this.readOnly)<a name="line.398"></a>
+<span class="sourceLineNo">399</span>//                bdb.setDatabaseConfig(bdb.getDatabaseConfig().setReadOnly(true));<a name="line.399"></a>
+<span class="sourceLineNo">400</span>            bdb.start();<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            this.kvdb = bdb;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            this.databaseDescription = "BerkeleyDB " + this.bdbDirectory.getName();<a name="line.402"></a>
+<span class="sourceLineNo">403</span>            break;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        }<a name="line.404"></a>
+<span class="sourceLineNo">405</span>        case KV_XML:<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            this.kvdb = new XMLKVDatabase(this.xmlFile);<a name="line.406"></a>
+<span class="sourceLineNo">407</span>            this.databaseDescription = "XML DB " + this.xmlFile.getName();<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            break;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        case KV_MYSQL:<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        {<a name="line.410"></a>
+<span class="sourceLineNo">411</span>            try {<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                Class.forName(MYSQL_DRIVER_CLASS_NAME);<a name="line.412"></a>
+<span class="sourceLineNo">413</span>            } catch (RuntimeException e) {<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                throw e;<a name="line.414"></a>
+<span class="sourceLineNo">415</span>            } catch (Exception e) {<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                throw new RuntimeException("can't load MySQL driver class `" + MYSQL_DRIVER_CLASS_NAME + "'", e);<a name="line.416"></a>
+<span class="sourceLineNo">417</span>            }<a name="line.417"></a>
+<span class="sourceLineNo">418</span>            final MySQLKVDatabase mysql = new MySQLKVDatabase();<a name="line.418"></a>
+<span class="sourceLineNo">419</span>            mysql.setDataSource(new DriverManagerDataSource(this.jdbcUrl));<a name="line.419"></a>
+<span class="sourceLineNo">420</span>            this.kvdb = mysql;<a name="line.420"></a>
+<span class="sourceLineNo">421</span>            this.databaseDescription = "MySQL";<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            break;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        }<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        default:<a name="line.424"></a>
+<span class="sourceLineNo">425</span>            throw new RuntimeException("internal error");<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        }<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        this.log.debug("using database: " + this.databaseDescription);<a name="line.427"></a>
+<span class="sourceLineNo">428</span><a name="line.428"></a>
+<span class="sourceLineNo">429</span>        // Construct core Database<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        final Database db = new Database(this.kvdb);<a name="line.430"></a>
+<span class="sourceLineNo">431</span><a name="line.431"></a>
+<span class="sourceLineNo">432</span>        // Register custom field types<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        if (this.fieldTypeClasses != null)<a name="line.433"></a>
+<span class="sourceLineNo">434</span>            db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);<a name="line.434"></a>
+<span class="sourceLineNo">435</span><a name="line.435"></a>
+<span class="sourceLineNo">436</span>        // Done<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        return db;<a name="line.437"></a>
+<span class="sourceLineNo">438</span>    }<a name="line.438"></a>
+<span class="sourceLineNo">439</span><a name="line.439"></a>
+<span class="sourceLineNo">440</span>    /**<a name="line.440"></a>
+<span class="sourceLineNo">441</span>     * Perform a test transaction.<a name="line.441"></a>
+<span class="sourceLineNo">442</span>     *<a name="line.442"></a>
+<span class="sourceLineNo">443</span>     * @param db database<a name="line.443"></a>
+<span class="sourceLineNo">444</span>     * @param schemaModel schema model<a name="line.444"></a>
+<span class="sourceLineNo">445</span>     */<a name="line.445"></a>
+<span class="sourceLineNo">446</span>    protected void performTestTransaction(Database db, SchemaModel schemaModel) {<a name="line.446"></a>
+<span class="sourceLineNo">447</span>        final Transaction tx;<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        try {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>            db.createTransaction(schemaModel, this.schemaVersion, this.allowNewSchema).commit();<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        } catch (RuntimeException e) {<a name="line.450"></a>
+<span class="sourceLineNo">451</span>            throw e;<a name="line.451"></a>
+<span class="sourceLineNo">452</span>        } catch (Exception e) {<a name="line.452"></a>
+<span class="sourceLineNo">453</span>            throw new RuntimeException("unable to create transaction: " + (e.getMessage() != null ? e.getMessage() : e), e);<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        }<a name="line.454"></a>
+<span class="sourceLineNo">455</span>    }<a name="line.455"></a>
+<span class="sourceLineNo">456</span><a name="line.456"></a>
+<span class="sourceLineNo">457</span>    /**<a name="line.457"></a>
+<span class="sourceLineNo">458</span>     * Perform a test transaction.<a name="line.458"></a>
+<span class="sourceLineNo">459</span>     *<a name="line.459"></a>
+<span class="sourceLineNo">460</span>     * @param jdb database<a name="line.460"></a>
+<span class="sourceLineNo">461</span>     */<a name="line.461"></a>
+<span class="sourceLineNo">462</span>    protected void performTestTransaction(JSimpleDB jdb) {<a name="line.462"></a>
+<span class="sourceLineNo">463</span>        try {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>            jdb.createTransaction(this.allowNewSchema, ValidationMode.AUTOMATIC).commit();<a name="line.464"></a>
+<span class="sourceLineNo">465</span>        } catch (RuntimeException e) {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>            throw e;<a name="line.466"></a>
+<span class="sourceLineNo">467</span>        } catch (Exception e) {<a name="line.467"></a>
+<span class="sourceLineNo">468</span>            throw new RuntimeException("unable to create transaction: " + (e.getMessage() != null ? e.getMessage() : e), e);<a name="line.468"></a>
+<span class="sourceLineNo">469</span>        }<a name="line.469"></a>
+<span class="sourceLineNo">470</span>    }<a name="line.470"></a>
+<span class="sourceLineNo">471</span><a name="line.471"></a>
+<span class="sourceLineNo">472</span>    protected void shutdownKVDatabase() {<a name="line.472"></a>
+<span class="sourceLineNo">473</span>        if (this.kvdb != null) {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>            switch (this.kvType) {<a name="line.474"></a>
+<span class="sourceLineNo">475</span>            case KV_FDB:<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                ((FoundationKVDatabase)this.kvdb).stop();<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                break;<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            case KV_BDB:<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                ((BerkeleyKVDatabase)this.kvdb).stop();<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                break;<a name="line.480"></a>
+<span class="sourceLineNo">481</span>            default:<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                break;<a name="line.482"></a>
+<span class="sourceLineNo">483</span>            }<a name="line.483"></a>
+<span class="sourceLineNo">484</span>            this.kvdb = null;<a name="line.484"></a>
+<span class="sourceLineNo">485</span>        }<a name="line.485"></a>
+<span class="sourceLineNo">486</span>    }<a name="line.486"></a>
+<span class="sourceLineNo">487</span><a name="line.487"></a>
+<span class="sourceLineNo">488</span>    protected abstract String getName();<a name="line.488"></a>
+<span class="sourceLineNo">489</span><a name="line.489"></a>
+<span class="sourceLineNo">490</span>    /**<a name="line.490"></a>
+<span class="sourceLineNo">491</span>     * Output usage message flag listing.<a name="line.491"></a>
+<span class="sourceLineNo">492</span>     *<a name="line.492"></a>
+<span class="sourceLineNo">493</span>     * @param subclassOpts array containing flag and description pairs<a name="line.493"></a>
+<span class="sourceLineNo">494</span>     */<a name="line.494"></a>
+<span class="sourceLineNo">495</span>    protected void outputFlags(String[][] subclassOpts) {<a name="line.495"></a>
+<span class="sourceLineNo">496</span>        final String[][] baseOpts = new String[][] {<a name="line.496"></a>
+<span class="sourceLineNo">497</span>            { "--classpath, -cp path",      "Append to the classpath (useful with `java -jar ...')" },<a name="line.497"></a>
+<span class="sourceLineNo">498</span>            { "--fdb file",                 "Use FoundationDB with specified cluster file" },<a name="line.498"></a>
+<span class="sourceLineNo">499</span>            { "--bdb directory",            "Use Berkeley DB Java Edition in specified directory" },<a name="line.499"></a>
+<span class="sourceLineNo">500</span>            { "--bdb-database",             "Specify Berkeley DB database name (default `"<a name="line.500"></a>
+<span class="sourceLineNo">501</span>                                              + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },<a name="line.501"></a>
+<span class="sourceLineNo">502</span>            { "--mem",                      "Use an empty in-memory database (default)" },<a name="line.502"></a>
+<span class="sourceLineNo">503</span>            { "--mysql URL",                "Use MySQL with the given JDBC URL" },<a name="line.503"></a>
+<span class="sourceLineNo">504</span>            { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },<a name="line.504"></a>
+<span class="sourceLineNo">505</span>            { "--read-only, -ro",           "Disallow database modifications" },<a name="line.505"></a>
+<span class="sourceLineNo">506</span>            { "--new-schema",               "Allow recording of a new database schema version" },<a name="line.506"></a>
+<span class="sourceLineNo">507</span>            { "--xml file",                 "Use the specified XML flat file database" },<a name="line.507"></a>
+<span class="sourceLineNo">508</span>            { "--schema-version, -v num",   "Specify database schema version (default highest recorded)" },<a name="line.508"></a>
+<span class="sourceLineNo">509</span>            { "--model-pkg package",        "Scan for @JSimpleClass model classes under Java package (=&gt; JSimpleDB mode)" },<a name="line.509"></a>
+<span class="sourceLineNo">510</span>            { "--type-pkg package",         "Scan for @JFieldType types under Java package to register custom types" },<a name="line.510"></a>
+<span class="sourceLineNo">511</span>            { "--pkg, -p package",          "Equivalent to `--model-pkg package --type-pkg package'" },<a name="line.511"></a>
+<span class="sourceLineNo">512</span>            { "--help, -h",                 "Show this help message" },<a name="line.512"></a>
+<span class="sourceLineNo">513</span>            { "--verbose",                  "Show verbose error messages" },<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        };<a name="line.514"></a>
+<span class="sourceLineNo">515</span>        final String[][] combinedOpts = new String[baseOpts.length + subclassOpts.length][];<a name="line.515"></a>
+<span class="sourceLineNo">516</span>        System.arraycopy(baseOpts, 0, combinedOpts, 0, baseOpts.length);<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        System.arraycopy(subclassOpts, 0, combinedOpts, baseOpts.length, subclassOpts.length);<a name="line.517"></a>
+<span class="sourceLineNo">518</span>        Arrays.sort(combinedOpts, new Comparator&lt;String[]&gt;() {<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            @Override<a name="line.519"></a>
+<span class="sourceLineNo">520</span>            public int compare(String[] opt1, String[] opt2) {<a name="line.520"></a>
+<span class="sourceLineNo">521</span>                return opt1[0].compareTo(opt2[0]);<a name="line.521"></a>
+<span class="sourceLineNo">522</span>            }<a name="line.522"></a>
+<span class="sourceLineNo">523</span>        });<a name="line.523"></a>
+<span class="sourceLineNo">524</span>        int width = 0;<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        for (String[] opt : combinedOpts)<a name="line.525"></a>
+<span class="sourceLineNo">526</span>            width = Math.max(width, opt[0].length());<a name="line.526"></a>
+<span class="sourceLineNo">527</span>        for (String[] opt : combinedOpts)<a name="line.527"></a>
+<span class="sourceLineNo">528</span>            System.err.println(String.format("  %-" + width + "s  %s", opt[0], opt[1]));<a name="line.528"></a>
+<span class="sourceLineNo">529</span>    }<a name="line.529"></a>
+<span class="sourceLineNo">530</span>}<a name="line.530"></a>
+<span class="sourceLineNo">531</span><a name="line.531"></a>
 
 
 

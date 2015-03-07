@@ -73,89 +73,103 @@
 <span class="sourceLineNo">065</span><a name="line.65"></a>
 <span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
 <span class="sourceLineNo">067</span>     * Get the name of this command.<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    public String getName() {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        return this.name;<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     * Get command usage string.<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     *<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * &lt;p&gt;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * The implementation in {@link Command} delegates to {@link ParamParser#getUsage ParamParser.getUsage()}.<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * &lt;/p&gt;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    public String getUsage() {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        return this.paramParser.getUsage(this.name);<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>    /**<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     * Get summarized help (typically a single line).<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     */<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    public abstract String getHelpSummary();<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    /**<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     * Get expanded help (typically multiple lines).<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * &lt;p&gt;<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * The implementation in {@link Command} delegates to {@link #getHelpSummary getHelpSummary()}.<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * &lt;/p&gt;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     */<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    public String getHelpDetail() {<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        return this.getHelpSummary();<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>    /**<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * Parse command line and return command action.<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     *<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * &lt;p&gt;<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * The implementation in {@link ParamParser} parses the parameters and delegates to {@link #getAction} with the result.<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     * &lt;/p&gt;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     *<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * @param session CLI session<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * @param ctx input to parse<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * @param complete false if parse is "for real", true if only for tab completion calculation<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * @throws ParseException if parameters are invalid<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     */<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    @Override<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    public CliSession.Action parse(ParseSession session, ParseContext ctx, boolean complete) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        return this.getAction((CliSession)session, ctx, complete, this.paramParser.parse(session, ctx, complete));<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     * Process command line parameters and return action.<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     *<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     * @param session CLI session<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     * @param ctx input to parse<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     * @param complete false if parse is "for real", true if only for tab completion calculation<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     * @throws ParseException if parameters are invalid<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     */<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    public abstract CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map&lt;String, Object&gt; params);<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
-<span class="sourceLineNo">129</span>    /**<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     *<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * &lt;p&gt;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * The implementation in {@link ParamParser} supports all {@link org.jsimpledb.core.FieldType}s registered with the database,<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * (returns {@link org.jsimpledb.core.ObjId}).<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * &lt;/p&gt;<a name="line.136"></a>
+<span class="sourceLineNo">068</span>     *<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @return command name<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    public String getName() {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        return this.name;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Get command usage string.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * &lt;p&gt;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * The implementation in {@link Command} delegates to {@link ParamParser#getUsage ParamParser.getUsage()}.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * &lt;/p&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     *<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * @return command usage string<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public String getUsage() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        return this.paramParser.getUsage(this.name);<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    /**<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * Get summarized help (typically a single line).<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     *<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * @return one line command summary<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    public abstract String getHelpSummary();<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * Get expanded help (typically multiple lines).<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * &lt;p&gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * The implementation in {@link Command} delegates to {@link #getHelpSummary getHelpSummary()}.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * &lt;/p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @return detailed command description<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public String getHelpDetail() {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        return this.getHelpSummary();<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * Parse command line and return command action.<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     *<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * &lt;p&gt;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * The implementation in {@link ParamParser} parses the parameters and delegates to {@link #getAction} with the result.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * &lt;/p&gt;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     *<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * @param session CLI session<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * @param ctx input to parse<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @param complete false if parse is "for real", true if only for tab completion calculation<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * @return action to perform for the parsed command<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @throws org.jsimpledb.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @throws org.jsimpledb.parse.ParseException if parameters are invalid<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    @Override<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    public CliSession.Action parse(ParseSession session, ParseContext ctx, boolean complete) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        return this.getAction((CliSession)session, ctx, complete, this.paramParser.parse(session, ctx, complete));<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    /**<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * Process command line parameters and return action.<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     *<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * @param session CLI session<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @param ctx input to parse<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * @param complete false if parse is "for real", true if only for tab completion calculation<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * @param params parsed parameters indexed by name<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @return action to perform for the parsed command<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * @throws org.jsimpledb.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * @throws org.jsimpledb.parse.ParseException if parameters are invalid<a name="line.136"></a>
 <span class="sourceLineNo">137</span>     */<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    protected Parser&lt;?&gt; getParser(String typeName) {<a name="line.138"></a>
-<span class="sourceLineNo">139</span>        if (typeName == null)<a name="line.139"></a>
-<span class="sourceLineNo">140</span>            throw new IllegalArgumentException("null typeName");<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        if (typeName.equals("type"))<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            return new ObjTypeParser();<a name="line.142"></a>
-<span class="sourceLineNo">143</span>        if (typeName.equals("objid"))<a name="line.143"></a>
-<span class="sourceLineNo">144</span>            return new ObjIdParser();<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        if (typeName.equals("expr"))<a name="line.145"></a>
-<span class="sourceLineNo">146</span>            return new ExprParser();<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        return FieldTypeParser.getFieldTypeParser(typeName);<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    }<a name="line.148"></a>
-<span class="sourceLineNo">149</span>}<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">138</span>    public abstract CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map&lt;String, Object&gt; params);<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * &lt;p&gt;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * The implementation in {@link ParamParser} supports all {@link org.jsimpledb.core.FieldType}s registered with the database,<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * (returns {@link org.jsimpledb.core.ObjId}).<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * &lt;/p&gt;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     *<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * @param typeName parameter type name<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * @return parser for parameters of the specified type<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     */<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    protected Parser&lt;?&gt; getParser(String typeName) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        if (typeName == null)<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            throw new IllegalArgumentException("null typeName");<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        if (typeName.equals("type"))<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            return new ObjTypeParser();<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        if (typeName.equals("objid"))<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            return new ObjIdParser();<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        if (typeName.equals("expr"))<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            return new ExprParser();<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        return FieldTypeParser.getFieldTypeParser(typeName);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    }<a name="line.162"></a>
+<span class="sourceLineNo">163</span>}<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
 
 
 

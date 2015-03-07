@@ -22,7 +22,7 @@
 <span class="sourceLineNo">014</span>import org.jsimpledb.parse.ParseSession;<a name="line.14"></a>
 <span class="sourceLineNo">015</span><a name="line.15"></a>
 <span class="sourceLineNo">016</span>/**<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * Java operations.<a name="line.17"></a>
+<span class="sourceLineNo">017</span> * Java expression operators.<a name="line.17"></a>
 <span class="sourceLineNo">018</span> */<a name="line.18"></a>
 <span class="sourceLineNo">019</span>public enum Op {<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
@@ -347,84 +347,90 @@
 <span class="sourceLineNo">339</span><a name="line.339"></a>
 <span class="sourceLineNo">340</span>    /**<a name="line.340"></a>
 <span class="sourceLineNo">341</span>     * Get the arity of this symbol.<a name="line.341"></a>
-<span class="sourceLineNo">342</span>     */<a name="line.342"></a>
-<span class="sourceLineNo">343</span>    public int getArity() {<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        return this.arity;<a name="line.344"></a>
-<span class="sourceLineNo">345</span>    }<a name="line.345"></a>
-<span class="sourceLineNo">346</span><a name="line.346"></a>
-<span class="sourceLineNo">347</span>    /**<a name="line.347"></a>
-<span class="sourceLineNo">348</span>     * Get the symbol associated with this operator.<a name="line.348"></a>
-<span class="sourceLineNo">349</span>     */<a name="line.349"></a>
-<span class="sourceLineNo">350</span>    public String getSymbol() {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        return this.symbol;<a name="line.351"></a>
-<span class="sourceLineNo">352</span>    }<a name="line.352"></a>
-<span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>    /**<a name="line.354"></a>
-<span class="sourceLineNo">355</span>     * Apply this operator to the given parameters.<a name="line.355"></a>
-<span class="sourceLineNo">356</span>     *<a name="line.356"></a>
-<span class="sourceLineNo">357</span>     * @param session current session<a name="line.357"></a>
-<span class="sourceLineNo">358</span>     * @param args operator arguments<a name="line.358"></a>
-<span class="sourceLineNo">359</span>     * @throws IllegalArgumentException if {@code args} contains inappropriate value(s)<a name="line.359"></a>
-<span class="sourceLineNo">360</span>     * @throws IllegalArgumentException if the length of {@code args} does not match this operator<a name="line.360"></a>
-<span class="sourceLineNo">361</span>     */<a name="line.361"></a>
-<span class="sourceLineNo">362</span>    public Value apply(ParseSession session, Value... args) {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>        if (args.length != this.arity)<a name="line.363"></a>
-<span class="sourceLineNo">364</span>            throw new EvalException("wrong number of arguments " + args.length + " != " + this.arity + " given to " + this);<a name="line.364"></a>
-<span class="sourceLineNo">365</span>        switch (args.length) {<a name="line.365"></a>
-<span class="sourceLineNo">366</span>        case 1:<a name="line.366"></a>
-<span class="sourceLineNo">367</span>            return this.apply(session, args[0]);<a name="line.367"></a>
-<span class="sourceLineNo">368</span>        case 2:<a name="line.368"></a>
-<span class="sourceLineNo">369</span>            return this.apply(session, args[0], args[1]);<a name="line.369"></a>
-<span class="sourceLineNo">370</span>        case 3:<a name="line.370"></a>
-<span class="sourceLineNo">371</span>            return this.apply(session, args[0], args[1], args[2]);<a name="line.371"></a>
-<span class="sourceLineNo">372</span>        default:<a name="line.372"></a>
-<span class="sourceLineNo">373</span>            throw new RuntimeException("internal error");<a name="line.373"></a>
-<span class="sourceLineNo">374</span>        }<a name="line.374"></a>
-<span class="sourceLineNo">375</span>    }<a name="line.375"></a>
-<span class="sourceLineNo">376</span><a name="line.376"></a>
-<span class="sourceLineNo">377</span>    /**<a name="line.377"></a>
-<span class="sourceLineNo">378</span>     * Get the {@link Op} corresponding to the given symbol.<a name="line.378"></a>
-<span class="sourceLineNo">379</span>     * Note: some symbols correspond to multiple {@link Op}s:<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     * &lt;ul&gt;<a name="line.380"></a>
-<span class="sourceLineNo">381</span>     *  &lt;li&gt;For {@code +} or {@code -}, the binary operator is returned&lt;/li&gt;<a name="line.381"></a>
-<span class="sourceLineNo">382</span>     *  &lt;li&gt;For {@code ++} or {@code --}, the post-increment operator is returned&lt;/li&gt;<a name="line.382"></a>
-<span class="sourceLineNo">383</span>     * &lt;/ul&gt;<a name="line.383"></a>
-<span class="sourceLineNo">384</span>     *<a name="line.384"></a>
-<span class="sourceLineNo">385</span>     * @param symbol symbol<a name="line.385"></a>
-<span class="sourceLineNo">386</span>     * @throws IllegalArgumentException if no such {@link Op} exists<a name="line.386"></a>
-<span class="sourceLineNo">387</span>     */<a name="line.387"></a>
-<span class="sourceLineNo">388</span>    public static Op forSymbol(String symbol) {<a name="line.388"></a>
-<span class="sourceLineNo">389</span>        switch (symbol) {<a name="line.389"></a>
-<span class="sourceLineNo">390</span>        case "+":<a name="line.390"></a>
-<span class="sourceLineNo">391</span>            return Op.PLUS;<a name="line.391"></a>
-<span class="sourceLineNo">392</span>        case "-":<a name="line.392"></a>
-<span class="sourceLineNo">393</span>            return Op.MINUS;<a name="line.393"></a>
-<span class="sourceLineNo">394</span>        case "++":<a name="line.394"></a>
-<span class="sourceLineNo">395</span>            return Op.POST_INCREMENT;<a name="line.395"></a>
-<span class="sourceLineNo">396</span>        case "--":<a name="line.396"></a>
-<span class="sourceLineNo">397</span>            return Op.POST_DECREMENT;<a name="line.397"></a>
-<span class="sourceLineNo">398</span>        default:<a name="line.398"></a>
-<span class="sourceLineNo">399</span>            for (Op op : Op.values()) {<a name="line.399"></a>
-<span class="sourceLineNo">400</span>                if (op.symbol.equals(symbol))<a name="line.400"></a>
-<span class="sourceLineNo">401</span>                    return op;<a name="line.401"></a>
-<span class="sourceLineNo">402</span>            }<a name="line.402"></a>
-<span class="sourceLineNo">403</span>            throw new IllegalArgumentException("no operation with symbol `" + symbol + "' exists");<a name="line.403"></a>
-<span class="sourceLineNo">404</span>        }<a name="line.404"></a>
-<span class="sourceLineNo">405</span>    }<a name="line.405"></a>
-<span class="sourceLineNo">406</span><a name="line.406"></a>
-<span class="sourceLineNo">407</span>    Value apply(ParseSession session, Value arg) {<a name="line.407"></a>
-<span class="sourceLineNo">408</span>        throw new UnsupportedOperationException();<a name="line.408"></a>
-<span class="sourceLineNo">409</span>    }<a name="line.409"></a>
-<span class="sourceLineNo">410</span><a name="line.410"></a>
-<span class="sourceLineNo">411</span>    Value apply(ParseSession session, Value arg1, Value arg2) {<a name="line.411"></a>
-<span class="sourceLineNo">412</span>        throw new UnsupportedOperationException();<a name="line.412"></a>
-<span class="sourceLineNo">413</span>    }<a name="line.413"></a>
-<span class="sourceLineNo">414</span><a name="line.414"></a>
-<span class="sourceLineNo">415</span>    Value apply(ParseSession session, Value arg1, Value arg2, Value arg3) {<a name="line.415"></a>
-<span class="sourceLineNo">416</span>        throw new UnsupportedOperationException();<a name="line.416"></a>
-<span class="sourceLineNo">417</span>    }<a name="line.417"></a>
-<span class="sourceLineNo">418</span>}<a name="line.418"></a>
-<span class="sourceLineNo">419</span><a name="line.419"></a>
+<span class="sourceLineNo">342</span>     *<a name="line.342"></a>
+<span class="sourceLineNo">343</span>     * @return symbol arity<a name="line.343"></a>
+<span class="sourceLineNo">344</span>     */<a name="line.344"></a>
+<span class="sourceLineNo">345</span>    public int getArity() {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        return this.arity;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>    }<a name="line.347"></a>
+<span class="sourceLineNo">348</span><a name="line.348"></a>
+<span class="sourceLineNo">349</span>    /**<a name="line.349"></a>
+<span class="sourceLineNo">350</span>     * Get the symbol associated with this operator.<a name="line.350"></a>
+<span class="sourceLineNo">351</span>     *<a name="line.351"></a>
+<span class="sourceLineNo">352</span>     * @return operator symbol<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     */<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    public String getSymbol() {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        return this.symbol;<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>    /**<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     * Apply this operator to the given parameters.<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     *<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     * @param session current session<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * @param args operator arguments<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     * @return result of operation<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * @throws IllegalArgumentException if {@code args} contains inappropriate value(s)<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     * @throws IllegalArgumentException if the length of {@code args} does not match this operator<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     */<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    public Value apply(ParseSession session, Value... args) {<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        if (args.length != this.arity)<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            throw new EvalException("wrong number of arguments " + args.length + " != " + this.arity + " given to " + this);<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        switch (args.length) {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        case 1:<a name="line.371"></a>
+<span class="sourceLineNo">372</span>            return this.apply(session, args[0]);<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        case 2:<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            return this.apply(session, args[0], args[1]);<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        case 3:<a name="line.375"></a>
+<span class="sourceLineNo">376</span>            return this.apply(session, args[0], args[1], args[2]);<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        default:<a name="line.377"></a>
+<span class="sourceLineNo">378</span>            throw new RuntimeException("internal error");<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        }<a name="line.379"></a>
+<span class="sourceLineNo">380</span>    }<a name="line.380"></a>
+<span class="sourceLineNo">381</span><a name="line.381"></a>
+<span class="sourceLineNo">382</span>    /**<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     * Get the {@link Op} corresponding to the given symbol.<a name="line.383"></a>
+<span class="sourceLineNo">384</span>     * Note: some symbols correspond to multiple {@link Op}s:<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * &lt;ul&gt;<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     *  &lt;li&gt;For {@code +} or {@code -}, the binary operator is returned&lt;/li&gt;<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     *  &lt;li&gt;For {@code ++} or {@code --}, the post-increment operator is returned&lt;/li&gt;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * &lt;/ul&gt;<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     *<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     * @param symbol symbol<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * @return corresponding operator<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     * @throws IllegalArgumentException if no such {@link Op} exists<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     */<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    public static Op forSymbol(String symbol) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        switch (symbol) {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        case "+":<a name="line.396"></a>
+<span class="sourceLineNo">397</span>            return Op.PLUS;<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        case "-":<a name="line.398"></a>
+<span class="sourceLineNo">399</span>            return Op.MINUS;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        case "++":<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            return Op.POST_INCREMENT;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        case "--":<a name="line.402"></a>
+<span class="sourceLineNo">403</span>            return Op.POST_DECREMENT;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        default:<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            for (Op op : Op.values()) {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                if (op.symbol.equals(symbol))<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                    return op;<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            }<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            throw new IllegalArgumentException("no operation with symbol `" + symbol + "' exists");<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        }<a name="line.410"></a>
+<span class="sourceLineNo">411</span>    }<a name="line.411"></a>
+<span class="sourceLineNo">412</span><a name="line.412"></a>
+<span class="sourceLineNo">413</span>    Value apply(ParseSession session, Value arg) {<a name="line.413"></a>
+<span class="sourceLineNo">414</span>        throw new UnsupportedOperationException();<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    }<a name="line.415"></a>
+<span class="sourceLineNo">416</span><a name="line.416"></a>
+<span class="sourceLineNo">417</span>    Value apply(ParseSession session, Value arg1, Value arg2) {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        throw new UnsupportedOperationException();<a name="line.418"></a>
+<span class="sourceLineNo">419</span>    }<a name="line.419"></a>
+<span class="sourceLineNo">420</span><a name="line.420"></a>
+<span class="sourceLineNo">421</span>    Value apply(ParseSession session, Value arg1, Value arg2, Value arg3) {<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        throw new UnsupportedOperationException();<a name="line.422"></a>
+<span class="sourceLineNo">423</span>    }<a name="line.423"></a>
+<span class="sourceLineNo">424</span>}<a name="line.424"></a>
+<span class="sourceLineNo">425</span><a name="line.425"></a>
 
 
 
