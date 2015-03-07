@@ -293,8 +293,8 @@ public class JTransaction {
     /**
      * Set the {@link JTransaction} associated with the current thread.
      */
-    public static void setCurrent(JTransaction jtransaction) {
-        CURRENT.set(jtransaction);
+    public static void setCurrent(JTransaction jtx) {
+        CURRENT.set(jtx);
     }
 
 // Accessors

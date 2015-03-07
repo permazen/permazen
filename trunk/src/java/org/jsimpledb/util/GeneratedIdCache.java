@@ -26,25 +26,28 @@ public class GeneratedIdCache {
     private final HashMap<String, ObjId> map = new HashMap<>();
 
     /**
-     * Generate an object ID for the given object type storage ID and suffix.
+     * Generate an object ID for the given object type storage ID and string.
      *
      * <p>
-     * If an {@link ObjId} has already been created for the specified {@code storageId} and {@code suffix} by this instance,
+     * If an {@link ObjId} has already been created for the specified {@code storageId} and {@code string} by this instance,
      * it will be returned.
      * Otherwise, a random {@link ObjId} for which no object exists in the specified {@link Transaction} is generated
      * and returned.
      * </p>
      *
+     * @param tx transaction from which to allocate new object IDs
      * @param storageId object type storage ID
+     * @param string unique string
+     * @return unique, unallocated object ID corresponding to {@code storageId} and {@code string}
      * @throws IllegalArgumentException if {@code storageId} is invalid
-     * @throws IllegalArgumentException if {@code tx} or {@code suffix} is null
+     * @throws IllegalArgumentException if {@code tx} or {@code string} is null
      */
-    public synchronized ObjId getGeneratedId(Transaction tx, int storageId, String suffix) {
+    public synchronized ObjId getGeneratedId(Transaction tx, int storageId, String string) {
         if (tx == null)
             throw new IllegalArgumentException("null tx");
-        if (suffix == null)
-            throw new IllegalArgumentException("null suffix");
-        final String key = "" + storageId + ":" + suffix;
+        if (string == null)
+            throw new IllegalArgumentException("null string");
+        final String key = "" + storageId + ":" + string;
         ObjId id = this.map.get(key);
         if (id == null) {
             id = tx.generateId(storageId);

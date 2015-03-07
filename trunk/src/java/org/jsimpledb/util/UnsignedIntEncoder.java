@@ -162,8 +162,10 @@ public final class UnsignedIntEncoder {
 
     /**
      * Test routine.
+     *
+     * @param args command line arguments
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         for (String arg : args) {
             byte[] bytes = null;
             try {
