@@ -862,7 +862,11 @@ public class Transaction {
      * Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
      *
      * <p>
-     * The schema version associated with the {@code source} object must be identical in this transaction and {@code dest}.
+     * If necessary, {@code source} object is first upgraded to {@linkplain #getSchema() the schema version associated with
+     * this transaction}, which must be identical in this transaction and {@code dest}.
+     * </p>
+     *
+     * <p>
      * Only the object's fields are copied; any other objects they reference are not copied. If the {@code target} object
      * does not exist in {@code dest}, it will be created first (and {@link CreateListener}s notified); if {@code target}
      * does exist in {@code dest}, it's schema version will be upgraded if necessary to match {@code source} (and any registered
@@ -910,7 +914,7 @@ public class Transaction {
             return false;
 
         // Get object info
-        final ObjInfo srcInfo = this.getObjectInfo(source, false);
+        final ObjInfo srcInfo = this.getObjectInfo(source, true);
 
         // Do the copy while both transactions are locked
         synchronized (dest) {
