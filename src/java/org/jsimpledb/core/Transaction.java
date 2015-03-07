@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getSchemaVersion() getSchemaVersion()} - Get the {@link SchemaVersion} that will be used by this transaction</li>
  *  <li>{@link #deleteSchemaVersion deleteSchemaVersion()} - Delete a schema version that is no longer being used</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Transaction Lifecycle</b>
@@ -74,7 +73,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #addCallback addCallback()} - Register a {@link Callback} on transaction completion</li>
  *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a empty, in-memory copy of this transaction</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Object Lifecycle</b>
@@ -89,7 +87,6 @@ import org.slf4j.LoggerFactory;
  *      about object deletions</li>
  *  <li>{@link #removeDeleteListener removeDeleteListener()} - Unregister a {@link DeleteListener}</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Object Versioning</b>
@@ -118,7 +115,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getKey getKey(ObjId, int)} - Get the {@link org.jsimpledb.kv.KVDatabase}
  *      key corresponding to a field in an object</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Field Change Notifications</b>
@@ -140,16 +136,13 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #removeMapFieldChangeListener removeMapFieldChangeListener()} - Unregister a previously registered
  *      {@link MapFieldChangeListener}</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Reference Inversion</b>
  * <ul>
  *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
  *      of objects through a specified reference path</li>
- *  </li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Index Queries</b>
@@ -166,7 +159,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #queryCompositeIndex3 queryCompositeIndex4()} - Query a composite index on four fields</li>
  *  <!-- COMPOSITE-INDEX -->
  * </ul>
- * </p>
  *
  * <p>
  * All methods returning a set of values return a {@link NavigableSet}.
@@ -213,6 +205,8 @@ public class Transaction {
 
     /**
      * Get the database with which this transaction is associated.
+     *
+     * @return associated database
      */
     public Database getDatabase() {
         return this.db;
@@ -221,6 +215,8 @@ public class Transaction {
     /**
      * Get the database schema versions known to this transaction.
      * This reflects all schema versions currently recorded in the database.
+     *
+     * @return associated schemas
      */
     public Schema getSchema() {
         return this.schema;
@@ -230,6 +226,8 @@ public class Transaction {
      * Get the database schema version associated with this transaction.
      * This is the schema version used for newly created objects, and the target schema version when
      * {@linkplain #updateSchemaVersion upgrading} objects.
+     *
+     * @return associated schema
      */
     public SchemaVersion getSchemaVersion() {
         return this.version;
@@ -272,6 +270,8 @@ public class Transaction {
      * <b>Warning:</b> making changes to the key/value store directly is not supported. If any changes
      * are made, all future behavior is undefined.
      * </p>
+     *
+     * @return the associated key/value transaction
      */
     public KVTransaction getKVTransaction() {
         return this.kvt;
@@ -283,7 +283,7 @@ public class Transaction {
      * Commit this transaction.
      *
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws RetryTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
+     * @throws org.jsimpledb.kv.RetryTransactionException from {@link KVTransaction#commit KVTransaction.commit()}
      * @throws RollbackOnlyTransactionException if this instance has been {@linkplain #setRollbackOnly marked} rollback only;
      *  this instance will be automatically rolled back
      */
@@ -394,6 +394,8 @@ public class Transaction {
     /**
      * Determine whether this transaction is still valid. If not, all other methods in this class
      * will throw {@link StaleTransactionException}.
+     *
+     * @return true if this instance is still usable
      */
     public synchronized boolean isValid() {
         return !this.stale;
@@ -402,6 +404,7 @@ public class Transaction {
     /**
      * Determine whether this transaction is read-only.
      *
+     * @return true if this instance is read-only
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized boolean isReadOnly() {
@@ -414,6 +417,7 @@ public class Transaction {
      * Enable or disaable read-only mode. When in read-only mode, all mutating operations will fail with
      * a {@link ReadOnlyTransactionException}.
      *
+     * @param readOnly read-only setting
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized void setReadOnly(boolean readOnly) {
@@ -424,6 +428,8 @@ public class Transaction {
 
     /**
      * Determine whether this transaction is marked rollback only.
+     *
+     * @return true if this instance is marked for rollback only
      */
     public synchronized boolean isRollbackOnly() {
         return this.rollbackOnly;
@@ -461,6 +467,7 @@ public class Transaction {
      * TransactionSynchronizationManager.registerSynchronization()} instead of this method.
      * </p>
      *
+     * @param callback callback to invoke
      * @throws IllegalArgumentException if {@code callback} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -1824,6 +1831,7 @@ public class Transaction {
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SetField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @return set field value
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
@@ -1847,6 +1855,7 @@ public class Transaction {
      * @param id object ID of the object
      * @param storageId storage ID of the {@link ListField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @return list field value
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
@@ -1870,6 +1879,7 @@ public class Transaction {
      * @param id object ID of the object
      * @param storageId storage ID of the {@link MapField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @return map field value
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
@@ -1892,7 +1902,6 @@ public class Transaction {
      *  <li>Objects utilize mutiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link org.jsimpledb.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
-     * </p>
      *
      * @param id object ID
      * @return the {@link org.jsimpledb.kv.KVDatabase} key corresponding to {@code id}
@@ -1915,7 +1924,6 @@ public class Transaction {
      *  <li>Complex fields utilize mutiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link org.jsimpledb.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
-     * </p>
      *
      * @param id object ID
      * @param storageId field storage ID
@@ -2499,7 +2507,7 @@ public class Transaction {
      * </p>
      *
      * @param storageId {@link ListField}'s storage ID
-     * @return read-only, real-time view of list element values, objects with the value in the list, and indicies
+     * @return read-only, real-time view of list element values, objects with the value in the list, and corresponding indicies
      * @throws UnknownFieldException if no {@link ListField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -2520,6 +2528,7 @@ public class Transaction {
      * </p>
      *
      * @param storageId {@link MapField}'s storage ID
+     * @return read-only, real-time view of map values, objects with the value in the map, and corresponding keys
      * @throws UnknownFieldException if no {@link MapField} corresponding to {@code storageId} exists
      * @throws StaleTransactionException if this transaction is no longer usable
      */

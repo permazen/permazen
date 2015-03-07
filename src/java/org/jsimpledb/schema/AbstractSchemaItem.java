@@ -30,6 +30,8 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
     /**
      * Get the name associated with this instance, if any.
+     *
+     * @return the name of this instance, or null if it has none
      */
     public String getName() {
         return this.name;
@@ -41,6 +43,8 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
     /**
      * Get the storage ID associated with this instance.
      * Storage IDs must be positive values.
+     *
+     * @return the storage ID for this instance
      */
     public int getStorageId() {
         return this.storageId;
@@ -65,6 +69,7 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      * The core API uses storage IDs, not names, to identify objects and fields.
      *
      * @param that other schema object
+     * @return true if this and {@code that} are compatible
      * @throws IllegalArgumentException if {@code that} is null
      */
     public final boolean isCompatibleWith(AbstractSchemaItem that) {

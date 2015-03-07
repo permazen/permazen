@@ -38,6 +38,7 @@ public class JSimpleDBFactory {
      * </p>
      *
      * @param modelClasses classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
+     * @return this instance
      */
     public JSimpleDBFactory setModelClasses(Iterable<? extends Class<?>> modelClasses) {
         this.modelClasses = modelClasses;
@@ -52,6 +53,7 @@ public class JSimpleDBFactory {
      * </p>
      *
      * @param modelClasses classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
+     * @return this instance
      * @see #setModelClasses(Iterable)
      */
     public JSimpleDBFactory setModelClasses(Class<?>... modelClasses) {
@@ -66,6 +68,7 @@ public class JSimpleDBFactory {
      * </p>
      *
      * @param database core API database to use
+     * @return this instance
      */
     public JSimpleDBFactory setDatabase(Database database) {
         this.database = database;
@@ -83,6 +86,7 @@ public class JSimpleDBFactory {
      *
      * @param schemaVersion the schema version number of the schema derived from the configured Java model classes,
      *  or zero to default to the highest version already recorded in the database
+     * @return this instance
      */
     public JSimpleDBFactory setSchemaVersion(int schemaVersion) {
         this.schemaVersion = schemaVersion;
@@ -100,6 +104,7 @@ public class JSimpleDBFactory {
      * </p>
      *
      * @param storageIdGenerator storage ID generator, or null to disable auto-generation of storage ID's
+     * @return this instance
      */
     public JSimpleDBFactory setStorageIdGenerator(StorageIdGenerator storageIdGenerator) {
         this.storageIdGenerator = storageIdGenerator;
@@ -109,6 +114,7 @@ public class JSimpleDBFactory {
     /**
      * Construct a {@link JSimpleDB} instance using this instance's configuration.
      *
+     * @return newly created {@link JSimpleDB} database
      * @throws IllegalArgumentException if this instance has an incomplete or invalid configuration
      * @throws IllegalArgumentException if any Java model class has an invalid annotation
      */

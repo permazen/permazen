@@ -16,6 +16,7 @@ public abstract class SchemaField extends AbstractSchemaItem {
      * Apply visitor pattern.
      *
      * @param target target to invoke
+     * @param <R> visitor return type
      * @return value from the method of {@code target} corresponding to this instance's type
      * @throws NullPointerException if {@code target} is null
      */

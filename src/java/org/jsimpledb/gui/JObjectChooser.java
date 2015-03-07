@@ -142,6 +142,8 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     /**
      * Get the object container for this instance.
+     *
+     * @return associated object container
      */
     public ExprQueryJObjectContainer getJObjectContainer() {
         return this.objectContainer;
@@ -149,6 +151,8 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     /**
      * Get the current type restriction, if any.
+     *
+     * @return current type restriction
      */
     public Class<?> getType() {
         return this.objectContainer.getType();
@@ -156,6 +160,8 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     /**
      * Get the type table.
+     *
+     * @return type selection table
      */
     public TypeTable getTypeTable() {
         return this.typeTable;
@@ -163,6 +169,8 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     /**
      * Get the component containing the type chooser and object panel.
+     *
+     * @return object panel
      */
     public HorizontalSplitPanel getObjectPanel() {
         return this.splitPanel;
@@ -170,6 +178,8 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     /**
      * Get the currently selected object, if any.
+     *
+     * @return selected object ID, or null if none
      */
     public ObjId getObjId() {
         return this.objectTable != null ? (ObjId)this.objectTable.getValue() : null;
@@ -177,6 +187,8 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     /**
      * Get the form with the sort chooser and expression text area.
+     *
+     * @return expression form
      */
     public FormLayout getShowForm() {
         return this.showForm;
@@ -184,6 +196,8 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     /**
      * Get the {@link JClass} corresponding to the currently selected type, if any.
+     *
+     * @return selected type object type
      */
     public JClass<?> getJClass() {
         final Class<?> type = this.objectContainer.getType();

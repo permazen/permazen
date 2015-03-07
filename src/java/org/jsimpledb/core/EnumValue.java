@@ -78,6 +78,7 @@ public class EnumValue {
      * </p>
      *
      * @param type {@link Enum} type
+     * @param <T> enum type
      * @return matching instance of type {@code type}, or null if none exists
      * @throws IllegalArgumentException if {@code type} is null
      */

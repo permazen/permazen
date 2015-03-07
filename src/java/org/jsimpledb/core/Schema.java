@@ -165,6 +165,7 @@ public class Schema {
      * Get the {@link Version} corresponding to the given version number.
      *
      * @param versionNumber schema version number
+     * @return schema with version number {@code versionNumber}
      * @throws IllegalArgumentException if {@code versionNumber} is not known
      */
     public SchemaVersion getVersion(int versionNumber) {

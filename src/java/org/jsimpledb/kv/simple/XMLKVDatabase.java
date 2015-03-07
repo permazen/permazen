@@ -102,6 +102,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      * </p>
      *
      * @return default initial XML database content, or null for none
+     * @throws IOException if an error occurs accessing the initial content file
      */
     protected InputStream getInitialContent() throws IOException {
         return this.initialContentFile != null ? new FileInputStream(this.initialContentFile) : null;
@@ -139,6 +140,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      * The generation number is incremented every time the database is wholesale updated by reading the file into memory,
      * e.g., by invoking {@link #reload}.
      *
+     * @return XML file generation number
      * @see XMLKVTransaction#getGeneration
      */
     public synchronized int getGeneration() {

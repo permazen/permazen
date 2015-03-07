@@ -66,6 +66,7 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
     /**
      * Constructs an instance initialized from the given map.
      *
+     * @param map initial contents for this instance
      * @throws NullPointerException if {@code map} is null
      * @throws IllegalArgumentException if {@code map} contains a null key
      */

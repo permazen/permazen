@@ -65,6 +65,8 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
 
     /**
      * Get the name of this command.
+     *
+     * @return command name
      */
     public String getName() {
         return this.name;
@@ -76,6 +78,8 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * <p>
      * The implementation in {@link Command} delegates to {@link ParamParser#getUsage ParamParser.getUsage()}.
      * </p>
+     *
+     * @return command usage string
      */
     public String getUsage() {
         return this.paramParser.getUsage(this.name);
@@ -83,6 +87,8 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
 
     /**
      * Get summarized help (typically a single line).
+     *
+     * @return one line command summary
      */
     public abstract String getHelpSummary();
 
@@ -92,6 +98,8 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * <p>
      * The implementation in {@link Command} delegates to {@link #getHelpSummary getHelpSummary()}.
      * </p>
+     *
+     * @return detailed command description
      */
     public String getHelpDetail() {
         return this.getHelpSummary();
@@ -107,8 +115,9 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * @param session CLI session
      * @param ctx input to parse
      * @param complete false if parse is "for real", true if only for tab completion calculation
-     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
-     * @throws ParseException if parameters are invalid
+     * @return action to perform for the parsed command
+     * @throws org.jsimpledb.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions
+     * @throws org.jsimpledb.parse.ParseException if parameters are invalid
      */
     @Override
     public CliSession.Action parse(ParseSession session, ParseContext ctx, boolean complete) {
@@ -121,8 +130,10 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * @param session CLI session
      * @param ctx input to parse
      * @param complete false if parse is "for real", true if only for tab completion calculation
-     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
-     * @throws ParseException if parameters are invalid
+     * @param params parsed parameters indexed by name
+     * @return action to perform for the parsed command
+     * @throws org.jsimpledb.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions
+     * @throws org.jsimpledb.parse.ParseException if parameters are invalid
      */
     public abstract CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params);
 
@@ -134,6 +145,9 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID
      * (returns {@link org.jsimpledb.core.ObjId}).
      * </p>
+     *
+     * @param typeName parameter type name
+     * @return parser for parameters of the specified type
      */
     protected Parser<?> getParser(String typeName) {
         if (typeName == null)

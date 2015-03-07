@@ -32,6 +32,8 @@ public class ChangePublisher {
 
     /**
      * Publish the given {@link Change} if the current transaction is successful.
+     *
+     * @param change change during the current transaction
      */
     public void publishChangeOnCommit(Change<?> change) {
         JTransaction.getCurrent().getTransaction().addCallback(
@@ -40,6 +42,8 @@ public class ChangePublisher {
 
     /**
      * Publish that the specified object has changed if the current transaction is successful.
+     *
+     * @param jobj object changed during the current transaction
      */
     public void publishChangeOnCommit(JObject jobj) {
 

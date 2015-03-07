@@ -34,6 +34,8 @@ public class VarNode extends ConstNode {
 
     /**
      * Get the variable name.
+     *
+     * @return variable name
      */
     public String getName() {
         return this.evaluate(null).getName();

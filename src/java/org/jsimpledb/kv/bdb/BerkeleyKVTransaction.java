@@ -88,6 +88,8 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
 
     /**
      * Get the underlying {@link Transaction} associated with this instance.
+     *
+     * @return the associated transaction
      */
     public Transaction getTransaction() {
         return this.tx;

@@ -51,6 +51,8 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
 
     /**
      * Get the element field.
+     *
+     * @return collection element field
      */
     public SimpleField<E> getElementField() {
         return this.elementField;

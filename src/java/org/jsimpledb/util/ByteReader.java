@@ -117,6 +117,7 @@ public class ByteReader {
     /**
      * Unread the given number of previously read bytes.
      *
+     * @param len the number of bytes to unread
      * @throws IndexOutOfBoundsException if there are no more bytes to unread
      */
     public void unread(int len) {
@@ -146,6 +147,8 @@ public class ByteReader {
 
     /**
      * Get the number of bytes remaining.
+     *
+     * @return bytes remaining
      */
     public int remain() {
         return this.max - this.off;
@@ -154,6 +157,7 @@ public class ByteReader {
     /**
      * Skip over bytes.
      *
+     * @param num the number of bytes to skip
      * @throws IndexOutOfBoundsException if {@code num} is negative
      * @throws IndexOutOfBoundsException if less than {@code num} bytes remain
      */
@@ -165,6 +169,8 @@ public class ByteReader {
 
     /**
      * Get current offset into buffer.
+     *
+     * @return current offset
      */
     public int getOffset() {
         return this.off;
@@ -172,6 +178,8 @@ public class ByteReader {
 
     /**
      * Get maximum offset into buffer.
+     *
+     * @return maximum offset
      */
     public int getMax() {
         return this.max;
@@ -182,6 +190,7 @@ public class ByteReader {
      *
      * @param off offset into buffer
      * @param len number of bytes
+     * @return copy of the specified byte range
      * @throws IndexOutOfBoundsException if {@code off} and/or {@code len} is out of bounds
      */
     public byte[] getBytes(int off, int len) {
@@ -194,6 +203,7 @@ public class ByteReader {
      * Copy a range of bytes from the given offset to the end of the buffer. Does not change the read position.
      *
      * @param off offset into buffer
+     * @return copy of the specified byte range
      * @throws IndexOutOfBoundsException if {@code off} is out of bounds
      */
     public byte[] getBytes(int off) {
@@ -202,6 +212,8 @@ public class ByteReader {
 
     /**
      * Copy all the of bytes in the buffer. Does not change the read position.
+     *
+     * @return copy of the entire buffer
      */
     public byte[] getBytes() {
         return this.max == this.buf.length ? this.buf.clone() : this.getBytes(0);
@@ -209,6 +221,8 @@ public class ByteReader {
 
     /**
      * Mark current read position.
+     *
+     * @return the current offset
      */
     public int mark() {
         return this.off;

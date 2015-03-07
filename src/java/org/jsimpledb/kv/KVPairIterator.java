@@ -155,6 +155,8 @@ public class KVPairIterator implements Iterator<KVPair> {
 
     /**
      * Determine if this instance is going forward or backward.
+     *
+     * @return true if this instance is reversed
      */
     public boolean isReverse() {
         return this.reverse;
@@ -164,6 +166,7 @@ public class KVPairIterator implements Iterator<KVPair> {
      * Determine if the given key would be visible in this instance. Tests the key against
      * the configured {@link KeyRange} and/or {@link KeyFilter}, if any.
      *
+     * @param key to test
      * @return true if key is both in range and not filtered out
      * @throws IllegalArgumentException if {@code key} is null
      */

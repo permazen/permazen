@@ -32,6 +32,10 @@ public final class ParseUtil {
 
     /**
      * Truncate a string with ellipsis if necessary.
+     *
+     * @param string original string
+     * @param len maximum length beyond which to truncate
+     * @return truncated string
      */
     public static String truncate(String string, int len) {
         if (len < 4)
@@ -43,6 +47,10 @@ public final class ParseUtil {
 
     /**
      * Generate completions based on a set of possibilities and the provided input prefix.
+     *
+     * @param choices possible choices
+     * @param prefix prefix input so far
+     * @return possible completions
      */
     public static Iterable<String> complete(Iterable<String> choices, String prefix) {
         return Iterables.transform(Iterables.filter(choices, new PrefixPredicate(prefix)), new StripPrefixFunction(prefix));
@@ -54,6 +62,7 @@ public final class ParseUtil {
      * @param session current session
      * @param id object ID
      * @param name field name
+     * @return the specified field
      * @throws IllegalArgumentException if object does not exist
      * @throws IllegalArgumentException if object's type does not exist in schema
      * @throws IllegalArgumentException if field is not found
@@ -98,6 +107,7 @@ public final class ParseUtil {
      * @param session current session
      * @param id object ID
      * @param name field name
+     * @return the specified field
      * @throws IllegalArgumentException if object does not exist
      * @throws IllegalArgumentException if field is not found
      * @throws IllegalArgumentException if any parameter is null

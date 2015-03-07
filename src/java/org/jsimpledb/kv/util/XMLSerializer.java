@@ -44,7 +44,6 @@ import org.jsimpledb.util.ByteUtil;
  *      ...
  *  &lt;/entries&gt;
  *  </pre>
- * </p>
  */
 public class XMLSerializer extends AbstractXMLStreaming {
 

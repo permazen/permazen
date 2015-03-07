@@ -82,7 +82,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getJSimpleDB getJSimpleDB()} - Get the associated {@link JSimpleDB} instance</li>
  *  <li>{@link #getTransaction} - Get the core API {@link Transaction} underlying this instance</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Transaction Lifecycle</b>
@@ -93,7 +92,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #setCurrent setCurrent()} - Set the {@link JTransaction} instance associated with the current thread</li>
  *  <li>{@link #isValid isValid()} - Test transaction validity</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Object Access</b>
@@ -103,7 +101,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getAll getAll()} - Get all database objects that are instances of a given Java type</li>
  *  <li>{@link #queryVersion queryVersion()} - Get database objects grouped according to their schema versions</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Validation</b>
@@ -111,7 +108,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #validate validate()} - Validate all objects in the validation queue</li>
  *  <li>{@link #resetValidationQueue} - Clear the validation queue</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Index Queries</b>
@@ -130,16 +126,13 @@ import org.slf4j.LoggerFactory;
  *      - Access a composite index defined on four fields</li>
  *  <!-- COMPOSITE-INDEX -->
  * </ul>
- * </p>
  *
  * <p>
  * <b>Reference Inversion</b>
  * <ul>
  *  <li>{@link #invertReferencePath invertReferencePath()} - Find all objects that refer to any element in a given set
  *      of objects through a specified reference path</li>
- *  </li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Snapshot Transactions</b>
@@ -151,7 +144,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #copyTo(JTransaction, CopyState, Iterable) copyTo()}
  *      - Copy explicitly specified objects into another transaction</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>Lower Layer Access</b>
@@ -160,7 +152,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getKey(JObject, String) getKey()} - Get the {@link org.jsimpledb.kv.KVDatabase}
  *      key for a specific field in a specific object</li>
  * </ul>
- * </p>
  *
  * <p>
  * The remaining methods in this class are normally only used by generated Java model object subclasses.
@@ -178,7 +169,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #readListField readListField()} - Access a list field</li>
  *  <li>{@link #readMapField readMapField()} - Access a map field</li>
  * </ul>
- * </p>
  *
  * <p>
  * <b>{@link JObject} Methods</b>
@@ -190,7 +180,6 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getSchemaVersion getSchemaVersion()} - Get this schema version of an object</li>
  *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version</li>
  * </ul>
- * </p>
  */
 public class JTransaction {
 
@@ -292,6 +281,8 @@ public class JTransaction {
 
     /**
      * Set the {@link JTransaction} associated with the current thread.
+     *
+     * @param jtx transaction to associate with the current thread
      */
     public static void setCurrent(JTransaction jtx) {
         CURRENT.set(jtx);
@@ -301,6 +292,8 @@ public class JTransaction {
 
     /**
      * Get the {@link JSimpleDB} associated with this instance.
+     *
+     * @return the associated database
      */
     public JSimpleDB getJSimpleDB() {
         return this.jdb;
@@ -308,6 +301,8 @@ public class JTransaction {
 
     /**
      * Get the {@link Transaction} associated with this instance.
+     *
+     * @return the associated core API transaction
      */
     public Transaction getTransaction() {
         return this.tx;
@@ -315,6 +310,8 @@ public class JTransaction {
 
     /**
      * Get the {@link ValidationMode} configured for this instance.
+     *
+     * @return the configured validation mode
      */
     public ValidationMode getValidationMode() {
         return this.validationMode;
@@ -324,6 +321,7 @@ public class JTransaction {
      * Get all instances of the given type.
      *
      * @param type any Java type; use {@link Object Object.class} to return all database objects
+     * @param <T> containing Java type
      * @return read-only view of all instances of {@code type}
      * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -343,6 +341,8 @@ public class JTransaction {
      * Get all instances of the given type, grouped according to schema version.
      *
      * @param type any Java type; use {@link Object Object.class} to return all database objects
+     * @param <T> containing Java type
+     * @return mapping from schema version to objects having that version
      * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */
@@ -366,7 +366,6 @@ public class JTransaction {
      *  <li>Objects utilize mutiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link org.jsimpledb.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
-     * </p>
      *
      * @param jobj Java model object
      * @return the {@link org.jsimpledb.kv.KVDatabase} key corresponding to {@code jobj}
@@ -387,7 +386,6 @@ public class JTransaction {
      *  <li>Complex fields utilize mutiple keys; the return value is the common prefix of all such keys.</li>
      *  <li>The {@link org.jsimpledb.kv.KVDatabase} should not be modified directly, otherwise behavior is undefined</li>
      * </ul>
-     * </p>
      *
      * @param jobj Java model object
      * @param fieldName the name of a field in {@code jobj}'s type
@@ -418,6 +416,7 @@ public class JTransaction {
      * The default {@link SnapshotJTransaction} uses {@link ValidationMode#MANUAL}.
      * </p>
      *
+     * @return the associated snapshot transaction
      * @see JObject#copyOut JObject.copyOut()
      */
     public synchronized SnapshotJTransaction getSnapshotTransaction() {
@@ -475,7 +474,7 @@ public class JTransaction {
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
+     * @throws org.jsimpledb.core.ReadOnlyTransactionException if {@code dest}'s underlying transaction
      *  is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @throws IllegalArgumentException if any parameter is null
@@ -595,7 +594,7 @@ public class JTransaction {
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema version corresponding to an object in
      *  {@code jobjs} is not identical in this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws ReadOnlyTransactionException if {@code dest}'s underlying transaction
+     * @throws org.jsimpledb.core.ReadOnlyTransactionException if {@code dest}'s underlying transaction
      *  is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if {@code dest} or {@code jobjs} is null
      * @see #copyTo(JTransaction, JObject, ObjId, CopyState, String[])
@@ -700,6 +699,8 @@ public class JTransaction {
      * This method just invoke {@link #getJObject(ObjId)} and then casts the result.
      *
      * @param id object ID
+     * @param type expected Java type
+     * @param <T> expected Java type
      * @return Java model object
      * @throws ClassCastException if the Java model object does not have type {@code type}
      * @throws IllegalArgumentException if {@code id} or {@code type} is null
@@ -713,10 +714,11 @@ public class JTransaction {
     }
 
     /**
-     * Get the Java model object with the same object ID as the given object and whose state derives from this transaction.
+     * Get the Java model object with the same object ID as the given {@link JObject} and whose state derives from this transaction.
      * This method is equivalent to {@code getJObject(jobj.getObjId())} followed by an appropriate cast to type {@code T}.
      *
      * @param jobj Java model object
+     * @param <T> expected Java type
      * @return Java model object in this transaction with the same object ID (possibly {@code jobj} itself)
      * @throws IllegalArgumentException if {@code jobj} is null, or not a {@link JSimpleDB} database object
      * @throws ClassCastException if the Java model object in this transaction somehow does not have the same type as {@code jobj}
@@ -734,10 +736,12 @@ public class JTransaction {
     /**
      * Create a new instance of the given model class in this transaction.
      *
-     * @param type an annotated Java object model type
+     * @param type Java object model type
+     * @param <T> Java model type
      * @return newly created instance
      * @throws IllegalArgumentException if {@code type} is not a known Java object model type
-     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
+     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
+     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(Class<T> type) {
@@ -748,9 +752,11 @@ public class JTransaction {
      * Create a new instance of the given type in this transaction.
      *
      * @param jclass object type
+     * @param <T> Java model type
      * @return newly created instance
      * @throws IllegalArgumentException if {@code jclass} is not valid for this instance
-     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
+     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
+     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(JClass<T> jclass) {
@@ -767,10 +773,11 @@ public class JTransaction {
      *
      * @param jobj the object to delete
      * @return true if object was found and deleted, false if object was not found
-     * @throws ReferencedObjectException if the object is referenced by some other object
+     * @throws org.jsimpledb.core.ReferencedObjectException if the object is referenced by some other object
      *  through a reference field configured for {@link org.jsimpledb.core.DeleteAction#EXCEPTION}
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
+     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
+     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean delete(JObject jobj) {
@@ -817,7 +824,8 @@ public class JTransaction {
      * @param jobj the object to recreate
      * @return true if the object was recreated, false if the object already existed
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
+     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
+     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean recreate(JObject jobj) {
@@ -904,7 +912,8 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the object's type
-     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
+     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
+     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean updateSchemaVersion(JObject jobj) {
@@ -951,7 +960,8 @@ public class JTransaction {
      * @param value new value for the field
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws ReadOnlyTransactionException if the underlying transaction is {@linkplain Transaction#setReadOnly set read-only}
+     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
+     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
      * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
@@ -1005,6 +1015,7 @@ public class JTransaction {
      * @param jobj object containing the field
      * @param storageId storage ID of the {@link JSetField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @return the set field in {@code jobj} with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
      * @throws UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
@@ -1029,6 +1040,7 @@ public class JTransaction {
      * @param jobj object containing the field
      * @param storageId storage ID of the {@link JListField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @return the list field in {@code jobj} with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
      * @throws UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
@@ -1053,6 +1065,7 @@ public class JTransaction {
      * @param jobj object containing the field
      * @param storageId storage ID of the {@link JMapField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @return the map field in {@code jobj} with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
      * @throws UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
@@ -1073,6 +1086,7 @@ public class JTransaction {
      * @param startType starting Java type for the path
      * @param path dot-separated path of one or more reference fields
      * @param targetObjects target objects
+     * @param <T> starting Java type
      * @return set of objects that refer to any of the {@code targetObjects} via the {@code path} from {@code startType}
      * @throws UnknownFieldException if {@code path} contains an unknown field
      * @throws IllegalArgumentException if {@code path} is invalid, e.g., does not end on a reference field
@@ -1105,6 +1119,8 @@ public class JTransaction {
      * @param fieldName name of the indexed field; for complex fields,
      *  must include the sub-field name (e.g., {@code "mylist.element"}, {@code "mymap.key"})
      * @param valueType the Java type corresponding to the field value
+     * @param <V> Java type corresponding to the indexed field
+     * @param <T> Java type containing the field
      * @return read-only, real-time view of field values mapped to sets of objects having that value in the field
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1125,6 +1141,8 @@ public class JTransaction {
      *  as long as {@code fieldName} is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include {@code "element"} sub-field name (e.g., {@code "mylist.element"})
      * @param valueType the Java type corresponding to list elements
+     * @param <V> Java type corresponding to the indexed list's element field
+     * @param <T> Java type containing the field
      * @return read-only, real-time view of field values, objects having that value in the field, and corresponding list indicies
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1146,7 +1164,11 @@ public class JTransaction {
      * @param targetType type containing the indexed field; may also be any super-type (e.g., an interface type),
      *  as long as {@code fieldName} is not ambiguous among all sub-types
      * @param fieldName name of the indexed field; must include {@code "value"} sub-field name (e.g., {@code "mymap.value"})
-     * @param valueType the Java type corresponding to list elements
+     * @param valueType the Java type corresponding to map values
+     * @param keyType the Java type corresponding to map keys
+     * @param <V> Java type corresponding to the indexed map's value field
+     * @param <T> Java type containing the field
+     * @param <K> Java type corresponding to the indexed map's key field
      * @return read-only, real-time view of map values, objects having that value in the map field, and corresponding map keys
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1174,6 +1196,9 @@ public class JTransaction {
      * @param indexName the name of the composite index
      * @param value1Type the Java type corresponding to the first field value
      * @param value2Type the Java type corresponding to the second field value
+     * @param <V1> Java type corresponding to the first indexed field
+     * @param <V2> Java type corresponding to the second indexed field
+     * @param <T> Java type containing the field
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1197,6 +1222,10 @@ public class JTransaction {
      * @param value1Type the Java type corresponding to the first field value
      * @param value2Type the Java type corresponding to the second field value
      * @param value3Type the Java type corresponding to the third field value
+     * @param <V1> Java type corresponding to the first indexed field
+     * @param <V2> Java type corresponding to the second indexed field
+     * @param <V3> Java type corresponding to the third indexed field
+     * @param <T> Java type containing the field
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1222,6 +1251,11 @@ public class JTransaction {
      * @param value2Type the Java type corresponding to the second field value
      * @param value3Type the Java type corresponding to the third field value
      * @param value4Type the Java type corresponding to the fourth field value
+     * @param <V1> Java type corresponding to the first indexed field
+     * @param <V2> Java type corresponding to the second indexed field
+     * @param <V3> Java type corresponding to the third indexed field
+     * @param <V4> Java type corresponding to the fourth indexed field
+     * @param <T> Java type containing the field
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
      * @throws IllegalArgumentException if any parameter is null, or invalid
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1448,6 +1482,7 @@ public class JTransaction {
     /**
      * Determine whether this transaction is still usable.
      *
+     * @return true if this transaction is still valid
      * @see Transaction#isValid
      */
     public boolean isValid() {

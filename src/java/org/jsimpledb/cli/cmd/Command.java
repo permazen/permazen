@@ -32,6 +32,8 @@ public @interface Command {
      * Determine whether the annotated {@link org.jsimpledb.cli.cmd.AbstractCommand} works properly in Core API mode,
      * i.e., when the there are no {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model
      * classes defined and the core {@link org.jsimpledb.core.Database} API is used.
+     *
+     * @return true if the command works in core API mode
      */
     boolean worksInCoreAPIMode() default true;
 }

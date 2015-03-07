@@ -9,6 +9,8 @@ package org.jsimpledb.parse;
 
 /**
  * Generic parsing interface.
+ *
+ * @param <T> parsed value type
  */
 public interface Parser<T> {
 
@@ -23,6 +25,7 @@ public interface Parser<T> {
      * @param session parse session
      * @param ctx input to parse
      * @param complete false if parse is "for real", true if only for tab completion calculation
+     * @return parsed value
      * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
      */
     T parse(ParseSession session, ParseContext ctx, boolean complete);

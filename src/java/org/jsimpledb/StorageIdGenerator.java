@@ -23,6 +23,7 @@ public interface StorageIdGenerator {
      *
      * @param type Java model class
      * @param typeName database type name
+     * @return generated storage ID
      */
     int generateClassStorageId(Class<?> type, String typeName);
 
@@ -32,6 +33,7 @@ public interface StorageIdGenerator {
      * @param type Java model class containing the indexed fields
      * @param name composite index name
      * @param fields indexed field storage ID's in index order
+     * @return generated storage ID
      */
     int generateCompositeIndexStorageId(Class<?> type, String name, int[] fields);
 
@@ -40,6 +42,7 @@ public interface StorageIdGenerator {
      *
      * @param getter the field's Java bean getter method
      * @param name the field's database name
+     * @return generated storage ID
      */
     int generateFieldStorageId(Method getter, String name);
 
@@ -48,6 +51,7 @@ public interface StorageIdGenerator {
      *
      * @param getter the field's Java bean getter method
      * @param name the field's database name
+     * @return generated storage ID
      */
     int generateSetElementStorageId(Method getter, String name);
 
@@ -56,6 +60,7 @@ public interface StorageIdGenerator {
      *
      * @param getter the field's Java bean getter method
      * @param name the field's database name
+     * @return generated storage ID
      */
     int generateListElementStorageId(Method getter, String name);
 
@@ -64,6 +69,7 @@ public interface StorageIdGenerator {
      *
      * @param getter the field's Java bean getter method
      * @param name the field's database name
+     * @return generated storage ID
      */
     int generateMapKeyStorageId(Method getter, String name);
 
@@ -72,6 +78,7 @@ public interface StorageIdGenerator {
      *
      * @param getter the field's Java bean getter method
      * @param name the field's database name
+     * @return generated storage ID
      */
     int generateMapValueStorageId(Method getter, String name);
 }

@@ -22,6 +22,9 @@ public class InvalidReferenceException extends IllegalArgumentException {
 
     /**
      * Constructor.
+     *
+     * @param id offending object's ID
+     * @param objectTypes allowed object types
      */
     public InvalidReferenceException(ObjId id, Set<Integer> objectTypes) {
         super("illegal reference " + id + " with object type #" + id.getStorageId() + "; allowed object types are " + objectTypes);
@@ -31,6 +34,9 @@ public class InvalidReferenceException extends IllegalArgumentException {
 
     /**
      * Constructor.
+     *
+     * @param field disallowing field
+     * @param id offending object's ID
      */
     public InvalidReferenceException(ReferenceField field, ObjId id) {
         this(id, field.getObjectTypes());
@@ -38,6 +44,8 @@ public class InvalidReferenceException extends IllegalArgumentException {
 
     /**
      * Get the {@link ObjId} of the object that could not be assigned to the reference field due to disallowed object type.
+     *
+     * @return the object having disallowed type
      */
     public ObjId getObjId() {
         return this.id;

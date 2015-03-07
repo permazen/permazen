@@ -190,6 +190,10 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
      * </p>
+     *
+     * @param change visiting change
+     * @param <T> changed object type
+     * @return visitor return value
      */
     protected <T> R caseListFieldChange(ListFieldChange<T> change) {
         return this.caseFieldChange(change);
@@ -201,6 +205,10 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
      * </p>
+     *
+     * @param change visiting change
+     * @param <T> changed object type
+     * @return visitor return value
      */
     protected <T> R caseMapFieldChange(MapFieldChange<T> change) {
         return this.caseFieldChange(change);
@@ -212,6 +220,10 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
      * </p>
+     *
+     * @param change visiting change
+     * @param <T> changed object type
+     * @return visitor return value
      */
     protected <T> R caseSetFieldChange(SetFieldChange<T> change) {
         return this.caseFieldChange(change);
@@ -223,6 +235,10 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseChange caseChange()}.
      * </p>
+     *
+     * @param change visiting change
+     * @param <T> changed object type
+     * @return visitor return value
      */
     protected <T> R caseFieldChange(FieldChange<T> change) {
         return this.caseChange(change);
@@ -234,6 +250,10 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      * <p>
      * The implementation in {@link ChangeAdapter} returns null.
      * </p>
+     *
+     * @param change visiting change
+     * @param <T> changed object type
+     * @return visitor return value
      */
     protected <T> R caseChange(Change<T> change) {
         return null;

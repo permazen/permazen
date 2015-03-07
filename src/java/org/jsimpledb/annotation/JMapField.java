@@ -41,6 +41,8 @@ public @interface JMapField {
      * <p>
      * If empty string (default value), the name is inferred from the name of the annotated Java bean getter method.
      * </p>
+     *
+     * @return the map field name
      */
     String name() default "";
 
@@ -48,17 +50,22 @@ public @interface JMapField {
      * Storage ID for this field. Value should be positive and unique within the contained class.
      * If zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.
      *
+     * @return the map field storage ID
      * @see org.jsimpledb.StorageIdGenerator#generateFieldStorageId StorageIdGenerator.generateFieldStorageId()
      */
     int storageId() default 0;
 
     /**
      * Storage ID and index setting for the field's keys. Note: the {@link JField#name name} property must be left unset.
+     *
+     * @return the map key field
      */
     JField key() default @JField();
 
     /**
      * Storage ID and index setting for the field's values. Note: the {@link JField#name name} property must be left unset.
+     *
+     * @return the map value field
      */
     JField value() default @JField();
 }

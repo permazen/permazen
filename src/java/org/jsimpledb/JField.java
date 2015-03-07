@@ -54,8 +54,10 @@ public abstract class JField extends JSchemaObject {
      * Does not alter the schema version of the object.
      *
      * @param jobj object containing this field
-     * @throws DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}
-     * @throws StaleTransactionException if the {@link JTransaction} associated with {@code jobj} is no longer usable
+     * @throws org.jsimpledb.core.DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}
+     * @throws org.jsimpledb.kv.StaleTransactionException if the {@link JTransaction} associated with {@code jobj}
+     *  is no longer usable
+     * @return this field's value in {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public abstract Object getValue(JObject jobj);
@@ -64,6 +66,7 @@ public abstract class JField extends JSchemaObject {
      * Apply visitor pattern.
      *
      * @param target target to invoke
+     * @param <R> visit return type
      * @return value from the method of {@code target} corresponding to this instance's type
      * @throws NullPointerException if {@code target} is null
      */

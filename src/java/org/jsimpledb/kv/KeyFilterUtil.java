@@ -104,6 +104,7 @@ public final class KeyFilterUtil {
      * Determine if the given instance is empty, i.e., contains no keys.
      *
      * @param keyFilter instance to check
+     * @return true if filter is empty
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
     public static boolean isEmpty(KeyFilter keyFilter) {

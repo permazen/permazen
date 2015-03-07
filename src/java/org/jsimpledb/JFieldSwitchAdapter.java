@@ -104,6 +104,9 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJComplexField caseJComplexField()}.
      * </p>
+     *
+     * @param field the visiting field
+     * @return visitor return value
      */
     protected R caseJCollectionField(JCollectionField field) {
         return this.caseJComplexField(field);
@@ -115,6 +118,9 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJField caseJField()}.
      * </p>
+     *
+     * @param field the visiting field
+     * @return visitor return value
      */
     protected R caseJComplexField(JComplexField field) {
         return this.caseJField(field);
@@ -126,6 +132,9 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} always throws {@link UnsupportedOperationException}.
      * </p>
+     *
+     * @param field the visiting field
+     * @return visitor return value
      */
     protected R caseJField(JField field) {
         throw new UnsupportedOperationException("field type not handled: " + field);

@@ -20,7 +20,9 @@ public abstract class Star extends AbstractHasSatellites<Planet> {
     }
 
     /**
-     * Get this star's luminosity in Joules per second.
+     * Get this star's luminosity.
+     *
+     * @return luminosity in Joules per second.
      */
     public abstract float getLuminosity();
     public abstract void setLuminosity(float luminosity);

@@ -215,6 +215,10 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      * <p>
      * The implementation in {@link AbstractNavigableMap} checks the bounds then returns the first entry from a head map.
      * </p>
+     *
+     * @param maxKey upper limit for search
+     * @param inclusive true if {@code maxKey} itself is a candidate
+     * @return highest element below {@code maxKey}, or null if not found
      */
     protected Map.Entry<K, V> searchBelow(K maxKey, boolean inclusive) {
         if (!this.isWithinLowerBound(maxKey))
@@ -233,6 +237,10 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      * <p>
      * The implementation in {@link AbstractNavigableMap} checks the bounds then returns the first entry from a tail map.
      * </p>
+     *
+     * @param minKey lower limit for search
+     * @param inclusive true if {@code minKey} itself is a candidate
+     * @return lowest element above {@code minKey}, or null if not found
      */
     protected Map.Entry<K, V> searchAbove(K minKey, boolean inclusive) {
         if (!this.isWithinUpperBound(minKey))
@@ -262,6 +270,7 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      *
      * @param reverse whether the new map's ordering should be reversed relative to this instance's ordering
      * @param newBounds new bounds
+     * @return restricted and/or reversed view of this instance
      * @throws IllegalArgumentException if {@code newBounds} is null
      * @throws IllegalArgumentException if a bound in {@code newBounds} is null and this set does not permit null elements
      */

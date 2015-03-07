@@ -55,6 +55,8 @@ public class FoundationKVDatabase implements KVDatabase {
     /**
      * Get the {@link NetworkOptions} associated with this instance.
      * Options must be configured prior to {@link #start}.
+     *
+     * @return network options
      */
     public NetworkOptions getNetworkOptions() {
         return this.options;
@@ -67,6 +69,7 @@ public class FoundationKVDatabase implements KVDatabase {
      * By default, the default thread pool is used to execute the FoundationDB network.
      * </p>
      *
+     * @param executor executor for networking activity
      * @see FDB#startNetwork(Executor) FDB.startNetwork()
      */
     public void setExecutor(Executor executor) {
@@ -75,6 +78,8 @@ public class FoundationKVDatabase implements KVDatabase {
 
     /**
      * Configure the cluster file path. Default is null, which results in the default fdb.cluster file being used.
+     *
+     * @param clusterFilePath cluster file pathname
      */
     public void setClusterFilePath(String clusterFilePath) {
         this.clusterFilePath = clusterFilePath;
@@ -82,6 +87,8 @@ public class FoundationKVDatabase implements KVDatabase {
 
     /**
      * Configure the database name. Currently the default value ({@code "DB".getBytes()}) is the only valid value.
+     *
+     * @param databaseName database name
      */
     public void setDatabaseName(byte[] databaseName) {
         this.databaseName = databaseName;
@@ -119,6 +126,7 @@ public class FoundationKVDatabase implements KVDatabase {
     /**
      * Get the underlying {@link Database} associated with this instance.
      *
+     * @return the associated {@link Database}
      * @throws IllegalStateException if this instance has not yet been {@linkplain #start started}
      */
     public Database getDatabase() {
@@ -129,10 +137,6 @@ public class FoundationKVDatabase implements KVDatabase {
 
     /**
      * Start this instance. This method must be called prior to creating any transactions.
-     *
-     * <p>
-     * This method is idempotent.
-     * </p>
      *
      * @throws IllegalStateException if this instance has already been {@linkplain #start started}
      * @throws IllegalStateException if this instance has already been {@linkplain #stop stopped}

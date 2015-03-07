@@ -37,6 +37,8 @@ public class ByteWriter {
 
     /**
      * Retrieve all of the bytes that have been written to this instance.
+     *
+     * @return byte content written so far (not necessarily a copy; caller must not modify)
      */
     public byte[] getBytes() {
         if (this.buf.length == this.len)
@@ -50,6 +52,7 @@ public class ByteWriter {
      * Retrieve the bytes that have been written to this instance, starting at the given offset.
      *
      * @param off offset into written bytes
+     * @return byte content written so far starting at {@code off} (not necessarily a copy; caller must not modify)
      * @throws IndexOutOfBoundsException if {@code off} or {@code len} is out of bounds
      */
     public byte[] getBytes(int off) {
@@ -61,6 +64,7 @@ public class ByteWriter {
      *
      * @param off offset into written bytes
      * @param len desired length
+     * @return {@code len} bytes written so far starting from {@code off} (not necessarily a copy; caller must not modify)
      * @throws IndexOutOfBoundsException if {@code off} or {@code len} is out of bounds
      */
     public byte[] getBytes(int off, int len) {
@@ -86,6 +90,8 @@ public class ByteWriter {
 
     /**
      * Read all remaining content from the given {@link ByteReader} and write it to this instance.
+     *
+     * @param reader source for bytes to write
      */
     public void write(ByteReader reader) {
         this.write(reader.buf, reader.off, reader.max - reader.off);
@@ -93,6 +99,8 @@ public class ByteWriter {
 
     /**
      * Write an array of bytes to this instance.
+     *
+     * @param data bytes to write
      */
     public void write(byte[] data) {
         this.makeRoom(data.length);
@@ -103,6 +111,9 @@ public class ByteWriter {
     /**
      * Write a sub-range from an array of bytes.
      *
+     * @param data bytes to write
+     * @param off offset into {@code data}
+     * @param len the number of bytes to write
      * @throws IndexOutOfBoundsException if {@code off} or {@code len} is out of bounds
      */
     public void write(byte[] data, int off, int len) {
@@ -115,6 +126,8 @@ public class ByteWriter {
 
     /**
      * Get the current buffer length. Returns the same value as {@code #mark}.
+     *
+     * @return number of bytes written so far
      */
     public int getLength() {
         return this.len;
@@ -122,6 +135,8 @@ public class ByteWriter {
 
     /**
      * Mark current position. Returns the same value as {@code #getLength}.
+     *
+     * @return number of bytes written so far
      */
     public int mark() {
         return this.len;

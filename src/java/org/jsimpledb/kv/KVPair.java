@@ -58,6 +58,8 @@ public class KVPair {
 
     /**
      * Get the key.
+     *
+     * @return the key
      */
     public byte[] getKey() {
         return this.key;
@@ -65,6 +67,8 @@ public class KVPair {
 
     /**
      * Get the value.
+     *
+     * @return the value
      */
     public byte[] getValue() {
         return this.value;

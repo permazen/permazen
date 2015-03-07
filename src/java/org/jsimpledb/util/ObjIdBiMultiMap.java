@@ -66,6 +66,8 @@ public class ObjIdBiMultiMap {
 
     /**
      * Get the the number of sources that have one or more associated targets.
+     *
+     * @return the number of sources contained in this instance
      */
     public int getNumSources() {
         synchronized (this.lock) {
@@ -75,6 +77,8 @@ public class ObjIdBiMultiMap {
 
     /**
      * Get the the number of targets that have one or more associated sources.
+     *
+     * @return the number of targets contained in this instance
      */
     public int getNumTargets() {
         synchronized (this.lock) {

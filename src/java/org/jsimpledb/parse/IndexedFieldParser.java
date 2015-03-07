@@ -28,7 +28,7 @@ import org.jsimpledb.core.SimpleField;
  *  <li><code>Person.lastName</code></li>
  *  <li><code>Person.friends.element</code></li>
  *  <li><code>Person.grades.key</code></li>
- * </p>
+ * </ul>
  */
 public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
 
@@ -133,6 +133,8 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
 
         /**
          * Get the field's name.
+         *
+         * @return field name
          */
         public String getFieldName() {
             return this.fieldName;
@@ -140,6 +142,8 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
 
         /**
          * Get the indexed field.
+         *
+         * @return indexed field
          */
         public SimpleField<?> getField() {
             return this.field;

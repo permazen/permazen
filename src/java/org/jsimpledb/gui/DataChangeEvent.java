@@ -35,6 +35,8 @@ public class DataChangeEvent extends ApplicationEvent {
     /**
      * Get the change that occurred, already copied out of the transaction with a {@link ChangeCopier}.
      * Related objects are also copied.
+     *
+     * @return the associated change
      */
     public Change<?> getChange() {
         return this.change;

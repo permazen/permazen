@@ -41,7 +41,6 @@ import org.jsimpledb.util.ByteUtil;
  *      on to a contested lock before being forced to release all its locks; after that, the
  *      next call to {@link #lock lock} or {@link #release release} will fail</li>
  * </ul>
- * </p>
  *
  * <p>
  * Note that if the hold timeout is set to zero (unlimited), then an application bug that leaks locks will result

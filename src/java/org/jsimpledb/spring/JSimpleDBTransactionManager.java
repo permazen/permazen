@@ -80,6 +80,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * <p>
      * Required property.
      * </p>
+     *
+     * @param jdb associated database
      */
     public void setJSimpleDB(JSimpleDB jdb) {
         this.jdb = jdb;
@@ -91,6 +93,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * <p>
      * Default value is false.
      * </p>
+     *
+     * @param allowNewSchema whether to allow recording new schema versions
      */
     public void setAllowNewSchema(boolean allowNewSchema) {
         this.allowNewSchema = allowNewSchema;
@@ -102,6 +106,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * <p>
      * Default value is {@link ValidationMode#AUTOMATIC}.
      * </p>
+     *
+     * @param validationMode validation mode for transactions
      */
     public void setValidationMode(ValidationMode validationMode) {
         this.validationMode = validationMode != null ? validationMode : DEFAULT_VALIDATION_MODE;
@@ -116,6 +122,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * <p>
      * Default true.
      * </p>
+     *
+     * @param validateBeforeCommit whether to validate after inner transactions
      */
     public void setValidateBeforeCommit(boolean validateBeforeCommit) {
         this.validateBeforeCommit = validateBeforeCommit;
@@ -220,6 +228,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * The implementation in {@link JSimpleDBTransactionManager} sets the transaction's timeout and read-only properties.
      * </p>
      *
+     * @param jtx transaction to configure
+     * @param txDef transaction definition
      * @throws DatabaseException if an error occurs
      */
     protected void configureTransaction(JTransaction jtx, TransactionDefinition txDef) {
@@ -339,6 +349,8 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
     /**
      * Like {@link JTransaction#getCurrent}, but returns null instead of throwing {@link IllegalStateException}.
+     *
+     * @return the transaction associated with the current thread, or null if there is none
      */
     protected JTransaction getCurrent() {
         try {
@@ -388,6 +400,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         /**
          * Constructor.
          *
+         * @param synchronization transaction callback
          * @throws IllegalArgumentException if {@code synchronization} is null
          */
         public TransactionSynchronizationCallback(TransactionSynchronization synchronization) {

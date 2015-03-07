@@ -79,7 +79,7 @@ import org.slf4j.LoggerFactory;
  *      and are used as such in other {@link JSimpleDB} GUI classes. To customize the reference label for a Java model class,
  *      annotate a method with {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}{@code (}{@link
  *      JObjectContainer#REFERENCE_LABEL_PROPERTY REFERENCE_LABEL_PROPERTY}{@code )};
- *      otherwise, the value of this property will be the same as {@link #OBJECT_ID_PROPERTY}.</i>
+ *      otherwise, the value of this property will be the same as {@link #OBJECT_ID_PROPERTY}.</li>
  *  <li>A property for every {@link JSimpleDB} field that is common to all object types that sub-type
  *      this instance's configured type. The property's ID is the field name; its value is as follows:
  *      <ul>
@@ -92,14 +92,13 @@ import org.slf4j.LoggerFactory;
  *  <li>A property for each {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated method
  *      in the specified <b>type</b>. These properties will add to (or override) the properties listed above.
  * </ul>
- * </p>
  *
  * <p><b>Loading</b></p>
  *
  * <p>
  * Instances may be (re)loaded at any time by invoking {@link #reload}. This causes the container
  * to query for {@link JObject}s within a new {@link JTransaction} via the subclass-provided method
- * {@link #queryForObjects queryForObjects()}, which returns an {@link Iterable Iterable<JObject>}. This container
+ * {@link #queryForObjects queryForObjects()}, which returns an {@link Iterable Iterable&lt;JObject&gt;}. This container
  * copies the resulting database objects into the container's
  * in-memory {@link org.jsimpledb.SnapshotJTransaction}. The latter effectively serves as the cache for the container,
  * so that database transactions may be short-lived and are only required when (re)loading. Because the container contents
@@ -239,6 +238,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * Triggers a {@link com.vaadin.data.Container.PropertySetChangeEvent} and typically requires a reload.
      *
      * @param type Java type restriction, or null for none
+     * @param <T> Java type
      */
     public <T> void setType(Class<T> type) {
         this.type = type;
@@ -257,6 +257,8 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
 
     /**
      * Configure the maximum number of objects.
+     *
+     * @param maxObjects maximum allowed objects
      */
     public void setMaxObjects(int maxObjects) {
         this.maxObjects = Math.max(maxObjects, 0);
@@ -264,6 +266,8 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
 
     /**
      * Get the properties of this container in preferred order.
+     *
+     * @return property names
      */
     public List<String> getOrderedPropertyNames() {
         return this.orderedPropertyNames;
@@ -304,6 +308,8 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * {@link #handleObjectDelete handleObjectDelete()}, or {@link #handleFieldChange handleFieldChange()} as appropriate.
      * </p>
      *
+     * @param change change from a transaction
+     * @param <T> type of the changed object
      * @throws IllegalArgumentException if {@code change} is null
      * @throws org.jsimpledb.core.StaleTransactionException if {@code change} refers to a {@link JObject}
      *  without an associated tranasction.
@@ -347,6 +353,9 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * <p>
      * The implementation in {@link JObjectContainer} {@linkplain #reload reloads} the container.
      * </p>
+     *
+     * @param change change from a transaction
+     * @param <T> type of the changed object
      */
     protected <T> void handleObjectCreate(ObjectCreate<T> change) {
         this.reload();
@@ -358,6 +367,9 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * <p>
      * The implementation in {@link JObjectContainer} {@linkplain #reload reloads} the container.
      * </p>
+     *
+     * @param change change from a transaction
+     * @param <T> type of the changed object
      */
     protected <T> void handleObjectDelete(ObjectDelete<T> change) {
         this.reload();
@@ -371,6 +383,9 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * Affected items are those whose backing object is either the changed object, or has the changed object as a dependency
      * according to {@link #getDependencies getDependencies()}.
      * </p>
+     *
+     * @param change change from a transaction
+     * @param <T> type of the changed object
      */
     protected <T> void handleFieldChange(FieldChange<T> change) {
 

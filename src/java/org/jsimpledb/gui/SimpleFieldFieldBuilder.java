@@ -56,6 +56,8 @@ public class SimpleFieldFieldBuilder {
 
     /**
      * Build a {@link Field} appropriate for the configured {@link JSimpleField}.
+     *
+     * @return Vaadin {@link Field} for editing the field value
      */
     public Field<?> buildField() {
 

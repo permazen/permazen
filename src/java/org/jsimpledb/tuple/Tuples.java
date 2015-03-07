@@ -23,6 +23,7 @@ public final class Tuples {
      * Create a {@link Tuple} of the appropriate cardinality for the given number of objects.
      *
      * @param values tuple values
+     * @return newly created tuple
      * @throws IllegalArgumentException if {@code values} is null or empty
      * @throws UnsupportedOperationException if {@code values} has more elements than exist concrete {@link Tuple} classes
      */
@@ -36,6 +37,7 @@ public final class Tuples {
      * Create a {@link Tuple} of the appropriate cardinality for the given number of objects.
      *
      * @param values tuple values
+     * @return newly created tuple
      * @throws IllegalArgumentException if {@code values} is null or empty
      * @throws UnsupportedOperationException if {@code values} has more elements than exist concrete {@link Tuple} classes
      */
@@ -56,6 +58,7 @@ public final class Tuples {
      * Get the {@link Tuple} subclass having the specified cardinality.
      *
      * @param size number of objects in the tuple
+     * @return {@link Tuple} subclass with cardinality {@code size}
      * @throws IllegalArgumentException if {@code size} is less than one
      * @throws UnsupportedOperationException if {@code size} is more than exist concrete {@link Tuple} classes
      */

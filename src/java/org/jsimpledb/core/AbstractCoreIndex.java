@@ -51,6 +51,7 @@ abstract class AbstractCoreIndex {
      *
      * @param index zero-based object type field offset
      * @param keyFilter key filtering to apply
+     * @return filtered view of this instance
      * @throws IndexOutOfBoundsException if {@code index} is out of range
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */

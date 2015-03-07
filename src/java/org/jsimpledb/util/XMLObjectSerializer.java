@@ -77,7 +77,6 @@ import org.jsimpledb.schema.SchemaObjectType;
  *      ...
  *  &lt;/objects&gt;
  *  </pre>
- * </p>
  *
  * <p>
  * "Name Format" differs from "Storage ID Format" in that object types and fields are specified by name instead of storage ID.
@@ -98,7 +97,6 @@ import org.jsimpledb.schema.SchemaObjectType;
  *      ...
  *  &lt;/objects&gt;
  *  </pre>
- * </p>
  *
  * <p>
  * Some details on the input logic:
@@ -115,7 +113,6 @@ import org.jsimpledb.schema.SchemaObjectType;
  *      input generated via XSL and the {@code generate-id()} function.
  *      The {@linkplain #getGeneratedIdCache configured} {@link GeneratedIdCache} keeps track of generated IDs.</li>
  * </ul>
- * </p>
  */
 public class XMLObjectSerializer extends AbstractXMLStreaming {
 
@@ -157,6 +154,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
     /**
      * Get the {@link GeneratedIdCache} associated with this instance.
+     *
+     * @return the associated {@link GeneratedIdCache}
      */
     public GeneratedIdCache getGeneratedIdCache() {
         return this.generatedIdCache;
@@ -165,6 +164,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     /**
      * Set the {@link GeneratedIdCache} associated with this instance.
      *
+     * @param generatedIdCache the {@link GeneratedIdCache} for this instance to use
      * @throws IllegalArgumentException if {@code generatedIdCache} is null
      */
     public void setGeneratedIdCache(GeneratedIdCache generatedIdCache) {

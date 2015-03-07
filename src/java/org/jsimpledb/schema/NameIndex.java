@@ -61,6 +61,8 @@ public class NameIndex {
 
     /**
      * Get the {@link SchemaModel} on which this index is based.
+     *
+     * @return associated schema
      */
     public SchemaModel getSchemaModel() {
         return this.schemaModel;

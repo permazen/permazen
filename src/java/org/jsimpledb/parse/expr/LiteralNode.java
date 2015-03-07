@@ -27,6 +27,8 @@ public class LiteralNode implements Node {
 
     /**
      * Get the literal value.
+     *
+     * @return literal value
      */
     public Object getLiteralValue() {
         return this.value;

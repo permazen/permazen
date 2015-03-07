@@ -52,6 +52,8 @@ public class ReferenceField extends SimpleField<ObjId> {
 
     /**
      * Get the desired behavior when an object referred to by this field is deleted.
+     *
+     * @return desired behavior when a referenced object is deleted
      */
     public DeleteAction getOnDelete() {
         return this.onDelete;
@@ -59,6 +61,8 @@ public class ReferenceField extends SimpleField<ObjId> {
 
     /**
      * Determine whether the referred-to object should be deleted when an object containing this field is deleted.
+     *
+     * @return whether deletion should cascade to the referred-to object
      */
     public boolean isCascadeDelete() {
         return this.cascadeDelete;

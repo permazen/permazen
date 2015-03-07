@@ -21,6 +21,8 @@ public abstract class Planet extends AbstractHasSatellites<Moon> implements Sate
 
     /**
      * Get whether this planet is ringed.
+     *
+     * @return true if this planet has rings
      */
     public abstract boolean isRinged();
     public abstract void setRinged(boolean ringed);

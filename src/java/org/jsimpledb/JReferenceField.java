@@ -50,6 +50,8 @@ public class JReferenceField extends JSimpleField {
 
     /**
      * Get the {@link DeleteAction} configured for this field.
+     *
+     * @return this field's {@link DeleteAction}
      */
     public DeleteAction getOnDelete() {
         return this.onDelete;
@@ -57,6 +59,8 @@ public class JReferenceField extends JSimpleField {
 
     /**
      * Determine whether the referred-to object should be deleted when an object containing this field is deleted.
+     *
+     * @return this field's delete cascade setting
      */
     public boolean isCascadeDelete() {
         return this.cascadeDelete;

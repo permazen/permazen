@@ -43,10 +43,9 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      *
      * <p>
      * This is a convenience constructor, equivalent to:
-     *  <blockquote><code>
-     *  ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction())
-     *  </code></blockquote>
-     * </p>
+     * <blockquote><code>
+     * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction())
+     * </code></blockquote>
      *
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
      *  associated with the current thread
@@ -57,6 +56,8 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     /**
      * Get the destination transaction configured in this instance.
+     *
+     * @return destination transaction
      */
     public JTransaction getDestinationTransaction() {
         return this.dest;
@@ -64,6 +65,8 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
     /**
      * Get the {@link CopyState} used by this instance.
+     *
+     * @return associated copy state
      */
     public CopyState getCopyState() {
         return this.copyState;

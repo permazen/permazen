@@ -28,7 +28,6 @@ import org.jsimpledb.util.ByteWriter;
  *  <li>Adding new elements via {@link #add add()} is not supported</li>
  *  <li>{@link #clear} is not supported when a {@link KeyFilter} is configured</li>
  * </ul>
- * </p>
  */
 @SuppressWarnings("serial")
 public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {

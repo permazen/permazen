@@ -28,6 +28,8 @@ public class ReferencedObjectException extends DatabaseException {
 
     /**
      * Get the ID of the object that could not be deleted because it was referenced.
+     *
+     * @return referenced object's ID
      */
     public ObjId getId() {
         return this.id;
@@ -35,6 +37,8 @@ public class ReferencedObjectException extends DatabaseException {
 
     /**
      * Get the ID of the object that still refers to the object that was to be deleted.
+     *
+     * @return referencing object's ID
      */
     public ObjId getReferrer() {
         return this.referrer;
@@ -42,6 +46,8 @@ public class ReferencedObjectException extends DatabaseException {
 
     /**
      * Get the storage ID of the field in the referring object that still referrs to the object that was supposed to be deleted.
+     *
+     * @return reference field storage ID
      */
     public int getStorageId() {
         return this.storageId;

@@ -65,6 +65,8 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     /**
      * Get the key field.
+     *
+     * @return map key field
      */
     public SimpleField<K> getKeyField() {
         return this.keyField;
@@ -72,6 +74,8 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
 
     /**
      * Get the value field.
+     *
+     * @return map value field
      */
     public SimpleField<V> getValueField() {
         return this.valueField;

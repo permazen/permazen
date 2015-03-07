@@ -96,6 +96,7 @@ public class ParseContext implements Cloneable {
      * Match the current input against the given regular expression and advance past it.
      *
      * @param regex regular expression to match against the current input
+     * @return a {@link Matcher} that matched {@code regex} against the input
      * @throws IllegalArgumentException if the current input does not match
      */
     public Matcher matchPrefix(String regex) {
@@ -106,6 +107,7 @@ public class ParseContext implements Cloneable {
      * Match the current input against the given regular expression and advance past it.
      *
      * @param regex regular expression to match against the current input
+     * @return a {@link Matcher} that matched {@code regex} against the input
      * @throws IllegalArgumentException if the current input does not match
      */
     public Matcher matchPrefix(Pattern regex) {
@@ -157,6 +159,8 @@ public class ParseContext implements Cloneable {
 
     /**
      * Determine if we are at the end of the input.
+     *
+     * @return true if at the end of the input
      */
     public boolean isEOF() {
         return this.index >= this.input.length();
@@ -236,6 +240,8 @@ public class ParseContext implements Cloneable {
 
     /**
      * Create a generic exception for rejecting the current input.
+     *
+     * @return exception
      */
     public IllegalArgumentException buildException() {
         return this.buildException(null);
@@ -245,6 +251,7 @@ public class ParseContext implements Cloneable {
      * Create an exception for rejecting the current input.
      *
      * @param message problem description, or {@code null} for none
+     * @return exception
      */
     public IllegalArgumentException buildException(String message) {
         String text = "parse error ";

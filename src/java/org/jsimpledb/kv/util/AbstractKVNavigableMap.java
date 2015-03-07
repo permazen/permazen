@@ -73,7 +73,6 @@ import org.jsimpledb.util.ByteWriter;
  *      <li>The {@link Set#clear clear()} method delegates to this instance's {@link #clear} method.</li>
  *  </ul>
  * </ul>
- * </p>
  *
  * <p><b>Prefix Mode</b></p>
  *
@@ -245,6 +244,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * </p>
      *
      * @param keyFilter additional key filtering to apply
+     * @return filtered view of this instance
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
     public NavigableMap<K, V> filterKeys(KeyFilter keyFilter) {
@@ -301,6 +301,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @param newKeyRange new key range, or null for none; will be consistent with {@code bounds}, if any
      * @param newKeyFilter new key filter, or null for none
      * @param newBounds new bounds
+     * @return restricted and/or filtered view of this instance
      * @throws IllegalArgumentException if {@code newBounds} is null
      */
     protected abstract NavigableMap<K, V> createSubMap(boolean newReversed,
@@ -343,6 +344,9 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * Determine if the given {@code byte[]} key is visible in this map according to the configured
      * {@link KeyRange} and/or {@link KeyFilter}, if any.
      *
+     * @param key key to test
+     * @return true if key is visible
+     * @throws IllegalArgumentException if {@code key} is null
      * @see #filterKeys filterKeys()
      */
     protected boolean isVisible(byte[] key) {

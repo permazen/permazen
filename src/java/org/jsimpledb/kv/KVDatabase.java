@@ -17,6 +17,7 @@ public interface KVDatabase {
     /**
      * Create a new transaction.
      *
+     * @return newly created transaction
      * @throws KVDatabaseException if an unexpected error occurs
      */
     KVTransaction createTransaction();

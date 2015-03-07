@@ -117,6 +117,7 @@ public @interface OnChange {
      * that emits {@link org.jsimpledb.change.FieldChange}s compatible with the method parameter will be monitored for changes.
      * </p>
      *
+     * @return reference path leading to the changed field
      * @see org.jsimpledb.ReferencePath
      */
     String[] value() default { };
@@ -129,6 +130,7 @@ public @interface OnChange {
      * then then class containing the annotated method is assumed.
      * </p>
      *
+     * @return Java type at which the reference path starts
      * @see org.jsimpledb.ReferencePath
      */
     Class<?> startType() default void.class;
@@ -138,6 +140,7 @@ public @interface OnChange {
      * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transaction} objects.
      * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
      *
+     * @return whether enabled for snapshot transactions
      * @see org.jsimpledb.SnapshotJTransaction
      */
     boolean snapshotTransactions() default false;

@@ -37,6 +37,7 @@ public enum BoundType {
      * Return{@link BoundType#INCLUSIVE} or {@link BoundType#EXCLUSIVE} based on the given boolean.
      *
      * @param inclusive true for {@link BoundType#INCLUSIVE}, false for {@link BoundType#EXCLUSIVE}
+     * @return the corresponding {@link BoundType}
      */
     public static BoundType of(boolean inclusive) {
         return inclusive ? BoundType.INCLUSIVE : BoundType.EXCLUSIVE;
@@ -45,6 +46,8 @@ public enum BoundType {
     /**
      * Get a {@link Boolean} corresponding to this instance: true for {@link #INCLUSIVE},
      * false for {@link #EXCLUSIVE}, or null for {@link #NONE}.
+     *
+     * @return boolean representation of this bound type
      */
     public Boolean isInclusive() {
         return this.booleanValue;

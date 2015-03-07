@@ -62,6 +62,8 @@ public abstract class SchemaItem {
 
     /**
      * Get the schema version with which this instance is associated.
+     *
+     * @return associated schema version
      */
     public SchemaVersion getVersion() {
         return this.version;

@@ -37,6 +37,8 @@ public abstract class JSchemaObject {
 
     /**
      * Get the {@link JSimpleDB} with which this instance is associated.
+     *
+     * @return the associated database
      */
     public JSimpleDB getJSimpleDB() {
         return this.jdb;
@@ -44,6 +46,8 @@ public abstract class JSchemaObject {
 
     /**
      * Get the name of this instance.
+     *
+     * @return this instance's name
      */
     public String getName() {
         return this.name;
@@ -51,6 +55,8 @@ public abstract class JSchemaObject {
 
     /**
      * Get the storage ID of this instance.
+     *
+     * @return this instance's storage ID
      */
     public int getStorageId() {
         return this.storageId;

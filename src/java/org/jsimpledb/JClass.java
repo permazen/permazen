@@ -86,6 +86,8 @@ public class JClass<T> extends JSchemaObject {
 
     /**
      * Get the Java model object type associated with this instance.
+     *
+     * @return associated Java type
      */
     public Class<T> getType() {
         return this.type;
@@ -114,6 +116,7 @@ public class JClass<T> extends JSchemaObject {
      *
      * @param storageId field storage ID
      * @param type required type
+     * @param <T> expected field type
      * @return {@link JField} in this instance corresponding to {@code storageId}
      * @throws UnknownFieldException if {@code storageId} does not correspond to any field in this instance
      * @throws UnknownFieldException if the field is not an instance of of {@code type}

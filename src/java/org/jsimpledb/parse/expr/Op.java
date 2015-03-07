@@ -339,6 +339,8 @@ public enum Op {
 
     /**
      * Get the arity of this symbol.
+     *
+     * @return symbol arity
      */
     public int getArity() {
         return this.arity;
@@ -346,6 +348,8 @@ public enum Op {
 
     /**
      * Get the symbol associated with this operator.
+     *
+     * @return operator symbol
      */
     public String getSymbol() {
         return this.symbol;
@@ -356,6 +360,7 @@ public enum Op {
      *
      * @param session current session
      * @param args operator arguments
+     * @return result of operation
      * @throws IllegalArgumentException if {@code args} contains inappropriate value(s)
      * @throws IllegalArgumentException if the length of {@code args} does not match this operator
      */
@@ -383,6 +388,7 @@ public enum Op {
      * </ul>
      *
      * @param symbol symbol
+     * @return corresponding operator
      * @throws IllegalArgumentException if no such {@link Op} exists
      */
     public static Op forSymbol(String symbol) {

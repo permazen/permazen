@@ -65,6 +65,8 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Get the {@link DataSource} used with this instance.
+     *
+     * @return the associated {@link DataSource}
      */
     public DataSource getDataSource() {
         return this.dataSource;
@@ -76,6 +78,8 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * Required property.
      * </p>
+     *
+     * @param dataSource access to the underlying database
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -87,6 +91,8 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * Default value is {@value #DEFAULT_TABLE_NAME}.
      * </p>
+     *
+     * @return key/value table name
      */
     public String getTableName() {
         return this.tableName;
@@ -110,6 +116,8 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * Default value is {@value #DEFAULT_KEY_COLUMN_NAME}.
      * </p>
+     *
+     * @return the name of the key column
      */
     public String getKeyColumnName() {
         return this.keyColumnName;
@@ -133,6 +141,8 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * Default value is {@value #DEFAULT_VALUE_COLUMN_NAME}.
      * </p>
+     *
+     * @return the name of the value column
      */
     public String getValueColumnName() {
         return this.valueColumnName;
@@ -156,6 +166,8 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * Default value is {@link IsolationLevel#SERIALIZABLE}.
      * </p>
+     *
+     * @return isolation level
      */
     public IsolationLevel getIsolationLevel() {
         return this.isolationLevel;
@@ -212,6 +224,9 @@ public class SQLKVDatabase implements KVDatabase {
      * The implementation in {@link SQLKVDatabase} invokes {@link DataSource#getConnection()} on the
      * {@linkplain #dataSource configured} {@link DataSource}.
      * </p>
+     *
+     * @return new transaction {@link Connection}
+     * @throws SQLException if an error occurs
      */
     protected Connection createTransactionConnection() throws SQLException {
         return this.dataSource.getConnection();
@@ -225,6 +240,8 @@ public class SQLKVDatabase implements KVDatabase {
      * configured for the {@link IsolationLevel} configured on this instance.
      * </p>
      *
+     * @param connection the {@link Connection} for a new transaction
+     * @throws SQLException if an error occurs
      * @see #createSQLKVTransaction createSQLKVTransaction()
      */
     protected void preBeginTransaction(Connection connection) throws SQLException {
@@ -237,6 +254,8 @@ public class SQLKVDatabase implements KVDatabase {
      * The implementation in {@link SQLKVDatabase} invokes {@link Connection#setAutoCommit Connection.setAutoCommit(false)}.
      * </p>
      *
+     * @param connection the {@link Connection} for a new transaction
+     * @throws SQLException if an error occurs
      * @see #createSQLKVTransaction createSQLKVTransaction()
      */
     protected void beginTransaction(Connection connection) throws SQLException {
@@ -251,6 +270,8 @@ public class SQLKVDatabase implements KVDatabase {
      * configured for the {@link IsolationLevel} configured on this instance.
      * </p>
      *
+     * @param connection the {@link Connection} for a new transaction
+     * @throws SQLException if an error occurs
      * @see #createSQLKVTransaction createSQLKVTransaction()
      */
     protected void postBeginTransaction(Connection connection) throws SQLException {
@@ -264,13 +285,19 @@ public class SQLKVDatabase implements KVDatabase {
      * The implementation in {@link SQLKVDatabase} just invokes
      * {@link SQLKVTransaction#SQLKVTransaction new SQLKVTransaction(this, connection)}.
      * </p>
+     *
+     * @param connection the {@link Connection} for a new transaction
+     * @return newly created transaction
+     * @throws SQLException if an error occurs
      */
     protected SQLKVTransaction createSQLKVTransaction(Connection connection) throws SQLException {
         return new SQLKVTransaction(this, connection);
     }
 
     /**
-     * Create an SQL statement that reads the value column associated with key <code>&#63;1<?code>.
+     * Create an SQL statement that reads the value column associated with key <code>&#63;1</code>.
+     *
+     * @return SQL query statement
      */
     public String createGetStatement() {
         return "SELECT " + this.quote(this.valueColumnName) + " FROM "
@@ -279,9 +306,10 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that reads the key and value columns (in that order) associated
-     * with the smallest key greater than or equal to <code>&#63;1<?code>, if any.
+     * with the smallest key greater than or equal to <code>&#63;1</code>, if any.
      *
      * @param reverse true to return rows in descending key order, false to return rows in ascending key order
+     * @return SQL query statement
      */
     public String createGetAtLeastStatement(boolean reverse) {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -291,9 +319,10 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that reads the key and value columns (in that order)
-     * associated with the greatest key strictly less than <code>&#63;1<?code>, if any.
+     * associated with the greatest key strictly less than <code>&#63;1</code>, if any.
      *
      * @param reverse true to return rows in descending key order, false to return rows in ascending key order
+     * @return SQL query statement
      */
     public String createGetAtMostStatement(boolean reverse) {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -303,9 +332,10 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that reads the key and value columns (in that order) associated with all keys
-     * in the range <code>&#63;1<?code> (inclusive) to <code>&#63;2<?code> (exclusive), possibly reversed.
+     * in the range <code>&#63;1</code> (inclusive) to <code>&#63;2</code> (exclusive), possibly reversed.
      *
      * @param reverse true to return rows in descending key order, false to return rows in ascending key order
+     * @return SQL query statement
      */
     public String createGetRangeStatement(boolean reverse) {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -318,6 +348,7 @@ public class SQLKVDatabase implements KVDatabase {
      * Create an SQL statement that reads all of the key and value columns (in that order), possibly reversed.
      *
      * @param reverse true to return rows in descending key order, false to return rows in ascending key order
+     * @return SQL query statement
      */
     public String createGetAllStatement(boolean reverse) {
         return "SELECT " + this.quote(this.keyColumnName) + ", " + this.quote(this.valueColumnName)
@@ -325,8 +356,10 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that inserts the key/value pair with key <code>&#63;1<?code> and value <code>&#63;2<?code>
-     * A row with key <code>&#63;1<?code> may already exist; if so, the value should be updated to <code>&#63;3<?code>.
+     * Create an SQL statement that inserts the key/value pair with key <code>&#63;1</code> and value <code>&#63;2</code>
+     * A row with key <code>&#63;1</code> may already exist; if so, the value should be updated to <code>&#63;3</code>.
+     *
+     * @return SQL insertion statement
      */
     public String createPutStatement() {
         return "INSERT INTO " + this.quote(this.tableName) + " (" + this.quote(this.keyColumnName)
@@ -335,16 +368,20 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that deletes the row associated with key <code>&#63;1<?code>, if any.
+     * Create an SQL statement that deletes the row associated with key <code>&#63;1</code>, if any.
      * Note that the key may or may not exist prior to this method being invoked.
+     *
+     * @return SQL delete statement
      */
     public String createRemoveStatement() {
         return "DELETE FROM " + this.quote(this.tableName) + " WHERE " + this.quote(this.keyColumnName) + " = ?";
     }
 
     /**
-     * Create an SQL statement that deletes all rows with keys in the range <code>&#63;1<?code> (inclusive}
-     * to <code>&#63;2<?code> (exclusive).
+     * Create an SQL statement that deletes all rows with keys in the range <code>&#63;1</code> (inclusive}
+     * to <code>&#63;2</code> (exclusive).
+     *
+     * @return SQL delete statement
      */
     public String createRemoveRangeStatement() {
         return "DELETE FROM " + this.quote(this.tableName)
@@ -352,14 +389,18 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Create an SQL statement that deletes all rows with keys greater than or equal to <code>&#63;1<?code>.
+     * Create an SQL statement that deletes all rows with keys greater than or equal to <code>&#63;1</code>.
+     *
+     * @return SQL delete statement
      */
     public String createRemoveAtLeastStatement() {
         return "DELETE FROM " + this.quote(this.tableName) + " WHERE " + this.quote(this.keyColumnName) + " >= ?";
     }
 
     /**
-     * Create an SQL statement that deletes all rows with keys strictly less than <code>&#63;1<?code>.
+     * Create an SQL statement that deletes all rows with keys strictly less than <code>&#63;1</code>.
+     *
+     * @return SQL delete statement
      */
     public String createRemoveAtMostStatement() {
         return "DELETE FROM " + this.quote(this.tableName) + " WHERE " + this.quote(this.keyColumnName) + " < ?";
@@ -367,6 +408,8 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that deletes all rows.
+     *
+     * @return SQL delete statement
      */
     public String createRemoveAllStatement() {
         return "DELETE FROM " + this.quote(this.tableName);

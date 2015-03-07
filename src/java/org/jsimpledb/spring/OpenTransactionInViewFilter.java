@@ -45,7 +45,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *  <li>{@code "validationMode"} - validation mode for the transaction
  *      (see {@link JSimpleDB#createTransaction JSimpleDB.createTransaction()}). Default {@link ValidationMode#AUTOMATIC}.</li>
  * </ul>
- * </p>
  */
 public class OpenTransactionInViewFilter extends OncePerRequestFilter {
 
@@ -90,6 +89,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     /**
      * Get the name of the {@link JSimpleDB} bean to find in the Spring root application context.
      *
+     * @return bean name
      * @see #JSIMPLEDB_BEAN_NAME_PARAMETER
      */
     public String getJSimpleDBBeanName() {
@@ -100,6 +100,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
      * Set the name of the {@link JSimpleDB} bean to find in the Spring root application context.
      * Default is {@link #DEFAULT_JSIMPLEDB_BEAN_NAME}.
      *
+     * @param jsimpledbBeanName {@link JSimpleDB} bean name
      * @see #JSIMPLEDB_BEAN_NAME_PARAMETER
      */
     public void setJSimpleDBBeanName(String jsimpledbBeanName) {
@@ -109,6 +110,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     /**
      * Get the transaction attributes.
      *
+     * @return transaction attributes
      * @see #JSIMPLEDB_TRANSACTION_ATTRIBUTE_PARAMETER
      */
     public TransactionAttribute getTransactionAttributes() {
@@ -118,6 +120,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     /**
      * Set the transaction attributes.
      *
+     * @param transactionAttributes transaction attributes
      * @see #JSIMPLEDB_TRANSACTION_ATTRIBUTE_PARAMETER
      */
     public void setTransactionAttributes(TransactionAttribute transactionAttributes) {
@@ -127,6 +130,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     /**
      * Get whether new scheme creation is allowed.
      *
+     * @return whether to allow recording new schema versions
      * @see #JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER
      */
     public boolean isAllowNewSchema() {
@@ -136,6 +140,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     /**
      * Set whether new scheme creation is allowed.
      *
+     * @param allowNewSchema whether to allow recording new schema versions
      * @see #JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER
      */
     public void setAllowNewSchema(boolean allowNewSchema) {
@@ -145,6 +150,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     /**
      * Get transaction validation mode.
      *
+     * @return validation mode for transactions
      * @see #JSIMPLEDB_VALIDATION_MODE_PARAMETER
      */
     public ValidationMode getValidationMode() {
@@ -154,6 +160,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
     /**
      * Set transaction validation mode.
      *
+     * @param validationMode validation mode for transactions
      * @see #JSIMPLEDB_VALIDATION_MODE_PARAMETER
      */
     public void setValidationMode(ValidationMode validationMode) {

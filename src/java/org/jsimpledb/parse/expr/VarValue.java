@@ -32,6 +32,8 @@ public class VarValue extends AbstractLValue {
 
     /**
      * Get the variable name.
+     *
+     * @return variable name
      */
     public String getName() {
         return this.name;

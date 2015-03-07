@@ -82,6 +82,8 @@ public class CliSession extends ParseSession {
 
     /**
      * Get the output {@link PrintWriter} for this CLI session.
+     *
+     * @return output writer
      */
     public PrintWriter getWriter() {
         return this.writer;
@@ -89,6 +91,8 @@ public class CliSession extends ParseSession {
 
     /**
      * Get the {@link AbstractCommand}s registered with this instance.
+     *
+     * @return registered commands indexed by name
      */
     public SortedMap<String, AbstractCommand> getCommands() {
         return this.commands;
@@ -211,6 +215,8 @@ public class CliSession extends ParseSession {
      * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}
      *
      * @param action action to perform
+     * @return true if {@code action} completed successfully, false if the transaction could not be created
+     *  or {@code action} threw an exception
      * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean perform(Action action) {
@@ -230,6 +236,8 @@ public class CliSession extends ParseSession {
      *
      * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
      * @param action action to perform
+     * @return true if {@code action} completed successfully, false if the transaction could not be created
+     *  or {@code action} threw an exception
      * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
      * @throws IllegalArgumentException if {@code action} is null
      */
@@ -249,6 +257,9 @@ public class CliSession extends ParseSession {
 
         /**
          * Perform some action using the given {@link CliSession} while a transaction is open.
+         *
+         * @param session session with open transaction
+         * @throws Exception if an error occurs
          */
         void run(CliSession session) throws Exception;
     }

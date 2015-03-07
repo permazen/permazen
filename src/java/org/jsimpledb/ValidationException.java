@@ -49,6 +49,8 @@ public class ValidationException extends DatabaseException {
 
     /**
      * Get the object that failed to validate.
+     *
+     * @return the invalid object
      */
     public JObject getObject() {
         return this.jobj;

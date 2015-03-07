@@ -37,6 +37,8 @@ public class KVTransactionException extends KVDatabaseException {
 
     /**
      * Get the {@link KVTransaction} that generated this exception.
+     *
+     * @return the associated transaction
      */
     public KVTransaction getTransaction() {
         return this.kvt;

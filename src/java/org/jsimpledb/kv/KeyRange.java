@@ -119,6 +119,7 @@ public class KeyRange {
      * Construct an instance containing all keys with the given prefix.
      *
      * @param prefix prefix of all keys in the range
+     * @return range of keys prefixed by {@code prefix}
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     public static KeyRange forPrefix(byte[] prefix) {
@@ -139,6 +140,8 @@ public class KeyRange {
 
     /**
      * Get range minimum (inclusive), or null if there is no lower bound.
+     *
+     * @return inclusivie minimum, or null for none
      */
     public byte[] getMin() {
         return this.min == null ? null : this.min.clone();
@@ -146,6 +149,8 @@ public class KeyRange {
 
     /**
      * Get range maximum (exclusive), or null if there is no upper bound.
+     *
+     * @return exclusivie maximum, or null for none
      */
     public byte[] getMax() {
         return this.max == null ? null : this.max.clone();
@@ -155,6 +160,7 @@ public class KeyRange {
      * Determine if this key range overlaps the specified key range.
      *
      * @param range other instance
+     * @return true if this instance overlaps {@code range}
      * @throws IllegalArgumentException if {@code range} is null
      */
     public boolean overlaps(KeyRange range) {
@@ -167,6 +173,7 @@ public class KeyRange {
      * Determine if this key range fully contains the specified key range.
      *
      * @param range other instance
+     * @return true if this instance contains {@code range}
      * @throws IllegalArgumentException if {@code range} is null
      */
     public boolean contains(KeyRange range) {
@@ -178,6 +185,8 @@ public class KeyRange {
     /**
      * Determine if this key range contains the specified key.
      *
+     * @param key key to test
+     * @return true if this range contains {@code key}
      * @throws IllegalArgumentException if {@code key} is null
      */
     public boolean contains(byte[] key) {
@@ -186,6 +195,8 @@ public class KeyRange {
 
     /**
      * Determine whether this instance contains the full range covering all keys.
+     *
+     * @return true if this instance contains all keys
      */
     public boolean isFull() {
         return this.min == null && this.max == null;
@@ -193,6 +204,8 @@ public class KeyRange {
 
     /**
      * Determine whether this instance contains zero keys (implying {@link #getMin}{@code == }{@link #getMax}).
+     *
+     * @return true if this instance contains no keys
      */
     public boolean isEmpty() {
         return this.min != null && this.max != null && ByteUtil.compare(this.min, this.max) == 0;
@@ -202,6 +215,8 @@ public class KeyRange {
      * Create a new instance whose minimum and maximum keys are the same as this instance's
      * but with the given byte sequence prepended.
      *
+     * @param prefix key range prefix
+     * @return this range prefixed by {@code prefix}
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     public KeyRange prefixedBy(byte[] prefix) {
@@ -215,6 +230,7 @@ public class KeyRange {
     /**
      * Determine if this range is left of, contains, or is right of the given key.
      *
+     * @param key key for comparison
      * @return -1 if this range is left of {@code key},
      *  0 if this range contains {@code key}, or 1 if this range is right of {@code key},
      * @throws IllegalArgumentException if {@code key} is null

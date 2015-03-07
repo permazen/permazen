@@ -36,6 +36,7 @@ public @interface OnDelete {
      * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transaction} objects.
      * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
      *
+     * @return whether enabled for snapshot transactions
      * @see org.jsimpledb.SnapshotJTransaction
      */
     boolean snapshotTransactions() default false;

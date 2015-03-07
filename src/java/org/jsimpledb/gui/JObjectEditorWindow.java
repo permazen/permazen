@@ -100,6 +100,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
      *
      * @param ui associated {@link UI}
      * @param session parse session for {@link JObjectChooser}
+     * @param jclass object type
      * @param jobj object to edit; should be contained in a snapshot transaction
      * @param titleComponent title for edit panel
      */

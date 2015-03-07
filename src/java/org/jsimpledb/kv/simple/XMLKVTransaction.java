@@ -22,6 +22,7 @@ public class XMLKVTransaction extends SimpleKVTransaction {
     /**
      * Get the generation number associated with this instance.
      *
+     * @return the generation number on which this transaction is based
      * @see XMLKVDatabase#getGeneration
      */
     public int getGeneration() {

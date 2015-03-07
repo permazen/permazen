@@ -53,6 +53,8 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
 
     /**
      * Get the list index at which the new element was added.
+     *
+     * @return the index at which the value was added
      */
     public int getIndex() {
         return this.index;
@@ -60,6 +62,8 @@ public class ListFieldAdd<T, E> extends ListFieldChange<T> {
 
     /**
      * Get the element that was added to the list.
+     *
+     * @return the value added to the list
      */
     public E getElement() {
         return this.element;

@@ -50,6 +50,7 @@ public interface JObject {
     /**
      * Get this instance's current schema version. Does not change this instance's schema version.
      *
+     * @return the schema version of this instance
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
@@ -246,10 +247,9 @@ public interface JObject {
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
-     *  <blockquote><code>
-     *  this.copyTo(this.getTransaction().getSnapshotTransaction(), null, new CopyState(), refPaths);
-     *  </code></blockquote>
-     * </p>
+     * <blockquote><code>
+     * this.copyTo(this.getTransaction().getSnapshotTransaction(), null, new CopyState(), refPaths);
+     * </code></blockquote>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the snapshot {@link JObject} copy of this instance
@@ -282,10 +282,9 @@ public interface JObject {
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
-     *  <blockquote><code>
-     *  this.copyTo(JTransaction.getCurrent(), null, new CopyState(), refPaths)
-     *  </code></blockquote>
-     * </p>
+     * <blockquote><code>
+     * this.copyTo(JTransaction.getCurrent(), null, new CopyState(), refPaths)
+     * </code></blockquote>
      *
      * @param refPaths zero or more reference paths that refer to additional objects to be copied
      * @return the regular database copy of this instance

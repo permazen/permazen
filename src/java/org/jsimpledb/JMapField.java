@@ -37,6 +37,8 @@ public class JMapField extends JComplexField {
 
     /**
      * Get the key sub-field.
+     *
+     * @return this field's key sub-field
      */
     public JSimpleField getKeyField() {
         return this.keyField;
@@ -44,6 +46,8 @@ public class JMapField extends JComplexField {
 
     /**
      * Get the value sub-field.
+     *
+     * @return this field's value sub-field
      */
     public JSimpleField getValueField() {
         return this.valueField;

@@ -47,9 +47,7 @@ import java.lang.annotation.Target;
  *      ...
  * </pre>
  * do this:
- * </p>
  *
- * <p>
  * <pre>
  *  &#64;JSimpleClass
  *  public abstract class Event {
@@ -67,7 +65,6 @@ import java.lang.annotation.Target;
  *
  *      ...
  * </pre>
- * </p>
  *
  * <p>
  * Notifications are delivered in the same thread that created the object, immediately after the object is created.
@@ -88,6 +85,7 @@ public @interface OnCreate {
      * {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transaction} objects.
      * If unset, notifications will only be delivered to non-snapshot (i.e., normal) database instances.
      *
+     * @return whether enabled for snapshot transactions
      * @see org.jsimpledb.SnapshotJTransaction
      */
     boolean snapshotTransactions() default false;

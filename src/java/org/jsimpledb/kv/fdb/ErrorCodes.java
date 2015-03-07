@@ -10,7 +10,7 @@ package org.jsimpledb.kv.fdb;
 /**
  * FoundationDB error codes.
  *
- * @see <a href="https://foundationdb.com/documentation/api-error-codes.html#developer-guide-error-codes>Error Codes</a>
+ * @see <a href="https://foundationdb.com/documentation/api-error-codes.html#developer-guide-error-codes">Error Codes</a>
  */
 public final class ErrorCodes {
 

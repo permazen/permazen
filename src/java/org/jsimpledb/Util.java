@@ -169,6 +169,8 @@ public final class Util {
      * after converting the {@link Class} instances to {@link TypeToken}s.
      * </p>
      *
+     * @param types sub-types
+     * @return narrowest common super-type
      * @see #findLowestCommonAncestor findLowestCommonAncestor()
      */
     public static TypeToken<?> findLowestCommonAncestorOfClasses(Iterable<Class<?>> types) {
@@ -267,6 +269,7 @@ public final class Util {
      * Parameterize the raw type with wildcards.
      *
      * @param type raw type
+     * @param <T> raw type
      * @return {@code type} genericized with wildcards
      */
     public static <T> TypeToken<? extends T> getWildcardedType(Class<T> type) {
@@ -285,6 +288,7 @@ public final class Util {
      *
      * @param type parameterized generic type
      * @param index type parameter index (zero based)
+     * @return type parameter at {@code index}
      * @throws IllegalArgumentException if {@code type} is not a parameterized type with more than {@code index} type variables
      */
     public static Type getTypeParameter(Type type, int index) {
@@ -303,6 +307,7 @@ public final class Util {
      * @param method method to invoke
      * @param target instance, or null if method is static
      * @param params method parameters
+     * @return method return value
      */
     public static Object invoke(Method method, Object target, Object... params) {
         try {
@@ -327,6 +332,7 @@ public final class Util {
      *
      * @param target raw class
      * @param params type parameters
+     * @param <T> raw class type
      * @return generic {@link TypeToken} for {@code target}
      * @see <a href="https://github.com/google/guava/issues/1645">Guava Issue #1645</a>
      */

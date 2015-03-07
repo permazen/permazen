@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
  *  <li>Notification of object field changes, as seen through an arbitrary path of references</li>
  *  <li>Automatic schema tracking and object versioning with schema change notification support</li>
  * </ul>
- * </p>
  *
  * <p>
  * See {@link Transaction} for further details on the above functionality.
@@ -71,7 +70,6 @@ import org.slf4j.LoggerFactory;
  *  <li>Enum values are represented by {@link EnumValue} objects.</li>
  *  <li>There is no automatic validation support.</li>
  * </ul>
- * </p>
  *
  * @see Transaction
  * @see org.jsimpledb
@@ -167,6 +165,8 @@ public class Database {
 
     /**
      * Get the {@link FieldTypeRegistry} associated with this instance.
+     *
+     * @return field type registry associated with this instance
      */
     public FieldTypeRegistry getFieldTypeRegistry() {
         return this.fieldTypeRegistry;
@@ -174,6 +174,8 @@ public class Database {
 
     /**
      * Get the {@link KVDatabase} underlying this instance.
+     *
+     * @return underlying key/value database
      */
     public KVDatabase getKVDatabase() {
         return this.kvdb;
@@ -213,7 +215,6 @@ public class Database {
      *  <li>If the database is uninitialized and {@code version == 0} or {@code schemaModel} is null,
      *      a {@link SchemaMismatchException} is thrown.</li>
      * </ul>
-     * </p>
      *
      * <p>
      * For two schemas to "match", they must be identical in all respects, except that object, field, and index names may differ.
@@ -227,7 +228,6 @@ public class Database {
      *  <li>Once a storage ID is assigned, it cannot be re-assigned to a different type of item (object or field).</li>
      *  <li>Fields must have a consistent type and structural parent (object type or complex field).</li>
      * </ul>
-     * </p>
      *
      * <p>
      * However, object types and fields may be added or removed across schema versions, field indexing may change,
@@ -259,7 +259,6 @@ public class Database {
      *  <li>Fields that exist in {@code version} but not in {@code oldVersion} are initialized to their default values.</li>
      *  <li>All {@link VersionChangeListener}s registered with the {@link Transaction} are notified.</li>
      * </ul>
-     * </p>
      *
      * <p>
      * Note that compatibility between schema versions does not depend on the field name, nor does it depend on whether the field
@@ -278,6 +277,7 @@ public class Database {
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
      * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
      * @param allowNewSchema whether creating a new schema version is allowed
+     * @return newly created transaction
      * @throws IllegalArgumentException if {@code version} is less than zero
      * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
      * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}

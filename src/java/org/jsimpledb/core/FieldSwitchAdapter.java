@@ -106,6 +106,11 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseComplexField caseComplexField()}.
      * </p>
+     *
+     * @param field visiting field
+     * @param <C> visiting field type
+     * @param <E> collection element type
+     * @return visitor return value
      */
     protected <C extends Collection<E>, E> R caseCollectionField(CollectionField<C, E> field) {
         return this.caseComplexField(field);
@@ -117,6 +122,10 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseField caseField()}.
      * </p>
+     *
+     * @param field visiting field
+     * @param <T> visiting field type
+     * @return visitor return value
      */
     protected <T> R caseComplexField(ComplexField<T> field) {
         return this.caseField(field);
@@ -128,6 +137,10 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      * <p>
      * The implementation in {@link FieldSwitchAdapter} always throws {@link UnsupportedOperationException}.
      * </p>
+     *
+     * @param field visiting field
+     * @param <T> visiting field type
+     * @return visitor return value
      */
     protected <T> R caseField(Field<T> field) {
         throw new UnsupportedOperationException("field type not handled: " + field);

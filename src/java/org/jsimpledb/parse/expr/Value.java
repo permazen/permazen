@@ -35,8 +35,11 @@ public interface Value {
      * Evaluate this value within the given context.
      *
      * <p>
-     * Normally this method should only be invoked once, and the result cached, because could have side effects.
+     * Normally this method should only be invoked once, and the result cached, because evaluation could have side effects.
      * </p>
+     *
+     * @param session parse session
+     * @return the evaluated result
      */
     Object get(ParseSession session);
 
@@ -45,6 +48,7 @@ public interface Value {
      *
      * @param session current session
      * @param operation description of operation for error messages
+     * @return the evaluated result
      * @throws EvalException if this value is null
      */
     Object checkNotNull(ParseSession session, String operation);
@@ -54,7 +58,7 @@ public interface Value {
      *
      * @param session current session
      * @param operation description of operation for error messages
-     * @return boolean value
+     * @return the evaluated boolean value
      * @throws EvalException if this value is not boolean
      */
     boolean checkBoolean(ParseSession session, String operation);
@@ -64,7 +68,7 @@ public interface Value {
      *
      * @param session current session
      * @param operation description of operation for error messages
-     * @return numeric value
+     * @return the evaluated numeric value
      * @throws EvalException if this value is not numeric
      */
     Number checkNumeric(ParseSession session, String operation);
@@ -75,7 +79,7 @@ public interface Value {
      *
      * @param session current session
      * @param operation description of operation for error messages
-     * @return integer value
+     * @return the evaluated integer value
      * @throws EvalException if this value is not integral
      */
     int checkIntegral(ParseSession session, String operation);
@@ -86,7 +90,9 @@ public interface Value {
      *
      * @param session current session
      * @param operation description of operation for error messages
-     * @return typed value
+     * @param type expected type
+     * @param <T> expected type
+     * @return the evaluated value cast to {@code type}
      * @throws EvalException if this value does not have the expected type
      */
     <T> T checkType(ParseSession session, String operation, Class<T> type);
@@ -108,6 +114,7 @@ public interface Value {
      * Negate this value.
      *
      * @param session current session
+     * @return negated result
      * @throws EvalException if this value is not numeric
      */
     Value negate(ParseSession session);
@@ -116,6 +123,7 @@ public interface Value {
      * Bitwise invert this value.
      *
      * @param session current session
+     * @return inverted result
      * @throws EvalException if this value is not numeric
      */
     Value invert(ParseSession session);
@@ -125,6 +133,7 @@ public interface Value {
      *
      * @param session current session
      * @param that multiplicand
+     * @return multiplied result
      * @throws EvalException if value(s) are not numeric
      */
     Value multiply(ParseSession session, Value that);
@@ -134,6 +143,7 @@ public interface Value {
      *
      * @param session current session
      * @param that divisor
+     * @return divided result
      * @throws EvalException if value(s) are not numeric
      */
     Value divide(ParseSession session, Value that);
@@ -143,6 +153,7 @@ public interface Value {
      *
      * @param session current session
      * @param that divisor
+     * @return remaindered result
      * @throws EvalException if value(s) are not numeric
      */
     Value mod(ParseSession session, Value that);
@@ -152,6 +163,7 @@ public interface Value {
      *
      * @param session current session
      * @param that addend
+     * @return added result
      * @throws EvalException if value(s) are not numeric or {@link String}
      */
     Value add(ParseSession session, Value that);
@@ -161,6 +173,7 @@ public interface Value {
      *
      * @param session current session
      * @param that subtrahend
+     * @return subtracted result
      * @throws EvalException if value(s) are not numeric or {@link java.util.Set}
      */
     Value subtract(ParseSession session, Value that);
@@ -170,6 +183,7 @@ public interface Value {
      *
      * @param session current session
      * @param arg shift amount
+     * @return shifted result
      * @throws EvalException if value(s) are not numeric
      */
     Value lshift(ParseSession session, Value arg);
@@ -179,6 +193,7 @@ public interface Value {
      *
      * @param session current session
      * @param arg shift amount
+     * @return shifted result
      * @throws EvalException if value(s) are not numeric
      */
     Value rshift(ParseSession session, Value arg);
@@ -188,6 +203,7 @@ public interface Value {
      *
      * @param session current session
      * @param arg shift amount
+     * @return shifted result
      * @throws EvalException if value(s) are not numeric
      */
     Value urshift(ParseSession session, Value arg);
@@ -197,6 +213,7 @@ public interface Value {
      *
      * @param session current session
      * @param that and value
+     * @return and'ed result
      * @throws EvalException if value(s) are not numeric, boolean, or {@link java.util.Set}
      */
     Value and(ParseSession session, Value that);
@@ -206,6 +223,7 @@ public interface Value {
      *
      * @param session current session
      * @param that or value
+     * @return or'ed result
      * @throws EvalException if value(s) are not numeric, boolean, or {@link java.util.Set}
      */
     Value or(ParseSession session, Value that);
@@ -215,16 +233,18 @@ public interface Value {
      *
      * @param session current session
      * @param that xor value
+     * @return exclusive or'ed result
      * @throws EvalException if value(s) are not numeric or boolean
      */
     Value xor(ParseSession session, Value that);
 
     /**
-     * Compare to another value, returning boolean. Also supports {@link Comparable} comparison.
+     * Ordered comparison to another value. Supports numeric and {@link Comparable} comparison.
      *
      * @param session current session
      * @param that value to compare to
      * @param mask bit mask with bits {@link #LT}, {@link #GT}, and/or {@link #EQ}
+     * @return boolean value which will be true if the comparison is true
      * @throws EvalException if value(s) are not numeric or mutually {@link Comparable}
      */
     Value compare(ParseSession session, Value that, int mask);

@@ -47,6 +47,8 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
 
     /**
      * Get the element that was removed from the set.
+     *
+     * @return the value removed from the set
      */
     public E getElement() {
         return this.element;

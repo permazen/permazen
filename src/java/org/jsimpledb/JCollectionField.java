@@ -31,6 +31,8 @@ public abstract class JCollectionField extends JComplexField {
 
     /**
      * Get the element sub-field.
+     *
+     * @return this instance's element sub-field
      */
     public JSimpleField getElementField() {
         return this.elementField;

@@ -56,6 +56,8 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
 
     /**
      * Get a simple description of the annotation being scanned for.
+     *
+     * @return annotation description
      */
     public String getAnnotationDescription() {
         return "@" + this.annotationType.getSimpleName();
@@ -64,6 +66,7 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     /**
      * Verify method is not static.
      *
+     * @param method the method to check
      * @throws IllegalArgumentException if method is static
      */
     protected void checkNotStatic(Method method) {
@@ -74,6 +77,8 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     /**
      * Verify method return type.
      *
+     * @param method the method to check
+     * @param expecteds allowed return types
      * @throws IllegalArgumentException if has an invalid return type
      */
     protected void checkReturnType(Method method, List<TypeToken<?>> expecteds) {
@@ -89,6 +94,8 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     /**
      * Verify method return type.
      *
+     * @param method the method to check
+     * @param expecteds allowed return types
      * @throws IllegalArgumentException if has an invalid return type
      */
     protected void checkReturnType(Method method, Class<?>... expecteds) {
@@ -104,6 +111,8 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     /**
      * Verify method parameter type(s).
      *
+     * @param method the method to check
+     * @param expected expected parameter types
      * @throws IllegalArgumentException if has an invalid parameter type(s)
      */
     protected void checkParameterTypes(Method method, List<TypeToken<?>> expected) {
@@ -117,6 +126,8 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     /**
      * Verify method parameter type(s).
      *
+     * @param method the method to check
+     * @param expected expected parameter types
      * @throws IllegalArgumentException if has an invalid parameter type(s)
      */
     protected void checkParameterTypes(Method method, TypeToken<?>... expected) {
@@ -126,6 +137,9 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     /**
      * Verify a specific method parameter's type.
      *
+     * @param method the method to check
+     * @param index parameter index
+     * @param choices allowed parameter types
      * @throws IllegalArgumentException if parameter type does not match
      */
     protected void checkParameterType(Method method, int index, List<TypeToken<?>> choices) {
@@ -139,6 +153,9 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     /**
      * Verify a specific method parameter's type.
      *
+     * @param method the method to check
+     * @param index parameter index
+     * @param choices allowed parameter types
      * @throws IllegalArgumentException if parameter type does not match
      */
     protected void checkParameterType(Method method, int index, TypeToken<?>... choices) {
@@ -148,6 +165,8 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
     /**
      * Verify method takes a single parameter of the specified type.
      *
+     * @param method the method to check
+     * @param choices allowed parameter types
      * @throws IllegalArgumentException if parameter type does not match
      */
     protected void checkSingleParameterType(Method method, List<TypeToken<?>> choices) {
@@ -160,6 +179,9 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
 
     /**
      * Get method parameter types as {@link TypeToken}s.
+     *
+     * @param method the method to check
+     * @return method parameter types
      */
     protected List<TypeToken<?>> getParameterTypeTokens(Method method) {
         return Lists.transform(Arrays.asList(method.getGenericParameterTypes()), new Function<Type, TypeToken<?>>() {
@@ -172,6 +194,9 @@ public abstract class AnnotationScanner<T, A extends Annotation> extends MethodA
 
     /**
      * Get "invalid annotation" error message prefix that describes the annotation on the specified method.
+     *
+     * @param method the method to check
+     * @return error message prefix
      */
     protected String getErrorPrefix(Method method) {
         return "invalid " + this.getAnnotationDescription() + " annotation on method " + method

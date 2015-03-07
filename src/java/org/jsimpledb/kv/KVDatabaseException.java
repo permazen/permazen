@@ -36,6 +36,8 @@ public class KVDatabaseException extends RuntimeException {
 
     /**
      * Get the {@link KVDatabase} that generated this exception.
+     *
+     * @return associated database
      */
     public KVDatabase getStore() {
         return this.store;

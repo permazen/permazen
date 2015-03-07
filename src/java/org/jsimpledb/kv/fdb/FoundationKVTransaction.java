@@ -65,6 +65,8 @@ public class FoundationKVTransaction implements KVTransaction {
 
     /**
      * Get the underlying {@link Transaction} associated with this instance.
+     *
+     * @return the associated transaction
      */
     public Transaction getTransaction() {
         return this.tx;

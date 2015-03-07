@@ -53,7 +53,6 @@ import org.jsimpledb.util.ByteWriter;
  *  <li>{@link #iterator} returns an {@link Iterator} whose {@link Iterator#remove Iterator.remove()} method delegates
  *      to this instance's {@link #remove remove()} method.
  * </ul>
- * </p>
  *
  * <p><b>Prefix Mode</b></p>
  *
@@ -222,6 +221,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * </p>
      *
      * @param keyFilter additional key filtering to apply
+     * @return filtered view of this instance
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
     public NavigableSet<E> filterKeys(KeyFilter keyFilter) {
@@ -278,6 +278,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @param newKeyRange new key range, or null for none; will be consistent with {@code bounds}, if any
      * @param newKeyFilter new key filter, or null for none
      * @param newBounds new bounds
+     * @return restricted and/or filtered view of this instance
      * @throws IllegalArgumentException if {@code newBounds} is null
      */
     protected abstract NavigableSet<E> createSubSet(boolean newReversed,
@@ -312,6 +313,9 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * Determine if the given {@code byte[]} key is visible in this set according to the configured
      * {@link KeyRange} and/or {@link KeyFilter}, if any.
      *
+     * @param key key to test
+     * @return true if key is visible
+     * @throws IllegalArgumentException if {@code key} is null
      * @see #filterKeys filterKeys()
      */
     protected boolean isVisible(byte[] key) {
