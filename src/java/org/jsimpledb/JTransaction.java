@@ -49,7 +49,7 @@ import org.jsimpledb.core.MapField;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.core.ReferenceField;
-import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.SetField;
 import org.jsimpledb.core.SimpleField;
 import org.jsimpledb.core.StaleTransactionException;
@@ -1720,7 +1720,7 @@ public class JTransaction {
                 return;
 
             // Get old object type info
-            final SchemaVersion oldSchema = JTransaction.this.tx.getSchema().getVersion(oldVersion);
+            final Schema oldSchema = JTransaction.this.tx.getSchemas().getVersion(oldVersion);
             final ObjType objType = oldSchema.getObjType(id.getStorageId());
 
             // The object that was upgraded

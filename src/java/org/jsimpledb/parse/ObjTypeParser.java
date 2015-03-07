@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjType;
-import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.schema.NameIndex;
@@ -41,7 +41,7 @@ public class ObjTypeParser implements Parser<ObjType> {
         final int startIndex = ctx.getIndex();
         try {
             final int storageId = db.getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromParseableString(ctx);
-            return tx.getSchemaVersion().getObjType(storageId);
+            return tx.getSchema().getObjType(storageId);
         } catch (IllegalArgumentException | UnknownTypeException e) {
             // ignore
         }
@@ -58,18 +58,18 @@ public class ObjTypeParser implements Parser<ObjType> {
         final String versionString = matcher.group(3);
 
         // Get specified schema version and corresponding name index
-        final SchemaVersion version;
+        final Schema schema;
         final NameIndex nameIndex;
         if (versionString != null) {
             try {
-                version = tx.getSchema().getVersion(Integer.parseInt(versionString));
+                schema = tx.getSchemas().getVersion(Integer.parseInt(versionString));
             } catch (IllegalArgumentException e) {
                 ctx.setIndex(startIndex);
                 throw new ParseException(ctx, "invalid object type schema version `" + versionString + "'");
             }
-            nameIndex = new NameIndex(version.getSchemaModel());
+            nameIndex = new NameIndex(schema.getSchemaModel());
         } else {
-            version = tx.getSchemaVersion();
+            schema = tx.getSchema();
             nameIndex = session.getNameIndex();
         }
 
@@ -79,7 +79,7 @@ public class ObjTypeParser implements Parser<ObjType> {
             throw new ParseException(ctx, "unknown object type `" + typeName + "'")
                .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectTypeNames(), typeName));
         }
-        return version.getObjType(schemaObjectType.getStorageId());
+        return schema.getObjType(schemaObjectType.getStorageId());
     }
 }
 

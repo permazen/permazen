@@ -57,9 +57,8 @@ public class EnumFieldTest extends TestSupport {
 
         final ObjId id1 = tx.create(1);
 
-        Assert.assertEquals(((EnumField)tx.getSchemaVersion().getObjType(1).getField(2)).getFieldType().getEnumType(),
-          MyEnum.class);
-        Assert.assertNull(((EnumField)tx.getSchemaVersion().getObjType(1).getField(3)).getFieldType().getEnumType());
+        Assert.assertEquals(((EnumField)tx.getSchema().getObjType(1).getField(2)).getFieldType().getEnumType(), MyEnum.class);
+        Assert.assertNull(((EnumField)tx.getSchema().getObjType(1).getField(3)).getFieldType().getEnumType());
 
     // Verify only valid values are accepted
 

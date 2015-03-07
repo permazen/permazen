@@ -29,13 +29,13 @@ public class CounterField extends Field<Long> {
      *
      * @param name the name of the field
      * @param storageId field storage ID
-     * @param version schema version
+     * @param schema schema version
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is zero or less
      */
-    CounterField(String name, int storageId, SchemaVersion version) {
-        super(name, storageId, version, TypeToken.of(Long.class));
+    CounterField(String name, int storageId, Schema schema) {
+        super(name, storageId, schema, TypeToken.of(Long.class));
     }
 
     @Override

@@ -33,14 +33,14 @@ public class ListField<E> extends CollectionField<List<E>, E> {
      *
      * @param name the name of the field
      * @param storageId field content storage ID
-     * @param version schema version
+     * @param schema schema version
      * @param elementField this field's element sub-field
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
     @SuppressWarnings("serial")
-    ListField(String name, int storageId, SchemaVersion version, SimpleField<E> elementField) {
-        super(name, storageId, version, new TypeToken<List<E>>() { }
+    ListField(String name, int storageId, Schema schema, SimpleField<E> elementField) {
+        super(name, storageId, schema, new TypeToken<List<E>>() { }
           .where(new TypeParameter<E>() { }, elementField.typeToken.wrap()), elementField);
     }
 

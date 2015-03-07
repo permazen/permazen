@@ -31,7 +31,7 @@ public class ReferenceField extends SimpleField<ObjId> {
      *
      * @param name the name of the field
      * @param storageId field storage ID
-     * @param version schema version
+     * @param schema schema version
      * @param onDelete deletion behavior
      * @param cascadeDelete whether to cascade deletes
      * @param objectTypes allowed object type storage IDs, or null for no restriction
@@ -39,9 +39,9 @@ public class ReferenceField extends SimpleField<ObjId> {
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is invalid
      */
-    ReferenceField(String name, int storageId, SchemaVersion version,
+    ReferenceField(String name, int storageId, Schema schema,
       DeleteAction onDelete, boolean cascadeDelete, Set<Integer> objectTypes) {
-        super(name, storageId, version, new ReferenceFieldType(objectTypes), true);
+        super(name, storageId, schema, new ReferenceFieldType(objectTypes), true);
         if (onDelete == null)
             throw new IllegalArgumentException("null onDelete");
         this.onDelete = onDelete;

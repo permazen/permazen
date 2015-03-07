@@ -15,13 +15,13 @@ package org.jsimpledb.core;
 public class InvalidObjectVersionException extends InconsistentDatabaseException {
 
     private final ObjId id;
-    private final int versionNumber;
+    private final int version;
 
-    InvalidObjectVersionException(ObjId id, int versionNumber) {
+    InvalidObjectVersionException(ObjId id, int version) {
         super("object " + id + " contains invalid schema version number "
-          + versionNumber + " which is not recorded in the database");
+          + version + " which is not recorded in the database");
         this.id = id;
-        this.versionNumber = versionNumber;
+        this.version = version;
     }
 
     /**
@@ -38,8 +38,8 @@ public class InvalidObjectVersionException extends InconsistentDatabaseException
      *
      * @return invalid version number
      */
-    public int getVersionNumber() {
-        return this.versionNumber;
+    public int getInvalidVersion() {
+        return this.version;
     }
 }
 

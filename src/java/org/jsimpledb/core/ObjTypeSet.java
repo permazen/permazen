@@ -75,7 +75,7 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
     }
 
     private static KeyRanges getKeyRanges(Transaction tx) {
-        return new KeyRanges(Iterables.transform(tx.schema.objTypeStorageIds, new Function<Integer, KeyRange>() {
+        return new KeyRanges(Iterables.transform(tx.schemas.objTypeStorageIds, new Function<Integer, KeyRange>() {
             @Override
             public KeyRange apply(Integer storageId) {
                 return ObjId.getKeyRange(storageId);

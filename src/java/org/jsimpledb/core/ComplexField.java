@@ -33,14 +33,14 @@ public abstract class ComplexField<T> extends Field<T> {
      *
      * @param name the name of the field
      * @param storageId field content storage ID
-     * @param version schema version
+     * @param schema schema version
      * @param typeToken Java type for the field's values
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    ComplexField(String name, int storageId, SchemaVersion version, TypeToken<T> typeToken) {
-        super(name, storageId, version, typeToken);
+    ComplexField(String name, int storageId, Schema schema, TypeToken<T> typeToken) {
+        super(name, storageId, schema, typeToken);
         this.storageIdLength = UnsignedIntEncoder.encodeLength(storageId);
     }
 

@@ -8,7 +8,7 @@
 package org.jsimpledb;
 
 import org.jsimpledb.core.Database;
-import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
@@ -316,9 +316,9 @@ public class Session {
                 this.tx = jtx.getTransaction();
             } else
                 this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema);
-            final SchemaVersion version = this.tx.getSchemaVersion();
-            this.setSchemaModel(version.getSchemaModel());
-            this.setSchemaVersion(version.getVersionNumber());
+            final Schema schema = this.tx.getSchema();
+            this.setSchemaModel(schema.getSchemaModel());
+            this.setSchemaVersion(schema.getVersionNumber());
             this.tx.setReadOnly(this.readOnly);
             return true;
         } catch (Exception e) {

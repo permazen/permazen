@@ -26,14 +26,14 @@ public abstract class Field<T> extends SchemaItem {
      *
      * @param name the name of the field
      * @param storageId field storage ID
-     * @param version schema version
+     * @param schema schema version
      * @param typeToken Java type for the field's values
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    Field(String name, int storageId, SchemaVersion version, TypeToken<T> typeToken) {
-        super(name, storageId, version);
+    Field(String name, int storageId, Schema schema, TypeToken<T> typeToken) {
+        super(name, storageId, schema);
         if (typeToken == null)
             throw new IllegalArgumentException("null typeToken");
         this.typeToken = typeToken;

@@ -10,7 +10,7 @@ package org.jsimpledb.cli.cmd;
 import java.util.Map;
 
 import org.jsimpledb.cli.CliSession;
-import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.core.Schema;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.Diffs;
 
@@ -33,10 +33,10 @@ public class CompareSchemasCommand extends AbstractCommand {
         return new CliSession.Action() {
             @Override
             public void run(CliSession session) throws Exception {
-                final SchemaVersion schema1 = session.getTransaction().getSchema().getSchemaVersions().get(version1);
+                final Schema schema1 = session.getTransaction().getSchemas().getVersions().get(version1);
                 if (schema1 == null)
                     session.getWriter().println("Schema version " + version1 + " " + "not found");
-                final SchemaVersion schema2 = session.getTransaction().getSchema().getSchemaVersions().get(version2);
+                final Schema schema2 = session.getTransaction().getSchemas().getVersions().get(version2);
                 if (schema2 == null)
                     session.getWriter().println("Schema version " + version2 + " " + "not found");
                 final Diffs diffs = schema2.getSchemaModel().differencesFrom(schema1.getSchemaModel());

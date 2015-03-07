@@ -654,7 +654,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
 
         @Override
         public SizedLabel extract(JObject jobj) {
-            return new SizedLabel(jobj.getTransaction().getTransaction().getSchema()
+            return new SizedLabel(jobj.getTransaction().getTransaction().getSchemas()
               .getVersion(jobj.getSchemaVersion()).getObjType(jobj.getObjId().getStorageId()).getName());
         }
     }

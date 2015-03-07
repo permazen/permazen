@@ -30,14 +30,14 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
      *
      * @param name the name of the field
      * @param storageId field content storage ID
-     * @param version schema version
+     * @param schema schema version
      * @param elementField this field's element sub-field
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
     @SuppressWarnings("serial")
-    SetField(String name, int storageId, SchemaVersion version, SimpleField<E> elementField) {
-        super(name, storageId, version, new TypeToken<NavigableSet<E>>() { }
+    SetField(String name, int storageId, Schema schema, SimpleField<E> elementField) {
+        super(name, storageId, schema, new TypeToken<NavigableSet<E>>() { }
           .where(new TypeParameter<E>() { }, elementField.typeToken.wrap()), elementField);
     }
 

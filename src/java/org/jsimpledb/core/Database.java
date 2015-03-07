@@ -149,7 +149,7 @@ public class Database {
     private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
     private final KVDatabase kvdb;
 
-    private volatile Schema lastSchema;
+    private volatile Schemas lastSchemas;
 
     /**
      * Constructor.
@@ -388,7 +388,7 @@ public class Database {
             }
 
             // Check schema
-            Schema schema = null;
+            Schemas schemas = null;
             boolean firstAttempt = true;
             while (true) {
 
@@ -419,12 +419,12 @@ public class Database {
                 }
 
                 // Read and decode database schemas, avoiding rebuild if possible
-                schema = this.lastSchema;
-                if (schema != null && !schema.isSameVersions(bytesMap))
-                    schema = null;
-                if (schema == null) {
+                schemas = this.lastSchemas;
+                if (schemas != null && !schemas.isSameVersions(bytesMap))
+                    schemas = null;
+                if (schemas == null) {
                     try {
-                        schema = this.buildSchema(bytesMap, compressedSchemaXML);
+                        schemas = this.buildSchemas(bytesMap, compressedSchemaXML);
                     } catch (IllegalArgumentException e) {
                         if (firstAttempt)
                             throw new InconsistentDatabaseException("database contains invalid schema information", e);
@@ -457,7 +457,7 @@ public class Database {
                     this.writeSchema(kvt, version, schemaModel, compressedSchemaXML);
 
                     // Try again
-                    schema = null;
+                    schemas = null;
                     firstAttempt = false;
                     continue;
                 }
@@ -465,7 +465,7 @@ public class Database {
                 // Compare transaction schema with the schema of the same version found in the database
                 if (this.log.isTraceEnabled())
                     this.log.trace("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
-                final SchemaModel dbSchemaModel = schema.getVersion(version).getSchemaModel();
+                final SchemaModel dbSchemaModel = schemas.getVersion(version).getSchemaModel();
                 if (schemaModel != null) {
                     if (!schemaModel.isCompatibleWith(dbSchemaModel)) {
                         final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
@@ -482,10 +482,10 @@ public class Database {
             }
 
             // Save schema for next time
-            this.lastSchema = schema;
+            this.lastSchemas = schemas;
 
             // Create transaction
-            final Transaction tx = new Transaction(this, kvt, schema, version);
+            final Transaction tx = new Transaction(this, kvt, schemas, version);
             success = true;
             return tx;
         } finally {
@@ -526,7 +526,7 @@ public class Database {
         // Validate
         schemaModel.validate();
         try {
-            new SchemaVersion(1, new byte[0], schemaModel, this.fieldTypeRegistry);
+            new Schema(1, new byte[0], schemaModel, this.fieldTypeRegistry);
         } catch (IllegalArgumentException e) {
             throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);
         }
@@ -571,12 +571,12 @@ public class Database {
     }
 
     /**
-     * Build {@link Schema} object from a schema version XMLs.
+     * Build {@link Schemas} object from a schema version XMLs.
      *
      * @throws InconsistentDatabaseException if any recorded schema version is invalid
      */
-    private Schema buildSchema(SortedMap<Integer, byte[]> bytesMap, boolean compressed) {
-        final TreeMap<Integer, SchemaVersion> versionMap = new TreeMap<>();
+    private Schemas buildSchemas(SortedMap<Integer, byte[]> bytesMap, boolean compressed) {
+        final TreeMap<Integer, Schema> versionMap = new TreeMap<>();
         for (Map.Entry<Integer, byte[]> entry : bytesMap.entrySet()) {
             final int version = entry.getKey();
             final byte[] bytes = entry.getValue();
@@ -588,9 +588,9 @@ public class Database {
             }
             if (this.log.isTraceEnabled())
                 this.log.trace("read schema version {} from database:\n{}", version, schemaModel);
-            versionMap.put(version, new SchemaVersion(version, bytes, schemaModel, this.fieldTypeRegistry));
+            versionMap.put(version, new Schema(version, bytes, schemaModel, this.fieldTypeRegistry));
         }
-        return new Schema(versionMap);
+        return new Schemas(versionMap);
     }
 
     /**
@@ -631,12 +631,12 @@ public class Database {
     /**
      * Record the given schema into the database.
      */
-    private void writeSchema(KVTransaction kvt, int version, SchemaModel schema, boolean compress) {
+    private void writeSchema(KVTransaction kvt, int version, SchemaModel schemaModel, boolean compress) {
 
         // Encode as XML
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         try {
-            schema.toXML(buf, false);
+            schemaModel.toXML(buf, false);
         } catch (IOException e) {
             throw new RuntimeException("unexpected exception", e);
         }

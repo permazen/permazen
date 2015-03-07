@@ -33,13 +33,13 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
      * @param name the name of the field
      * @param storageId field content storage ID
      * @param typeToken Java type for the field's values
-     * @param version schema version
+     * @param schema schema version
      * @param elementField this field's element sub-field
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    CollectionField(String name, int storageId, SchemaVersion version, TypeToken<C> typeToken, SimpleField<E> elementField) {
-        super(name, storageId, version, typeToken);
+    CollectionField(String name, int storageId, Schema schema, TypeToken<C> typeToken, SimpleField<E> elementField) {
+        super(name, storageId, schema, typeToken);
         if (elementField == null)
             throw new IllegalArgumentException("null elementField");
         this.elementField = elementField;

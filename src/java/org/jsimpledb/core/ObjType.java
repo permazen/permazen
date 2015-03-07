@@ -42,8 +42,8 @@ public class ObjType extends SchemaItem {
     /**
      * Constructor.
      */
-    ObjType(SchemaObjectType schemaObjectType, SchemaVersion version, FieldTypeRegistry fieldTypeRegistry) {
-        super(schemaObjectType.getName(), schemaObjectType.getStorageId(), version);
+    ObjType(SchemaObjectType schemaObjectType, Schema schema, FieldTypeRegistry fieldTypeRegistry) {
+        super(schemaObjectType.getName(), schemaObjectType.getStorageId(), schema);
 
         // Sanity check
         if (fieldTypeRegistry == null)
@@ -51,7 +51,7 @@ public class ObjType extends SchemaItem {
         this.fieldTypeRegistry = fieldTypeRegistry;
 
         // Build fields
-        final FieldBuilder fieldBuilder = new FieldBuilder(this.version, this.fieldTypeRegistry);
+        final FieldBuilder fieldBuilder = new FieldBuilder(this.schema, this.fieldTypeRegistry);
         for (SchemaField schemaField : schemaObjectType.getSchemaFields().values())
             this.addSchemaItem(fields, fieldsByName, schemaField.visit(fieldBuilder));
 
@@ -64,7 +64,7 @@ public class ObjType extends SchemaItem {
 
         // Build composite indexes
         for (SchemaCompositeIndex schemaIndex : schemaObjectType.getSchemaCompositeIndexes().values())
-            this.addCompositeIndex(this.version, schemaIndex);
+            this.addCompositeIndex(this.schema, schemaIndex);
 
         // Link simple fields to the composite indexes they include
         for (SimpleField<?> field : this.simpleFields.values()) {
@@ -161,7 +161,7 @@ public class ObjType extends SchemaItem {
 
     @Override
     public String toString() {
-        return "object type `" + this.name + "' in " + this.version;
+        return "object type `" + this.name + "' in " + this.schema;
     }
 
 // Internal methods
@@ -194,7 +194,7 @@ public class ObjType extends SchemaItem {
         }
     }
 
-    private CompositeIndex addCompositeIndex(SchemaVersion version, SchemaCompositeIndex schemaIndex) {
+    private CompositeIndex addCompositeIndex(Schema schema, SchemaCompositeIndex schemaIndex) {
 
         // Get fields corresponding to specified storage IDs
         final int[] storageIds = Ints.toArray(schemaIndex.getIndexedFields());
@@ -217,7 +217,7 @@ public class ObjType extends SchemaItem {
         }
 
         // Create and add index
-        final CompositeIndex index = new CompositeIndex(schemaIndex.getName(), schemaIndex.getStorageId(), version, this, list);
+        final CompositeIndex index = new CompositeIndex(schemaIndex.getName(), schemaIndex.getStorageId(), schema, this, list);
         this.addSchemaItem(this.compositeIndexes, this.compositeIndexesByName, index);
         return index;
     }

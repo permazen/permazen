@@ -26,7 +26,7 @@ package org.jsimpledb.core;
 public class SnapshotTransaction extends Transaction {
 
     SnapshotTransaction(Transaction parent) {
-        super(parent.db, new SnapshotKVTransaction(parent), parent.schema, parent.version);
+        super(parent.db, new SnapshotKVTransaction(parent), parent.schemas, parent.schema);
     }
 
     /**
