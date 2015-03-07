@@ -87,14 +87,18 @@ public class KeyRange {
     /**
      * Constructor.
      *
-     * @param min minimum key (inclusive), or null for no minimum
+     * <p>
+     * Note: a {@code min} with length zero is treated as if it were null.
+     * </p>
+     *
+     * @param min minimum key (inclusive), or empty or null for no minimum
      * @param max maximum key (exclusive), or null for no maximum
      * @throws IllegalArgumentException if {@code min > max}
      */
     public KeyRange(byte[] min, byte[] max) {
         if (KeyRange.compare(min, KeyRange.MIN, max, KeyRange.MAX) > 0)
             throw new IllegalArgumentException("min = " + ByteUtil.toString(min) + " > max = " + ByteUtil.toString(max));
-        this.min = min == null ? null : min.clone();
+        this.min = min == null || min.length == 0 ? null : min.clone();
         this.max = max == null ? null : max.clone();
     }
 
