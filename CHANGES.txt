@@ -1,10 +1,11 @@
-Version Next
+Version 1.1.838 Released March 7, 2015
 
     - Fixed bug in copyTo() not following reference path(s)
     - Allow revalidate() to be invoked during validation
-    - Increase the number of fields in a composite index to four
-    - Changed ObjIdSet package from core to util
+    - Increase to four the max number of composite index fields
+    - Move ObjIdSet to util package; add ObjIdMap and ObjIdBiMultiMap
     - Compress schema information before storing
+    - Add schema difference calculator and CLI command
     - Improvements to CLI and GUI command line utilities
     - Added schema differences calculator plus CLI command
     - Added support for embedded CLI telnet consoles
