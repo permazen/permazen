@@ -245,6 +245,11 @@ public class Session {
      * are not the same transaction, an {@link IllegalStateException} is thrown.
      * </p>
      *
+     * <p>
+     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
+     * and then false returned.
+     * </p>
+     *
      * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if the transaction could not be created
