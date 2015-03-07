@@ -13,6 +13,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
@@ -35,6 +36,7 @@ public class Main extends AbstractMain {
     private boolean coreMode;
     private final LinkedHashSet<Class<?>> commandClasses = new LinkedHashSet<>();
     private final LinkedHashSet<Class<?>> functionClasses = new LinkedHashSet<>();
+    private final ArrayList<String> oneShotCommands = new ArrayList<>();
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -43,6 +45,10 @@ public class Main extends AbstractMain {
                 this.usageError();
             this.schemaFile = new File(params.removeFirst());
             this.allowAutoDemo = false;
+        } else if (option.equals("--command")) {
+            if (params.isEmpty())
+                this.usageError();
+            this.oneShotCommands.add(params.removeFirst());
         } else if (option.equals("--core-mode"))
             this.coreMode = true;
         else if (option.equals("--cmd-pkg")) {
@@ -164,6 +170,17 @@ public class Main extends AbstractMain {
             return 1;
         }
 
+        // Handle one-shot command mode
+        if (!this.oneShotCommands.isEmpty()) {
+            for (String text : this.oneShotCommands) {
+                for (CliSession.Action action : console.parseCommand(text)) {
+                    if (!session.perform(action))
+                        return 1;
+                }
+            }
+            return 0;
+        }
+
         // Run console
         console.run();
 
@@ -185,10 +202,11 @@ public class Main extends AbstractMain {
         System.err.println("  " + this.getName() + " [options]");
         System.err.println("Options:");
         this.outputFlags(new String[][] {
-          { "--schema-file file",   "Load core database schema from XML file" },
-          { "--cmd-pkg package",    "Register @Command-annotated classes found under the specified Java package" },
-          { "--func-pkg package",   "Register @Function-annotated classes found under the specified Java package" },
-          { "--core-mode",          "Force core API mode even though Java model classes are provided" },
+          { "--schema-file file",       "Load core database schema from XML file" },
+          { "--cmd-pkg package",        "Register @Command-annotated classes found under the specified Java package" },
+          { "--func-pkg package",       "Register @Function-annotated classes found under the specified Java package" },
+          { "--core-mode",              "Force core API mode even though Java model classes are provided" },
+          { "--command, -c command",    "Execute the given command and then exit (may be repeated)" },
         });
     }
 

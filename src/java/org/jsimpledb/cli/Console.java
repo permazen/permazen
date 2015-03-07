@@ -195,7 +195,7 @@ public class Console {
                     @Override
                     public void run(CliSession session) {
                         try {
-                            actions.addAll(commandListParser.parse(session, ctx, false));
+                            actions.addAll(Console.this.commandListParser.parse(session, ctx, false));
                         } catch (ParseException e) {
                             if (ctx.getInput().length() == 0)
                                 needMoreInput[0] = true;
@@ -227,6 +227,27 @@ public class Console {
             this.console.flush();
             this.console.shutdown();
         }
+    }
+
+    /**
+     * Parse the given command(s) within a transaction.
+     *
+     * @param text command input
+     * @return command actions, or null if there is an error during the transaction
+     * @throws ParseException if {@code text} cannot be parsed
+     * @throws IllegalArgumentException if {@code text} is null
+     */
+    public List<CliSession.Action> parseCommand(String text) {
+        if (text == null)
+            throw new IllegalArgumentException("null text");
+        final ParseContext ctx = new ParseContext(text);
+        final ArrayList<CliSession.Action> actions = new ArrayList<>();
+        return this.session.perform(new CliSession.Action() {
+            @Override
+            public void run(CliSession session) {
+                actions.addAll(commandListParser.parse(session, ctx, false));
+            }
+        }) ? actions : null;
     }
 
 // ConsoleCompleter
