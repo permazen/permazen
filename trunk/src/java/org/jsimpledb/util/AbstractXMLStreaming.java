@@ -66,8 +66,8 @@ public abstract class AbstractXMLStreaming {
      * @param reader XML input
      * @throws XMLStreamException if something other than a closing tag is encountered
      */
-    protected boolean expectClose(XMLStreamReader reader) throws XMLStreamException {
-        return this.expect(reader, true);
+    protected void expectClose(XMLStreamReader reader) throws XMLStreamException {
+        this.expect(reader, true);
     }
 
     private String description(QName[] names) {
