@@ -46,7 +46,7 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
     /**
      * Constructor.
      */
-    public <T> ExprQueryJObjectContainer(JSimpleDB jdb, ParseSession session) {
+    public ExprQueryJObjectContainer(JSimpleDB jdb, ParseSession session) {
         this(jdb, null, session);
     }
 
@@ -55,7 +55,7 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
      *
      * @param type type restriction, or null for no restriction
      */
-    public <T> ExprQueryJObjectContainer(JSimpleDB jdb, Class<T> type, ParseSession session) {
+    public ExprQueryJObjectContainer(JSimpleDB jdb, Class<?> type, ParseSession session) {
         super(jdb, type);
         if (session == null)
             throw new IllegalArgumentException("null session");
