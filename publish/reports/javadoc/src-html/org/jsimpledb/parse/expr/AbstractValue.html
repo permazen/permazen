@@ -569,27 +569,8 @@
 <span class="sourceLineNo">561</span>            return "null value";<a name="line.561"></a>
 <span class="sourceLineNo">562</span>        return (prefix.length &gt; 0 ? prefix[0] + " " : "") + "value of type " + obj.getClass().getName();<a name="line.562"></a>
 <span class="sourceLineNo">563</span>    }<a name="line.563"></a>
-<span class="sourceLineNo">564</span><a name="line.564"></a>
-<span class="sourceLineNo">565</span>    /**<a name="line.565"></a>
-<span class="sourceLineNo">566</span>     * Function that evaluates (i.e., invokes {@link #get Value.get()}) on its argument.<a name="line.566"></a>
-<span class="sourceLineNo">567</span>     */<a name="line.567"></a>
-<span class="sourceLineNo">568</span>    public static class GetFunction implements Function&lt;Value, Object&gt; {<a name="line.568"></a>
-<span class="sourceLineNo">569</span><a name="line.569"></a>
-<span class="sourceLineNo">570</span>        private final ParseSession session;<a name="line.570"></a>
-<span class="sourceLineNo">571</span><a name="line.571"></a>
-<span class="sourceLineNo">572</span>        public GetFunction(ParseSession session) {<a name="line.572"></a>
-<span class="sourceLineNo">573</span>            if (session == null)<a name="line.573"></a>
-<span class="sourceLineNo">574</span>                throw new IllegalArgumentException("null session");<a name="line.574"></a>
-<span class="sourceLineNo">575</span>            this.session = session;<a name="line.575"></a>
-<span class="sourceLineNo">576</span>        }<a name="line.576"></a>
-<span class="sourceLineNo">577</span><a name="line.577"></a>
-<span class="sourceLineNo">578</span>        @Override<a name="line.578"></a>
-<span class="sourceLineNo">579</span>        public Object apply(Value item) {<a name="line.579"></a>
-<span class="sourceLineNo">580</span>            return item.get(this.session);<a name="line.580"></a>
-<span class="sourceLineNo">581</span>        }<a name="line.581"></a>
-<span class="sourceLineNo">582</span>    }<a name="line.582"></a>
-<span class="sourceLineNo">583</span>}<a name="line.583"></a>
-<span class="sourceLineNo">584</span><a name="line.584"></a>
+<span class="sourceLineNo">564</span>}<a name="line.564"></a>
+<span class="sourceLineNo">565</span><a name="line.565"></a>
 
 
 

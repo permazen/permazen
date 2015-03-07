@@ -177,187 +177,193 @@
 <span class="sourceLineNo">169</span>     * after converting the {@link Class} instances to {@link TypeToken}s.<a name="line.169"></a>
 <span class="sourceLineNo">170</span>     * &lt;/p&gt;<a name="line.170"></a>
 <span class="sourceLineNo">171</span>     *<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     * @see #findLowestCommonAncestor findLowestCommonAncestor()<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     */<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    public static TypeToken&lt;?&gt; findLowestCommonAncestorOfClasses(Iterable&lt;Class&lt;?&gt;&gt; types) {<a name="line.174"></a>
-<span class="sourceLineNo">175</span>        return Util.findLowestCommonAncestor(Iterables.transform(types, new Function&lt;Class&lt;?&gt;, TypeToken&lt;?&gt;&gt;() {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            @Override<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            public TypeToken&lt;?&gt; apply(Class&lt;?&gt; type) {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>                return TypeToken.of(type);<a name="line.178"></a>
-<span class="sourceLineNo">179</span>            }<a name="line.179"></a>
-<span class="sourceLineNo">180</span>        }));<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>    /**<a name="line.183"></a>
-<span class="sourceLineNo">184</span>     * Find the narrowest type that is a supertype of all of the given types.<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     *<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     * &lt;p&gt;<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * When there is more than one choice, heuristics are used. For example, we prefer<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     * non-interface types, and {@link JObject} over other interface types.<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     * &lt;/p&gt;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     *<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     * @param types sub-types<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     * @return narrowest common super-type<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     */<a name="line.193"></a>
-<span class="sourceLineNo">194</span>    public static TypeToken&lt;?&gt; findLowestCommonAncestor(Iterable&lt;TypeToken&lt;?&gt;&gt; types) {<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>        // Gather all supertypes of types recursively<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        final HashSet&lt;TypeToken&lt;?&gt;&gt; supertypes = new HashSet&lt;&gt;();<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        for (TypeToken&lt;?&gt; type : types)<a name="line.198"></a>
-<span class="sourceLineNo">199</span>            Util.addSupertypes(supertypes, type);<a name="line.199"></a>
-<span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>        // Throw out all supertypes that are not supertypes of every type<a name="line.201"></a>
-<span class="sourceLineNo">202</span>        for (Iterator&lt;TypeToken&lt;?&gt;&gt; i = supertypes.iterator(); i.hasNext(); ) {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>            final TypeToken&lt;?&gt; supertype = i.next();<a name="line.203"></a>
-<span class="sourceLineNo">204</span>            for (TypeToken&lt;?&gt; type : types) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>                if (!supertype.isAssignableFrom(type)) {<a name="line.205"></a>
-<span class="sourceLineNo">206</span>                    i.remove();<a name="line.206"></a>
-<span class="sourceLineNo">207</span>                    break;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>                }<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            }<a name="line.209"></a>
-<span class="sourceLineNo">210</span>        }<a name="line.210"></a>
-<span class="sourceLineNo">211</span><a name="line.211"></a>
-<span class="sourceLineNo">212</span>        // Throw out all supertypes that are supertypes of some other supertype<a name="line.212"></a>
-<span class="sourceLineNo">213</span>        for (Iterator&lt;TypeToken&lt;?&gt;&gt; i = supertypes.iterator(); i.hasNext(); ) {<a name="line.213"></a>
-<span class="sourceLineNo">214</span>            final TypeToken&lt;?&gt; supertype = i.next();<a name="line.214"></a>
-<span class="sourceLineNo">215</span>            for (TypeToken&lt;?&gt; supertype2 : supertypes) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>                if (supertype2 != supertype &amp;&amp; supertype.isAssignableFrom(supertype2)) {<a name="line.216"></a>
-<span class="sourceLineNo">217</span>                    i.remove();<a name="line.217"></a>
-<span class="sourceLineNo">218</span>                    break;<a name="line.218"></a>
-<span class="sourceLineNo">219</span>                }<a name="line.219"></a>
-<span class="sourceLineNo">220</span>            }<a name="line.220"></a>
-<span class="sourceLineNo">221</span>        }<a name="line.221"></a>
-<span class="sourceLineNo">222</span><a name="line.222"></a>
-<span class="sourceLineNo">223</span>        // Pick the best candidate that's not Object, if possible<a name="line.223"></a>
-<span class="sourceLineNo">224</span>        final TypeToken&lt;Object&gt; objectType = TypeToken.of(Object.class);<a name="line.224"></a>
-<span class="sourceLineNo">225</span>        supertypes.remove(objectType);<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        switch (supertypes.size()) {<a name="line.226"></a>
-<span class="sourceLineNo">227</span>        case 0:<a name="line.227"></a>
-<span class="sourceLineNo">228</span>            return objectType;<a name="line.228"></a>
-<span class="sourceLineNo">229</span>        case 1:<a name="line.229"></a>
-<span class="sourceLineNo">230</span>            return supertypes.iterator().next();<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        default:<a name="line.231"></a>
-<span class="sourceLineNo">232</span>            break;<a name="line.232"></a>
-<span class="sourceLineNo">233</span>        }<a name="line.233"></a>
-<span class="sourceLineNo">234</span><a name="line.234"></a>
-<span class="sourceLineNo">235</span>        // Pick the one that's not an interface, if any (it will be the the only non-interface type)<a name="line.235"></a>
-<span class="sourceLineNo">236</span>        for (TypeToken&lt;?&gt; supertype : supertypes) {<a name="line.236"></a>
-<span class="sourceLineNo">237</span>            if (!supertype.getRawType().isInterface())<a name="line.237"></a>
-<span class="sourceLineNo">238</span>                return supertype;<a name="line.238"></a>
-<span class="sourceLineNo">239</span>        }<a name="line.239"></a>
-<span class="sourceLineNo">240</span><a name="line.240"></a>
-<span class="sourceLineNo">241</span>        // There are now only interfaces to choose from (or Object)... try JObject<a name="line.241"></a>
-<span class="sourceLineNo">242</span>        final TypeToken&lt;JObject&gt; jobjectType = TypeToken.of(JObject.class);<a name="line.242"></a>
-<span class="sourceLineNo">243</span>        if (supertypes.contains(jobjectType))<a name="line.243"></a>
-<span class="sourceLineNo">244</span>            return jobjectType;<a name="line.244"></a>
-<span class="sourceLineNo">245</span><a name="line.245"></a>
-<span class="sourceLineNo">246</span>        // Last resort is Object<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        return objectType;<a name="line.247"></a>
-<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
-<span class="sourceLineNo">249</span><a name="line.249"></a>
-<span class="sourceLineNo">250</span>    @SuppressWarnings("unchecked")<a name="line.250"></a>
-<span class="sourceLineNo">251</span>    private static &lt;T&gt; void addSupertypes(Set&lt;TypeToken&lt;?&gt;&gt; types, TypeToken&lt;T&gt; type) {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>        if (type == null || !types.add(type))<a name="line.252"></a>
-<span class="sourceLineNo">253</span>            return;<a name="line.253"></a>
-<span class="sourceLineNo">254</span>        final Class&lt;? super T&gt; rawType = type.getRawType();<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        types.add(TypeToken.of(rawType));<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        types.add(Util.getWildcardedType(rawType));<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        final Class&lt;? super T&gt; superclass = rawType.getSuperclass();<a name="line.257"></a>
-<span class="sourceLineNo">258</span>        if (superclass != null) {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>            Util.addSupertypes(types, TypeToken.of(superclass));<a name="line.259"></a>
-<span class="sourceLineNo">260</span>            Util.addSupertypes(types, type.getSupertype(superclass));<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        }<a name="line.261"></a>
-<span class="sourceLineNo">262</span>        for (Class&lt;?&gt; iface : rawType.getInterfaces())<a name="line.262"></a>
-<span class="sourceLineNo">263</span>            Util.addSupertypes(types, type.getSupertype((Class&lt;? super T&gt;)iface));<a name="line.263"></a>
-<span class="sourceLineNo">264</span>    }<a name="line.264"></a>
-<span class="sourceLineNo">265</span><a name="line.265"></a>
-<span class="sourceLineNo">266</span>    /**<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * Parameterize the raw type with wildcards.<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     *<a name="line.268"></a>
-<span class="sourceLineNo">269</span>     * @param type raw type<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     * @return {@code type} genericized with wildcards<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     */<a name="line.271"></a>
-<span class="sourceLineNo">272</span>    public static &lt;T&gt; TypeToken&lt;? extends T&gt; getWildcardedType(Class&lt;T&gt; type) {<a name="line.272"></a>
-<span class="sourceLineNo">273</span>        if (type == null)<a name="line.273"></a>
-<span class="sourceLineNo">274</span>            throw new IllegalArgumentException("null type");<a name="line.274"></a>
-<span class="sourceLineNo">275</span>        final TypeVariable&lt;Class&lt;T&gt;&gt;[] typeVariables = type.getTypeParameters();<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        if (typeVariables.length == 0)<a name="line.276"></a>
-<span class="sourceLineNo">277</span>            return TypeToken.of(type);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        final WildcardType[] questionMarks = new WildcardType[typeVariables.length];<a name="line.278"></a>
-<span class="sourceLineNo">279</span>        Arrays.fill(questionMarks, QUESTION_MARK);<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        return Util.newParameterizedType(type, questionMarks);<a name="line.280"></a>
-<span class="sourceLineNo">281</span>    }<a name="line.281"></a>
-<span class="sourceLineNo">282</span><a name="line.282"></a>
-<span class="sourceLineNo">283</span>    /**<a name="line.283"></a>
-<span class="sourceLineNo">284</span>     * Get the n'th generic type parameter.<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     *<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     * @param type parameterized generic type<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     * @param index type parameter index (zero based)<a name="line.287"></a>
-<span class="sourceLineNo">288</span>     * @throws IllegalArgumentException if {@code type} is not a parameterized type with more than {@code index} type variables<a name="line.288"></a>
-<span class="sourceLineNo">289</span>     */<a name="line.289"></a>
-<span class="sourceLineNo">290</span>    public static Type getTypeParameter(Type type, int index) {<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        if (!(type instanceof ParameterizedType))<a name="line.291"></a>
-<span class="sourceLineNo">292</span>            throw new IllegalArgumentException("type is missing generic type parameter(s)");<a name="line.292"></a>
-<span class="sourceLineNo">293</span>        final ParameterizedType parameterizedType = (ParameterizedType)type;<a name="line.293"></a>
-<span class="sourceLineNo">294</span>        final Type[] parameters = parameterizedType.getActualTypeArguments();<a name="line.294"></a>
-<span class="sourceLineNo">295</span>        if (index &gt;= parameters.length)<a name="line.295"></a>
+<span class="sourceLineNo">172</span>     * @param types sub-types<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * @return narrowest common super-type<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * @see #findLowestCommonAncestor findLowestCommonAncestor()<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     */<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    public static TypeToken&lt;?&gt; findLowestCommonAncestorOfClasses(Iterable&lt;Class&lt;?&gt;&gt; types) {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        return Util.findLowestCommonAncestor(Iterables.transform(types, new Function&lt;Class&lt;?&gt;, TypeToken&lt;?&gt;&gt;() {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            @Override<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            public TypeToken&lt;?&gt; apply(Class&lt;?&gt; type) {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>                return TypeToken.of(type);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            }<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        }));<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    }<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>    /**<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * Find the narrowest type that is a supertype of all of the given types.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     *<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * &lt;p&gt;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * When there is more than one choice, heuristics are used. For example, we prefer<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * non-interface types, and {@link JObject} over other interface types.<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * &lt;/p&gt;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     *<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * @param types sub-types<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * @return narrowest common super-type<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     */<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    public static TypeToken&lt;?&gt; findLowestCommonAncestor(Iterable&lt;TypeToken&lt;?&gt;&gt; types) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>        // Gather all supertypes of types recursively<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        final HashSet&lt;TypeToken&lt;?&gt;&gt; supertypes = new HashSet&lt;&gt;();<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        for (TypeToken&lt;?&gt; type : types)<a name="line.200"></a>
+<span class="sourceLineNo">201</span>            Util.addSupertypes(supertypes, type);<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>        // Throw out all supertypes that are not supertypes of every type<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        for (Iterator&lt;TypeToken&lt;?&gt;&gt; i = supertypes.iterator(); i.hasNext(); ) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            final TypeToken&lt;?&gt; supertype = i.next();<a name="line.205"></a>
+<span class="sourceLineNo">206</span>            for (TypeToken&lt;?&gt; type : types) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                if (!supertype.isAssignableFrom(type)) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                    i.remove();<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                    break;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                }<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            }<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        }<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>        // Throw out all supertypes that are supertypes of some other supertype<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        for (Iterator&lt;TypeToken&lt;?&gt;&gt; i = supertypes.iterator(); i.hasNext(); ) {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>            final TypeToken&lt;?&gt; supertype = i.next();<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            for (TypeToken&lt;?&gt; supertype2 : supertypes) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>                if (supertype2 != supertype &amp;&amp; supertype.isAssignableFrom(supertype2)) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>                    i.remove();<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                    break;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>                }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            }<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>        // Pick the best candidate that's not Object, if possible<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        final TypeToken&lt;Object&gt; objectType = TypeToken.of(Object.class);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        supertypes.remove(objectType);<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        switch (supertypes.size()) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        case 0:<a name="line.229"></a>
+<span class="sourceLineNo">230</span>            return objectType;<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        case 1:<a name="line.231"></a>
+<span class="sourceLineNo">232</span>            return supertypes.iterator().next();<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        default:<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            break;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        }<a name="line.235"></a>
+<span class="sourceLineNo">236</span><a name="line.236"></a>
+<span class="sourceLineNo">237</span>        // Pick the one that's not an interface, if any (it will be the the only non-interface type)<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        for (TypeToken&lt;?&gt; supertype : supertypes) {<a name="line.238"></a>
+<span class="sourceLineNo">239</span>            if (!supertype.getRawType().isInterface())<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                return supertype;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        }<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>        // There are now only interfaces to choose from (or Object)... try JObject<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        final TypeToken&lt;JObject&gt; jobjectType = TypeToken.of(JObject.class);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        if (supertypes.contains(jobjectType))<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            return jobjectType;<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>        // Last resort is Object<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        return objectType;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    }<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>    @SuppressWarnings("unchecked")<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    private static &lt;T&gt; void addSupertypes(Set&lt;TypeToken&lt;?&gt;&gt; types, TypeToken&lt;T&gt; type) {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        if (type == null || !types.add(type))<a name="line.254"></a>
+<span class="sourceLineNo">255</span>            return;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        final Class&lt;? super T&gt; rawType = type.getRawType();<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        types.add(TypeToken.of(rawType));<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        types.add(Util.getWildcardedType(rawType));<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        final Class&lt;? super T&gt; superclass = rawType.getSuperclass();<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        if (superclass != null) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            Util.addSupertypes(types, TypeToken.of(superclass));<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            Util.addSupertypes(types, type.getSupertype(superclass));<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        }<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        for (Class&lt;?&gt; iface : rawType.getInterfaces())<a name="line.264"></a>
+<span class="sourceLineNo">265</span>            Util.addSupertypes(types, type.getSupertype((Class&lt;? super T&gt;)iface));<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    }<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>    /**<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * Parameterize the raw type with wildcards.<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     *<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     * @param type raw type<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * @param &lt;T&gt; raw type<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * @return {@code type} genericized with wildcards<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     */<a name="line.274"></a>
+<span class="sourceLineNo">275</span>    public static &lt;T&gt; TypeToken&lt;? extends T&gt; getWildcardedType(Class&lt;T&gt; type) {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        if (type == null)<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            throw new IllegalArgumentException("null type");<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        final TypeVariable&lt;Class&lt;T&gt;&gt;[] typeVariables = type.getTypeParameters();<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        if (typeVariables.length == 0)<a name="line.279"></a>
+<span class="sourceLineNo">280</span>            return TypeToken.of(type);<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        final WildcardType[] questionMarks = new WildcardType[typeVariables.length];<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        Arrays.fill(questionMarks, QUESTION_MARK);<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        return Util.newParameterizedType(type, questionMarks);<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    }<a name="line.284"></a>
+<span class="sourceLineNo">285</span><a name="line.285"></a>
+<span class="sourceLineNo">286</span>    /**<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     * Get the n'th generic type parameter.<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     *<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     * @param type parameterized generic type<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     * @param index type parameter index (zero based)<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     * @return type parameter at {@code index}<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     * @throws IllegalArgumentException if {@code type} is not a parameterized type with more than {@code index} type variables<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     */<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    public static Type getTypeParameter(Type type, int index) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        if (!(type instanceof ParameterizedType))<a name="line.295"></a>
 <span class="sourceLineNo">296</span>            throw new IllegalArgumentException("type is missing generic type parameter(s)");<a name="line.296"></a>
-<span class="sourceLineNo">297</span>        return parameters[index];<a name="line.297"></a>
-<span class="sourceLineNo">298</span>    }<a name="line.298"></a>
-<span class="sourceLineNo">299</span><a name="line.299"></a>
-<span class="sourceLineNo">300</span>    /**<a name="line.300"></a>
-<span class="sourceLineNo">301</span>     * Invoke method via reflection and re-throw any checked exception wrapped in an {@link JSimpleDBException}.<a name="line.301"></a>
-<span class="sourceLineNo">302</span>     *<a name="line.302"></a>
-<span class="sourceLineNo">303</span>     * @param method method to invoke<a name="line.303"></a>
-<span class="sourceLineNo">304</span>     * @param target instance, or null if method is static<a name="line.304"></a>
-<span class="sourceLineNo">305</span>     * @param params method parameters<a name="line.305"></a>
-<span class="sourceLineNo">306</span>     */<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    public static Object invoke(Method method, Object target, Object... params) {<a name="line.307"></a>
-<span class="sourceLineNo">308</span>        try {<a name="line.308"></a>
-<span class="sourceLineNo">309</span>            return method.invoke(target, params);<a name="line.309"></a>
-<span class="sourceLineNo">310</span>        } catch (InvocationTargetException e) {<a name="line.310"></a>
-<span class="sourceLineNo">311</span>            if (e.getCause() instanceof Error)<a name="line.311"></a>
-<span class="sourceLineNo">312</span>                throw (Error)e.getCause();<a name="line.312"></a>
-<span class="sourceLineNo">313</span>            if (e.getCause() instanceof RuntimeException)<a name="line.313"></a>
-<span class="sourceLineNo">314</span>                throw (RuntimeException)e.getCause();<a name="line.314"></a>
-<span class="sourceLineNo">315</span>            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);<a name="line.315"></a>
-<span class="sourceLineNo">316</span>        } catch (Error e) {<a name="line.316"></a>
-<span class="sourceLineNo">317</span>            throw e;<a name="line.317"></a>
-<span class="sourceLineNo">318</span>        } catch (RuntimeException e) {<a name="line.318"></a>
-<span class="sourceLineNo">319</span>            throw e;<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        } catch (Exception e) {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        }<a name="line.322"></a>
-<span class="sourceLineNo">323</span>    }<a name="line.323"></a>
-<span class="sourceLineNo">324</span><a name="line.324"></a>
-<span class="sourceLineNo">325</span>    /**<a name="line.325"></a>
-<span class="sourceLineNo">326</span>     * Convert a raw class back into its generic type using caller-supplied type parameters.<a name="line.326"></a>
-<span class="sourceLineNo">327</span>     *<a name="line.327"></a>
-<span class="sourceLineNo">328</span>     * @param target raw class<a name="line.328"></a>
-<span class="sourceLineNo">329</span>     * @param params type parameters<a name="line.329"></a>
-<span class="sourceLineNo">330</span>     * @return generic {@link TypeToken} for {@code target}<a name="line.330"></a>
-<span class="sourceLineNo">331</span>     * @see &lt;a href="https://github.com/google/guava/issues/1645"&gt;Guava Issue #1645&lt;/a&gt;<a name="line.331"></a>
-<span class="sourceLineNo">332</span>     */<a name="line.332"></a>
-<span class="sourceLineNo">333</span>    @SuppressWarnings("unchecked")<a name="line.333"></a>
-<span class="sourceLineNo">334</span>    public static &lt;T&gt; TypeToken&lt;? extends T&gt; newParameterizedType(Class&lt;T&gt; target, Type[] params) {<a name="line.334"></a>
-<span class="sourceLineNo">335</span>        Type type;<a name="line.335"></a>
-<span class="sourceLineNo">336</span>        try {<a name="line.336"></a>
-<span class="sourceLineNo">337</span>            if (Util.newParameterizedTypeMethod == null) {<a name="line.337"></a>
-<span class="sourceLineNo">338</span>                Util.newParameterizedTypeMethod = Class.forName("com.google.common.reflect.Types",<a name="line.338"></a>
-<span class="sourceLineNo">339</span>                  false, Thread.currentThread().getContextClassLoader()).getDeclaredMethod(<a name="line.339"></a>
-<span class="sourceLineNo">340</span>                  "newParameterizedType", Class.class, Type[].class);<a name="line.340"></a>
-<span class="sourceLineNo">341</span>                Util.newParameterizedTypeMethod.setAccessible(true);<a name="line.341"></a>
-<span class="sourceLineNo">342</span>            }<a name="line.342"></a>
-<span class="sourceLineNo">343</span>            type = (Type)Util.newParameterizedTypeMethod.invoke(null, target, params);<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        } catch (RuntimeException e) {<a name="line.344"></a>
-<span class="sourceLineNo">345</span>            throw e;<a name="line.345"></a>
-<span class="sourceLineNo">346</span>        } catch (Exception e) {<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            throw new RuntimeException("unexpected exception", e);<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        }<a name="line.348"></a>
-<span class="sourceLineNo">349</span>        return (TypeToken&lt;T&gt;)TypeToken.of(type);<a name="line.349"></a>
-<span class="sourceLineNo">350</span>    }<a name="line.350"></a>
-<span class="sourceLineNo">351</span>}<a name="line.351"></a>
-<span class="sourceLineNo">352</span><a name="line.352"></a>
+<span class="sourceLineNo">297</span>        final ParameterizedType parameterizedType = (ParameterizedType)type;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        final Type[] parameters = parameterizedType.getActualTypeArguments();<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        if (index &gt;= parameters.length)<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            throw new IllegalArgumentException("type is missing generic type parameter(s)");<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        return parameters[index];<a name="line.301"></a>
+<span class="sourceLineNo">302</span>    }<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>    /**<a name="line.304"></a>
+<span class="sourceLineNo">305</span>     * Invoke method via reflection and re-throw any checked exception wrapped in an {@link JSimpleDBException}.<a name="line.305"></a>
+<span class="sourceLineNo">306</span>     *<a name="line.306"></a>
+<span class="sourceLineNo">307</span>     * @param method method to invoke<a name="line.307"></a>
+<span class="sourceLineNo">308</span>     * @param target instance, or null if method is static<a name="line.308"></a>
+<span class="sourceLineNo">309</span>     * @param params method parameters<a name="line.309"></a>
+<span class="sourceLineNo">310</span>     * @return method return value<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     */<a name="line.311"></a>
+<span class="sourceLineNo">312</span>    public static Object invoke(Method method, Object target, Object... params) {<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        try {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>            return method.invoke(target, params);<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        } catch (InvocationTargetException e) {<a name="line.315"></a>
+<span class="sourceLineNo">316</span>            if (e.getCause() instanceof Error)<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                throw (Error)e.getCause();<a name="line.317"></a>
+<span class="sourceLineNo">318</span>            if (e.getCause() instanceof RuntimeException)<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                throw (RuntimeException)e.getCause();<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        } catch (Error e) {<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            throw e;<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        } catch (RuntimeException e) {<a name="line.323"></a>
+<span class="sourceLineNo">324</span>            throw e;<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        } catch (Exception e) {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>            throw new JSimpleDBException("unexpected error invoking method " + method + " on " + target, e);<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        }<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    }<a name="line.328"></a>
+<span class="sourceLineNo">329</span><a name="line.329"></a>
+<span class="sourceLineNo">330</span>    /**<a name="line.330"></a>
+<span class="sourceLineNo">331</span>     * Convert a raw class back into its generic type using caller-supplied type parameters.<a name="line.331"></a>
+<span class="sourceLineNo">332</span>     *<a name="line.332"></a>
+<span class="sourceLineNo">333</span>     * @param target raw class<a name="line.333"></a>
+<span class="sourceLineNo">334</span>     * @param params type parameters<a name="line.334"></a>
+<span class="sourceLineNo">335</span>     * @param &lt;T&gt; raw class type<a name="line.335"></a>
+<span class="sourceLineNo">336</span>     * @return generic {@link TypeToken} for {@code target}<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * @see &lt;a href="https://github.com/google/guava/issues/1645"&gt;Guava Issue #1645&lt;/a&gt;<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     */<a name="line.338"></a>
+<span class="sourceLineNo">339</span>    @SuppressWarnings("unchecked")<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    public static &lt;T&gt; TypeToken&lt;? extends T&gt; newParameterizedType(Class&lt;T&gt; target, Type[] params) {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        Type type;<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        try {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>            if (Util.newParameterizedTypeMethod == null) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                Util.newParameterizedTypeMethod = Class.forName("com.google.common.reflect.Types",<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                  false, Thread.currentThread().getContextClassLoader()).getDeclaredMethod(<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                  "newParameterizedType", Class.class, Type[].class);<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                Util.newParameterizedTypeMethod.setAccessible(true);<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            }<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            type = (Type)Util.newParameterizedTypeMethod.invoke(null, target, params);<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        } catch (RuntimeException e) {<a name="line.350"></a>
+<span class="sourceLineNo">351</span>            throw e;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        } catch (Exception e) {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>            throw new RuntimeException("unexpected exception", e);<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        }<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        return (TypeToken&lt;T&gt;)TypeToken.of(type);<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    }<a name="line.356"></a>
+<span class="sourceLineNo">357</span>}<a name="line.357"></a>
+<span class="sourceLineNo">358</span><a name="line.358"></a>
 
 
 

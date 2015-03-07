@@ -37,13 +37,13 @@
 <span class="sourceLineNo">029</span>     *<a name="line.29"></a>
 <span class="sourceLineNo">030</span>     * @param name the name of the field<a name="line.30"></a>
 <span class="sourceLineNo">031</span>     * @param storageId field storage ID<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * @param version schema version<a name="line.32"></a>
+<span class="sourceLineNo">032</span>     * @param schema schema version<a name="line.32"></a>
 <span class="sourceLineNo">033</span>     * @throws IllegalArgumentException if any parameter is null<a name="line.33"></a>
 <span class="sourceLineNo">034</span>     * @throws IllegalArgumentException if {@code name} is invalid<a name="line.34"></a>
 <span class="sourceLineNo">035</span>     * @throws IllegalArgumentException if {@code storageId} is zero or less<a name="line.35"></a>
 <span class="sourceLineNo">036</span>     */<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    CounterField(String name, int storageId, SchemaVersion version) {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        super(name, storageId, version, TypeToken.of(Long.class));<a name="line.38"></a>
+<span class="sourceLineNo">037</span>    CounterField(String name, int storageId, Schema schema) {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        super(name, storageId, schema, TypeToken.of(Long.class));<a name="line.38"></a>
 <span class="sourceLineNo">039</span>    }<a name="line.39"></a>
 <span class="sourceLineNo">040</span><a name="line.40"></a>
 <span class="sourceLineNo">041</span>    @Override<a name="line.41"></a>

@@ -38,14 +38,14 @@
 <span class="sourceLineNo">030</span>     *<a name="line.30"></a>
 <span class="sourceLineNo">031</span>     * @param name the name of the field<a name="line.31"></a>
 <span class="sourceLineNo">032</span>     * @param storageId field content storage ID<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * @param version schema version<a name="line.33"></a>
+<span class="sourceLineNo">033</span>     * @param schema schema version<a name="line.33"></a>
 <span class="sourceLineNo">034</span>     * @param elementField this field's element sub-field<a name="line.34"></a>
 <span class="sourceLineNo">035</span>     * @throws IllegalArgumentException if any parameter is null<a name="line.35"></a>
 <span class="sourceLineNo">036</span>     * @throws IllegalArgumentException if {@code storageId} is non-positive<a name="line.36"></a>
 <span class="sourceLineNo">037</span>     */<a name="line.37"></a>
 <span class="sourceLineNo">038</span>    @SuppressWarnings("serial")<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    SetField(String name, int storageId, SchemaVersion version, SimpleField&lt;E&gt; elementField) {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        super(name, storageId, version, new TypeToken&lt;NavigableSet&lt;E&gt;&gt;() { }<a name="line.40"></a>
+<span class="sourceLineNo">039</span>    SetField(String name, int storageId, Schema schema, SimpleField&lt;E&gt; elementField) {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        super(name, storageId, schema, new TypeToken&lt;NavigableSet&lt;E&gt;&gt;() { }<a name="line.40"></a>
 <span class="sourceLineNo">041</span>          .where(new TypeParameter&lt;E&gt;() { }, elementField.typeToken.wrap()), elementField);<a name="line.41"></a>
 <span class="sourceLineNo">042</span>    }<a name="line.42"></a>
 <span class="sourceLineNo">043</span><a name="line.43"></a>

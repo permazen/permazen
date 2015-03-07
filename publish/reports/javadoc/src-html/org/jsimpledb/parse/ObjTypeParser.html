@@ -21,7 +21,7 @@
 <span class="sourceLineNo">013</span><a name="line.13"></a>
 <span class="sourceLineNo">014</span>import org.jsimpledb.core.Database;<a name="line.14"></a>
 <span class="sourceLineNo">015</span>import org.jsimpledb.core.ObjType;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.core.SchemaVersion;<a name="line.16"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.core.Schema;<a name="line.16"></a>
 <span class="sourceLineNo">017</span>import org.jsimpledb.core.Transaction;<a name="line.17"></a>
 <span class="sourceLineNo">018</span>import org.jsimpledb.core.UnknownTypeException;<a name="line.18"></a>
 <span class="sourceLineNo">019</span>import org.jsimpledb.schema.NameIndex;<a name="line.19"></a>
@@ -36,7 +36,7 @@
 <span class="sourceLineNo">028</span> *  &lt;li&gt;&lt;code&gt;100&lt;/code&gt; - object type with schema ID 100&lt;/li&gt;<a name="line.28"></a>
 <span class="sourceLineNo">029</span> *  &lt;li&gt;&lt;code&gt;Person&lt;/code&gt; - `Person' object type defined in the current schema version&lt;/li&gt;<a name="line.29"></a>
 <span class="sourceLineNo">030</span> *  &lt;li&gt;&lt;code&gt;Person#12&lt;/code&gt; - `Person' object type defined in schema version 12&lt;/li&gt;<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * &lt;/p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">031</span> * &lt;/ul&gt;<a name="line.31"></a>
 <span class="sourceLineNo">032</span> */<a name="line.32"></a>
 <span class="sourceLineNo">033</span>public class ObjTypeParser implements Parser&lt;ObjType&gt; {<a name="line.33"></a>
 <span class="sourceLineNo">034</span><a name="line.34"></a>
@@ -49,7 +49,7 @@
 <span class="sourceLineNo">041</span>        final int startIndex = ctx.getIndex();<a name="line.41"></a>
 <span class="sourceLineNo">042</span>        try {<a name="line.42"></a>
 <span class="sourceLineNo">043</span>            final int storageId = db.getFieldTypeRegistry().getFieldType(TypeToken.of(Integer.TYPE)).fromParseableString(ctx);<a name="line.43"></a>
-<span class="sourceLineNo">044</span>            return tx.getSchemaVersion().getObjType(storageId);<a name="line.44"></a>
+<span class="sourceLineNo">044</span>            return tx.getSchema().getObjType(storageId);<a name="line.44"></a>
 <span class="sourceLineNo">045</span>        } catch (IllegalArgumentException | UnknownTypeException e) {<a name="line.45"></a>
 <span class="sourceLineNo">046</span>            // ignore<a name="line.46"></a>
 <span class="sourceLineNo">047</span>        }<a name="line.47"></a>
@@ -66,18 +66,18 @@
 <span class="sourceLineNo">058</span>        final String versionString = matcher.group(3);<a name="line.58"></a>
 <span class="sourceLineNo">059</span><a name="line.59"></a>
 <span class="sourceLineNo">060</span>        // Get specified schema version and corresponding name index<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        final SchemaVersion version;<a name="line.61"></a>
+<span class="sourceLineNo">061</span>        final Schema schema;<a name="line.61"></a>
 <span class="sourceLineNo">062</span>        final NameIndex nameIndex;<a name="line.62"></a>
 <span class="sourceLineNo">063</span>        if (versionString != null) {<a name="line.63"></a>
 <span class="sourceLineNo">064</span>            try {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>                version = tx.getSchema().getVersion(Integer.parseInt(versionString));<a name="line.65"></a>
+<span class="sourceLineNo">065</span>                schema = tx.getSchemas().getVersion(Integer.parseInt(versionString));<a name="line.65"></a>
 <span class="sourceLineNo">066</span>            } catch (IllegalArgumentException e) {<a name="line.66"></a>
 <span class="sourceLineNo">067</span>                ctx.setIndex(startIndex);<a name="line.67"></a>
 <span class="sourceLineNo">068</span>                throw new ParseException(ctx, "invalid object type schema version `" + versionString + "'");<a name="line.68"></a>
 <span class="sourceLineNo">069</span>            }<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            nameIndex = new NameIndex(version.getSchemaModel());<a name="line.70"></a>
+<span class="sourceLineNo">070</span>            nameIndex = new NameIndex(schema.getSchemaModel());<a name="line.70"></a>
 <span class="sourceLineNo">071</span>        } else {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            version = tx.getSchemaVersion();<a name="line.72"></a>
+<span class="sourceLineNo">072</span>            schema = tx.getSchema();<a name="line.72"></a>
 <span class="sourceLineNo">073</span>            nameIndex = session.getNameIndex();<a name="line.73"></a>
 <span class="sourceLineNo">074</span>        }<a name="line.74"></a>
 <span class="sourceLineNo">075</span><a name="line.75"></a>
@@ -87,7 +87,7 @@
 <span class="sourceLineNo">079</span>            throw new ParseException(ctx, "unknown object type `" + typeName + "'")<a name="line.79"></a>
 <span class="sourceLineNo">080</span>               .addCompletions(ParseUtil.complete(nameIndex.getSchemaObjectTypeNames(), typeName));<a name="line.80"></a>
 <span class="sourceLineNo">081</span>        }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        return version.getObjType(schemaObjectType.getStorageId());<a name="line.82"></a>
+<span class="sourceLineNo">082</span>        return schema.getObjType(schemaObjectType.getStorageId());<a name="line.82"></a>
 <span class="sourceLineNo">083</span>    }<a name="line.83"></a>
 <span class="sourceLineNo">084</span>}<a name="line.84"></a>
 <span class="sourceLineNo">085</span><a name="line.85"></a>

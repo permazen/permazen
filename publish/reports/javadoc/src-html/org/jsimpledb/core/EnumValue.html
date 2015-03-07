@@ -78,29 +78,53 @@
 <span class="sourceLineNo">070</span>        return this.ordinal;<a name="line.70"></a>
 <span class="sourceLineNo">071</span>    }<a name="line.71"></a>
 <span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>// Object<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    public String toString() {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        return this.name + "#" + this.ordinal;<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    @Override<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    public int hashCode() {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        return this.name.hashCode() ^ this.ordinal;<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>    @Override<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    public boolean equals(Object obj) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        if (obj == this)<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            return true;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        if (obj == null || obj.getClass() != this.getClass())<a name="line.89"></a>
-<span class="sourceLineNo">090</span>            return false;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        final EnumValue that = (EnumValue)obj;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        return this.name.equals(that.name) &amp;&amp; this.ordinal == that.ordinal;<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
-<span class="sourceLineNo">094</span>}<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * Find the instance in the given {@link Enum} type that matches this instance in both name and ordinal value, if any.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     *<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * &lt;p&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * Note: to match only by name, just use {@link Enum#valueOf Enum.valueOf()}.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * &lt;/p&gt;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @param type {@link Enum} type<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @param &lt;T&gt; enum type<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * @return matching instance of type {@code type}, or null if none exists<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * @throws IllegalArgumentException if {@code type} is null<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    public &lt;T extends Enum&lt;T&gt;&gt; T find(Class&lt;T&gt; type) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        if (type == null)<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            throw new IllegalArgumentException("null type");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        final T value;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        try {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            value = Enum.valueOf(type, this.name);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        } catch (IllegalArgumentException e) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            return null;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        return value.ordinal() == this.ordinal ? value : null;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>// Object<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    @Override<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    public String toString() {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        return this.name + "#" + this.ordinal;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    @Override<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    public int hashCode() {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        return this.name.hashCode() ^ this.ordinal;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>    @Override<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    public boolean equals(Object obj) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        if (obj == this)<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            return true;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        if (obj == null || obj.getClass() != this.getClass())<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            return false;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        final EnumValue that = (EnumValue)obj;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        return this.name.equals(that.name) &amp;&amp; this.ordinal == that.ordinal;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>}<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
 
 
 

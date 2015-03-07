@@ -51,8 +51,8 @@
 <span class="sourceLineNo">043</span>import org.jsimpledb.core.ObjId;<a name="line.43"></a>
 <span class="sourceLineNo">044</span>import org.jsimpledb.core.ObjType;<a name="line.44"></a>
 <span class="sourceLineNo">045</span>import org.jsimpledb.core.ReferenceField;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>import org.jsimpledb.core.SchemaItem;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>import org.jsimpledb.core.SchemaVersion;<a name="line.47"></a>
+<span class="sourceLineNo">046</span>import org.jsimpledb.core.Schema;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import org.jsimpledb.core.SchemaItem;<a name="line.47"></a>
 <span class="sourceLineNo">048</span>import org.jsimpledb.core.SetField;<a name="line.48"></a>
 <span class="sourceLineNo">049</span>import org.jsimpledb.core.SimpleField;<a name="line.49"></a>
 <span class="sourceLineNo">050</span>import org.jsimpledb.core.SnapshotTransaction;<a name="line.50"></a>
@@ -85,94 +85,94 @@
 <span class="sourceLineNo">077</span> *      ...<a name="line.77"></a>
 <span class="sourceLineNo">078</span> *  &amp;lt;/objects&amp;gt;<a name="line.78"></a>
 <span class="sourceLineNo">079</span> *  &lt;/pre&gt;<a name="line.79"></a>
-<span class="sourceLineNo">080</span> * &lt;/p&gt;<a name="line.80"></a>
-<span class="sourceLineNo">081</span> *<a name="line.81"></a>
-<span class="sourceLineNo">082</span> * &lt;p&gt;<a name="line.82"></a>
-<span class="sourceLineNo">083</span> * "Name Format" differs from "Storage ID Format" in that object types and fields are specified by name instead of storage ID.<a name="line.83"></a>
-<span class="sourceLineNo">084</span> * However, it does not support schemas that use names that are not valid XML tags.<a name="line.84"></a>
-<span class="sourceLineNo">085</span> * &lt;pre&gt;<a name="line.85"></a>
-<span class="sourceLineNo">086</span> *  &amp;lt;objects&amp;gt;<a name="line.86"></a>
-<span class="sourceLineNo">087</span> *      &amp;lt;Person id="64a971e1aef01cc8" version="1"&amp;gt;<a name="line.87"></a>
-<span class="sourceLineNo">088</span> *          &amp;lt;name&amp;gt;George Washington&amp;lt;/name&amp;gt;<a name="line.88"></a>
-<span class="sourceLineNo">089</span> *          &amp;lt;wasPresident&amp;gt;true&amp;lt;/wasPresident&amp;gt;<a name="line.89"></a>
-<span class="sourceLineNo">090</span> *          &amp;lt;attributes&amp;gt;<a name="line.90"></a>
-<span class="sourceLineNo">091</span> *              &amp;lt;entry&amp;gt;<a name="line.91"></a>
-<span class="sourceLineNo">092</span> *                  &amp;lt;key&amp;gt;teeth&amp;lt;/key&amp;gt;<a name="line.92"></a>
-<span class="sourceLineNo">093</span> *                  &amp;lt;value&amp;gt;wooden&amp;lt;/value&amp;gt;<a name="line.93"></a>
-<span class="sourceLineNo">094</span> *              &amp;lt;/entry&amp;gt;<a name="line.94"></a>
-<span class="sourceLineNo">095</span> *          &amp;lt;/attributes&amp;gt;<a name="line.95"></a>
-<span class="sourceLineNo">096</span> *          &amp;lt;spouse&amp;gt;c8b84a08e5c2b1a2&amp;lt;/spouse&amp;gt;<a name="line.96"></a>
-<span class="sourceLineNo">097</span> *      &amp;lt;/Person&amp;gt;<a name="line.97"></a>
-<span class="sourceLineNo">098</span> *      ...<a name="line.98"></a>
-<span class="sourceLineNo">099</span> *  &amp;lt;/objects&amp;gt;<a name="line.99"></a>
-<span class="sourceLineNo">100</span> *  &lt;/pre&gt;<a name="line.100"></a>
-<span class="sourceLineNo">101</span> * &lt;/p&gt;<a name="line.101"></a>
-<span class="sourceLineNo">102</span> *<a name="line.102"></a>
-<span class="sourceLineNo">103</span> * &lt;p&gt;<a name="line.103"></a>
-<span class="sourceLineNo">104</span> * Some details on the input logic:<a name="line.104"></a>
-<span class="sourceLineNo">105</span> * &lt;ul&gt;<a name="line.105"></a>
-<span class="sourceLineNo">106</span> *  &lt;li&gt;Simple fields that are equal to their default values, and complex fields that are empty, may be omitted&lt;/li&gt;<a name="line.106"></a>
-<span class="sourceLineNo">107</span> *  &lt;li&gt;The {@code "version"} attribute may be omitted, in which case the default schema version associated with<a name="line.107"></a>
-<span class="sourceLineNo">108</span> *      the {@link Transaction} being written to is assumed.&lt;/li&gt;<a name="line.108"></a>
-<span class="sourceLineNo">109</span> *  &lt;li&gt;The {@code "id"} attribute may be omitted, in which case a random unassigned ID is generated&lt;/li&gt;<a name="line.109"></a>
-<span class="sourceLineNo">110</span> *  &lt;li&gt;Any object ID (including the {@code "id"} attribute) may have the special form<a name="line.110"></a>
-<span class="sourceLineNo">111</span> *      &lt;code&gt;generated:&lt;i&gt;TYPE&lt;/i&gt;:&lt;i&gt;SUFFIX&lt;/i&gt;&lt;/code&gt;, where &lt;code&gt;&lt;i&gt;TYPE&lt;/i&gt;&lt;/code&gt; is the object type<a name="line.111"></a>
-<span class="sourceLineNo">112</span> *      name or storage ID and &lt;code&gt;&lt;i&gt;SUFFIX&lt;/i&gt;&lt;/code&gt; is an arbitrary string.<a name="line.112"></a>
-<span class="sourceLineNo">113</span> *      In this case, a random, unassigned object ID for type &lt;code&gt;&lt;i&gt;TYPE&lt;/i&gt;&lt;/code&gt; is generated<a name="line.113"></a>
-<span class="sourceLineNo">114</span> *      on first occurrence, and on subsequent occurences the previously generated ID is recalled. This facilitates<a name="line.114"></a>
-<span class="sourceLineNo">115</span> *      input generated via XSL and the {@code generate-id()} function.<a name="line.115"></a>
-<span class="sourceLineNo">116</span> *      The {@linkplain #getGeneratedIdCache configured} {@link GeneratedIdCache} keeps track of generated IDs.&lt;/li&gt;<a name="line.116"></a>
-<span class="sourceLineNo">117</span> * &lt;/ul&gt;<a name="line.117"></a>
-<span class="sourceLineNo">118</span> * &lt;/p&gt;<a name="line.118"></a>
-<span class="sourceLineNo">119</span> */<a name="line.119"></a>
-<span class="sourceLineNo">120</span>public class XMLObjectSerializer extends AbstractXMLStreaming {<a name="line.120"></a>
-<span class="sourceLineNo">121</span><a name="line.121"></a>
-<span class="sourceLineNo">122</span>    public static final QName ELEMENT_TAG = new QName("element");<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    public static final QName ENTRY_TAG = new QName("entry");<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    public static final QName FIELD_TAG = new QName("field");<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    public static final QName KEY_TAG = new QName("key");<a name="line.125"></a>
-<span class="sourceLineNo">126</span>    public static final QName OBJECTS_TAG = new QName("objects");<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    public static final QName OBJECT_TAG = new QName("object");<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    public static final QName VALUE_TAG = new QName("value");<a name="line.128"></a>
-<span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>    public static final QName ID_ATTR = new QName("id");<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    public static final QName STORAGE_ID_ATTR = new QName("storageId");<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    public static final QName VERSION_ATTR = new QName("version");<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    public static final QName NULL_ATTR = new QName("null");<a name="line.133"></a>
-<span class="sourceLineNo">134</span><a name="line.134"></a>
-<span class="sourceLineNo">135</span>    private static final Pattern GENERATED_ID_PATTERN = Pattern.compile("generated:([^:]+):(.*)");<a name="line.135"></a>
+<span class="sourceLineNo">080</span> *<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * &lt;p&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * "Name Format" differs from "Storage ID Format" in that object types and fields are specified by name instead of storage ID.<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * However, it does not support schemas that use names that are not valid XML tags.<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * &lt;pre&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span> *  &amp;lt;objects&amp;gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span> *      &amp;lt;Person id="64a971e1aef01cc8" version="1"&amp;gt;<a name="line.86"></a>
+<span class="sourceLineNo">087</span> *          &amp;lt;name&amp;gt;George Washington&amp;lt;/name&amp;gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span> *          &amp;lt;wasPresident&amp;gt;true&amp;lt;/wasPresident&amp;gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span> *          &amp;lt;attributes&amp;gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> *              &amp;lt;entry&amp;gt;<a name="line.90"></a>
+<span class="sourceLineNo">091</span> *                  &amp;lt;key&amp;gt;teeth&amp;lt;/key&amp;gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span> *                  &amp;lt;value&amp;gt;wooden&amp;lt;/value&amp;gt;<a name="line.92"></a>
+<span class="sourceLineNo">093</span> *              &amp;lt;/entry&amp;gt;<a name="line.93"></a>
+<span class="sourceLineNo">094</span> *          &amp;lt;/attributes&amp;gt;<a name="line.94"></a>
+<span class="sourceLineNo">095</span> *          &amp;lt;spouse&amp;gt;c8b84a08e5c2b1a2&amp;lt;/spouse&amp;gt;<a name="line.95"></a>
+<span class="sourceLineNo">096</span> *      &amp;lt;/Person&amp;gt;<a name="line.96"></a>
+<span class="sourceLineNo">097</span> *      ...<a name="line.97"></a>
+<span class="sourceLineNo">098</span> *  &amp;lt;/objects&amp;gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span> *  &lt;/pre&gt;<a name="line.99"></a>
+<span class="sourceLineNo">100</span> *<a name="line.100"></a>
+<span class="sourceLineNo">101</span> * &lt;p&gt;<a name="line.101"></a>
+<span class="sourceLineNo">102</span> * Some details on the input logic:<a name="line.102"></a>
+<span class="sourceLineNo">103</span> * &lt;ul&gt;<a name="line.103"></a>
+<span class="sourceLineNo">104</span> *  &lt;li&gt;Simple fields that are equal to their default values, and complex fields that are empty, may be omitted&lt;/li&gt;<a name="line.104"></a>
+<span class="sourceLineNo">105</span> *  &lt;li&gt;The {@code "version"} attribute may be omitted, in which case the default schema version associated with<a name="line.105"></a>
+<span class="sourceLineNo">106</span> *      the {@link Transaction} being written to is assumed.&lt;/li&gt;<a name="line.106"></a>
+<span class="sourceLineNo">107</span> *  &lt;li&gt;The {@code "id"} attribute may be omitted, in which case a random unassigned ID is generated&lt;/li&gt;<a name="line.107"></a>
+<span class="sourceLineNo">108</span> *  &lt;li&gt;Any object ID (including the {@code "id"} attribute) may have the special form<a name="line.108"></a>
+<span class="sourceLineNo">109</span> *      &lt;code&gt;generated:&lt;i&gt;TYPE&lt;/i&gt;:&lt;i&gt;SUFFIX&lt;/i&gt;&lt;/code&gt;, where &lt;code&gt;&lt;i&gt;TYPE&lt;/i&gt;&lt;/code&gt; is the object type<a name="line.109"></a>
+<span class="sourceLineNo">110</span> *      name or storage ID and &lt;code&gt;&lt;i&gt;SUFFIX&lt;/i&gt;&lt;/code&gt; is an arbitrary string.<a name="line.110"></a>
+<span class="sourceLineNo">111</span> *      In this case, a random, unassigned object ID for type &lt;code&gt;&lt;i&gt;TYPE&lt;/i&gt;&lt;/code&gt; is generated<a name="line.111"></a>
+<span class="sourceLineNo">112</span> *      on first occurrence, and on subsequent occurences the previously generated ID is recalled. This facilitates<a name="line.112"></a>
+<span class="sourceLineNo">113</span> *      input generated via XSL and the {@code generate-id()} function.<a name="line.113"></a>
+<span class="sourceLineNo">114</span> *      The {@linkplain #getGeneratedIdCache configured} {@link GeneratedIdCache} keeps track of generated IDs.&lt;/li&gt;<a name="line.114"></a>
+<span class="sourceLineNo">115</span> * &lt;/ul&gt;<a name="line.115"></a>
+<span class="sourceLineNo">116</span> */<a name="line.116"></a>
+<span class="sourceLineNo">117</span>public class XMLObjectSerializer extends AbstractXMLStreaming {<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    public static final QName ELEMENT_TAG = new QName("element");<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    public static final QName ENTRY_TAG = new QName("entry");<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    public static final QName FIELD_TAG = new QName("field");<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    public static final QName KEY_TAG = new QName("key");<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    public static final QName OBJECTS_TAG = new QName("objects");<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    public static final QName OBJECT_TAG = new QName("object");<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    public static final QName VALUE_TAG = new QName("value");<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    public static final QName ID_ATTR = new QName("id");<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    public static final QName STORAGE_ID_ATTR = new QName("storageId");<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    public static final QName VERSION_ATTR = new QName("version");<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    public static final QName NULL_ATTR = new QName("null");<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>    private static final Pattern GENERATED_ID_PATTERN = Pattern.compile("generated:([^:]+):(.*)");<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>    private final Transaction tx;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    private final HashMap&lt;Integer, NameIndex&gt; nameIndexMap = new HashMap&lt;&gt;();<a name="line.135"></a>
 <span class="sourceLineNo">136</span><a name="line.136"></a>
-<span class="sourceLineNo">137</span>    private final Transaction tx;<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    private final HashMap&lt;Integer, NameIndex&gt; nameIndexMap = new HashMap&lt;&gt;();<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    private GeneratedIdCache generatedIdCache = new GeneratedIdCache();<a name="line.140"></a>
-<span class="sourceLineNo">141</span><a name="line.141"></a>
-<span class="sourceLineNo">142</span>    /**<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * Constructor.<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     *<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * @param tx {@link Transaction} on which to operate<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     * @throws IllegalArgumentException if {@code tx} is null<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     */<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    public XMLObjectSerializer(Transaction tx) {<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        if (tx == null)<a name="line.149"></a>
-<span class="sourceLineNo">150</span>            throw new IllegalArgumentException("null tx");<a name="line.150"></a>
-<span class="sourceLineNo">151</span>        this.tx = tx;<a name="line.151"></a>
-<span class="sourceLineNo">152</span><a name="line.152"></a>
-<span class="sourceLineNo">153</span>        // Build name index for each schema version<a name="line.153"></a>
-<span class="sourceLineNo">154</span>        for (SchemaVersion schemaVersion : this.tx.getSchema().getSchemaVersions().values())<a name="line.154"></a>
-<span class="sourceLineNo">155</span>            nameIndexMap.put(schemaVersion.getVersionNumber(), new NameIndex(schemaVersion.getSchemaModel()));<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
-<span class="sourceLineNo">157</span><a name="line.157"></a>
-<span class="sourceLineNo">158</span>    /**<a name="line.158"></a>
-<span class="sourceLineNo">159</span>     * Get the {@link GeneratedIdCache} associated with this instance.<a name="line.159"></a>
-<span class="sourceLineNo">160</span>     */<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    public GeneratedIdCache getGeneratedIdCache() {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        return this.generatedIdCache;<a name="line.162"></a>
-<span class="sourceLineNo">163</span>    }<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>    /**<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * Set the {@link GeneratedIdCache} associated with this instance.<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     *<a name="line.167"></a>
+<span class="sourceLineNo">137</span>    private GeneratedIdCache generatedIdCache = new GeneratedIdCache();<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>    /**<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * Constructor.<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     *<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * @param tx {@link Transaction} on which to operate<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * @throws IllegalArgumentException if {@code tx} is null<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    public XMLObjectSerializer(Transaction tx) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        if (tx == null)<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            throw new IllegalArgumentException("null tx");<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        this.tx = tx;<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>        // Build name index for each schema version<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        for (Schema schema : this.tx.getSchemas().getVersions().values())<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            nameIndexMap.put(schema.getVersionNumber(), new NameIndex(schema.getSchemaModel()));<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    }<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>    /**<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * Get the {@link GeneratedIdCache} associated with this instance.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     *<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * @return the associated {@link GeneratedIdCache}<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     */<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    public GeneratedIdCache getGeneratedIdCache() {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        return this.generatedIdCache;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    }<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>    /**<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * Set the {@link GeneratedIdCache} associated with this instance.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     *<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * @param generatedIdCache the {@link GeneratedIdCache} for this instance to use<a name="line.167"></a>
 <span class="sourceLineNo">168</span>     * @throws IllegalArgumentException if {@code generatedIdCache} is null<a name="line.168"></a>
 <span class="sourceLineNo">169</span>     */<a name="line.169"></a>
 <span class="sourceLineNo">170</span>    public void setGeneratedIdCache(GeneratedIdCache generatedIdCache) {<a name="line.170"></a>
@@ -230,25 +230,25 @@
 <span class="sourceLineNo">222</span><a name="line.222"></a>
 <span class="sourceLineNo">223</span>            // Determine schema version<a name="line.223"></a>
 <span class="sourceLineNo">224</span>            final String versionAttr = this.getAttr(reader, VERSION_ATTR, false);<a name="line.224"></a>
-<span class="sourceLineNo">225</span>            final SchemaVersion schemaVersion;<a name="line.225"></a>
+<span class="sourceLineNo">225</span>            final Schema schema;<a name="line.225"></a>
 <span class="sourceLineNo">226</span>            if (versionAttr != null) {<a name="line.226"></a>
 <span class="sourceLineNo">227</span>                try {<a name="line.227"></a>
-<span class="sourceLineNo">228</span>                    schemaVersion = this.tx.getSchema().getVersion(Integer.parseInt(versionAttr));<a name="line.228"></a>
+<span class="sourceLineNo">228</span>                    schema = this.tx.getSchemas().getVersion(Integer.parseInt(versionAttr));<a name="line.228"></a>
 <span class="sourceLineNo">229</span>                } catch (IllegalArgumentException e) {<a name="line.229"></a>
 <span class="sourceLineNo">230</span>                    throw new XMLStreamException("invalid object schema version `" + versionAttr + "': " + e,<a name="line.230"></a>
 <span class="sourceLineNo">231</span>                      reader.getLocation(), e);<a name="line.231"></a>
 <span class="sourceLineNo">232</span>                }<a name="line.232"></a>
 <span class="sourceLineNo">233</span>            } else<a name="line.233"></a>
-<span class="sourceLineNo">234</span>                schemaVersion = this.tx.getSchemaVersion();<a name="line.234"></a>
-<span class="sourceLineNo">235</span>            final NameIndex nameIndex = this.nameIndexMap.get(schemaVersion.getVersionNumber());<a name="line.235"></a>
-<span class="sourceLineNo">236</span>            final SchemaModel schemaModel = schemaVersion.getSchemaModel();<a name="line.236"></a>
+<span class="sourceLineNo">234</span>                schema = this.tx.getSchema();<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            final NameIndex nameIndex = this.nameIndexMap.get(schema.getVersionNumber());<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            final SchemaModel schemaModel = schema.getSchemaModel();<a name="line.236"></a>
 <span class="sourceLineNo">237</span><a name="line.237"></a>
 <span class="sourceLineNo">238</span>            // Determine object type<a name="line.238"></a>
 <span class="sourceLineNo">239</span>            String storageIdAttr = this.getAttr(reader, STORAGE_ID_ATTR, false);<a name="line.239"></a>
 <span class="sourceLineNo">240</span>            ObjType objType = null;<a name="line.240"></a>
 <span class="sourceLineNo">241</span>            if (storageIdAttr != null) {<a name="line.241"></a>
 <span class="sourceLineNo">242</span>                try {<a name="line.242"></a>
-<span class="sourceLineNo">243</span>                    objType = schemaVersion.getObjType(Integer.parseInt(storageIdAttr));<a name="line.243"></a>
+<span class="sourceLineNo">243</span>                    objType = schema.getObjType(Integer.parseInt(storageIdAttr));<a name="line.243"></a>
 <span class="sourceLineNo">244</span>                } catch (UnknownTypeException e) {<a name="line.244"></a>
 <span class="sourceLineNo">245</span>                    throw new XMLStreamException("invalid object type storage ID `" + storageIdAttr + "': " + e,<a name="line.245"></a>
 <span class="sourceLineNo">246</span>                      reader.getLocation(), e);<a name="line.246"></a>
@@ -273,9 +273,9 @@
 <span class="sourceLineNo">265</span>                    if (schemaObjectType == null) {<a name="line.265"></a>
 <span class="sourceLineNo">266</span>                        throw new XMLStreamException("unexpected element &lt;" + name.getLocalPart()<a name="line.266"></a>
 <span class="sourceLineNo">267</span>                          + "&gt;; no object type named `" + name.getLocalPart() + "' found in schema version "<a name="line.267"></a>
-<span class="sourceLineNo">268</span>                          + schemaVersion.getVersionNumber(), reader.getLocation());<a name="line.268"></a>
+<span class="sourceLineNo">268</span>                          + schema.getVersionNumber(), reader.getLocation());<a name="line.268"></a>
 <span class="sourceLineNo">269</span>                    }<a name="line.269"></a>
-<span class="sourceLineNo">270</span>                    objType = schemaVersion.getObjType(schemaObjectType.getStorageId());<a name="line.270"></a>
+<span class="sourceLineNo">270</span>                    objType = schema.getObjType(schemaObjectType.getStorageId());<a name="line.270"></a>
 <span class="sourceLineNo">271</span>                }<a name="line.271"></a>
 <span class="sourceLineNo">272</span>            }<a name="line.272"></a>
 <span class="sourceLineNo">273</span><a name="line.273"></a>
@@ -295,7 +295,7 @@
 <span class="sourceLineNo">287</span>                }<a name="line.287"></a>
 <span class="sourceLineNo">288</span><a name="line.288"></a>
 <span class="sourceLineNo">289</span>                // Create object<a name="line.289"></a>
-<span class="sourceLineNo">290</span>                id = snapshot.create(objType.getStorageId(), schemaVersion.getVersionNumber());<a name="line.290"></a>
+<span class="sourceLineNo">290</span>                id = snapshot.create(objType.getStorageId(), schema.getVersionNumber());<a name="line.290"></a>
 <span class="sourceLineNo">291</span>            } else {<a name="line.291"></a>
 <span class="sourceLineNo">292</span><a name="line.292"></a>
 <span class="sourceLineNo">293</span>                // Parse id<a name="line.293"></a>
@@ -306,19 +306,19 @@
 <span class="sourceLineNo">298</span>                    if (!matcher.matches())<a name="line.298"></a>
 <span class="sourceLineNo">299</span>                        throw new XMLStreamException("invalid object ID `" + idAttr + "'", reader.getLocation());<a name="line.299"></a>
 <span class="sourceLineNo">300</span>                    final String typeAttr = matcher.group(1);<a name="line.300"></a>
-<span class="sourceLineNo">301</span>                    final ObjType genType = this.parseGeneratedType(reader, idAttr, typeAttr, schemaVersion);<a name="line.301"></a>
+<span class="sourceLineNo">301</span>                    final ObjType genType = this.parseGeneratedType(reader, idAttr, typeAttr, schema);<a name="line.301"></a>
 <span class="sourceLineNo">302</span>                    if (objType == null)<a name="line.302"></a>
 <span class="sourceLineNo">303</span>                        objType = genType;<a name="line.303"></a>
 <span class="sourceLineNo">304</span>                    else if (!genType.equals(objType)) {<a name="line.304"></a>
 <span class="sourceLineNo">305</span>                        throw new XMLStreamException("type `" + typeAttr + "' in generated object ID `" + idAttr<a name="line.305"></a>
 <span class="sourceLineNo">306</span>                          + "' does not match type `" + objType.getName() + "' in schema version "<a name="line.306"></a>
-<span class="sourceLineNo">307</span>                          + schemaVersion.getVersionNumber(), reader.getLocation());<a name="line.307"></a>
+<span class="sourceLineNo">307</span>                          + schema.getVersionNumber(), reader.getLocation());<a name="line.307"></a>
 <span class="sourceLineNo">308</span>                    }<a name="line.308"></a>
 <span class="sourceLineNo">309</span>                    id = this.generatedIdCache.getGeneratedId(this.tx, objType.getStorageId(), matcher.group(2));<a name="line.309"></a>
 <span class="sourceLineNo">310</span>                }<a name="line.310"></a>
 <span class="sourceLineNo">311</span><a name="line.311"></a>
 <span class="sourceLineNo">312</span>                // Create object<a name="line.312"></a>
-<span class="sourceLineNo">313</span>                snapshot.create(id, schemaVersion.getVersionNumber());<a name="line.313"></a>
+<span class="sourceLineNo">313</span>                snapshot.create(id, schema.getVersionNumber());<a name="line.313"></a>
 <span class="sourceLineNo">314</span>            }<a name="line.314"></a>
 <span class="sourceLineNo">315</span><a name="line.315"></a>
 <span class="sourceLineNo">316</span>            // Iterate over fields<a name="line.316"></a>
@@ -339,7 +339,7 @@
 <span class="sourceLineNo">331</span>                    if (field == null) {<a name="line.331"></a>
 <span class="sourceLineNo">332</span>                        throw new XMLStreamException("unknown field storage ID `" + storageIdAttr + "' for object type `"<a name="line.332"></a>
 <span class="sourceLineNo">333</span>                          + objType.getName() + "' #" + objType.getStorageId() + " in schema version "<a name="line.333"></a>
-<span class="sourceLineNo">334</span>                          + schemaVersion.getVersionNumber(), reader.getLocation());<a name="line.334"></a>
+<span class="sourceLineNo">334</span>                          + schema.getVersionNumber(), reader.getLocation());<a name="line.334"></a>
 <span class="sourceLineNo">335</span>                    }<a name="line.335"></a>
 <span class="sourceLineNo">336</span>                } else {<a name="line.336"></a>
 <span class="sourceLineNo">337</span>                    if (!XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI())) {<a name="line.337"></a>
@@ -350,7 +350,7 @@
 <span class="sourceLineNo">342</span>                    if (schemaField == null) {<a name="line.342"></a>
 <span class="sourceLineNo">343</span>                        throw new XMLStreamException("unexpected element &lt;" + name.getLocalPart() + "&gt;; unknown field `"<a name="line.343"></a>
 <span class="sourceLineNo">344</span>                          + name.getLocalPart() + "' in object type `" + objType.getName() + "' #"<a name="line.344"></a>
-<span class="sourceLineNo">345</span>                          + objType.getStorageId() + " in schema version " + schemaVersion.getVersionNumber(),<a name="line.345"></a>
+<span class="sourceLineNo">345</span>                          + objType.getStorageId() + " in schema version " + schema.getVersionNumber(),<a name="line.345"></a>
 <span class="sourceLineNo">346</span>                          reader.getLocation());<a name="line.346"></a>
 <span class="sourceLineNo">347</span>                    }<a name="line.347"></a>
 <span class="sourceLineNo">348</span>                    field = objType.getFields().get(schemaField.getStorageId());<a name="line.348"></a>
@@ -466,8 +466,8 @@
 <span class="sourceLineNo">458</span><a name="line.458"></a>
 <span class="sourceLineNo">459</span>        // Gather all known object storage IDs<a name="line.459"></a>
 <span class="sourceLineNo">460</span>        final TreeSet&lt;Integer&gt; storageIds = new TreeSet&lt;&gt;();<a name="line.460"></a>
-<span class="sourceLineNo">461</span>        for (SchemaVersion schemaVersion : this.tx.getSchema().getSchemaVersions().values())<a name="line.461"></a>
-<span class="sourceLineNo">462</span>            storageIds.addAll(schemaVersion.getSchemaModel().getSchemaObjectTypes().keySet());<a name="line.462"></a>
+<span class="sourceLineNo">461</span>        for (Schema schema : this.tx.getSchemas().getVersions().values())<a name="line.461"></a>
+<span class="sourceLineNo">462</span>            storageIds.addAll(schema.getSchemaModel().getSchemaObjectTypes().keySet());<a name="line.462"></a>
 <span class="sourceLineNo">463</span><a name="line.463"></a>
 <span class="sourceLineNo">464</span>        // Get corresponding iterators<a name="line.464"></a>
 <span class="sourceLineNo">465</span>        final ArrayList&lt;NavigableSet&lt;ObjId&gt;&gt; sets = new ArrayList&lt;&gt;(storageIds.size());<a name="line.465"></a>
@@ -508,8 +508,8 @@
 <span class="sourceLineNo">500</span>            // Get object info<a name="line.500"></a>
 <span class="sourceLineNo">501</span>            final int typeStorageId = id.getStorageId();<a name="line.501"></a>
 <span class="sourceLineNo">502</span>            final int version = this.tx.getSchemaVersion(id);<a name="line.502"></a>
-<span class="sourceLineNo">503</span>            final SchemaVersion schemaVersion = this.tx.getSchema().getVersion(version);<a name="line.503"></a>
-<span class="sourceLineNo">504</span>            final ObjType objType = schemaVersion.getObjType(typeStorageId);<a name="line.504"></a>
+<span class="sourceLineNo">503</span>            final Schema schema = this.tx.getSchemas().getVersion(version);<a name="line.503"></a>
+<span class="sourceLineNo">504</span>            final ObjType objType = schema.getObjType(typeStorageId);<a name="line.504"></a>
 <span class="sourceLineNo">505</span><a name="line.505"></a>
 <span class="sourceLineNo">506</span>            // Get format info<a name="line.506"></a>
 <span class="sourceLineNo">507</span>            final QName objectElement = nameFormat ? new QName(objType.getName()) : OBJECT_TAG;<a name="line.507"></a>
@@ -679,10 +679,10 @@
 <span class="sourceLineNo">671</span>    // Parse a generated ID type found in a reference<a name="line.671"></a>
 <span class="sourceLineNo">672</span>    private int parseGeneratedType(XMLStreamReader reader, String text, String attr) throws XMLStreamException {<a name="line.672"></a>
 <span class="sourceLineNo">673</span>        int storageId = -1;<a name="line.673"></a>
-<span class="sourceLineNo">674</span>        for (SchemaVersion schemaVersion : this.tx.getSchema().getSchemaVersions().values()) {<a name="line.674"></a>
+<span class="sourceLineNo">674</span>        for (Schema schema : this.tx.getSchemas().getVersions().values()) {<a name="line.674"></a>
 <span class="sourceLineNo">675</span>            final ObjType objType;<a name="line.675"></a>
 <span class="sourceLineNo">676</span>            try {<a name="line.676"></a>
-<span class="sourceLineNo">677</span>                objType = this.parseGeneratedType(reader, text, attr, schemaVersion);<a name="line.677"></a>
+<span class="sourceLineNo">677</span>                objType = this.parseGeneratedType(reader, text, attr, schema);<a name="line.677"></a>
 <span class="sourceLineNo">678</span>            } catch (XMLStreamException e) {<a name="line.678"></a>
 <span class="sourceLineNo">679</span>                continue;<a name="line.679"></a>
 <span class="sourceLineNo">680</span>            }<a name="line.680"></a>
@@ -701,14 +701,14 @@
 <span class="sourceLineNo">693</span>    }<a name="line.693"></a>
 <span class="sourceLineNo">694</span><a name="line.694"></a>
 <span class="sourceLineNo">695</span>    // Parse a generated ID type found in an object definition<a name="line.695"></a>
-<span class="sourceLineNo">696</span>    private ObjType parseGeneratedType(XMLStreamReader reader, String text, String attr, SchemaVersion schemaVersion)<a name="line.696"></a>
+<span class="sourceLineNo">696</span>    private ObjType parseGeneratedType(XMLStreamReader reader, String text, String attr, Schema schema)<a name="line.696"></a>
 <span class="sourceLineNo">697</span>      throws XMLStreamException {<a name="line.697"></a>
 <span class="sourceLineNo">698</span><a name="line.698"></a>
 <span class="sourceLineNo">699</span>        // Try object type name<a name="line.699"></a>
-<span class="sourceLineNo">700</span>        final NameIndex nameIndex = this.nameIndexMap.get(schemaVersion.getVersionNumber());<a name="line.700"></a>
+<span class="sourceLineNo">700</span>        final NameIndex nameIndex = this.nameIndexMap.get(schema.getVersionNumber());<a name="line.700"></a>
 <span class="sourceLineNo">701</span>        final SchemaObjectType schemaObjectType = nameIndex.getSchemaObjectType(attr);<a name="line.701"></a>
 <span class="sourceLineNo">702</span>        if (schemaObjectType != null)<a name="line.702"></a>
-<span class="sourceLineNo">703</span>            return schemaVersion.getObjType(schemaObjectType.getStorageId());<a name="line.703"></a>
+<span class="sourceLineNo">703</span>            return schema.getObjType(schemaObjectType.getStorageId());<a name="line.703"></a>
 <span class="sourceLineNo">704</span><a name="line.704"></a>
 <span class="sourceLineNo">705</span>        // Try storage ID<a name="line.705"></a>
 <span class="sourceLineNo">706</span>        final int storageId;<a name="line.706"></a>
@@ -716,13 +716,13 @@
 <span class="sourceLineNo">708</span>            storageId = Integer.parseInt(attr);<a name="line.708"></a>
 <span class="sourceLineNo">709</span>        } catch (IllegalArgumentException e) {<a name="line.709"></a>
 <span class="sourceLineNo">710</span>            throw new XMLStreamException("invalid object type `" + attr + "' in generated object ID `"<a name="line.710"></a>
-<span class="sourceLineNo">711</span>              + text + "': no such object type found in schema version " + schemaVersion.getVersionNumber(), reader.getLocation());<a name="line.711"></a>
+<span class="sourceLineNo">711</span>              + text + "': no such object type found in schema version " + schema.getVersionNumber(), reader.getLocation());<a name="line.711"></a>
 <span class="sourceLineNo">712</span>        }<a name="line.712"></a>
 <span class="sourceLineNo">713</span>        try {<a name="line.713"></a>
-<span class="sourceLineNo">714</span>            return schemaVersion.getObjType(storageId);<a name="line.714"></a>
+<span class="sourceLineNo">714</span>            return schema.getObjType(storageId);<a name="line.714"></a>
 <span class="sourceLineNo">715</span>        } catch (UnknownTypeException e) {<a name="line.715"></a>
 <span class="sourceLineNo">716</span>            throw new XMLStreamException("invalid storage ID " + storageId + " in generated object ID `"<a name="line.716"></a>
-<span class="sourceLineNo">717</span>              + text + "': no such object type found in schema version " + schemaVersion.getVersionNumber(), reader.getLocation());<a name="line.717"></a>
+<span class="sourceLineNo">717</span>              + text + "': no such object type found in schema version " + schema.getVersionNumber(), reader.getLocation());<a name="line.717"></a>
 <span class="sourceLineNo">718</span>        }<a name="line.718"></a>
 <span class="sourceLineNo">719</span>    }<a name="line.719"></a>
 <span class="sourceLineNo">720</span><a name="line.720"></a>

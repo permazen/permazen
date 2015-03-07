@@ -21,7 +21,7 @@
 <span class="sourceLineNo">013</span> * &lt;p&gt;<a name="line.13"></a>
 <span class="sourceLineNo">014</span> * Instances have a {@linkplain #getStorageId storage ID} which must be unique across the {@link Schema} version.<a name="line.14"></a>
 <span class="sourceLineNo">015</span> * Instances also have a {@linkplain #getName name} which must be a {@linkplain #NAME_PATTERN valid Java identifier}.<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * Instances are also associated with a {@linkplain #getVersion specific} {@link SchemaVersion}.<a name="line.16"></a>
+<span class="sourceLineNo">016</span> * Instances are also associated with a {@linkplain #getSchema specific} {@link Schema}.<a name="line.16"></a>
 <span class="sourceLineNo">017</span> * &lt;/p&gt;<a name="line.17"></a>
 <span class="sourceLineNo">018</span> */<a name="line.18"></a>
 <span class="sourceLineNo">019</span>public abstract class SchemaItem {<a name="line.19"></a>
@@ -34,20 +34,20 @@
 <span class="sourceLineNo">026</span><a name="line.26"></a>
 <span class="sourceLineNo">027</span>    final String name;<a name="line.27"></a>
 <span class="sourceLineNo">028</span>    final int storageId;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    final SchemaVersion version;<a name="line.29"></a>
+<span class="sourceLineNo">029</span>    final Schema schema;<a name="line.29"></a>
 <span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    SchemaItem(String name, int storageId, SchemaVersion version) {<a name="line.31"></a>
+<span class="sourceLineNo">031</span>    SchemaItem(String name, int storageId, Schema schema) {<a name="line.31"></a>
 <span class="sourceLineNo">032</span>        if (name == null)<a name="line.32"></a>
 <span class="sourceLineNo">033</span>            throw new IllegalArgumentException("invalid null name");<a name="line.33"></a>
 <span class="sourceLineNo">034</span>        if (!name.matches(NAME_PATTERN))<a name="line.34"></a>
 <span class="sourceLineNo">035</span>            throw new IllegalArgumentException("invalid name `" + name + "'");<a name="line.35"></a>
 <span class="sourceLineNo">036</span>        if (storageId &lt;= 0)<a name="line.36"></a>
 <span class="sourceLineNo">037</span>            throw new IllegalArgumentException("invalid storageId " + storageId);<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        if (version == null)<a name="line.38"></a>
-<span class="sourceLineNo">039</span>            throw new IllegalArgumentException("null version");<a name="line.39"></a>
+<span class="sourceLineNo">038</span>        if (schema == null)<a name="line.38"></a>
+<span class="sourceLineNo">039</span>            throw new IllegalArgumentException("null schema");<a name="line.39"></a>
 <span class="sourceLineNo">040</span>        this.name = name;<a name="line.40"></a>
 <span class="sourceLineNo">041</span>        this.storageId = storageId;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>        this.version = version;<a name="line.42"></a>
+<span class="sourceLineNo">042</span>        this.schema = schema;<a name="line.42"></a>
 <span class="sourceLineNo">043</span>    }<a name="line.43"></a>
 <span class="sourceLineNo">044</span><a name="line.44"></a>
 <span class="sourceLineNo">045</span>    /**<a name="line.45"></a>
@@ -70,34 +70,36 @@
 <span class="sourceLineNo">062</span><a name="line.62"></a>
 <span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
 <span class="sourceLineNo">064</span>     * Get the schema version with which this instance is associated.<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     */<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    public SchemaVersion getVersion() {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        return this.version;<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * Create corresponding {@link StorageInfo} object.<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    abstract StorageInfo toStorageInfo();<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    public abstract String toString();<a name="line.76"></a>
-<span class="sourceLineNo">077</span><a name="line.77"></a>
-<span class="sourceLineNo">078</span>    static Class&lt;? extends FieldStorageInfo&gt; infoTypeFor(Class&lt;? extends Field&lt;?&gt;&gt; type) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        if (ReferenceField.class.isAssignableFrom(type))<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            return ReferenceFieldStorageInfo.class;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        if (SimpleField.class.isAssignableFrom(type))<a name="line.81"></a>
-<span class="sourceLineNo">082</span>            return SimpleFieldStorageInfo.class;<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        if (MapField.class.isAssignableFrom(type))<a name="line.83"></a>
-<span class="sourceLineNo">084</span>            return MapFieldStorageInfo.class;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        if (ListField.class.isAssignableFrom(type))<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            return ListFieldStorageInfo.class;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        if (SetField.class.isAssignableFrom(type))<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            return SetFieldStorageInfo.class;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        throw new IllegalArgumentException("no StorageInfo type known for " + type);<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
-<span class="sourceLineNo">091</span>}<a name="line.91"></a>
-<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">065</span>     *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * @return associated schema version<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    public Schema getSchema() {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        return this.schema;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * Create corresponding {@link StorageInfo} object.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    abstract StorageInfo toStorageInfo();<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    @Override<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    public abstract String toString();<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>    static Class&lt;? extends FieldStorageInfo&gt; infoTypeFor(Class&lt;? extends Field&lt;?&gt;&gt; type) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        if (ReferenceField.class.isAssignableFrom(type))<a name="line.81"></a>
+<span class="sourceLineNo">082</span>            return ReferenceFieldStorageInfo.class;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        if (SimpleField.class.isAssignableFrom(type))<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            return SimpleFieldStorageInfo.class;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        if (MapField.class.isAssignableFrom(type))<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            return MapFieldStorageInfo.class;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        if (ListField.class.isAssignableFrom(type))<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            return ListFieldStorageInfo.class;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        if (SetField.class.isAssignableFrom(type))<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            return SetFieldStorageInfo.class;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        throw new IllegalArgumentException("no StorageInfo type known for " + type);<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>}<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
 
 
 

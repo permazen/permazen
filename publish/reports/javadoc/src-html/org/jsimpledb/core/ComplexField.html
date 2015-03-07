@@ -41,14 +41,14 @@
 <span class="sourceLineNo">033</span>     *<a name="line.33"></a>
 <span class="sourceLineNo">034</span>     * @param name the name of the field<a name="line.34"></a>
 <span class="sourceLineNo">035</span>     * @param storageId field content storage ID<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     * @param version schema version<a name="line.36"></a>
+<span class="sourceLineNo">036</span>     * @param schema schema version<a name="line.36"></a>
 <span class="sourceLineNo">037</span>     * @param typeToken Java type for the field's values<a name="line.37"></a>
 <span class="sourceLineNo">038</span>     * @throws IllegalArgumentException if any parameter is null<a name="line.38"></a>
 <span class="sourceLineNo">039</span>     * @throws IllegalArgumentException if {@code name} is invalid<a name="line.39"></a>
 <span class="sourceLineNo">040</span>     * @throws IllegalArgumentException if {@code storageId} is non-positive<a name="line.40"></a>
 <span class="sourceLineNo">041</span>     */<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    ComplexField(String name, int storageId, SchemaVersion version, TypeToken&lt;T&gt; typeToken) {<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        super(name, storageId, version, typeToken);<a name="line.43"></a>
+<span class="sourceLineNo">042</span>    ComplexField(String name, int storageId, Schema schema, TypeToken&lt;T&gt; typeToken) {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        super(name, storageId, schema, typeToken);<a name="line.43"></a>
 <span class="sourceLineNo">044</span>        this.storageIdLength = UnsignedIntEncoder.encodeLength(storageId);<a name="line.44"></a>
 <span class="sourceLineNo">045</span>    }<a name="line.45"></a>
 <span class="sourceLineNo">046</span><a name="line.46"></a>
