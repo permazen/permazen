@@ -40,6 +40,7 @@ public abstract class SimpleCliFunction extends SimpleFunction {
      *
      * @param session CLI session
      * @param params parsed parameters; will already be checked between {@link #getMinArgs} and {@link #getMaxArgs}
+     * @return value returned by this function
      * @throws RuntimeException if there is an error
      */
     protected abstract Value apply(CliSession session, Value[] params);

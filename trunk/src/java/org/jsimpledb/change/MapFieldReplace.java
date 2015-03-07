@@ -57,6 +57,8 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
 
     /**
      * Get the key of the key/value pair whose value was replaced.
+     *
+     * @return the key of the replaced value
      */
     public K getKey() {
         return this.key;
@@ -64,6 +66,8 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
 
     /**
      * Get the value of the key/value pair before the change.
+     *
+     * @return the replaced value
      */
     public V getOldValue() {
         return this.oldValue;
@@ -71,6 +75,8 @@ public class MapFieldReplace<T, K, V> extends MapFieldChange<T> {
 
     /**
      * Get the value of the key/value pair after the change.
+     *
+     * @return the replacing value
      */
     public V getNewValue() {
         return this.newValue;

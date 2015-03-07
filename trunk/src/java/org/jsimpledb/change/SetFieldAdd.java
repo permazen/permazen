@@ -50,6 +50,8 @@ public class SetFieldAdd<T, E> extends SetFieldChange<T> {
 
     /**
      * Get the element that was added to the set.
+     *
+     * @return the newly added value
      */
     public E getElement() {
         return this.element;

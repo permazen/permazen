@@ -145,6 +145,8 @@ public class Bounds<T> {
 
     /**
      * Create an instance like this instance but with the lower bound removed.
+     *
+     * @return new instance
      */
     public Bounds<T> withoutLowerBound() {
         return new Bounds<T>(null, BoundType.NONE, this.upperBound, this.upperBoundType);
@@ -152,6 +154,8 @@ public class Bounds<T> {
 
     /**
      * Create an instance like this instance but with the upper bound removed.
+     *
+     * @return new instance
      */
     public Bounds<T> withoutUpperBound() {
         return new Bounds<T>(this.lowerBound, this.lowerBoundType, null, BoundType.NONE);
@@ -184,10 +188,9 @@ public class Bounds<T> {
      *
      * <p>
      * Equivalent to:
-     *  <blockquote><code>
-     *  isWithinLowerBound(comparator, value) &amp;&amp; isWithinUpperBound(comparator, value)
-     *  </code></blockquote>
-     * </p>
+     * <blockquote><code>
+     * isWithinLowerBound(comparator, value) &amp;&amp; isWithinUpperBound(comparator, value)
+     * </code></blockquote>
      *
      * @param comparator comparator used to compare values, or null for natural ordering
      * @param value value to check

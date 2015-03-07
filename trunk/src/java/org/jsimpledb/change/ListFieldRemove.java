@@ -50,6 +50,8 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
 
     /**
      * Get the list index from which the element was removed.
+     *
+     * @return the index at which the value was removed
      */
     public int getIndex() {
         return this.index;
@@ -57,6 +59,8 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
 
     /**
      * Get the element that was removed from the list.
+     *
+     * @return the value removed from the list
      */
     public E getElement() {
         return this.element;

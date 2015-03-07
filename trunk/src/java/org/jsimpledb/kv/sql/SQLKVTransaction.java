@@ -41,6 +41,10 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
 
     /**
      * Constructor.
+     *
+     * @param database the associated database
+     * @param connection the {@link Connection} for the transaction
+     * @throws SQLException if an SQL error occurs
      */
     public SQLKVTransaction(SQLKVDatabase database, Connection connection) throws SQLException {
         if (database == null)
@@ -171,6 +175,9 @@ public class SQLKVTransaction extends AbstractCountingKVStore implements KVTrans
      * The implementation in {@link SQLKVTransaction} rolls back the SQL transaction, closes the associated {@link Connection},
      * and wraps the exception via {@link SQLKVDatabase#wrapException SQLKVDatabase.wrapException()}.
      * </p>
+     *
+     * @param e original exception
+     * @return key/value transaction exception
      */
     protected KVTransactionException handleException(SQLException e) {
         this.stale = true;

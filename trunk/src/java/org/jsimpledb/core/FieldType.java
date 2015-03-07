@@ -49,7 +49,6 @@ import org.jsimpledb.util.ByteWriter;
  *  <li>An optional {@linkplain #getEncodingSignature encoding signature} protects against incompatible encodings
  *      when a {@link FieldType}'s binary or string encoding changes without changing the {@linkplain #getName name}</li>
  * </ul>
- * </p>
  *
  * <p>
  * Two {@link FieldType} instances should be equal according to {@link #equals equals()} if only if they behave identically
@@ -120,6 +119,8 @@ public abstract class FieldType<T> implements Comparator<T> {
 
     /**
      * Get the name of this type. {@link FieldType} names must be unique in the registry.
+     *
+     * @return this type's name
      */
     public String getName() {
         return this.name;
@@ -127,6 +128,8 @@ public abstract class FieldType<T> implements Comparator<T> {
 
     /**
      * Get the Java type corresponding to this type's values.
+     *
+     * @return this type's Java type
      */
     public TypeToken<T> getTypeToken() {
         return this.typeToken;
@@ -147,6 +150,8 @@ public abstract class FieldType<T> implements Comparator<T> {
      * Note that another option when encodings change is simply to change the {@linkplain #getName name} of the type
      * (encoding signatures are scoped to a single {@link FieldType} name).
      * </p>
+     *
+     * @return binary encoding signature
      */
     public long getEncodingSignature() {
         return this.signature;
@@ -280,6 +285,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * </p>
      *
      * @param obj object to validate
+     * @return {@code obj} cast to this field's type
      * @throws IllegalArgumentException if {@code obj} in not of type T
      * @throws IllegalArgumentException if {@code obj} is null and this type does not support null values
      * @throws IllegalArgumentException if {@code obj} is in any other way not supported by this {@link FieldType}
@@ -315,6 +321,8 @@ public abstract class FieldType<T> implements Comparator<T> {
      * <p>
      * The implementation in {@link FieldType} returns {@code true}.
      * </p>
+     *
+     * @return true if an encoded value starting with {@code 0x00} exists
      */
     public boolean hasPrefix0x00() {
         return true;
@@ -332,6 +340,8 @@ public abstract class FieldType<T> implements Comparator<T> {
      * <p>
      * The implementation in {@link FieldType} returns {@code true}.
      * </p>
+     *
+     * @return true if an encoded value starting with {@code 0xff} exists
      */
     public boolean hasPrefix0xff() {
         return true;

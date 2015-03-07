@@ -64,7 +64,6 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  *  <li>{@link java.io.File}</li>
  *  <li>{@link java.util.regex.Pattern}</li>
  * </ul>
- * </p>
  */
 public class FieldTypeRegistry {
 
@@ -363,6 +362,7 @@ public class FieldTypeRegistry {
      * Get the array {@link FieldType} with the given element type.
      *
      * @param elementType array element type
+     * @param <E> array element type
      * @throws IllegalArgumentException if {@code elementType} is null
      * @throws IllegalArgumentException if the resulting array type has too many dimensions
      * @return array type with element type {@code elementType}
@@ -422,7 +422,8 @@ public class FieldTypeRegistry {
      * Get all {@link FieldType}s in this registry that supports values of the given Java type, which must
      * exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.
      *
-     * @param typeToken Java value type
+     * @param typeToken field value type
+     * @param <T> field value type
      * @return unmodifiable list of {@link FieldType}s supporting Java values of type {@code typeToken}
      * @throws IllegalArgumentException if {@code typeToken} is null
      */
@@ -452,7 +453,8 @@ public class FieldTypeRegistry {
      * exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.
      * There must be exactly one such {@link FieldType}, otherwise an {@link IllegalArgumentException} is thrown.
      *
-     * @param typeToken supported Java value type
+     * @param typeToken field value type
+     * @param <T> field value type
      * @return {@link FieldType} supporting Java values of type {@code typeToken}
      * @throws IllegalArgumentException if {@code typeToken} is null
      * @throws IllegalArgumentException if no registered {@link FieldType}s supports {@code typeToken}

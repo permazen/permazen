@@ -114,6 +114,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * Deserialize an instance from the given XML input and validate it.
      *
      * @param input XML input
+     * @return deserialized schema model
      * @throws IOException if an I/O error occurs
      * @throws InvalidSchemaException if the XML input or decoded {@link SchemaModel} is invalid
      */
@@ -190,6 +191,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * The core API uses storage IDs, not names, to identify objects and fields.
      *
      * @param that other schema
+     * @return true if this and {@code that} are compatible
      * @throws IllegalArgumentException if {@code that} is null
      */
     public boolean isCompatibleWith(SchemaModel that) {

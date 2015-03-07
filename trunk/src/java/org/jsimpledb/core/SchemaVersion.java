@@ -82,6 +82,8 @@ public class SchemaVersion {
 
     /**
      * Get the {@link SchemaModel} on which this schema version is based.
+     *
+     * @return schema model
      */
     public SchemaModel getSchemaModel() {
         return this.schemaModel;

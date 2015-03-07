@@ -113,6 +113,9 @@ abstract class AbstractQueryFunction extends AbstractFunction {
     /**
      * Attempt to parse an index name.
      *
+     * @param session parse session
+     * @param ctx parse context
+     * @param complete false if parse is "for real", true if only for tab completion calculation
      * @return indexed field or composite index storage ID
      */
     protected abstract int parseName(ParseSession session, ParseContext ctx, boolean complete);
@@ -144,6 +147,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
      *
      * @param session parse session
      * @param storageId field or composite index storage ID
+     * @return query return value
      */
     protected Value apply(ParseSession session, final int storageId) {
         return new AbstractValue() {
@@ -164,6 +168,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
      * @param objectType target object type
      * @param name field or composite index name
      * @param valueTypes index value type(s)
+     * @return query return value
      */
     protected abstract Value apply(ParseSession session, Class<?> objectType, String name, Class<?>[] valueTypes);
 }

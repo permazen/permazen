@@ -31,6 +31,8 @@ public final class NavigableSets {
      * </p>
      *
      * @param sets the sets to intersect
+     * @param <E> element type
+     * @return the intersection of all {@code sets}
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      */
     public static <E> NavigableSet<E> intersection(Iterable<? extends NavigableSet<E>> sets) {
@@ -48,6 +50,8 @@ public final class NavigableSets {
      * </p>
      *
      * @param sets the sets to intersect
+     * @param <E> element type
+     * @return the intersection of all {@code sets}
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      */
     @SafeVarargs
@@ -62,6 +66,8 @@ public final class NavigableSets {
      * (or else all null, for natural ordering).
      *
      * @param sets the sets to union
+     * @param <E> element type
+     * @return the union of all {@code sets}
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      */
     @SafeVarargs
@@ -76,6 +82,8 @@ public final class NavigableSets {
      * (or else all null, for natural ordering).
      *
      * @param sets the sets to union
+     * @param <E> element type
+     * @return the union of all {@code sets}
      * @throws IllegalArgumentException if the {@code sets} do not have equal {@link Comparator}s
      */
     public static <E> NavigableSet<E> union(Iterable<? extends NavigableSet<E>> sets) {
@@ -90,6 +98,8 @@ public final class NavigableSets {
      *
      * @param set1 original set
      * @param set2 set of elements to exclude from {@code set1}
+     * @param <E> element type
+     * @return the difference of {@code set1} and {@code set2}
      * @throws IllegalArgumentException if the {@code set1} and {@code set2} do not have equal {@link Comparator}s
      */
     public static <E> NavigableSet<E> difference(NavigableSet<E> set1, NavigableSet<E> set2) {
@@ -104,6 +114,8 @@ public final class NavigableSets {
      *
      * @param set1 first set
      * @param set2 second set
+     * @param <E> element type
+     * @return the symmetric difference of {@code set1} and {@code set2}
      * @throws IllegalArgumentException if the {@code set1} and {@code set2} do not have equal {@link Comparator}s
      */
     public static <E> NavigableSet<E> symmetricDifference(NavigableSet<E> set1, NavigableSet<E> set2) {
@@ -114,6 +126,8 @@ public final class NavigableSets {
      * Create a {@link NavigableSet} containing a single element and natural ordering.
      *
      * @param value singleton value
+     * @param <E> element type
+     * @return singleton set
      * @throws IllegalArgumentException if {@code value} is null or
      *  {@code value}'s class has no natural ordering (i.e., does not implement {@link Comparable})
      */
@@ -126,6 +140,8 @@ public final class NavigableSets {
      *
      * @param comparator comparator, or null for natural ordering
      * @param value singleton value (possibly null)
+     * @param <E> element type
+     * @return singleton set
      * @throws IllegalArgumentException if {@code comparator} is null and either {@code value} is null or
      *  {@code value}'s class has no natural ordering (i.e., does not implement {@link Comparable})
      */
@@ -136,6 +152,9 @@ public final class NavigableSets {
     /**
      * Create an empty {@link NavigableSet}.
      * The returned set's {@link NavigableSet#comparator comparator()} method will return null.
+     *
+     * @param <E> element type
+     * @return empty set
      */
     public static <E> NavigableSet<E> empty() {
         return NavigableSets.<E>empty(null);
@@ -145,6 +164,8 @@ public final class NavigableSets {
      * Create an empty {@link NavigableSet} with a specified {@link Comparator}.
      *
      * @param comparator comparator, or null for natural ordering
+     * @param <E> element type
+     * @return empty set
      */
     public static <E> NavigableSet<E> empty(Comparator<? super E> comparator) {
         return new EmptyNavigableSet<E>(comparator);
@@ -155,6 +176,7 @@ public final class NavigableSets {
      *
      * @param comparator comparator, or null for natural ordering
      * @param reversed whether to return a reversed {@link Comparator}
+     * @param <T> compared type
      * @return a non-null {@link Comparator}
      */
     static <T> Comparator<T> getComparator(Comparator<T> comparator, boolean reversed) {

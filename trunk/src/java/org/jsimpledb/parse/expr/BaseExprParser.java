@@ -54,7 +54,6 @@ import org.jsimpledb.parse.util.AddSuffixFunction;
  *  <li>Array syntax for {@link Map} and {@link List} value access, e.g., {@code mymap[key] = value} means
  *      {@code mymap.put(key, value)}, and {@code mylist[12] = "abc"} means {@code mylist.set(12, "abc")}</li>
  * </ul>
- * </p>
  */
 public class BaseExprParser implements Parser<Node> {
 

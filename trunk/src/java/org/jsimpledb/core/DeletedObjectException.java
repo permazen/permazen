@@ -27,6 +27,8 @@ public class DeletedObjectException extends DatabaseException {
 
     /**
      * Get the ID of the object that could not be accessed.
+     *
+     * @return deleted object's ID
      */
     public ObjId getId() {
         return this.id;

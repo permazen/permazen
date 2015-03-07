@@ -14,6 +14,8 @@ public interface Has3<V1, V2, V3> extends Has2<V1, V2> {
 
     /**
      * Get the third value.
+     *
+     * @return third value in this tuple
      */
     V3 getValue3();
 }

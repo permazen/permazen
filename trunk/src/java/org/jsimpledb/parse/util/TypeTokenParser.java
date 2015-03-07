@@ -51,6 +51,7 @@ public class TypeTokenParser {
      * Parse a {@link TypeToken} in string form.
      *
      * @param string string to parse
+     * @return parsed type
      * @throws IllegalArgumentException if the input is invalid
      * @throws ClassNotFoundException if a named class could not be found
      */
@@ -64,10 +65,11 @@ public class TypeTokenParser {
     }
 
     /**
-     * Parse a {@link TypeToken} in string form.
+     * Parse a {@link TypeToken} in string form from a {@link ParseContext}.
      * Since the {@link TypeToken} string format is self-delimiting, not all of the input may be consumed.
      *
      * @param ctx parse context
+     * @return parsed type
      * @throws IllegalArgumentException if the input is invalid
      * @throws ClassNotFoundException if a named class could not be found
      */

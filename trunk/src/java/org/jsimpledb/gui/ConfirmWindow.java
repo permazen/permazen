@@ -108,6 +108,8 @@ public abstract class ConfirmWindow extends Window {
 
     /**
      * Add content to the confirmation window's main layout.
+     *
+     * @param layout new content
      */
     protected abstract void addContent(VerticalLayout layout);
 

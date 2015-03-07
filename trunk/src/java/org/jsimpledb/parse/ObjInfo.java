@@ -25,6 +25,8 @@ public class ObjInfo {
     /**
      * Constructor.
      *
+     * @param tx database transaction
+     * @param id the ID of the object to query
      * @throws DeletedObjectException if object does not exist
      */
     public ObjInfo(Transaction tx, ObjId id) {
@@ -54,6 +56,8 @@ public class ObjInfo {
     /**
      * Get object meta-data.
      *
+     * @param session parse session
+     * @param id the ID of the object to query
      * @return object info, or null if object doesn't exist
      */
     public static ObjInfo getObjInfo(ParseSession session, ObjId id) {

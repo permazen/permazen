@@ -38,7 +38,6 @@ public enum ValidationMode {
      *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on itself or a public method</li>
      *  <li>A database field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
      * </ul>
-     * </p>
      *
      * <p>
      * Note that the presence of a {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on some method

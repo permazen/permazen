@@ -19,6 +19,8 @@ public class FieldTypeParser<T> implements Parser<T> {
 
     /**
      * Constructor.
+     *
+     * @param fieldType type to parse
      */
     public FieldTypeParser(FieldType<?> fieldType) {
         this(fieldType, null);
@@ -53,6 +55,9 @@ public class FieldTypeParser<T> implements Parser<T> {
     /**
      * Create an instance based on type name.
      * Resolution of {@code typeName} is deferred until parse time when the database is available.
+     *
+     * @param typeName the name of a {@link FieldType}
+     * @return parser for the named type
      */
     public static FieldTypeParser<?> getFieldTypeParser(String typeName) {
         if (typeName == null)

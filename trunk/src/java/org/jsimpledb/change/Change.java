@@ -38,6 +38,8 @@ public abstract class Change<T> {
      * Although not declared as such to allow flexibility in Java model types, the returned object
      * will always be a {@link JObject} instance.
      * </p>
+     *
+     * @return the changed object
      */
     public T getObject() {
         return this.jobj;
@@ -48,10 +50,11 @@ public abstract class Change<T> {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     *  <blockquote><code>
-     *  (JObject)getObject()
-     *  </code></blockquote>
-     * </p>
+     * <blockquote><code>
+     * (JObject)getObject()
+     * </code></blockquote>
+     *
+     * @return the changed object as a {@link JObject}
      */
     public JObject getJObject() {
         return (JObject)this.jobj;
@@ -61,6 +64,7 @@ public abstract class Change<T> {
      * Apply visitor pattern. Invokes the method of {@code target} corresponding to this instance's type.
      *
      * @param target visitor pattern target
+     * @param <R> visitor return type
      * @return value returned by the selected method of {@code target}
      */
     public abstract <R> R visit(ChangeSwitch<R> target);
@@ -76,7 +80,7 @@ public abstract class Change<T> {
      *  does not contain the affected field, or in which the affected field has a different type
      * @throws RuntimeException if there is some other incompatibility between this change and the target object,
      *  for example, setting a list element at an index that is out of bounds
-     * @throws StaleTransactionException if {@code jtx} is no longer usable
+     * @throws org.jsimpledb.kv.StaleTransactionException if {@code jtx} is no longer usable
      */
     public abstract void apply(JTransaction jtx, JObject jobj);
 
@@ -85,11 +89,11 @@ public abstract class Change<T> {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     *  <blockquote><code>
-     *  apply(jtx, this.getJObject());
-     *  </code></blockquote>
-     * </p>
+     * <blockquote><code>
+     * apply(jtx, this.getJObject());
+     * </code></blockquote>
      *
+     * @param jtx transaction in which to apply this change
      * @throws IllegalArgumentException if {@code jtx} is null
      */
     public void apply(JTransaction jtx) {
@@ -103,10 +107,9 @@ public abstract class Change<T> {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     *  <blockquote><code>
-     *  apply(JTransaction.getCurrent())
-     *  </code></blockquote>
-     * </p>
+     * <blockquote><code>
+     * apply(JTransaction.getCurrent())
+     * </code></blockquote>
      *
      * @throws IllegalStateException if there is no {@link JTransaction} associated with the current thread
      */
@@ -119,11 +122,11 @@ public abstract class Change<T> {
      *
      * <p>
      * This is a convenience method, equivalent to:
-     *  <blockquote><code>
-     *  apply(obj.getTransaction(), jobj);
-     *  </code></blockquote>
-     * </p>
+     * <blockquote><code>
+     * apply(obj.getTransaction(), jobj);
+     * </code></blockquote>
      *
+     * @param jobj object to which to apply this change
      * @throws IllegalStateException if there is no {@link JTransaction} associated with {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
      */

@@ -21,13 +21,12 @@ import java.lang.annotation.Target;
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and
  * take one, two, or all three of the following parameters in order:
- *  <ol>
- *  <li>{@code int oldVersion} - previous schema version; should be present only if {@link #oldVersion} is zero</li>
- *  <li>{@code int newVersion} - new schema version; should be present only if {@link #newVersion} is zero</li>
- *  <li>{@code Map<Integer, Object> oldValues} <i>or</i> {@code Map<String, Object> oldValues} - immutable map containing
+ * <ol>
+ * <li>{@code int oldVersion} - previous schema version; should be present only if {@link #oldVersion} is zero</li>
+ * <li>{@code int newVersion} - new schema version; should be present only if {@link #newVersion} is zero</li>
+ * <li>{@code Map<Integer, Object> oldValues} <i>or</i> {@code Map<String, Object> oldValues} - immutable map containing
  *      all field values from the previous version of the object, indexed by either storage ID or field name.</li>
- *  </ol>
- * </p>
+ * </ol>
  *
  * <p>
  * If a class has multiple {@link OnVersionChange &#64;OnVersionChange}-annotated methods, methods with more specific
@@ -40,24 +39,22 @@ import java.lang.annotation.Target;
  * JSimpleDB supports arbitrary Java model schema changes across schema versions, including adding and removing Java types.
  * As a result, it's possible for the previous version of an object to contain reference fields whose Java types no longer exist
  * in the current Java model. Specifically, this can happen in two ways:
- *  <ul>
- *  <li>A reference field refers to an object type that no longer exists; or</li>
- *  <li>An {@link Enum} field refers to an {@link Enum} type that no longer exists, or whose constants have changed</li>
- *  </ul>
- * </p>
+ * <ul>
+ * <li>A reference field refers to an object type that no longer exists; or</li>
+ * <li>An {@link Enum} field refers to an {@link Enum} type that no longer exists, or whose constants have changed</li>
+ * </ul>
  *
  * <p>
  * In these cases, the old field's value cannot be represented in {@code oldValues} using the original Java types.
  * Instead, more generic types are used:
- *  <ul>
- *  <li>For a reference field whose type no longer exists, the referenced object will be an {@link org.jsimpledb.UntypedJObject}.
+ * <ul>
+ * <li>For a reference field whose type no longer exists, the referenced object will be an {@link org.jsimpledb.UntypedJObject}.
  *      Note that the fields in the {@link org.jsimpledb.UntypedJObject} may still be accessed by invoking the
  *      {@link org.jsimpledb.JTransaction} field access methods with {@code upgradeVersion} set to false (otherwise,
  *      a {@link org.jsimpledb.core.TypeNotInSchemaVersionException} is thrown).
- *  <li>For {@link Enum} fields whose type no longer exists or has modified constants, the old value
+ * <li>For {@link Enum} fields whose type no longer exists or has modified constants, the old value
  *      will be represented as an {@link org.jsimpledb.core.EnumValue} object.</li>
- *  </ul>
- * </p>
+ * </ul>
  *
  * <p>
  * In addition to Java types disappearing, it's also possible that the type of a reference field is narrower in the current
@@ -84,6 +81,9 @@ public @interface OnVersionChange {
      *
      * <p>
      * Negative values are not allowed.
+     * </p>
+     *
+     * @return old schema version, or zero for no restriction
      */
     int oldVersion() default 0;
 
@@ -99,6 +99,9 @@ public @interface OnVersionChange {
      *
      * <p>
      * Negative values are not allowed.
+     * </p>
+     *
+     * @return new schema version, or zero for no restriction
      */
     int newVersion() default 0;
 }

@@ -44,10 +44,9 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  * The following tasks are supported:
  * </p>
  *
- * <p>
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0">
- * <tr bgcolor="#ccffcc">
+ * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Tasks">
+ * <tr style="bgcolor:#ccffcc">
  *  <th align="left">Attribute</th>
  *  <th align="left">Required?</th>
  *  <th align="left">Description</th>
@@ -158,7 +157,6 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  * </tr>
  * </table>
  * </div>
- * </p>
  *
  * <p>
  * Example:
@@ -170,7 +168,6 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *      &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
  *        file="expected-schema.xml" packages="com.example.model"/&gt;
  * </pre>
- * </p>
  *
  * @see org.jsimpledb.JSimpleDB
  * @see org.jsimpledb.schema.SchemaModel
@@ -231,7 +228,7 @@ public class SchemaGeneratorTask extends Task {
     }
 
     /**
-     * @throws BuildException
+     * @throws BuildException if operation fails
      */
     @Override
     public void execute() {

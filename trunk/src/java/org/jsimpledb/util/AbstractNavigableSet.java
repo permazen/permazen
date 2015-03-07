@@ -154,11 +154,15 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
     }
 
     /**
-     * Search for a lwoer element. Used to implement {@link #floor floor()} and {@link #lower lower()}.
+     * Search for a lower element. Used to implement {@link #floor floor()} and {@link #lower lower()}.
      *
      * <p>
      * The implementation in {@link AbstractNavigableSet} checks the bounds then returns the first element from a head set.
      * </p>
+     *
+     * @param elem upper limit for search
+     * @param inclusive true if {@code elem} itself is a candidate
+     * @return highest element below {@code elem}, or null if not found
      */
     protected E searchBelow(E elem, boolean inclusive) {
         if (!this.isWithinLowerBound(elem))
@@ -177,6 +181,10 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      * <p>
      * The implementation in {@link AbstractNavigableSet} checks the bounds then returns the first element from a tail set.
      * </p>
+     *
+     * @param elem lower limit for search
+     * @param inclusive true if {@code elem} itself is a candidate
+     * @return lowest element above {@code elem}, or null if not found
      */
     protected E searchAbove(E elem, boolean inclusive) {
         if (!this.isWithinUpperBound(elem))
@@ -206,6 +214,7 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      *
      * @param reverse whether the new set's ordering should be reversed relative to this instance's ordering
      * @param newBounds new bounds
+     * @return restricted and/or reversed view of this instance
      * @throws IllegalArgumentException if {@code newBounds} is null
      * @throws IllegalArgumentException if a bound in {@code newBounds} is null and this set does not permit null elements
      */

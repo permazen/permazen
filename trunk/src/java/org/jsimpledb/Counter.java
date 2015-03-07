@@ -49,7 +49,7 @@ public class Counter {
      * @return current value of the counter
      * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance
      *  was read is no longer usable
-     * @throws DeletedObjectException if the object from which this instance was read no longer exists
+     * @throws org.jsimpledb.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public long get() {
         return this.tx.readCounterField(this.id, this.storageId, this.updateVersion);
@@ -62,7 +62,7 @@ public class Counter {
      * @param value new value for the counter
      * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance
      *  was read is no longer usable
-     * @throws DeletedObjectException if the object from which this instance was read no longer exists
+     * @throws org.jsimpledb.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void set(long value) {
         this.tx.writeCounterField(this.id, this.storageId, value, this.updateVersion);
@@ -74,7 +74,7 @@ public class Counter {
      * @param offset amount to add to counter
      * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance
      *  was read is no longer usable
-     * @throws DeletedObjectException if the object from which this instance was read no longer exists
+     * @throws org.jsimpledb.core.DeletedObjectException if the object from which this instance was read no longer exists
      */
     public void adjust(long offset) {
         this.tx.adjustCounterField(this.id, this.storageId, offset, this.updateVersion);

@@ -79,6 +79,8 @@ public class ParseSession extends Session {
      * <p>
      * Each entry should of the form {@code foo.bar.Name} or {@code foo.bar.*}.
      * </p>
+     *
+     * @return configured imports
      */
     public Set<String> getImports() {
         return this.imports;
@@ -86,6 +88,8 @@ public class ParseSession extends Session {
 
     /**
      * Get the {@link AbstractFunction}s registered with this instance.
+     *
+     * @return registered functions indexed by name
      */
     public SortedMap<String, AbstractFunction> getFunctions() {
         return this.functions;
@@ -93,6 +97,8 @@ public class ParseSession extends Session {
 
     /**
      * Get all variables set on this instance.
+     *
+     * @return variables indexed by name
      */
     public SortedMap<String, Value> getVars() {
         return this.variables;
@@ -173,6 +179,7 @@ public class ParseSession extends Session {
     /**
      * Resolve a class name against this instance's currently configured class imports.
      *
+     * @param name class name
      * @return resolved class, or null if not found
      */
     public Class<?> resolveClass(final String name) {
@@ -217,6 +224,7 @@ public class ParseSession extends Session {
      * this will return {@code java.util.ArrayList} unless {@code java.util.*} has been imported.
      *
      * @param klass class whose name to relativize
+     * @return relativized class name
      * @throws IllegalArgumentException if {@code klass} is null
      */
     public String relativizeClassName(Class<?> klass) {
@@ -237,6 +245,8 @@ public class ParseSession extends Session {
      * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}
      *
      * @param action action to perform
+     * @return true if {@code action} completed successfully, false if the transaction could not be created
+     *  or {@code action} threw an exception
      * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean perform(Action action) {
@@ -256,6 +266,8 @@ public class ParseSession extends Session {
      *
      * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
      * @param action action to perform
+     * @return true if {@code action} completed successfully, false if the transaction could not be created
+     *  or {@code action} threw an exception
      * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
      * @throws IllegalArgumentException if {@code action} is null
      */
@@ -275,6 +287,9 @@ public class ParseSession extends Session {
 
         /**
          * Perform some action using the given {@link ParseSession} while a transaction is open.
+         *
+         * @param session session with open transaction
+         * @throws Exception if an error occurs
          */
         void run(ParseSession session) throws Exception;
     }

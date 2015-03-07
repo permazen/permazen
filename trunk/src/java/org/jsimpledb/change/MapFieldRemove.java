@@ -51,6 +51,8 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
 
     /**
      * Get the key of the key/value pair that was removed.
+     *
+     * @return the key of the removed key/value pair
      */
     public K getKey() {
         return this.key;
@@ -58,6 +60,8 @@ public class MapFieldRemove<T, K, V> extends MapFieldChange<T> {
 
     /**
      * Get the value of the key/value pair that was removed.
+     *
+     * @return the value of the removed key/value pair
      */
     public V getValue() {
         return this.value;

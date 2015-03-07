@@ -47,6 +47,8 @@ public abstract class AbstractFunction {
 
     /**
      * Get the name of this function.
+     *
+     * @return function name
      */
     public String getName() {
         return this.name;
@@ -54,11 +56,15 @@ public abstract class AbstractFunction {
 
     /**
      * Get function usage string. For example: {@code pow(base, exponent)}.
+     *
+     * @return function usage string
      */
     public abstract String getUsage();
 
     /**
      * Get summarized help (typically a single line).
+     *
+     * @return one line summarized description of this function
      */
     public abstract String getHelpSummary();
 
@@ -68,6 +74,8 @@ public abstract class AbstractFunction {
      * <p>
      * The implementation in {@link AbstractFunction} delegates to {@link #getHelpSummary getHelpSummary()}.
      * </p>
+     *
+     * @return detailed description of this function
      */
     public String getHelpDetail() {
         return this.getHelpSummary();
@@ -96,6 +104,7 @@ public abstract class AbstractFunction {
      *
      * @param session parse session
      * @param params parsed parameters returned by {@link #parseParams parseParams()}
+     * @return value returned by this function
      * @throws RuntimeException if there is an error
      */
     public abstract Value apply(ParseSession session, Object params);

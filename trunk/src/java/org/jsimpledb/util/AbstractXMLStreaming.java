@@ -95,6 +95,7 @@ public abstract class AbstractXMLStreaming {
      * @param writer XML output
      * @param element element name
      * @param content simple content
+     * @throws XMLStreamException if error occurs writing output
      */
     protected void writeElement(XMLStreamWriter writer, QName element, String content) throws XMLStreamException {
         writer.writeStartElement(element.getNamespaceURI(), element.getLocalPart());

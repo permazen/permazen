@@ -28,7 +28,7 @@ import org.jsimpledb.schema.SchemaObjectType;
  *  <li><code>100</code> - object type with schema ID 100</li>
  *  <li><code>Person</code> - `Person' object type defined in the current schema version</li>
  *  <li><code>Person#12</code> - `Person' object type defined in schema version 12</li>
- * </p>
+ * </ul>
  */
 public class ObjTypeParser implements Parser<ObjType> {
 

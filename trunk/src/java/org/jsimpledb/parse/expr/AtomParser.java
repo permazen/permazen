@@ -35,7 +35,6 @@ import org.jsimpledb.parse.SpaceParser;
  *  <li>Any {@link FieldType} value in {@linkplain FieldType#fromParseableString parseable string form}
  *      preceded by the {@link FieldType} name in curly braces, e.g., <code>{java.util.Date}2015-01-23T07:19:42</code></li>
  * </ul>
- * </p>
  */
 public class AtomParser implements Parser<Node> {
 

@@ -38,6 +38,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * {@link #getEnumType} will return {@code enumType}.
      *
      * @param enumType Java {@link Enum} type from which to derive the ordered identifier list
+     * @param <T> enum type
      * @throws NullPointerException if {@code enumType} is null
      */
     public <T extends Enum<T>> EnumFieldType(Class<T> enumType) {
@@ -79,6 +80,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * Create an {@link EnumFieldType} instance suitable for use with the given {@link Enum} type.
      *
      * @param enumType Java {@link Enum} type from which to derive the ordered identifier list
+     * @return an {@link EnumFieldType} based on {@code enumType}
      * @throws ClassCastException if {@code enumType} does not subclass {@link Enum}
      * @throws NullPointerException if {@code enumType} is null
      */
@@ -102,6 +104,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      *
      * @param name name of the type
      * @param idents ordered list of identifiers
+     * @return an {@link EnumFieldType} based on the specified {@code idents}
      * @throws IllegalArgumentException if {@code name} is null or invalid
      * @throws IllegalArgumentException if {@code idents} is null or contains a duplicate or invalid identifier
      */
@@ -139,6 +142,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * Validate a list of enum identifiers and build a mapping from identifier to corresponding {@link EnumValue}.
      * The returned mapping will iterate the {@link EnumValue}s in ordinal order.
      *
+     * @param idents enum identifiers
      * @return ordinally ordered mapping from identifier to {@link EnumValue}
      * @throws IllegalArgumentException if {@code idents} is null
      * @throws IllegalArgumentException if any identifier in {@code idents} is null, duplicate, or not a valid Java identifier

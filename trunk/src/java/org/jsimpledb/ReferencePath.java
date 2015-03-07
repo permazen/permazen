@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
  *  <li>An intermediate chain of zero or more {@linkplain #getReferenceFields reference fields} through which an
  *      instance of the target type can be reached from an instance of the starting type.</li>
  * </ul>
- * </p>
  *
  * <p>
  * Reference paths can be described by the combination of (a) the starting Java object type, and (b) the path of reference
@@ -59,7 +58,6 @@ import org.slf4j.LoggerFactory;
  * In some cases, a field may not exist in a Java object type, but it does exist in a some sub-type of that type. For example:
  * </p>
  *
- * <p>
  * <pre>
  * &#64;JSimpleClass(storageId = 10)
  * public class Person {
@@ -87,7 +85,6 @@ import org.slf4j.LoggerFactory;
  * with a field named {@code "name"}. Note also in the example above the
  * {@link org.jsimpledb.change.SimpleFieldChange} parameter to the method
  * {@code friendNameChanged()} necessarily has generic type {@code NamedPerson}, not {@code Person}.
- * </p>
  *
  * <p>
  * In cases where multiple sub-types of a common super-type type have fields with the same name but different storage IDs,
@@ -308,6 +305,8 @@ public class ReferencePath {
      * equal the {@linkplain #getTargetType target object type}, or possibly a super-type if the target
      * field exists only in a sub-type.
      * </p>
+     *
+     * @return the Java type at which this reference path starts
      */
     public Class<?> getStartType() {
         return this.startType;
@@ -321,6 +320,8 @@ public class ReferencePath {
      * equal the Java type of the {@linkplain #getStartType starting object type}, or possibly a sub-type
      * if the target field exists only in a sub-type.
      * </p>
+     *
+     * @return the Java type at which this reference path ends
      */
     public Class<?> getTargetType() {
         return this.targetType;
@@ -328,6 +329,8 @@ public class ReferencePath {
 
     /**
      * Get the Java type corresponding to the field at which this path ends.
+     *
+     * @return the type of the field at which this reference path ends
      */
     public TypeToken<?> getTargetFieldType() {
         return this.targetFieldInfo.getTypeToken(this.targetType);
@@ -339,6 +342,8 @@ public class ReferencePath {
      * <p>
      * This is just the storage ID of the last field in the path.
      * </p>
+     *
+     * @return the storage ID of the field at which this reference path ends
      */
     public int getTargetField() {
         return this.targetFieldInfo.storageId;

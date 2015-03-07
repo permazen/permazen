@@ -14,6 +14,8 @@ public interface Has1<V1> {
 
     /**
      * Get the first value.
+     *
+     * @return first value in this tuple
      */
     V1 getValue1();
 }

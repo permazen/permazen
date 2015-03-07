@@ -50,6 +50,8 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
 
     /**
      * Get the value of the field before the change.
+     *
+     * @return the old field value
      */
     public V getOldValue() {
         return this.oldValue;
@@ -57,6 +59,8 @@ public class SimpleFieldChange<T, V> extends FieldChange<T> {
 
     /**
      * Get the value of the field after the change.
+     *
+     * @return the new field value
      */
     public V getNewValue() {
         return this.newValue;

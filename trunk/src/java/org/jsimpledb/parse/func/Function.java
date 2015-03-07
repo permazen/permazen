@@ -33,6 +33,8 @@ public @interface Function {
      * Determine whether the annotated {@link org.jsimpledb.parse.func.AbstractFunction} works properly in Core API mode,
      * i.e., when the there are no {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model
      * classes defined and the core {@link org.jsimpledb.core.Database} API is used.
+     *
+     * @return true if the function works in core API mode
      */
     boolean worksInCoreAPIMode() default true;
 }

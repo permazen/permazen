@@ -47,6 +47,8 @@ public class CompositeIndex extends SchemaItem {
 
     /**
      * Get the containing object type.
+     *
+     * @return indexed object type
      */
     public ObjType getObjType() {
         return this.objType;

@@ -45,6 +45,8 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
 
     /**
      * Constructor.
+     *
+     * @param jdb underlying database
      */
     public TypeContainer(JSimpleDB jdb) {
         this(jdb, null);
@@ -52,6 +54,9 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
 
     /**
      * Constructor.
+     *
+     * @param jdb underlying database
+     * @param type type restrictions, or null for none
      */
     public TypeContainer(JSimpleDB jdb, Class<?> type) {
         super(Node.class);

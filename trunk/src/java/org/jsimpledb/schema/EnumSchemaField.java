@@ -28,6 +28,8 @@ public class EnumSchemaField extends SimpleSchemaField {
 
     /**
      * Get the ordered list of identifiers.
+     *
+     * @return enum identifier list
      */
     public List<String> getIdentifiers() {
         return this.idents;

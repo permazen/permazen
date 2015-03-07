@@ -26,6 +26,8 @@ public class InvalidObjectVersionException extends InconsistentDatabaseException
 
     /**
      * Get the ID of the object containing the invalid version number.
+     *
+     * @return object ID
      */
     public ObjId getId() {
         return this.id;
@@ -33,6 +35,8 @@ public class InvalidObjectVersionException extends InconsistentDatabaseException
 
     /**
      * Get the invalid version number found.
+     *
+     * @return invalid version number
      */
     public int getVersionNumber() {
         return this.versionNumber;

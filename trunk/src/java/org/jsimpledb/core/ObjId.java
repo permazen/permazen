@@ -100,7 +100,9 @@ public class ObjId implements Comparable<ObjId> {
 // Methods
 
     /**
-     * Get the storage ID associated with this instance.
+     * Get the storage ID associated with this instance. This is the storage ID of the associated object type.
+     *
+     * @return object type storage ID
      */
     public int getStorageId() {
         return UnsignedIntEncoder.read(new ByteReader(this.getBytes()));
@@ -108,6 +110,8 @@ public class ObjId implements Comparable<ObjId> {
 
     /**
      * Get the binary encoding of this instance.
+     *
+     * @return binary encoding
      */
     public byte[] getBytes() {
         final ByteWriter writer = new ByteWriter(NUM_BYTES);
@@ -117,6 +121,8 @@ public class ObjId implements Comparable<ObjId> {
 
     /**
      * Get this instance encoded as a {@code long} value.
+     *
+     * @return long encoding
      */
     public long asLong() {
         return this.value;
@@ -124,6 +130,8 @@ public class ObjId implements Comparable<ObjId> {
 
     /**
      * Write the binary encoding of this instance to the given output.
+     *
+     * @param writer destination
      */
     public void writeTo(ByteWriter writer) {
         ByteUtil.writeLong(writer, this.value);

@@ -44,6 +44,8 @@ public class JCompositeIndex extends JSchemaObject {
 
     /**
      * Get the {@link JSimpleField}s on which this index is based.
+     *
+     * @return this index's fields, in indexed order
      */
     public List<JSimpleField> getJFields() {
         return this.jfields;

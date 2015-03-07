@@ -65,6 +65,8 @@ public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
 
     /**
      * Get the {@link Enum} type associated with this instance.
+     *
+     * @return associated {@link Enum} type
      */
     public Class<T> getEnumType() {
         return this.enumType;
@@ -72,6 +74,9 @@ public class EnumConverter<T extends Enum<T>> extends Converter<T, EnumValue> {
 
     /**
      * Convenience "constructor" allowing wildcard caller {@link Enum} types.
+     *
+     * @param enumType type for the created converter
+     * @return new converter
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static EnumConverter<?> createEnumConverter(Class<? extends Enum<?>> enumType) {

@@ -30,6 +30,8 @@ public @interface JCompositeIndex {
 
     /**
      * The name of this composite index. Must be globally unique.
+     *
+     * @return the index name
      */
     String name();
 
@@ -37,12 +39,15 @@ public @interface JCompositeIndex {
      * The storage ID for this composite index. Value should be positive; if zero, the configured
      * {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.
      *
+     * @return the index storage ID
      * @see org.jsimpledb.StorageIdGenerator#generateCompositeIndexStorageId StorageIdGenerator.generateCompositeIndexStorageId()
      */
     int storageId() default 0;
 
     /**
      * The names of the indexed fields, in the desired order. At least two fields must be specified.
+     *
+     * @return the names of the indexed fields
      */
     String[] fields();
 }

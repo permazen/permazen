@@ -45,6 +45,9 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
 
     /**
      * Constructor.
+     *
+     * @param jdb underlying database
+     * @param session session for parsing expressions
      */
     public ExprQueryJObjectContainer(JSimpleDB jdb, ParseSession session) {
         this(jdb, null, session);
@@ -53,7 +56,9 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
     /**
      * Constructor.
      *
+     * @param jdb underlying database
      * @param type type restriction, or null for no restriction
+     * @param session session for parsing expressions
      */
     public ExprQueryJObjectContainer(JSimpleDB jdb, Class<?> type, ParseSession session) {
         super(jdb, type);
@@ -64,6 +69,8 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
 
     /**
      * Configure the expression that returns this container's content. Container will automatically reload.
+     *
+     * @param contentExpression Java expression for container content
      */
     public void setContentExpression(String contentExpression) {
         this.contentExpression = contentExpression;

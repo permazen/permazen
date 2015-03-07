@@ -56,6 +56,9 @@ public class ParamParser implements Parser<Map<String, Object>> {
 
     /**
      * Build a usage summary string.
+     *
+     * @param commandName command name
+     * @return usage string
      */
     public String getUsage(String commandName) {
         final StringBuilder buf = new StringBuilder(commandName);
@@ -80,6 +83,8 @@ public class ParamParser implements Parser<Map<String, Object>> {
 
     /**
      * Get option flags.
+     *
+     * @return optional parameters
      */
     public Set<Param> getOptionFlags() {
         return this.optionFlags;
@@ -87,6 +92,8 @@ public class ParamParser implements Parser<Map<String, Object>> {
 
     /**
      * Get regular parameters, in expected order.
+     *
+     * @return mandatory parameters
      */
     public List<Param> getParameters() {
         return this.params;
@@ -102,6 +109,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
      * </p>
      *
      * @param typeName name of type
+     * @return parser for parameters of the specified type
      * @throws IllegalArgumentException if {@code typeName} is unknown
      */
     protected Parser<?> getParser(String typeName) {
@@ -257,7 +265,6 @@ public class ParamParser implements Parser<Map<String, Object>> {
      *  <li><code>foo+</code> - array of one or more final parameters</li>
      *  <li><code>foo:int+</code> - array of one or more final {@code int} parameters</li>
      * </ul>
-     * </p>
      */
     public class Param {
 

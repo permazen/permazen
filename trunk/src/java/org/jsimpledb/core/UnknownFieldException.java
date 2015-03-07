@@ -52,6 +52,8 @@ public class UnknownFieldException extends DatabaseException {
 
     /**
      * Get the storage ID that was not recognized.
+     *
+     * @return unrecognized field storage ID
      */
     public int getStorageId() {
         return this.storageId;

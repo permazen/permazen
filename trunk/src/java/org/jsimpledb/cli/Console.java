@@ -51,6 +51,7 @@ public class Console {
      * @param db core API {@link Database}
      * @param input console input
      * @param output console output
+     * @throws IOException if an I/O error occurs
      */
     public Console(Database db, InputStream input, OutputStream output) throws IOException {
         this(db, null, input, output, null, null, null);
@@ -62,6 +63,7 @@ public class Console {
      * @param jdb {@link JSimpleDB} database
      * @param input console input
      * @param output console output
+     * @throws IOException if an I/O error occurs
      */
     public Console(JSimpleDB jdb, InputStream input, OutputStream output) throws IOException {
         this(null, jdb, input, output, null, null, null);
@@ -77,6 +79,7 @@ public class Console {
      * @param terminal JLine terminal interface, or null for default
      * @param encoding character encoding for {@code terminal}, or null for default
      * @param appName JLine application name, or null for none
+     * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if {@code db} and {@code jdb} are both null or both not null
      */
     public Console(Database db, JSimpleDB jdb, InputStream input, OutputStream output,
@@ -97,6 +100,8 @@ public class Console {
 
     /**
      * Get the associated JLine {@link ConsoleReader}.
+     *
+     * @return associated console reader
      */
     public ConsoleReader getConsoleReader() {
         return this.console;
@@ -104,6 +109,8 @@ public class Console {
 
     /**
      * Get the associated {@link CliSession}.
+     *
+     * @return associated CLI session
      */
     public CliSession getSession() {
         return this.session;
@@ -111,6 +118,8 @@ public class Console {
 
     /**
      * Configure the command history file.
+     *
+     * @param historyFile file for storing command history
      */
     public void setHistoryFile(File historyFile) {
         if (this.history != null)
@@ -125,6 +134,8 @@ public class Console {
 
     /**
      * Run this instance. This method blocks until the connected user exits the console.
+     *
+     * @throws IOException if an I/O error occurs
      */
     public void run() throws IOException {
 

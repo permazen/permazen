@@ -34,7 +34,6 @@ import jline.TerminalFactory;
  *      // Run the console
  *      console.run();
  * </pre>
- * </p>
  */
 public final class TelnetConsole extends Console {
 
@@ -51,6 +50,8 @@ public final class TelnetConsole extends Console {
      *
      * @param db core API {@link Database}
      * @param socket socket connected to telnet client
+     * @return new telnet console instance
+     * @throws IOException if an I/O error occurs
      */
     public static TelnetConsole create(Database db, Socket socket) throws IOException {
         return TelnetConsole.create(db, null, socket.getInputStream(), socket.getOutputStream(), null, null);
@@ -61,6 +62,8 @@ public final class TelnetConsole extends Console {
      *
      * @param jdb {@link JSimpleDB} database
      * @param socket socket connected to telnet client
+     * @return new telnet console instance
+     * @throws IOException if an I/O error occurs
      */
     public static TelnetConsole create(JSimpleDB jdb, Socket socket) throws IOException {
         return TelnetConsole.create(null, jdb, socket.getInputStream(), socket.getOutputStream(), null, null);
@@ -75,6 +78,8 @@ public final class TelnetConsole extends Console {
      * @param output console output
      * @param encoding character encoding for {@code terminal}, or null for default
      * @param appName JLine application name, or null for none
+     * @return new telnet console instance
+     * @throws IOException if an I/O error occurs
      * @throws IllegalArgumentException if {@code db} and {@code jdb} are both null or both not null
      */
     public static TelnetConsole create(Database db, JSimpleDB jdb, InputStream input, OutputStream output,

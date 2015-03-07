@@ -24,7 +24,6 @@
  *  <li>{@link org.jsimpledb.spring.OpenTransactionInViewFilter}, which allows {@link org.jsimpledb.JSimpleDB}
  *      transactions to span an entire web request.</li>
  * </ul>
- * </p>
  *
  * <p><b>JSimpleDB XML Tags</b></p>
  *
@@ -33,10 +32,9 @@
  * {@code http://jsimpledb.googlecode.com/schema/jsimpledb} XML namespace:
  * </p>
  *
- * <p>
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0">
- * <tr bgcolor="#ccffcc">
+ * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Elements">
+ * <tr style="bgcolor:#ccffcc">
  *  <th align="left">Element</th>
  *  <th align="left">Description</th>
  * </tr>
@@ -58,7 +56,6 @@
  * </tr>
  * </table>
  * </div>
- * </p>
  *
  * <p>
  * The {@code <jsimpledb:jsimpledb>} element requires a nested {@code <jsimpledb:scan-classes>} element to configure
@@ -66,10 +63,9 @@
  * The {@code <jsimpledb:jsimpledb>} element supports the following attributes:
  * </p>
  *
- * <p>
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0">
- * <tr bgcolor="#ccffcc">
+ * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Attributes">
+ * <tr style="bgcolor:#ccffcc">
  *  <th align="left">Attribute</th>
  *  <th align="left">Type</th>
  *  <th align="left">Required?</th>
@@ -106,7 +102,6 @@
  * </tr>
  * </table>
  * </div>
- * </p>
  *
  * <p>
  * An example Spring XML configuration using an in-memory key/value store and supporting Spring's
@@ -147,7 +142,6 @@
  *
  * &lt;/beans&gt;
  * </pre>
- * </p>
  *
  * @see <a href="http://projects.spring.io/spring-framework/">Spring Framework</a>
  */

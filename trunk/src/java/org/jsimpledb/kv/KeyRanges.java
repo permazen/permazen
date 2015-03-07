@@ -104,6 +104,7 @@ public class KeyRanges implements KeyFilter {
      * Construct an instance containing a single range corresponding to all keys with the given prefix.
      *
      * @param prefix prefix of all keys in the range
+     * @return instance containing all keys prefixed by {@code prefix}
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     public static KeyRanges forPrefix(byte[] prefix) {
@@ -127,6 +128,8 @@ public class KeyRanges implements KeyFilter {
 
     /**
      * Determine whether this instance is empty, i.e., contains no keys.
+     *
+     * @return true if this instance is empty
      */
     public boolean isEmpty() {
         return this.ranges.isEmpty();
@@ -134,6 +137,8 @@ public class KeyRanges implements KeyFilter {
 
     /**
      * Determine whether this instance is "full", i.e., contains all keys.
+     *
+     * @return true if this instance is full
      */
     public boolean isFull() {
         return this.ranges.size() == 1 && this.ranges.get(0).isFull();
@@ -161,8 +166,10 @@ public class KeyRanges implements KeyFilter {
     }
 
     /**
-     * Create a new instance all of whose individual {@link KeyRange}s are have the given byte sequence prepended.
+     * Create a new instance from this one, with each {@link KeyRange} prefixed by the given byte sequence.
      *
+     * @param prefix prefix to apply to this instance
+     * @return prefixed instance
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     public KeyRanges prefixedBy(final byte[] prefix) {

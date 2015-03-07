@@ -87,6 +87,8 @@ public class Session {
     /**
      * Determine if this instance has an associated {@link JSimpleDB}.
      * If so it is in JSimpleDB mode, otherwise it's in core API mode.
+     *
+     * @return true if this session is in JSimpleDB mode, false if in core API mode
      */
     public boolean hasJSimpleDB() {
         return this.jdb != null;
@@ -116,6 +118,8 @@ public class Session {
     /**
      * Get the {@link SchemaModel} configured for this instance.
      * If this is left unconfigured, after the first transaction it will be updated with the schema model actually used.
+     *
+     * @return the schema model used by this session
      */
     public SchemaModel getSchemaModel() {
         return this.schemaModel;
@@ -127,6 +131,8 @@ public class Session {
 
     /**
      * Get the {@link NameIndex} for this instance's {@link SchemaModel}.
+     *
+     * @return name index for the schema model assumed by this session
      */
     public NameIndex getNameIndex() {
         return this.nameIndex != null ? this.nameIndex : new NameIndex(new SchemaModel());
@@ -134,6 +140,8 @@ public class Session {
 
     /**
      * Get a description of the database.
+     *
+     * @return a short description of the underlying database
      */
     public String getDatabaseDescription() {
         return this.databaseDescription;
@@ -146,6 +154,8 @@ public class Session {
      * Get the schema version associated with this instance.
      * If this is left unconfigured, the highest numbered schema version will be
      * used and after the first transaction this property will be updated accordingly.
+     *
+     * @return the schema version used by this session
      */
     public int getSchemaVersion() {
         return this.schemaVersion;
@@ -158,6 +168,8 @@ public class Session {
      * Get the {@link ValidationMode} associated with this instance.
      * This property is only relevant in {@link JSimpleDB} mode.
      * If this is left unconfigured, {@link ValidationMode#AUTOMATIC} is used for new transactions.
+     *
+     * @return the validation mode used by this session
      */
     public ValidationMode getValidationMode() {
         return this.validationMode;
@@ -169,6 +181,8 @@ public class Session {
     /**
      * Get whether the recording of new schema versions should be allowed.
      * Default value is false.
+     *
+     * @return whether this session allows recording a new schema version
      */
     public boolean isAllowNewSchema() {
         return this.allowNewSchema;
@@ -180,6 +194,8 @@ public class Session {
     /**
      * Get whether new transactions should be marked read-only.
      * Default value is false.
+     *
+     * @return whether this session creates read-only transactions
      */
     public boolean isReadOnly() {
         return this.readOnly;
@@ -210,6 +226,8 @@ public class Session {
      * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}
      *
      * @param action action to perform
+     * @return true if {@code action} completed successfully, false if the transaction could not be created
+     *  or {@code action} threw an exception
      * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean perform(Action action) {
@@ -365,6 +383,9 @@ public class Session {
 
         /**
          * Perform some action using the given {@link Session} while a transaction is open.
+         *
+         * @param session session with open transaction
+         * @throws Exception if an error occurs
          */
         void run(Session session) throws Exception;
     }

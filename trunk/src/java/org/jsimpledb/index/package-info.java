@@ -61,10 +61,9 @@
  * Therefore the resulting index types associated with indexes on complex sub-fields are follows:
  * </p>
  *
- * <p>
  * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0">
- * <tr bgcolor="#ccffcc">
+ * <table border="1" cellpadding="3" cellspacing="0" summary="Index Types">
+ * <tr style="bgcolor:#ccffcc">
  *  <th align="left">Complex Field</th>
  *  <th align="left">Indexed Sub-Field</th>
  *  <th align="left">Distinguising Value</th>
@@ -101,6 +100,5 @@
  * </tr>
  * </table>
  * </div>
- * </p>
  */
 package org.jsimpledb.index;

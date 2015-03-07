@@ -54,6 +54,8 @@ public class MapFieldAdd<T, K, V> extends MapFieldChange<T> {
 
     /**
      * Get the key of the new key/value pair that was added.
+     *
+     * @return the key of the newly added key/value pair
      */
     public K getKey() {
         return this.key;
@@ -61,6 +63,8 @@ public class MapFieldAdd<T, K, V> extends MapFieldChange<T> {
 
     /**
      * Get the value of the new key/value pair that was added.
+     *
+     * @return the value of the newly added key/value pair
      */
     public V getValue() {
         return this.value;

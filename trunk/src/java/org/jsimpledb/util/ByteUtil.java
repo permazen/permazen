@@ -106,6 +106,7 @@ public final class ByteUtil {
      *
      * @param prefix prefix to check
      * @param value value to check for having {@code prefix} as a prefix
+     * @return true if {@code prefix} is a prefix of {@code value}
      * @throws NullPointerException if {@code prefix} or {@code value} is null
      */
     public static boolean isPrefixOf(byte[] prefix, byte[] value) {
@@ -160,6 +161,8 @@ public final class ByteUtil {
     /**
      * Convert a byte array into a string of hex digits, or {@code "null"} if {@code buf} is null.
      *
+     * @param buf bytes
+     * @return string encoding of {@code buf}
      * @see #parse parse()
      */
     public static String toString(byte[] buf) {
@@ -180,6 +183,7 @@ public final class ByteUtil {
      * number of digits and contain no other characters (e.g., whitespace).
      *
      * @param text string previously encoded by {@link #toString(byte[])}
+     * @return {@code byte[]} decoding of {@code text}
      * @throws IllegalArgumentException if any non-hexadecimal characters are found or the number of characters is odd
      * @throws NullPointerException if {@code text} is null
      * @see #toString(byte[]) toString()

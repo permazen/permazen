@@ -75,6 +75,7 @@ public abstract class AbstractMain extends MainClass {
     /**
      * Parse command line options.
      *
+     * @param params command line parameters
      * @return -1 to proceed, otherwise process exit value
      */
     public int parseOptions(ArrayDeque<String> params) {
@@ -256,6 +257,8 @@ public abstract class AbstractMain extends MainClass {
     /**
      * Subclass hook to parse unrecognized command line options.
      *
+     * @param option command line option (starting with `-')
+     * @param params subsequent command line parameters
      * @return true if successful, false otherwise
      */
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -278,6 +281,9 @@ public abstract class AbstractMain extends MainClass {
 
     /**
      * Append path(s) to the classpath.
+     *
+     * @param path classpath path component
+     * @return true if successful, false if an error occured
      */
     protected boolean appendClasspath(String path) {
         this.log.trace("adding classpath `" + path + "' to system classpath");
@@ -345,6 +351,8 @@ public abstract class AbstractMain extends MainClass {
     /**
      * Load a class.
      *
+     * @param className class name
+     * @return class with name {@code className}
      * @throws RuntimeException if load fails
      */
     protected Class<?> loadClass(String className) {
@@ -357,6 +365,8 @@ public abstract class AbstractMain extends MainClass {
 
     /**
      * Start the {@link Database} based on the configured {@link KVDatabase} and {@link #fieldTypeClasses} and return it.
+     *
+     * @return initialized database
      */
     protected Database startupKVDatabase() {
 
@@ -429,6 +439,9 @@ public abstract class AbstractMain extends MainClass {
 
     /**
      * Perform a test transaction.
+     *
+     * @param db database
+     * @param schemaModel schema model
      */
     protected void performTestTransaction(Database db, SchemaModel schemaModel) {
         final Transaction tx;
@@ -443,6 +456,8 @@ public abstract class AbstractMain extends MainClass {
 
     /**
      * Perform a test transaction.
+     *
+     * @param jdb database
      */
     protected void performTestTransaction(JSimpleDB jdb) {
         try {
@@ -474,6 +489,8 @@ public abstract class AbstractMain extends MainClass {
 
     /**
      * Output usage message flag listing.
+     *
+     * @param subclassOpts array containing flag and description pairs
      */
     protected void outputFlags(String[][] subclassOpts) {
         final String[][] baseOpts = new String[][] {

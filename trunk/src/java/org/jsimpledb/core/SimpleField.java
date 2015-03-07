@@ -17,12 +17,12 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * {@link SimpleField}s have these requirements and properties:
- *  <ul>
+ * <ul>
  *  <li>They have an associated {@link FieldType} representing the domain of possible values</li>
  *  <li>Theys can serve as the element sub-field for {@link SetField}s and {@link ListField}s,
  *      and the key and value sub-fields for {@link MapField}s.</li>
  *  <li>They can be indexed.</li>
- * </p>
+ * </ul>
  *
  * @param <T> Java type for the field's values
  */
@@ -56,6 +56,8 @@ public class SimpleField<T> extends Field<T> {
 
     /**
      * Get the {@link FieldType} associated with this field.
+     *
+     * @return this field's type
      */
     public FieldType<T> getFieldType() {
         return this.fieldType;
@@ -63,6 +65,8 @@ public class SimpleField<T> extends Field<T> {
 
     /**
      * Determine whether this field is indexed.
+     *
+     * @return true if this field is indexed
      */
     public boolean isIndexed() {
         return this.indexed;

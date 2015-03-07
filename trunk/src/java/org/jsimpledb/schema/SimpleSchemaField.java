@@ -30,6 +30,8 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
     /**
      * Get the name of this field's type. For example {@code "int"} for primitive integer type,
      * {@code "java.util.Date"} for the built-in {@link java.util.Date} type, any custom type name, etc.
+     *
+     * @return field type name
      */
     public String getType() {
         return this.type;
@@ -40,6 +42,8 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
 
     /**
      * Get whether this field is indexed or not.
+     *
+     * @return true if this field is indexed
      */
     public boolean isIndexed() {
         return this.indexed;
@@ -50,6 +54,9 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
 
     /**
      * Get the encoding signature associated with this field's type.
+     *
+     * @return this field's encoding signature
+     * @see org.jsimpledb.core.FieldType
      */
     public long getEncodingSignature() {
         return this.encodingSignature;

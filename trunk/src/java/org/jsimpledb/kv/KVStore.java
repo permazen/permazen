@@ -136,7 +136,6 @@ public interface KVStore {
      *  <li>If {@code minKey} starts with {@code 0xff}, then no change occurs</li>
      *  <li>If {@code maxKey} starts with {@code 0xff}, then this method behaves as if {@code maxKey} were null</li>
      * </ul>
-     * </p>
      *
      * @param minKey minimum key (inclusive), or null for no minimum
      * @param maxKey maximum key (exclusive), or null for no maximum

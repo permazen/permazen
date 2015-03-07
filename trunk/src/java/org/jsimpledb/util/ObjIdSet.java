@@ -46,6 +46,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
     /**
      * Constructs an instance initialized with the given ID's.
      *
+     * @param ids initial contents for this instance
      * @throws IllegalArgumentException if {@code ids} is null
      * @throws NullPointerException if any ID in {@code ids} is null
      */

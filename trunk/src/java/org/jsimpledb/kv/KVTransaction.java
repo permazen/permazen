@@ -48,6 +48,8 @@ public interface KVTransaction extends KVStore {
 
     /**
      * Get the {@link KVDatabase} with which this instance is associated.
+     *
+     * @return associated database
      */
     KVDatabase getKVDatabase();
 

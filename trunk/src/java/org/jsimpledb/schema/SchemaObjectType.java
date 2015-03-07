@@ -35,6 +35,8 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
 
     /**
      * Get this object type's {@link SchemaField}s, indexed by storage ID.
+     *
+     * @return fields in this object type
      */
     public SortedMap<Integer, SchemaField> getSchemaFields() {
         return this.schemaFields;
@@ -42,6 +44,8 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
 
     /**
      * Get the {@link SchemaCompositeIndex}s defined on this object type's fields, indexed by storage ID.
+     *
+     * @return composite indexes in this object type
      */
     public SortedMap<Integer, SchemaCompositeIndex> getSchemaCompositeIndexes() {
         return this.schemaCompositeIndexes;

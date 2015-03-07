@@ -31,6 +31,8 @@ public class Diffs extends LinkedHashMap<String, Diffs> {
 
     /**
      * Copy constructor. Performs a shallow copy.
+     *
+     * @param other instance to copy
      */
     public Diffs(Diffs other) {
         super(other);

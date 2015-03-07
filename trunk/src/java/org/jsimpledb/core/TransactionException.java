@@ -19,6 +19,7 @@ public class TransactionException extends DatabaseException {
      * Constructor.
      *
      * @param tx the transaction
+     * @param message exception message
      * @throws IllegalArgumentException if {@code tx} is null
      */
     public TransactionException(Transaction tx, String message) {
@@ -30,6 +31,8 @@ public class TransactionException extends DatabaseException {
 
     /**
      * Get the associated transaction.
+     *
+     * @return the transaction in which the error occurred
      */
     public Transaction getTransaction() {
         return this.tx;

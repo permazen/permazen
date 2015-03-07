@@ -56,6 +56,8 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
 
     /**
      * Get the list index at which the element was replaced.
+     *
+     * @return the index at which the value was replaced
      */
     public int getIndex() {
         return this.index;
@@ -63,6 +65,8 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
 
     /**
      * Get the value of the field before the change.
+     *
+     * @return the replaced value
      */
     public E getOldValue() {
         return this.oldValue;
@@ -70,6 +74,8 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
 
     /**
      * Get the value of the field after the change.
+     *
+     * @return the replacing value
      */
     public E getNewValue() {
         return this.newValue;

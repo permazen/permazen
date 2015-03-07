@@ -36,7 +36,6 @@ import java.lang.annotation.Target;
  *  <li>{@link OnVersionChange &#64;OnVersionChange} - annotates a method to be invoked when the object's schema version changes
  *  <li>{@link Validate &#64;Validate} - annotates a method to be invoked whenever the object is (re)validated
  * </ul>
- * </p>
  *
  * <p>
  * The above annotations may be present on any overridden supertype method, including methods in superclasses and superinterfaces
@@ -61,6 +60,8 @@ public @interface JSimpleClass {
      * If equal to the empty string (default value),
      * the {@linkplain Class#getSimpleName simple name} of the annotated Java class is used.
      * </p>
+     *
+     * @return object type name
      */
     String name() default "";
 
@@ -68,12 +69,15 @@ public @interface JSimpleClass {
      * Storage ID for this object type. Value should be positive;
      * if zero, the configured {@link org.jsimpledb.StorageIdGenerator} will be consulted to auto-generate a value.
      *
+     * @return object type storage ID
      * @see org.jsimpledb.StorageIdGenerator#generateClassStorageId StorageIdGenerator.generateClassStorageId()
      */
     int storageId() default 0;
 
     /**
      * Composite indexes (i.e., indexes on two or more fields) defined on this type.
+     *
+     * @return object type composite indexes
      */
     JCompositeIndex[] compositeIndexes() default {};
 
@@ -94,6 +98,7 @@ public @interface JSimpleClass {
      * configured {@link org.jsimpledb.StorageIdGenerator}.
      * </p>
      *
+     * @return whether to auto-generate fields from abstract methods
      * @see org.jsimpledb.JSimpleDBFactory#setStorageIdGenerator JSimpleDBFactory.setStorageIdGenerator()
      */
     boolean autogenFields() default true;

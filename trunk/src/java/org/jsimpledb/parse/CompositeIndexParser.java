@@ -21,7 +21,7 @@ import org.jsimpledb.core.ObjType;
  * <ul>
  *  <li><code>Person.byLastFirst</code></li>
  *  <li><code>Person.mycompositeindex</code></li>
- * </p>
+ * </ul>
  */
 public class CompositeIndexParser implements Parser<CompositeIndex> {
 

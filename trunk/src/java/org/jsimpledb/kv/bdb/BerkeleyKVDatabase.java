@@ -76,6 +76,8 @@ public class BerkeleyKVDatabase implements KVDatabase {
 
     /**
      * Get the filesystem directory containing the database.
+     *
+     * @return database directory
      */
     public synchronized File getDirectory() {
         return this.directory;
@@ -83,6 +85,8 @@ public class BerkeleyKVDatabase implements KVDatabase {
 
     /**
      * Configure the filesystem directory containing the database. Required property.
+     *
+     * @param directory database directory
      */
     public synchronized void setDirectory(File directory) {
         this.directory = directory;
@@ -90,6 +94,8 @@ public class BerkeleyKVDatabase implements KVDatabase {
 
     /**
      * Get the configured {@link Database} name.
+     *
+     * @return database name
      */
     public synchronized String getDatabaseName() {
         return this.databaseName;
@@ -97,6 +103,8 @@ public class BerkeleyKVDatabase implements KVDatabase {
 
     /**
      * Configure the {@link Database} name. Defaults to {@link #DEFAULT_DATABASE_NAME}.
+     *
+     * @param databaseName database name
      */
     public synchronized void setDatabaseName(String databaseName) {
         this.databaseName = databaseName;
@@ -223,7 +231,6 @@ public class BerkeleyKVDatabase implements KVDatabase {
      * <li>{@linkplain DatabaseConfig#getReplicated replicated}</li>
      * <li>{@linkplain DatabaseConfig#getTemporary temporary}</li>
      * </ul>
-     * </p>
      *
      * @param config database config
      */
@@ -242,6 +249,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
     /**
      * Get the underlying {@link Environment} associated with this instance.
      *
+     * @return the associated {@link Environment}
      * @throws IllegalStateException if this instance is not {@linkplain #start started}
      */
     public synchronized Environment getEnvironment() {
@@ -254,6 +262,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
     /**
      * Get the underlying {@link Database} associated with this instance.
      *
+     * @return the associated {@link Database}
      * @throws IllegalStateException if this instance is not {@linkplain #start started}
      */
     public synchronized Database getDatabase() {
@@ -359,8 +368,6 @@ public class BerkeleyKVDatabase implements KVDatabase {
 
     /**
      * Stop this instance. Does nothing if not {@linkplain #start started}.
-     *
-     * @throws FDBException if an error occurs
      */
     @PreDestroy
     public void stop() {

@@ -41,6 +41,8 @@ public abstract class SimpleFunction extends AbstractFunction {
 
     /**
      * Get the minimum number of arguments allowed (inclusive).
+     *
+     * @return minimum required function arguments
      */
     public int getMinArgs() {
         return this.minArgs;
@@ -48,6 +50,8 @@ public abstract class SimpleFunction extends AbstractFunction {
 
     /**
      * Get the maximum number of arguments allowed (inclusive).
+     *
+     * @return maximum allowed function arguments
      */
     public int getMaxArgs() {
         return this.maxArgs;
@@ -74,6 +78,8 @@ public abstract class SimpleFunction extends AbstractFunction {
      *
      * @param session parse session
      * @param params parsed parameters; will already be checked between {@link #getMinArgs} and {@link #getMaxArgs}
+     * @param params parsed parameters; will already be checked between {@link #getMinArgs} and {@link #getMaxArgs}
+     * @return value returned by this function
      * @throws RuntimeException if there is an error
      */
     protected abstract Value apply(ParseSession session, Value[] params);

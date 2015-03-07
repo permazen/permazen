@@ -25,7 +25,6 @@ import org.jsimpledb.core.DeleteAction;
  *  <li>To describe the <b>sub-field(s)</b> of a <b>complex</b> database field (i.e., set, list, or map),
  *      that is, the collection element or map key and value</li>
  * </ul>
- * </p>
  *
  * <p>
  * Note that this annotation can be applied to superclass and interface methods to have the corresponding
@@ -105,6 +104,8 @@ public @interface JField {
      * <p>
      * For sub-fields of complex fields, this property must be left unset.
      * </p>
+     *
+     * @return the name of the field
      */
     String name() default "";
 
@@ -135,7 +136,8 @@ public @interface JField {
      *  &#64;JSetField(element = &#64;JField(<b>type = "float"</b>)) // nulls will be disallowed
      *  public abstract List&lt;<b>Float</b>&gt; getScores();
      * </pre>
-     * </p>
+     *
+     * @return the name of the field's type
      */
     String type() default "";
 
@@ -149,6 +151,8 @@ public @interface JField {
      * @see org.jsimpledb.StorageIdGenerator#generateListElementStorageId StorageIdGenerator.generateListElementStorageId()
      * @see org.jsimpledb.StorageIdGenerator#generateMapKeyStorageId StorageIdGenerator.generateMapKeyStorageId()
      * @see org.jsimpledb.StorageIdGenerator#generateMapValueStorageId StorageIdGenerator.generateMapValueStorageId()
+     *
+     * @return the field's storage ID
      */
     int storageId() default 0;
 
@@ -163,6 +167,8 @@ public @interface JField {
      * <p>
      * Note: reference fields are always indexed (for reference fields, this property is ignored).
      * </p>
+     *
+     * @return whether the field is indexed
      */
     boolean indexed() default false;
 
@@ -174,6 +180,7 @@ public @interface JField {
      * For non-reference fields this property must be equal to its default value.
      * </p>
      *
+     * @return desired behavior when a referenced object is deleted
      * @see #cascadeDelete
      * @see org.jsimpledb.JObject#delete
      */
@@ -188,6 +195,7 @@ public @interface JField {
      * For non-reference fields this property must be equal to its default value.
      * </p>
      *
+     * @return whether deletion should cascade to the referred-to object
      * @see #onDelete
      * @see org.jsimpledb.JObject#delete
      */
@@ -200,6 +208,7 @@ public @interface JField {
      * This property must be false for sub-fields of complex fields.
      * </p>
      *
+     * @return whether the field's value should be unique
      * @see #uniqueExclude
      * @see #uniqueExcludeNull
      */
@@ -214,12 +223,12 @@ public @interface JField {
      *  &#64;JField(indexed = true, unique = true, uniqueExclude = { "Infinity", "-Infinity" })
      *  public abstract float getPriority();
      * </pre>
-     * </p>
      *
      * <p>
      * This property must be left empty when {@link #unique} is false.
      * </p>
      *
+     * @return values to exclude from the uniqueness constraint
      * @see #unique
      * @see #uniqueExcludeNull
      */
@@ -232,6 +241,7 @@ public @interface JField {
      * This property must be left false when {@link #unique} is false or the field has primitive type.
      * </p>
      *
+     * @return whether null should be excluded from the uniqueness constraint
      * @see #unique
      * @see #uniqueExclude
      */

@@ -28,6 +28,8 @@ public class UnknownIndexException extends DatabaseException {
 
     /**
      * Get the storage ID that was not recognized.
+     *
+     * @return unrecognized index storage ID
      */
     public int getStorageId() {
         return this.storageId;

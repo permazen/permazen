@@ -66,12 +66,22 @@ public abstract class ApplyExprFunction extends AbstractFunction {
 
     /**
      * Apply this function.
+     *
+     * @param session parse session
+     * @param params function parameters
+     * @return the value of this function
      */
     protected abstract Value apply(ParseSession session, ParamInfo params);
 
     /**
      * Set the variable to the given value and then evaluate the expression.
      * Any previous value of the variable is saved prior and restored after.
+     *
+     * @param session parse session
+     * @param variable the name of the variable to use
+     * @param value the value to set to the variable
+     * @param expr the expression to evaluate
+     * @return the value of the expression
      */
     protected Value evaluate(ParseSession session, String variable, Value value, Node expr) {
 

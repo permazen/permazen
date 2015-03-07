@@ -42,6 +42,8 @@ public class UnknownTypeException extends DatabaseException {
 
     /**
      * Get the storage ID that was not recognized.
+     *
+     * @return unrecognized object type storage ID
      */
     public int getStorageId() {
         return this.storageId;
@@ -50,6 +52,8 @@ public class UnknownTypeException extends DatabaseException {
     /**
      * Get the schema version in which the type was not found.
      * This may return zero if a query was not specific to a single schema version.
+     *
+     * @return schema version not having the object type
      */
     public int getSchemaVersion() {
         return this.schemaVersion;

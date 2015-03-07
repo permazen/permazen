@@ -43,6 +43,8 @@ public abstract class Field<T> extends SchemaItem {
 
     /**
      * Get the Java type corresponding to this field.
+     *
+     * @return this field's type
      */
     public TypeToken<T> getTypeToken() {
         return this.typeToken;
@@ -54,6 +56,7 @@ public abstract class Field<T> extends SchemaItem {
      *
      * @param tx transaction
      * @param id object id
+     * @return this field's value in the specified object
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws UnknownFieldException if this field does not exist in the specified object
@@ -79,6 +82,7 @@ public abstract class Field<T> extends SchemaItem {
      * Apply visitor pattern.
      *
      * @param target target to invoke
+     * @param <R> visitor return type
      * @return value from the method of {@code target} corresponding to this instance's type
      * @throws NullPointerException if {@code target} is null
      */

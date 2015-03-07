@@ -86,6 +86,8 @@ public class JSimpleField extends JField {
 
     /**
      * Get the type of this field.
+     *
+     * @return this field's Java type
      */
     public TypeToken<?> getTypeToken() {
         return this.typeToken;
@@ -99,6 +101,8 @@ public class JSimpleField extends JField {
      * classes ({@link org.jsimpledb.core.EnumValue} and {@link org.jsimpledb.core.ObjId}, respectively).
      * Values can always be properly converted using the {@link Converter} returned by {@link #getConverter getConverter()}.
      * </p>
+     *
+     * @return this field's core-layer type definition
      */
     public FieldType<?> getFieldType() {
         return this.fieldType;
@@ -106,6 +110,8 @@ public class JSimpleField extends JField {
 
     /**
      * Get whether this field is indexed.
+     *
+     * @return whether this field is indexed
      */
     public boolean isIndexed() {
         return this.indexed;
@@ -149,8 +155,9 @@ public class JSimpleField extends JField {
      *
      * @param jobj object containing this field
      * @param value new value
-     * @throws DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}
-     * @throws StaleTransactionException if the {@link JTransaction} associated with {@code jobj} is no longer usable
+     * @throws org.jsimpledb.core.DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}
+     * @throws org.jsimpledb.core.StaleTransactionException if the {@link JTransaction} associated with {@code jobj}
+     *  is no longer usable
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for this field
      * @throws IllegalArgumentException if {@code jobj} is null
      */

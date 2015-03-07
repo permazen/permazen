@@ -28,12 +28,16 @@ public abstract class JComplexField extends JField {
 
     /**
      * Get the sub-fields associated with this field.
+     *
+     * @return this instance's sub-fields (in order)
      */
     public abstract List<JSimpleField> getSubFields();
 
     /**
      * Get the sub-field with the given name.
      *
+     * @param name sub-field name
+     * @return the sub-field with the specified name
      * @throws IllegalArgumentException if {@code name} is invalid
      */
     public abstract JSimpleField getSubField(String name);

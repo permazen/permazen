@@ -121,7 +121,7 @@ public class JSimpleDB {
      * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
      * @throws IllegalArgumentException if {@code classes} is null
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
-     * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
     public JSimpleDB(Iterable<? extends Class<?>> classes) {
         this(new Database(new SimpleKVDatabase()), 1, new DefaultStorageIdGenerator(), classes);
@@ -429,15 +429,16 @@ public class JSimpleDB {
      *
      * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
-     * @throws org.jsimpledb.InvalidSchemaException if {@code schemaModel} does not match what's recorded in the
+     * @return the newly created transaction
+     * @throws org.jsimpledb.core.InvalidSchemaException if {@code schemaModel} does not match what's recorded in the
      *  database for the schema version provided to the constructor
-     * @throws org.jsimpledb.InvalidSchemaException if the schema version provided to the constructor
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
      *  is not recorded in the database and {@code allowNewSchema} is false
-     * @throws org.jsimpledb.InvalidSchemaException if the schema version provided to the constructor
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
      *  is not recorded in the database and {@code allowNewSchema} is true, but {@code schemaModel} is incompatible
      *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
      *  incompatibly between schema versions)
-     * @throws org.jsimpledb.InconsistentDatabaseException if inconsistent or invalid schema information is detected
+     * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid schema information is detected
      *  in the database
      * @throws IllegalArgumentException if {@code validationMode} is null
      */
@@ -454,6 +455,8 @@ public class JSimpleDB {
 
     /**
      * Get the {@link SchemaModel} associated with this instance, derived from the annotations on the scanned classes.
+     *
+     * @return the associated schema model
      */
     public SchemaModel getSchemaModel() {
         if (this.schemaModel == null) {
@@ -470,6 +473,8 @@ public class JSimpleDB {
 
     /**
      * Get a {@link NameIndex} based on {@linkplain #getSchemaModel this instance's schema model}.
+     *
+     * @return a name index on this instance's schema model
      */
     public NameIndex getNameIndex() {
         if (this.nameIndex == null)
@@ -501,6 +506,7 @@ public class JSimpleDB {
      * Get the {@link JClass} modeled by the given type.
      *
      * @param type an annotated Java object model type
+     * @param <T> Java model type
      * @return associated {@link JClass}
      * @throws IllegalArgumentException if {@code type} is not equal to a known Java object model type
      */
@@ -547,6 +553,7 @@ public class JSimpleDB {
      * Get all {@link JClass}es which sub-type the given type.
      *
      * @param type type restriction, or null for no restrction
+     * @param <T> Java model type
      * @return list of {@link JClass}es whose type is {@code type} or a sub-type, ordered by storage ID
      */
     @SuppressWarnings("unchecked")
@@ -610,6 +617,7 @@ public class JSimpleDB {
      *
      * @param id object ID
      * @param type expected type
+     * @param <T> expected Java model type
      * @return Java model object
      * @see #getJObject(ObjId)
      * @throws ClassCastException if the Java model object does not have type {@code type}
@@ -628,6 +636,7 @@ public class JSimpleDB {
      *
      * @param startType starting Java type for the path
      * @param path dot-separated path of zero or more reference fields, followed by a target field
+     * @return parsed reference path
      * @throws IllegalArgumentException if {@code path} is invalid
      * @throws IllegalArgumentException if {@code startType} or {@code path} is null
      * @see ReferencePath
