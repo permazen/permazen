@@ -345,7 +345,7 @@ In JSimpleDB, indexes are always up-to-date, reflecting the current transaction 
 
 JSimpleDB also supports composite indexes. A composite index is an index on more than one field. Composite indexes are mainly useful when you need to efficiently sort on multiple fields at once:
 <code language="java">
-@JSimpleClass(compositeIndexs =
+@JSimpleClass(compositeIndexes =
   @JCompositeIndex(name = "byName", fields = { "lastName", "firstName" }))
 public abstract class Person implements JObject {
  

@@ -209,6 +209,8 @@ It can evaluate arbitrary Java expressions, including those that invoke your own
 
 In addition, you can also extend the functionality of the command line tool with your own Java-defined commands and functions, even further aligning the CLI utility with your Java application. Conversely, all of the CLI functionality can be included in your own application if desired.
 
+JSimpleDB also makes it easy to embed the CLI into your own application. For example, you can make it accessible via `telnet`.
+
 == Problem #8: GUI Tools ==
 
 In addition to command line tools, for most databases there is some graphical user interface (GUI) tool as well. These tools are more or less the GUI equivalent of the corresponding CLI tools. Therefore, they have the same advantages and disadvantages. In particular, like the CLI tools, they are also detached from the world of Java.
