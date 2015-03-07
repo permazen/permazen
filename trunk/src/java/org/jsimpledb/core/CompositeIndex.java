@@ -26,15 +26,15 @@ public class CompositeIndex extends SchemaItem {
      *
      * @param name the name of the index
      * @param storageId index storage ID
-     * @param version schema version
+     * @param schema schema version
      * @param objType containing object type
      * @param fields indexed fields
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
-    CompositeIndex(String name, int storageId, SchemaVersion version, ObjType objType, Iterable<? extends SimpleField<?>> fields) {
-        super(name, storageId, version);
+    CompositeIndex(String name, int storageId, Schema schema, ObjType objType, Iterable<? extends SimpleField<?>> fields) {
+        super(name, storageId, schema);
         if (objType == null)
             throw new IllegalArgumentException("null objType");
         if (fields == null)

@@ -21,15 +21,15 @@ import org.jsimpledb.schema.SimpleSchemaField;
  */
 class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
 
-    final SchemaVersion version;
+    final Schema schema;
     final FieldTypeRegistry fieldTypeRegistry;
 
-    FieldBuilder(SchemaVersion version, FieldTypeRegistry fieldTypeRegistry) {
-        if (version == null)
-            throw new IllegalArgumentException("null version");
+    FieldBuilder(Schema schema, FieldTypeRegistry fieldTypeRegistry) {
+        if (schema == null)
+            throw new IllegalArgumentException("null schema");
         if (fieldTypeRegistry == null)
             throw new IllegalArgumentException("null fieldTypeRegistry");
-        this.version = version;
+        this.schema = schema;
         this.fieldTypeRegistry = fieldTypeRegistry;
     }
 
@@ -67,20 +67,20 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
         if (field.getEncodingSignature() != 0)
             throw new IllegalArgumentException("encoding signature must be zero for " + field);
         return new ReferenceField(field.getName(), field.getStorageId(),
-          this.version, field.getOnDelete(), field.isCascadeDelete(), field.getObjectTypes());
+          this.schema, field.getOnDelete(), field.isCascadeDelete(), field.getObjectTypes());
     }
 
     @Override
     public EnumField caseEnumSchemaField(EnumSchemaField field) {
         if (field.getEncodingSignature() != 0)
             throw new IllegalArgumentException("encoding signature must be zero for " + field);
-        return new EnumField(field.getName(), field.getStorageId(), this.version,
+        return new EnumField(field.getName(), field.getStorageId(), this.schema,
           field.isIndexed(), field.getType(), field.getIdentifiers());
     }
 
     @Override
     public CounterField caseCounterSchemaField(CounterSchemaField field) {
-        return new CounterField(field.getName(), field.getStorageId(), this.version);
+        return new CounterField(field.getName(), field.getStorageId(), this.schema);
     }
 
 // Internal methods
@@ -91,22 +91,22 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
             throw new IllegalArgumentException("incompatible encoding signatures: field type `" + fieldType.getName()
               + "' has " + fieldType.getEncodingSignature() + " but schema is using " + field.getEncodingSignature());
         }
-        return new SimpleField<T>(fieldName, field.getStorageId(), this.version, fieldType, field.isIndexed());
+        return new SimpleField<T>(fieldName, field.getStorageId(), this.schema, fieldType, field.isIndexed());
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> SetField<E> buildSetField(SetSchemaField field, SimpleField<E> elementField) {
-        return new SetField<E>(field.getName(), field.getStorageId(), this.version, elementField);
+        return new SetField<E>(field.getName(), field.getStorageId(), this.schema, elementField);
     }
 
     // This method exists solely to bind the generic type parameters
     private <E> ListField<E> buildListField(ListSchemaField field, SimpleField<E> elementField) {
-        return new ListField<E>(field.getName(), field.getStorageId(), this.version, elementField);
+        return new ListField<E>(field.getName(), field.getStorageId(), this.schema, elementField);
     }
 
     // This method exists solely to bind the generic type parameters
     private <K, V> MapField<K, V> buildMapField(MapSchemaField field, SimpleField<K> keyField, SimpleField<V> valueField) {
-        return new MapField<K, V>(field.getName(), field.getStorageId(), this.version, keyField, valueField);
+        return new MapField<K, V>(field.getName(), field.getStorageId(), this.schema, keyField, valueField);
     }
 }
 

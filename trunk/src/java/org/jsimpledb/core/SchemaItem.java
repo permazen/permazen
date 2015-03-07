@@ -13,7 +13,7 @@ package org.jsimpledb.core;
  * <p>
  * Instances have a {@linkplain #getStorageId storage ID} which must be unique across the {@link Schema} version.
  * Instances also have a {@linkplain #getName name} which must be a {@linkplain #NAME_PATTERN valid Java identifier}.
- * Instances are also associated with a {@linkplain #getVersion specific} {@link SchemaVersion}.
+ * Instances are also associated with a {@linkplain #getSchema specific} {@link Schema}.
  * </p>
  */
 public abstract class SchemaItem {
@@ -26,20 +26,20 @@ public abstract class SchemaItem {
 
     final String name;
     final int storageId;
-    final SchemaVersion version;
+    final Schema schema;
 
-    SchemaItem(String name, int storageId, SchemaVersion version) {
+    SchemaItem(String name, int storageId, Schema schema) {
         if (name == null)
             throw new IllegalArgumentException("invalid null name");
         if (!name.matches(NAME_PATTERN))
             throw new IllegalArgumentException("invalid name `" + name + "'");
         if (storageId <= 0)
             throw new IllegalArgumentException("invalid storageId " + storageId);
-        if (version == null)
-            throw new IllegalArgumentException("null version");
+        if (schema == null)
+            throw new IllegalArgumentException("null schema");
         this.name = name;
         this.storageId = storageId;
-        this.version = version;
+        this.schema = schema;
     }
 
     /**
@@ -65,8 +65,8 @@ public abstract class SchemaItem {
      *
      * @return associated schema version
      */
-    public SchemaVersion getVersion() {
-        return this.version;
+    public Schema getSchema() {
+        return this.schema;
     }
 
     /**

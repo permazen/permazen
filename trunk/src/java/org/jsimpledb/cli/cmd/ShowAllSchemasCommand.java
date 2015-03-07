@@ -10,7 +10,7 @@ package org.jsimpledb.cli.cmd;
 import java.util.Map;
 
 import org.jsimpledb.cli.CliSession;
-import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.core.Schema;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.schema.SchemaModel;
 
@@ -37,8 +37,7 @@ public class ShowAllSchemasCommand extends AbstractCommand {
         return new CliSession.Action() {
             @Override
             public void run(CliSession session) throws Exception {
-                for (Map.Entry<Integer, SchemaVersion> entry :
-                  session.getTransaction().getSchema().getSchemaVersions().entrySet()) {
+                for (Map.Entry<Integer, Schema> entry : session.getTransaction().getSchemas().getVersions().entrySet()) {
                     final int number = entry.getKey();
                     final SchemaModel model = entry.getValue().getSchemaModel();
                     if (xml) {

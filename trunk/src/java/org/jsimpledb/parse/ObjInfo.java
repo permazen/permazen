@@ -10,7 +10,7 @@ package org.jsimpledb.parse;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
-import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.Transaction;
 
 /**
@@ -19,7 +19,7 @@ import org.jsimpledb.core.Transaction;
 public class ObjInfo {
 
     private final ObjId id;
-    private final SchemaVersion schemaVersion;
+    private final Schema schema;
     private final ObjType type;
 
     /**
@@ -31,16 +31,16 @@ public class ObjInfo {
      */
     public ObjInfo(Transaction tx, ObjId id) {
         this.id = id;
-        this.schemaVersion = tx.getSchema().getVersion(tx.getSchemaVersion(id));
-        this.type = this.schemaVersion.getObjType(id.getStorageId());
+        this.schema = tx.getSchemas().getVersion(tx.getSchemaVersion(id));
+        this.type = this.schema.getObjType(id.getStorageId());
     }
 
     public ObjId getObjId() {
         return this.id;
     }
 
-    public SchemaVersion getSchemaVersion() {
-        return this.schemaVersion;
+    public Schema getSchema() {
+        return this.schema;
     }
 
     public ObjType getObjType() {
@@ -50,7 +50,7 @@ public class ObjInfo {
     @Override
     public String toString() {
         return this.id + " type " + this.type.getName() + "#" + this.type.getStorageId()
-          + " version " + this.schemaVersion.getVersionNumber();
+          + " version " + this.schema.getVersionNumber();
     }
 
     /**

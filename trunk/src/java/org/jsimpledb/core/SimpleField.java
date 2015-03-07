@@ -39,15 +39,15 @@ public class SimpleField<T> extends Field<T> {
      *
      * @param name the name of the field
      * @param storageId field storage ID
-     * @param version schema version
+     * @param schema schema version
      * @param fieldType field type
      * @param indexed whether this field is indexed
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      * @throws IllegalArgumentException if {@code storageId} is zero or less
      */
-    SimpleField(String name, int storageId, SchemaVersion version, FieldType<T> fieldType, boolean indexed) {
-        super(name, storageId, version, fieldType.getTypeToken());
+    SimpleField(String name, int storageId, Schema schema, FieldType<T> fieldType, boolean indexed) {
+        super(name, storageId, schema, fieldType.getTypeToken());
         this.fieldType = fieldType;
         this.indexed = indexed;
     }

@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ObjType;
-import org.jsimpledb.core.SchemaVersion;
+import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.util.NavigableSets;
 
@@ -79,8 +79,8 @@ public class ObjIdParser implements Parser<ObjId> {
                 final Transaction tx = session.getTransaction();
                 final TreeSet<Integer> storageIds = new TreeSet<>();
                 final ArrayList<NavigableSet<ObjId>> idSets = new ArrayList<>();
-                for (SchemaVersion schemaVersion : tx.getSchema().getSchemaVersions().values()) {
-                    for (ObjType objType : schemaVersion.getObjTypes().values()) {
+                for (Schema schema : tx.getSchemas().getVersions().values()) {
+                    for (ObjType objType : schema.getObjTypes().values()) {
                         final int storageId = objType.getStorageId();
                         if ((min != null && storageId < min.getStorageId()) || (max != null && storageId > max.getStorageId()))
                             continue;

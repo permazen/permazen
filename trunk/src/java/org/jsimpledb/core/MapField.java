@@ -42,15 +42,15 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
      * @param objType the object type that contains this field
      * @param name the name of the field
      * @param storageId field content storage ID
-     * @param version schema version
+     * @param schema schema version
      * @param keyField this field's key sub-field
      * @param valueField this field's value sub-field
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code storageId} is non-positive
      */
     @SuppressWarnings("serial")
-    MapField(String name, int storageId, SchemaVersion version, SimpleField<K> keyField, SimpleField<V> valueField) {
-        super(name, storageId, version, new TypeToken<NavigableMap<K, V>>() { }
+    MapField(String name, int storageId, Schema schema, SimpleField<K> keyField, SimpleField<V> valueField) {
+        super(name, storageId, schema, new TypeToken<NavigableMap<K, V>>() { }
           .where(new TypeParameter<K>() { }, keyField.typeToken.wrap())
           .where(new TypeParameter<V>() { }, valueField.typeToken.wrap()));
         this.keyField = keyField;

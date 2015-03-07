@@ -56,8 +56,8 @@ import org.slf4j.LoggerFactory;
  * <b>Transaction Meta-Data</b>
  * <ul>
  *  <li>{@link #getDatabase getDatabase()} - Get the associated {@link Database}</li>
- *  <li>{@link #getSchema getSchema()} - Get the database {@link Schema}, as seen by this transaction</li>
- *  <li>{@link #getSchemaVersion() getSchemaVersion()} - Get the {@link SchemaVersion} that will be used by this transaction</li>
+ *  <li>{@link #getSchemas getSchemas()} - Get the database {@link Schemas}, as seen by this transaction</li>
+ *  <li>{@link #getSchema() getSchema()} - Get the {@link Schema} that will be used by this transaction</li>
  *  <li>{@link #deleteSchemaVersion deleteSchemaVersion()} - Delete a schema version that is no longer being used</li>
  * </ul>
  *
@@ -176,8 +176,8 @@ public class Transaction {
 
     final Database db;
     final KVTransaction kvt;
+    final Schemas schemas;
     final Schema schema;
-    final SchemaVersion version;
 
     boolean stale;
     boolean readOnly;
@@ -190,15 +190,15 @@ public class Transaction {
     private final TreeMap<Integer, HashSet<FieldMonitor>> monitorMap = new TreeMap<>();
     private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
 
-    Transaction(Database db, KVTransaction kvt, Schema schema, int versionNumber) {
-        this(db, kvt, schema, schema.getVersion(versionNumber));
+    Transaction(Database db, KVTransaction kvt, Schemas schemas, int versionNumber) {
+        this(db, kvt, schemas, schemas.getVersion(versionNumber));
     }
 
-    Transaction(Database db, KVTransaction kvt, Schema schema, SchemaVersion version) {
+    Transaction(Database db, KVTransaction kvt, Schemas schemas, Schema schema) {
         this.db = db;
         this.kvt = kvt;
+        this.schemas = schemas;
         this.schema = schema;
-        this.version = version;
     }
 
 // Transaction Meta-Data
@@ -218,8 +218,8 @@ public class Transaction {
      *
      * @return associated schemas
      */
-    public Schema getSchema() {
-        return this.schema;
+    public Schemas getSchemas() {
+        return this.schemas;
     }
 
     /**
@@ -229,8 +229,8 @@ public class Transaction {
      *
      * @return associated schema
      */
-    public SchemaVersion getSchemaVersion() {
-        return this.version;
+    public Schema getSchema() {
+        return this.schema;
     }
 
     /**
@@ -249,7 +249,7 @@ public class Transaction {
         // Sanity check
         if (version <= 0)
             throw new IllegalArgumentException("invalid schema version " + version);
-        if (version == this.version.getVersionNumber())
+        if (version == this.schema.getVersionNumber())
             throw new InvalidSchemaException("version " + version + " is this transaction's version");
         if (this.stale)
             throw new StaleTransactionException(this);
@@ -257,7 +257,7 @@ public class Transaction {
             throw new InvalidSchemaException("one or more version " + version + " objects still exist in database");
 
         // Delete schema version
-        if (!this.schema.deleteVersion(version))
+        if (!this.schemas.deleteVersion(version))
             return false;
         this.db.deleteSchema(this.kvt, version);
         return true;
@@ -501,7 +501,7 @@ public class Transaction {
      *
      * <p>
      * If the object doesn't already exist, all fields are set to their default values and the object's
-     * schema version is set to {@linkplain #getSchemaVersion() the version associated with this transaction}.
+     * schema version is set to {@linkplain #getSchema() the version associated with this transaction}.
      * </p>
      *
      * @param id object ID
@@ -512,7 +512,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public boolean create(ObjId id) {
-        return this.create(id, this.version.versionNumber);
+        return this.create(id, this.schema.versionNumber);
     }
 
     /**
@@ -545,7 +545,7 @@ public class Transaction {
             return false;
 
         // Initialize object
-        this.initialize(id, this.schema.getVersion(versionNumber).getObjType(id.getStorageId()));
+        this.initialize(id, this.schemas.getVersion(versionNumber).getObjType(id.getStorageId()));
 
         // Done
         return true;
@@ -556,7 +556,7 @@ public class Transaction {
      *
      * <p>
      * All fields will be set to their default values.
-     * The object's schema version will be set to {@linkplain #getSchemaVersion() the version associated with this transaction}.
+     * The object's schema version will be set to {@linkplain #getSchema() the version associated with this transaction}.
      * </p>
      *
      * @param storageId object type storage ID
@@ -566,7 +566,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public ObjId create(int storageId) {
-        return this.create(storageId, this.version.versionNumber);
+        return this.create(storageId, this.schema.versionNumber);
     }
 
     /**
@@ -590,7 +590,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        final ObjType objType = this.schema.getVersion(versionNumber).getObjType(storageId);
+        final ObjType objType = this.schemas.getVersion(versionNumber).getObjType(storageId);
 
         // Generate object ID
         final ObjId id = this.generateIdValidated(objType.storageId);
@@ -615,7 +615,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        final ObjTypeStorageInfo info = this.schema.verifyStorageInfo(storageId, ObjTypeStorageInfo.class);
+        final ObjTypeStorageInfo info = this.schemas.verifyStorageInfo(storageId, ObjTypeStorageInfo.class);
 
         // Generate ID
         return this.generateIdValidated(info.storageId);
@@ -647,10 +647,10 @@ public class Transaction {
             throw new ReadOnlyTransactionException(this);
 
         // Write object meta-data
-        ObjInfo.write(this, id, objType.version.versionNumber, false);
+        ObjInfo.write(this, id, objType.schema.versionNumber, false);
 
         // Write object version index entry
-        this.kvt.put(Database.buildVersionIndexKey(id, objType.version.versionNumber), ByteUtil.EMPTY);
+        this.kvt.put(Database.buildVersionIndexKey(id, objType.schema.versionNumber), ByteUtil.EMPTY);
 
         // Initialize counters to zero
         if (!objType.counterFields.isEmpty()) {
@@ -753,7 +753,7 @@ public class Transaction {
 
             // Determine if any EXCEPTION reference fields refer to the object (from some other object); if so, throw exception
             for (ReferenceFieldStorageInfo fieldInfo :
-              Iterables.filter(this.schema.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
+              Iterables.filter(this.schemas.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
                 for (ObjId referrer : this.findReferrers(id, DeleteAction.EXCEPTION, fieldInfo.storageId)) {
                     if (!referrer.equals(id))
                         throw new ReferencedObjectException(id, referrer, fieldInfo.storageId);
@@ -765,7 +765,7 @@ public class Transaction {
                 break;
 
             // Issue delete notifications and retry
-            ObjInfo.write(this, id, info.getVersionNumber(), true);
+            ObjInfo.write(this, id, info.getVersion(), true);
             for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
                 listener.onDelete(this, id);
         }
@@ -787,10 +787,10 @@ public class Transaction {
 
         // Find all UNREFERENCE references and unreference them
         for (ReferenceFieldStorageInfo fieldInfo :
-          Iterables.filter(this.schema.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
+          Iterables.filter(this.schemas.storageInfos.values(), ReferenceFieldStorageInfo.class)) {
             final NavigableSet<ObjId> referrers = this.findReferrers(id, DeleteAction.UNREFERENCE, fieldInfo.storageId);
             if (fieldInfo.isSubField()) {
-                final ComplexFieldStorageInfo<?> superFieldInfo = this.schema.verifyStorageInfo(
+                final ComplexFieldStorageInfo<?> superFieldInfo = this.schemas.verifyStorageInfo(
                   fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
                 superFieldInfo.unreferenceAll(this, fieldInfo.storageId, id, referrers);
             } else {
@@ -833,7 +833,7 @@ public class Transaction {
         this.kvt.removeRange(minKey, maxKey);
 
         // Delete object schema version entry
-        this.kvt.remove(Database.buildVersionIndexKey(id, info.getVersionNumber()));
+        this.kvt.remove(Database.buildVersionIndexKey(id, info.getVersion()));
     }
 
     /**
@@ -946,20 +946,20 @@ public class Transaction {
         }
 
         // Find and verify source object's schema version in destination transaction
-        final int objectVersion = srcInfo.getVersionNumber();
-        final SchemaVersion dstSchema;
+        final int objectVersion = srcInfo.getVersion();
+        final Schema dstSchema;
         try {
-            dstSchema = dstTx.schema.getVersion(objectVersion);
+            dstSchema = dstTx.schemas.getVersion(objectVersion);
         } catch (IllegalArgumentException e) {
             throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
         }
-        if (!Arrays.equals(srcTx.version.encodedXML, dstTx.version.encodedXML))
+        if (!Arrays.equals(srcTx.schema.encodedXML, dstTx.schema.encodedXML))
             throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
 
         // Create destination object if it doesn't already exist
         final boolean existed = !dstTx.create(dstId, objectVersion);
         final ObjInfo dstInfo = dstTx.getObjectInfo(dstId, false);
-        final boolean needUpgrade = dstInfo.getVersionNumber() != objectVersion;   // can only happen if object already existed
+        final boolean needUpgrade = dstInfo.getVersion() != objectVersion;      // can only happen if object already existed
 
         // Do field-by-field copy if there are change or version listeners, otherwise do fast copy of key/value pairs
         final ObjType type = srcInfo.getObjType();
@@ -1102,12 +1102,12 @@ public class Transaction {
             throw new IllegalArgumentException("null id");
 
         // Get object version
-        return this.getObjectInfo(id, false).getVersionNumber();
+        return this.getObjectInfo(id, false).getVersion();
     }
 
     /**
      * Change the schema version of the specified object, if necessary, so that its version matches
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}.
+     * {@linkplain #getSchema() the schema version associated with this transaction}.
      *
      * <p>
      * If a schema change occurs, any registered {@link VersionChangeListener}s will be notified prior
@@ -1137,14 +1137,14 @@ public class Transaction {
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, false);
-        if (info.getVersionNumber() == this.version.versionNumber)
+        if (info.getVersion() == this.schema.versionNumber)
             return false;
 
         // Update schema version
         this.mutateAndNotify(new Mutation<Void>() {
             @Override
             public Void mutate() {
-                Transaction.this.updateVersion(info, Transaction.this.version);
+                Transaction.this.updateVersion(info, Transaction.this.schema);
                 return null;
             }
         });
@@ -1157,11 +1157,11 @@ public class Transaction {
      * @param info original object info
      * @param targetVersion version to change to
      */
-    private synchronized void updateVersion(final ObjInfo info, final SchemaVersion targetVersion) {
+    private synchronized void updateVersion(final ObjInfo info, final Schema targetVersion) {
 
         // Get version numbers
         final ObjId id = info.getId();
-        final int oldVersion = info.getVersionNumber();
+        final int oldVersion = info.getVersion();
         final int newVersion = targetVersion.versionNumber;
 
         // Sanity check
@@ -1372,10 +1372,10 @@ public class Transaction {
      * Find storage ID's which are no longer allowed by a reference field when upgrading to the specified
      * schema version and therefore need to be scrubbed during the upgrade.
      */
-    private TreeSet<Integer> findRemovedObjectTypes(ObjInfo info, SchemaVersion newVersion, int storageId) {
+    private TreeSet<Integer> findRemovedObjectTypes(ObjInfo info, Schema newVersion, int storageId) {
 
         // Get old schema version
-        final SchemaVersion oldVersion = info.getSchemaVersion();
+        final Schema oldVersion = info.getSchema();
 
         // Get old and new object types
         final ObjType oldType = info.getObjType();
@@ -1393,7 +1393,7 @@ public class Transaction {
             return null;                                                // new field can refer to any type in any schema version
         SortedSet<Integer> oldObjectTypes = oldField.getObjectTypes();
         if (oldObjectTypes == null)
-            oldObjectTypes = this.schema.objTypeStorageIds;             // old field can refer to any type in any schema version
+            oldObjectTypes = this.schemas.objTypeStorageIds;            // old field can refer to any type in any schema version
 
         // Identify storage IDs which are were allowed by old field but are no longer allowed by new field
         final TreeSet<Integer> removedObjectTypes = new TreeSet<>(oldObjectTypes);
@@ -1491,7 +1491,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        this.schema.verifyStorageInfo(storageId, ObjTypeStorageInfo.class);
+        this.schemas.verifyStorageInfo(storageId, ObjTypeStorageInfo.class);
 
         // Return objects
         return new ObjTypeSet(this, storageId);
@@ -1502,7 +1502,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * reading the field.
      * </p>
      *
@@ -1547,7 +1547,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
      * </p>
      *
@@ -1689,7 +1689,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * reading the field.
      * </p>
      *
@@ -1734,7 +1734,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
      * </p>
      *
@@ -1778,7 +1778,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary, prior to
+     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
      * </p>
      *
@@ -1825,7 +1825,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary.
+     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
      * </p>
      *
      * @param id object ID of the object
@@ -1849,7 +1849,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary.
+     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
      * </p>
      *
      * @param id object ID of the object
@@ -1873,7 +1873,7 @@ public class Transaction {
      *
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
-     * {@linkplain #getSchemaVersion() the schema version associated with this transaction}, if necessary.
+     * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
      * </p>
      *
      * @param id object ID of the object
@@ -1940,7 +1940,7 @@ public class Transaction {
             throw new IllegalArgumentException("null id");
         if (storageId <= 0)
             throw new IllegalArgumentException("storageId <= 0");
-        final FieldStorageInfo info = this.schema.verifyStorageInfo(storageId, FieldStorageInfo.class);
+        final FieldStorageInfo info = this.schemas.verifyStorageInfo(storageId, FieldStorageInfo.class);
         if (info.isSubField())
             throw new IllegalArgumentException("field is a sub-field of a complex field");
 
@@ -2000,18 +2000,18 @@ public class Transaction {
     private ObjInfo getObjectInfo(ObjId id, boolean update) {
 
         // Check object type
-        this.schema.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.class);
+        this.schemas.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.class);
 
         // Check schema version
         final ObjInfo info = new ObjInfo(this, id);
-        if (!update || info.getSchemaVersion() == this.version)
+        if (!update || info.getSchema() == this.schema)
             return info;
 
         // Update schema version
         this.mutateAndNotify(new Mutation<Void>() {
             @Override
             public Void mutate() {
-                Transaction.this.updateVersion(info, Transaction.this.version);
+                Transaction.this.updateVersion(info, Transaction.this.schema);
                 return null;
             }
         });
@@ -2236,7 +2236,7 @@ public class Transaction {
             throw new IllegalArgumentException("null listener");
 
         // Get target field info
-        final FieldStorageInfo fieldInfo = this.schema.verifyStorageInfo(storageId, SchemaItem.infoTypeFor(expectedFieldType));
+        final FieldStorageInfo fieldInfo = this.schemas.verifyStorageInfo(storageId, SchemaItem.infoTypeFor(expectedFieldType));
 
         // Get object parent of target field, and make sure the field is not a sub-field
         if (fieldInfo.isSubField()) {
@@ -2246,7 +2246,7 @@ public class Transaction {
 
         // Verify all fields in the path are reference fields
         for (int pathStorageId : path)
-            this.schema.verifyStorageInfo(pathStorageId, ReferenceFieldStorageInfo.class);
+            this.schemas.verifyStorageInfo(pathStorageId, ReferenceFieldStorageInfo.class);
     }
 
     private synchronized HashSet<FieldMonitor> getMonitorsForField(int storageId, boolean adding) {
@@ -2435,7 +2435,7 @@ public class Transaction {
 
         // Verify all fields in the path are reference fields
         for (int storageId : path)
-            this.schema.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class);
+            this.schemas.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class);
 
         // Invert references in reverse order
         NavigableSet<ObjId> result = null;
@@ -2489,11 +2489,11 @@ public class Transaction {
     public synchronized CoreIndex<?, ObjId> queryIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        final SimpleFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
+        final SimpleFieldStorageInfo<?> fieldInfo = this.schemas.verifyStorageInfo(storageId, SimpleFieldStorageInfo.class);
         if (fieldInfo.superFieldStorageId == 0)
             return fieldInfo.getSimpleFieldIndex(this);
         final ComplexFieldStorageInfo<?> superFieldInfo
-          = this.schema.verifyStorageInfo(fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
+          = this.schemas.verifyStorageInfo(fieldInfo.superFieldStorageId, ComplexFieldStorageInfo.class);
         return superFieldInfo.getSimpleSubFieldIndex(this, fieldInfo);
     }
 
@@ -2514,7 +2514,7 @@ public class Transaction {
     public synchronized CoreIndex2<?, ObjId, Integer> queryListElementIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        final ListFieldStorageInfo<?> fieldInfo = this.schema.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
+        final ListFieldStorageInfo<?> fieldInfo = this.schemas.verifyStorageInfo(storageId, ListFieldStorageInfo.class);
         return fieldInfo.getElementFieldIndex(this);
     }
 
@@ -2535,7 +2535,7 @@ public class Transaction {
     public synchronized CoreIndex2<?, ObjId, ?> queryMapValueIndex(int storageId) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        final MapFieldStorageInfo<?, ?> fieldInfo = this.schema.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
+        final MapFieldStorageInfo<?, ?> fieldInfo = this.schemas.verifyStorageInfo(storageId, MapFieldStorageInfo.class);
         return fieldInfo.getValueFieldIndex(this);
     }
 
@@ -2553,7 +2553,7 @@ public class Transaction {
      */
     @SuppressWarnings("unchecked")
     public CoreIndex2<?, ?, ObjId> queryCompositeIndex2(int storageId) {
-        final CompositeIndexStorageInfo indexInfo = this.schema.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
+        final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
         final Object index = indexInfo.getIndex(this);
         if (!(index instanceof CoreIndex2)) {
             throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
@@ -2576,7 +2576,7 @@ public class Transaction {
      */
     @SuppressWarnings("unchecked")
     public CoreIndex3<?, ?, ?, ObjId> queryCompositeIndex3(int storageId) {
-        final CompositeIndexStorageInfo indexInfo = this.schema.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
+        final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
         final Object index = indexInfo.getIndex(this);
         if (!(index instanceof CoreIndex3)) {
             throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
@@ -2599,7 +2599,7 @@ public class Transaction {
      */
     @SuppressWarnings("unchecked")
     public CoreIndex4<?, ?, ?, ?, ObjId> queryCompositeIndex4(int storageId) {
-        final CompositeIndexStorageInfo indexInfo = this.schema.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
+        final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
         final Object index = indexInfo.getIndex(this);
         if (!(index instanceof CoreIndex4)) {
             throw new UnknownIndexException(storageId, "the composite index with storage ID " + storageId
@@ -2621,14 +2621,14 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public Object queryCompositeIndex(int storageId) {
-        final CompositeIndexStorageInfo indexInfo = this.schema.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
+        final CompositeIndexStorageInfo indexInfo = this.schemas.verifyStorageInfo(storageId, CompositeIndexStorageInfo.class);
         return indexInfo.getIndex(this);
     }
 
     // Query an index on a reference field for referring objects
     @SuppressWarnings("unchecked")
     private NavigableMap<ObjId, NavigableSet<ObjId>> queryReferences(int storageId) {
-        assert this.schema.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class) != null;
+        assert this.schemas.verifyStorageInfo(storageId, ReferenceFieldStorageInfo.class) != null;
         return (NavigableMap<ObjId, NavigableSet<ObjId>>)this.queryIndex(storageId).asMap();
     }
 
@@ -2647,7 +2647,7 @@ public class Transaction {
      */
     private NavigableSet<ObjId> findReferrers(ObjId target, DeleteAction onDelete, int fieldStorageId) {
         final ArrayList<NavigableSet<ObjId>> refSets = new ArrayList<>();
-        for (SchemaVersion schemaVersion : this.schema.versions.values()) {
+        for (Schema schemaVersion : this.schemas.versions.values()) {
 
             // Check whether any object of this version exist; if not, skip
             final NavigableSet<ObjId> versionObjects = this.queryVersion().asMap().get(schemaVersion.versionNumber);

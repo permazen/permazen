@@ -447,7 +447,7 @@ public class JSimpleDB {
             throw new IllegalArgumentException("null validationMode");
         final Transaction tx = this.db.createTransaction(this.getSchemaModel(), this.configuredVersion, allowNewSchema);
         tx.addCallback(new CleanupCurrentCallback());
-        this.actualVersion = tx.getSchema().getSchemaVersions().lastKey();
+        this.actualVersion = tx.getSchemas().getVersions().lastKey();
         return new JTransaction(this, tx, validationMode);
     }
 
