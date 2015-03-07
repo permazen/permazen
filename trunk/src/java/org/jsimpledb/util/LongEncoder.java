@@ -205,7 +205,7 @@ public final class LongEncoder {
     /**
      * Test routine.
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         for (String arg : args) {
             byte[] bytes = null;
             try {
