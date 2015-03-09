@@ -15,6 +15,7 @@ package org.jsimpledb.core;
  * Instances are immutable.
  * </p>
  *
+ * @see EnumFieldType
  * @see org.jsimpledb.EnumConverter
  */
 public class EnumValue {
