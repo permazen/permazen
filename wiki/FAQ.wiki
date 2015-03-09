@@ -163,6 +163,8 @@ public abstract class Account implements JObject {
     }
 }</code>
 
+Congratulations, you're done! You've just configured an entire Java application persistence layer.
+
 ==== How do I do aggregate queries like `AVG()` and `SUM()` and things like `GROUP BY`? ====
 
 You write them yourself in Java.
@@ -181,7 +183,7 @@ The problem is that it's not obvious that this query is going to be slow just by
 
 In JSimpleDB, to implement that query, you'd have to write a loop that iterates over every `User` in the database. This makes the performance reality obvious.
 
-The more efficient thing to do would be to add an indexed derived field containing the lower case username. An <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnChange.html">`@OnChange`</a>) method will keep it synchronized automatically:
+The more efficient thing to do would be to add an indexed derived field containing the lower case username, and an <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnChange.html">`@OnChange`</a> method to keep it synchronized automatically:
 
 <code language="java">
 @JSimpleClass
@@ -195,14 +197,6 @@ public abstract class User implements JObject {
     public abstract String getUsername();
     public abstract void setUsername(String username);
  
-// "DAO" methods
- 
-    // Find users by lowercase username
-    public static NavigableSet<User> getByLowercaseUsername(String lowercaseUsername) {
-        return JTransaction.getCurrent().queryIndex(
-          String.class, "lowercaseUsername", User.class).get(lowercaseUsername);
-    }
- 
 // Derived fields
    
     // Get this user's lower case username - automatically kept in sync
@@ -214,6 +208,14 @@ public abstract class User implements JObject {
     private void onUsernameChange(SimpleFieldChange<User, String> change) {
         final String username = change.getNewValue();
         this.setLowercaseUsername(username != null ? username.toLowerCase() : null);
+    }
+ 
+// "DAO" methods
+ 
+    // Find users by lowercase username
+    public static NavigableSet<User> getByLowercaseUsername(String lowercaseUsername) {
+        return JTransaction.getCurrent().queryIndex(
+          String.class, "lowercaseUsername", User.class).get(lowercaseUsername);
     }
 }</code>
 
@@ -352,6 +354,12 @@ Note that type safety is still preserved in all situations.
 No, because during a schema upgrade JSimpleDB forcibly eliminates any references that would no longer be valid due to Java type violations.
 
 Of course, you have an opportunity to handle the old, invalid references in your <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> method.
+
+==== What happens if I change a `float` field to `String`, etc.? ====
+
+JSimpleDB requires a certain amount of consistency between schema versions. In particular, a field cannot have two different types between schema versions. This restriction makes it possible for an index on a field to contain objects from multiple different schema versions.
+
+If you need to change a field's type, instead just add a new field with the new type and remove the old one with the old type, and do the appropriate type transformation in a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> method.
 
 ==== How would I handle a schema change that splits a class `Vehicle` into `Car` and `Truck`? Or that does the reverse? ====
 
