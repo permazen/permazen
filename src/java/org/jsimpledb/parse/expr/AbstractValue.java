@@ -132,8 +132,8 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public Value multiply(ParseSession session, Value that) {
-        final Object thisValue = this.get(session);
-        final Object thatValue = that.get(session);
+        final Object thisValue = this.checkNotNull(session, "multiply");
+        final Object thatValue = that.checkNotNull(session, "multiply");
         final Number lnum = AbstractValue.promoteNumeric(session, thisValue, "multiply", thatValue);
         final Number rnum = AbstractValue.promoteNumeric(session, thatValue, "multiply", thisValue);
         if (lnum instanceof BigDecimal)
@@ -154,8 +154,8 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public Value divide(ParseSession session, Value that) {
-        final Object thisValue = this.get(session);
-        final Object thatValue = that.get(session);
+        final Object thisValue = this.checkNotNull(session, "divide");
+        final Object thatValue = that.checkNotNull(session, "divide");
         final Number lnum = AbstractValue.promoteNumeric(session, thisValue, "divide", thatValue);
         final Number rnum = AbstractValue.promoteNumeric(session, thatValue, "divide", thisValue);
         if (lnum instanceof BigDecimal)
@@ -176,8 +176,8 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public Value mod(ParseSession session, Value that) {
-        final Object thisValue = this.get(session);
-        final Object thatValue = that.get(session);
+        final Object thisValue = this.checkNotNull(session, "modulo");
+        final Object thatValue = that.checkNotNull(session, "modulo");
         final Number lnum = AbstractValue.promoteNumeric(session, thisValue, "modulo", thatValue);
         final Number rnum = AbstractValue.promoteNumeric(session, thatValue, "modulo", thisValue);
         if (lnum instanceof Double)
@@ -227,8 +227,8 @@ public abstract class AbstractValue implements Value {
     public Value subtract(ParseSession session, Value that) {
 
         // Handle NavigableSet with equal comparators XXX might not have compatible elements
-        final Object thisValue = this.get(session);
-        final Object thatValue = that.get(session);
+        final Object thisValue = this.checkNotNull(session, "subtract");
+        final Object thatValue = that.checkNotNull(session, "subtract");
         if (thisValue instanceof NavigableSet
           && thatValue instanceof NavigableSet
           && (((NavigableSet<?>)thisValue).comparator() != null ?
@@ -261,8 +261,8 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public Value lshift(ParseSession session, Value arg) {
-        final Object thisValue = this.get(session);
-        final Object thatValue = arg.get(session);
+        final Object thisValue = this.checkNotNull(session, "left shift");
+        final Object thatValue = arg.checkNotNull(session, "left shift");
         final Number target = AbstractValue.promoteNumeric(session, thisValue, "left shift");
         final Number shift = AbstractValue.promoteNumeric(session, thatValue, "left shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
@@ -279,8 +279,8 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public Value rshift(ParseSession session, Value arg) {
-        final Object thisValue = this.get(session);
-        final Object thatValue = arg.get(session);
+        final Object thisValue = this.checkNotNull(session, "right shift");
+        final Object thatValue = arg.checkNotNull(session, "right shift");
         final Number target = AbstractValue.promoteNumeric(session, thisValue, "right shift");
         final Number shift = AbstractValue.promoteNumeric(session, thatValue, "right shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
@@ -297,8 +297,8 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public Value urshift(ParseSession session, Value arg) {
-        final Object thisValue = this.get(session);
-        final Object thatValue = arg.get(session);
+        final Object thisValue = this.checkNotNull(session, "unsigned right shift");
+        final Object thatValue = arg.checkNotNull(session, "unsigned right shift");
         final Number target = AbstractValue.promoteNumeric(session, thisValue, "unsigned right shift");
         final Number shift = AbstractValue.promoteNumeric(session, thatValue, "unsigned right shift");
         if (!(target instanceof Integer) && !(target instanceof Long))
@@ -318,8 +318,8 @@ public abstract class AbstractValue implements Value {
     public Value and(ParseSession session, Value that) {
 
         // Handle boolean
-        final Object thisValue = this.get(session);
-        final Object thatValue = that.get(session);
+        final Object thisValue = this.checkNotNull(session, "`and'");
+        final Object thatValue = that.checkNotNull(session, "`and'");
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new ConstValue((Boolean)thisValue & (Boolean)thatValue);
 
@@ -352,8 +352,8 @@ public abstract class AbstractValue implements Value {
     public Value or(ParseSession session, Value that) {
 
         // Handle boolean
-        final Object thisValue = this.get(session);
-        final Object thatValue = that.get(session);
+        final Object thisValue = this.checkNotNull(session, "`or'");
+        final Object thatValue = that.checkNotNull(session, "`or'");
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new ConstValue((Boolean)thisValue | (Boolean)thatValue);
 
@@ -386,8 +386,8 @@ public abstract class AbstractValue implements Value {
     public Value xor(ParseSession session, Value that) {
 
         // Handle boolean
-        final Object thisValue = this.get(session);
-        final Object thatValue = that.get(session);
+        final Object thisValue = this.checkNotNull(session, "exclusive `or'");
+        final Object thatValue = that.checkNotNull(session, "exclusive `or'");
         if (thisValue instanceof Boolean && thatValue instanceof Boolean)
             return new ConstValue((Boolean)thisValue ^ (Boolean)thatValue);
 
@@ -420,10 +420,10 @@ public abstract class AbstractValue implements Value {
     @Override
     @SuppressWarnings("unchecked")
     public Value compare(ParseSession session, Value that, int mask) {
-        final Object thisValue = this.get(session);
-        final Object thatValue = that.get(session);
 
         // Try numeric comparison
+        final Object thisValue = this.checkNotNull(session, "comparison");
+        final Object thatValue = that.checkNotNull(session, "comparison");
         while (thisValue instanceof Number && thatValue instanceof Number) {
             final Number lnum = AbstractValue.promoteNumeric(session, thisValue, "comparison", thatValue);
             final Number rnum = AbstractValue.promoteNumeric(session, thatValue, "comparison", thisValue);
