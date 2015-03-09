@@ -15,9 +15,9 @@ Format Version
 
 Recorded Schemas
 
-    +------+------+-------------------+----------------+
-    | 0x00 | 0x01 |   Version Number  |   Schema XML   |
-    +------+------+-------------------+----------------+
+    +------+------+-------------------+---------------------------+
+    | 0x00 | 0x01 |   Version Number  |   Compressed Schema XML   |
+    +------+------+-------------------+---------------------------+
 
 Object Version Index
 
@@ -39,19 +39,19 @@ Object Version Index
 
 ****** COMPLEX FIELDS *******
 
-Set Field
+Set Field Element
 
     +------------+---------------+---------------+
     |  Object ID |   Storage ID  |     Value     |
     +------------+---------------+---------------+
 
-List Field
+List Field Element
 
     +------------+---------------+---------------+    +---------------+
     |  Object ID |   Storage ID  |  List Index   |    |     Value     |
     +------------+---------------+---------------+    +---------------+
 
-Map Field
+Map Field Entry
 
     +------------+---------------+---------------+    +---------------+
     |  Object ID |   Storage ID  |      Key      |    |     Value     |
