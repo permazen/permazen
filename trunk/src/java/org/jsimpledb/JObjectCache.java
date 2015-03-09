@@ -105,8 +105,7 @@ abstract class JObjectCache {
 
         // Get ClassGenerator
         final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
-        final ClassGenerator<?> classGenerator = jclass != null ?
-          jclass.getClassGenerator() : this.jdb.getUntypedClassGenerator();
+        final ClassGenerator<?> classGenerator = jclass != null ? jclass.getClassGenerator() : this.jdb.getUntypedClassGenerator();
 
         // Set up currently instantiating objects map, if not already set up
         HashMap<ObjId, JObject> currentInvocations = this.instantiating.get();
