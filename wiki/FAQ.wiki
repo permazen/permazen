@@ -349,17 +349,17 @@ You can encounter <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/rep
 
 Note that type safety is still preserved in all situations.
 
-==== What if a new schema changes an object reference to have a narrower Java type? Won't then older versions of the class violate type safety by referring to instances of the wider type? ====
+==== What if a new schema changes an object reference to have a narrower Java type? Won't then older versions of the class violate type safety? ====
 
-No, because during a schema upgrade JSimpleDB forcibly eliminates any references that would no longer be valid due to Java type violations.
+No, because during a schema upgrade JSimpleDB automatically eliminates any references that would no longer be valid due to narrowing Java types.
 
-Of course, you have an opportunity to handle the old, invalid references in your <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> method.
+Of course, you have an opportunity to do something with the old, invalid references in your <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> method.
 
 ==== What happens if I change a `float` field to `String`, etc.? ====
 
 JSimpleDB requires a certain amount of consistency between schema versions. In particular, a field cannot have two different types between schema versions. This restriction makes it possible for an index on a field to contain objects from multiple different schema versions.
 
-If you need to change a field's type, instead just add a new field with the new type and remove the old one with the old type, and do the appropriate type transformation in a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> method.
+If you need to change a field's type, instead just add a new field with the new type and remove the old one with the old type, and do the appropriate type transformation in an <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> method.
 
 ==== How would I handle a schema change that splits a class `Vehicle` into `Car` and `Truck`? Or that does the reverse? ====
 
