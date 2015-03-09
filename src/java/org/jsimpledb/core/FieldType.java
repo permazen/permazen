@@ -22,12 +22,12 @@ import org.jsimpledb.util.ByteWriter;
  * <p>
  * A {@link FieldType} maps between instances of its supported Java type and the self-delimited {@code byte[]} encoding of
  * those instances used in the database. The {@code byte[]} encoding also implicitly defines database the sort order
- * (from unsigned lexicographical ordering) which is also reflected via {@link #compare Comparator.compare()}.
+ * (via unsigned lexicographical ordering). This ordering is also reflected via {@link #compare compare()}.
  * </p>
  *
  * <p>
- * A {@link FieldType} also defines a mapping between Java instances and {@link String} values;
- * there are actually two separate {@link String} forms, one of which is self-delimiting.
+ * A {@link FieldType} also defines a mapping between Java instances and {@link String} values.
+ * There are two separate {@link String} forms, a regular form and a self-delimiting form.
  * </p>
  *
  * <p>
@@ -35,7 +35,7 @@ import org.jsimpledb.util.ByteWriter;
  * <ul>
  *  <li>They have a unique {@linkplain #getName name}; typically the same as their {@linkplain #getTypeToken supported type}.</li>
  *  <li>All possible values can be represented in Java as an instance of the associated Java type (possibly including null).</li>
- *  <li>Instances {@linkplain #compare totally order} the Java values. If the associated Java type implements {@link Comparable},
+ *  <li>Instances {@linkplain #compare totally order} their Java values. If the associated Java type implements {@link Comparable},
  *      then the two orderings do not necessarily have to match, but they should if possible.</li>
  *  <li>All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)
  *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,
@@ -43,11 +43,11 @@ import org.jsimpledb.util.ByteWriter;
  *  <li>All possible values can be encoded/decoded to/from {@link String}s without losing information,
  *      with both a {@linkplain #toString(Object) regular string form} for non-null values and a
  *      {@linkplain #toParseableString self-delimiting string form} for any value (these may be the same).</li>
- *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare} and
- *      have binary and string encodings just like any other value. Typically, null sorts last.</li>
- *  <li>There is a {@linkplain #getDefaultValue default value}; it must be null for types that support null.</li>
+ *  <li>{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare compare()} (typically
+ *      null values sort last) and have binary and string encodings just like any other value.</li>
+ *  <li>There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null.</li>
  *  <li>An optional {@linkplain #getEncodingSignature encoding signature} protects against incompatible encodings
- *      when a {@link FieldType}'s binary or string encoding changes without changing the {@linkplain #getName name}</li>
+ *      when a {@link FieldType}'s binary or string encoding changes without changing the {@linkplain #getName name}.</li>
  * </ul>
  *
  * <p>
@@ -217,15 +217,15 @@ public abstract class FieldType<T> implements Comparator<T> {
     }
 
     /**
-     * Parse a non-null value previously encoded by {@link #toString(Object)}.
+     * Parse a non-null value previously encoded by {@link #toString(Object) toString(T)}.
      *
      * <p>
      * The implementation in {@link FieldType} creates a new {@link ParseContext} based on {@code string},
      * delegates to {@link #toParseableString} to parse it, and verifies that all of {@code string} was consumed
-     * during the parse. Subclasses that override this method should also override {@link #toString(Object)}.
+     * during the parse. Subclasses that override this method should also override {@link #toString(Object) toString(T)}.
      * </p>
      *
-     * @param string non-null value previously encoded as a {@link String} by {@link #toString(Object)}
+     * @param string non-null value previously encoded as a {@link String} by {@link #toString(Object) toString(T)}
      * @return actual value
      * @throws IllegalArgumentException if the input is invalid
      */
