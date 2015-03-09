@@ -39,7 +39,7 @@ Although written in Java, there's nothing inherently Java specific about the cor
 
 *JSimpleDB Layer*
 
-The *JSimpleDB* layer sits on top of the core API layer. It provides the developer-friendly, Java-centric view of the core API layer. You normally don't need to deal with the core API layer.
+The *JSimpleDB* layer sits on top of the core API layer. It provides the developer-friendly, Java-centric view of the core API layer. You normally only need to deal with the JSimpleDB layer.
 
 At the JSimpleDB layer, the "schema" is defined by your *Java model classes*; these are identified by the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/JSimpleClass.html">`@JSimpleClass`</a> annotation. To restate that: your set of Java model classes *is* your JSimpleDB schema; there is no separate schema "configuration" required. Under the covers of course, the JSimpleDB layer generates an appropriate core API schema from your model classes and provides this to the core API layer.
 
@@ -51,7 +51,7 @@ First, it allows complete flexibility in your Java model classes, while still pr
 
 Secondly, sometimes you want to inspect or modify data directly, without any "object orientedness", i.e., without the possibility of any Java model class methods being invoked as listeners or whatever. The core API lets you do this.
 
-The JSimpleDB command line interface (CLI) utility supports this notion: it can run in either core API mode or JSimpleDB mode.
+The JSimpleDB command line interface (CLI) utility also supports this notion: it can run in either core API mode or JSimpleDB mode.
 
 == Fields and Types ==
 
@@ -79,7 +79,7 @@ You can also provide custom types annotated with <a href="http://jsimpledb.googl
 
 ==== How are `Enum` values stored? ====
 
-In the core API layer, `Enum` values are represented by (see <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/EnumValue.html">`EnumValue`</a>) objects. In the JSimpleDB layer, they are represented by instances of the appropriate `Enum` Java model class.
+In the core API layer, `Enum` values are represented by <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/EnumValue.html">`EnumValue`</a> objects. In the JSimpleDB layer, they are represented by instances of the appropriate `Enum` Java model class.
 
 At the core layer, two enum types are considered equivalent if and only if they have the same (ordered) identifier list. This means you can move an `Enum` model class to a different package without requiring a schema change. However, if you add or change an `Enum` value, that forces a schema change.
 
@@ -88,6 +88,8 @@ At the core layer, two enum types are considered equivalent if and only if they 
 Lists, Sets, and Maps.
 
 The element, key, and value can have any simple type. In the case of primitive types, null values will be disallowed.
+
+Lists have performance characteristics similar to `ArrayList`.
 
 == Querying Data ==
 
@@ -99,12 +101,17 @@ No. All queries are done using normal Java.
 
 No.
 
-For a few operations such as creating a new instance and querying an index you invoke methods on the current <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a>.
+For a few operations such as creating a new instance and querying an index, you invoke methods on the current <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a>.
 
-Everything can be normal Java, and all access methods can be either instance or static methods in your Java model classes.
+Everything else can be normal Java, and all access methods can be either instance or static methods in your Java model classes.
 
-Here's an example of what a simple Java model with `Account` and `User` model classes might look like, including all the "DAO" methods you would need:
+Let's take a simple example Java model with `Account` and `User` model classes. We have these requirements:
+ * Every user must have an account
+ * Usernames must be unique
+ * We can efficiently find users by username
+ * We can efficiently find all users associated with an account
 
+Here's an what those classes might look like, including all the "DAO" methods you would need:
 <code language="java">
 @JSimpleClass
 public abstract class User implements JObject {
@@ -124,15 +131,10 @@ public abstract class User implements JObject {
  
 // "DAO" methods
  
-    // Get all users
-    public static NavigableSet<User> getAll() {
-        return JTransaction.getCurrent().getAll(User.class);
-    }
- 
     // Find user by username
     public static User getByUsername(String username) {
         final NavigableSet<User> users = JTransaction.getCurrent().queryIndex(
-            String.class, "username", User.class).get(username);
+          String.class, "username", User.class).get(username);
         return users != null ? users.iterator().next() : null;
     }
 }
@@ -147,13 +149,13 @@ public abstract class Account implements JObject {
     public abstract String getName();
     public abstract void setName(String name);
  
+// "DAO" methods
+ 
     // Get all users associated with this account
     public NavigableSet<User> getUsers() {
         return this.getTransaction().queryIndex(
           User.class, "account", Account.class).asMap().get(this);
     }
- 
-// "DAO" methods
   
     // Get all accounts
     public static NavigableSet<User> getAll() {
@@ -193,6 +195,14 @@ public abstract class User implements JObject {
     public abstract String getUsername();
     public abstract void setUsername(String username);
  
+// "DAO" methods
+ 
+    // Find users by lowercase username
+    public static NavigableSet<User> getByLowercaseUsername(String lowercaseUsername) {
+        return JTransaction.getCurrent().queryIndex(
+          String.class, "lowercaseUsername", User.class).get(lowercaseUsername);
+    }
+ 
 // Derived fields
    
     // Get this user's lower case username - automatically kept in sync
@@ -213,9 +223,9 @@ Yes and yes.
 
 ==== How do I do database joins? ====
 
-Instead of thinking in terms dictated by the database technology, JSimpleDB lets you think in more natural terms of sets, specifically <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/util/NavigableSets.html">`NavigableSets`</a>.
+Instead of thinking in terms dictated by the database technology, JSimpleDB lets you think in more natural terms of sets, specifically <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html">`NavigableSet`</a>s, which provide efficient range queries, reverse ordering, etc.
 
-JSimpleDB provides efficient union, intersection, and difference implementations. These provide the functionality of database joins.
+JSimpleDB also provides efficient union, intersection, and difference implementations (see <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/util/NavigableSets.html">`NavigableSets`</a>). These operations provide the functionality of database joins.
 
 == Indexes ==
 
@@ -256,10 +266,11 @@ Currently the following key/value stores are supported:
 Several other popular NoSQL databases are not compatible because of one or more of the following:
  * Keys are not sorted (instead, only hashed)
  * Keys have limited length (e.g., at most 64 or 128 bits)
+ * ACID semantics not provided
 
-==== Why does JSimpleDB require serializable semantics? ====
+==== Why does JSimpleDB require serializable ACID semantics? ====
 
-The philosophy behind JSimpleDB states that simplicity promotes solid, reliable, maintainable code. In particular, if the code is too complicated, it becomes unfeasible for developers to prove to themselves that the code is fully correct -- and of course if the developers can't ensure the code is fully correct, it won't magically become fully correct by itself. Stated another way, when the goal is bug-free code, "complexity kills".
+The philosophy behind JSimpleDB states that simplicity promotes solid, reliable, maintainable code. In particular, if the code is too complicated, it becomes unfeasible for developers to prove to themselves that the code is fully correct -- and of course if the developers can't ensure the code is fully correct, it won't magically become fully correct by itself. Stated another way, "complexity kills".
 
 A persistence technology that doesn't provide consistent, ACID-compliant transactions is just too difficult for programmers to reason about. In addition, recently there has been a change in the traditional belief that you can't have both ACID compliance and scalability: Google's Spanner database and FoundationDB are [http://highscalability.com/blog/2012/9/24/google-spanners-most-surprising-revelation-nosql-is-out-and.html proving this assumption wrong] (see also [http://blog.foundationdb.com/7-things-that-make-google-f1-and-the-foundationdb-sql-layer-so-strikingly-similar this] and [http://blog.foundationdb.com/databases-at-14.4mhz this]).
 
@@ -313,8 +324,8 @@ If you will have multiple versions of your code writing to the same database, th
  * Upgrade nodes to understand both the old and new schema versions, but continue using the old schema
  * Upgrade nodes to start using using the new schema
  * (Optional) Force upgrade all remaining database objects, e.g., use CLI command: `eval foreach(all(), $x, $x.upgrade())`
- * (Optional) Remove support for the old schema version in your code
  * (Optional) Garbage collect the old schema version from your database meta-data, e.g., use CLI command: `delete-schema-version 3`
+ * (Optional) Remove support for the old schema version in your code
 
 This process allows for rolling schema upgrades across multiple nodes with no downtime.
 
@@ -327,9 +338,11 @@ The core API layer records all of the schemas ever used in a database in the dat
 Objects created by older schema versions whose model class no longer exists will have type <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/UntypedJObject.html">`UntypedJObject`</a>. If needed, you can access their fields using the field introspection methods of the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JTransaction.html">`JTransaction`</a> class. Typically, however, deleting a Java model class means you don't need or want the data anymore.
 
 You can encounter <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/UntypedJObject.html">`UntypedJObject`</a> instances in the following two situations:
- * As the value of a removed field in an <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> schema update callback method
+ * As the value of a removed field in an <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> schema update callback method when:
+   * The older version contained the model class; and
+   * The newer version does not
  * In index query results, when:
-   * The indexed field is contained by the removed type; and
+   * The older version contained the indexed field in a model class that was removed; and
    * <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/UntypedJObject.html">`UntypedJObject`</a> is assignable to the Java type requested by the query (e.g., you request all objects in the index of type `Object`).
 
 Note that type safety is still preserved in all situations.
@@ -338,7 +351,7 @@ Note that type safety is still preserved in all situations.
 
 No, because during a schema upgrade JSimpleDB forcibly eliminates any references that would no longer be valid due to Java type violations.
 
-However, you have an opportunity to handle the old, invalid references in your <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> method.
+Of course, you have an opportunity to handle the old, invalid references in your <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> method.
 
 ==== How would I handle a schema change that splits a class `Vehicle` into `Car` and `Truck`? Or that does the reverse? ====
 
@@ -346,13 +359,13 @@ These types of schema changes are tricky for any Java persistence framework. For
 
 The easiest way to handle this scenario is to upgrade in two steps. In the first phase, all three classes exist (in the obvious inheritance arrangement), and your code knows how to handle all three. During this phase, a custom background upgrade thread iterates through every instance, deciding what to do with it, updating or replacing it as necessary. In the second phase, all objects have been transitioned to the new classes, so the old class(es) are no longer needed and can be removed.
 
-==== What if my schema change requires replacing instances of one class with instances of a different class? Is there a way to update any references to the replaced instances to refer to the new instance? ====
+==== What if my schema change requires replacing instances of one class with instances of a different class? How do I update incoming references? ====
 
-Yes. In JSimpleDB all reference fields are indexed, so you can simply query the index for each reference field that refers to the instance you are replacing, and then update those references.
+In JSimpleDB all reference fields are indexed, so you can simply query the index for each reference field that refers to the instance you are replacing, and then update those references.
 
 ==== What if model class A contains a reference to model class B, and then a schema change deletes class B? ====
 
-Then the reference in class A will also have to change, otherwise your code won't compile, or schema generation will fail because class B isn't a model class.
+Then the Java type of the reference in class A will also have to change, otherwise your code won't compile, or schema generation will fail because class B isn't a model class.
 
 ==== When and how do objects get upgraded to a newer schema version? ====
 
@@ -366,11 +379,15 @@ From the CLI, you can upgrade every object by invoking `eval foreach(all(), $x, 
 
 ==== How exactly does JSimpleDB prevent me from reading or writing a field incompatibly? ====
 
+Fields are expliclitly typed; each type has an associated <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/FieldType.html">`FieldType`</a> implementation.
+
 ==== Will my database get cluttered up with old schema versions from years gone by? ====
 
 You can use the CLI command `delete-schema-version` to remove a recorded schema version from the database.
 
-This operation will fail if any objects with that version still exist - you must delete or upgrade them first.
+This operation will fail if any objects with that version still exist - you must upgrade (or delete) them first, e.g., using the CLI command `eval foreach(all(), $x, $x.upgrade())`
+
+For simplicity, it is recommended to always upgrade objects after a schema change, so your <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/annotation/OnVersionChange.html">`@OnVersionChange`</a> methods only have to deal with one version change at a time.
 
 ==== How can I tell what schema versions are in use by objects in my database? ====
 
@@ -384,8 +401,7 @@ Simply declare a new schema version and add <a href="http://jsimpledb.googlecode
 
 ==== How do I "declare a new schema version"? ===
 
-When you configure a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JSimpleDB.html">`JSimpleDB`</a> instance, you must supply your Java model classes and specify the schema version explicitly.
+The schema version must be provided explicitly when you configure a <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JSimpleDB.html">`JSimpleDB`</a> instance.
 
-You also have to give JSimpleDB permission to record a new schema version (this is just an extra safety check); this boolean parameter is supplied each time you create a new JSimpleDB transaction.
-
+In addition, you need to give JSimpleDB permission to record a new schema version in the database (this is just an extra safety check). The `allowNewSchema` boolean parameter is supplied each time you create a new JSimpleDB transaction.
 
