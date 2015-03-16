@@ -22,6 +22,9 @@ MEDIUM TERM
 - Add KVStore support for:
     - Google Cloud Datastore
         - https://cloud.google.com/datastore/docs/concepts/overview
+    - LevelDB (Java port)
+        - https://github.com/fusesource/leveldbjni
+        - Requires manual transaction locking for > snapshot isolation
 
 LONG TERM
 =========
