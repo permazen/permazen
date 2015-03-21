@@ -153,12 +153,13 @@ public abstract class Account implements JObject {
  
     // Get all users associated with this account
     public NavigableSet<User> getUsers() {
-        return this.getTransaction().queryIndex(
+        final NavigableSet<User> users = this.getTransaction().queryIndex(
           User.class, "account", Account.class).asMap().get(this);
+        return users != null ? users : NavigableSets.<User>empty();
     }
   
     // Get all accounts
-    public static NavigableSet<User> getAll() {
+    public static NavigableSet<Account> getAll() {
         return JTransaction.getCurrent().getAll(Account.class);
     }
 }</code>
