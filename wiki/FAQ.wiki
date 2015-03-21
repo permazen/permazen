@@ -25,17 +25,17 @@ The JSimpleDB layer is what Java programmers normally deal with. The JSimpleDB l
 
 *Core API Layer*
 
-The core API layer provides concepts roughly analogous to the usual table, column, and row storage concepts, but instead calls those concepts *object type*, *field*, and *object*, respectively. However, this analogy is loose and there are some subtle but important differences. For example, two different object types can contain the same field. This allows you, for example, to index a field across multiple object types.
+The core API layer provides concepts roughly analogous to the usual table, column, and row storage concepts, but instead calls those concepts *object type*, *field*, and *object*, respectively. However, this analogy is loose and there are some subtle but important differences. For example, two different object types can contain the same field. This allows you, for example, to index a field across multiple object types - even if neither of those object types is a superclass of the other. For example, you can index a field corresponding Java interface bean property.
 
-All core API fields have a strictly well-defined type, sort ordering, and serialized encoding (see <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/FieldType.html">`FieldType`</a>). The core API includes built-in support for a few special field types, including reference types (i.e., "pointers"), identifier list "enum" types, lock-free counter types, and user-defined types.
+All core API fields have a strictly well-defined type, sort ordering, and serialized encoding (see <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/core/FieldType.html">`FieldType`</a>). The core API includes built-in support for a few special field types, including reference types (i.e., "pointers"), identifier list "enum" types, lock-free counter types. The core API also supports user-defined types.
 
 In addition to the atomic *simple* field types just mentioned, the core API layer also provides support for list, set, and map *complex* field types. Indexes on both simple and complex fields are supported, and composite indexes on multiple simple fields are supported.
 
-The set of all object types and their fields defines a *schema*. The core API allows multiple different schemas to exist at the same time in the same database; each schema has a unique integer *version*. As a consequence, all objects in the database are versioned. As an object type evolves over time, different schema versions may have different sets of fields in that object type.
+The set of all object types and their fields defines a *schema*. The core API allows multiple different schemas to exist at the same time in the same database; each schema has a unique integer *version*. As a consequence, all objects in the database are versioned. An object type may different fields in different schema versions.
 
-All core API layer object types, fields, and indexes are identified by an integer *storage ID*, not by name. This allows names to change at a higher level without affecting the core API schema structure.
+All core API layer stored types (objects, fields, indexes, etc.) are identified by an integer *storage ID*, not by name. This allows names to change at a higher level without affecting the core API schema structure.
 
-Although written in Java, there's nothing inherently Java specific about the core API layer. The "objects" in the core API layer are just data structures: there is no notion of class, inheritance, or methods.
+Although written in Java, there's nothing inherently Java specific about the core API layer. The "objects" in the core API layer are just data structures: there is no explicit notion of class, inheritance, or methods.
 
 *JSimpleDB Layer*
 
@@ -47,7 +47,7 @@ The JSimpleDB layer also does any necessary translation of core API values. For 
 
 ==== Why is the core API layer / JSimpleDB layer split important? ====
 
-First, it allows complete flexibility in your Java model classes, while still providing a well-defined semantics and strict type safety, even in the face of arbitrary refactoring.
+First, it allows complete flexibility in your Java model classes, while still providing well-defined semantics, strict type safety, and easy version migration, even in the face of arbitrary code refactoring (no small feat).
 
 Secondly, sometimes you want to inspect or modify data directly, without any "object orientedness", i.e., without the possibility of any Java model class methods being invoked as listeners or whatever. The core API lets you do this.
 
