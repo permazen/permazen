@@ -131,6 +131,11 @@ public abstract class User implements JObject {
  
 // "DAO" methods
  
+    // Create new user
+    public static User create() {
+        return JTransaction.getCurrent().create(User.class);
+    }
+ 
     // Find user by username
     public static User getByUsername(String username) {
         final NavigableSet<User> users = JTransaction.getCurrent().queryIndex(
@@ -150,6 +155,11 @@ public abstract class Account implements JObject {
     public abstract void setName(String name);
  
 // "DAO" methods
+ 
+    // Create new account
+    public static Account create() {
+        return JTransaction.getCurrent().create(Account.class);
+    }
  
     // Get all users associated with this account
     public NavigableSet<User> getUsers() {
