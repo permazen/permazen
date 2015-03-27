@@ -886,6 +886,7 @@ public class Transaction {
      * @param source object ID of the source object in this transaction
      * @param target object ID of the target object in {@code dest}
      * @param dest destination transaction containing {@code target} (possibly same as this transaction)
+     * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
      * @throws UnknownTypeException if {@code source} or {@code target} specifies an unknown object type
@@ -896,8 +897,10 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws SchemaMismatchException if the schema version associated with {@code source} differs between
      *  this transaction and {@code dest}
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
      */
-    public synchronized boolean copy(ObjId source, final ObjId target, final Transaction dest) {
+    public synchronized boolean copy(ObjId source, final ObjId target, final Transaction dest, final boolean updateVersion) {
 
         // Sanity check
         if (source == null)
@@ -914,7 +917,7 @@ public class Transaction {
             return false;
 
         // Get object info
-        final ObjInfo srcInfo = this.getObjectInfo(source, true);
+        final ObjInfo srcInfo = this.getObjectInfo(source, updateVersion);
 
         // Do the copy while both transactions are locked
         synchronized (dest) {
@@ -929,14 +932,14 @@ public class Transaction {
             return dest.mutateAndNotify(new Mutation<Boolean>() {
                 @Override
                 public Boolean mutate() {
-                    return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest);
+                    return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest, updateVersion);
                 }
             });
         }
     }
 
     // This method assumes both transactions are locked
-    private static boolean doCopyFields(ObjInfo srcInfo, ObjId dstId, Transaction srcTx, Transaction dstTx) {
+    private static boolean doCopyFields(ObjInfo srcInfo, ObjId dstId, Transaction srcTx, Transaction dstTx, boolean updateVersion) {
 
         // Sanity check
         final ObjId srcId = srcInfo.getId();
@@ -947,6 +950,12 @@ public class Transaction {
         if (srcId.getStorageId() != dstId.getStorageId()) {
             throw new IllegalArgumentException("can't copy " + srcId + " to " + dstId
               + " due to non-equal object types (" + srcId.getStorageId() + " != " + dstId.getStorageId() + ")");
+        }
+
+        // Upgrade source object if necessary
+        if (updateVersion && srcInfo.getVersion() != srcTx.schema.versionNumber) {
+            srcTx.updateVersion(srcInfo, srcTx.schema);
+            srcInfo = new ObjInfo(srcTx, srcId);
         }
 
         // Find and verify source object's schema version in destination transaction
@@ -1169,6 +1178,7 @@ public class Transaction {
         final int newVersion = targetVersion.versionNumber;
 
         // Sanity check
+        assert this.schemas.getVersion(targetVersion.versionNumber) == targetVersion;
         if (newVersion == oldVersion)
             throw new IllegalArgumentException("object already at version " + newVersion);
         if (this.readOnly)

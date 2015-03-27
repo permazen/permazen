@@ -559,8 +559,10 @@ public class JTransaction {
 
     /**
      * Copy the objects in the specified {@link Iterable} into the specified destination transaction.
-     * If a target object already exists, it's schema version will be updated to match the source object if necessary,
-     * otherwise it will be created.
+     *
+     * <p>
+     * This instance will first be {@link JObject#upgrade}ed if necessary. If a target object already exists,
+     * it's schema version will be updated to match the source object if necessary, otherwise it will be created.
      * {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly
@@ -631,10 +633,10 @@ public class JTransaction {
 
     void copyTo(CopyState copyState, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, int fieldIndex, int[] fields) {
 
-        // Copy current instance unless already copied
+        // Copy current instance unless already copied, upgrading it in the process
         if (copyState.markCopied(dstId)) {
             try {
-                this.tx.copy(srcId, dstId, dest.tx);
+                this.tx.copy(srcId, dstId, dest.tx, true);
             } catch (DeletedObjectException e) {
                 if (required)
                     throw e;
