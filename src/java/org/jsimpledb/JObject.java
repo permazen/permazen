@@ -170,7 +170,7 @@ public interface JObject {
      * This method will copy this object's fields into the object with ID {@code target} (or this instance's object ID if
      * {@code target} is null) in the {@code dest} transaction, overwriting any previous values there, along with all other
      * objects reachable from this instance through any of the specified {@linkplain ReferencePath reference paths} (including
-     * intermediate objects visited).
+     * intermediate objects visited). This instance will first be {@link #upgrade}ed if necessary.
      * If {@code target} (or any other referenced object) already exists in {@code dest}, it will have its schema version
      * updated first, if necessary, otherwise it will be created.
      * Any {@link org.jsimpledb.annotation.OnCreate &#64;OnVersionChange}, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate},
@@ -234,7 +234,7 @@ public interface JObject {
      * This method will copy this object and all of its fields, along with all other objects reachable through
      * any of the specified {@linkplain ReferencePath reference paths} into the {@link SnapshotJTransaction}
      * {@linkplain JTransaction#getSnapshotTransaction corresponding} to this instance's associated transaction
-     * (including intermediate objects visited).
+     * (including intermediate objects visited). This instance will first be {@link #upgrade}ed if necessary.
      * If any object already exists there, it will be overwritten, otherwise it will be created.
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
      * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.
