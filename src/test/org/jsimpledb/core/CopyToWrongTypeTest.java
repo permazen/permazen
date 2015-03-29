@@ -46,7 +46,7 @@ public class CopyToWrongTypeTest extends TestSupport {
         tx.writeSimpleField(bar, 4, UUID.randomUUID(), false);
 
         try {
-            tx.copy(bar, foo, tx);
+            tx.copy(bar, foo, tx, false);
             assert false : "copied foo to bar!";
         } catch (IllegalArgumentException e) {
             // expected

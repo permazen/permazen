@@ -93,7 +93,7 @@ public class SnapshotTest extends TestSupport {
     // Snapshot
 
         // Copy id1
-        Assert.assertTrue(tx1.copy(id1, id1, tx2));
+        Assert.assertTrue(tx1.copy(id1, id1, tx2, false));
 
         // Verify copy
         Assert.assertTrue(tx2.exists(id1));
@@ -114,11 +114,11 @@ public class SnapshotTest extends TestSupport {
         TestSupport.checkMap(tx2.queryIndex(10).asMap(), buildMap("foo", buildSet(id1), "bar", buildSet(id1)));
 
         // Copy id2 and id3
-        Assert.assertTrue(tx1.copy(id2, id2, tx2));
-        Assert.assertTrue(tx1.copy(id3, id3, tx2));
+        Assert.assertTrue(tx1.copy(id2, id2, tx2, false));
+        Assert.assertTrue(tx1.copy(id3, id3, tx2, false));
 
         // Verify non-copy of id1 - already copied
-        Assert.assertFalse(tx1.copy(id1, id1, tx2));
+        Assert.assertFalse(tx1.copy(id1, id1, tx2, false));
 
         // Check fields
         TestSupport.checkSet(tx2.getAll(1), buildSet(id1, id2, id3));
@@ -136,7 +136,7 @@ public class SnapshotTest extends TestSupport {
         // Change id1 and then overwrite copy
         tx1.writeSimpleField(id1, 2, 456.78f, true);
         tx1.readSetField(id1, 4, true).clear();
-        Assert.assertFalse(tx1.copy(id1, id1, tx2));
+        Assert.assertFalse(tx1.copy(id1, id1, tx2, false));
         Assert.assertEquals(tx2.readSimpleField(id1, 2, true), 456.78f);
         Assert.assertTrue(tx2.readSetField(id1, 4, true).isEmpty());
 
@@ -181,7 +181,7 @@ public class SnapshotTest extends TestSupport {
         final ObjId id1 = tx1.create(1);
 
         try {
-            tx1.copy(id1, id1, tx2);
+            tx1.copy(id1, id1, tx2, false);
             assert false;
         } catch (SchemaMismatchException e) {
             // expected
@@ -190,7 +190,7 @@ public class SnapshotTest extends TestSupport {
         tx1.delete(id1);
 
         try {
-            tx1.copy(id1, new ObjId(1), tx2);
+            tx1.copy(id1, new ObjId(1), tx2, false);
             assert false;
         } catch (DeletedObjectException e) {
             // expected
@@ -216,12 +216,12 @@ public class SnapshotTest extends TestSupport {
         Transaction tx1 = db1.createTransaction(schema1, 1, true);
 
         final ObjId id1 = tx1.create(1);
-        Assert.assertFalse(tx1.copy(id1, id1, tx1));
+        Assert.assertFalse(tx1.copy(id1, id1, tx1, false));
 
         tx1.writeSimpleField(id1, 7, 1234, false);
         tx1.writeSimpleField(id1, 8, id1, false);
         final ObjId id2 = new ObjId(1);
-        Assert.assertTrue(tx1.copy(id1, id2, tx1));
+        Assert.assertTrue(tx1.copy(id1, id2, tx1, false));
         Assert.assertEquals(tx1.readSimpleField(id2, 7, false), 1234);
         Assert.assertEquals(tx1.readSimpleField(id2, 8, false), id1);
     }
