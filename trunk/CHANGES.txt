@@ -1,3 +1,7 @@
+Version Next
+
+    - Added PrefixKVDatabase
+
 Version 1.1.838 Released March 7, 2015
 
     - Fixed bug in copyTo() not following reference path(s)
