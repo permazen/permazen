@@ -40,11 +40,11 @@ public class PrefixKVDatabase implements KVDatabase {
     }
 
     /**
-     * Get the underlying {@link KVDatabase} associated with this instance.
+     * Get the containing {@link KVDatabase} associated with this instance.
      *
      * @return the containing {@link KVDatabase}
      */
-    public KVDatabase getKVDatabase() {
+    public KVDatabase getContainingKVDatabase() {
         return this.db;
     }
 
