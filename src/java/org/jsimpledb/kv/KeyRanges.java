@@ -92,7 +92,7 @@ public class KeyRanges implements KeyFilter {
     /**
      * Constructor for an instance containing a single range.
      *
-     * @param min minimum key (inclusive), or null for no minimum
+     * @param min minimum key (inclusive); must not be null
      * @param max maximum key (exclusive), or null for no maximum
      * @throws IllegalArgumentException if {@code min > max}
      */
@@ -147,8 +147,7 @@ public class KeyRanges implements KeyFilter {
     /**
      * Get the minimum key contained by this instance (inclusive).
      *
-     * @return minimum key contained by this instance (inclusive),
-     *  or null if there is no lower bound, or this instance {@link #isEmpty}
+     * @return minimum key contained by this instance (inclusive), or null if this instance {@link #isEmpty}
      */
     public byte[] getMin() {
         return !this.ranges.isEmpty() ? this.ranges.get(0).getMin() : null;
@@ -193,21 +192,20 @@ public class KeyRanges implements KeyFilter {
         final KeyRange first = this.ranges.get(0);
         int i = 0;
         byte[] lastMax;
-        if (first.getMin() == null) {
+        if (first.getMin().length == 0) {
             if ((lastMax = first.getMax()) == null) {
                 assert this.ranges.size() == 1;
                 return KeyRanges.EMPTY;
             }
             i++;
         } else
-            lastMax = null;
+            lastMax = ByteUtil.EMPTY;
         while (true) {
             if (i == this.ranges.size()) {
                 list.add(new KeyRange(lastMax, null));
                 break;
             }
             final KeyRange next = this.ranges.get(i++);
-            assert next.getMin() != null;
             list.add(new KeyRange(lastMax, next.getMin()));
             if ((lastMax = next.getMax()) == null) {
                 assert i == this.ranges.size();
@@ -400,24 +398,12 @@ public class KeyRanges implements KeyFilter {
     //  - Adjacent ranges consolidated into a single range
     private static ArrayList<KeyRange> minimize(List<KeyRange> ranges) {
 
-        // For consistency, replace all lower bounds of [] with null (same thing)
+        // Create array
         final ArrayList<KeyRange> sortedRanges = new ArrayList<>(ranges);
-        for (int i = 0; i < sortedRanges.size(); i++) {
-            final KeyRange range = sortedRanges.get(i);
-            final byte[] min = range.getMin();
-            if (min != null && min.length == 0)
-                sortedRanges.set(i, new KeyRange(null, range.getMax()));
-        }
 
         // Remove empty ranges
         for (Iterator<KeyRange> i = sortedRanges.iterator(); i.hasNext(); ) {
-            final KeyRange range = i.next();
-            final byte[] min = range.getMin();
-            final byte[] max = range.getMax();
-            if (max == null)                                        // { x, null } never empty
-                continue;
-            if ((min == null && max.length == 0)                    // { null, [] } is empty (special case)
-              || (min != null && ByteUtil.compare(min, max) == 0))  // { x, x } is empty
+            if (i.next().isEmpty())
                 i.remove();
         }
 
@@ -440,17 +426,16 @@ public class KeyRanges implements KeyFilter {
             }
 
             // Compare to previous range
-            final int diff1 = KeyRange.compare(range.getMin(), KeyRange.MIN, prev.getMin(), KeyRange.MIN);
+            final int diff1 = KeyRange.compare(range.getMin(), prev.getMin());
             assert diff1 >= 0;
             if (diff1 == 0) {                           // range contains prev -> discard prev
                 assert range.contains(prev);
                 prev = range;
                 continue;
             }
-            final int diff2 = KeyRange.compare(range.getMin(), KeyRange.MIN, prev.getMax(), KeyRange.MAX);
+            final int diff2 = KeyRange.compare(range.getMin(), prev.getMax());
             if (diff2 <= 0) {                           // prev and range overlap -> take their union
-                final byte[] max = KeyRange.compare(range.getMax(), KeyRange.MAX, prev.getMax(), KeyRange.MAX) > 0 ?
-                  range.getMax() : prev.getMax();
+                final byte[] max = KeyRange.compare(range.getMax(), prev.getMax()) > 0 ? range.getMax() : prev.getMax();
                 prev = new KeyRange(prev.getMin(), max);
                 continue;
             }

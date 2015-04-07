@@ -218,7 +218,7 @@ public class KVPairIterator implements Iterator<KVPair> {
                     targetKey = maxKey;
             } else {
                 final byte[] minKey = this.keyRange.getMin();
-                if (minKey != null && (targetKey == null || ByteUtil.compare(targetKey, minKey) < 0))
+                if (targetKey == null || ByteUtil.compare(targetKey, minKey) < 0)
                     targetKey = minKey;
             }
         }

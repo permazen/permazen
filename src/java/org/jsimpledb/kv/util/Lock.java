@@ -27,7 +27,7 @@ class Lock extends KeyRange {
     public static final Comparator<Lock> MIN_COMPARATOR = new Comparator<Lock>() {
         @Override
         public int compare(Lock lock1, Lock lock2) {
-            int diff = KeyRange.compare(lock1.min, KeyRange.MIN, lock2.min, KeyRange.MIN);
+            int diff = KeyRange.compare(lock1.min, lock2.min);
             if (diff != 0)
                 return diff;
             diff = Boolean.compare(lock1.write, lock2.write);
@@ -44,7 +44,7 @@ class Lock extends KeyRange {
     public static final Comparator<Lock> MAX_COMPARATOR = new Comparator<Lock>() {
         @Override
         public int compare(Lock lock1, Lock lock2) {
-            int diff = KeyRange.compare(lock1.max, KeyRange.MAX, lock2.max, KeyRange.MAX);
+            int diff = KeyRange.compare(lock1.max, lock2.max);
             if (diff != 0)
                 return diff;
             diff = Boolean.compare(lock1.write, lock2.write);
@@ -62,9 +62,10 @@ class Lock extends KeyRange {
     /**
      * Constructor. The current thread becomes the implicit {@linkplain #getOwner owner} of the lock.
      *
-     * @param min min key, or null for no minimum
+     * @param min min key; must not be null
      * @param max max key, or null for no maximum
      * @param write true for write lock, false for read lock
+     * @throws IllegalArgumentException if {@code min} is null
      * @throws IllegalArgumentException if {@code owner} is null
      * @throws IllegalArgumentException if {@code min > max}
      */
@@ -136,8 +137,7 @@ class Lock extends KeyRange {
             return null;
 
         // Union must be contiguous (i.e., the intervals must overlap or "touch" adjacently)
-        if (KeyRange.compare(this.min, KeyRange.MIN, that.max, KeyRange.MAX) > 0
-          || KeyRange.compare(that.min, KeyRange.MIN, this.max, KeyRange.MAX) > 0)
+        if (KeyRange.compare(this.min, that.max) > 0 || KeyRange.compare(that.min, this.max) > 0)
             return null;
 
         // If not the same r/w type, the write lock must contain the read lock, otherwise we could conflict with a co-reader
@@ -147,8 +147,8 @@ class Lock extends KeyRange {
         }
 
         // Merge locks
-        final byte[] newMin = KeyRange.compare(this.min, KeyRange.MIN, that.min, KeyRange.MIN) < 0 ? this.min : that.min;
-        final byte[] newMax = KeyRange.compare(this.max, KeyRange.MAX, that.max, KeyRange.MAX) > 0 ? this.max : that.max;
+        final byte[] newMin = KeyRange.compare(this.min, that.min) < 0 ? this.min : that.min;
+        final byte[] newMax = KeyRange.compare(this.max, that.max) > 0 ? this.max : that.max;
         return new Lock(this.owner, newMin, newMax, this.write || that.write);
     }
 
