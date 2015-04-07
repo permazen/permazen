@@ -45,5 +45,14 @@ public class KeyRangeTest extends TestSupport {
         Assert.assertEquals(kr2.getMin(), new byte[] { 0x30 });
         Assert.assertEquals(kr2.getMax(), new byte[] { 0x31 });
     }
+
+    @Test
+    public void testPrefix4() {
+        final KeyRange kr1 = new KeyRange(new byte[0], null);
+        Assert.assertEquals(kr1.prefixedBy(new byte[0]), kr1);
+        final KeyRange kr2 = kr1.prefixedBy(new byte[] { (byte)0xff });
+        Assert.assertEquals(kr2.getMin(), new byte[] { (byte)0xff });
+        Assert.assertNull(kr2.getMax());
+    }
 }
 
