@@ -57,7 +57,7 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
 
 // Note: locking order: (1) BerkeleyKVTransaction, (2) BerkeleyKVDatabase
 
-    private static final byte[] MIN_KEY = new byte[0];                      // minimum possible key (inclusive)
+    private static final byte[] MIN_KEY = ByteUtil.EMPTY;                   // minimum possible key (inclusive)
     private static final byte[] MAX_KEY = new byte[] { (byte)0xff };        // maximum possible key (exclusive)
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
