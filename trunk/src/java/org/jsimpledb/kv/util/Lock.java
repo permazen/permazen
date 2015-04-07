@@ -136,8 +136,8 @@ class Lock extends KeyRange {
             return null;
 
         // Union must be contiguous (i.e., the intervals must overlap or "touch" adjacently)
-        if (Lock.compare(this.min, KeyRange.MIN, that.max, KeyRange.MAX) > 0
-          || Lock.compare(that.min, KeyRange.MIN, this.max, KeyRange.MAX) > 0)
+        if (KeyRange.compare(this.min, KeyRange.MIN, that.max, KeyRange.MAX) > 0
+          || KeyRange.compare(that.min, KeyRange.MIN, this.max, KeyRange.MAX) > 0)
             return null;
 
         // If not the same r/w type, the write lock must contain the read lock, otherwise we could conflict with a co-reader
@@ -147,8 +147,8 @@ class Lock extends KeyRange {
         }
 
         // Merge locks
-        final byte[] newMin = Lock.compare(this.min, KeyRange.MIN, that.min, KeyRange.MIN) < 0 ? this.min : that.min;
-        final byte[] newMax = Lock.compare(this.max, KeyRange.MAX, that.max, KeyRange.MAX) > 0 ? this.max : that.max;
+        final byte[] newMin = KeyRange.compare(this.min, KeyRange.MIN, that.min, KeyRange.MIN) < 0 ? this.min : that.min;
+        final byte[] newMax = KeyRange.compare(this.max, KeyRange.MAX, that.max, KeyRange.MAX) > 0 ? this.max : that.max;
         return new Lock(this.owner, newMin, newMax, this.write || that.write);
     }
 
