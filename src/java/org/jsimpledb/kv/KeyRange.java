@@ -223,7 +223,16 @@ public class KeyRange {
         if (prefix == null)
             throw new IllegalArgumentException("null prefix");
         final byte[] prefixedMin = this.min != null ? Bytes.concat(prefix, this.min) : prefix;
-        final byte[] prefixedMax = this.max != null ? Bytes.concat(prefix, this.max) : ByteUtil.getNextKey(prefix);
+        /*final*/ byte[] prefixedMax;
+        if (this.max != null)
+            prefixedMax = Bytes.concat(prefix, this.max);
+        else {
+            try {
+                prefixedMax = ByteUtil.getKeyAfterPrefix(prefix);
+            } catch (IllegalArgumentException e) {
+                prefixedMax = null;
+            }
+        }
         return new KeyRange(prefixedMin, prefixedMax);
     }
 
