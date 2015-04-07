@@ -35,7 +35,7 @@ import org.jsimpledb.util.ByteWriter;
  */
 public class FoundationKVTransaction implements KVTransaction {
 
-    private static final byte[] MIN_KEY = new byte[0];                      // minimum possible key (inclusive)
+    private static final byte[] MIN_KEY = ByteUtil.EMPTY;                   // minimum possible key (inclusive)
     private static final byte[] MAX_KEY = new byte[] { (byte)0xff };        // maximum possible key (exclusive)
 
     private final FoundationKVDatabase store;

@@ -106,7 +106,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
                 throw new XMLStreamException("invalid hexadecimal key", reader.getLocation(), e);
             }
             if (!this.expect(reader, true, VALUE_TAG)) {
-                this.kv.put(key, new byte[0]);
+                this.kv.put(key, ByteUtil.EMPTY);
                 continue;                           // closing </entry> tag alread read
             }
             byte[] value;
