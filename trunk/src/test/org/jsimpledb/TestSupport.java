@@ -303,9 +303,12 @@ public abstract class TestSupport {
     }
 
     protected KeyRange randomKeyRange() {
-        final byte[] b1 = this.randomBytes(true);
-        final byte[] b2 = this.randomBytes(true);
-        return b1 == null || b2 == null || ByteUtil.compare(b1, b2) <= 0 ? new KeyRange(b1, b2) : new KeyRange(b2, b1);
+        while (true) {
+            final byte[] b1 = this.randomBytes(false);
+            final byte[] b2 = this.randomBytes(true);
+            if (b2 == null || ByteUtil.compare(b1, b2) <= 0)
+                return new KeyRange(b1, b2);
+        }
     }
 
     protected byte[] randomBytes(boolean allowNull) {
@@ -317,7 +320,7 @@ public abstract class TestSupport {
     }
 
     protected static KeyRange kr(String min, String max) {
-        return new KeyRange(b(min), b(max));
+        return new KeyRange(min != null ? b(min) : ByteUtil.EMPTY, b(max));
     }
 
     protected static KeyRanges krs(KeyRange... ranges) {

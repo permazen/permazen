@@ -203,9 +203,13 @@ public class KeyRangesTest extends TestSupport {
 
     @DataProvider(name = "empty")
     private Object[][] emptyKeyRanges() throws Exception {
+        final KeyRange empty1 = new KeyRange(new byte[0], new byte[0]);
+        final KeyRange empty2 = new KeyRange(new byte[] { 33 }, new byte[] { 33 });
         return new KeyRanges[][] {
-            { new KeyRanges(new KeyRange(null, new byte[0])) },
-            { new KeyRanges(new KeyRange(new byte[0], new byte[0])) },
+            { new KeyRanges() },
+            { new KeyRanges(empty1) },
+            { new KeyRanges(empty1, empty2) },
+            { new KeyRanges(empty2, empty1) },
         };
     }
 }

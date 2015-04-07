@@ -16,7 +16,7 @@ import org.jsimpledb.util.ByteUtil;
 
 /**
  * Represents a range of {@code byte[]} keys sorted in unsigned lexical order.
- * Either bound may be specified as null to represent no minimum or no maximum (respectively).
+ * The upper bound may be specified as null to represent no maximum.
  *
  * <p>
  * Instances are immutable: the minimum and maximum {@code byte[]} arrays are copied during
@@ -28,17 +28,7 @@ public class KeyRange {
     /**
      * The {@link KeyRange} containing the full range (i.e., all keys).
      */
-    public static final KeyRange FULL = new KeyRange(null, null);
-
-    /**
-     * Constant used by {@link #compare KeyRange.compare()} to distinguish null values.
-     */
-    public static final boolean MIN = false;
-
-    /**
-     * Constant used by {@link #compare KeyRange.compare()} to distinguish null values.
-     */
-    public static final boolean MAX = true;
+    public static final KeyRange FULL = new KeyRange(ByteUtil.EMPTY, null);
 
     /**
      * Sorts instances by {@linkplain KeyRange#getMin min value}, then {@linkplain KeyRange#getMax max value}.
@@ -46,10 +36,10 @@ public class KeyRange {
     public static final Comparator<KeyRange> SORT_BY_MIN = new Comparator<KeyRange>() {
         @Override
         public int compare(KeyRange keyRange1, KeyRange keyRange2) {
-            int diff = KeyRange.compare(keyRange1.min, KeyRange.MIN, keyRange2.min, KeyRange.MIN);
+            int diff = ByteUtil.compare(keyRange1.min, keyRange2.min);
             if (diff != 0)
                 return diff;
-            diff = KeyRange.compare(keyRange1.max, KeyRange.MAX, keyRange2.max, KeyRange.MAX);
+            diff = KeyRange.compare(keyRange1.max, keyRange2.max);
             if (diff != 0)
                 return diff;
             return 0;
@@ -62,10 +52,10 @@ public class KeyRange {
     public static final Comparator<KeyRange> SORT_BY_MAX = new Comparator<KeyRange>() {
         @Override
         public int compare(KeyRange keyRange1, KeyRange keyRange2) {
-            int diff = KeyRange.compare(keyRange1.max, KeyRange.MAX, keyRange2.max, KeyRange.MAX);
+            int diff = KeyRange.compare(keyRange1.max, keyRange2.max);
             if (diff != 0)
                 return diff;
-            diff = KeyRange.compare(keyRange1.min, KeyRange.MIN, keyRange2.min, KeyRange.MIN);
+            diff = ByteUtil.compare(keyRange1.min, keyRange2.min);
             if (diff != 0)
                 return diff;
             return 0;
@@ -87,19 +77,18 @@ public class KeyRange {
     /**
      * Constructor.
      *
-     * <p>
-     * Note: a {@code min} with length zero is treated as if it were null.
-     * </p>
-     *
-     * @param min minimum key (inclusive), or empty or null for no minimum
+     * @param min minimum key (inclusive); must not be null
      * @param max maximum key (exclusive), or null for no maximum
+     * @throws IllegalArgumentException if {@code min} is null
      * @throws IllegalArgumentException if {@code min > max}
      */
     public KeyRange(byte[] min, byte[] max) {
-        if (KeyRange.compare(min, KeyRange.MIN, max, KeyRange.MAX) > 0)
+        if (min == null)
+            throw new IllegalArgumentException("null min");
+        if (KeyRange.compare(min, max) > 0)
             throw new IllegalArgumentException("min = " + ByteUtil.toString(min) + " > max = " + ByteUtil.toString(max));
-        this.min = min == null || min.length == 0 ? null : min.clone();
-        this.max = max == null ? null : max.clone();
+        this.min = min.clone();
+        this.max = max != null ? max.clone() : null;
     }
 
     /**
@@ -126,7 +115,7 @@ public class KeyRange {
         if (prefix == null)
             throw new IllegalArgumentException("null prefix");
         if (prefix.length == 0)
-            return new KeyRange(null, null);
+            return KeyRange.FULL;
         /*final*/ byte[] maxKey;
         try {
             maxKey = ByteUtil.getKeyAfterPrefix(prefix);
@@ -139,12 +128,12 @@ public class KeyRange {
 // Instance Methods
 
     /**
-     * Get range minimum (inclusive), or null if there is no lower bound.
+     * Get range minimum (inclusive).
      *
-     * @return inclusivie minimum, or null for none
+     * @return inclusivie minimum, never null
      */
     public byte[] getMin() {
-        return this.min == null ? null : this.min.clone();
+        return this.min.clone();
     }
 
     /**
@@ -166,7 +155,7 @@ public class KeyRange {
     public boolean overlaps(KeyRange range) {
         if (range == null)
             throw new IllegalArgumentException("null range");
-        return KeyRange.compare(this.min, MIN, range.max, MAX) < 0 && KeyRange.compare(range.min, MIN, this.max, MAX) < 0;
+        return KeyRange.compare(this.min, range.max) < 0 && KeyRange.compare(range.min, this.max) < 0;
     }
 
     /**
@@ -179,7 +168,7 @@ public class KeyRange {
     public boolean contains(KeyRange range) {
         if (range == null)
             throw new IllegalArgumentException("null range");
-        return KeyRange.compare(this.min, MIN, range.min, MIN) <= 0 && KeyRange.compare(this.max, MAX, range.max, MAX) >= 0;
+        return KeyRange.compare(this.min, range.min) <= 0 && KeyRange.compare(this.max, range.max) >= 0;
     }
 
     /**
@@ -199,7 +188,7 @@ public class KeyRange {
      * @return true if this instance contains all keys
      */
     public boolean isFull() {
-        return this.min == null && this.max == null;
+        return this.min.length == 0 && this.max == null;
     }
 
     /**
@@ -208,7 +197,7 @@ public class KeyRange {
      * @return true if this instance contains no keys
      */
     public boolean isEmpty() {
-        return this.min != null && this.max != null && ByteUtil.compare(this.min, this.max) == 0;
+        return this.max != null && ByteUtil.compare(this.min, this.max) == 0;
     }
 
     /**
@@ -222,7 +211,7 @@ public class KeyRange {
     public KeyRange prefixedBy(byte[] prefix) {
         if (prefix == null)
             throw new IllegalArgumentException("null prefix");
-        final byte[] prefixedMin = this.min != null ? Bytes.concat(prefix, this.min) : prefix;
+        final byte[] prefixedMin = Bytes.concat(prefix, this.min);
         /*final*/ byte[] prefixedMax;
         if (this.max != null)
             prefixedMax = Bytes.concat(prefix, this.max);
@@ -247,32 +236,28 @@ public class KeyRange {
     public int compareTo(byte[] key) {
         if (key == null)
             throw new IllegalArgumentException("null key");
-        if (KeyRange.compare(this.min, MIN, key, MIN) > 0)
+        if (KeyRange.compare(this.min, key) > 0)
             return 1;
-        if (KeyRange.compare(this.max, MAX, key, MAX) <= 0)
+        if (KeyRange.compare(this.max, key) <= 0)
             return -1;
         return 0;
     }
 
     /**
      * Compare two {@code byte[]} keys using unsigned lexical ordering, while also accepting
-     * null values that represent "negative infinity" and "positive infinity".
+     * null values that represent "positive infinity".
      *
      * @param key1 first key
-     * @param type1 how to interpret {@code key1} if value is null:
-     *  {@link #MIN} (for "negative infinity") or {@link #MAX} (for "positive infinity")
      * @param key2 second key
-     * @param type2 how to interpret {@code key2} if value is null:
-     *  {@link #MIN} (for "negative infinity") or {@link #MAX} (for "positive infinity")
      * @return -1 if {@code key1 < key2}, 1 if {@code key1 > key2}, or zero if {@code key1 = key2}
      */
-    public static int compare(byte[] key1, boolean type1, byte[] key2, boolean type2) {
+    public static int compare(byte[] key1, byte[] key2) {
         if (key1 == null && key2 == null)
-            return type1 == type2 ? 0 : type1 == MIN ? -1 : 1;
+            return 0;
         if (key1 == null)
-            return type1 == MIN ? -1 : 1;
+            return 1;
         if (key2 == null)
-            return type2 == MAX ? -1 : 1;
+            return -1;
         return ByteUtil.compare(key1, key2);
     }
 
@@ -285,14 +270,12 @@ public class KeyRange {
         if (obj == null || obj.getClass() != this.getClass())
             return false;
         final KeyRange that = (KeyRange)obj;
-        return (this.min == null ? that.min == null : Arrays.equals(this.min, that.min))
-          && (this.max == null ? that.max == null : Arrays.equals(this.max, that.max));
+        return Arrays.equals(this.min, that.min) && (this.max == null ? that.max == null : Arrays.equals(this.max, that.max));
     }
 
     @Override
     public int hashCode() {
-        return (this.min != null ? Arrays.hashCode(this.min) : 0)
-          ^ (this.max != null ? Arrays.hashCode(this.max) : 0);
+        return Arrays.hashCode(this.min) ^ (this.max != null ? Arrays.hashCode(this.max) : 0);
     }
 
     @Override

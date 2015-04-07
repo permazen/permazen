@@ -82,6 +82,8 @@ public class SimpleKVTransaction extends AbstractCountingKVStore implements KVTr
 
     @Override
     public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        if (minKey == null)
+            minKey = ByteUtil.EMPTY;
         return new KVPairIterator(this, new KeyRange(minKey, maxKey), null, reverse);
     }
 

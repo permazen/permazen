@@ -133,14 +133,14 @@ public class LockManager {
      * </p>
      *
      * @param owner lock owner
-     * @param minKey minimum key (inclusive), or null for no minimum
+     * @param minKey minimum key (inclusive); must not be null
      * @param maxKey maximum key (exclusive), or null for no maximum
      * @param write true for a write lock, false for a read lock
      * @param waitTimeout how long to wait before returning {@link LockResult#WAIT_TIMEOUT_EXPIRED}
      *  in milliseconds, or zero for unlimited
      * @return a {@link LockResult}
      * @throws InterruptedException if the current thread is interrupted while waiting for the lock
-     * @throws IllegalArgumentException if {@code owner} or {@code range} is null
+     * @throws IllegalArgumentException if {@code owner}, {@code minKey}, or {@code range} is null
      * @throws IllegalArgumentException if {@code minKey > maxKey}
      * @throws IllegalArgumentException if {@code waitTimeout} is negative
      */

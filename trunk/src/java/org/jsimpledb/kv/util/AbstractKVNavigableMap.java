@@ -263,7 +263,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encodeKey(writer, key);
-        return KeyRange.compare(writer.getBytes(), KeyRange.MIN, this.keyRange.getMin(), KeyRange.MIN) >= 0;
+        return KeyRange.compare(writer.getBytes(), this.keyRange.getMin()) >= 0;
     }
 
     @Override
@@ -274,7 +274,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
             return true;
         final ByteWriter writer = new ByteWriter();
         this.encodeKey(writer, key);
-        return KeyRange.compare(writer.getBytes(), KeyRange.MAX, this.keyRange.getMax(), KeyRange.MAX) < 0;
+        return KeyRange.compare(writer.getBytes(), this.keyRange.getMax()) < 0;
     }
 
     @Override
@@ -428,7 +428,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
                 newMaxKey = ByteUtil.max(newMaxKey, minKey);
             break;
         }
-        return new KeyRange(newMinKey, newMaxKey);
+        return new KeyRange(newMinKey != null ? newMinKey : ByteUtil.EMPTY, newMaxKey);
     }
 
 // KeySet

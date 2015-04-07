@@ -267,6 +267,10 @@ public class SimpleKVDatabase implements KVDatabase {
 
     synchronized KVPair getAtLeast(SimpleKVTransaction tx, byte[] minKey) {
 
+        // Realize minKey
+        if (minKey == null)
+            minKey = ByteUtil.EMPTY;
+
         // Sanity check
         this.checkUsable(tx);
         this.checkState(tx);
@@ -275,7 +279,7 @@ public class SimpleKVDatabase implements KVDatabase {
         final byte[] originalMinKey = minKey;
 
         // Look for a mutation starting before minKey but containing it
-        if (minKey != null) {
+        if (minKey.length > 0) {
             final Mutation overlap = tx.findMutation(minKey);
             if (overlap != null) {
                 if (overlap instanceof Put) {
@@ -347,7 +351,7 @@ public class SimpleKVDatabase implements KVDatabase {
 
             // Handle the case where neither is found
             if (mutation == null && entry == null) {
-                this.getLock(tx, null, originalMaxKey, false);
+                this.getLock(tx, ByteUtil.EMPTY, originalMaxKey, false);
                 return null;
             }
 
@@ -355,7 +359,7 @@ public class SimpleKVDatabase implements KVDatabase {
             if (mutation != null && (entry == null || mutation.compareTo(entry.getKey()) >= 0)) {
                 if (mutation instanceof Del) {
                     if ((maxKey = mutation.getMin()) == null) {
-                        this.getLock(tx, null, originalMaxKey, false);
+                        this.getLock(tx, ByteUtil.EMPTY, originalMaxKey, false);
                         return null;
                     }
                     continue;
@@ -396,9 +400,9 @@ public class SimpleKVDatabase implements KVDatabase {
             final byte[] delMin = del.getMin();
             final byte[] delMax = del.getMax();
             tx.mutations.remove(del);
-            if (KeyRange.compare(delMin, KeyRange.MIN, key, KeyRange.MIN) < 0)
+            if (KeyRange.compare(delMin, key) < 0)
                 tx.mutations.add(new Del(delMin, key));
-            if (KeyRange.compare(keyNext, KeyRange.MAX, delMax, KeyRange.MAX) < 0)
+            if (KeyRange.compare(keyNext, delMax) < 0)
                 tx.mutations.add(new Del(keyNext, delMax));
             tx.mutations.add(new Put(key, value));
         } else {
@@ -436,8 +440,12 @@ public class SimpleKVDatabase implements KVDatabase {
 
     synchronized void removeRange(SimpleKVTransaction tx, byte[] minKey, byte[] maxKey) {
 
+        // Realize minKey
+        if (minKey == null)
+            minKey = ByteUtil.EMPTY;
+
         // Sanity check
-        int diff = KeyRange.compare(minKey, KeyRange.MIN, maxKey, KeyRange.MAX);
+        int diff = KeyRange.compare(minKey, maxKey);
         if (diff > 0)
             throw new IllegalArgumentException("minKey > maxKey");
         this.checkUsable(tx);
@@ -448,7 +456,7 @@ public class SimpleKVDatabase implements KVDatabase {
         final byte[] originalMaxKey = maxKey;
 
         // Deal with partial overlap at the left end of the range
-        if (minKey != null) {
+        if (minKey.length > 0) {
             final Mutation leftMutation = tx.findMutation(minKey);
             if (leftMutation instanceof Put) {
                 assert Arrays.equals(((Put)leftMutation).getKey(), minKey);
@@ -457,7 +465,7 @@ public class SimpleKVDatabase implements KVDatabase {
                 final Del del = (Del)leftMutation;
                 tx.mutations.remove(del);                                                   // will merge into this change
                 minKey = del.getMin();                                                      // guaranteed to be <= minKey
-                if (KeyRange.compare(del.getMax(), KeyRange.MAX, maxKey, KeyRange.MAX) > 0) // get higher of the two maxKeys
+                if (KeyRange.compare(del.getMax(), maxKey) > 0)                             // get higher of the two maxKeys
                     maxKey = del.getMax();
             }
         }
@@ -477,7 +485,7 @@ public class SimpleKVDatabase implements KVDatabase {
             else if (rightMutation instanceof Del) {
                 final Del del = (Del)rightMutation;
                 tx.mutations.remove(del);                                                   // will merge into this change
-                if (KeyRange.compare(del.getMax(), KeyRange.MAX, maxKey, KeyRange.MAX) > 0) // get higher of the two maxKeys
+                if (KeyRange.compare(del.getMax(), maxKey) > 0)                             // get higher of the two maxKeys
                     maxKey = del.getMax();
             }
         }

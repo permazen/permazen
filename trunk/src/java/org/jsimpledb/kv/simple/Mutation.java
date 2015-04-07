@@ -19,7 +19,7 @@ abstract class Mutation extends KeyRange {
 
     protected Mutation(byte[] min, byte[] max) {
         super(min, max);
-        if (min != null && max != null && Arrays.equals(min, max))
+        if (max != null && Arrays.equals(min, max))
             throw new IllegalArgumentException("empty range");
     }
 
