@@ -17,8 +17,8 @@ import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.StaleTransactionException;
+import org.jsimpledb.kv.mvcc.LockOwner;
 import org.jsimpledb.kv.util.AbstractCountingKVStore;
-import org.jsimpledb.kv.util.LockOwner;
 import org.jsimpledb.util.ByteUtil;
 
 /**

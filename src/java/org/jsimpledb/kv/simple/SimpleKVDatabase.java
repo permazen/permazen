@@ -18,7 +18,7 @@ import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
-import org.jsimpledb.kv.util.LockManager;
+import org.jsimpledb.kv.mvcc.LockManager;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.Logger;
