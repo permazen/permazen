@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package org.jsimpledb.kv.util;
+package org.jsimpledb.kv.mvcc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
