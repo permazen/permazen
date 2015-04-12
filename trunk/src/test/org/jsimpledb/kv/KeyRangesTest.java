@@ -18,15 +18,15 @@ import org.testng.annotations.Test;
 
 public class KeyRangesTest extends TestSupport {
 
-///////////// getKeyRanges()
+///////////// asList()
 
     @Test(dataProvider = "minimal")
-    public void testGetKeyRanges(KeyRanges ranges, List<KeyRange> minimal) throws Exception {
-        Assert.assertEquals(ranges.getKeyRanges(), minimal);
+    public void testMinimal(KeyRanges ranges, List<KeyRange> minimal) throws Exception {
+        Assert.assertEquals(ranges.asList(), minimal);
     }
 
     @DataProvider(name = "minimal")
-    private Object[][] dataGetKeyRanges() throws Exception {
+    private Object[][] dataMinimal() throws Exception {
         return new Object[][] {
 
             {
@@ -94,10 +94,10 @@ public class KeyRangesTest extends TestSupport {
 
 ///////////// getKeyRange()
 
-    @Test(dataProvider = "getKeyRanges")
-    public void testGetKeyRange(KeyRanges ranges, String keystr, int contains, int left, int right) throws Exception {
+    @Test(dataProvider = "asList")
+    public void testAsList(KeyRanges ranges, String keystr, int contains, int left, int right) throws Exception {
         final byte[] key = b(keystr);
-        final List<KeyRange> list = ranges.getKeyRanges();
+        final List<KeyRange> list = ranges.asList();
         final KeyRange[] neighbors = ranges.findKey(key);
         if (contains == -1)
             Assert.assertTrue(neighbors[0] != neighbors[1] || neighbors[0] == null);
@@ -107,8 +107,8 @@ public class KeyRangesTest extends TestSupport {
         Assert.assertEquals(neighbors[1], right != -1 ? list.get(right) : null);
     }
 
-    @DataProvider(name = "getKeyRanges")
-    private Object[][] dataGetKeyRange() throws Exception {
+    @DataProvider(name = "asList")
+    private Object[][] dataAsList() throws Exception {
         return new Object[][] {
 
             {
@@ -168,7 +168,7 @@ public class KeyRangesTest extends TestSupport {
     public void testKeyRanges(KeyRanges ranges) throws Exception {
 
         Assert.assertEquals(ranges, ranges.inverse().inverse());
-        Assert.assertEquals(ranges.getKeyRanges(), ranges.inverse().inverse().getKeyRanges());
+        Assert.assertEquals(ranges.asList(), ranges.inverse().inverse().asList());
         Assert.assertEquals(ranges.union(ranges.inverse()), KeyRanges.FULL);
 
         Assert.assertTrue(ranges.union(ranges.inverse()).isFull());

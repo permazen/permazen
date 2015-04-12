@@ -114,7 +114,7 @@ public class KeyRanges implements KeyFilter {
 // Instance methods
 
     /**
-     * Get {@link KeyRange}s underlying with this instance.
+     * Get the {@link KeyRange}s underlying with this instance as a list.
      *
      * <p>
      * The returned {@link KeyRange}s will be listed in order.
@@ -122,7 +122,7 @@ public class KeyRanges implements KeyFilter {
      *
      * @return minimal, unmodifiable list of {@link KeyRange}s sorted by key range
      */
-    public List<KeyRange> getKeyRanges() {
+    public List<KeyRange> asList() {
         return Collections.unmodifiableList(this.ranges);
     }
 
@@ -230,6 +230,26 @@ public class KeyRanges implements KeyFilter {
     }
 
     /**
+     * Determine whether this instance contains the given {@link KeyRange}, i.e., all keys contained by
+     * the given {@link KeyRange} are also contained by this instance.
+     *
+     * @param range key range to test
+     * @return true if this instance contains {@code range}, otherwise false
+     * @throws IllegalArgumentException if {@code range} is null
+     */
+    public boolean contains(KeyRange range) {
+        if (range == null)
+            throw new IllegalArgumentException("null range");
+        final KeyRange[] pair = this.findKey(range.getMin());
+        if (pair[0] != pair[1])
+            return false;
+        final KeyRange container = pair[0];
+        if (container == null)
+            return false;
+        return container.contains(range);
+    }
+
+    /**
      * Find the contiguous {@link KeyRange}(s) within this instance containing, or adjacent to, the given key.
      *
      * <p>
@@ -279,6 +299,39 @@ public class KeyRanges implements KeyFilter {
 
         // Not contained
         return new KeyRange[] { left, right };
+    }
+
+    /**
+     * Return a new {@link KeyRanges} instance equal to this instance with all keys in the given {@link KeyRange} added.
+     *
+     * @param range range to add
+     * @return this instance with {@code range} added
+     * @throws IllegalArgumentException if {@code range} is null
+     */
+    public KeyRanges add(KeyRange range) {
+        if (range == null)
+            throw new IllegalArgumentException("null range");
+        if (range.isEmpty())
+            return this;
+        final ArrayList<KeyRange> list = new ArrayList<>(this.ranges.size() + 1);
+        list.addAll(this.ranges);
+        list.add(range);
+        return new KeyRanges(list);
+    }
+
+    /**
+     * Return a new {@link KeyRanges} instance equal to this instance with all keys in the given {@link KeyRange} removed.
+     *
+     * @param range range to remove
+     * @return this instance with {@code range} removed
+     * @throws IllegalArgumentException if {@code range} is null
+     */
+    public KeyRanges remove(KeyRange range) {
+        if (range == null)
+            throw new IllegalArgumentException("null range");
+        if (range.isEmpty())
+            return this;
+        return this.intersection(new KeyRanges(range).inverse());
     }
 
     /**

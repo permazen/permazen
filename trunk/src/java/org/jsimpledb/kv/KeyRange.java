@@ -15,7 +15,8 @@ import java.util.Comparator;
 import org.jsimpledb.util.ByteUtil;
 
 /**
- * Represents a range of {@code byte[]} keys sorted in unsigned lexical order.
+ * Represents a contiguous range of {@code byte[]} keys, when keys are sorted in unsigned lexical order.
+ * Instances are defined by an inclusive lower bound and an exclusive upper bound.
  * The upper bound may be specified as null to represent no maximum.
  *
  * <p>
@@ -189,6 +190,19 @@ public class KeyRange {
      */
     public boolean isFull() {
         return this.min.length == 0 && this.max == null;
+    }
+
+    /**
+     * Determine whether this instance contains exactly one key.
+     *
+     * <p>
+     * If so, {@link #getMin} returns the key.
+     * </p>
+     *
+     * @return true if this instance contains exactly one key, otherwise false
+     */
+    public boolean isSingleKey() {
+        return this.max != null && this.max.length == this.min.length + 1 && this.max[this.min.length] == 0;
     }
 
     /**

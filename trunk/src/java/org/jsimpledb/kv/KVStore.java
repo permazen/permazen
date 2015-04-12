@@ -93,6 +93,10 @@ public interface KVStore {
      * must appear to preserve the order in which the modifications actually occurred.
      * </p>
      *
+     * <p>
+     * The returned {@link Iterator} is not guaranteed to be thread safe.
+     * </p>
+     *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
      * @param reverse true to return key/value pairs in reverse order (i.e., keys descending)
