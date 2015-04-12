@@ -16,9 +16,6 @@ import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
 import java.io.Closeable;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +27,7 @@ import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.util.AbstractCountingKVStore;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.CloseableTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,23 +35,6 @@ import org.slf4j.LoggerFactory;
  * Oracle Berkeley DB Java Edition {@link KVTransaction} implementation.
  */
 public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KVTransaction, Closeable {
-
-/*
-
-    The Berkeley DB presents a small challenge because all Cursor objects must be closed before
-    committing a transaction. Because these underly the Iterators returned by getRange(), and
-    Iterators do not normally need to be "closed", we have to track the unclosed Cursor objects
-    ourselves to ensure they eventually do get closed.
-
-    The naive approach is to track the unclosed Cursors in an internal set so we can close them
-    prior to transaction commit. However, this presents a memory-leak situation, e.g., in the case
-    of a transaction that creates and then discards zillions of Iterators (and therefore Cursors),
-    because we will still hold references to them, preventing them from being GC'd. The solution is
-    to register a WeakReference to every created Iterator on an internal ReferenceQueue, and poll()
-    this queue at every opportunity. When we get a reference back, close the corresponding Cursor
-    and remove it from the internal set.
-
-*/
 
 // Note: locking order: (1) BerkeleyKVTransaction, (2) BerkeleyKVDatabase
 
@@ -64,8 +45,7 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
     private final BerkeleyKVDatabase store;
     private final Transaction tx;
     private final CursorConfig cursorConfig = new CursorConfig().setNonSticky(true);
-    private final HashSet<Cursor> unclosedCursors = new HashSet<>();                        // unclosed Cursors are tracked here
-    private final ReferenceQueue<CursorIterator> iteratorQueue = new ReferenceQueue<>();    // discarded Iterators appear here
+    private final CloseableTracker cursorTracker = new CloseableTracker();  // unclosed Cursors are tracked here
 
     private boolean closed;
 
@@ -108,7 +88,7 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
     public synchronized byte[] get(byte[] key) {
         if (this.closed)
             throw new StaleTransactionException(this);
-        this.closeUnreferencedIterators();
+        this.cursorTracker.poll();
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
         final DatabaseEntry value = new DatabaseEntry();
@@ -145,7 +125,7 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
     public synchronized CursorIterator getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (this.closed)
             throw new StaleTransactionException(this);
-        this.closeUnreferencedIterators();
+        this.cursorTracker.poll();
         final Cursor cursor;
         try {
             cursor = this.store.getDatabase().openCursor(this.tx, this.cursorConfig);
@@ -159,7 +139,7 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
     public synchronized void put(byte[] key, byte[] value) {
         if (this.closed)
             throw new StaleTransactionException(this);
-        this.closeUnreferencedIterators();
+        this.cursorTracker.poll();
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
         try {
@@ -173,7 +153,7 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
     public synchronized void remove(byte[] key) {
         if (this.closed)
             throw new StaleTransactionException(this);
-        this.closeUnreferencedIterators();
+        this.cursorTracker.poll();
         if (key.length > 0 && key[0] == (byte)0xff)
             throw new IllegalArgumentException("key starts with 0xff");
         try {
@@ -228,30 +208,10 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
         this.closed = true;
 
         // Close all unclosed cursors
-        for (Cursor cursor : this.unclosedCursors) {
-            try {
-                cursor.close();
-            } catch (Throwable e) {
-                this.log.debug("caught exception closing unreferenced cursor (ignoring)", e);
-            }
-        }
-        this.unclosedCursors.clear();
+        this.cursorTracker.close();
 
         // Remove this transction from database
         this.store.removeTransaction(this);
-    }
-
-    private /*synchronized*/ void closeUnreferencedIterators() {
-        assert Thread.holdsLock(this);
-        for (IteratorReference ref; (ref = (IteratorReference)this.iteratorQueue.poll()) != null; ) {
-            final Cursor cursor = ref.getCursor();
-            try {
-                cursor.close();
-            } catch (Throwable e) {
-                this.log.debug("caught exception closing unreferenced cursor (ignoring)", e);
-            }
-            this.unclosedCursors.remove(cursor);
-        }
     }
 
 // Object
@@ -316,9 +276,8 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
             this.maxKey = maxKey != null ? ByteUtil.min(maxKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MAX_KEY;
             this.reverse = reverse;
 
-            // Make sure we eventually close the cursor, prior to closing the transaction
-            new IteratorReference(this, this.cursor, BerkeleyKVTransaction.this.iteratorQueue);
-            BerkeleyKVTransaction.this.unclosedCursors.add(this.cursor);
+            // Make sure we eventually close the BDB cursor
+            BerkeleyKVTransaction.this.cursorTracker.add(this, this.cursor);
         }
 
     // Iterator
@@ -370,17 +329,6 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
                 this.cursor.close();
             } catch (Throwable e) {
                 BerkeleyKVTransaction.this.log.debug("caught exception closing iterator cursor (ignoring)", e);
-            }
-        }
-
-    // Object
-
-        @Override
-        protected void finalize() throws Throwable {
-            try {
-                this.close();
-            } finally {
-                super.finalize();
             }
         }
 
@@ -471,22 +419,6 @@ public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KV
                 }
             }
             this.initialized = true;
-        }
-    }
-
-// IteratorReference
-
-    private static class IteratorReference extends WeakReference<CursorIterator> {
-
-        private final Cursor cursor;
-
-        IteratorReference(CursorIterator iterator, Cursor cursor, ReferenceQueue<? super CursorIterator> queue) {
-            super(iterator, queue);
-            this.cursor = cursor;
-        }
-
-        Cursor getCursor() {
-            return this.cursor;
         }
     }
 }

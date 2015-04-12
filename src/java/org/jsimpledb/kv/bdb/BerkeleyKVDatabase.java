@@ -327,7 +327,6 @@ public class BerkeleyKVDatabase implements KVDatabase {
      * This method is idempotent.
      * </p>
      *
-     * @throws IllegalStateException if this instance has already been {@linkplain #start started}
      * @throws IllegalStateException if this instance is not properly configured
      */
     @PostConstruct
