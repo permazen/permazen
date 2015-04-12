@@ -20,9 +20,8 @@ import org.jsimpledb.util.ByteUtil;
 /**
  * A {@link KVStore} view of all keys having a common {@code byte[]} prefix in a containing {@link KVStore}.
  */
-public class PrefixKVStore implements KVStore {
+public class PrefixKVStore extends ForwardingKVStore {
 
-    private final KVStore kvstore;
     private final byte[] keyPrefix;
 
     /**
@@ -33,11 +32,9 @@ public class PrefixKVStore implements KVStore {
      * @throws IllegalArgumentException if {@code kvstore} or {@code keyPrefix} is null
      */
     public PrefixKVStore(KVStore kvstore, byte[] keyPrefix) {
-        if (kvstore == null)
-            throw new IllegalArgumentException("null kvstore");
+        super(kvstore);
         if (keyPrefix == null)
             throw new IllegalStateException("null keyPrefix");
-        this.kvstore = kvstore;
         this.keyPrefix = keyPrefix.clone();
     }
 
@@ -102,16 +99,6 @@ public class PrefixKVStore implements KVStore {
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
         this.kvstore.removeRange(this.addMinPrefix(minKey), this.addMaxPrefix(maxKey));
-    }
-
-    @Override
-    public byte[] encodeCounter(long value) {
-        return this.kvstore.encodeCounter(value);
-    }
-
-    @Override
-    public long decodeCounter(byte[] bytes) {
-        return this.kvstore.decodeCounter(bytes);
     }
 
     @Override
