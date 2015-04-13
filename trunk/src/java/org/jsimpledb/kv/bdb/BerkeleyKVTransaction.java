@@ -20,12 +20,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
+import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
-import org.jsimpledb.kv.util.AbstractCountingKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.CloseableTracker;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Oracle Berkeley DB Java Edition {@link KVTransaction} implementation.
  */
-public class BerkeleyKVTransaction extends AbstractCountingKVStore implements KVTransaction, Closeable {
+public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransaction, Closeable {
 
 // Note: locking order: (1) BerkeleyKVTransaction, (2) BerkeleyKVDatabase
 
