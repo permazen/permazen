@@ -7,6 +7,7 @@
 
 package org.jsimpledb.kv;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.jsimpledb.util.ByteReader;
@@ -19,26 +20,31 @@ import org.jsimpledb.util.ByteWriter;
  * <p>
  * This class provides a partial implementation via the following methods:
  * <ul>
+ *  <li>A {@link #get get()} implementation based on {@link #getAtLeast getAtLeast()}</li>
  *  <li>{@link #getAtLeast getAtLeast()} and {@link #getAtMost getAtMost()} implementations based on
  *      {@link #getRange getRange()}.</li>
- *  <li>A {@link #getRange getRange()} implementation based on {@link KVPairIterator}.</li>
  *  <li>A {@link #remove remove()} implementation that delegates to {@link #removeRange removeRange()}.</li>
  *  <li>A {@link #removeRange removeRange()} implementation that delegates to {@link #getRange getRange()},
  *      iterating through the range of keys and removing them one-by-one via {@link Iterator#remove}.</li>
  *  <li>{@link #encodeCounter encodeCounter()}, {@link #decodeCounter encodeCounter()}, and
  *      {@link #adjustCounter adjustCounter()} implementations using normal reads and writes
  *      of values in big-endian encoding (does not provide any lock-free behavior).</li>
+ *  <li>A {@link #put put()} implementation throwing {@link UnsupportedOperationException}</li>
  * </ul>
  *
  * <p>
- * Note: {@link #getAtLeast getAtLeast()} and {@link #getAtMost getAtMost()} are implemented in terms of
- * {@link #getRange getRange()}, and {@link #getRange getRange()} is implemented (indirectly) in terms of
- * {@link #getAtLeast getAtLeast()} and {@link #getAtMost getAtMost()}. Therefore, <b>subclasses must either
- * override {@link #getRange getRange()}, or {@link #getAtLeast getAtLeast()} and {@link #getAtMost getAtMost()}</b>.
+ * Therefore, a read-only {@link KVStore} implementation is possible simply by implementing {@link #getRange}.
+ * </p>
  */
 public abstract class AbstractKVStore implements KVStore {
 
     protected AbstractKVStore() {
+    }
+
+    @Override
+    public byte[] get(byte[] key) {
+        final KVPair pair = this.getAtLeast(key);
+        return pair != null && Arrays.equals(pair.getKey(), key) ? pair.getValue() : null;
     }
 
     @Override
@@ -62,10 +68,8 @@ public abstract class AbstractKVStore implements KVStore {
     }
 
     @Override
-    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        if (minKey == null)
-            minKey = ByteUtil.EMPTY;
-        return new KVPairIterator(this, new KeyRange(minKey, maxKey), null, reverse);
+    public void put(byte[] key, byte[] value) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
