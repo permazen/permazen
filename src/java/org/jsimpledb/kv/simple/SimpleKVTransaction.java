@@ -8,11 +8,13 @@
 package org.jsimpledb.kv.simple;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.StaleTransactionException;
@@ -76,6 +78,13 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     @Override
     public KVPair getAtMost(byte[] key) {
         return this.kvdb.getAtMost(this, key);
+    }
+
+    @Override
+    public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+        if (minKey == null)
+            minKey = ByteUtil.EMPTY;
+        return new KVPairIterator(this, new KeyRange(minKey, maxKey), null, reverse);
     }
 
     @Override
