@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
 
@@ -22,7 +23,7 @@ import org.jsimpledb.util.ByteUtil;
  * Provides a {@link org.jsimpledb.kv.KVStore} view of an underlying {@link NavigableMap NavigableMap&lt;byte[], byte[]&gt;}
  * whose keys are sorted lexicographically as unsigned bytes.
  */
-public class NavigableMapKVStore extends AbstractCountingKVStore {
+public class NavigableMapKVStore extends AbstractKVStore {
 
     private final NavigableMap<byte[], byte[]> map;
 
