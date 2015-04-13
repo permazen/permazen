@@ -21,6 +21,8 @@ import org.jsimpledb.util.ByteWriter;
  * <ul>
  *  <li>A {@link #getRange getRange()} implementation based on {@link KVPairIterator}.</li>
  *  <li>A {@link #remove remove()} implementation that delegates to {@link #removeRange removeRange()}.</li>
+ *  <li>A {@link #removeRange removeRange()} implementation that delegates to {@link #getRange getRange()},
+ *      iterating through the range of keys and removing them one-by-one via {@link Iterator#remove}.</li>
  *  <li>{@link #encodeCounter encodeCounter()}, {@link #decodeCounter encodeCounter()}, and
  *      {@link #adjustCounter adjustCounter()} implementations using normal reads and writes
  *      of values in big-endian encoding (does not provide any lock-free behavior).</li>
@@ -41,6 +43,25 @@ public abstract class AbstractKVStore implements KVStore {
     @Override
     public void remove(byte[] key) {
         this.removeRange(key, ByteUtil.getNextKey(key));
+    }
+
+    @Override
+    public void removeRange(byte[] minKey, byte[] maxKey) {
+        final Iterator<KVPair> i = this.getRange(minKey, maxKey, false);
+        try {
+            while (i.hasNext()) {
+                i.next();
+                i.remove();
+            }
+        } finally {
+            if (i instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable)i).close();
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
     }
 
     @Override
