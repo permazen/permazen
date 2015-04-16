@@ -13,10 +13,12 @@ import org.jsimpledb.kv.KVStore;
  * Provides a read-only view of an underlying {@link KVStore}.
  *
  * <p>
- * Attempts to mutate the underlying {@link KVStore} result in a {@link UnsupportedOperationException}.
+ * Attempts to invoke any of the mutating {@link KVStore} methods result in an {@link UnsupportedOperationException}.
  * </p>
  */
 public class UnmodifiableKVStore extends ForwardingKVStore {
+
+    private final KVStore kvstore;
 
     /**
      * Constructor.
@@ -25,15 +27,13 @@ public class UnmodifiableKVStore extends ForwardingKVStore {
      * @throws IllegalArgumentException if {@code kvstore} is null
      */
     public UnmodifiableKVStore(KVStore kvstore) {
-        super(kvstore);
+        if (kvstore == null)
+            throw new IllegalArgumentException("null kvstore");
+        this.kvstore = kvstore;
     }
 
-    /**
-     * Get the underlying {@link KVStore} associated with this instance.
-     *
-     * @return the underlying {@link KVStore}
-     */
-    public KVStore getUnderlyingKVStore() {
+    @Override
+    protected KVStore delegate() {
         return this.kvstore;
     }
 
@@ -56,8 +56,7 @@ public class UnmodifiableKVStore extends ForwardingKVStore {
 
     @Override
     public void adjustCounter(byte[] key, long amount) {
-        if (amount != 0)
-            throw new UnsupportedOperationException("KVStore is read-only");
+        throw new UnsupportedOperationException("KVStore is read-only");
     }
 }
 

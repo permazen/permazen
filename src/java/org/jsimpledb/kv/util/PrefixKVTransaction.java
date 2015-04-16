@@ -21,7 +21,10 @@ import org.jsimpledb.kv.KVTransaction;
  */
 public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction {
 
+    private final KVTransaction tx;
     private final PrefixKVDatabase db;
+
+// Constructors
 
     /**
      * Constructor that wraps an existing {@link KVTransaction}. There will be no associated {@link PrefixKVDatabase}.
@@ -31,28 +34,32 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
      * @throws IllegalArgumentException if {@code tx} or {@code keyPrefix} is null
      */
     public PrefixKVTransaction(KVTransaction tx, byte[] keyPrefix) {
-        super(tx, keyPrefix);
-        this.db = null;
+        this(tx, keyPrefix, null);
     }
 
     /**
-     * Constructor for when there is an associated {@link PrefixKVDatabase}..
+     * Constructor for when there is an associated {@link PrefixKVDatabase}.
      *
      * @param db the containing {@link PrefixKVDatabase}
-     * @throws IllegalArgumentException if {@code db} is null
+     * @throws NullPointerException if {@code db} is null
      */
     PrefixKVTransaction(PrefixKVDatabase db) {
-        super(db.getContainingKVDatabase().createTransaction(), db.getKeyPrefix());
+        this(db.getContainingKVDatabase().createTransaction(), db.getKeyPrefix(), db);
+    }
+
+    private PrefixKVTransaction(KVTransaction tx, byte[] keyPrefix, PrefixKVDatabase db) {
+        super(keyPrefix);
+        if (tx == null)
+            throw new IllegalArgumentException("null tx");
+        this.tx = tx;
         this.db = db;
     }
 
-    /**
-     * Get the containing {@link KVTransaction} associated with this instance.
-     *
-     * @return the containing {@link KVTransaction}
-     */
-    public KVTransaction getContainingKVTransaction() {
-        return (KVTransaction)this.getContainingKVStore();
+// PrefixKVStore
+
+    @Override
+    protected KVTransaction delegate() {
+        return this.tx;
     }
 
 // KVTransaction
@@ -71,17 +78,17 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
 
     @Override
     public void setTimeout(long timeout) {
-        this.getContainingKVTransaction().setTimeout(timeout);
+        this.delegate().setTimeout(timeout);
     }
 
     @Override
     public void commit() {
-        this.getContainingKVTransaction().commit();
+        this.delegate().commit();
     }
 
     @Override
     public void rollback() {
-        this.getContainingKVTransaction().rollback();
+        this.delegate().rollback();
     }
 }
 

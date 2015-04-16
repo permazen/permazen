@@ -15,72 +15,65 @@ import org.jsimpledb.kv.KVStore;
 /**
  * Forwards all {@link KVStore} operations to another underlying {@link KVStore}.
  */
-public class ForwardingKVStore implements KVStore {
-
-    protected final KVStore kvstore;
+public abstract class ForwardingKVStore implements KVStore {
 
     /**
-     * Constructor.
+     * Get the underlying {@link KVStore}.
      *
-     * @param kvstore the underlying {@link KVStore}
-     * @throws IllegalArgumentException if {@code kvstore} is null
+     * @return underlying {@link KVStore}
      */
-    public ForwardingKVStore(KVStore kvstore) {
-        if (kvstore == null)
-            throw new IllegalArgumentException("null kvstore");
-        this.kvstore = kvstore;
-    }
+    protected abstract KVStore delegate();
 
 // KVStore
 
     @Override
     public byte[] get(byte[] key) {
-        return this.kvstore.get(key);
+        return this.delegate().get(key);
     }
 
     @Override
     public KVPair getAtLeast(byte[] minKey) {
-        return this.kvstore.getAtLeast(minKey);
+        return this.delegate().getAtLeast(minKey);
     }
 
     @Override
     public KVPair getAtMost(byte[] maxKey) {
-        return this.kvstore.getAtMost(maxKey);
+        return this.delegate().getAtMost(maxKey);
     }
 
     @Override
     public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        return this.kvstore.getRange(minKey, maxKey, reverse);
+        return this.delegate().getRange(minKey, maxKey, reverse);
     }
 
     @Override
     public void put(byte[] key, byte[] value) {
-        this.kvstore.put(key, value);
+        this.delegate().put(key, value);
     }
 
     @Override
     public void remove(byte[] key) {
-        this.kvstore.remove(key);
+        this.delegate().remove(key);
     }
 
     @Override
     public void removeRange(byte[] minKey, byte[] maxKey) {
-        this.kvstore.removeRange(minKey, maxKey);
+        this.delegate().removeRange(minKey, maxKey);
     }
 
     @Override
     public void adjustCounter(byte[] key, long amount) {
-        this.kvstore.adjustCounter(key, amount);
+        this.delegate().adjustCounter(key, amount);
     }
 
     @Override
     public byte[] encodeCounter(long value) {
-        return this.kvstore.encodeCounter(value);
+        return this.delegate().encodeCounter(value);
     }
 
     @Override
     public long decodeCounter(byte[] bytes) {
-        return this.kvstore.decodeCounter(bytes);
+        return this.delegate().decodeCounter(bytes);
     }
 }
 
