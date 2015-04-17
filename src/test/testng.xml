@@ -6,12 +6,13 @@
     <parameter name="deleteTempDirs" value="true"/>
     <parameter name="randomSeed" value=""/>
 
-    <!-- These properties are used by KVDatabaseTest. Uncomment one or more to skip time-consuming tests. -->
+    <!-- These properties are used by KVDatabaseTest. Uncomment one or more to include time-consuming tests. -->
 <!--
     <parameter name="testSimpleKV" value="true"/>
     <parameter name="fdbClusterFile" value="/usr/local/etc/foundationdb/fdb.cluster"/>
     <parameter name="mysqlURL" value="jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger"/>
     <parameter name="berkeleyDirPrefix" value="BerkeleyDbJava"/>
+    <parameter name="levelDbDirPrefix" value="LevelDbJava"/>
 -->
 
     <test name="Unit Tests">

@@ -36,6 +36,8 @@
         <dependency force="true" org="org.aspectj" name="aspectj" rev="1.8.4" conf="weaver->tools;base->default"/>
         <dependency force="true" org="org.dellroad" name="dellroad-stuff" rev="1.0.964" conf="base->core; weaver->aspects"/>
         <dependency force="true" org="org.eclipse" name="jetty" rev="9.2.7.v20150116" conf="javac,gui->webapp,annotations"/>
+   <!-- <dependency force="true" org="org.fusesource.leveldbjni" name="leveldbjni" rev="1.8" conf="base->all"/> -->
+        <dependency force="true" org="org.iq80.leveldb" name="leveldb" rev="0.7" conf="base->default"/>
         <dependency force="true" org="org.objectweb.asm" name="asm" rev="5.+" conf="javac,build,gui->default; jarjars->core,util"/>
         <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7+" conf="base->default; build,test,runtime->log4j"/>
         <dependency force="true" org="org.sonatype.jline" name="jline" rev="2.12" conf="javac,cli->default"/>
