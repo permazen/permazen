@@ -281,10 +281,10 @@ Person (id fcc57229bf773c29)
     Sally
 }}}
 
-To use [http://foundationdb.com/ FoundationDB] as the key/value store, replace the first line of the `main()` method above with:
+To use [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html LevelDB] as the key/value store, replace the first line of the `main()` method above with:
 
 <code language="java">
-    final FoundationKVDatabase fdb = new FoundationKVDatabase();
-    fdb.setClusterFilePath("fdb.cluster");
-    fdb.start();
-    final Database coreDb = new Database(fdb);</code>
+    final LevelDBKVDatabase ldb = new LevelDBKVDatabase();
+    ldb.setDirectory("/tmp/test");
+    ldb.start();
+    final Database coreDb = new Database(ldb);</code>

@@ -257,7 +257,7 @@ JSimpleDB supports schema changes that add or remove indexes. If you do this, on
 ==== What requirements must the key/value store satisfy? ====
 
 The key/value store must satisfy these criteria:
- * Provides consistent, ACID-compliant transactions (fully serializable)
+ * Provides consistent, ACID-compliant transactions
  * Supports data access via the <a href="http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/KVStore.html">`KVStore`</a> interface:
    * Efficiently get, put, and remove keys
    * Efficiently find the next higher or lower key
@@ -272,6 +272,7 @@ Currently the following key/value stores are supported:
  * Any [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/sql/package-summary.html SQL database]
  * [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/fdb/FoundationKVDatabase.html FoundationDB]
  * [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html Oracle's Berkeley DB Java Edition]
+ * [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html LevelDB]
  * For testing, prototyping, and/or non durable usage:
    * [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/SimpleKVDatabase.html In-memory database]
    * [http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html XML flat file database]
@@ -281,7 +282,7 @@ Several other popular NoSQL databases are not compatible because of one or more 
  * Keys have limited length (e.g., at most 64 or 128 bits)
  * ACID semantics not provided
 
-==== Why does JSimpleDB require serializable ACID semantics? ====
+==== Why does JSimpleDB require ACID semantics? ====
 
 The philosophy behind JSimpleDB states that simplicity promotes solid, reliable, maintainable code. In particular, if the code is too complicated, it becomes unfeasible for developers to prove to themselves that the code is fully correct -- and of course if the developers can't ensure the code is fully correct, it won't magically become fully correct by itself. Stated another way, "complexity kills".
 
