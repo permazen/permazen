@@ -43,7 +43,10 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.core.TransactionException;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.XMLSerializer;
@@ -267,15 +270,31 @@ public abstract class TestSupport {
     }
 
     /**
+     * Dump KV contents to the log.
+     */
+    protected void showKV(KVTransaction tx, String label) {
+        this.showKV(tx, label, null, null);
+    }
+
+    /**
      * Dump KV portion to the log.
      */
     protected void showKV(Transaction tx, String label, byte[] minKey, byte[] maxKey) {
+        this.showKV(tx.getKVTransaction(), label, minKey, maxKey);
+    }
+
+    /**
+     * Dump KV portion to the log.
+     */
+    protected void showKV(KVTransaction tx, String label, byte[] minKey, byte[] maxKey) {
         try {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
             final XMLStreamWriter writer = new IndentXMLStreamWriter(
               XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
-            new XMLSerializer(tx.getKVTransaction()).write(writer, minKey, maxKey);
+            new XMLSerializer(tx).write(writer, minKey, maxKey);
             this.log.info("{}\n{}", label, new String(buf.toByteArray(), Charset.forName("UTF-8")));
+        } catch (KVTransactionException | TransactionException e) {
+            this.log.info("{} - oops, got " + e, label);
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);
         }
