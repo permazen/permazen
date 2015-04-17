@@ -178,7 +178,7 @@
 <span class="sourceLineNo">170</span>     * This method will copy this object's fields into the object with ID {@code target} (or this instance's object ID if<a name="line.170"></a>
 <span class="sourceLineNo">171</span>     * {@code target} is null) in the {@code dest} transaction, overwriting any previous values there, along with all other<a name="line.171"></a>
 <span class="sourceLineNo">172</span>     * objects reachable from this instance through any of the specified {@linkplain ReferencePath reference paths} (including<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     * intermediate objects visited).<a name="line.173"></a>
+<span class="sourceLineNo">173</span>     * intermediate objects visited). This instance will first be {@link #upgrade}ed if necessary.<a name="line.173"></a>
 <span class="sourceLineNo">174</span>     * If {@code target} (or any other referenced object) already exists in {@code dest}, it will have its schema version<a name="line.174"></a>
 <span class="sourceLineNo">175</span>     * updated first, if necessary, otherwise it will be created.<a name="line.175"></a>
 <span class="sourceLineNo">176</span>     * Any {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnVersionChange}, {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate},<a name="line.176"></a>
@@ -242,7 +242,7 @@
 <span class="sourceLineNo">234</span>     * This method will copy this object and all of its fields, along with all other objects reachable through<a name="line.234"></a>
 <span class="sourceLineNo">235</span>     * any of the specified {@linkplain ReferencePath reference paths} into the {@link SnapshotJTransaction}<a name="line.235"></a>
 <span class="sourceLineNo">236</span>     * {@linkplain JTransaction#getSnapshotTransaction corresponding} to this instance's associated transaction<a name="line.236"></a>
-<span class="sourceLineNo">237</span>     * (including intermediate objects visited).<a name="line.237"></a>
+<span class="sourceLineNo">237</span>     * (including intermediate objects visited). This instance will first be {@link #upgrade}ed if necessary.<a name="line.237"></a>
 <span class="sourceLineNo">238</span>     * If any object already exists there, it will be overwritten, otherwise it will be created.<a name="line.238"></a>
 <span class="sourceLineNo">239</span>     * {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &amp;#64;OnChange}<a name="line.239"></a>
 <span class="sourceLineNo">240</span>     * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.<a name="line.240"></a>

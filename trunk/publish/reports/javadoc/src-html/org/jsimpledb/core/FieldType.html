@@ -30,12 +30,12 @@
 <span class="sourceLineNo">022</span> * &lt;p&gt;<a name="line.22"></a>
 <span class="sourceLineNo">023</span> * A {@link FieldType} maps between instances of its supported Java type and the self-delimited {@code byte[]} encoding of<a name="line.23"></a>
 <span class="sourceLineNo">024</span> * those instances used in the database. The {@code byte[]} encoding also implicitly defines database the sort order<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * (from unsigned lexicographical ordering) which is also reflected via {@link #compare Comparator.compare()}.<a name="line.25"></a>
+<span class="sourceLineNo">025</span> * (via unsigned lexicographical ordering). This ordering is also reflected via {@link #compare compare()}.<a name="line.25"></a>
 <span class="sourceLineNo">026</span> * &lt;/p&gt;<a name="line.26"></a>
 <span class="sourceLineNo">027</span> *<a name="line.27"></a>
 <span class="sourceLineNo">028</span> * &lt;p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * A {@link FieldType} also defines a mapping between Java instances and {@link String} values;<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * there are actually two separate {@link String} forms, one of which is self-delimiting.<a name="line.30"></a>
+<span class="sourceLineNo">029</span> * A {@link FieldType} also defines a mapping between Java instances and {@link String} values.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * There are two separate {@link String} forms, a regular form and a self-delimiting form.<a name="line.30"></a>
 <span class="sourceLineNo">031</span> * &lt;/p&gt;<a name="line.31"></a>
 <span class="sourceLineNo">032</span> *<a name="line.32"></a>
 <span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
@@ -43,7 +43,7 @@
 <span class="sourceLineNo">035</span> * &lt;ul&gt;<a name="line.35"></a>
 <span class="sourceLineNo">036</span> *  &lt;li&gt;They have a unique {@linkplain #getName name}; typically the same as their {@linkplain #getTypeToken supported type}.&lt;/li&gt;<a name="line.36"></a>
 <span class="sourceLineNo">037</span> *  &lt;li&gt;All possible values can be represented in Java as an instance of the associated Java type (possibly including null).&lt;/li&gt;<a name="line.37"></a>
-<span class="sourceLineNo">038</span> *  &lt;li&gt;Instances {@linkplain #compare totally order} the Java values. If the associated Java type implements {@link Comparable},<a name="line.38"></a>
+<span class="sourceLineNo">038</span> *  &lt;li&gt;Instances {@linkplain #compare totally order} their Java values. If the associated Java type implements {@link Comparable},<a name="line.38"></a>
 <span class="sourceLineNo">039</span> *      then the two orderings do not necessarily have to match, but they should if possible.&lt;/li&gt;<a name="line.39"></a>
 <span class="sourceLineNo">040</span> *  &lt;li&gt;All possible values can be encoded/decoded into a self-delimiting binary string (i.e., {@code byte[]} array)<a name="line.40"></a>
 <span class="sourceLineNo">041</span> *      without losing information, and these binary strings, when sorted lexicographically using unsigned comparison,<a name="line.41"></a>
@@ -51,11 +51,11 @@
 <span class="sourceLineNo">043</span> *  &lt;li&gt;All possible values can be encoded/decoded to/from {@link String}s without losing information,<a name="line.43"></a>
 <span class="sourceLineNo">044</span> *      with both a {@linkplain #toString(Object) regular string form} for non-null values and a<a name="line.44"></a>
 <span class="sourceLineNo">045</span> *      {@linkplain #toParseableString self-delimiting string form} for any value (these may be the same).&lt;/li&gt;<a name="line.45"></a>
-<span class="sourceLineNo">046</span> *  &lt;li&gt;{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare} and<a name="line.46"></a>
-<span class="sourceLineNo">047</span> *      have binary and string encodings just like any other value. Typically, null sorts last.&lt;/li&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *  &lt;li&gt;There is a {@linkplain #getDefaultValue default value}; it must be null for types that support null.&lt;/li&gt;<a name="line.48"></a>
+<span class="sourceLineNo">046</span> *  &lt;li&gt;{@code null} may or may not be a supported value; if so, it must be handled by {@link #compare compare()} (typically<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *      null values sort last) and have binary and string encodings just like any other value.&lt;/li&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *  &lt;li&gt;There is a {@linkplain #getDefaultValue default value}. For types that support null, the default value must be null.&lt;/li&gt;<a name="line.48"></a>
 <span class="sourceLineNo">049</span> *  &lt;li&gt;An optional {@linkplain #getEncodingSignature encoding signature} protects against incompatible encodings<a name="line.49"></a>
-<span class="sourceLineNo">050</span> *      when a {@link FieldType}'s binary or string encoding changes without changing the {@linkplain #getName name}&lt;/li&gt;<a name="line.50"></a>
+<span class="sourceLineNo">050</span> *      when a {@link FieldType}'s binary or string encoding changes without changing the {@linkplain #getName name}.&lt;/li&gt;<a name="line.50"></a>
 <span class="sourceLineNo">051</span> * &lt;/ul&gt;<a name="line.51"></a>
 <span class="sourceLineNo">052</span> *<a name="line.52"></a>
 <span class="sourceLineNo">053</span> * &lt;p&gt;<a name="line.53"></a>
@@ -225,15 +225,15 @@
 <span class="sourceLineNo">217</span>    }<a name="line.217"></a>
 <span class="sourceLineNo">218</span><a name="line.218"></a>
 <span class="sourceLineNo">219</span>    /**<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     * Parse a non-null value previously encoded by {@link #toString(Object)}.<a name="line.220"></a>
+<span class="sourceLineNo">220</span>     * Parse a non-null value previously encoded by {@link #toString(Object) toString(T)}.<a name="line.220"></a>
 <span class="sourceLineNo">221</span>     *<a name="line.221"></a>
 <span class="sourceLineNo">222</span>     * &lt;p&gt;<a name="line.222"></a>
 <span class="sourceLineNo">223</span>     * The implementation in {@link FieldType} creates a new {@link ParseContext} based on {@code string},<a name="line.223"></a>
 <span class="sourceLineNo">224</span>     * delegates to {@link #toParseableString} to parse it, and verifies that all of {@code string} was consumed<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     * during the parse. Subclasses that override this method should also override {@link #toString(Object)}.<a name="line.225"></a>
+<span class="sourceLineNo">225</span>     * during the parse. Subclasses that override this method should also override {@link #toString(Object) toString(T)}.<a name="line.225"></a>
 <span class="sourceLineNo">226</span>     * &lt;/p&gt;<a name="line.226"></a>
 <span class="sourceLineNo">227</span>     *<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     * @param string non-null value previously encoded as a {@link String} by {@link #toString(Object)}<a name="line.228"></a>
+<span class="sourceLineNo">228</span>     * @param string non-null value previously encoded as a {@link String} by {@link #toString(Object) toString(T)}<a name="line.228"></a>
 <span class="sourceLineNo">229</span>     * @return actual value<a name="line.229"></a>
 <span class="sourceLineNo">230</span>     * @throws IllegalArgumentException if the input is invalid<a name="line.230"></a>
 <span class="sourceLineNo">231</span>     */<a name="line.231"></a>

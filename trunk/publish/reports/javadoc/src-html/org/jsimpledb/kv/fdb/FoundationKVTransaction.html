@@ -43,7 +43,7 @@
 <span class="sourceLineNo">035</span> */<a name="line.35"></a>
 <span class="sourceLineNo">036</span>public class FoundationKVTransaction implements KVTransaction {<a name="line.36"></a>
 <span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>    private static final byte[] MIN_KEY = new byte[0];                      // minimum possible key (inclusive)<a name="line.38"></a>
+<span class="sourceLineNo">038</span>    private static final byte[] MIN_KEY = ByteUtil.EMPTY;                   // minimum possible key (inclusive)<a name="line.38"></a>
 <span class="sourceLineNo">039</span>    private static final byte[] MAX_KEY = new byte[] { (byte)0xff };        // maximum possible key (exclusive)<a name="line.39"></a>
 <span class="sourceLineNo">040</span><a name="line.40"></a>
 <span class="sourceLineNo">041</span>    private final FoundationKVDatabase store;<a name="line.41"></a>

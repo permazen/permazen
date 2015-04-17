@@ -12,6 +12,8 @@ org.jsimpledb.index
 org.jsimpledb.kv
 org.jsimpledb.kv.bdb
 org.jsimpledb.kv.fdb
+org.jsimpledb.kv.leveldb
+org.jsimpledb.kv.mvcc
 org.jsimpledb.kv.simple
 org.jsimpledb.kv.sql
 org.jsimpledb.kv.util

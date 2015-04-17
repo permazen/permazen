@@ -24,9 +24,6 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.AbstractCoreIndex.html">AbstractCoreIndex</a> <i>(63%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.AbstractCountingKVStore.html">AbstractCountingKVStore</a> <i>(80%)</i></td>
-</tr>
-<tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.AbstractFieldScanner.html">AbstractFieldScanner</a> <i>(93%)</i></td>
 </tr>
 <tr>
@@ -67,6 +64,9 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.AbstractKVNavigableSet.html">AbstractKVNavigableSet</a> <i>(84%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.AbstractKVStore.html">AbstractKVStore</a> <i>(31%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.expr.AbstractLValue.html">AbstractLValue</a> <i>(100%)</i></td>
@@ -186,7 +186,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.ByteType.html">ByteType</a> <i>(100%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.ByteUtil.html">ByteUtil</a> <i>(92%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.ByteUtil.html">ByteUtil</a> <i>(94%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.ByteWriter.html">ByteWriter</a> <i>(76%)</i></td>
@@ -223,6 +223,9 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.cli.CliSession.html">CliSession</a> <i>(0%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.CloseableTracker.html">CloseableTracker</a> <i>(0%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.CollectionField.html">CollectionField</a> <i>(90%)</i></td>
@@ -502,6 +505,9 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.func.ForEachFunction.html">ForEachFunction</a> <i>(15%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.ForwardingKVStore.html">ForwardingKVStore</a> <i>(0%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.fdb.FoundationKVDatabase.html">FoundationKVDatabase</a> <i>(0%)</i></td>
@@ -843,7 +849,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KVTransaction.html">KVTransaction</a> <i>(N/A)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KVTransactionException.html">KVTransactionException</a> <i>(30%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KVTransactionException.html">KVTransactionException</a> <i>(23%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KeyFilter.html">KeyFilter</a> <i>(N/A)</i></td>
@@ -852,13 +858,22 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KeyFilterUtil.html">KeyFilterUtil</a> <i>(12%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KeyRange.html">KeyRange</a> <i>(72%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KeyRange.html">KeyRange</a> <i>(77%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KeyRanges.html">KeyRanges</a> <i>(83%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.KeyRanges.html">KeyRanges</a> <i>(73%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.expr.LValue.html">LValue</a> <i>(N/A)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.leveldb.LevelDBKVDatabase.html">LevelDBKVDatabase</a> <i>(0%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.leveldb.LevelDBKVStore.html">LevelDBKVStore</a> <i>(0%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.leveldb.LevelDBKVTransaction.html">LevelDBKVTransaction</a> <i>(0%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.func.LimitFunction.html">LimitFunction</a> <i>(12%)</i></td>
@@ -903,13 +918,13 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.cli.cmd.LoadCommand.html">LoadCommand</a> <i>(0%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.Lock.html">Lock</a> <i>(80%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.mvcc.Lock.html">Lock</a> <i>(77%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.LockManager.html">LockManager</a> <i>(88%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.mvcc.LockManager.html">LockManager</a> <i>(75%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.LockOwner.html">LockOwner</a> <i>(100%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.mvcc.LockOwner.html">LockOwner</a> <i>(100%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.expr.LogicalAndParser.html">LogicalAndParser</a> <i>(88%)</i></td>
@@ -942,7 +957,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.MapEntryConverter.html">MapEntryConverter</a> <i>(63%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.MapField.html">MapField</a> <i>(82%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.MapField.html">MapField</a> <i>(80%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.change.MapFieldAdd.html">MapFieldAdd</a> <i>(72%)</i></td>
@@ -981,6 +996,9 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.expr.MutableBeanPropertyValue.html">MutableBeanPropertyValue</a> <i>(0%)</i></td>
 </tr>
 <tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.mvcc.MutableView.html">MutableView</a> <i>(0%)</i></td>
+</tr>
+<tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.simple.Mutation.html">Mutation</a> <i>(77%)</i></td>
 </tr>
 <tr>
@@ -996,7 +1014,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.NavigableMapConverter.html">NavigableMapConverter</a> <i>(39%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.NavigableMapKVStore.html">NavigableMapKVStore</a> <i>(82%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.NavigableMapKVStore.html">NavigableMapKVStore</a> <i>(80%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.NavigableSetConverter.html">NavigableSetConverter</a> <i>(45%)</i></td>
@@ -1020,7 +1038,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.ObjId.html">ObjId</a> <i>(87%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.ObjIdBiMultiMap.html">ObjIdBiMultiMap</a> <i>(66%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.ObjIdBiMultiMap.html">ObjIdBiMultiMap</a> <i>(67%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.ObjIdMap.html">ObjIdMap</a> <i>(89%)</i></td>
@@ -1119,6 +1137,15 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.demo.Planet.html">Planet</a> <i>(100%)</i></td>
 </tr>
 <tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.PrefixKVDatabase.html">PrefixKVDatabase</a> <i>(0%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.PrefixKVStore.html">PrefixKVStore</a> <i>(0%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.PrefixKVTransaction.html">PrefixKVTransaction</a> <i>(0%)</i></td>
+</tr>
+<tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.util.PrefixPredicate.html">PrefixPredicate</a> <i>(100%)</i></td>
 </tr>
 <tr>
@@ -1191,7 +1218,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.expr.RelationalExprParser.html">RelationalExprParser</a> <i>(100%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.RetryTransactionException.html">RetryTransactionException</a> <i>(50%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.RetryTransactionException.html">RetryTransactionException</a> <i>(25%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.RollbackOnlyTransactionException.html">RollbackOnlyTransactionException</a> <i>(0%)</i></td>
@@ -1266,7 +1293,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.cli.cmd.SetAllowNewSchemaCommand.html">SetAllowNewSchemaCommand</a> <i>(0%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.SetField.html">SetField</a> <i>(88%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.SetField.html">SetField</a> <i>(84%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.change.SetFieldAdd.html">SetFieldAdd</a> <i>(53%)</i></td>
@@ -1338,7 +1365,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.func.SimpleFunction.html">SimpleFunction</a> <i>(33%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.simple.SimpleKVDatabase.html">SimpleKVDatabase</a> <i>(86%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.simple.SimpleKVDatabase.html">SimpleKVDatabase</a> <i>(82%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.simple.SimpleKVTransaction.html">SimpleKVTransaction</a> <i>(92%)</i></td>
@@ -1413,7 +1440,7 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.TransactionException.html">TransactionException</a> <i>(66%)</i></td>
 </tr>
 <tr>
-<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.TransactionTimeoutException.html">TransactionTimeoutException</a> <i>(50%)</i></td>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.TransactionTimeoutException.html">TransactionTimeoutException</a> <i>(25%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.func.TransformFunction.html">TransformFunction</a> <i>(11%)</i></td>
@@ -1503,6 +1530,9 @@ All Packages
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.UnknownTypeException.html">UnknownTypeException</a> <i>(75%)</i></td>
 </tr>
 <tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.util.UnmodifiableKVStore.html">UnmodifiableKVStore</a> <i>(0%)</i></td>
+</tr>
+<tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.util.UnsignedIntEncoder.html">UnsignedIntEncoder</a> <i>(56%)</i></td>
 </tr>
 <tr>
@@ -1552,6 +1582,9 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.parse.func.VersionFunction.html">VersionFunction</a> <i>(15%)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.leveldb.VersionInfo.html">VersionInfo</a> <i>(0%)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.core.VoidType.html">VoidType</a> <i>(33%)</i></td>
@@ -1609,6 +1642,12 @@ All Packages
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.fdb.package-info.html">package-info</a> <i>(N/A)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.leveldb.package-info.html">package-info</a> <i>(N/A)</i></td>
+</tr>
+<tr>
+<td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.mvcc.package-info.html">package-info</a> <i>(N/A)</i></td>
 </tr>
 <tr>
 <td nowrap="nowrap"><a target="summary" href="org.jsimpledb.kv.package-info.html">package-info</a> <i>(N/A)</i></td>
