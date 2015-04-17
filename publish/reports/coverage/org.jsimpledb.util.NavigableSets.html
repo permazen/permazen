@@ -134,7 +134,7 @@
   <td class="src"><pre class="src">&nbsp;    @SuppressWarnings(<span class="string">"varargs"</span>)</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;59</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">static</span> &lt;E&gt; NavigableSet&lt;E&gt; intersection(NavigableSet&lt;E&gt;... sets) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;60</td>  <td class="nbHitsCovered">&nbsp;207</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> IntersectionNavigableSet&lt;E&gt;(Arrays.asList(sets));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;60</td>  <td class="nbHitsCovered">&nbsp;206</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> IntersectionNavigableSet&lt;E&gt;(Arrays.asList(sets));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;61</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;62</td>  <td class="nbHits">&nbsp;</td>
@@ -192,7 +192,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;89</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">static</span> &lt;E&gt; NavigableSet&lt;E&gt; union(Iterable&lt;? <span class="keyword">extends</span> NavigableSet&lt;E&gt;&gt; sets) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;90</td>  <td class="nbHitsCovered">&nbsp;84</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> UnionNavigableSet&lt;E&gt;(sets);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;90</td>  <td class="nbHitsCovered">&nbsp;83</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> UnionNavigableSet&lt;E&gt;(sets);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;91</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;92</td>  <td class="nbHits">&nbsp;</td>
@@ -348,7 +348,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;170</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">static</span> &lt;E&gt; NavigableSet&lt;E&gt; empty(Comparator&lt;? <span class="keyword">super</span> E&gt; comparator) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;171</td>  <td class="nbHitsCovered">&nbsp;556</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> EmptyNavigableSet&lt;E&gt;(comparator);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;171</td>  <td class="nbHitsCovered">&nbsp;572</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> EmptyNavigableSet&lt;E&gt;(comparator);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;172</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;173</td>  <td class="nbHits">&nbsp;</td>
@@ -371,7 +371,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;182</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">static</span> &lt;T&gt; Comparator&lt;T&gt; getComparator(Comparator&lt;T&gt; comparator, <span class="keyword">boolean</span> reversed) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;183</td>  <td class="nbHitsCovered"><a title="Line 183: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;31981</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 183: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">        <span class="keyword">return</span> comparator != <span class="keyword">null</span> ?</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;183</td>  <td class="nbHitsCovered"><a title="Line 183: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;31723</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 183: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">        <span class="keyword">return</span> comparator != <span class="keyword">null</span> ?</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;184</td>  <td class="nbHitsCovered"><a title="Line 184: Conditional coverage 100% (2/2).">&nbsp;21</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 184: Conditional coverage 100% (2/2).">          (reversed ? Collections.&lt;T&gt;reverseOrder(comparator) : comparator) :</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;185</td>  <td class="nbHitsCovered">&nbsp;10</td>  <td class="src"><pre class="src">&nbsp;          (reversed ? Collections.&lt;T&gt;reverseOrder() : <span class="keyword">new</span> NaturalComparator&lt;T&gt;());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;186</td>  <td class="nbHits">&nbsp;</td>
@@ -382,7 +382,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">// NaturalComparator</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;189</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;190</td>  <td class="nbHitsCovered">&nbsp;63066</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> NaturalComparator&lt;T&gt; <span class="keyword">implements</span> Comparator&lt;T&gt; {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;190</td>  <td class="nbHitsCovered">&nbsp;62554</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> NaturalComparator&lt;T&gt; <span class="keyword">implements</span> Comparator&lt;T&gt; {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;191</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;192</td>  <td class="nbHits">&nbsp;</td>
@@ -391,7 +391,7 @@
   <td class="src"><pre class="src">&nbsp;        @SuppressWarnings(<span class="string">"unchecked"</span>)</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;194</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">public</span> <span class="keyword">int</span> compare(T e1, T e2) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;195</td>  <td class="nbHitsCovered">&nbsp;3403663</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> ((Comparable&lt;T&gt;)e1).compareTo(e2);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;195</td>  <td class="nbHitsCovered">&nbsp;3279948</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> ((Comparable&lt;T&gt;)e1).compareTo(e2);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;196</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;197</td>  <td class="nbHits">&nbsp;</td>
@@ -402,6 +402,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 3/7/15 12:17 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/16/15 8:30 PM.</div>
 </body>
 </html>

@@ -271,7 +271,7 @@
 <span class="sourceLineNo">263</span>            return true;<a name="line.263"></a>
 <span class="sourceLineNo">264</span>        final ByteWriter writer = new ByteWriter();<a name="line.264"></a>
 <span class="sourceLineNo">265</span>        this.encodeKey(writer, key);<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        return KeyRange.compare(writer.getBytes(), KeyRange.MIN, this.keyRange.getMin(), KeyRange.MIN) &gt;= 0;<a name="line.266"></a>
+<span class="sourceLineNo">266</span>        return KeyRange.compare(writer.getBytes(), this.keyRange.getMin()) &gt;= 0;<a name="line.266"></a>
 <span class="sourceLineNo">267</span>    }<a name="line.267"></a>
 <span class="sourceLineNo">268</span><a name="line.268"></a>
 <span class="sourceLineNo">269</span>    @Override<a name="line.269"></a>
@@ -282,7 +282,7 @@
 <span class="sourceLineNo">274</span>            return true;<a name="line.274"></a>
 <span class="sourceLineNo">275</span>        final ByteWriter writer = new ByteWriter();<a name="line.275"></a>
 <span class="sourceLineNo">276</span>        this.encodeKey(writer, key);<a name="line.276"></a>
-<span class="sourceLineNo">277</span>        return KeyRange.compare(writer.getBytes(), KeyRange.MAX, this.keyRange.getMax(), KeyRange.MAX) &lt; 0;<a name="line.277"></a>
+<span class="sourceLineNo">277</span>        return KeyRange.compare(writer.getBytes(), this.keyRange.getMax()) &lt; 0;<a name="line.277"></a>
 <span class="sourceLineNo">278</span>    }<a name="line.278"></a>
 <span class="sourceLineNo">279</span><a name="line.279"></a>
 <span class="sourceLineNo">280</span>    @Override<a name="line.280"></a>
@@ -436,7 +436,7 @@
 <span class="sourceLineNo">428</span>                newMaxKey = ByteUtil.max(newMaxKey, minKey);<a name="line.428"></a>
 <span class="sourceLineNo">429</span>            break;<a name="line.429"></a>
 <span class="sourceLineNo">430</span>        }<a name="line.430"></a>
-<span class="sourceLineNo">431</span>        return new KeyRange(newMinKey, newMaxKey);<a name="line.431"></a>
+<span class="sourceLineNo">431</span>        return new KeyRange(newMinKey != null ? newMinKey : ByteUtil.EMPTY, newMaxKey);<a name="line.431"></a>
 <span class="sourceLineNo">432</span>    }<a name="line.432"></a>
 <span class="sourceLineNo">433</span><a name="line.433"></a>
 <span class="sourceLineNo">434</span>// KeySet<a name="line.434"></a>

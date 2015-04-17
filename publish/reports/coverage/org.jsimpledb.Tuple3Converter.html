@@ -63,7 +63,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * @param &lt;W3&gt; third wrapped value</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;23</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;24</td>  <td class="nbHitsCovered">&nbsp;28668</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">class</span> Tuple3Converter&lt;V1, V2, V3, W1, W2, W3&gt; <span class="keyword">extends</span> Converter&lt;Tuple3&lt;V1, V2, V3&gt;, Tuple3&lt;W1, W2, W3&gt;&gt; {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;24</td>  <td class="nbHitsCovered">&nbsp;13872</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">class</span> Tuple3Converter&lt;V1, V2, V3, W1, W2, W3&gt; <span class="keyword">extends</span> Converter&lt;Tuple3&lt;V1, V2, V3&gt;, Tuple3&lt;W1, W2, W3&gt;&gt; {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;25</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;26</td>  <td class="nbHits">&nbsp;</td>
@@ -93,12 +93,12 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;44</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> Tuple3&lt;W1, W2, W3&gt; doForward(Tuple3&lt;V1, V2, V3&gt; tuple) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsUncovered"><a title="Line 45: Conditional coverage 50% (1/2).">&nbsp;14292</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 45: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tuple == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;45</td>  <td class="nbHitsUncovered"><a title="Line 45: Conditional coverage 50% (1/2).">&nbsp;6894</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 45: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tuple == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;46</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> <span class="keyword">null</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;14292</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> Tuple3&lt;W1, W2, W3&gt;(</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;14292</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value1Converter.convert(tuple.getValue1()),</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;14292</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value2Converter.convert(tuple.getValue2()),</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;14292</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value3Converter.convert(tuple.getValue3()));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered">&nbsp;6894</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> Tuple3&lt;W1, W2, W3&gt;(</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;6894</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value1Converter.convert(tuple.getValue1()),</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;6894</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value2Converter.convert(tuple.getValue2()),</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;50</td>  <td class="nbHitsCovered">&nbsp;6894</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value3Converter.convert(tuple.getValue3()));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;51</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;52</td>  <td class="nbHits">&nbsp;</td>
@@ -107,12 +107,12 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;54</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> Tuple3&lt;V1, V2, V3&gt; doBackward(Tuple3&lt;W1, W2, W3&gt; tuple) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;55</td>  <td class="nbHitsUncovered"><a title="Line 55: Conditional coverage 50% (1/2).">&nbsp;14376</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 55: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tuple == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;55</td>  <td class="nbHitsUncovered"><a title="Line 55: Conditional coverage 50% (1/2).">&nbsp;6978</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 55: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tuple == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;56</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span> <span class="keyword">null</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered">&nbsp;14376</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> Tuple3&lt;V1, V2, V3&gt;(</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;14376</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value1Converter.reverse().convert(tuple.getValue1()),</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsCovered">&nbsp;14376</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value2Converter.reverse().convert(tuple.getValue2()),</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;60</td>  <td class="nbHitsCovered">&nbsp;14376</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value3Converter.reverse().convert(tuple.getValue3()));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered">&nbsp;6978</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> Tuple3&lt;V1, V2, V3&gt;(</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsCovered">&nbsp;6978</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value1Converter.reverse().convert(tuple.getValue1()),</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsCovered">&nbsp;6978</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value2Converter.reverse().convert(tuple.getValue2()),</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;60</td>  <td class="nbHitsCovered">&nbsp;6978</td>  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.value3Converter.reverse().convert(tuple.getValue3()));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;61</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;62</td>  <td class="nbHits">&nbsp;</td>
@@ -169,6 +169,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 3/7/15 12:17 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/16/15 8:30 PM.</div>
 </body>
 </html>

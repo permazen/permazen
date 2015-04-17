@@ -335,95 +335,94 @@
 <span class="sourceLineNo">327</span>     * This method is idempotent.<a name="line.327"></a>
 <span class="sourceLineNo">328</span>     * &lt;/p&gt;<a name="line.328"></a>
 <span class="sourceLineNo">329</span>     *<a name="line.329"></a>
-<span class="sourceLineNo">330</span>     * @throws IllegalStateException if this instance has already been {@linkplain #start started}<a name="line.330"></a>
-<span class="sourceLineNo">331</span>     * @throws IllegalStateException if this instance is not properly configured<a name="line.331"></a>
-<span class="sourceLineNo">332</span>     */<a name="line.332"></a>
-<span class="sourceLineNo">333</span>    @PostConstruct<a name="line.333"></a>
-<span class="sourceLineNo">334</span>    public synchronized void start() {<a name="line.334"></a>
-<span class="sourceLineNo">335</span>        if (this.environment != null) {<a name="line.335"></a>
-<span class="sourceLineNo">336</span>            assert this.database != null;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>            return;<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        }<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        assert this.openTransactions.isEmpty();<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        if (this.directory == null)<a name="line.340"></a>
-<span class="sourceLineNo">341</span>            throw new IllegalStateException("no directory configured");<a name="line.341"></a>
-<span class="sourceLineNo">342</span>        if (this.databaseName == null)<a name="line.342"></a>
-<span class="sourceLineNo">343</span>            throw new IllegalStateException("no database name configured");<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        boolean success = false;<a name="line.344"></a>
-<span class="sourceLineNo">345</span>        try {<a name="line.345"></a>
-<span class="sourceLineNo">346</span>            this.environment = new Environment(this.directory, this.environmentConfig);<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            this.database = this.environment.openDatabase(null, this.databaseName, this.databaseConfig);<a name="line.347"></a>
-<span class="sourceLineNo">348</span>            success = true;<a name="line.348"></a>
-<span class="sourceLineNo">349</span>        } finally {<a name="line.349"></a>
-<span class="sourceLineNo">350</span>            if (!success) {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>                try {<a name="line.351"></a>
-<span class="sourceLineNo">352</span>                    for (AutoCloseable item : new AutoCloseable[] { this.database, this.environment }) {<a name="line.352"></a>
-<span class="sourceLineNo">353</span>                        if (item != null) {<a name="line.353"></a>
-<span class="sourceLineNo">354</span>                            try {<a name="line.354"></a>
-<span class="sourceLineNo">355</span>                                item.close();<a name="line.355"></a>
-<span class="sourceLineNo">356</span>                            } catch (Throwable e) {<a name="line.356"></a>
-<span class="sourceLineNo">357</span>                                this.log.error("caught exception cleaning up after failed startup (ignoring)", e);<a name="line.357"></a>
-<span class="sourceLineNo">358</span>                            }<a name="line.358"></a>
-<span class="sourceLineNo">359</span>                        }<a name="line.359"></a>
-<span class="sourceLineNo">360</span>                    }<a name="line.360"></a>
-<span class="sourceLineNo">361</span>                } finally {<a name="line.361"></a>
-<span class="sourceLineNo">362</span>                    this.database = null;<a name="line.362"></a>
-<span class="sourceLineNo">363</span>                    this.environment = null;<a name="line.363"></a>
-<span class="sourceLineNo">364</span>                }<a name="line.364"></a>
-<span class="sourceLineNo">365</span>            }<a name="line.365"></a>
-<span class="sourceLineNo">366</span>        }<a name="line.366"></a>
-<span class="sourceLineNo">367</span>    }<a name="line.367"></a>
-<span class="sourceLineNo">368</span><a name="line.368"></a>
-<span class="sourceLineNo">369</span>    /**<a name="line.369"></a>
-<span class="sourceLineNo">370</span>     * Stop this instance. Does nothing if not {@linkplain #start started}.<a name="line.370"></a>
-<span class="sourceLineNo">371</span>     */<a name="line.371"></a>
-<span class="sourceLineNo">372</span>    @PreDestroy<a name="line.372"></a>
-<span class="sourceLineNo">373</span>    public void stop() {<a name="line.373"></a>
-<span class="sourceLineNo">374</span><a name="line.374"></a>
-<span class="sourceLineNo">375</span>        // Mark this instance as shutdown so no new transactions are created<a name="line.375"></a>
-<span class="sourceLineNo">376</span>        final Environment oldEnvironment;<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        final Database oldDatabase;<a name="line.377"></a>
-<span class="sourceLineNo">378</span>        final ArrayList&lt;BerkeleyKVTransaction&gt; oldTransactions;<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        synchronized (this) {<a name="line.379"></a>
-<span class="sourceLineNo">380</span>            oldEnvironment = this.environment;<a name="line.380"></a>
-<span class="sourceLineNo">381</span>            oldDatabase = this.database;<a name="line.381"></a>
-<span class="sourceLineNo">382</span>            oldTransactions = new ArrayList&lt;BerkeleyKVTransaction&gt;(this.openTransactions);<a name="line.382"></a>
-<span class="sourceLineNo">383</span>            this.environment = null;<a name="line.383"></a>
-<span class="sourceLineNo">384</span>            this.database = null;<a name="line.384"></a>
-<span class="sourceLineNo">385</span>            this.openTransactions.clear();<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        }<a name="line.386"></a>
-<span class="sourceLineNo">387</span><a name="line.387"></a>
-<span class="sourceLineNo">388</span>        // Were we already stopped?<a name="line.388"></a>
-<span class="sourceLineNo">389</span>        if (oldEnvironment == null) {<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            assert this.database == null;<a name="line.390"></a>
-<span class="sourceLineNo">391</span>            return;<a name="line.391"></a>
-<span class="sourceLineNo">392</span>        }<a name="line.392"></a>
-<span class="sourceLineNo">393</span><a name="line.393"></a>
-<span class="sourceLineNo">394</span>        // Rollback any open transactions so cursors are cleaned up and transactions closed<a name="line.394"></a>
-<span class="sourceLineNo">395</span>        for (BerkeleyKVTransaction tx : oldTransactions) {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>            try {<a name="line.396"></a>
-<span class="sourceLineNo">397</span>                tx.rollback();<a name="line.397"></a>
-<span class="sourceLineNo">398</span>            } catch (Throwable e) {<a name="line.398"></a>
-<span class="sourceLineNo">399</span>                this.log.debug("caught exception closing open transaction during shutdown (ignoring)", e);<a name="line.399"></a>
-<span class="sourceLineNo">400</span>            }<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        }<a name="line.401"></a>
-<span class="sourceLineNo">402</span><a name="line.402"></a>
-<span class="sourceLineNo">403</span>        // Shut down database<a name="line.403"></a>
-<span class="sourceLineNo">404</span>        try {<a name="line.404"></a>
-<span class="sourceLineNo">405</span>            oldDatabase.close();<a name="line.405"></a>
-<span class="sourceLineNo">406</span>        } catch (Throwable e) {<a name="line.406"></a>
-<span class="sourceLineNo">407</span>            this.log.error("caught exception closing database during shutdown (ignoring)", e);<a name="line.407"></a>
-<span class="sourceLineNo">408</span>        }<a name="line.408"></a>
-<span class="sourceLineNo">409</span><a name="line.409"></a>
-<span class="sourceLineNo">410</span>        // Shut down environment<a name="line.410"></a>
-<span class="sourceLineNo">411</span>        try {<a name="line.411"></a>
-<span class="sourceLineNo">412</span>            oldEnvironment.close();<a name="line.412"></a>
-<span class="sourceLineNo">413</span>        } catch (Throwable e) {<a name="line.413"></a>
-<span class="sourceLineNo">414</span>            this.log.error("caught exception closing environment during shutdown (ignoring)", e);<a name="line.414"></a>
-<span class="sourceLineNo">415</span>        }<a name="line.415"></a>
-<span class="sourceLineNo">416</span>    }<a name="line.416"></a>
-<span class="sourceLineNo">417</span>}<a name="line.417"></a>
-<span class="sourceLineNo">418</span><a name="line.418"></a>
+<span class="sourceLineNo">330</span>     * @throws IllegalStateException if this instance is not properly configured<a name="line.330"></a>
+<span class="sourceLineNo">331</span>     */<a name="line.331"></a>
+<span class="sourceLineNo">332</span>    @PostConstruct<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    public synchronized void start() {<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        if (this.environment != null) {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            assert this.database != null;<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            return;<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        }<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        assert this.openTransactions.isEmpty();<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        if (this.directory == null)<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            throw new IllegalStateException("no directory configured");<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        if (this.databaseName == null)<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            throw new IllegalStateException("no database name configured");<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        boolean success = false;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        try {<a name="line.344"></a>
+<span class="sourceLineNo">345</span>            this.environment = new Environment(this.directory, this.environmentConfig);<a name="line.345"></a>
+<span class="sourceLineNo">346</span>            this.database = this.environment.openDatabase(null, this.databaseName, this.databaseConfig);<a name="line.346"></a>
+<span class="sourceLineNo">347</span>            success = true;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        } finally {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            if (!success) {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                try {<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                    for (AutoCloseable item : new AutoCloseable[] { this.database, this.environment }) {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>                        if (item != null) {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                            try {<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                                item.close();<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                            } catch (Throwable e) {<a name="line.355"></a>
+<span class="sourceLineNo">356</span>                                this.log.error("caught exception cleaning up after failed startup (ignoring)", e);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>                            }<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                        }<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                    }<a name="line.359"></a>
+<span class="sourceLineNo">360</span>                } finally {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                    this.database = null;<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                    this.environment = null;<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                }<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            }<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        }<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    }<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>    /**<a name="line.368"></a>
+<span class="sourceLineNo">369</span>     * Stop this instance. Does nothing if not {@linkplain #start started}.<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     */<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    @PreDestroy<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    public void stop() {<a name="line.372"></a>
+<span class="sourceLineNo">373</span><a name="line.373"></a>
+<span class="sourceLineNo">374</span>        // Mark this instance as shutdown so no new transactions are created<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        final Environment oldEnvironment;<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        final Database oldDatabase;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        final ArrayList&lt;BerkeleyKVTransaction&gt; oldTransactions;<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        synchronized (this) {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            oldEnvironment = this.environment;<a name="line.379"></a>
+<span class="sourceLineNo">380</span>            oldDatabase = this.database;<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            oldTransactions = new ArrayList&lt;BerkeleyKVTransaction&gt;(this.openTransactions);<a name="line.381"></a>
+<span class="sourceLineNo">382</span>            this.environment = null;<a name="line.382"></a>
+<span class="sourceLineNo">383</span>            this.database = null;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>            this.openTransactions.clear();<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        }<a name="line.385"></a>
+<span class="sourceLineNo">386</span><a name="line.386"></a>
+<span class="sourceLineNo">387</span>        // Were we already stopped?<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        if (oldEnvironment == null) {<a name="line.388"></a>
+<span class="sourceLineNo">389</span>            assert this.database == null;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            return;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        }<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>        // Rollback any open transactions so cursors are cleaned up and transactions closed<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        for (BerkeleyKVTransaction tx : oldTransactions) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            try {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                tx.rollback();<a name="line.396"></a>
+<span class="sourceLineNo">397</span>            } catch (Throwable e) {<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                this.log.debug("caught exception closing open transaction during shutdown (ignoring)", e);<a name="line.398"></a>
+<span class="sourceLineNo">399</span>            }<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        }<a name="line.400"></a>
+<span class="sourceLineNo">401</span><a name="line.401"></a>
+<span class="sourceLineNo">402</span>        // Shut down database<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        try {<a name="line.403"></a>
+<span class="sourceLineNo">404</span>            oldDatabase.close();<a name="line.404"></a>
+<span class="sourceLineNo">405</span>        } catch (Throwable e) {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            this.log.error("caught exception closing database during shutdown (ignoring)", e);<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        }<a name="line.407"></a>
+<span class="sourceLineNo">408</span><a name="line.408"></a>
+<span class="sourceLineNo">409</span>        // Shut down environment<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        try {<a name="line.410"></a>
+<span class="sourceLineNo">411</span>            oldEnvironment.close();<a name="line.411"></a>
+<span class="sourceLineNo">412</span>        } catch (Throwable e) {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>            this.log.error("caught exception closing environment during shutdown (ignoring)", e);<a name="line.413"></a>
+<span class="sourceLineNo">414</span>        }<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    }<a name="line.415"></a>
+<span class="sourceLineNo">416</span>}<a name="line.416"></a>
+<span class="sourceLineNo">417</span><a name="line.417"></a>
 
 
 

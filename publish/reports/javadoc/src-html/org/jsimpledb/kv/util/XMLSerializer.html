@@ -114,7 +114,7 @@
 <span class="sourceLineNo">106</span>                throw new XMLStreamException("invalid hexadecimal key", reader.getLocation(), e);<a name="line.106"></a>
 <span class="sourceLineNo">107</span>            }<a name="line.107"></a>
 <span class="sourceLineNo">108</span>            if (!this.expect(reader, true, VALUE_TAG)) {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>                this.kv.put(key, new byte[0]);<a name="line.109"></a>
+<span class="sourceLineNo">109</span>                this.kv.put(key, ByteUtil.EMPTY);<a name="line.109"></a>
 <span class="sourceLineNo">110</span>                continue;                           // closing &lt;/entry&gt; tag alread read<a name="line.110"></a>
 <span class="sourceLineNo">111</span>            }<a name="line.111"></a>
 <span class="sourceLineNo">112</span>            byte[] value;<a name="line.112"></a>

@@ -140,8 +140,8 @@
 <span class="sourceLineNo">132</span><a name="line.132"></a>
 <span class="sourceLineNo">133</span>    @Override<a name="line.133"></a>
 <span class="sourceLineNo">134</span>    public Value multiply(ParseSession session, Value that) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        final Object thisValue = this.get(session);<a name="line.135"></a>
-<span class="sourceLineNo">136</span>        final Object thatValue = that.get(session);<a name="line.136"></a>
+<span class="sourceLineNo">135</span>        final Object thisValue = this.checkNotNull(session, "multiply");<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        final Object thatValue = that.checkNotNull(session, "multiply");<a name="line.136"></a>
 <span class="sourceLineNo">137</span>        final Number lnum = AbstractValue.promoteNumeric(session, thisValue, "multiply", thatValue);<a name="line.137"></a>
 <span class="sourceLineNo">138</span>        final Number rnum = AbstractValue.promoteNumeric(session, thatValue, "multiply", thisValue);<a name="line.138"></a>
 <span class="sourceLineNo">139</span>        if (lnum instanceof BigDecimal)<a name="line.139"></a>
@@ -162,8 +162,8 @@
 <span class="sourceLineNo">154</span><a name="line.154"></a>
 <span class="sourceLineNo">155</span>    @Override<a name="line.155"></a>
 <span class="sourceLineNo">156</span>    public Value divide(ParseSession session, Value that) {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        final Object thisValue = this.get(session);<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        final Object thatValue = that.get(session);<a name="line.158"></a>
+<span class="sourceLineNo">157</span>        final Object thisValue = this.checkNotNull(session, "divide");<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        final Object thatValue = that.checkNotNull(session, "divide");<a name="line.158"></a>
 <span class="sourceLineNo">159</span>        final Number lnum = AbstractValue.promoteNumeric(session, thisValue, "divide", thatValue);<a name="line.159"></a>
 <span class="sourceLineNo">160</span>        final Number rnum = AbstractValue.promoteNumeric(session, thatValue, "divide", thisValue);<a name="line.160"></a>
 <span class="sourceLineNo">161</span>        if (lnum instanceof BigDecimal)<a name="line.161"></a>
@@ -184,8 +184,8 @@
 <span class="sourceLineNo">176</span><a name="line.176"></a>
 <span class="sourceLineNo">177</span>    @Override<a name="line.177"></a>
 <span class="sourceLineNo">178</span>    public Value mod(ParseSession session, Value that) {<a name="line.178"></a>
-<span class="sourceLineNo">179</span>        final Object thisValue = this.get(session);<a name="line.179"></a>
-<span class="sourceLineNo">180</span>        final Object thatValue = that.get(session);<a name="line.180"></a>
+<span class="sourceLineNo">179</span>        final Object thisValue = this.checkNotNull(session, "modulo");<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        final Object thatValue = that.checkNotNull(session, "modulo");<a name="line.180"></a>
 <span class="sourceLineNo">181</span>        final Number lnum = AbstractValue.promoteNumeric(session, thisValue, "modulo", thatValue);<a name="line.181"></a>
 <span class="sourceLineNo">182</span>        final Number rnum = AbstractValue.promoteNumeric(session, thatValue, "modulo", thisValue);<a name="line.182"></a>
 <span class="sourceLineNo">183</span>        if (lnum instanceof Double)<a name="line.183"></a>
@@ -235,8 +235,8 @@
 <span class="sourceLineNo">227</span>    public Value subtract(ParseSession session, Value that) {<a name="line.227"></a>
 <span class="sourceLineNo">228</span><a name="line.228"></a>
 <span class="sourceLineNo">229</span>        // Handle NavigableSet with equal comparators XXX might not have compatible elements<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        final Object thisValue = this.get(session);<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        final Object thatValue = that.get(session);<a name="line.231"></a>
+<span class="sourceLineNo">230</span>        final Object thisValue = this.checkNotNull(session, "subtract");<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        final Object thatValue = that.checkNotNull(session, "subtract");<a name="line.231"></a>
 <span class="sourceLineNo">232</span>        if (thisValue instanceof NavigableSet<a name="line.232"></a>
 <span class="sourceLineNo">233</span>          &amp;&amp; thatValue instanceof NavigableSet<a name="line.233"></a>
 <span class="sourceLineNo">234</span>          &amp;&amp; (((NavigableSet&lt;?&gt;)thisValue).comparator() != null ?<a name="line.234"></a>
@@ -269,8 +269,8 @@
 <span class="sourceLineNo">261</span><a name="line.261"></a>
 <span class="sourceLineNo">262</span>    @Override<a name="line.262"></a>
 <span class="sourceLineNo">263</span>    public Value lshift(ParseSession session, Value arg) {<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        final Object thisValue = this.get(session);<a name="line.264"></a>
-<span class="sourceLineNo">265</span>        final Object thatValue = arg.get(session);<a name="line.265"></a>
+<span class="sourceLineNo">264</span>        final Object thisValue = this.checkNotNull(session, "left shift");<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        final Object thatValue = arg.checkNotNull(session, "left shift");<a name="line.265"></a>
 <span class="sourceLineNo">266</span>        final Number target = AbstractValue.promoteNumeric(session, thisValue, "left shift");<a name="line.266"></a>
 <span class="sourceLineNo">267</span>        final Number shift = AbstractValue.promoteNumeric(session, thatValue, "left shift");<a name="line.267"></a>
 <span class="sourceLineNo">268</span>        if (!(target instanceof Integer) &amp;&amp; !(target instanceof Long))<a name="line.268"></a>
@@ -287,8 +287,8 @@
 <span class="sourceLineNo">279</span><a name="line.279"></a>
 <span class="sourceLineNo">280</span>    @Override<a name="line.280"></a>
 <span class="sourceLineNo">281</span>    public Value rshift(ParseSession session, Value arg) {<a name="line.281"></a>
-<span class="sourceLineNo">282</span>        final Object thisValue = this.get(session);<a name="line.282"></a>
-<span class="sourceLineNo">283</span>        final Object thatValue = arg.get(session);<a name="line.283"></a>
+<span class="sourceLineNo">282</span>        final Object thisValue = this.checkNotNull(session, "right shift");<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        final Object thatValue = arg.checkNotNull(session, "right shift");<a name="line.283"></a>
 <span class="sourceLineNo">284</span>        final Number target = AbstractValue.promoteNumeric(session, thisValue, "right shift");<a name="line.284"></a>
 <span class="sourceLineNo">285</span>        final Number shift = AbstractValue.promoteNumeric(session, thatValue, "right shift");<a name="line.285"></a>
 <span class="sourceLineNo">286</span>        if (!(target instanceof Integer) &amp;&amp; !(target instanceof Long))<a name="line.286"></a>
@@ -305,8 +305,8 @@
 <span class="sourceLineNo">297</span><a name="line.297"></a>
 <span class="sourceLineNo">298</span>    @Override<a name="line.298"></a>
 <span class="sourceLineNo">299</span>    public Value urshift(ParseSession session, Value arg) {<a name="line.299"></a>
-<span class="sourceLineNo">300</span>        final Object thisValue = this.get(session);<a name="line.300"></a>
-<span class="sourceLineNo">301</span>        final Object thatValue = arg.get(session);<a name="line.301"></a>
+<span class="sourceLineNo">300</span>        final Object thisValue = this.checkNotNull(session, "unsigned right shift");<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        final Object thatValue = arg.checkNotNull(session, "unsigned right shift");<a name="line.301"></a>
 <span class="sourceLineNo">302</span>        final Number target = AbstractValue.promoteNumeric(session, thisValue, "unsigned right shift");<a name="line.302"></a>
 <span class="sourceLineNo">303</span>        final Number shift = AbstractValue.promoteNumeric(session, thatValue, "unsigned right shift");<a name="line.303"></a>
 <span class="sourceLineNo">304</span>        if (!(target instanceof Integer) &amp;&amp; !(target instanceof Long))<a name="line.304"></a>
@@ -326,8 +326,8 @@
 <span class="sourceLineNo">318</span>    public Value and(ParseSession session, Value that) {<a name="line.318"></a>
 <span class="sourceLineNo">319</span><a name="line.319"></a>
 <span class="sourceLineNo">320</span>        // Handle boolean<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        final Object thisValue = this.get(session);<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        final Object thatValue = that.get(session);<a name="line.322"></a>
+<span class="sourceLineNo">321</span>        final Object thisValue = this.checkNotNull(session, "`and'");<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        final Object thatValue = that.checkNotNull(session, "`and'");<a name="line.322"></a>
 <span class="sourceLineNo">323</span>        if (thisValue instanceof Boolean &amp;&amp; thatValue instanceof Boolean)<a name="line.323"></a>
 <span class="sourceLineNo">324</span>            return new ConstValue((Boolean)thisValue &amp; (Boolean)thatValue);<a name="line.324"></a>
 <span class="sourceLineNo">325</span><a name="line.325"></a>
@@ -360,8 +360,8 @@
 <span class="sourceLineNo">352</span>    public Value or(ParseSession session, Value that) {<a name="line.352"></a>
 <span class="sourceLineNo">353</span><a name="line.353"></a>
 <span class="sourceLineNo">354</span>        // Handle boolean<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        final Object thisValue = this.get(session);<a name="line.355"></a>
-<span class="sourceLineNo">356</span>        final Object thatValue = that.get(session);<a name="line.356"></a>
+<span class="sourceLineNo">355</span>        final Object thisValue = this.checkNotNull(session, "`or'");<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        final Object thatValue = that.checkNotNull(session, "`or'");<a name="line.356"></a>
 <span class="sourceLineNo">357</span>        if (thisValue instanceof Boolean &amp;&amp; thatValue instanceof Boolean)<a name="line.357"></a>
 <span class="sourceLineNo">358</span>            return new ConstValue((Boolean)thisValue | (Boolean)thatValue);<a name="line.358"></a>
 <span class="sourceLineNo">359</span><a name="line.359"></a>
@@ -394,8 +394,8 @@
 <span class="sourceLineNo">386</span>    public Value xor(ParseSession session, Value that) {<a name="line.386"></a>
 <span class="sourceLineNo">387</span><a name="line.387"></a>
 <span class="sourceLineNo">388</span>        // Handle boolean<a name="line.388"></a>
-<span class="sourceLineNo">389</span>        final Object thisValue = this.get(session);<a name="line.389"></a>
-<span class="sourceLineNo">390</span>        final Object thatValue = that.get(session);<a name="line.390"></a>
+<span class="sourceLineNo">389</span>        final Object thisValue = this.checkNotNull(session, "exclusive `or'");<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        final Object thatValue = that.checkNotNull(session, "exclusive `or'");<a name="line.390"></a>
 <span class="sourceLineNo">391</span>        if (thisValue instanceof Boolean &amp;&amp; thatValue instanceof Boolean)<a name="line.391"></a>
 <span class="sourceLineNo">392</span>            return new ConstValue((Boolean)thisValue ^ (Boolean)thatValue);<a name="line.392"></a>
 <span class="sourceLineNo">393</span><a name="line.393"></a>
@@ -428,10 +428,10 @@
 <span class="sourceLineNo">420</span>    @Override<a name="line.420"></a>
 <span class="sourceLineNo">421</span>    @SuppressWarnings("unchecked")<a name="line.421"></a>
 <span class="sourceLineNo">422</span>    public Value compare(ParseSession session, Value that, int mask) {<a name="line.422"></a>
-<span class="sourceLineNo">423</span>        final Object thisValue = this.get(session);<a name="line.423"></a>
-<span class="sourceLineNo">424</span>        final Object thatValue = that.get(session);<a name="line.424"></a>
-<span class="sourceLineNo">425</span><a name="line.425"></a>
-<span class="sourceLineNo">426</span>        // Try numeric comparison<a name="line.426"></a>
+<span class="sourceLineNo">423</span><a name="line.423"></a>
+<span class="sourceLineNo">424</span>        // Try numeric comparison<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        final Object thisValue = this.checkNotNull(session, "comparison");<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        final Object thatValue = that.checkNotNull(session, "comparison");<a name="line.426"></a>
 <span class="sourceLineNo">427</span>        while (thisValue instanceof Number &amp;&amp; thatValue instanceof Number) {<a name="line.427"></a>
 <span class="sourceLineNo">428</span>            final Number lnum = AbstractValue.promoteNumeric(session, thisValue, "comparison", thatValue);<a name="line.428"></a>
 <span class="sourceLineNo">429</span>            final Number rnum = AbstractValue.promoteNumeric(session, thatValue, "comparison", thisValue);<a name="line.429"></a>

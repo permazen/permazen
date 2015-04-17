@@ -178,9 +178,9 @@
 <tr>  <td class="numLine">&nbsp;94</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Try interface methods</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;95</td>  <td class="nbHitsCovered"><a title="Line 95: Conditional coverage 100% (2/2).">&nbsp;11</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 95: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (Class&lt;?&gt; iface : <span class="keyword">this</span>.addInterfaces(cl, <span class="keyword">new</span> LinkedHashSet&lt;Class&lt;?&gt;&gt;())) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;96</td>  <td class="nbHitsCovered"><a title="Line 96: Conditional coverage 100% (2/2).">&nbsp;85</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 96: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Method method : iface.getMethods()) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;97</td>  <td class="nbHitsCovered">&nbsp;80</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Value value = <span class="keyword">this</span>.tryMethod(method, obj, name, params);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;98</td>  <td class="nbHitsCovered"><a title="Line 98: Conditional coverage 100% (2/2).">&nbsp;80</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 98: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (value != <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;96</td>  <td class="nbHitsCovered"><a title="Line 96: Conditional coverage 100% (2/2).">&nbsp;86</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 96: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Method method : iface.getMethods()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;97</td>  <td class="nbHitsCovered">&nbsp;81</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Value value = <span class="keyword">this</span>.tryMethod(method, obj, name, params);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;98</td>  <td class="nbHitsCovered"><a title="Line 98: Conditional coverage 100% (2/2).">&nbsp;81</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 98: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (value != <span class="keyword">null</span>)</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;99</td>  <td class="nbHitsCovered">&nbsp;10</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">return</span> value;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;100</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
@@ -220,8 +220,8 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;124</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> Value tryMethod(Method method, Object obj, String name, Object[] params) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;125</td>  <td class="nbHitsCovered"><a title="Line 125: Conditional coverage 100% (2/2).">&nbsp;83</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 125: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!method.getName().equals(name))</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;126</td>  <td class="nbHitsCovered">&nbsp;72</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;125</td>  <td class="nbHitsCovered"><a title="Line 125: Conditional coverage 100% (2/2).">&nbsp;84</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 125: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!method.getName().equals(name))</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;126</td>  <td class="nbHitsCovered">&nbsp;73</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;127</td>  <td class="nbHitsCovered">&nbsp;11</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Class&lt;?&gt;[] ptypes = method.getParameterTypes();</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;128</td>  <td class="nbHitsUncovered"><a title="Line 128: Conditional coverage 50% (1/2).">&nbsp;11</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 128: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (method.isVarArgs()) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;129</td>  <td class="nbHitsUncovered"><a title="Line 129: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 129: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (params.length &lt; ptypes.length - 1)</a></span></pre></td></tr>
@@ -256,6 +256,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 3/7/15 12:17 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/16/15 8:30 PM.</div>
 </body>
 </html>
