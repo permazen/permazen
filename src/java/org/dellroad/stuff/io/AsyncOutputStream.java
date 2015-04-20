@@ -10,6 +10,7 @@ package org.dellroad.stuff.io;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.dellroad.stuff.java.CheckedExceptionWrapper;
 import org.dellroad.stuff.java.Predicate;
@@ -29,7 +30,10 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances use an internal buffer whose size is configured at construction time;
- * if the buffer overflows, a {@link BufferOverflowException} is thrown.
+ * if the buffer overflows, a {@link BufferOverflowException} is thrown. Alternately,
+ * if a buffer size of zero is configured, the internal buffer will expand automatically as needed
+ * (up to 2<super>31</super> bytes).
+ * However, this creates a memory leak if the underlying {@link OutputStream} blocks indefinitely.
  * </p>
  *
  * <p>
@@ -40,32 +44,63 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncOutputStream extends FilterOutputStream {
 
+    private static final AtomicInteger COUNTER = new AtomicInteger();
+    private static final int MIN_BUFFER_SIZE = 20;
+    private static final int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 32;
+
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final String name;
-    private final byte[] buf;           // output buffer
+    private byte[] buf;                 // output buffer
     private int count;                  // number of bytes in output buffer ready to be written
     private int flushMark = -1;         // buffer byte at which a flush is requested, or -1 if none
     private Thread thread;              // async writer thread
     private IOException exception;      // exception caught by async thread
     private boolean closed;             // this instance has been close()'d
+    private boolean expand;             // whether to auto-expand buffer as needed
+
+    /**
+     * Convenience constructor for when an auto-expanding buffer is desired and a default thread name is to be used.
+     *
+     * @param out     underlying output stream
+     * @throws IllegalArgumentException if {@code out} is null
+     */
+    public AsyncOutputStream(OutputStream out) {
+        this(out, 0, AsyncOutputStream.class.getSimpleName() + "-" + AsyncOutputStream.COUNTER.incrementAndGet());
+    }
+
+    /**
+     * Convenience constructor for when an auto-expanding buffer is desired.
+     *
+     * @param out     underlying output stream
+     * @param name    name for this instance; used to create the name of the background thread
+     * @throws IllegalArgumentException if {@code out} or {@code name} is null
+     */
+    public AsyncOutputStream(OutputStream out, String name) {
+        this(out, 0, name);
+    }
 
     /**
      * Constructor.
      *
      * @param out     underlying output stream
-     * @param bufsize maximum number of bytes we can buffer
+     * @param bufsize maximum number of bytes we can buffer, or zero for an auto-expanding buffer that has no fixed limit
      * @param name    name for this instance; used to create the name of the background thread
+     * @throws IllegalArgumentException if {@code out} or {@code name} is null
+     * @throws IllegalArgumentException if {@code bufsize} is negative
      */
     public AsyncOutputStream(OutputStream out, int bufsize, String name) {
         super(out);
         if (out == null)
             throw new IllegalArgumentException("null output");
-        this.name = name;
-        this.buf = new byte[bufsize];
+        if (name == null)
+            throw new IllegalArgumentException("null name");
+        if (bufsize < 0)
+            throw new IllegalArgumentException("invalid bufsize " + bufsize);
+        this.expand = bufsize == 0;
+        this.buf = new byte[Math.min(bufsize, MIN_BUFFER_SIZE)];
 
         // Start worker thread
-        this.thread = new Thread(this.name) {
+        this.thread = new Thread(name) {
             @Override
             public void run() {
                 AsyncOutputStream.this.threadMain();
@@ -73,6 +108,7 @@ public class AsyncOutputStream extends FilterOutputStream {
         };
         this.thread.setDaemon(true);
         this.thread.start();
+        synchronized (this) { }
     }
 
     /**
@@ -112,12 +148,21 @@ public class AsyncOutputStream extends FilterOutputStream {
 
         // Check exception conditions
         this.checkExceptions();
-        if (this.count + len > this.buf.length)
-            throw new BufferOverflowException(len + " more byte(s) would exceed the " + this.buf.length + " byte buffer");
         if (len < 0)
             throw new IllegalArgumentException("len = " + len);
         if (len == 0)
             return;
+        if (this.count + len > this.buf.length) {
+            if (!this.expand) {
+                throw new BufferOverflowException(this.count + " + " + len + " = " + (this.count + len)
+                  + " byte(s) would exceed the " + this.buf.length + " byte buffer");
+            }
+            this.resizeBuffer(Math.max(this.count + len, this.buf.length * 2));
+
+            final byte[] newBuf = new byte[Math.max(this.count + len, this.buf.length * 2)];
+            System.arraycopy(this.buf, 0, newBuf, 0, this.count);
+            this.buf = newBuf;
+        }
 
         // Add data to buffer
         System.arraycopy(data, off, this.buf, this.count, len);
@@ -185,7 +230,11 @@ public class AsyncOutputStream extends FilterOutputStream {
     /**
      * Get the capacity of this instance's output buffer.
      *
-     * @return output buffer capacity configured at construction time
+     * <p>
+     * If a (fixed) non-zero value was given at construction time, this will return that value.
+     * </p>
+     *
+     * @return current output buffer capacity
      */
     public synchronized int getBufferSize() {
         return this.buf.length;
@@ -220,6 +269,11 @@ public class AsyncOutputStream extends FilterOutputStream {
     /**
      * Wait for buffer space availability.
      *
+     * <p>
+     * If a zero buffer size was configured at construction time, indicating an auto-expanding buffer,
+     * this will return immediately.
+     * </p>
+     *
      * @param numBytes amount of buffer space required
      * @param timeout  maximum time to wait in milliseconds, or zero for infinite
      * @return true if space was found, false if time expired
@@ -231,6 +285,8 @@ public class AsyncOutputStream extends FilterOutputStream {
      * @see #availableBufferSpace
      */
     public boolean waitForSpace(final int numBytes, long timeout) throws IOException, InterruptedException {
+        if (this.expand)
+            return true;
         if (numBytes > this.buf.length)
             throw new IllegalArgumentException("numBytes (" + numBytes + ") > buffer size (" + this.buf.length + ")");
         return this.waitForPredicate(timeout, new Predicate() {
@@ -283,6 +339,19 @@ public class AsyncOutputStream extends FilterOutputStream {
     }
 
     /**
+     * Resize internal buffer.
+     */
+    private /*synchronized*/ void resizeBuffer(int size) {
+        assert Thread.holdsLock(this);
+        assert this.count <= size;
+        size = Math.min(size, MAX_BUFFER_SIZE);
+        size = Math.max(size, MIN_BUFFER_SIZE);
+        final byte[] newBuf = new byte[size];
+        System.arraycopy(this.buf, 0, newBuf, 0, this.count);
+        this.buf = newBuf;
+    }
+
+    /**
      * Writer thread main entry point.
      */
     private void threadMain() {
@@ -314,10 +383,12 @@ public class AsyncOutputStream extends FilterOutputStream {
             }
 
             // Determine what needs to be done
+            byte[] currbuf;
             int wlen;
             boolean flush;
             boolean close;
             synchronized (this) {
+                currbuf = this.buf;
                 wlen = this.count;
                 flush = this.flushMark == 0;
                 close = this.closed;
@@ -327,7 +398,7 @@ public class AsyncOutputStream extends FilterOutputStream {
             if (wlen > 0) {
 
                 // Write data
-                this.out.write(this.buf, 0, wlen);
+                this.out.write(currbuf, 0, wlen);
 
                 // Shift data in buffer
                 synchronized (this) {
@@ -335,6 +406,8 @@ public class AsyncOutputStream extends FilterOutputStream {
                     this.count -= wlen;
                     if (this.flushMark != -1)
                         this.flushMark = Math.max(0, this.flushMark - wlen);
+                    if (this.count <= this.buf.length >> 7)
+                        this.resizeBuffer(this.count);
                     this.notifyAll();                   // wake up sleepers in waitForSpace() and waitForIdle()
                 }
                 continue;
