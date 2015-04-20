@@ -11,15 +11,15 @@
             <!-- Ivy RoundUp - Local copy -->
             <packager name="ivyroundup-local" checkmodified="true" restricted="false"
               buildRoot="${user.home}/.ivy2/packager/build" resourceCache="${user.home}/.ivy2/packager/cache">
-                <ivy      pattern="file:///opt/repo/roundup/modules/[organisation]/[module]/[revision]/ivy.xml"/>
-                <artifact pattern="file:///opt/repo/roundup/modules/[organisation]/[module]/[revision]/packager.xml"/>
+                <ivy      pattern="file:///opt/repo/roundup/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
+                <artifact pattern="file:///opt/repo/roundup/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
             </packager>
 
             <!-- Ivy RoundUp - Off the Internet -->
             <packager name="ivyroundup-http" checkmodified="true" restricted="false"
               buildRoot="${user.home}/.ivy2/packager/build" resourceCache="${user.home}/.ivy2/packager/cache">
-                <ivy      pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
-                <artifact pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
+                <ivy      pattern="https://raw.githubusercontent.com/archiecobbs/ivyroundup/master/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
+                <artifact pattern="https://raw.githubusercontent.com/archiecobbs/ivyroundup/master/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
             </packager>
         </chain>
     </resolvers>
