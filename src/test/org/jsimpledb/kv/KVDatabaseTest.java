@@ -154,7 +154,7 @@ public class KVDatabaseTest extends TestSupport {
         return list.toArray(new Object[list.size()][]);
     }
 
-    //@Test(dataProvider = "kvdbs")
+    @Test(dataProvider = "kvdbs")
     public void testSimpleStuff(KVDatabase store) throws Exception {
 
         // Clear database
@@ -280,7 +280,7 @@ public class KVDatabaseTest extends TestSupport {
         this.log.info("finished testConflictingTransactions() on " + store);
     }
 
-    //@Test(dataProvider = "kvdbs")
+    @Test(dataProvider = "kvdbs")
     public void testNonconflictingTransactions(KVDatabase store) throws Exception {
 
         // Clear database
@@ -324,7 +324,7 @@ public class KVDatabaseTest extends TestSupport {
      * This test runs transactions in parallel and verifies there is no "leakage" between them.
      * Database must be configured for serializable isolation.
      */
-    //@Test(dataProvider = "kvdbs")
+    @Test(dataProvider = "kvdbs")
     public void testParallelTransactions(KVDatabase store) throws Exception {
         this.log.info("starting testParallelTransactions() on " + store);
         for (int count = 0; count < 25; count++) {
@@ -350,7 +350,7 @@ public class KVDatabaseTest extends TestSupport {
      * This test runs transactions sequentially and verifies that each transaction sees
      * the changes that were committed in the previous transaction.
      */
-    //@Test(dataProvider = "kvdbs")
+    @Test(dataProvider = "kvdbs")
     public void testSequentialTransactions(KVDatabase store) throws Exception {
         this.log.info("starting testSequentialTransactions() on " + store);
 
@@ -373,7 +373,7 @@ public class KVDatabaseTest extends TestSupport {
         this.log.info("finished testSequentialTransactions() on " + store);
     }
 
-    //@Test
+    @Test
     public void testSimpleKVTimeouts() throws Exception {
 
         // Test hold and wait timeouts both not attained
