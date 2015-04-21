@@ -9,6 +9,7 @@ package org.jsimpledb.kv.mvcc;
 
 import com.google.common.base.Converter;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.util.Iterator;
 import java.util.List;
@@ -64,10 +65,6 @@ import org.jsimpledb.util.ConvertedNavigableSet;
  */
 public class MutableView extends AbstractKVStore implements KVStore {
 
-    private static final int OBJECT_OVERHEAD = 8;
-    private static final int BYTE_ARRAY_OVERHEAD = OBJECT_OVERHEAD + 4;
-    private static final int LONG_OBJECT_SIZE = OBJECT_OVERHEAD + 8;
-
     private final KVStore kv;
 
     // Mutations
@@ -108,13 +105,13 @@ public class MutableView extends AbstractKVStore implements KVStore {
      * This includes all keys explicitly read with non-null values by calls to
      * {@link #get get()}, {@link #getAtLeast getAtLeast()}, {@link #getAtMost getAtMost()}, and {@link #getRange getRange()}.
      *
-     * @return live keys read
+     * @return unmodifiable set of live keys read
      * @throws UnsupportedOperationException if this instance is not configured to record reads
      */
     public synchronized NavigableSet<byte[]> getLiveReads() {
         if (this.liveReads == null)
             throw new UnsupportedOperationException("this instance is not configured to record reads");
-        return this.liveReads;
+        return Sets.unmodifiableNavigableSet(this.liveReads);
     }
 
     /**
