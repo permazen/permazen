@@ -31,6 +31,7 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
+import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.kv.sql.MySQLKVDatabase;
@@ -49,6 +50,7 @@ public abstract class AbstractMain extends MainClass {
     protected static final int KV_XML = 2;
     protected static final int KV_BDB = 3;
     protected static final int KV_MYSQL = 4;
+    protected static final int KV_LEVELDB = 5;
 
     private static final File DEMO_XML_FILE = new File("demo-database.xml");
     private static final File DEMO_SUBDIR = new File("demo-classes");
@@ -58,6 +60,7 @@ public abstract class AbstractMain extends MainClass {
     protected String fdbClusterFile;
     protected File bdbDirectory;
     protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
+    protected File leveldbDirectory;
     protected File xmlFile;
     protected String jdbcUrl;
     protected byte[] keyPrefix;
@@ -175,6 +178,19 @@ public abstract class AbstractMain extends MainClass {
                     this.usageError();
                 this.jdbcUrl = params.removeFirst();
                 this.kvType = KV_MYSQL;
+            } else if (option.equals("--leveldb")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.kvType = KV_LEVELDB;
+                this.leveldbDirectory = new File(params.removeFirst());
+                if (!this.leveldbDirectory.exists()) {
+                    System.err.println(this.getName() + ": directory `" + this.leveldbDirectory + "' does not exist");
+                    return 1;
+                }
+                if (!this.leveldbDirectory.isDirectory()) {
+                    System.err.println(this.getName() + ": file `" + this.leveldbDirectory + "' is not a directory");
+                    return 1;
+                }
             } else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
@@ -421,6 +437,15 @@ public abstract class AbstractMain extends MainClass {
             this.databaseDescription = "MySQL";
             break;
         }
+        case KV_LEVELDB:
+        {
+            final LevelDBKVDatabase leveldb = new LevelDBKVDatabase();
+            leveldb.setDirectory(this.leveldbDirectory);
+            leveldb.start();
+            this.kvdb = leveldb;
+            this.databaseDescription = "LevelDB " + this.leveldbDirectory.getName();
+            break;
+        }
         default:
             throw new RuntimeException("internal error");
         }
@@ -499,6 +524,7 @@ public abstract class AbstractMain extends MainClass {
             { "--bdb directory",            "Use Berkeley DB Java Edition in specified directory" },
             { "--bdb-database",             "Specify Berkeley DB database name (default `"
                                               + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
+            { "--leveldb directory",        "Use LevelDB in specified directory" },
             { "--mem",                      "Use an empty in-memory database (default)" },
             { "--mysql URL",                "Use MySQL with the given JDBC URL" },
             { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },

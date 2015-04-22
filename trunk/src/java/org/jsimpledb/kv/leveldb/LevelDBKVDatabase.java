@@ -144,7 +144,7 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
      * @throws IOException if an I/O error occurs
      */
     @PostConstruct
-    public synchronized void start() throws IOException {
+    public synchronized void start() {
 
         // Already started?
         if (this.db != null)
@@ -158,7 +158,11 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
         // Open database
         if (this.log.isDebugEnabled())
             this.log.debug("opening " + this + " LevelDB database");
-        this.db = this.factory.open(this.directory, this.options);
+        try {
+            this.db = this.factory.open(this.directory, this.options);
+        } catch (IOException e) {
+            throw new RuntimeException("LevelDB database startup failed", e);
+        }
 
         // Add shutdown hook so we don't leak native resources
         if (this.shutdownHookRegistered.compareAndSet(false, true)) {
