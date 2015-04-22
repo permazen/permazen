@@ -27,14 +27,20 @@ import org.slf4j.LoggerFactory;
  * Supports {@link KVDatabase} implementations based on an underlying {@link KVStore} that can
  * (a) provide read-only snapshot views, and (b) apply mutations atomically. Provides for concurrent transactions
  * linearizable ACID semantics.
+ * </p>
  *
  * <p>
  * Instances implement a simple optimistic locking scheme for MVCC using read-only snapshots. Concurrent transactions
  * do not contend for any locks until commit time. During each transaction, reads are noted and pull from the snapshot,
- * while writes are batched up.
- * At commit time, if any other transaction has committed writes since the transaction's snapshot was created, and
- * any of those writes conflict with any of the committing transaction's reads, a {@link RetryTransactionException} is thrown.
- * Otherwise, the transaction is committed and its writes are applied.
+ * while writes are batched up. At commit time, if any other transaction has committed writes since the transaction's
+ * snapshot was created, and any of those writes {@linkplain MutableView#isAffectedBy conflict} with any of the committing
+ * transaction's reads, a {@link RetryTransactionException} is thrown. Otherwise, the transaction is committed and its
+ * writes are applied.
+ * </p>
+ *
+ * <p>
+ * Each outstanding transaction's mutations are batched up in memory using a {@link MutableView}. Therefore, the transaction
+ * load supported by this class is limited by what can fit in memory.
  * </p>
  */
 public abstract class SnapshotKVDatabase implements KVDatabase {
