@@ -10,9 +10,6 @@ package org.jsimpledb.kv.leveldb;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
@@ -22,24 +19,21 @@ import org.iq80.leveldb.CompressionType;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBFactory;
 import org.iq80.leveldb.Options;
+import org.iq80.leveldb.ReadOptions;
+import org.iq80.leveldb.Snapshot;
 import org.iq80.leveldb.WriteBatch;
 import org.iq80.leveldb.WriteOptions;
-import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransactionException;
-import org.jsimpledb.kv.RetryTransactionException;
+import org.jsimpledb.kv.mvcc.SnapshotKVDatabase;
+import org.jsimpledb.kv.mvcc.SnapshotKVTransaction;
+import org.jsimpledb.kv.mvcc.SnapshotVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link KVDatabase} implementation based on LevelDB and providing linearizable ACID semantics.
- *
- * <p>
- * Instances implement a simple optimistic locking scheme for MVCC using LevelDB snapshots. Concurrent transactions
- * do not contend for any locks until commit time. Each transaction's reads are noted and its writes are batched up.
- * At commit time, if any other transactions have committed writes since the transaction's snapshot was created that
- * conflict with any of the transaction's reads, a {@link RetryTransactionException} is thrown. Otherwise, the
- * transaction is committed and its writes are applied.
- * </p>
+ * {@link org.jsimpledb.kv.KVDatabase} implementation based on LevelDB and providing concurrent transactions
+ * and linearizable ACID semantics.
  *
  * <p>
  * A {@linkplain #setDirectory database directory} is the only required configuration property.
@@ -53,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @see <a href="https://github.com/dain/leveldb">leveldb</a>
  * @see <a href="https://github.com/fusesource/leveldbjni">leveldbjni</a>
  */
-public class LevelDBKVDatabase implements KVDatabase {
+public class LevelDBKVDatabase extends SnapshotKVDatabase {
 
     /**
      * Class name for the {@link DBFactory} provided by <a href="https://github.com/fusesource/leveldbjni">leveldbjni</a>.
@@ -73,9 +67,7 @@ public class LevelDBKVDatabase implements KVDatabase {
 
 // Locking order: (1) LevelDBKVTransaction, (2) LevelDBKVDatabase
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final AtomicBoolean shutdownHookRegistered = new AtomicBoolean();
-    private final TreeMap<Long, VersionInfo> versionInfoMap = new TreeMap<>();
     private final DBFactory factory;
 
     private Options options = new Options().createIfMissing(true).logger(new org.iq80.leveldb.Logger() {
@@ -85,9 +77,7 @@ public class LevelDBKVDatabase implements KVDatabase {
         }
       });
     private File directory;
-
     private DB db;
-    private long currentVersion;
     private boolean stopping;
 
 // Constructors
@@ -159,7 +149,6 @@ public class LevelDBKVDatabase implements KVDatabase {
         // Already started?
         if (this.db != null)
             return;
-        assert this.versionInfoMap.isEmpty();
         this.log.info("starting " + this);
 
         // Check configuration
@@ -195,28 +184,14 @@ public class LevelDBKVDatabase implements KVDatabase {
             this.stopping = true;
         }
 
-        // Grab all remaining open transactions
-        final ArrayList<LevelDBKVTransaction> openTransactions = new ArrayList<>();
-        synchronized (this) {
-            for (VersionInfo versionInfo : this.versionInfoMap.values())
-                openTransactions.addAll(versionInfo.getOpenTransactions());
-        }
-
-        // Close them (but not while holding my lock, to avoid lock order reversal)
-        for (LevelDBKVTransaction tx : openTransactions) {
-            try {
-                tx.rollback();
-            } catch (Throwable e) {
-                this.log.debug("caught exception closing open transaction during shutdown (ignoring)", e);
-            }
-        }
+        // Close any remaining open transactions
+        this.closeTransactions();
 
         // Finish up
         synchronized (this) {
 
             // Sanity check
             assert this.db != null;
-            assert this.versionInfoMap.isEmpty();
 
             // Shut down LevelDB database
             try {
@@ -390,140 +365,43 @@ public class LevelDBKVDatabase implements KVDatabase {
     @Override
     public synchronized LevelDBKVTransaction createTransaction() {
 
-        // Check we're open
+        // Sanity check
         if (this.db == null)
             throw new IllegalStateException("not started");
-
-        // Check not stopping
         if (this.stopping)
             throw new IllegalStateException("stop in progress");
 
-        // Get info for the current version
-        final VersionInfo versionInfo = this.getCurrentVersionInfo();
-
-        // Create the new transaction
-        final LevelDBKVTransaction tx = new LevelDBKVTransaction(this, versionInfo);
-        versionInfo.getOpenTransactions().add(tx);
-        if (this.log.isDebugEnabled())
-            this.log.debug("created new transaction " + tx);
-        if (this.log.isTraceEnabled())
-            this.log.trace("updated current version info: " + versionInfo);
-
-        // Done
-        return tx;
+        // OK
+        return (LevelDBKVTransaction)super.createTransaction();
     }
 
-// Transactions
+// SnapshotKVDatabase
 
-    /**
-     * Commit a transaction.
-     */
-    synchronized void commit(LevelDBKVTransaction tx) {
-        try {
-            this.doCommit(tx);
-        } finally {
-            this.cleanupTransaction(tx);
-        }
+    @Override
+    protected LevelDBKVTransaction createSnapshotKVTransaction(SnapshotVersion versionInfo) {
+        return new LevelDBKVTransaction(this, versionInfo);
     }
 
-    private synchronized void doCommit(LevelDBKVTransaction tx) {
-
-        // Get current and transaction's version info
-        final VersionInfo currentVersionInfo = this.getCurrentVersionInfo();
-        final VersionInfo transactionVersionInfo = tx.getVersionInfo();
-        final long transactionVersion = transactionVersionInfo.getVersion();
-        assert this.currentVersion - transactionVersion >= 0;
-        assert transactionVersionInfo.getOpenTransactions().contains(tx);
-
-        // Debug
-        if (this.log.isDebugEnabled()) {
-            this.log.debug("committing transaction " + tx + " based on version "
-              + transactionVersion + " (current version is " + this.currentVersion + ")");
-        }
-
-        // If the current version has advanced past the transaction's version, we must check for conflicts from intervening commits
-        for (long version = transactionVersion; version != this.currentVersion; version++) {
-            final LevelDBKVTransaction committedTransaction = this.versionInfoMap.get(version).getCommittedTransaction();
-            final boolean conflict = tx.getMutableView().isAffectedBy(committedTransaction.getMutableView());
-            if (this.log.isDebugEnabled()) {
-                this.log.debug("ordering " + tx + " after " + committedTransaction + " (version " + version + ") results in "
-                  + (conflict ? "conflict" : "no conflict"));
-                if (this.log.isTraceEnabled()) {
-                    this.log.trace("transaction view: {} committed view: {}",
-                      tx.getMutableView(), committedTransaction.getMutableView());
-                }
-            }
-            if (conflict) {
-                throw tx.logException(new RetryTransactionException(tx, "transaction is based on MVCC version "
-                  + transactionVersionInfo.getVersion() + " but the transaction committed at MVCC version "
-                  + version + " contains conflicting writes"));
-            }
-        }
-
-        // Apply the transaction's mutations
-        if (this.log.isDebugEnabled())
-            this.log.debug("applying mutations of " + tx + " to LevelDB database");
+    @Override
+    protected void applyMutations(SnapshotKVTransaction tx) {
         try (WriteBatch writeBatch = this.db.createWriteBatch()) {
             try (LevelDBKVStore tempKV = new LevelDBKVStore(this.db, null/*doesn't matter*/, writeBatch)) {
                 tx.getMutableView().applyTo(tempKV);
             }
             this.db.write(writeBatch, new WriteOptions().sync(true));
         } catch (IOException e) {
-            throw tx.logException(new KVTransactionException(tx, "error applying changes to LevelDB", e));
-        }
-        currentVersionInfo.setCommittedTransaction(tx);
-
-        // Discard transaction's reads - we only need writes from now on
-        tx.getMutableView().disableReadTracking();
-
-        // Update to the next MVCC version
-        if (this.log.isDebugEnabled())
-            this.log.debug("updating current version from " + this.currentVersion + " -> " + (this.currentVersion + 1));
-        this.currentVersion++;
-    }
-
-    /**
-     * Rollback a transaction.
-     */
-    synchronized void rollback(LevelDBKVTransaction tx) {
-        if (this.log.isDebugEnabled())
-            this.log.debug("rolling back transaction " + tx);
-        this.cleanupTransaction(tx);
-    }
-
-    private void cleanupTransaction(LevelDBKVTransaction tx) {
-
-        // Debug
-        if (this.log.isTraceEnabled())
-            this.log.trace("cleaning up transaction " + tx);
-
-        // Remove open transaction from version
-        tx.getVersionInfo().getOpenTransactions().remove(tx);
-
-        // Discard all versions older than all remaining open transactions
-        for (Iterator<Map.Entry<Long, VersionInfo>> i = this.versionInfoMap.entrySet().iterator(); i.hasNext(); ) {
-            final VersionInfo versionInfo = i.next().getValue();
-            if (!versionInfo.getOpenTransactions().isEmpty())
-                break;
-            if (this.log.isDebugEnabled()) {
-                this.log.debug("discarding obsolete version " + versionInfo + " committed by "
-                  + versionInfo.getCommittedTransaction());
-            }
-            versionInfo.close();
-            i.remove();
+            throw this.logException(new KVTransactionException(tx, "error applying changes to LevelDB", e));
         }
     }
 
-    // Get VersionInfo for the current MVCC version, creating on demand if necessary
-    private VersionInfo getCurrentVersionInfo() {
-        VersionInfo versionInfo = this.versionInfoMap.get(this.currentVersion);
-        if (versionInfo == null) {
-            versionInfo = new VersionInfo(this.db, this.currentVersion, this.db.getSnapshot(), this.options.verifyChecksums());
-            this.versionInfoMap.put(this.currentVersion, versionInfo);
-            if (this.log.isTraceEnabled())
-                this.log.trace("created new version " + versionInfo);
-        }
-        return versionInfo;
+    @Override
+    protected KVStore openSnapshot() {
+        return new SnapshotKVStore(this.db, this.db.getSnapshot(), this.options.verifyChecksums());
+    }
+
+    @Override
+    protected void closeSnapshot(KVStore snapshot) {
+        ((SnapshotKVStore)snapshot).close();
     }
 
 // Object
@@ -531,6 +409,32 @@ public class LevelDBKVDatabase implements KVDatabase {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "[dir=" + this.directory + "]";
+    }
+
+// SnapshotKVStore
+
+    private class SnapshotKVStore extends LevelDBKVStore {
+
+        private final Snapshot snapshot;
+        private boolean closed;
+
+        SnapshotKVStore(DB db, Snapshot snapshot, boolean verifyChecksums) {
+            super(db, new ReadOptions().snapshot(snapshot).verifyChecksums(verifyChecksums), null);
+            this.snapshot = snapshot;
+        }
+
+        @Override
+        public synchronized void close() {
+            super.close();
+            if (this.closed)
+                return;
+            this.closed = true;
+            try {
+                this.snapshot.close();
+            } catch (Throwable e) {
+                LevelDBKVDatabase.this.log.error("caught exception closing LevelDB snapshot (ignoring)", e);
+            }
+        }
     }
 }
 
