@@ -4,6 +4,7 @@ Version Next
     - Added PersistentObjectSchemaUpdater.setTransformerFactory()
     - Added option for AsyncOutputStream buffer to grow automatically
     - Added ByteBufferInputStream and ByteBufferOutputStream
+    - Updated macros to point to new Ivy Roundup location on GitHub
 
 Version 1.0.964 Released January 28, 2015
 
