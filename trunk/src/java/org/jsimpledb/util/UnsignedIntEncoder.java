@@ -129,7 +129,7 @@ public final class UnsignedIntEncoder {
      * @throws IllegalArgumentException if an invalid encoding is encountered
      * @throws NullPointerException if {@code input} is null
      */
-    public static long read(InputStream input) throws IOException {
+    public static int read(InputStream input) throws IOException {
         final int first = input.read();
         if (first == -1)
             throw new EOFException();
