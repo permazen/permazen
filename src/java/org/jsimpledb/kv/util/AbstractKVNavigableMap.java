@@ -29,7 +29,7 @@ import org.jsimpledb.util.ByteWriter;
 
 /**
  * {@link java.util.NavigableMap} support superclass for maps backed by keys and values encoded as {@code byte[]}
- * keys and values in a {@link KVStore}, and whose key sort order is consistent with the {@code byte[]} key encoding.
+ * arrays in a {@link KVStore}, and whose key sort order is consistent with the {@code byte[]} key encoding.
  * There must be an equivalence between map keys and {@code byte[]} key encodings (i.e., there must be
  * only one valid encoding per map key).
  *
@@ -37,8 +37,8 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * Subclasses must implement the {@linkplain #encodeKey encodeKey()}, {@linkplain #decodeKey decodeKey()},
- * and {@linkplain #decodeValue decodeValue()}, methods to convert keys and value to/from {@link KVStore} keys and values, and
- * {@link #createSubMap(boolean, KeyRange, KeyFilter, Bounds) createSubMap()}
+ * and {@linkplain #decodeValue decodeValue()} methods to convert keys and value to/from {@link KVStore} keys and values,
+ * and {@link #createSubMap(boolean, KeyRange, KeyFilter, Bounds) createSubMap()}
  * to allow creating reversed and restricted range sub-maps.
  *
  * <p>
