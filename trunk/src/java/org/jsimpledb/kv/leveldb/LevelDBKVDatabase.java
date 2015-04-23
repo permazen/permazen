@@ -141,7 +141,6 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
      * </p>
      *
      * @throws IllegalStateException if this instance is not properly configured
-     * @throws IOException if an I/O error occurs
      */
     @PostConstruct
     public synchronized void start() {
