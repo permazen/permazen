@@ -7,6 +7,12 @@
 
 package org.jsimpledb.util;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+
 /**
  * Encodes unsigned (i.e., non-negative) {@code int} values to/from binary, preserving sort order, and such
  * that the length of the encoding is optimized for values near zero and encoded values never begin with {@code 0xff}.
@@ -52,6 +58,35 @@ public final class UnsignedIntEncoder {
     }
 
     /**
+     * Encode the given value and write it to the given {@link OutputStream}.
+     *
+     * @param out destination for the encoded value
+     * @param value value to encode
+     * @throws IOException if an I/O error occurs
+     * @throws NullPointerException if {@code out} is null
+     */
+    public static void write(OutputStream out, int value) throws IOException {
+        final byte[] array = new byte[UnsignedIntEncoder.MAX_ENCODED_LENGTH];
+        final int nbytes = UnsignedIntEncoder.encode(value, array, 0);
+        out.write(array, 0, nbytes);
+    }
+
+    /**
+     * Encode the given value and write it to the given {@link ByteBuffer}.
+     *
+     * @param buf destination for the encoded value
+     * @param value value to encode
+     * @throws java.nio.BufferOverflowException if {@code buf} overflows
+     * @throws java.nio.ReadOnlyBufferException if {@code buf} is read-only
+     * @throws NullPointerException if {@code buf} is null
+     */
+    public static void write(ByteBuffer buf, int value) {
+        final byte[] array = new byte[UnsignedIntEncoder.MAX_ENCODED_LENGTH];
+        final int nbytes = UnsignedIntEncoder.encode(value, array, 0);
+        buf.put(array, 0, nbytes);
+    }
+
+    /**
      * Read and decode a value from the input.
      *
      * @param reader input holding an encoded value
@@ -82,6 +117,49 @@ public final class UnsignedIntEncoder {
             return first;
         }
         return value + MIN_MULTI_BYTE_VALUE;
+    }
+
+    /**
+     * Read and decode a value from the given {@link InputStream}.
+     *
+     * @param input input source for the encoded value
+     * @return the decoded value
+     * @throws IOException if an I/O error occurs
+     * @throws EOFException if an unexpected EOF is encountered
+     * @throws IllegalArgumentException if an invalid encoding is encountered
+     * @throws NullPointerException if {@code input} is null
+     */
+    public static long read(InputStream input) throws IOException {
+        final int first = input.read();
+        if (first == -1)
+            throw new EOFException();
+        final byte[] array = new byte[UnsignedIntEncoder.decodeLength(first)];
+        array[0] = (byte)first;
+        for (int i = 1; i < array.length; i++) {
+            final int next = input.read();
+            if (next == -1)
+                throw new EOFException();
+            array[i] = (byte)next;
+        }
+        return UnsignedIntEncoder.read(new ByteReader(array));
+    }
+
+    /**
+     * Read and decode a value from the given {@link ByteBuffer}.
+     *
+     * @param buf input source for the encoded value
+     * @return the decoded value
+     * @throws java.nio.BufferUnderflowException if {@code buf} underflows
+     * @throws IllegalArgumentException if an invalid encoding is encountered
+     * @throws NullPointerException if {@code buf} is null
+     */
+    public static int read(ByteBuffer buf) {
+        final byte first = buf.get();
+        final byte[] array = new byte[UnsignedIntEncoder.decodeLength(first)];
+        array[0] = first;
+        if (array.length > 1)
+            buf.get(array, 1, array.length - 1);
+        return UnsignedIntEncoder.read(new ByteReader(array));
     }
 
     /**
