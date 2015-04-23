@@ -19,8 +19,6 @@ import org.iq80.leveldb.CompressionType;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBFactory;
 import org.iq80.leveldb.Options;
-import org.iq80.leveldb.ReadOptions;
-import org.iq80.leveldb.Snapshot;
 import org.iq80.leveldb.WriteBatch;
 import org.iq80.leveldb.WriteOptions;
 import org.jsimpledb.kv.KVStore;
@@ -398,13 +396,13 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
     }
 
     @Override
-    protected KVStore openSnapshot() {
-        return new SnapshotKVStore(this.db, this.db.getSnapshot(), this.options.verifyChecksums());
+    protected SnapshotLevelDBKVStore openSnapshot() {
+        return new SnapshotLevelDBKVStore(this.db, this.options.verifyChecksums());
     }
 
     @Override
     protected void closeSnapshot(KVStore snapshot) {
-        ((SnapshotKVStore)snapshot).close();
+        ((SnapshotLevelDBKVStore)snapshot).close();
     }
 
 // Object
@@ -412,32 +410,6 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "[dir=" + this.directory + "]";
-    }
-
-// SnapshotKVStore
-
-    private class SnapshotKVStore extends LevelDBKVStore {
-
-        private final Snapshot snapshot;
-        private boolean closed;
-
-        SnapshotKVStore(DB db, Snapshot snapshot, boolean verifyChecksums) {
-            super(db, new ReadOptions().snapshot(snapshot).verifyChecksums(verifyChecksums), null);
-            this.snapshot = snapshot;
-        }
-
-        @Override
-        public synchronized void close() {
-            super.close();
-            if (this.closed)
-                return;
-            this.closed = true;
-            try {
-                this.snapshot.close();
-            } catch (Throwable e) {
-                LevelDBKVDatabase.this.log.error("caught exception closing LevelDB snapshot (ignoring)", e);
-            }
-        }
     }
 }
 

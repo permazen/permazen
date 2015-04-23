@@ -38,6 +38,8 @@ public class LevelDBKVStore extends AbstractKVStore implements Closeable {
 
     private boolean closed;
 
+// Constructors
+
     /**
      * Convenience constructor. Uses default read options and no write batching.
      *
