@@ -7,6 +7,11 @@
 
 package org.jsimpledb.util;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -89,10 +94,40 @@ public final class LongEncoder {
      *
      * @param writer destination for the encoded value
      * @param value value to encode
+     * @throws NullPointerException if {@code writer} is null
      */
     public static void write(ByteWriter writer, long value) {
         writer.makeRoom(MAX_ENCODED_LENGTH);
         writer.len += LongEncoder.encode(value, writer.buf, writer.len);
+    }
+
+    /**
+     * Encode the given value and write it to the given {@link OutputStream}.
+     *
+     * @param out destination for the encoded value
+     * @param value value to encode
+     * @throws IOException if an I/O error occurs
+     * @throws NullPointerException if {@code out} is null
+     */
+    public static void write(OutputStream out, long value) throws IOException {
+        final byte[] array = new byte[LongEncoder.MAX_ENCODED_LENGTH];
+        final int nbytes = LongEncoder.encode(value, array, 0);
+        out.write(array, 0, nbytes);
+    }
+
+    /**
+     * Encode the given value and write it to the given {@link ByteBuffer}.
+     *
+     * @param buf destination for the encoded value
+     * @param value value to encode
+     * @throws java.nio.BufferOverflowException if {@code buf} overflows
+     * @throws java.nio.ReadOnlyBufferException if {@code buf} is read-only
+     * @throws NullPointerException if {@code buf} is null
+     */
+    public static void write(ByteBuffer buf, long value) {
+        final byte[] array = new byte[LongEncoder.MAX_ENCODED_LENGTH];
+        final int nbytes = LongEncoder.encode(value, array, 0);
+        buf.put(array, 0, nbytes);
     }
 
     /**
@@ -101,6 +136,7 @@ public final class LongEncoder {
      * @param reader input holding an encoded value
      * @return the decoded value
      * @throws IllegalArgumentException if the first byte is {@code 0xff}
+     * @throws NullPointerException if {@code reader} is null
      */
     public static long read(ByteReader reader) {
         int first = reader.readByte();
@@ -121,6 +157,49 @@ public final class LongEncoder {
             return value - POSITIVE_ADJUST;
         }
         return (byte)(first - ZERO_ADJUST);
+    }
+
+    /**
+     * Read and decode a value from the given {@link InputStream}.
+     *
+     * @param input input source for the encoded value
+     * @return the decoded value
+     * @throws IOException if an I/O error occurs
+     * @throws EOFException if an unexpected EOF is encountered
+     * @throws IllegalArgumentException if an invalid encoding is encountered
+     * @throws NullPointerException if {@code input} is null
+     */
+    public static long read(InputStream input) throws IOException {
+        final int first = input.read();
+        if (first == -1)
+            throw new EOFException();
+        final byte[] array = new byte[LongEncoder.decodeLength(first)];
+        array[0] = (byte)first;
+        for (int i = 1; i < array.length; i++) {
+            final int next = input.read();
+            if (next == -1)
+                throw new EOFException();
+            array[i] = (byte)next;
+        }
+        return LongEncoder.read(new ByteReader(array));
+    }
+
+    /**
+     * Read and decode a value from the given {@link ByteBuffer}.
+     *
+     * @param buf input source for the encoded value
+     * @return the decoded value
+     * @throws java.nio.BufferUnderflowException if {@code buf} underflows
+     * @throws IllegalArgumentException if an invalid encoding is encountered
+     * @throws NullPointerException if {@code buf} is null
+     */
+    public static long read(ByteBuffer buf) {
+        final byte first = buf.get();
+        final byte[] array = new byte[LongEncoder.decodeLength(first)];
+        array[0] = first;
+        if (array.length > 1)
+            buf.get(array, 1, array.length - 1);
+        return LongEncoder.read(new ByteReader(array));
     }
 
     /**
