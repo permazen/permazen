@@ -9,14 +9,21 @@ package org.jsimpledb.kv;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.collect.UnmodifiableIterator;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
+import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
  * A fixed set of {@link KeyRange} instances that can be treated as a unified whole, in particular as a {@link KeyFilter}.
@@ -376,6 +383,99 @@ public class KeyRanges implements KeyFilter {
             list.addAll(other.inverse().ranges);
         }
         return new KeyRanges(list).inverse();
+    }
+
+// Serialization
+
+    /**
+     * Serialize this instance.
+     *
+     * @param out output
+     * @throws IOException if an error occurs
+     * @throws IllegalArgumentException if {@code out} is null
+     */
+    public void serialize(OutputStream out) throws IOException {
+        UnsignedIntEncoder.write(out, this.ranges.size());
+        byte[] prev = null;
+        for (KeyRange range : this.ranges) {
+            final byte[] min = range.getMin();
+            final byte[] max = range.getMax();
+            KeyListEncoder.write(out, min, prev);
+            KeyListEncoder.write(out, max != null ? max : min, min);            // map final [min, null) to [min, min]
+            prev = max;
+        }
+    }
+
+    /**
+     * Deserialize an instance created by {@link #serialize serialize()}.
+     *
+     * @param input input stream containing data from {@link #serialize serialize()}
+     * @return deserialized instance
+     * @throws IOException if an I/O error occurs
+     * @throws java.io.EOFException if the input ends unexpectedly
+     * @throws IllegalArgumentException if {@code input} is null
+     */
+    public static KeyRanges deserialize(InputStream input) throws IOException {
+        if (input == null)
+            throw new IllegalArgumentException("null input");
+        final int count = UnsignedIntEncoder.read(input);
+        final ArrayList<KeyRange> rangeList = new ArrayList<>(count);
+        byte[] prev = null;
+        for (int i = 0; i < count; i++) {
+            final byte[] min = KeyListEncoder.read(input, prev);
+            final byte[] max = KeyListEncoder.read(input, min);
+            rangeList.add(new KeyRange(min, Arrays.equals(min, max) ? null : max));
+            prev = max;
+        }
+        return new KeyRanges(rangeList);
+    }
+
+    /**
+     * Deserialize an instance created by {@link #serialize serialize()} in the form of an
+     * iterator of the individual {@link KeyRange}s.
+     *
+     * <p>
+     * If an {@link IOException} is thrown while reading, the returned iterator's {@link Iterator#next} method
+     * will throw a {@link RuntimeException} wrapping it.
+     *
+     * @param input input stream containing data from {@link #serialize serialize()}
+     * @return deserialized iteration of {@link KeyRange}s
+     * @throws IOException if an I/O error occurs
+     * @throws java.io.EOFException if the input ends unexpectedly
+     * @throws IllegalArgumentException if {@code input} is null
+     */
+    public static Iterator<KeyRange> readIterator(final InputStream input) throws IOException {
+        if (input == null)
+            throw new IllegalArgumentException("null input");
+        final int total = UnsignedIntEncoder.read(input);
+        return new UnmodifiableIterator<KeyRange>() {
+
+            private byte[] prev;
+            private int count;
+
+            @Override
+            public boolean hasNext() {
+                return this.count < total;
+            }
+
+            @Override
+            public KeyRange next() {
+                if (this.count >= total)
+                    throw new NoSuchElementException();
+                final byte[] min;
+                final byte[] max;
+                try {
+                    min = KeyListEncoder.read(input, this.prev);
+                    max = KeyListEncoder.read(input, min);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                final KeyRange range = new KeyRange(min, Arrays.equals(min, max) ? null : max);
+                this.prev = max;
+                this.count++;
+                return range;
+            }
+        };
     }
 
 // KeyFilter

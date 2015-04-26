@@ -72,6 +72,14 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
 
 // ForwardingKVStore
 
+    /**
+     * Get the underlying {@link KVStore}.
+     *
+     * <p>
+     * The implementation in {@link SnapshotKVTransaction} returns the {@link MutableView} associated with this instance.
+     *
+     * @return the underlying {@link KVStore}
+     */
     @Override
     protected KVStore delegate() {
         this.checkState();
@@ -95,6 +103,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      * </p>
      *
      * @param timeout transaction timeout in milliseconds, or zero for unlimited
+     * @throws IllegalArgumentException if {@code timeout} is negative
      */
     @Override
     public synchronized void setTimeout(long timeout) {
