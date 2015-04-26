@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * Instances implement a simple optimistic locking scheme for MVCC using read-only snapshots. Concurrent transactions
  * do not contend for any locks until commit time. During each transaction, reads are noted and pull from the snapshot,
  * while writes are batched up. At commit time, if any other transaction has committed writes since the transaction's
- * snapshot was created, and any of those writes {@linkplain MutableView#isAffectedBy conflict} with any of the committing
+ * snapshot was created, and any of those writes {@linkplain Reads#isConflict conflict} with any of the committing
  * transaction's reads, a {@link RetryTransactionException} is thrown. Otherwise, the transaction is committed and its
  * writes are applied.
  * </p>
@@ -224,7 +224,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         // If the current version has advanced past the transaction's version, check for conflicts from intervening commits
         for (long version = transactionVersion; version != this.currentVersion; version++) {
             final SnapshotKVTransaction committedTransaction = this.versionInfoMap.get(version).getCommittedTransaction();
-            final boolean conflict = tx.getMutableView().isAffectedBy(committedTransaction.getMutableView());
+            final boolean conflict = tx.getMutableView().getReads().isConflict(committedTransaction.getMutableView().getWrites());
             if (this.log.isDebugEnabled()) {
                 this.log.debug("ordering " + tx + " after " + committedTransaction + " (version " + version + ") results in "
                   + (conflict ? "conflict" : "no conflict"));

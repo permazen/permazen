@@ -7,19 +7,10 @@
 
 package org.jsimpledb.kv.mvcc;
 
-import com.google.common.base.Converter;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
@@ -28,23 +19,20 @@ import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteUtil;
-import org.jsimpledb.util.ConvertedNavigableMap;
-import org.jsimpledb.util.ConvertedNavigableSet;
 
 /**
  * Provides a mutable view of an underlying, read-only {@link KVStore}.
  *
  * <p>
- * Instances intercept all operations to the underlying {@link KVStore}, recording mutations internally instead of applying
- * them to the {@link KVStore}. Instances then provide a view of the mutated {@link KVStore} based those recorded accesses.
- * Mutations are recorded as put, remove, and counter adjust operations. Mutations that overwrite previous mutations
- * are consolidated.
+ * Instances intercept all operations to the underlying {@link KVStore}, recording mutations in a {@link Writes} instance
+ * instead of applying them to the {@link KVStore}. Instances then provide a view of the mutated {@link KVStore} based those
+ * mutations. Mutations that overwrite previous mutations are consolidated.
  * </p>
  *
  * <p>
- * Unlike writes, read accesses are passed through to the {@link KVStore}, except where they intersect a previous write.
- * Read accesses may also be optionally recorded. Null and non-null reads are tracked separately; however, this distinction
- * assumes that reads from the underlying {@link KVStore} are repeatable.
+ * Unlike writes, reads are passed through to the underlying {@link KVStore}, except where they intersect a previous write.
+ * Reads may also be optionally recorded. Null ("dead") and non-null ("live") reads are tracked separately (note: reliance on
+ * this distinction assumes that reads from the underlying {@link KVStore} are repeatable).
  * </p>
  *
  * <p>
@@ -52,29 +40,18 @@ import org.jsimpledb.util.ConvertedNavigableSet;
  * </p>
  *
  * <p>
- * At any time, the set of accumulated mutations may be applied to a given target {@link KVStore} via {@link #applyTo applyTo()}.
- * </p>
- *
- * <p>
  * Instances are also capable of performing certain MVCC-related calculations, such as whether two transactions may be re-ordered.
  * </p>
  *
  * <p>
- * Instances are thread safe.
+ * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe.
  * </p>
  */
-public class MutableView extends AbstractKVStore implements KVStore {
+public class MutableView extends AbstractKVStore {
 
     private final KVStore kv;
-
-    // Mutations
-    private final TreeMap<byte[], byte[]> puts = new TreeMap<>(ByteUtil.COMPARATOR);
-    private KeyRanges removes = KeyRanges.EMPTY;
-    private final TreeMap<byte[], Long> adjusts = new TreeMap<>(ByteUtil.COMPARATOR);
-
-    // Reads (optional)
-    private TreeSet<byte[]> liveReads;
-    private KeyRanges deadReads;
+    private final Writes writes = new Writes();
+    private Reads reads;
 
 // Constructors
 
@@ -89,197 +66,45 @@ public class MutableView extends AbstractKVStore implements KVStore {
         if (kv == null)
             throw new IllegalArgumentException("null kv");
         this.kv = kv;
-        if (recordReads) {
-            this.liveReads = new TreeSet<byte[]>(ByteUtil.COMPARATOR);
-            this.deadReads = KeyRanges.EMPTY;
-        }
-        synchronized (this) { }
+        this.reads = recordReads ? new Reads() : null;
+        synchronized (this) { }                                     // because this.reads is not final
     }
 
 // Public methods
 
     /**
-     * Get the set of keys read by this instance that returned a non-null value.
+     * Get the {@link Reads} associated with this instance.
      *
      * <p>
-     * This includes all keys explicitly read with non-null values by calls to
+     * This includes all keys explicitly or implicitly read by calls to
      * {@link #get get()}, {@link #getAtLeast getAtLeast()}, {@link #getAtMost getAtMost()}, and {@link #getRange getRange()}.
      *
-     * @return unmodifiable set of live keys read
-     * @throws UnsupportedOperationException if this instance is not configured to record reads
+     * @return reads recorded, or null if this instance is not configured to record reads
      */
-    public synchronized NavigableSet<byte[]> getLiveReads() {
-        if (this.liveReads == null)
-            throw new UnsupportedOperationException("this instance is not configured to record reads");
-        return Sets.unmodifiableNavigableSet(this.liveReads);
+    public synchronized Reads getReads() {
+        return this.reads;
     }
 
     /**
-     * Get the set of keys read by this instance that returned a null value.
+     * Get the {@link Writes} associated with this instance.
      *
-     * <p>
-     * This includes all keys explicitly read or implicitly seek'ed over by calls to
-     * {@link #get get()}, {@link #getAtLeast getAtLeast()}, {@link #getAtMost getAtMost()}, and {@link #getRange getRange()}.
-     *
-     * @return null keys read
-     * @throws UnsupportedOperationException if this instance is not configured to record reads
+     * @return writes recorded
      */
-    public synchronized KeyRanges getDeadReads() {
-        if (this.deadReads == null)
-            throw new UnsupportedOperationException("this instance is not configured to record reads");
-        return this.deadReads;
+    public synchronized Writes getWrites() {
+        return this.writes;
     }
 
     /**
-     * Disable read tracking and discard all read tracking information from this instance.
+     * Disable read tracking and discard the {@link Reads} associated with this instance.
      *
      * <p>
      * Can be used to save some memory when read tracking information is no longer needed.
      */
     public synchronized void disableReadTracking() {
-        this.liveReads = null;
-        this.deadReads = null;
+        this.reads = null;
     }
 
-    /**
-     * Get the set of {@link #put put()}s recorded by this instance.
-     *
-     * <p>
-     * The caller must not modify any of the {@code byte[]} arrays in the returned map.
-     * </p>
-     *
-     * @return unmodifiable mapping from key to corresponding value put
-     */
-    public synchronized NavigableMap<byte[], byte[]> getPuts() {
-        return Maps.unmodifiableNavigableMap(this.puts);
-    }
-
-    /**
-     * Get the set of keys removed by this instance.
-     *
-     * <p>
-     * This includes all keys removed by {@link #remove remove()}, {@link #removeRange removeRange()},
-     * or {@link Iterator#remove} invoked on the {@link Iterator} returned by {@link #getRange getRange()}.
-     *
-     * @return keys removed
-     */
-    public synchronized KeyRanges getRemoves() {
-        return this.removes;
-    }
-
-    /**
-     * Get the set of counter keys and values {@linkplain #adjustCounter adjusted} by this instance.
-     *
-     * <p>
-     * The caller must not modify any of the {@code byte[]} arrays in the returned map.
-     * </p>
-     *
-     * @return unmodifiable mapping from key to corresponding counter adjustment
-     */
-    public synchronized NavigableMap<byte[], Long> getAdjusts() {
-        return Maps.unmodifiableNavigableMap(this.adjusts);
-    }
-
-    /**
-     * Apply all mutating operations recorded by this instance to the given {@link KVStore}.
-     *
-     * @param target target for recorded mutations
-     * @throws IllegalArgumentException if {@code target} is null
-     */
-    public synchronized void applyTo(KVStore target) {
-        if (target == null)
-            throw new IllegalArgumentException("null target");
-        assert this.check();
-        for (KeyRange remove : this.removes.asList())
-            target.removeRange(remove.getMin(), remove.getMax());
-        for (Map.Entry<byte[], byte[]> entry : this.puts.entrySet())
-            target.put(entry.getKey(), entry.getValue());
-        for (Map.Entry<byte[], Long> entry : this.adjusts.entrySet())
-            target.adjustCounter(entry.getKey(), entry.getValue());
-    }
-
-    /**
-     * Determine whether any of the mutations peformed by {@code that} affect any of the keys read by this instance.
-     * This instance must have read tracking enabled.
-     *
-     * <p>
-     * If this method returns true, then if this instance and {@code that} both have the same underlying {@link KVStore} snapshot,
-     * then applying {@code that}'s mutations followed by this instance's mutations preserves linearizable semantics.
-     * That is, then end result is the same as if this instance were using the result of {@code that}'s mutations
-     * as its underlying {@link KVStore} (instead of the original snapshot).
-     *
-     * @param that other instance
-     * @return true if {@code that} affects keys read by this instance, otherwise false
-     * @throws IllegalStateException if this instance does not have read tracking enabled
-     * @throws IllegalArgumentException if {@code that} is null
-     */
-    public boolean isAffectedBy(MutableView that) {
-
-        // Sanity check
-        if (that == null)
-            throw new IllegalArgumentException("null that");
-        if (this.liveReads == null)
-            throw new IllegalStateException("read tracking not enabled");
-
-        // Snapshot 'that' state
-        final TreeSet<byte[]> thatPuts;
-        final List<KeyRange> thatRemoves;
-        final TreeSet<byte[]> thatAdjusts;
-        synchronized (that) {
-            thatPuts = new TreeSet<byte[]>(that.puts.navigableKeySet());
-            thatRemoves = that.removes.asList();
-            thatAdjusts = new TreeSet<byte[]>(that.adjusts.navigableKeySet());
-        }
-
-        // Compare states
-        synchronized (this) {
-
-            // Look for live read conflicts with (a) any put, (b) any remove, (c) any adjustment
-            int removeIndex = 0;
-            int removeLimit = thatRemoves.size();
-            for (byte[] key : this.liveReads) {
-
-                // Check puts
-                if (thatPuts.contains(key))
-                    return true;                    // read/put conflict
-
-                // Check removes
-                while (removeIndex < removeLimit) {
-                    final int diff = thatRemoves.get(removeIndex).compareTo(key);
-                    if (diff == 0)
-                        return true;                // read/remove conflict
-                    if (diff > 0)
-                        break;
-                    removeIndex++;
-                }
-
-                // Check adjustments
-                if (thatAdjusts.contains(key))
-                    return true;                    // read/adjust conflict
-            }
-
-            // Look for dead read conflicts with (a) any put, (b) any adjustment
-            for (KeyRange range : this.deadReads.asList()) {
-                final byte[] min = range.getMin();
-                final byte[] max = range.getMax();
-
-                // Check puts
-                final NavigableSet<byte[]> putRange = max != null ?
-                  thatPuts.subSet(min, true, max, false) : thatPuts.tailSet(min, true);
-                if (!putRange.isEmpty())
-                    return true;                    // read/write conflict
-
-                // Check adjustments
-                final NavigableSet<byte[]> adjustRange = max != null ?
-                  thatAdjusts.subSet(min, true, max, false) : thatAdjusts.tailSet(min, true);
-                if (!adjustRange.isEmpty())
-                    return true;                    // read/write conflict
-            }
-        }
-
-        // No conflict!
-        return false;
-    }
+// Serialization
 
 // KVStore
 
@@ -290,12 +115,12 @@ public class MutableView extends AbstractKVStore implements KVStore {
         assert this.check();
 
         // Check puts
-        final byte[] putValue = this.puts.get(key);
+        final byte[] putValue = this.writes.getPuts().get(key);
         if (putValue != null)
             return putValue;
 
         // Check removes
-        if (this.removes.contains(key))
+        if (this.writes.getRemoves().contains(key))
             return null;
 
         // Read from k/v store
@@ -310,7 +135,7 @@ public class MutableView extends AbstractKVStore implements KVStore {
         // Check counter adjustments
         if (value == null)                      // we can ignore adjustments of missing values
             return null;
-        final Long adjust = this.adjusts.get(key);
+        final Long adjust = this.writes.getAdjusts().get(key);
         if (adjust != null) {
 
             // Decode value we just read as a counter
@@ -318,7 +143,7 @@ public class MutableView extends AbstractKVStore implements KVStore {
             try {
                 counterValue = this.kv.decodeCounter(value);
             } catch (IllegalArgumentException e) {
-                this.adjusts.remove(key);       // previous adjustment was bogus because value was not decodable
+                this.writes.getAdjusts().remove(key);       // previous adjustment was bogus because value was not decodable
                 return value;
             }
 
@@ -351,14 +176,14 @@ public class MutableView extends AbstractKVStore implements KVStore {
             throw new IllegalArgumentException("null value");
 
         // Overwrite any counter adjustment
-        this.adjusts.remove(key);
+        this.writes.getAdjusts().remove(key);
 
         // Overwrite any removal
-        if (this.removes.contains(key))
-            this.removes = this.removes.remove(new KeyRange(key));
+        if (this.writes.getRemoves().contains(key))
+            this.writes.setRemoves(this.writes.getRemoves().remove(new KeyRange(key)));
 
         // Record the put
-        this.puts.put(key.clone(), value.clone());
+        this.writes.getPuts().put(key.clone(), value.clone());
     }
 
     @Override
@@ -370,13 +195,13 @@ public class MutableView extends AbstractKVStore implements KVStore {
             throw new IllegalArgumentException("null key");
 
         // Overwrite any counter adjustment
-        this.adjusts.remove(key);
+        this.writes.getAdjusts().remove(key);
 
         // Overwrite any put
-        this.puts.remove(key);
+        this.writes.getPuts().remove(key);
 
         // Record the remove
-        this.removes = this.removes.add(new KeyRange(key));
+        this.writes.setRemoves(this.writes.getRemoves().add(new KeyRange(key)));
     }
 
     @Override
@@ -391,15 +216,15 @@ public class MutableView extends AbstractKVStore implements KVStore {
 
         // Overwrite any puts and counter adjustments
         if (maxKey != null) {
-            this.puts.subMap(minKey, maxKey).clear();
-            this.adjusts.subMap(minKey, maxKey).clear();
+            this.writes.getPuts().subMap(minKey, maxKey).clear();
+            this.writes.getAdjusts().subMap(minKey, maxKey).clear();
         } else {
-            this.puts.tailMap(minKey).clear();
-            this.adjusts.tailMap(minKey).clear();
+            this.writes.getPuts().tailMap(minKey).clear();
+            this.writes.getAdjusts().tailMap(minKey).clear();
         }
 
         // Record the remove
-        this.removes = this.removes.add(new KeyRange(minKey, maxKey));
+        this.writes.setRemoves(this.writes.getRemoves().add(new KeyRange(minKey, maxKey)));
     }
 
     @Override
@@ -419,7 +244,7 @@ public class MutableView extends AbstractKVStore implements KVStore {
         assert this.check();
 
         // Check puts
-        final byte[] putValue = this.puts.get(key);
+        final byte[] putValue = this.writes.getPuts().get(key);
         if (putValue != null) {
             final long value;
             try {
@@ -427,42 +252,32 @@ public class MutableView extends AbstractKVStore implements KVStore {
             } catch (IllegalArgumentException e) {
                 return;                                 // previously put value was not decodable, so ignore this adjustment
             }
-            this.puts.put(key, this.kv.encodeCounter(value + amount));
+            this.writes.getPuts().put(key, this.kv.encodeCounter(value + amount));
             return;
         }
 
         // Check removes
-        if (this.removes.contains(key))
+        if (this.writes.getRemoves().contains(key))
             return;
 
         // Calculate new, cumulative adjustment
-        Long oldAdjust = this.adjusts.get(key);
+        Long oldAdjust = this.writes.getAdjusts().get(key);
         final long adjust = (oldAdjust != null ? oldAdjust : 0) + amount;
 
         // Record/update adjustment
         if (adjust != 0)
-            this.adjusts.put(key, adjust);
+            this.writes.getAdjusts().put(key, adjust);
         else
-            this.adjusts.remove(key);
+            this.writes.getAdjusts().remove(key);
     }
 
 // Object
 
     @Override
     public String toString() {
-        final Converter<String, byte[]> byteConverter = ByteUtil.STRING_CONVERTER.reverse();
-        final ConvertedNavigableMap<String, String, byte[], byte[]> putsView
-          = new ConvertedNavigableMap<>(this.puts, byteConverter, byteConverter);
-        final ConvertedNavigableMap<String, Long, byte[], Long> adjustsView
-          = new ConvertedNavigableMap<>(this.adjusts, byteConverter, Converter.<Long>identity());
-        final ConvertedNavigableSet<String, byte[]> liveReadsView
-          = this.liveReads != null ? new ConvertedNavigableSet<>(this.liveReads, byteConverter) : null;
         return this.getClass().getSimpleName()
-          + "[puts=" + putsView
-          + (!this.removes.isEmpty() ? ",dels=" + this.removes : "")
-          + (!this.adjusts.isEmpty() ? ",adjusts=" + adjustsView : "")
-          + (liveReadsView != null ? ",liveReads=" + liveReadsView : "")
-          + (this.deadReads != null ? ",deadReads=" + this.deadReads : "")
+          + "[writes=" + this.writes
+          + (this.reads != null ? ",reads=" + this.reads : "")
           + "]";
     }
 
@@ -472,15 +287,15 @@ public class MutableView extends AbstractKVStore implements KVStore {
     private synchronized void recordLiveRead(byte[] key) {
 
         // Not tracking reads or already tracked?
-        if (this.liveReads == null || this.liveReads.contains(key))
+        if (this.reads == null || this.reads.getLiveReads().contains(key))
             return;
 
         // Check if read did not really go through to k/v store
-        if (this.puts.containsKey(key) || this.removes.contains(key))
+        if (this.writes.getPuts().containsKey(key) || this.writes.getRemoves().contains(key))
             return;
 
         // Record read
-        this.liveReads.add(key);
+        this.reads.getLiveReads().add(key);
     }
 
     // Record that a null value was read from the key
@@ -492,7 +307,7 @@ public class MutableView extends AbstractKVStore implements KVStore {
     private synchronized void recordDeadReads(byte[] minKey, byte[] maxKey) {
 
         // Not tracking reads?
-        if (this.deadReads == null)
+        if (this.reads == null)
             return;
 
         // Realize minKey
@@ -501,26 +316,27 @@ public class MutableView extends AbstractKVStore implements KVStore {
 
         // Already tracked?
         final KeyRange readRange = new KeyRange(minKey, maxKey);
-        if (this.deadReads.contains(readRange))
+        if (this.reads.getDeadReads().contains(readRange))
             return;
 
         // Subtract out the part of the read range that did not really go through to k/v store due to puts or removes
         KeyRanges readRanges = new KeyRanges(readRange);
-        final Set<byte[]> putKeys = (maxKey != null ? this.puts.subMap(minKey, maxKey) : this.puts.tailMap(minKey)).keySet();
+        final Set<byte[]> putKeys = (maxKey != null ?
+          this.writes.getPuts().subMap(minKey, maxKey) : this.writes.getPuts().tailMap(minKey)).keySet();
         for (byte[] key : putKeys)
             readRanges = readRanges.remove(new KeyRange(key));
-        readRanges = readRanges.intersection(this.removes.inverse());
+        readRanges = readRanges.intersection(this.writes.getRemoves().inverse());
 
         // Record reads
         if (!readRanges.isEmpty())
-            this.deadReads = this.deadReads.union(readRanges);
+            this.reads.setDeadReads(this.reads.getDeadReads().union(readRanges));
     }
 
 // Debugging
 
     // Verify puts, removes, and adjusts are all mutually disjoint
     private synchronized boolean check() {
-        this.verifyDisjoint(this.getPutRanges(), this.removes, this.getAdjustRanges());
+        this.verifyDisjoint(this.getPutRanges(), this.writes.getRemoves(), this.getAdjustRanges());
         return true;
     }
 
@@ -533,14 +349,14 @@ public class MutableView extends AbstractKVStore implements KVStore {
 
     private synchronized KeyRanges getPutRanges() {
         KeyRanges ranges = KeyRanges.EMPTY;
-        for (byte[] key : this.puts.keySet())
+        for (byte[] key : this.writes.getPuts().keySet())
             ranges = ranges.add(new KeyRange(key));
         return ranges;
     }
 
     private synchronized KeyRanges getAdjustRanges() {
         KeyRanges ranges = KeyRanges.EMPTY;
-        for (byte[] key : this.adjusts.keySet())
+        for (byte[] key : this.writes.getAdjusts().keySet())
             ranges = ranges.add(new KeyRange(key));
         return ranges;
     }
@@ -567,7 +383,7 @@ public class MutableView extends AbstractKVStore implements KVStore {
             // Build KVPairIterator that omits keys we've put or removed so far; this is safe even if more keys are put and/or
             // removed after creation, because the set "keys we've put or removed so far" can only increase over time.
             synchronized (MutableView.this) {
-                final KeyRanges putsAndRemoves = MutableView.this.getPutRanges().union(MutableView.this.removes);
+                final KeyRanges putsAndRemoves = MutableView.this.getPutRanges().union(MutableView.this.writes.getRemoves());
                 this.pi = new KVPairIterator(MutableView.this.kv, new KeyRange(minKey, maxKey), putsAndRemoves.inverse(), reverse);
             }
 
@@ -618,7 +434,7 @@ public class MutableView extends AbstractKVStore implements KVStore {
                 KVPair readPair = null;
                 while (this.pi.hasNext()) {
                     readPair = this.pi.next();
-                    if (MutableView.this.removes.contains(readPair.getKey())) {
+                    if (MutableView.this.writes.getRemoves().contains(readPair.getKey())) {
                         readPair = null;
                         continue;
                     }
@@ -627,8 +443,9 @@ public class MutableView extends AbstractKVStore implements KVStore {
 
                 // Find the next put, if any
                 final Map.Entry<byte[], byte[]> putEntry = this.reverse ?
-                  (this.cursor != null ? MutableView.this.puts.lowerEntry(this.cursor) : MutableView.this.puts.lastEntry()) :
-                  MutableView.this.puts.ceilingEntry(this.cursor);
+                  (this.cursor != null ?
+                   MutableView.this.writes.getPuts().lowerEntry(this.cursor) : MutableView.this.writes.getPuts().lastEntry()) :
+                  MutableView.this.writes.getPuts().ceilingEntry(this.cursor);
                 final KVPair putPair = putEntry != null ? new KVPair(putEntry) : null;
 
                 // Figure out which pair wins (read or put)

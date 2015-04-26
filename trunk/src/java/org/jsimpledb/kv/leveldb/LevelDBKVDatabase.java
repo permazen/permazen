@@ -387,7 +387,7 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
     protected void applyMutations(SnapshotKVTransaction tx) {
         try (WriteBatch writeBatch = this.db.createWriteBatch()) {
             try (LevelDBKVStore tempKV = new LevelDBKVStore(this.db, null/*doesn't matter*/, writeBatch)) {
-                tx.getMutableView().applyTo(tempKV);
+                tx.getMutableView().getWrites().applyTo(tempKV);
             }
             this.db.write(writeBatch, new WriteOptions().sync(true));
         } catch (IOException e) {

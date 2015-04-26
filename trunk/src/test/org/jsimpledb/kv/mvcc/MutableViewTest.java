@@ -90,7 +90,7 @@ public class MutableViewTest extends TestSupport {
             access.apply(v2);
 
         // Check conflicts
-        final boolean actual = v2.isAffectedBy(v1);
+        final boolean actual = v2.getReads().isConflict(v1.getWrites());
         Assert.assertEquals(actual, expected);
     }
 
