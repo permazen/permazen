@@ -8,27 +8,33 @@
 package org.jsimpledb.kv.leveldb;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.ReadOptions;
 import org.iq80.leveldb.WriteBatch;
+import org.iq80.leveldb.WriteOptions;
 import org.jsimpledb.kv.AbstractKVStore;
+import org.jsimpledb.kv.AtomicKVStore;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.CloseableTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link org.jsimpledb.kv.KVStore} view of a LevelDB database.
+ * An {@link org.jsimpledb.kv.AtomicKVStore} view of a LevelDB database.
  *
  * <p>
  * Instances must be {@link #close}'d when no longer needed to avoid leaking resources associated with iterators.
  * </p>
  */
-public class LevelDBKVStore extends AbstractKVStore implements Closeable {
+public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Closeable {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final CloseableTracker cursorTracker = new CloseableTracker();
@@ -109,6 +115,46 @@ public class LevelDBKVStore extends AbstractKVStore implements Closeable {
             this.writeBatch.delete(key);
         else
             this.db.delete(key);
+    }
+
+// AtomicKVStore
+
+    @Override
+    public synchronized KVStore snapshot() {
+        return new SnapshotLevelDBKVStore(this.db, this.readOptions.verifyChecksums());
+    }
+
+    @Override
+    public synchronized void mutate(Iterable<? extends KeyRange> removes, Iterable<? extends KVPair> puts, boolean sync) {
+        try (WriteBatch batch = this.db.createWriteBatch()) {
+
+            // Apply removes to batch
+            final ReadOptions iteratorOptions = new ReadOptions()
+              .verifyChecksums(this.readOptions.verifyChecksums())
+              .snapshot(this.readOptions.snapshot())
+              .fillCache(false);
+            for (KeyRange range : removes) {
+                final byte[] min = range.getMin();
+                final byte[] max = range.getMax();
+                if (min != null && max != null && ByteUtil.compare(max, ByteUtil.getNextKey(min)) == 0)
+                    batch.delete(min);
+                else {
+                    try (Iterator i = new Iterator(this.db.iterator(iteratorOptions), min, max, false)) {
+                        while (i.hasNext())
+                            batch.delete(i.next().getKey());
+                    }
+                }
+            }
+
+            // Apply puts to batch
+            for (KVPair pair : puts)
+                batch.put(pair.getKey(), pair.getValue());
+
+            // Write the batch
+            this.db.write(batch, new WriteOptions().sync(sync));
+        } catch (IOException e) {
+            throw new DBException("error applying changes to LevelDB", e);
+        }
     }
 
 // Object

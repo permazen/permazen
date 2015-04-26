@@ -7,12 +7,17 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.jsimpledb.kv.AtomicKVStore;
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
@@ -21,17 +26,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Multi-version conccurrency control (MVCC) database using snapshot views of an underlying {@link KVStore}.
+ * Multi-version conccurrency control (MVCC) database using snapshot views of an underlying {@link AtomicKVStore}.
  *
  * <p>
- * Supports {@link KVDatabase} implementations based on an underlying {@link KVStore} that can
- * (a) provide read-only snapshot views, and (b) apply mutations atomically. Provides for concurrent transactions
- * linearizable ACID semantics.
+ * This class provides a {@link KVDatabase} view of an underlying {@link AtomicKVStore},
+ * supporting concurrent transactions via MVCC and linearizable ACID semantics.
  * </p>
  *
  * <p>
- * Instances implement a simple optimistic locking scheme for MVCC using read-only snapshots. Concurrent transactions
- * do not contend for any locks until commit time. During each transaction, reads are noted and pull from the snapshot,
+ * Instances implement a simple optimistic locking scheme for MVCC using {@link AtomicKVStore#snapshot}. Concurrent transactions
+ * do not contend for any locks until commit time. During each transaction, reads are noted and derive from the snapshot,
  * while writes are batched up. At commit time, if any other transaction has committed writes since the transaction's
  * snapshot was created, and any of those writes {@linkplain Reads#isConflict conflict} with any of the committing
  * transaction's reads, a {@link RetryTransactionException} is thrown. Otherwise, the transaction is committed and its
@@ -39,11 +43,11 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * Each outstanding transaction's mutations are batched up in memory using a {@link MutableView}. Therefore, the transaction
- * load supported by this class is limited by what can fit in memory.
+ * Each outstanding transaction's mutations are batched up in memory using a {@link Writes} instance. Therefore, the
+ * transaction load supported by this class is limited to what can fit in memory.
  * </p>
  */
-public abstract class SnapshotKVDatabase implements KVDatabase {
+public class SnapshotKVDatabase implements KVDatabase {
 
 // Locking order: (1) SnapshotKVTransaction, (2) SnapshotKVDatabase
 
@@ -51,18 +55,46 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
     private final TreeMap<Long, SnapshotVersion> versionInfoMap = new TreeMap<>();
 
+    private AtomicKVStore kvstore;
     private long currentVersion;
 
-    protected SnapshotKVDatabase() {
+    /**
+     * Get the underlying {@link AtomicKVStore}.
+     *
+     * @return underlying key/value store
+     */
+    protected synchronized AtomicKVStore getKVStore() {
+        return this.kvstore;
+    }
+
+    /**
+     * Configure the underlying {@link AtomicKVStore}.
+     *
+     * <p>
+     * Required property; must be configured before creating any transactions.
+     *
+     * @param kvstore underlying key/value store
+     * @throws IllegalStateException if there are any transactions open
+     */
+    protected synchronized void setKVStore(AtomicKVStore kvstore) {
+        if (!this.versionInfoMap.isEmpty())
+            throw new IllegalStateException("transactions exist");
+        this.kvstore = kvstore;
     }
 
 // KVDatabase
 
     /**
      * Create a new transaction.
+     *
+     * @throws IllegalStateException if no {@link AtomicKVStore} is configured
      */
     @Override
     public synchronized KVTransaction createTransaction() {
+
+        // Sanity check
+        if (this.kvstore == null)
+            throw new IllegalStateException("no KVSTore configured");
 
         // Get info for the current version
         final SnapshotVersion versionInfo = this.getCurrentSnapshotVersion();
@@ -87,7 +119,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
      * <p>
      * The implementation in {@link SnapshotKVDatabase} just invokes the {@link SnapshotKVTransaction}
      * constructor using {@code this} and {@code versionInfo}. Subclasses may want to override this method
-     * to create a subclass instead.
+     * to create a more specific subclass.
      *
      * @param versionInfo associated snapshot info
      * @return new transaction instance
@@ -96,47 +128,6 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     protected SnapshotKVTransaction createSnapshotKVTransaction(SnapshotVersion versionInfo) {
         return new SnapshotKVTransaction(this, versionInfo);
     }
-
-    /**
-     * Apply the mutations associated with the given transaction to the underlying {@link KVStore}.
-     *
-     * <p>
-     * This method must apply the mutations atomically, and must durably persist them before returning.
-     *
-     * <p>
-     * It is guaranteed that there will be no concurrent invocation of {@link #openSnapshot openSnapshot()}
-     * when this method is invoked.
-     *
-     * @param tx the transaction being committed
-     * @throws KVTransactionException if an error occurs
-     */
-    protected abstract void applyMutations(SnapshotKVTransaction tx);
-
-    /**
-     * Create a snapshot of the underlying {@link KVStore}.
-     *
-     * <p>
-     * Notes:
-     * <ul>
-     *  <li>The returned view must provide an unchanging "snapshot" view of the underlying {@link KVStore},
-     *      as of the most recent invocation of {@link #applyMutations applyMutations()} (it is guaranteed that
-     *      there will be no concurrent invocation of {@link #applyMutations applyMutations()} when this method is invoked).
-     *  <li>Multiple snapshot views may be opened at the same time; a snapshot view's contents must not be affected
-     *      by the opening of new snapshots, or subsequent invocations of {@link #applyMutations applyMutations()}.</li>
-     *  <li>No mutations will be made to the returned view; it is treated as read-only</li>
-     * </ul>
-     *
-     * @return up-to-date snapshot view of the underlying {@link KVStore}
-     * @throws KVTransactionException if an error occurs
-     */
-    protected abstract KVStore openSnapshot();
-
-    /**
-     * Close a snapshot view previously returned by {@link #openSnapshot}.
-     *
-     * @param snapshot {@link KVStore} snapshot to close
-     */
-    protected abstract void closeSnapshot(KVStore snapshot);
 
     /**
      * Forcibly close all outstanding transactions.
@@ -164,8 +155,6 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         }
     }
 
-// Subclass methods
-
     /**
      * Log specified exception. Used to ensure exceptions are logged at the point they are thrown.
      *
@@ -175,6 +164,20 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     protected KVTransactionException logException(KVTransactionException e) {
         if (this.log.isDebugEnabled())
             this.log.debug("throwing exception for " + e.getTransaction() + ": " + e);
+        return e;
+    }
+
+    /**
+     * Wrap a {@link RuntimeException} as needed.
+     *
+     * <p>
+     * The implementation in {@link SnapshotKVDatabase} just returns {@code e}.
+     *
+     * @param tx transaction in which the exception occurred
+     * @param e original exception
+     * @return wrapped exception, or just {@code e}
+     */
+    protected RuntimeException wrapException(SnapshotKVTransaction tx, RuntimeException e) {
         return e;
     }
 
@@ -221,17 +224,20 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         if (!transactionSnapshotVersion.getOpenTransactions().contains(tx))
             throw this.logException(new RetryTransactionException(tx, "transaction has been forcibly invalidated"));
 
+        // Get transaction reads & writes
+        final Reads transactionReads = tx.getMutableView().getReads();
+        final Writes transactionWrites = tx.getMutableView().getWrites();
+
         // If the current version has advanced past the transaction's version, check for conflicts from intervening commits
         for (long version = transactionVersion; version != this.currentVersion; version++) {
-            final SnapshotKVTransaction committedTransaction = this.versionInfoMap.get(version).getCommittedTransaction();
-            final boolean conflict = tx.getMutableView().getReads().isConflict(committedTransaction.getMutableView().getWrites());
+            final SnapshotVersion committedSnapshotVersion = this.versionInfoMap.get(version);
+            final Writes committedWrites = committedSnapshotVersion.getCommittedWrites();
+            final boolean conflict = transactionReads.isConflict(committedWrites);
             if (this.log.isDebugEnabled()) {
-                this.log.debug("ordering " + tx + " after " + committedTransaction + " (version " + version + ") results in "
+                this.log.debug("ordering " + tx + " after writes in version " + version + " results in "
                   + (conflict ? "conflict" : "no conflict"));
-                if (this.log.isTraceEnabled()) {
-                    this.log.trace("transaction view: {} committed view: {}",
-                      tx.getMutableView(), committedTransaction.getMutableView());
-                }
+                if (this.log.isTraceEnabled())
+                    this.log.trace("transaction reads: {} committed writes: {}", transactionReads, committedWrites);
             }
             if (conflict) {
                 throw this.logException(new RetryTransactionException(tx, "transaction is based on MVCC version "
@@ -240,14 +246,19 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             }
         }
 
-        // Apply the transaction's mutations
+        // Apply the transaction's writes
         if (this.log.isDebugEnabled())
             this.log.debug("applying mutations of " + tx + " to SnapshotMVCC database");
-        this.applyMutations(tx);
+        this.kvstore.mutate(transactionWrites.getRemoves().asList(),
+          Iterables.transform(transactionWrites.getPuts().entrySet(), new Function<Map.Entry<byte[], byte[]>, KVPair>() {
+            @Override
+            public KVPair apply(Map.Entry<byte[], byte[]> entry) {
+                return new KVPair(entry);
+            }
+          }), true);
 
-        // Record transaction's mutations for this version; but discard its reads, we no longer need them
-        currentSnapshotVersion.setCommittedTransaction(tx);
-        tx.getMutableView().disableReadTracking();
+        // Record transaction's writes for this version
+        currentSnapshotVersion.setCommittedWrites(transactionWrites);
 
         // Advance to the next MVCC version
         if (this.log.isDebugEnabled())
@@ -269,11 +280,16 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             final SnapshotVersion versionInfo = i.next().getValue();
             if (!versionInfo.getOpenTransactions().isEmpty())
                 break;
-            if (this.log.isDebugEnabled()) {
-                this.log.debug("discarding obsolete version " + versionInfo + " committed by "
-                  + versionInfo.getCommittedTransaction());
+            if (this.log.isDebugEnabled())
+                this.log.debug("discarding obsolete version " + versionInfo);
+            final KVStore snapshot = versionInfo.getSnapshot();
+            if (snapshot instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable)snapshot).close();
+                } catch (Exception e) {
+                    // ignore
+                }
             }
-            this.closeSnapshot(versionInfo.getSnapshot());
             i.remove();
         }
     }
@@ -282,7 +298,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     private SnapshotVersion getCurrentSnapshotVersion() {
         SnapshotVersion versionInfo = this.versionInfoMap.get(this.currentVersion);
         if (versionInfo == null) {
-            versionInfo = new SnapshotVersion(this.currentVersion, this.openSnapshot());
+            versionInfo = new SnapshotVersion(this.currentVersion, this.kvstore.snapshot());
             this.versionInfoMap.put(this.currentVersion, versionInfo);
             if (this.log.isTraceEnabled())
                 this.log.trace("created new version " + versionInfo);

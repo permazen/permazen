@@ -17,11 +17,10 @@ import javax.annotation.PreDestroy;
 
 import org.iq80.leveldb.CompressionType;
 import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBException;
 import org.iq80.leveldb.DBFactory;
 import org.iq80.leveldb.Options;
-import org.iq80.leveldb.WriteBatch;
-import org.iq80.leveldb.WriteOptions;
-import org.jsimpledb.kv.KVStore;
+import org.iq80.leveldb.ReadOptions;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.mvcc.SnapshotKVDatabase;
 import org.jsimpledb.kv.mvcc.SnapshotKVTransaction;
@@ -161,6 +160,9 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
             throw new RuntimeException("LevelDB database startup failed", e);
         }
 
+        // Configure KVStore
+        this.setKVStore(new LevelDBKVStore(this.db, new ReadOptions().verifyChecksums(this.options.verifyChecksums()), null));
+
         // Add shutdown hook so we don't leak native resources
         if (this.shutdownHookRegistered.compareAndSet(false, true)) {
             Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -193,6 +195,10 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
 
             // Sanity check
             assert this.db != null;
+
+            // Close KVStore
+            ((LevelDBKVStore)this.getKVStore()).close();
+            this.setKVStore(null);
 
             // Shut down LevelDB database
             try {
@@ -384,25 +390,10 @@ public class LevelDBKVDatabase extends SnapshotKVDatabase {
     }
 
     @Override
-    protected void applyMutations(SnapshotKVTransaction tx) {
-        try (WriteBatch writeBatch = this.db.createWriteBatch()) {
-            try (LevelDBKVStore tempKV = new LevelDBKVStore(this.db, null/*doesn't matter*/, writeBatch)) {
-                tx.getMutableView().getWrites().applyTo(tempKV);
-            }
-            this.db.write(writeBatch, new WriteOptions().sync(true));
-        } catch (IOException e) {
-            throw this.logException(new KVTransactionException(tx, "error applying changes to LevelDB", e));
-        }
-    }
-
-    @Override
-    protected SnapshotLevelDBKVStore openSnapshot() {
-        return new SnapshotLevelDBKVStore(this.db, this.options.verifyChecksums());
-    }
-
-    @Override
-    protected void closeSnapshot(KVStore snapshot) {
-        ((SnapshotLevelDBKVStore)snapshot).close();
+    protected RuntimeException wrapException(SnapshotKVTransaction tx, RuntimeException e) {
+        if (e instanceof DBException)
+            return new KVTransactionException(tx, "LevelDB error", e);
+        return e;
     }
 
 // Object
