@@ -22,7 +22,7 @@ import org.jsimpledb.kv.KVStore;
  *  <li>MVCC version number</li>
  *  <li>{@link KVStore} snapshot</li>
  *  <li>Open transactions based on this version</li>
- *  <li>The transaction that was committed on this version, if any</li>
+ *  <li>The {@link Writes} of the transaction that was committed on this version, if any</li>
  *  </ul>
  */
 public class SnapshotVersion {
@@ -31,7 +31,7 @@ public class SnapshotVersion {
     private final KVStore snapshot;
     private final HashSet<SnapshotKVTransaction> openTransactions = new HashSet<>(2);
 
-    private SnapshotKVTransaction committedTransaction;
+    private Writes committedWrites;
 
     /**
      * Constructor.
@@ -72,12 +72,12 @@ public class SnapshotVersion {
     }
 
     /**
-     * Get the transaction based on this version's snapshot that was eventually committed, if any.
+     * Get the {@link Writes} of the transaction based on this version's snapshot that was eventually committed, if any.
      *
-     * @return the transaction committed on this version, or null if there is none
+     * @return writes of the transaction committed on this version, or null if there is none
      */
-    public SnapshotKVTransaction getCommittedTransaction() {
-        return this.committedTransaction;
+    public Writes getCommittedWrites() {
+        return this.committedWrites;
     }
 
 // Package methods
@@ -90,8 +90,8 @@ public class SnapshotVersion {
         this.openTransactions.remove(tx);
     }
 
-    void setCommittedTransaction(SnapshotKVTransaction committedTransaction) {
-        this.committedTransaction = committedTransaction;
+    void setCommittedWrites(Writes committedWrites) {
+        this.committedWrites = committedWrites;
     }
 
 // Object
@@ -102,7 +102,7 @@ public class SnapshotVersion {
           + "[vers=" + this.version
           + ",snapshot=" + this.snapshot
           + (!this.openTransactions.isEmpty() ? ",openTx=" + this.openTransactions : "")
-          + (this.committedTransaction != null ? ",commitTx=" + this.committedTransaction : "")
+          + (this.committedWrites != null ? ",writes=" + this.committedWrites : "")
           + "]";
     }
 }
