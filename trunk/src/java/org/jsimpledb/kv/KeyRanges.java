@@ -23,6 +23,8 @@ import java.util.NoSuchElementException;
 
 import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.SizeEstimating;
+import org.jsimpledb.util.SizeEstimator;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
@@ -34,7 +36,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  *
  * @see KeyRange
  */
-public class KeyRanges implements KeyFilter {
+public class KeyRanges implements KeyFilter, SizeEstimating {
 
     /**
      * The empty instance containing zero ranges.
@@ -46,7 +48,7 @@ public class KeyRanges implements KeyFilter {
      */
     public static final KeyRanges FULL = new KeyRanges(Arrays.asList(KeyRange.FULL));
 
-    private final List<KeyRange> ranges;
+    private final ArrayList<KeyRange> ranges;
 
     private volatile KeyRange lastContainingKeyRange;           // used for optimization
 
@@ -383,6 +385,18 @@ public class KeyRanges implements KeyFilter {
             list.addAll(other.inverse().ranges);
         }
         return new KeyRanges(list).inverse();
+    }
+
+// SizeEstimating
+
+    @Override
+    public void addTo(SizeEstimator estimator) {
+        estimator
+          .addObjectOverhead()                              // this object overhead
+          .addArrayListField(this.ranges)                   // this.ranges
+          .addReferenceField();                             // this.lastContainingKeyRange (reference only)
+        for (KeyRange range : this.ranges)
+            estimator.add(range);
     }
 
 // Serialization

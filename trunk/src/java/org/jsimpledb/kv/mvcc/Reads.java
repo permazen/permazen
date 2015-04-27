@@ -21,6 +21,8 @@ import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableSet;
+import org.jsimpledb.util.SizeEstimating;
+import org.jsimpledb.util.SizeEstimator;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
@@ -35,7 +37,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  * Instances are not thread safe.
  * </p>
  */
-public class Reads {
+public class Reads implements SizeEstimating {
 
     private KeyRanges deadReads = KeyRanges.EMPTY;
     private final TreeSet<byte[]> liveReads = new TreeSet<byte[]>(ByteUtil.COMPARATOR);
@@ -197,6 +199,18 @@ public class Reads {
 
         // Done
         return reads;
+    }
+
+// SizeEstimating
+
+    @Override
+    public void addTo(SizeEstimator estimator) {
+        estimator
+          .addObjectOverhead()
+          .addField(this.deadReads)
+          .addTreeSetField(this.liveReads);
+        for (byte[] array : this.liveReads)
+            estimator.add(array);
     }
 
 // Object
