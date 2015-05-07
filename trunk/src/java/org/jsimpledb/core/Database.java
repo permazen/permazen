@@ -361,7 +361,7 @@ public class Database {
                     throw new InconsistentDatabaseException("database failed basic read/write test");
             } else {
                 try {
-                    formatVersion = UnsignedIntEncoder.read(new ByteReader(formatVersionBytes));
+                    formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);
                 } catch (IllegalArgumentException e) {
                     throw new InconsistentDatabaseException("database contains invalid encoded format version "
                       + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
