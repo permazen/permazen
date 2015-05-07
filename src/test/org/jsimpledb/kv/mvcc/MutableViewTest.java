@@ -80,8 +80,8 @@ public class MutableViewTest extends TestSupport {
         this.setup(kv);
 
         // Create views
-        final MutableView v1 = new MutableView(new UnmodifiableKVStore(kv), true);
-        final MutableView v2 = new MutableView(new UnmodifiableKVStore(kv), true);
+        final MutableView v1 = new MutableView(new UnmodifiableKVStore(kv));
+        final MutableView v2 = new MutableView(new UnmodifiableKVStore(kv));
 
         // Apply accesses
         for (Access access : access1)
@@ -214,39 +214,39 @@ public class MutableViewTest extends TestSupport {
             true
         },
 
-        // Tx1 removes, Tx2 dead reads -> no conflict
+        // Tx1 removes, Tx2 dead reads -> conflict
         {
             buildList(remove(KEY_90, KEY_9000)),
             buildList(get(KEY_90)),
-            false
+            true
         },
 
-        // Tx1 removes, Tx2 dead reads -> no conflict
+        // Tx1 removes, Tx2 dead reads -> conflict
         {
             buildList(remove(KEY_90, KEY_9000)),
             buildList(getRange(KEY_90, KEY_9000)),
-            false
+            true
         },
 
-        // Tx1 removes, Tx2 dead reads -> no conflict
+        // Tx1 removes, Tx2 dead reads -> conflict
         {
             buildList(remove(KEY_90, KEY_9000)),
             buildList(getRange(KEY_90, KEY_9000, true)),
-            false
+            true
         },
 
-        // Tx1 removes, Tx2 dead reads -> no conflict
+        // Tx1 removes, Tx2 dead reads -> conflict
         {
             buildList(remove(KEY_90, KEY_9000)),
             buildList(getRange(null, null)),
-            false
+            true
         },
 
-        // Tx1 removes, Tx2 dead reads -> no conflict
+        // Tx1 removes, Tx2 dead reads -> conflict
         {
             buildList(remove(KEY_90, KEY_9000)),
             buildList(getRange(null, null, true)),
-            false
+            true
         },
 
         // Tx1 adjusts, Tx2 dead reads -> conflict
