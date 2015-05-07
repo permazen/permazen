@@ -300,8 +300,19 @@ public class KVDatabaseTest extends TestSupport {
                 if (txs[i] == null)
                     continue;
                 finished = false;
-                this.executor.submit(new Reader(txs[i], new byte[] { (byte)i }, true)).get();
-                this.executor.submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02"))).get();
+                Future<?> rf = this.executor.submit(new Reader(txs[i], new byte[] { (byte)i }, true));
+                Future<?> wf = this.executor.submit(new Writer(txs[i], new byte[] { (byte)(i + 128) }, b("02")));
+                for (Future<?> f : new Future<?>[] { rf, wf }) {
+                    try {
+                        f.get();
+                    } catch (ExecutionException e) {
+                        if (e.getCause() instanceof RetryTransactionException) {
+                            txs[i] = store.createTransaction();
+                            break;
+                        }
+                        throw e;
+                    }
+                }
             }
             if (finished)
                 break;
