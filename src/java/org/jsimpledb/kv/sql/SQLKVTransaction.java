@@ -157,7 +157,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     @Override
     public synchronized void rollback() {
         if (this.stale)
-            throw new StaleTransactionException(this);
+            return;
         this.stale = true;
         try {
             this.connection.rollback();
@@ -209,6 +209,8 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     @Override
     protected void finalize() throws Throwable {
         try {
+            if (!this.stale)
+               this.log.warn(this + " leaked without commit() or rollback()");
             this.closeConnection();
         } finally {
             super.finalize();

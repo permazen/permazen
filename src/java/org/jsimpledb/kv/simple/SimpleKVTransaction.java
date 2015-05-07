@@ -17,9 +17,9 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.mvcc.LockOwner;
 import org.jsimpledb.util.ByteUtil;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link KVTransaction} implementation for {@link SimpleKVDatabase}.
@@ -134,11 +134,9 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
      */
     protected void finalize() throws Throwable {
         try {
-            try {
-                this.rollback();
-            } catch (StaleTransactionException e) {
-                // ignore
-            }
+            if (!this.stale)
+               LoggerFactory.getLogger(this.getClass()).warn(this + " leaked without commit() or rollback()");
+            this.rollback();
         } finally {
             super.finalize();
         }

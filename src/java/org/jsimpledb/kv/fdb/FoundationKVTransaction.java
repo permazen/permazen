@@ -206,7 +206,7 @@ public class FoundationKVTransaction implements KVTransaction {
     @Override
     public void rollback() {
         if (this.stale)
-            throw new StaleTransactionException(this);
+            return;
         this.stale = true;
         this.cancel();
     }

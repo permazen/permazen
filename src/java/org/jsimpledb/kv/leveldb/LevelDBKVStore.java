@@ -165,6 +165,8 @@ public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Cl
     @Override
     protected void finalize() throws Throwable {
         try {
+            if (!this.closed)
+               this.log.warn(this + " leaked without invoking close()");
             this.close();
         } finally {
             super.finalize();

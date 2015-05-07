@@ -188,7 +188,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     @Override
     public synchronized void rollback() {
         if (this.closed)
-            throw new StaleTransactionException(this);
+            return;
         this.close();
         try {
             this.tx.abort();
@@ -219,6 +219,8 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     @Override
     protected void finalize() throws Throwable {
         try {
+            if (!this.closed)
+               this.log.warn(this + " leaked without commit() or rollback()");
             this.close();
         } finally {
             super.finalize();

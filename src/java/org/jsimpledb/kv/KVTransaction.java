@@ -78,10 +78,14 @@ public interface KVTransaction extends KVStore {
     void commit();
 
     /**
-     * Cancel this transaction. Note, this method may not throw {@link RetryTransactionException}.
+     * Cancel this transaction.
+     *
+     * <p>
      * After this method returns, this instance is no longer usable.
      *
-     * @throws StaleTransactionException if this transaction is no longer usable
+     * <p>
+     * This method may be invoked at any time, even after a previous invocation of
+     * {@link #commit} or {@link #rollback}, in which case the invocation will be ignored.
      */
     void rollback();
 }

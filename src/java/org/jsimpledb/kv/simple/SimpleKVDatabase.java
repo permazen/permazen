@@ -542,7 +542,7 @@ public class SimpleKVDatabase implements KVDatabase {
 
         // Prevent use after commit() or rollback() invoked
         if (tx.stale)
-            throw new StaleTransactionException(tx);
+            return;
         tx.stale = true;
 
         // Release all locks
