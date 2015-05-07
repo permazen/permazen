@@ -8,12 +8,14 @@
 package org.jsimpledb.kv.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
 
 import java.util.Iterator;
 
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.util.ByteUtil;
 
 /**
@@ -31,8 +33,7 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
      * @throws IllegalArgumentException if {@code keyPrefix} is null
      */
     public PrefixKVStore(byte[] keyPrefix) {
-        if (keyPrefix == null)
-            throw new IllegalStateException("null keyPrefix");
+        Preconditions.checkArgument(keyPrefix != null, "null keyPrefix");
         this.keyPrefix = keyPrefix.clone();
     }
 
@@ -43,6 +44,25 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
      */
     public final byte[] getKeyPrefix() {
         return this.keyPrefix.clone();
+    }
+
+    /**
+     * Create a {@link PrefixKVStore} instance using the specified prefix and underlying {@link KVStore}.
+     *
+     * @param kvstore underyling key/value store
+     * @param keyPrefix prefix for all keys
+     * @return view of all keys in {@code kvstore} with prefix {@code keyPrefix}
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static PrefixKVStore create(final KVStore kvstore, byte[] keyPrefix) {
+        Preconditions.checkArgument(kvstore != null, "null kvstore");
+        Preconditions.checkArgument(keyPrefix != null, "null keyPrefix");
+        return new PrefixKVStore(keyPrefix) {
+            @Override
+            protected KVStore delegate() {
+                return kvstore;
+            }
+        };
     }
 
 // KVStore
