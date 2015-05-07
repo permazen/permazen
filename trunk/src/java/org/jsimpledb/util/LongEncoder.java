@@ -90,6 +90,33 @@ public final class LongEncoder {
     }
 
     /**
+     * Encode the given value.
+     *
+     * @param value value to encode
+     * @return encoded bytes
+     */
+    public static byte[] encode(long value) {
+        final ByteWriter writer = new ByteWriter(LongEncoder.encodeLength(value));
+        LongEncoder.write(writer, value);
+        return writer.getBytes();
+    }
+
+    /**
+     * Decode the given value.
+     *
+     * @param data encoded value
+     * @return decoded value
+     * @throws IllegalArgumentException if {@code bytes} contains an invalid encoding, or extra trailing garbage
+     */
+    public static long decode(byte[] data) {
+        final ByteReader reader = new ByteReader(data);
+        final long value = LongEncoder.read(reader);
+        if (reader.remain() > 0)
+            throw new IllegalArgumentException("encoded value contains extra trailing garbage");
+        return value;
+    }
+
+    /**
      * Encode the given value to the output.
      *
      * @param writer destination for the encoded value
@@ -135,28 +162,33 @@ public final class LongEncoder {
      *
      * @param reader input holding an encoded value
      * @return the decoded value
-     * @throws IllegalArgumentException if the first byte is {@code 0xff}
+     * @throws IllegalArgumentException if an invalid encoding is encountered
+     * @throws IllegalArgumentException if the encoded value is truncated
      * @throws NullPointerException if {@code reader} is null
      */
     public static long read(ByteReader reader) {
-        int first = reader.readByte();
-        if (first < MIN_SINGLE_BYTE_ENCODED) {
-            if (first == 0x00)
-                throw new IllegalArgumentException("invalid encoded value starting with 0x00");
-            long value = ~0L;
-            while (first++ < MIN_SINGLE_BYTE_ENCODED)
-                value = (value << 8) | reader.readByte();
-            return value - NEGATIVE_ADJUST;
+        try {
+            int first = reader.readByte();
+            if (first < MIN_SINGLE_BYTE_ENCODED) {
+                if (first == 0x00)
+                    throw new IllegalArgumentException("invalid encoded value starting with 0x00");
+                long value = ~0L;
+                while (first++ < MIN_SINGLE_BYTE_ENCODED)
+                    value = (value << 8) | reader.readByte();
+                return value - NEGATIVE_ADJUST;
+            }
+            if (first > MAX_SINGLE_BYTE_ENCODED) {
+                if (first == 0xff)
+                    throw new IllegalArgumentException("invalid encoded value starting with 0xff");
+                long value = 0L;
+                while (first-- > MAX_SINGLE_BYTE_ENCODED)
+                    value = (value << 8) | reader.readByte();
+                return value - POSITIVE_ADJUST;
+            }
+            return (byte)(first - ZERO_ADJUST);
+        } catch (IndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("encoded value is truncated", e);
         }
-        if (first > MAX_SINGLE_BYTE_ENCODED) {
-            if (first == 0xff)
-                throw new IllegalArgumentException("invalid encoded value starting with 0xff");
-            long value = 0L;
-            while (first-- > MAX_SINGLE_BYTE_ENCODED)
-                value = (value << 8) | reader.readByte();
-            return value - POSITIVE_ADJUST;
-        }
-        return (byte)(first - ZERO_ADJUST);
     }
 
     /**
@@ -296,7 +328,7 @@ public final class LongEncoder {
                     bytes = ByteUtil.parse(arg.substring(2));
             }
             if (bytes != null) {
-                final long value = LongEncoder.read(new ByteReader(bytes));
+                final long value = LongEncoder.decode(bytes);
                 System.out.println("0x" + ByteUtil.toString(bytes)
                   + " decodes to " + value + " (" + String.format("0x%016x", value) + ")");
             }
