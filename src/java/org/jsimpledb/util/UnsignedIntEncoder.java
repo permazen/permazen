@@ -40,9 +40,24 @@ public final class UnsignedIntEncoder {
      * @throws IllegalArgumentException if {@code value} is negative
      */
     public static byte[] encode(int value) {
-        final ByteWriter writer = new ByteWriter(MAX_ENCODED_LENGTH);
+        final ByteWriter writer = new ByteWriter(UnsignedIntEncoder.encodeLength(value));
         UnsignedIntEncoder.write(writer, value);
         return writer.getBytes();
+    }
+
+    /**
+     * Decode the given value.
+     *
+     * @param data encoded value
+     * @return decoded value
+     * @throws IllegalArgumentException if {@code bytes} contains an invalid encoding, or extra trailing garbage
+     */
+    public static int decode(byte[] data) {
+        final ByteReader reader = new ByteReader(data);
+        final int value = UnsignedIntEncoder.read(reader);
+        if (reader.remain() > 0)
+            throw new IllegalArgumentException("encoded value contains extra trailing garbage");
+        return value;
     }
 
     /**
@@ -91,32 +106,37 @@ public final class UnsignedIntEncoder {
      *
      * @param reader input holding an encoded value
      * @return the decoded value, always non-negative
+     * @throws IllegalArgumentException if the encoded value is truncated
      * @throws IllegalArgumentException if an invalid encoding is encountered
      */
     public static int read(ByteReader reader) {
-        final int first = reader.readByte();
-        int value;
-        switch (first) {
-        case 0xfb:
-            value = reader.readByte();
-            break;
-        case 0xfc:
-            value = (reader.readByte() << 8) | reader.readByte();
-            break;
-        case 0xfd:
-            value = (reader.readByte() << 16) | (reader.readByte() << 8) | reader.readByte();
-            break;
-        case 0xfe:
-            value = (reader.readByte() << 24) | (reader.readByte() << 16) | (reader.readByte() << 8) | reader.readByte();
-            if (value + MIN_MULTI_BYTE_VALUE < 0)
-                throw new IllegalArgumentException("invalid unsigned int encoding with high bit set");
-            break;
-        case 0xff:
-            throw new IllegalArgumentException("invalid unsigned int encoding starting with 0xff");
-        default:
-            return first;
+        try {
+            final int first = reader.readByte();
+            int value;
+            switch (first) {
+            case 0xfb:
+                value = reader.readByte();
+                break;
+            case 0xfc:
+                value = (reader.readByte() << 8) | reader.readByte();
+                break;
+            case 0xfd:
+                value = (reader.readByte() << 16) | (reader.readByte() << 8) | reader.readByte();
+                break;
+            case 0xfe:
+                value = (reader.readByte() << 24) | (reader.readByte() << 16) | (reader.readByte() << 8) | reader.readByte();
+                if (value + MIN_MULTI_BYTE_VALUE < 0)
+                    throw new IllegalArgumentException("invalid unsigned int encoding with high bit set");
+                break;
+            case 0xff:
+                throw new IllegalArgumentException("invalid unsigned int encoding starting with 0xff");
+            default:
+                return first;
+            }
+            return value + MIN_MULTI_BYTE_VALUE;
+        } catch (IndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("encoded value is truncated", e);
         }
-        return value + MIN_MULTI_BYTE_VALUE;
     }
 
     /**
@@ -255,7 +275,7 @@ public final class UnsignedIntEncoder {
             if (bytes != null) {
                 System.out.println("Decoding bytes: " + ByteUtil.toString(bytes));
                 try {
-                    final long value = UnsignedIntEncoder.read(new ByteReader(bytes));
+                    final long value = UnsignedIntEncoder.decode(bytes);
                     System.out.println("0x" + ByteUtil.toString(bytes)
                       + " decodes to " + value + " (" + String.format("0x%016x", value) + ")");
                 } catch (IndexOutOfBoundsException e) {
