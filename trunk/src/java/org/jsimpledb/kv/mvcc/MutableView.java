@@ -7,6 +7,8 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -33,8 +35,7 @@ import org.jsimpledb.util.SizeEstimator;
  *
  * <p>
  * Unlike writes, reads are passed through to the underlying {@link KVStore}, except where they intersect a previous write.
- * Reads may also be optionally recorded. Null ("dead") and non-null ("live") reads are tracked separately (note: reliance on
- * this distinction assumes that reads from the underlying {@link KVStore} are repeatable).
+ * Reads may also be optionally recorded.
  * </p>
  *
  * <p>
@@ -52,7 +53,7 @@ import org.jsimpledb.util.SizeEstimator;
 public class MutableView extends AbstractKVStore implements SizeEstimating {
 
     private final KVStore kv;
-    private final Writes writes = new Writes();
+    private final Writes writes;
     private Reads reads;
 
 // Constructors
@@ -61,14 +62,27 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
      * Constructor.
      *
      * @param kv underlying {@link KVStore}
-     * @param recordReads whether to also record reads
      * @throws IllegalArgumentException if {@code kv} is null
      */
-    public MutableView(KVStore kv, boolean recordReads) {
-        if (kv == null)
-            throw new IllegalArgumentException("null kv");
+    public MutableView(KVStore kv) {
+        this(kv, new Reads(), new Writes());
+    }
+
+    /**
+     * Constructor using caller-provided {@link Reads} (optional} and {@link Writes}.
+     *
+     * @param kv underlying {@link KVStore}
+     * @param reads recorded reads, or null for none
+     * @param writes recorded writes
+     * @throws IllegalArgumentException if {@code kv} is null
+     * @throws IllegalArgumentException if {@code writes} is null
+     */
+    public MutableView(KVStore kv, Reads reads, Writes writes) {
+        Preconditions.checkArgument(kv != null, "null kv");
+        Preconditions.checkArgument(writes != null, "null writes");
         this.kv = kv;
-        this.reads = recordReads ? new Reads() : null;
+        this.reads = reads;
+        this.writes = writes;
         synchronized (this) { }                                     // because this.reads is not final
     }
 
@@ -127,10 +141,7 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
         byte[] value = this.kv.get(key);
 
         // Record the read
-        if (value != null)
-            this.recordLiveRead(key);
-        else
-            this.recordDeadRead(key);
+        this.recordReads(key, ByteUtil.getNextKey(key));
 
         // Check counter adjustments
         if (value == null)                      // we can ignore adjustments of missing values
@@ -170,10 +181,8 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
         // Sanity check
         assert this.check();
-        if (key == null)
-            throw new IllegalArgumentException("null key");
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(key != null, "null key");
+        Preconditions.checkArgument(value != null, "null value");
 
         // Overwrite any counter adjustment
         this.writes.getAdjusts().remove(key);
@@ -191,8 +200,7 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
         // Sanity check
         assert this.check();
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
 
         // Overwrite any counter adjustment
         this.writes.getAdjusts().remove(key);
@@ -261,7 +269,7 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
             return;
 
         // Calculate new, cumulative adjustment
-        Long oldAdjust = this.writes.getAdjusts().get(key);
+        final Long oldAdjust = this.writes.getAdjusts().get(key);
         final long adjust = (oldAdjust != null ? oldAdjust : 0) + amount;
 
         // Record/update adjustment
@@ -302,28 +310,8 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
 // Internal methods
 
-    // Record that a non-null value was read from the key
-    private synchronized void recordLiveRead(byte[] key) {
-
-        // Not tracking reads or already tracked?
-        if (this.reads == null || this.reads.getLiveReads().contains(key))
-            return;
-
-        // Check if read did not really go through to k/v store
-        if (this.writes.getPuts().containsKey(key) || this.writes.getRemoves().contains(key))
-            return;
-
-        // Record read
-        this.reads.getLiveReads().add(key);
-    }
-
-    // Record that a null value was read from the key
-    private synchronized void recordDeadRead(byte[] key) {
-        this.recordDeadReads(key, ByteUtil.getNextKey(key));
-    }
-
-    // Record that null values were read from the range [minKey, maxKey)
-    private synchronized void recordDeadReads(byte[] minKey, byte[] maxKey) {
+    // Record that keys were read in the range [minKey, maxKey)
+    private synchronized void recordReads(byte[] minKey, byte[] maxKey) {
 
         // Not tracking reads?
         if (this.reads == null)
@@ -335,7 +323,7 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
         // Already tracked?
         final KeyRange readRange = new KeyRange(minKey, maxKey);
-        if (this.reads.getDeadReads().contains(readRange))
+        if (this.reads.getReads().contains(readRange))
             return;
 
         // Subtract out the part of the read range that did not really go through to k/v store due to puts or removes
@@ -348,34 +336,30 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
         // Record reads
         if (!readRanges.isEmpty())
-            this.reads.setDeadReads(this.reads.getDeadReads().union(readRanges));
+            this.reads.setReads(this.reads.getReads().union(readRanges));
     }
 
 // Debugging
 
     // Verify puts, removes, and adjusts are all mutually disjoint
     private synchronized boolean check() {
-        this.verifyDisjoint(this.getPutRanges(), this.writes.getRemoves(), this.getAdjustRanges());
+        MutableView.verifyDisjoint(
+          this.writes.getRemoves(),
+          MutableView.buildKeyRanges(this.writes.getPuts().keySet()),
+          MutableView.buildKeyRanges(this.writes.getAdjusts().keySet()));
         return true;
     }
 
-    private synchronized void verifyDisjoint(KeyRanges... rangeses) {
+    private static void verifyDisjoint(KeyRanges... rangeses) {
         for (int i = 0; i < rangeses.length - 1; i++) {
             for (int j = i + 1; j < rangeses.length; j++)
                 assert rangeses[i].intersection(rangeses[j]).isEmpty();
         }
     }
 
-    private synchronized KeyRanges getPutRanges() {
+    private static KeyRanges buildKeyRanges(Iterable<byte[]> keys) {
         KeyRanges ranges = KeyRanges.EMPTY;
-        for (byte[] key : this.writes.getPuts().keySet())
-            ranges = ranges.add(new KeyRange(key));
-        return ranges;
-    }
-
-    private synchronized KeyRanges getAdjustRanges() {
-        KeyRanges ranges = KeyRanges.EMPTY;
-        for (byte[] key : this.writes.getAdjusts().keySet())
+        for (byte[] key : keys)
             ranges = ranges.add(new KeyRange(key));
         return ranges;
     }
@@ -402,7 +386,8 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
             // Build KVPairIterator that omits keys we've put or removed so far; this is safe even if more keys are put and/or
             // removed after creation, because the set "keys we've put or removed so far" can only increase over time.
             synchronized (MutableView.this) {
-                final KeyRanges putsAndRemoves = MutableView.this.getPutRanges().union(MutableView.this.writes.getRemoves());
+                final KeyRanges putsAndRemoves = MutableView.buildKeyRanges(MutableView.this.writes.getPuts().keySet())
+                  .union(MutableView.this.writes.getRemoves());
                 this.pi = new KVPairIterator(MutableView.this.kv, new KeyRange(minKey, maxKey), putsAndRemoves.inverse(), reverse);
             }
 
@@ -430,8 +415,7 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
         @Override
         public synchronized void remove() {
-            if (this.removeKey == null)
-                throw new IllegalStateException();
+            Preconditions.checkState(this.removeKey != null);
             MutableView.this.remove(this.removeKey);
             this.removeKey = null;
         }
@@ -483,22 +467,18 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
                     pair = diff <= 0 ? putPair : readPair;                  // if there's a tie, the put wins
                 }
 
-                // Record that we read a live value from the underlying KVStore
-                if (pair != null && pair != putPair)
-                    MutableView.this.recordLiveRead(pair.getKey());
-
-                // Record that we read nulls from everything we skipped over in the underlying KVStore
+                // Record that we read from everything we just scanned over in the underlying KVStore
                 final byte[] skipMin;
                 final byte[] skipMax;
                 if (this.reverse) {
-                    skipMin = pair != null ? ByteUtil.getNextKey(pair.getKey()) : ByteUtil.EMPTY;
+                    skipMin = pair != null ? pair.getKey() : ByteUtil.EMPTY;
                     skipMax = this.cursor;
                 } else {
                     skipMin = this.cursor;
-                    skipMax = pair != null ? pair.getKey() : null;
+                    skipMax = pair != null ? ByteUtil.getNextKey(pair.getKey()) : null;
                 }
                 if (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0)
-                    MutableView.this.recordDeadReads(skipMin, skipMax);
+                    MutableView.this.recordReads(skipMin, skipMax);
 
                 // Finished?
                 if (pair == null) {

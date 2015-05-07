@@ -47,7 +47,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
         this.kvdb = kvdb;
         this.versionInfo = versionInfo;
         this.startTime = System.nanoTime();
-        this.mutableView = new MutableView(versionInfo.getSnapshot(), true);
+        this.mutableView = new MutableView(versionInfo.getSnapshot());
     }
 
 // Accessors
@@ -149,6 +149,17 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
           + ",vers=" + this.versionInfo.getVersion()
           + (this.closed ? ",closed" : "")
           + "]";
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            if (!this.closed)
+               this.log.warn(this + " leaked without commit() or rollback()");
+            this.close();
+        } finally {
+            super.finalize();
+        }
     }
 
 // Internal methods
