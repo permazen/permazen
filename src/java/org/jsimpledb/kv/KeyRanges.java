@@ -486,7 +486,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      *
      * <p>
      * If an {@link IOException} is thrown while reading, the returned {@link Iterator}
-     * will throw a {@link RuntimeException} wrapping it. If invalid data is encountered, 
+     * will throw a {@link RuntimeException} wrapping it. If invalid data is encountered,
      * the returned {@link Iterator} will throw an {@link IllegalArgumentException}.
      *
      * @param input input stream containing data from {@link #serialize serialize()}
