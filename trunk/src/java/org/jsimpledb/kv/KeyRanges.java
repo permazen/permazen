@@ -8,6 +8,7 @@
 package org.jsimpledb.kv;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.UnmodifiableIterator;
 
@@ -36,7 +37,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  *
  * @see KeyRange
  */
-public class KeyRanges implements KeyFilter, SizeEstimating {
+public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating {
 
     /**
      * The empty instance containing zero ranges.
@@ -96,6 +97,16 @@ public class KeyRanges implements KeyFilter, SizeEstimating {
      */
     public KeyRanges(KeyRange range) {
         this(Collections.singletonList(range));
+    }
+
+    /**
+     * Constructor for an instance containing a single range containing a single key.
+     *
+     * @param key key in range; must not be null
+     * @throws IllegalArgumentException if {@code key} is null
+     */
+    public KeyRanges(byte[] key) {
+        this(Collections.singletonList(new KeyRange(key)));
     }
 
     /**
@@ -387,6 +398,13 @@ public class KeyRanges implements KeyFilter, SizeEstimating {
         return new KeyRanges(list).inverse();
     }
 
+// Iterable<KeyRange>
+
+    @Override
+    public Iterator<KeyRange> iterator() {
+        return this.asList().iterator();
+    }
+
 // SizeEstimating
 
     @Override
@@ -421,6 +439,24 @@ public class KeyRanges implements KeyFilter, SizeEstimating {
     }
 
     /**
+     * Calculate the number of bytes required to serialize this instance via {@link #serialize serialize()}.
+     *
+     * @return number of serialized bytes
+     */
+    public long serializedLength() {
+        long total = UnsignedIntEncoder.encodeLength(this.ranges.size());
+        byte[] prev = null;
+        for (KeyRange range : this.ranges) {
+            final byte[] min = range.getMin();
+            final byte[] max = range.getMax();
+            total += KeyListEncoder.writeLength(min, prev);
+            total += KeyListEncoder.writeLength(max != null ? max : min, min);
+            prev = max;
+        }
+        return total;
+    }
+
+    /**
      * Deserialize an instance created by {@link #serialize serialize()}.
      *
      * @param input input stream containing data from {@link #serialize serialize()}
@@ -449,36 +485,40 @@ public class KeyRanges implements KeyFilter, SizeEstimating {
      * iterator of the individual {@link KeyRange}s.
      *
      * <p>
-     * If an {@link IOException} is thrown while reading, the returned iterator's {@link Iterator#next} method
-     * will throw a {@link RuntimeException} wrapping it.
+     * If an {@link IOException} is thrown while reading, the returned {@link Iterator}
+     * will throw a {@link RuntimeException} wrapping it. If invalid data is encountered, 
+     * the returned {@link Iterator} will throw an {@link IllegalArgumentException}.
      *
      * @param input input stream containing data from {@link #serialize serialize()}
      * @return deserialized iteration of {@link KeyRange}s
-     * @throws IOException if an I/O error occurs
      * @throws java.io.EOFException if the input ends unexpectedly
      * @throws IllegalArgumentException if {@code input} is null
      */
-    public static Iterator<KeyRange> readIterator(final InputStream input) throws IOException {
-        if (input == null)
-            throw new IllegalArgumentException("null input");
-        final int total = UnsignedIntEncoder.read(input);
+    public static Iterator<KeyRange> deserializeIterator(final InputStream input) {
+        Preconditions.checkArgument(input != null, "null input");
         return new UnmodifiableIterator<KeyRange>() {
 
+            private int remain = -1;
             private byte[] prev;
-            private int count;
 
             @Override
             public boolean hasNext() {
-                return this.count < total;
+                try {
+                    this.init();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return this.remain > 0;
             }
 
             @Override
             public KeyRange next() {
-                if (this.count >= total)
+                if (this.remain == 0)
                     throw new NoSuchElementException();
                 final byte[] min;
                 final byte[] max;
                 try {
+                    this.init();
                     min = KeyListEncoder.read(input, this.prev);
                     max = KeyListEncoder.read(input, min);
                 } catch (IOException e) {
@@ -486,8 +526,13 @@ public class KeyRanges implements KeyFilter, SizeEstimating {
                 }
                 final KeyRange range = new KeyRange(min, Arrays.equals(min, max) ? null : max);
                 this.prev = max;
-                this.count++;
+                this.remain--;
                 return range;
+            }
+
+            private void init() throws IOException {
+                if (this.remain == -1)
+                    this.remain = UnsignedIntEncoder.read(input);
             }
         };
     }
