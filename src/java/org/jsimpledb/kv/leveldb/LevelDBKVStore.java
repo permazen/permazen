@@ -7,8 +7,14 @@
 
 package org.jsimpledb.kv.leveldb;
 
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
+
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.iq80.leveldb.DB;
@@ -18,23 +24,24 @@ import org.iq80.leveldb.ReadOptions;
 import org.iq80.leveldb.WriteBatch;
 import org.iq80.leveldb.WriteOptions;
 import org.jsimpledb.kv.AbstractKVStore;
-import org.jsimpledb.kv.AtomicKVStore;
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.mvcc.AtomicKVStore;
+import org.jsimpledb.kv.mvcc.Mutations;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.CloseableTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An {@link org.jsimpledb.kv.AtomicKVStore} view of a LevelDB database.
+ * An {@link AtomicKVStore} view of a LevelDB database.
  *
  * <p>
  * Instances must be {@link #close}'d when no longer needed to avoid leaking resources associated with iterators.
  * </p>
  */
-public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Closeable {
+public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, CloseableKVStore {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final CloseableTracker cursorTracker = new CloseableTracker();
@@ -120,20 +127,23 @@ public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Cl
 // AtomicKVStore
 
     @Override
-    public synchronized KVStore snapshot() {
+    public synchronized CloseableKVStore snapshot() {
         return new SnapshotLevelDBKVStore(this.db, this.readOptions.verifyChecksums());
     }
 
     @Override
-    public synchronized void mutate(Iterable<? extends KeyRange> removes, Iterable<? extends KVPair> puts, boolean sync) {
+    public synchronized void mutate(Mutations mutations, boolean sync) {
+        Preconditions.checkArgument(mutations != null, "null mutations");
+
+        // Apply mutations in a batch
         try (WriteBatch batch = this.db.createWriteBatch()) {
 
-            // Apply removes to batch
+            // Apply removes
             final ReadOptions iteratorOptions = new ReadOptions()
               .verifyChecksums(this.readOptions.verifyChecksums())
               .snapshot(this.readOptions.snapshot())
               .fillCache(false);
-            for (KeyRange range : removes) {
+            for (KeyRange range : mutations.getRemoveRanges()) {
                 final byte[] min = range.getMin();
                 final byte[] max = range.getMax();
                 if (min != null && max != null && ByteUtil.compare(max, ByteUtil.getNextKey(min)) == 0)
@@ -146,9 +156,39 @@ public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Cl
                 }
             }
 
-            // Apply puts to batch
-            for (KVPair pair : puts)
-                batch.put(pair.getKey(), pair.getValue());
+            // Apply puts
+            for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
+                batch.put(entry.getKey(), entry.getValue());
+
+            // Convert counter adjustments into puts
+            final Function<Map.Entry<byte[], Long>, Map.Entry<byte[], byte[]>> counterPutFunction
+              = new Function<Map.Entry<byte[], Long>, Map.Entry<byte[], byte[]>>() {
+                @Override
+                public Map.Entry<byte[], byte[]> apply(Map.Entry<byte[], Long> adjust) {
+
+                    // Decode old value
+                    final byte[] key = adjust.getKey();
+                    final long diff = adjust.getValue();
+                    byte[] oldBytes = LevelDBKVStore.this.db.get(key, LevelDBKVStore.this.readOptions);
+                    if (oldBytes == null)
+                        oldBytes  = new byte[8];
+                    final long oldValue;
+                    try {
+                        oldValue = LevelDBKVStore.this.decodeCounter(oldBytes);
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+
+                    // Add adjustment and re-encode it
+                    return new AbstractMap.SimpleEntry<byte[], byte[]>(key, LevelDBKVStore.this.encodeCounter(oldValue + diff));
+                }
+            };
+
+            // Apply counter adjustments
+            for (Map.Entry<byte[], byte[]> entry : Iterables.transform(mutations.getAdjustPairs(), counterPutFunction)) {
+                if (entry != null)
+                    batch.put(entry.getKey(), entry.getValue());
+            }
 
             // Write the batch
             this.db.write(batch, new WriteOptions().sync(sync));

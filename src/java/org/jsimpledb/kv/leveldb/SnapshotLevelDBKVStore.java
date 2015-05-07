@@ -10,6 +10,7 @@ package org.jsimpledb.kv.leveldb;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.ReadOptions;
 import org.iq80.leveldb.Snapshot;
+import org.jsimpledb.kv.CloseableKVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * All mutation operations throw {@link UnsupportedOperationException}.
  */
-public class SnapshotLevelDBKVStore extends LevelDBKVStore {
+public class SnapshotLevelDBKVStore extends LevelDBKVStore implements CloseableKVStore {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final Snapshot snapshot;

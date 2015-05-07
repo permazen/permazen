@@ -7,17 +7,12 @@
 
 package org.jsimpledb.kv.mvcc;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jsimpledb.kv.AtomicKVStore;
 import org.jsimpledb.kv.KVDatabase;
-import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
@@ -57,6 +52,28 @@ public class SnapshotKVDatabase implements KVDatabase {
 
     private AtomicKVStore kvstore;
     private long currentVersion;
+
+// Constructors
+
+    /**
+     * Default constructor.
+     *
+     * <p>
+     * The underlying key/value store must still be configured before creating any transactions.
+     */
+    public SnapshotKVDatabase() {
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param kvstore underlying key/value store
+     */
+    public SnapshotKVDatabase(AtomicKVStore kvstore) {
+        this.kvstore = kvstore;
+    }
+
+// Properties
 
     /**
      * Get the underlying {@link AtomicKVStore}.
@@ -246,16 +263,10 @@ public class SnapshotKVDatabase implements KVDatabase {
             }
         }
 
-        // Apply the transaction's writes
+        // Atomically apply the transaction's mutations
         if (this.log.isDebugEnabled())
             this.log.debug("applying mutations of " + tx + " to SnapshotMVCC database");
-        this.kvstore.mutate(transactionWrites.getRemoves().asList(),
-          Iterables.transform(transactionWrites.getPuts().entrySet(), new Function<Map.Entry<byte[], byte[]>, KVPair>() {
-            @Override
-            public KVPair apply(Map.Entry<byte[], byte[]> entry) {
-                return new KVPair(entry);
-            }
-          }), true);
+        this.kvstore.mutate(transactionWrites, true);
 
         // Record transaction's writes for this version
         currentSnapshotVersion.setCommittedWrites(transactionWrites);
@@ -269,6 +280,7 @@ public class SnapshotKVDatabase implements KVDatabase {
     private void cleanupTransaction(SnapshotKVTransaction tx) {
 
         // Debug
+        assert Thread.holdsLock(this);
         if (this.log.isTraceEnabled())
             this.log.trace("cleaning up transaction " + tx);
 

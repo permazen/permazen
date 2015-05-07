@@ -5,7 +5,10 @@
  * $Id$
  */
 
-package org.jsimpledb.kv;
+package org.jsimpledb.kv.mvcc;
+
+import org.jsimpledb.kv.CloseableKVStore;
+import org.jsimpledb.kv.KVStore;
 
 /**
  * Extension of the {@link KVStore} interface for implementations that support atomic, batched reads and writes.
@@ -23,14 +26,13 @@ public interface AtomicKVStore extends KVStore {
      * The returned {@link KVStore} view should remain constant even if this instance is subsequently mutated.
      *
      * <p>
-     * Some implementations may return a {@link KVStore} that also implements {@link AutoCloseable}; callers are
-     * encouraged to detect and {@link java.io.Closeable#close} such instances when no longer needed.
+     * Note: callers are required to {@link CloseableKVStore#close close} the returned instance when no longer in use.
      *
      * @return read-only, snapshot view of this instance
      * @throws StaleTransactionException if an underlying transaction is no longer usable
      * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
      */
-    KVStore snapshot();
+    CloseableKVStore snapshot();
 
     /**
      * Apply a set of mutations to this instance atomically.
@@ -43,16 +45,18 @@ public interface AtomicKVStore extends KVStore {
      * In any case, other threads observing this instance will never see a partial application of the given mutations.
      *
      * <p>
+     * This method is required to apply the mutations in this order: removes, puts, adjusts.
+     *
+     * <p>
      * If {@code sync} is true, the implementation must durably persist the changes before returning.
      *
-     * @param removes {@link #removeRange removeRange} operations to apply, or null for none
-     * @param puts {@link #put put()} operations to apply, or null for none
+     * @param mutations the mutations to apply
      * @param sync if true, caller requires that the changes be durably persisted
      * @throws StaleTransactionException if an underlying transaction is no longer usable
      * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws UnsupportedOperationException if {@code sync} is true and this implementation cannot guarantee durability
-     * @throws NullPointerException if an iterator returns a null element
+     * @throws IllegalArgumentException if {@code mutations} is null
      */
-    void mutate(Iterable<? extends KeyRange> removes, Iterable<? extends KVPair> puts, boolean sync);
+    void mutate(Mutations mutations, boolean sync);
 }
 

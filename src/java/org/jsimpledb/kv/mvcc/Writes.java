@@ -8,12 +8,12 @@
 package org.jsimpledb.kv.mvcc;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -40,7 +40,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  * Instances are not thread safe.
  * </p>
  */
-public class Writes implements SizeEstimating {
+public class Writes implements Mutations, SizeEstimating {
 
     private KeyRanges removes = KeyRanges.EMPTY;
     private final TreeMap<byte[], byte[]> puts = new TreeMap<>(ByteUtil.COMPARATOR);
@@ -77,10 +77,10 @@ public class Writes implements SizeEstimating {
      * Get the written key/value pairs contained by this instance.
      *
      * <p>
-     * The caller must not modify any of the {@code byte[]} arrays in the returned map.
+     * The caller must not modify any of the returned {@code byte[]} arrays.
      * </p>
      *
-     * @return unmodifiable mapping from key to corresponding value
+     * @return mutable mapping from key to corresponding value
      */
     public NavigableMap<byte[], byte[]> getPuts() {
         return this.puts;
@@ -90,13 +90,20 @@ public class Writes implements SizeEstimating {
      * Get the set of counter adjustments contained by this instance.
      *
      * <p>
-     * The caller must not modify any of the {@code byte[]} arrays in the returned map.
+     * The caller must not modify any of the returned {@code byte[]} arrays.
      * </p>
      *
-     * @return mapping from key to corresponding counter adjustment
+     * @return mutable mapping from key to corresponding counter adjustment
      */
     public NavigableMap<byte[], Long> getAdjusts() {
         return this.adjusts;
+    }
+
+    /**
+     * Determine whether this instance is empty, i.e., contains zero mutations.
+     */
+    public boolean isEmpty() {
+        return this.removes.isEmpty() && this.puts.isEmpty() && this.adjusts.isEmpty();
     }
 
     /**
@@ -108,6 +115,23 @@ public class Writes implements SizeEstimating {
         this.adjusts.clear();
     }
 
+// Mutations
+
+    @Override
+    public List<KeyRange> getRemoveRanges() {
+        return this.removes.asList();
+    }
+
+    @Override
+    public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
+        return this.puts.entrySet();
+    }
+
+    @Override
+    public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
+        return this.adjusts.entrySet();
+    }
+
 // Application
 
     /**
@@ -115,7 +139,6 @@ public class Writes implements SizeEstimating {
      *
      * <p>
      * Mutations are applied in this order: removes, puts, counter adjustments.
-     * Within each group, mutations are applied in key order.
      *
      * @param target target for recorded mutations
      * @throws IllegalArgumentException if {@code target} is null
@@ -168,28 +191,63 @@ public class Writes implements SizeEstimating {
     }
 
     /**
+     * Calculate the number of bytes required to serialize this instance via {@link #serialize serialize()}.
+     *
+     * @return number of serialized bytes
+     */
+    public long serializedLength() {
+
+        // Removes
+        long total = this.removes.serializedLength();
+
+        // Puts
+        total += UnsignedIntEncoder.encodeLength(this.puts.size());
+        byte[] prev = null;
+        for (Map.Entry<byte[], byte[]> entry : this.puts.entrySet()) {
+            final byte[] key = entry.getKey();
+            final byte[] value = entry.getValue();
+            total += KeyListEncoder.writeLength(key, prev);
+            total += KeyListEncoder.writeLength(value, null);
+            prev = key;
+        }
+
+        // Adjusts
+        total += UnsignedIntEncoder.encodeLength(this.adjusts.size());
+        prev = null;
+        for (Map.Entry<byte[], Long> entry : this.adjusts.entrySet()) {
+            final byte[] key = entry.getKey();
+            final long value = entry.getValue();
+            total += KeyListEncoder.writeLength(key, prev);
+            total += LongEncoder.encodeLength(value);
+            prev = key;
+        }
+
+        // Done
+        return total;
+    }
+
+    /**
      * Deserialize an instance created by {@link #serialize serialize()}.
+     *
+     * <p>
+     * Any {@link IOException} thrown during iteration will be wrapped in a {@link RuntimeException}.
+     * An {@link IllegalArgumentException} is also possible during iteration if malformed input is detected.
      *
      * @param input input stream containing data from {@link #serialize serialize()}
      * @return deserialized instance
-     * @throws IOException if an I/O error occurs
-     * @throws java.io.EOFException if the input ends unexpectedly
-     * @throws IllegalArgumentException if malformed input is detected
      * @throws IllegalArgumentException if {@code input} is null
+     * @throws IOException if an I/O error occurs
      */
     public static Writes deserialize(InputStream input) throws IOException {
+        Preconditions.checkArgument(input != null, "null input");
 
-        // Sanity check
-        if (input == null)
-            throw new IllegalArgumentException("null input");
-
-        // Create instance
+        // Create new instance
         final Writes writes = new Writes();
 
-        // Removes
+        // Populate removes
         writes.removes = KeyRanges.deserialize(input);
 
-        // Puts
+        // Populate puts
         int count = UnsignedIntEncoder.read(input);
         byte[] prev = null;
         for (int i = 0; i < count; i++) {
@@ -199,7 +257,7 @@ public class Writes implements SizeEstimating {
             prev = key;
         }
 
-        // Adjusts
+        // Populate adjusts
         count = UnsignedIntEncoder.read(input);
         prev = null;
         for (int i = 0; i < count; i++) {
@@ -211,65 +269,6 @@ public class Writes implements SizeEstimating {
 
         // Done
         return writes;
-    }
-
-    /**
-     * Deserialize an instance created by {@link #serialize serialize()} and apply it to the given {@link KVStore}.
-     * This method executes in an online fashion.
-     *
-     * @param target target for mutations
-     * @throws IllegalArgumentException if {@code target} is null
-     * @param input input stream containing data from {@link #serialize serialize()}
-     * @throws IOException if an I/O error occurs
-     * @throws java.io.EOFException if the input ends unexpectedly
-     * @throws IllegalArgumentException if malformed input is detected
-     * @throws IllegalArgumentException if {@code target} or {@code input} is null
-     */
-    public static void deserializeAndApply(KVStore target, InputStream input) throws IOException {
-
-        // Sanity check
-        if (target == null)
-            throw new IllegalArgumentException("null target");
-        if (input == null)
-            throw new IllegalArgumentException("null input");
-
-        // Removes
-        for (Iterator<KeyRange> i = KeyRanges.readIterator(input); i.hasNext(); ) {
-            final KeyRange range;
-            try {
-                range = i.next();
-            } catch (RuntimeException e) {
-                if (e.getCause() instanceof IOException)
-                    throw (IOException)e.getCause();
-                throw e;
-            }
-            final byte[] min = range.getMin();
-            final byte[] max = range.getMax();
-            if (max != null && Arrays.equals(max, ByteUtil.getNextKey(min)))
-                target.remove(min);
-            else
-                target.removeRange(min, max);
-        }
-
-        // Puts
-        int count = UnsignedIntEncoder.read(input);
-        byte[] prev = null;
-        for (int i = 0; i < count; i++) {
-            final byte[] key = KeyListEncoder.read(input, prev);
-            final byte[] value = KeyListEncoder.read(input, null);
-            target.put(key, value);
-            prev = key;
-        }
-
-        // Adjusts
-        count = UnsignedIntEncoder.read(input);
-        prev = null;
-        for (int i = 0; i < count; i++) {
-            final byte[] key = KeyListEncoder.read(input, prev);
-            final long value = LongEncoder.read(input);
-            target.adjustCounter(key, value);
-            prev = key;
-        }
     }
 
 // SizeEstimating
