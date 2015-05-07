@@ -108,9 +108,9 @@ public abstract class AbstractKVStore implements KVStore {
     public void adjustCounter(byte[] key, long amount) {
         if (key == null)
             throw new NullPointerException("null key");
-        byte[] previous = this.get(key);
+        final byte[] previous = this.get(key);
         if (previous == null)
-            previous = new byte[8];
+            return;
         this.put(key, this.encodeCounter(this.decodeCounter(previous) + amount));
     }
 
