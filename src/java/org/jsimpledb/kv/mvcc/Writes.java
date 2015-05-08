@@ -101,6 +101,8 @@ public class Writes implements Mutations, SizeEstimating {
 
     /**
      * Determine whether this instance is empty, i.e., contains zero mutations.
+     *
+     * @return true if this instance contains zero mutations, otherwise false
      */
     public boolean isEmpty() {
         return this.removes.isEmpty() && this.puts.isEmpty() && this.adjusts.isEmpty();
