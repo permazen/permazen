@@ -491,7 +491,6 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      *
      * @param input input stream containing data from {@link #serialize serialize()}
      * @return deserialized iteration of {@link KeyRange}s
-     * @throws java.io.EOFException if the input ends unexpectedly
      * @throws IllegalArgumentException if {@code input} is null
      */
     public static Iterator<KeyRange> deserializeIterator(final InputStream input) {

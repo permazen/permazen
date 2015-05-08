@@ -29,8 +29,8 @@ public interface AtomicKVStore extends KVStore {
      * Note: callers are required to {@link CloseableKVStore#close close} the returned instance when no longer in use.
      *
      * @return read-only, snapshot view of this instance
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws org.jsimpledb.kv.StaleTransactionException if an underlying transaction is no longer usable
+     * @throws org.jsimpledb.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable
      */
     CloseableKVStore snapshot();
 
@@ -52,8 +52,8 @@ public interface AtomicKVStore extends KVStore {
      *
      * @param mutations the mutations to apply
      * @param sync if true, caller requires that the changes be durably persisted
-     * @throws StaleTransactionException if an underlying transaction is no longer usable
-     * @throws RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws org.jsimpledb.kv.StaleTransactionException if an underlying transaction is no longer usable
+     * @throws org.jsimpledb.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws UnsupportedOperationException if {@code sync} is true and this implementation cannot guarantee durability
      * @throws IllegalArgumentException if {@code mutations} is null
      */
