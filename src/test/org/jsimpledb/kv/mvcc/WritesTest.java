@@ -10,17 +10,9 @@ package org.jsimpledb.kv.mvcc;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import org.jsimpledb.TestSupport;
-import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.util.NavigableMapKVStore;
-import org.jsimpledb.kv.util.UnmodifiableKVStore;
-import org.jsimpledb.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
