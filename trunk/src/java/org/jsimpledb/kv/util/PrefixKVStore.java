@@ -75,12 +75,16 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
     @Override
     public KVPair getAtLeast(byte[] minKey) {
         final KVPair pair = this.delegate().getAtLeast(this.addMinPrefix(minKey));
+        if (pair == null || !ByteUtil.isPrefixOf(this.keyPrefix, pair.getKey()))
+            return null;
         return new KVPair(this.removePrefix(pair.getKey()), pair.getValue());
     }
 
     @Override
     public KVPair getAtMost(byte[] maxKey) {
         final KVPair pair = this.delegate().getAtMost(this.addMaxPrefix(maxKey));
+        if (pair == null || !ByteUtil.isPrefixOf(this.keyPrefix, pair.getKey()))
+            return null;
         return new KVPair(this.removePrefix(pair.getKey()), pair.getValue());
     }
 
@@ -118,6 +122,8 @@ public abstract class PrefixKVStore extends ForwardingKVStore {
 // Key (un)prefixing
 
     private byte[] addPrefix(byte[] key) {
+        if (key == null)
+            return null;
         return Bytes.concat(this.keyPrefix, key);
     }
 
