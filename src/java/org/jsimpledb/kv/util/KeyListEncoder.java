@@ -53,7 +53,7 @@ public final class KeyListEncoder {
         }
         if (prefixLength > 1) {
             final int suffixLength = key.length - prefixLength;
-            LongEncoder.write(out, -prefixLength);
+            LongEncoder.write(out, ~(prefixLength - 2));
             UnsignedIntEncoder.write(out, suffixLength);
             out.write(key, prefixLength, suffixLength);
         } else {
@@ -79,7 +79,7 @@ public final class KeyListEncoder {
         }
         if (prefixLength > 1) {
             final int suffixLength = key.length - prefixLength;
-            return LongEncoder.encodeLength(-prefixLength) + UnsignedIntEncoder.encodeLength(suffixLength) + suffixLength;
+            return LongEncoder.encodeLength(~(prefixLength - 2)) + UnsignedIntEncoder.encodeLength(suffixLength) + suffixLength;
         } else
             return LongEncoder.encodeLength(key.length) + key.length;
     }
@@ -97,27 +97,37 @@ public final class KeyListEncoder {
      */
     public static byte[] read(InputStream input, byte[] prev) throws IOException {
         Preconditions.checkArgument(input != null, "null input");
+
+        // Get encoded length of prefix
         int keyLength = KeyListEncoder.readSignedInt(input);
         final byte[] key;
+        int prefixLength;
+
+        // Decode prefix length and read prefix, if any
         if (keyLength < 0) {
             if (prev == null)
                 throw new IllegalArgumentException("null `prev' given but next key has " + -keyLength + " byte shared prefix");
-            final int prefixLength = -keyLength;
+            prefixLength = ~keyLength + 2;
             final int suffixLength = UnsignedIntEncoder.read(input);
             keyLength = prefixLength + suffixLength;
             if (keyLength < 0)
                 throw new IllegalArgumentException("invalid prefix length " + prefixLength + " plus suffix length " + suffixLength);
             key = new byte[keyLength];
             System.arraycopy(prev, 0, key, 0, prefixLength);
-            final int num = input.read(key, prefixLength, suffixLength);
-            if (num < suffixLength)
-                throw new EOFException();
         } else {
             key = new byte[keyLength];
-            final int num = input.read(key);
-            if (num < key.length)
-                throw new EOFException();
+            prefixLength = 0;
         }
+
+        // Read suffix
+        while (prefixLength < key.length) {
+            final int num = input.read(key, prefixLength, key.length - prefixLength);
+            if (num == -1)
+                throw new EOFException();
+            prefixLength += num;
+        }
+
+        // Done
         return key;
     }
 
