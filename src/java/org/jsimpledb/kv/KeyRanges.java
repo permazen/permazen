@@ -432,6 +432,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         for (KeyRange range : this.ranges) {
             final byte[] min = range.getMin();
             final byte[] max = range.getMax();
+            assert max != null || range == this.ranges.get(this.ranges.size() - 1);
             KeyListEncoder.write(out, min, prev);
             KeyListEncoder.write(out, max != null ? max : min, min);            // map final [min, null) to [min, min]
             prev = max;
