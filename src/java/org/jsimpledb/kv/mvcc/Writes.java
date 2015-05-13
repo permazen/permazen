@@ -238,6 +238,7 @@ public class Writes implements Mutations, SizeEstimating {
      * @param input input stream containing data from {@link #serialize serialize()}
      * @return deserialized instance
      * @throws IllegalArgumentException if {@code input} is null
+     * @throws IllegalArgumentException if malformed input is detected
      * @throws IOException if an I/O error occurs
      */
     public static Writes deserialize(InputStream input) throws IOException {
