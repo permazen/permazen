@@ -503,6 +503,9 @@ public abstract class AbstractMain extends MainClass {
             case KV_BDB:
                 ((BerkeleyKVDatabase)this.kvdb).stop();
                 break;
+            case KV_LEVELDB:
+                ((LevelDBKVDatabase)this.kvdb).stop();
+                break;
             default:
                 break;
             }
