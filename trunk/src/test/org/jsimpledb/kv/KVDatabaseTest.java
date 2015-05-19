@@ -129,7 +129,7 @@ public class KVDatabaseTest extends TestSupport {
     }
 
     @AfterClass
-    public void teardown() {
+    public void teardown() throws Exception {
         this.executor.shutdown();
         if (this.fdbKV != null)
             this.fdbKV.stop();
@@ -157,48 +157,87 @@ public class KVDatabaseTest extends TestSupport {
     @Test(dataProvider = "kvdbs")
     public void testSimpleStuff(KVDatabase store) throws Exception {
 
-        // Clear database
+        // Debug
         this.log.info("starting testSimpleStuff() on " + store);
-        KVTransaction tx = store.createTransaction();
-        tx.removeRange(null, null);
-        tx.commit();
+
+        // Clear database
+        this.log.info("testSimpleStuff() on " + store + ": clearing database");
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(null, null);
+                return null;
+            }
+        });
+        this.log.info("testSimpleStuff() on " + store + ": done clearing database");
 
         // Verify database is empty
-        tx = store.createTransaction();
-        KVPair p = tx.getAtLeast(null);
-        Assert.assertNull(p);
-        p = tx.getAtMost(null);
-        Assert.assertNull(p);
-        Iterator<KVPair> it = tx.getRange(null, null, false);
-        Assert.assertFalse(it.hasNext());
-        tx.commit();
+        this.log.info("testSimpleStuff() on " + store + ": verifying database is empty");
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                KVPair p = tx.getAtLeast(null);
+                Assert.assertNull(p);
+                p = tx.getAtMost(null);
+                Assert.assertNull(p);
+                Iterator<KVPair> it = tx.getRange(null, null, false);
+                Assert.assertFalse(it.hasNext());
+                return null;
+            }
+        });
+        this.log.info("testSimpleStuff() on " + store + ": done verifying database is empty");
 
         // tx 1
-        tx = store.createTransaction();
-        byte[] x = tx.get(b("01"));
-        Assert.assertNull(x);
-        tx.put(b("01"), b("02"));
-        Assert.assertEquals(tx.get(b("01")), b("02"));
-        tx.commit();
+        this.log.info("testSimpleStuff() on " + store + ": starting tx1");
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                final byte[] x = tx.get(b("01"));
+                Assert.assertNull(x);
+                tx.put(b("01"), b("02"));
+                Assert.assertEquals(tx.get(b("01")), b("02"));
+                return null;
+            }
+        });
+        this.log.info("testSimpleStuff() on " + store + ": committed tx1");
 
         // tx 2
-        tx = store.createTransaction();
-        x = tx.get(b("01"));
-        Assert.assertEquals(x, b("02"));
-        tx.put(b("01"), b("03"));
-        Assert.assertEquals(tx.get(b("01")), b("03"));
-        tx.commit();
+        this.log.info("testSimpleStuff() on " + store + ": starting tx2");
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                final byte[] x = tx.get(b("01"));
+                Assert.assertEquals(x, b("02"));
+                tx.put(b("01"), b("03"));
+                Assert.assertEquals(tx.get(b("01")), b("03"));
+                return null;
+            }
+        });
+        this.log.info("testSimpleStuff() on " + store + ": committed tx2");
 
         // tx 3
-        tx = store.createTransaction();
-        x = tx.get(b("01"));
-        Assert.assertEquals(x, b("03"));
-        tx.put(b("10"), b("01"));
-        tx.commit();
+        this.log.info("testSimpleStuff() on " + store + ": starting tx3");
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                final byte[] x = tx.get(b("01"));
+                Assert.assertEquals(x, b("03"));
+                tx.put(b("10"), b("01"));
+                return null;
+            }
+        });
+        this.log.info("testSimpleStuff() on " + store + ": committed tx3");
 
         // Check stale access
+        this.log.info("testSimpleStuff() on " + store + ": checking stale access");
+        final KVTransaction tx = this.try3times(store, new Transactional<KVTransaction>() {
+            @Override
+            public KVTransaction transact(KVTransaction tx) {
+                return tx;
+            }
+        });
         try {
-            x = tx.get(b("01"));
+            tx.get(b("01"));
             assert false;
         } catch (StaleTransactionException e) {
             // expected
@@ -211,9 +250,13 @@ public class KVDatabaseTest extends TestSupport {
 
         // Clear database
         this.log.info("starting testConflictingTransactions() on " + store);
-        KVTransaction tx = store.createTransaction();
-        tx.removeRange(null, null);
-        tx.commit();
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(null, null);
+                return null;
+            }
+        });
 
         // Both read the same key
         final KVTransaction[] txs = new KVTransaction[] { store.createTransaction(), store.createTransaction() };
@@ -285,9 +328,13 @@ public class KVDatabaseTest extends TestSupport {
 
         // Clear database
         this.log.info("starting testNonconflictingTransactions() on " + store);
-        KVTransaction tx = store.createTransaction();
-        tx.removeRange(null, null);
-        tx.commit();
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(null, null);
+                return null;
+            }
+        });
 
         // Multiple concurrent read-only transactions with overlapping read ranges and non-intersecting write ranges
         int done = 0;
@@ -333,7 +380,7 @@ public class KVDatabaseTest extends TestSupport {
 
     /**
      * This test runs transactions in parallel and verifies there is no "leakage" between them.
-     * Database must be configured for serializable isolation.
+     * Database must be configured for linearizable isolation.
      */
     @Test(dataProvider = "kvdbs")
     public void testParallelTransactions(KVDatabase store) throws Exception {
@@ -365,10 +412,14 @@ public class KVDatabaseTest extends TestSupport {
     public void testSequentialTransactions(KVDatabase store) throws Exception {
         this.log.info("starting testSequentialTransactions() on " + store);
 
-        // Zero out database
-        final KVTransaction tx = store.createTransaction();
-        tx.removeRange(null, null);
-        tx.commit();
+        // Clear database
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(null, null);
+                return null;
+            }
+        });
 
         // Keep an in-memory record of what is in the committed database
         final TreeMap<byte[], byte[]> committedData = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
@@ -430,6 +481,31 @@ public class KVDatabaseTest extends TestSupport {
         waiterThread.join();
         Assert.assertEquals(holderThread.getResult(), "TransactionTimeoutException");
         Assert.assertEquals(waiterThread.getResult(), "success");
+    }
+
+    private <V> V try3times(KVDatabase kvdb, Transactional<V> transactional) {
+        RetryTransactionException retry = null;
+        for (int count = 0; count < 3; count++) {
+            final KVTransaction tx = kvdb.createTransaction();
+            try {
+                final V result = transactional.transact(tx);
+                tx.commit();
+                return result;
+            } catch (RetryTransactionException e) {
+                KVDatabaseTest.this.log.debug("retry #" + (count + 1) + " on " + e);
+                retry = e;
+            }
+            try {
+                Thread.sleep(100 + count * 200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        throw retry;
+    }
+
+    private interface Transactional<V> {
+        V transact(KVTransaction kvt);
     }
 
 // TestThread
@@ -532,7 +608,8 @@ public class KVDatabaseTest extends TestSupport {
         private final int id;
         private final KVDatabase store;
         private final Random random;
-        private final NavigableMap<byte[], byte[]> committedData;       // current committed data, if known
+        private final TreeMap<byte[], byte[]> committedData;            // tracks actual committed data, if known
+        private final NavigableMap<String, String> committedDataView;
         private final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
 
         private Throwable fail;
@@ -541,12 +618,13 @@ public class KVDatabaseTest extends TestSupport {
             this(id, store, null, seed);
         }
 
-        public RandomTask(int id, KVDatabase store, NavigableMap<byte[], byte[]> committedData, long seed) {
+        public RandomTask(int id, KVDatabase store, TreeMap<byte[], byte[]> committedData, long seed) {
             super("Random[" + id + "]");
             this.log("seed = " + seed);
             this.id = id;
             this.store = store;
             this.committedData = committedData;
+            this.committedDataView = this.stringView(this.committedData);
             this.random = new Random(seed);
         }
 
@@ -565,30 +643,34 @@ public class KVDatabaseTest extends TestSupport {
             return this.fail;
         }
 
+        @SuppressWarnings("unchecked")
         private void test() throws Exception {
 
-            // Create transaction
+            // Keep track of key/value pairs that we know should exist in the transaction
             final TreeMap<byte[], byte[]> knownValues = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
-            final Map<String, String> knownValuesView = new ConvertedNavigableMap<String, String, byte[], byte[]>(
-              knownValues, this.converter, this.converter);
+            final NavigableMap<String, String> knownValuesView = this.stringView(knownValues);
+
+            // Create transaction
             final KVTransaction tx = this.store.createTransaction();
 
-            // Load committed database contents into "known values" tracker
+            // Load actual committed database contents (if known) into "known values" tracker
             if (this.committedData != null)
                 knownValues.putAll(this.committedData);
-            final Map<String, String> committedDataView = this.committedData != null ?
-              new ConvertedNavigableMap<String, String, byte[], byte[]>(this.committedData, this.converter, this.converter) : null;
 
-            // Verify committed data before starting
-            if (this.committedData != null) {
-                final TreeMap<byte[], byte[]> actualValues = this.readDatabase(tx);
-                Assert.assertEquals(
-                  new ConvertedNavigableMap<String, String, byte[], byte[]>(actualValues, this.converter, this.converter),
-                  knownValuesView);
-            }
+            // Save a copy of committed data
+            final TreeMap<byte[], byte[]> previousCommittedData = this.committedData != null ?
+              (TreeMap<byte[], byte[]>)this.committedData.clone() : null;
+            final NavigableMap<String, String> previousCommittedDataView = this.stringView(previousCommittedData);
+
+            // Verify committed data is accurate before starting
+            if (this.committedData != null)
+                Assert.assertEquals(this.stringView(this.readDatabase(tx)), knownValuesView);
+
+            // Note: if this.committedData != null, then knownValues will exactly track the transaction, otherwise,
+            // knownValues only contains values we know are in there; nothing is known about uncontained values.
 
             // Make a bunch of random changes
-            boolean knownValuesChanged = false;
+            Boolean committed = null;
             try {
                 final int limit = this.r(1000);
                 for (int j = 0; j < limit; j++) {
@@ -598,6 +680,7 @@ public class KVDatabaseTest extends TestSupport {
                     byte[] max;
                     KVPair pair;
                     int option = this.r(55);
+                    boolean knownValuesChanged = false;
                     if (option < 10) {                                              // get
                         key = this.rb(2, false);
                         val = tx.get(key);
@@ -688,36 +771,81 @@ public class KVDatabaseTest extends TestSupport {
                 final boolean rollback = this.r(5) == 3;
                 if (rollback) {
                     tx.rollback();
+                    committed = false;
                     this.log("rolled-back");
                 } else {
                     tx.commit();
-                    if (this.committedData != null) {
-                        this.committedData.clear();
-                        this.committedData.putAll(knownValues);
-                    }
+                    committed = true;
                     this.log("committed");
                 }
 
             } catch (TransactionTimeoutException e) {
                 this.log("got " + e);
-            } catch (RetryTransactionException e) {
+                committed = false;
+            } catch (RetryTransactionException e) {             // might have committed, might not have, we don't know for sure
                 this.log("got " + e);
             }
 
-            // Verify committed database contents are equal to what's expected
+            // Doing this should always be allowed and shouldn't affect anything
+            tx.rollback();
+
+            // Verify committed database contents are now equal to what's expected
             if (this.committedData != null) {
-                knownValues.clear();
-                knownValues.putAll(this.readDatabase());
-                Assert.assertEquals(knownValuesView, committedDataView,
-                  "\n*** ACTUAL:\n" + knownValuesView + "\n*** EXPECTED:\n" + committedDataView + "\n");
+
+                // Read actual content
+                final TreeMap<byte[], byte[]> actual = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+                final NavigableMap<String, String> actualView = this.stringView(actual);
+                actual.putAll(this.readDatabase());
+
+                // Update what we think is in the database and then compare to actual content
+                if (Boolean.TRUE.equals(committed)) {
+
+                    // Verify
+                    this.log("tx was definitely committed");
+                    Assert.assertEquals(actualView, knownValuesView,
+                      "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + knownValuesView + "\n");
+                } else if (Boolean.FALSE.equals(committed)) {
+
+                    // Verify
+                    this.log("tx was definitely rolled back");
+                    Assert.assertEquals(actualView, committedDataView,
+                      "\n*** ACTUAL:\n" + actualView + "\n*** EXPECTED:\n" + committedDataView + "\n");
+                } else {
+
+                    // We don't know whether transaction got committed or not .. check both possibilities
+                    final boolean matchCommit = actualView.equals(knownValuesView);
+                    final boolean matchRollback = actualView.equals(committedDataView);
+                    this.log("tx was either committed (" + matchCommit + ") or rolled back (" + matchRollback + ")");
+
+                    // Verify one or the other
+                    assert matchCommit || matchRollback :
+                      "\n*** ACTUAL:\n" + actualView
+                      + "\n*** COMMIT:\n" + knownValuesView + "\n"
+                      + "\n*** ROLLBACK:\n" + committedDataView + "\n";
+                    committed = matchCommit;
+                }
+
+                // Update model of database
+                if (committed) {
+                    this.committedData.clear();
+                    this.committedData.putAll(knownValues);
+                }
             }
         }
 
+        private NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
+            if (byteMap == null)
+                return null;
+            return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap, this.converter, this.converter);
+        }
+
         private TreeMap<byte[], byte[]> readDatabase() {
-            final KVTransaction tx = this.store.createTransaction();
-            final TreeMap<byte[], byte[]> values = this.readDatabase(tx);
-            tx.commit();
-            return values;
+            return KVDatabaseTest.this.try3times(this.store, new Transactional<TreeMap<byte[], byte[]>>() {
+                @Override
+                public TreeMap<byte[], byte[]> transact(KVTransaction tx) {
+                    return RandomTask.this.readDatabase(tx);
+                }
+            });
         }
 
         private TreeMap<byte[], byte[]> readDatabase(KVTransaction tx) {
@@ -738,7 +866,7 @@ public class KVDatabaseTest extends TestSupport {
         }
 
         private void log(String s) {
-            //System.out.println("Random[" + this.id + "]: " + s);
+            //KVDatabaseTest.this.log.debug("Random[" + this.id + "]: " + s);
         }
 
         private int r(int max) {
