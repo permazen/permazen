@@ -80,6 +80,17 @@ public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Cl
             this.log.trace("created " + this);
     }
 
+// Accessors
+
+    /**
+     * Get the {@link DB} underlying this instance.
+     *
+     * @return underlying database
+     */
+    public DB getDB() {
+        return this.db;
+    }
+
 // KVStore
 
     @Override
