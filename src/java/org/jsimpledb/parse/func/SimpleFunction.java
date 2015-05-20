@@ -78,7 +78,6 @@ public abstract class SimpleFunction extends AbstractFunction {
      *
      * @param session parse session
      * @param params parsed parameters; will already be checked between {@link #getMinArgs} and {@link #getMaxArgs}
-     * @param params parsed parameters; will already be checked between {@link #getMinArgs} and {@link #getMaxArgs}
      * @return value returned by this function
      * @throws RuntimeException if there is an error
      */
