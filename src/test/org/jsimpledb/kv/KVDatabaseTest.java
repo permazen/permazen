@@ -13,7 +13,13 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -29,6 +35,8 @@ import org.jsimpledb.TestSupport;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
+import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.net.TestNetwork;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.sql.IsolationLevel;
 import org.jsimpledb.kv.sql.MySQLKVDatabase;
@@ -63,6 +71,9 @@ public class KVDatabaseTest extends TestSupport {
     private FoundationKVDatabase fdbKV;
     private BerkeleyKVDatabase bdbKV;
     private LevelDBKVDatabase leveldbKV;
+    private RaftKVDatabase[] rafts;
+    private TestNetwork[] raftNetworks;
+    private File topRaftDir;
 
     private long timeoutTestStartTime;
 
@@ -124,6 +135,52 @@ public class KVDatabaseTest extends TestSupport {
     }
 
     @BeforeClass
+    @Parameters({
+        "raftDirPrefix",
+        "raftNumNodes",
+        "raftCommitTimeout",
+        "raftMinElectionTimeout",
+        "raftMaxElectionTimeout",
+        "raftHeartbeatTimeout",
+        "raftNetworkDelayMillis",
+        "raftNetworkDropRatio" })
+    public void setTestRaftDirPrefix(@Optional String raftDirPrefix, @Optional("5") int numNodes,
+      @Optional("2500") int commitTimeout, @Optional("300") int minElectionTimeout, @Optional("350") int maxElectionTimeout,
+      @Optional("150") int heartbeatTimeout, @Optional("25") int networkDelayMillis, @Optional("0.075") float networkDropRatio)
+      throws Exception {
+        if (raftDirPrefix == null)
+            return;
+        this.raftNetworks = new TestNetwork[numNodes];
+        this.rafts = new RaftKVDatabase[numNodes];
+        this.topRaftDir = File.createTempFile(raftDirPrefix, null);
+        Assert.assertTrue(this.topRaftDir.delete());
+        Assert.assertTrue(this.topRaftDir.mkdirs());
+        this.topRaftDir.deleteOnExit();
+        final HashMap<String, String> peerMap = new HashMap<>();
+        for (int i = 0; i < numNodes; i++) {
+            final String name = "node" + i;
+            peerMap.put(name, name);
+        }
+        for (int i = 0; i < numNodes; i++) {
+            final String name = "node" + i;
+            final File dir = new File(this.topRaftDir, name);
+            dir.mkdirs();
+            this.raftNetworks[i] = new TestNetwork(name, networkDelayMillis, networkDropRatio);
+            this.rafts[i] = new RaftKVDatabase();
+            this.rafts[i].setLogDirectory(dir);
+            this.rafts[i].setNetwork(this.raftNetworks[i]);
+            this.rafts[i].setIdentity(name);
+            this.rafts[i].setPeers(peerMap);
+            this.rafts[i].setCommitTimeout(commitTimeout);
+            this.rafts[i].setMinElectionTimeout(minElectionTimeout);
+            this.rafts[i].setMaxElectionTimeout(maxElectionTimeout);
+            this.rafts[i].setHeartbeatTimeout(heartbeatTimeout);
+        }
+        for (int i = 0; i < numNodes; i++)
+            this.rafts[i].start();
+    }
+
+    @BeforeClass
     public void setup() {
         this.executor = Executors.newFixedThreadPool(33);
     }
@@ -137,6 +194,24 @@ public class KVDatabaseTest extends TestSupport {
             this.bdbKV.stop();
         if (this.leveldbKV != null)
             this.leveldbKV.stop();
+        if (this.rafts != null) {
+            for (RaftKVDatabase raft : this.rafts)
+                raft.stop();
+            for (TestNetwork network : this.raftNetworks)
+                network.stop();
+            Files.walkFileTree(this.topRaftDir.toPath(), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
     }
 
     @DataProvider(name = "kvdbs")
@@ -147,6 +222,8 @@ public class KVDatabaseTest extends TestSupport {
         list.add(new Object[] { this.fdbKV });
         list.add(new Object[] { this.bdbKV });
         list.add(new Object[] { this.leveldbKV });
+        if (this.rafts != null)
+            list.add(new Object[] { this.rafts[0] });
         for (Iterator<Object[]> i = list.iterator(); i.hasNext(); ) {
             if (i.next()[0] == null)
                 i.remove();
