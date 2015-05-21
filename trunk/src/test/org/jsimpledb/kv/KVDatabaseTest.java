@@ -620,12 +620,12 @@ public class KVDatabaseTest extends TestSupport {
 
         public RandomTask(int id, KVDatabase store, TreeMap<byte[], byte[]> committedData, long seed) {
             super("Random[" + id + "]");
-            this.log("seed = " + seed);
             this.id = id;
             this.store = store;
             this.committedData = committedData;
             this.committedDataView = this.stringView(this.committedData);
             this.random = new Random(seed);
+            this.log("seed = " + seed);
         }
 
         @Override
@@ -726,6 +726,8 @@ public class KVDatabaseTest extends TestSupport {
                         }
                     } else if (option < 50) {                                       // remove
                         key = this.rb(2, false);
+                        if (this.r(5) == 0 && (pair = tx.getAtLeast(this.rb(1, false))) != null)
+                            key = pair.getKey();
                         this.log("remove: " + s(key));
                         tx.remove(key);
                         knownValues.remove(key);
@@ -747,9 +749,10 @@ public class KVDatabaseTest extends TestSupport {
                             knownValues.subMap(min, max).clear();
                         knownValuesChanged = true;
                     } else {                                                        // sleep
-                        this.log("sleep");
+                        final int millis = this.r(50);
+                        this.log("sleep " + millis + "ms");
                         try {
-                            Thread.sleep(this.r(50));
+                            Thread.sleep(millis);
                         } catch (InterruptedException e) {
                             // ignore
                         }
@@ -769,6 +772,8 @@ public class KVDatabaseTest extends TestSupport {
 
                 // Maybe commit
                 final boolean rollback = this.r(5) == 3;
+                this.log("about to " + (rollback ? "rollback" : "commit") + ":\n   KNOWN: "
+                  + knownValuesView + "\n  COMMITTED: " + committedDataView);
                 if (rollback) {
                     tx.rollback();
                     committed = false;
@@ -820,7 +825,7 @@ public class KVDatabaseTest extends TestSupport {
                     // Verify one or the other
                     assert matchCommit || matchRollback :
                       "\n*** ACTUAL:\n" + actualView
-                      + "\n*** COMMIT:\n" + knownValuesView + "\n"
+                      + "\n*** COMMIT:\n" + knownValuesView
                       + "\n*** ROLLBACK:\n" + committedDataView + "\n";
                     committed = matchCommit;
                 }
