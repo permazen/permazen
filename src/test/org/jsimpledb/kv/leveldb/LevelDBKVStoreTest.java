@@ -23,6 +23,7 @@ import java.util.TreeMap;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.impl.Iq80DBFactory;
 import org.jsimpledb.TestSupport;
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
@@ -65,7 +66,7 @@ public class LevelDBKVStoreTest extends TestSupport {
 
         // Test
         final TreeMap<byte[], byte[]> map = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
-        for (int count = 0; count < 100; count++) {
+        for (int count = 0; count < 200; count++) {
             this.log.trace("[" + count + "] next iteration");
             Writes writes;
 
@@ -135,17 +136,28 @@ public class LevelDBKVStoreTest extends TestSupport {
         return writes;
     }
 
-    private TreeMap<byte[], byte[]> read(int count, KVStore kv) {
+    private TreeMap<byte[], byte[]> read(int count, LevelDBKVStore kv) {
         return this.read(count, kv, ByteUtil.EMPTY, null);
     }
 
-    private TreeMap<byte[], byte[]> read(int count, KVStore kv, byte[] minKey, byte[] maxKey) {
+    private TreeMap<byte[], byte[]> read(int count, LevelDBKVStore lkv, byte[] minKey, byte[] maxKey) {
         final TreeMap<byte[], byte[]> map = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
         this.log.trace("[" + count + "]: reading kv store");
+        final KVStore kv;
+        final CloseableKVStore snapshot;
+        if (this.random.nextBoolean()) {
+            snapshot = lkv.snapshot();
+            kv = snapshot;
+        } else {
+            snapshot = null;
+            kv = lkv;
+        }
         for (Iterator<KVPair> i = kv.getRange(minKey, maxKey, false); i.hasNext(); ) {
             final KVPair pair = i.next();
             map.put(pair.getKey(), pair.getValue());
         }
+        if (snapshot != null && this.random.nextBoolean())
+            snapshot.close();
         return map;
     }
 
