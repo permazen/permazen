@@ -871,7 +871,8 @@ public class KVDatabaseTest extends TestSupport {
         }
 
         private void log(String s) {
-            //KVDatabaseTest.this.log.debug("Random[" + this.id + "]: " + s);
+            if (KVDatabaseTest.this.log.isTraceEnabled())
+                KVDatabaseTest.this.log.trace("Random[" + this.id + "]: " + s);
         }
 
         private int r(int max) {
