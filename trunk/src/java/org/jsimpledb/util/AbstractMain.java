@@ -11,12 +11,14 @@ import com.google.common.base.Function;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
@@ -32,6 +34,8 @@ import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
+import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.net.TCPNetwork;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.kv.sql.MySQLKVDatabase;
@@ -51,6 +55,7 @@ public abstract class AbstractMain extends MainClass {
     protected static final int KV_BDB = 3;
     protected static final int KV_MYSQL = 4;
     protected static final int KV_LEVELDB = 5;
+    protected static final int KV_RAFT = 6;
 
     private static final File DEMO_XML_FILE = new File("demo-database.xml");
     private static final File DEMO_SUBDIR = new File("demo-classes");
@@ -61,6 +66,13 @@ public abstract class AbstractMain extends MainClass {
     protected File bdbDirectory;
     protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
     protected File leveldbDirectory;
+    protected File raftDirectory;
+    protected int raftPort = -1;
+    protected String raftIdentity;
+    protected final HashMap<String, String> raftPeers = new HashMap<>();
+    protected int raftMinElectionTimeout = -1;
+    protected int raftMaxElectionTimeout = -1;
+    protected int raftHeartbeatTimeout = -1;
     protected File xmlFile;
     protected String jdbcUrl;
     protected byte[] keyPrefix;
@@ -191,6 +203,66 @@ public abstract class AbstractMain extends MainClass {
                     System.err.println(this.getName() + ": file `" + this.leveldbDirectory + "' is not a directory");
                     return 1;
                 }
+            } else if (option.equals("--raft")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.kvType = KV_RAFT;
+                this.raftDirectory = new File(params.removeFirst());
+                if (!this.raftDirectory.exists()) {
+                    System.err.println(this.getName() + ": directory `" + this.raftDirectory + "' does not exist");
+                    return 1;
+                }
+                if (!this.raftDirectory.isDirectory()) {
+                    System.err.println(this.getName() + ": file `" + this.raftDirectory + "' is not a directory");
+                    return 1;
+                }
+            } else if (option.matches("--raft-((min|max)-election|heartbeat)-timeout")) {
+                if (params.isEmpty())
+                    this.usageError();
+                final String tstring = params.removeFirst();
+                final int timeout;
+                try {
+                    timeout = Integer.parseInt(tstring);
+                } catch (Exception e) {
+                    System.err.println(this.getName() + ": timeout value `" + tstring + "': " + e.getMessage());
+                    return 1;
+                }
+                if (option.equals("--raft-min-election-timeout"))
+                    this.raftMinElectionTimeout = timeout;
+                else if (option.equals("--raft-max-election-timeout"))
+                    this.raftMaxElectionTimeout = timeout;
+                else if (option.equals("--raft-heartbeat-timeout"))
+                    this.raftHeartbeatTimeout = timeout;
+                else
+                    throw new RuntimeException("internal error");
+            } else if (option.equals("--raft-identity")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.raftIdentity = params.removeFirst();
+            } else if (option.equals("--raft-peers")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.raftPeers.clear();
+                for (String peer : params.removeFirst().split(",\\s*")) {
+                    final int sep = peer.indexOf(':');
+                    if (sep == -1) {
+                        System.err.println(this.getName() + ": invalid Raft peer `" + peer + "'");
+                        return 1;
+                    }
+                    this.raftPeers.put(peer.substring(0, sep), peer.substring(sep + 1));
+                }
+            } else if (option.equals("--raft-port")) {
+                if (params.isEmpty())
+                    this.usageError();
+                final String pstring = params.removeFirst();
+                try {
+                    this.raftPort = Integer.parseInt(pstring);
+                    if (this.raftPort < 1 || this.raftPort > 65535)
+                        throw new IllegalArgumentException("value out of range");
+                } catch (Exception e) {
+                    System.err.println(this.getName() + ": invalid Raft TCP port `" + pstring + "': " + e.getMessage());
+                    return 1;
+                }
             } else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
@@ -216,6 +288,10 @@ public abstract class AbstractMain extends MainClass {
                 this.usageError();
                 return 1;
             }
+        }
+        if (this.kvType == KV_RAFT && this.raftIdentity == null) {
+            System.err.println(this.getName() + ": identity required for Raft; use `--raft-identity'");
+            return 1;
         }
 
         // Scan for model and type classes
@@ -446,6 +522,31 @@ public abstract class AbstractMain extends MainClass {
             this.databaseDescription = "LevelDB " + this.leveldbDirectory.getName();
             break;
         }
+        case KV_RAFT:
+        {
+            final TCPNetwork network = new TCPNetwork();
+            if (this.raftPort != -1)
+                network.setListenAddress(new InetSocketAddress(this.raftPort));
+            final RaftKVDatabase raft = new RaftKVDatabase();
+            raft.setLogDirectory(this.raftDirectory);
+            raft.setNetwork(network);
+            raft.setIdentity(this.raftIdentity);
+            raft.setPeers(this.raftPeers);
+            if (this.raftMinElectionTimeout != -1)
+                raft.setMinElectionTimeout(raftMinElectionTimeout);
+            if (this.raftMaxElectionTimeout != -1)
+                raft.setMaxElectionTimeout(raftMaxElectionTimeout);
+            if (this.raftHeartbeatTimeout != -1)
+                raft.setHeartbeatTimeout(raftHeartbeatTimeout);
+            raft.setMaxElectionTimeout(1000);
+            raft.setHeartbeatTimeout(300);
+            try {
+                raft.start();
+            } catch (Exception e) {
+                throw new RuntimeException("error starting Raft database", e);
+            }
+            break;
+        }
         default:
             throw new RuntimeException("internal error");
         }
@@ -506,6 +607,9 @@ public abstract class AbstractMain extends MainClass {
             case KV_LEVELDB:
                 ((LevelDBKVDatabase)this.kvdb).stop();
                 break;
+            case KV_RAFT:
+                ((RaftKVDatabase)this.kvdb).stop();
+                break;
             default:
                 break;
             }
@@ -522,24 +626,31 @@ public abstract class AbstractMain extends MainClass {
      */
     protected void outputFlags(String[][] subclassOpts) {
         final String[][] baseOpts = new String[][] {
-            { "--classpath, -cp path",      "Append to the classpath (useful with `java -jar ...')" },
-            { "--fdb file",                 "Use FoundationDB with specified cluster file" },
-            { "--bdb directory",            "Use Berkeley DB Java Edition in specified directory" },
-            { "--bdb-database",             "Specify Berkeley DB database name (default `"
-                                              + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
-            { "--leveldb directory",        "Use LevelDB in specified directory" },
-            { "--mem",                      "Use an empty in-memory database (default)" },
-            { "--mysql URL",                "Use MySQL with the given JDBC URL" },
-            { "--prefix prefix",            "FoundationDB key prefix (hex or string)" },
-            { "--read-only, -ro",           "Disallow database modifications" },
-            { "--new-schema",               "Allow recording of a new database schema version" },
-            { "--xml file",                 "Use the specified XML flat file database" },
-            { "--schema-version, -v num",   "Specify database schema version (default highest recorded)" },
-            { "--model-pkg package",        "Scan for @JSimpleClass model classes under Java package (=> JSimpleDB mode)" },
-            { "--type-pkg package",         "Scan for @JFieldType types under Java package to register custom types" },
-            { "--pkg, -p package",          "Equivalent to `--model-pkg package --type-pkg package'" },
-            { "--help, -h",                 "Show this help message" },
-            { "--verbose",                  "Show verbose error messages" },
+            { "--classpath, -cp path",          "Append to the classpath (useful with `java -jar ...')" },
+            { "--fdb file",                     "Use FoundationDB with specified cluster file" },
+            { "--bdb directory",                "Use Berkeley DB Java Edition in specified directory" },
+            { "--bdb-database",                 "Specify Berkeley DB database name (default `"
+                                                  + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
+            { "--leveldb directory",            "Use LevelDB in specified directory" },
+            { "--mem",                          "Use an empty in-memory database (default)" },
+            { "--mysql URL",                    "Use MySQL with the given JDBC URL" },
+            { "--prefix prefix",                "FoundationDB key prefix (hex or string)" },
+            { "--raft directory",               "Raft database directory" },
+            { "--raft-min-election-timeout",    "Raft minimum election timeout in ms" },
+            { "--raft-max-election-timeout",    "Raft maximum election timeout in ms" },
+            { "--raft-heartbeat-timeout",       "Raft leader heartbeat timeout in ms" },
+            { "--raft-identity",                "Raft identity" },
+            { "--raft-peers",                   "Raft peers in the form `id1:addr1[:port1],id2:addr2[:port2],...' " },
+            { "--raft-port",                    "Raft TCP listen port (default " + TCPNetwork.DEFAULT_TCP_PORT + ")" },
+            { "--read-only, -ro",               "Disallow database modifications" },
+            { "--new-schema",                   "Allow recording of a new database schema version" },
+            { "--xml file",                     "Use the specified XML flat file database" },
+            { "--schema-version, -v num",       "Specify database schema version (default highest recorded)" },
+            { "--model-pkg package",            "Scan for @JSimpleClass model classes under Java package (=> JSimpleDB mode)" },
+            { "--type-pkg package",             "Scan for @JFieldType types under Java package to register custom types" },
+            { "--pkg, -p package",              "Equivalent to `--model-pkg package --type-pkg package'" },
+            { "--help, -h",                     "Show this help message" },
+            { "--verbose",                      "Show verbose error messages" },
         };
         final String[][] combinedOpts = new String[baseOpts.length + subclassOpts.length][];
         System.arraycopy(baseOpts, 0, combinedOpts, 0, baseOpts.length);

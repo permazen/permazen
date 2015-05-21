@@ -13,6 +13,14 @@
     <parameter name="mysqlURL" value="jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger"/>
     <parameter name="berkeleyDirPrefix" value="BerkeleyDbJava"/>
     <parameter name="levelDbDirPrefix" value="LevelDbJava"/>
+    <parameter name="raftDirPrefix" value="RaftDB"/>
+    <parameter name="raftNumNodes" value="3"/>
+    <parameter name="raftCommitTimeout" value="2500"/>
+    <parameter name="raftMinElectionTimeout" value="100"/>
+    <parameter name="raftMaxElectionTimeout" value="150"/>
+    <parameter name="raftHeartbeatTimeout" value="50"/>
+    <parameter name="raftNetworkDelayMillis" value="10"/>
+    <parameter name="raftNetworkDropRatio" value="0.05"/>
 -->
 
     <test name="Unit Tests">
@@ -23,6 +31,8 @@
             <package name="org.jsimpledb.kv"/>
             <package name="org.jsimpledb.kv.leveldb"/>
             <package name="org.jsimpledb.kv.mvcc"/>
+            <package name="org.jsimpledb.kv.raft"/>
+            <package name="org.jsimpledb.kv.raft.msg"/>
             <package name="org.jsimpledb.kv.util"/>
             <package name="org.jsimpledb.parse"/>
             <package name="org.jsimpledb.parse.expr"/>
