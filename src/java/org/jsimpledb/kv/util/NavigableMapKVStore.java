@@ -65,7 +65,7 @@ public class NavigableMapKVStore extends AbstractKVStore {
     }
 
     /**
-     * Get the underlying {@link NavigableMap} used by this instance..
+     * Get the underlying {@link NavigableMap} used by this instance.
      *
      * @return the underlying map
      */
