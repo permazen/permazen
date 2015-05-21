@@ -306,8 +306,8 @@ public class Writes implements Mutations, SizeEstimating {
         final ConvertedNavigableMap<String, Long, byte[], Long> adjustsView
           = new ConvertedNavigableMap<>(this.adjusts, byteConverter, Converter.<Long>identity());
         return this.getClass().getSimpleName()
-          + "[puts=" + putsView
-          + (!this.removes.isEmpty() ? ",removes=" + this.removes : "")
+          + "[removes=" + this.removes
+          + ",puts=" + putsView
           + (!this.adjusts.isEmpty() ? ",adjusts=" + adjustsView : "")
           + "]";
     }
