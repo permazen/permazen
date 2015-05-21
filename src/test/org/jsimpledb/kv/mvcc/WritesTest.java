@@ -7,12 +7,19 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.base.Converter;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.NavigableMap;
 
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.util.NavigableMapKVStore;
+import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.ConvertedNavigableMap;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -59,6 +66,93 @@ public class WritesTest extends TestSupport {
         for (int i = 0; i < list.size(); i++)
             array[i] = new Writes[] { list.get(i) };
         return array;
+    }
+
+    @Test
+    public void testMutations() throws Exception {
+
+        // Create store
+        final NavigableMapKVStore beforeMutations = new NavigableMapKVStore();
+        beforeMutations.put(b("01"), b("1234"));
+        beforeMutations.put(b("02"), b("5555"));
+        beforeMutations.put(b("33"), b("38"));
+        beforeMutations.put(b("3311"), b("33"));
+        beforeMutations.put(b("331100"), b(""));
+        beforeMutations.put(b("40"), b("40"));
+        beforeMutations.put(b("33110000"), b("23"));
+        beforeMutations.put(b("550001"), b("0001"));
+        beforeMutations.put(b("550002"), b("0002"));
+        beforeMutations.put(b("55000200"), b("000200"));
+        beforeMutations.put(b("550003"), b("0003"));
+        beforeMutations.put(b("550001"), b("0004"));
+        beforeMutations.put(b("62"), beforeMutations.encodeCounter(12345));
+        beforeMutations.put(b("66"), b("99"));
+
+        // Set up mutations
+        final Writes writes = new Writes();
+        writes.setRemoves(
+          KeyRanges.forPrefix(b("3311"))
+            .add(new KeyRange(b("66"), null))
+            .add(new KeyRange(b("550002"), b("550003")))
+            .add(new KeyRange(b(""), b("02")))
+            .add(new KeyRange(b("40")))
+            .add(new KeyRange(b("4444"), b("5500"))));
+        writes.getPuts().put(b("331100"), b("22"));
+        writes.getPuts().put(b("7323"), b("9933"));
+        writes.getPuts().put(b(""), b("ffff"));
+        writes.getPuts().put(b("6622"), b("22"));
+        writes.getPuts().put(b("45"), b("45"));
+        writes.getAdjusts().put(b("62"), -19L);
+
+        // Get expected result
+        final NavigableMapKVStore afterMutations = new NavigableMapKVStore();
+
+        // After removes...
+        afterMutations.put(b("02"), b("5555"));
+        afterMutations.put(b("33"), b("38"));
+        afterMutations.put(b("550001"), b("0001"));
+        afterMutations.put(b("550003"), b("0003"));
+        afterMutations.put(b("550001"), b("0004"));
+
+        // After puts...
+        afterMutations.put(b("331100"), b("22"));
+        afterMutations.put(b("7323"), b("9933"));
+        afterMutations.put(b(""), b("ffff"));
+        afterMutations.put(b("6622"), b("22"));
+        afterMutations.put(b("45"), b("45"));
+
+        // After adjusts...
+        afterMutations.put(b("62"), afterMutations.encodeCounter(12345L - 19L));
+
+        // Apply mutations and check result
+        final NavigableMapKVStore kv1 = new NavigableMapKVStore();
+        kv1.getNavigableMap().putAll(beforeMutations.getNavigableMap());
+        writes.applyTo(kv1);
+        this.compare(kv1, afterMutations);
+
+        // Go through a (de)serialization cycle and repeat
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        writes.serialize(output);
+        final ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+        final Writes writes2 = Writes.deserialize(input);
+        final NavigableMapKVStore kv2 = new NavigableMapKVStore();
+        kv2.getNavigableMap().putAll(beforeMutations.getNavigableMap());
+        writes2.applyTo(kv2);
+        this.compare(kv2, afterMutations);
+    }
+
+    private void compare(NavigableMapKVStore actual, NavigableMapKVStore expected) {
+        final NavigableMap<String, String> actualView = this.stringView(actual.getNavigableMap());
+        final NavigableMap<String, String> expectedView = this.stringView(expected.getNavigableMap());
+        Assert.assertEquals(actualView, expectedView,
+          "ACTUAL:\n  " + actualView + "\nEXPECTED:\n  " + expectedView + "\n");
+    }
+
+    private NavigableMap<String, String> stringView(NavigableMap<byte[], byte[]> byteMap) {
+        if (byteMap == null)
+            return null;
+        final Converter<String, byte[]> converter = ByteUtil.STRING_CONVERTER.reverse();
+        return new ConvertedNavigableMap<String, String, byte[], byte[]>(byteMap, converter, converter);
     }
 }
 
