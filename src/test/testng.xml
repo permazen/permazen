@@ -21,6 +21,7 @@
             <package name="org.jsimpledb.cli"/>
             <package name="org.jsimpledb.core"/>
             <package name="org.jsimpledb.kv"/>
+            <package name="org.jsimpledb.kv.leveldb"/>
             <package name="org.jsimpledb.kv.mvcc"/>
             <package name="org.jsimpledb.kv.util"/>
             <package name="org.jsimpledb.parse"/>
