@@ -281,19 +281,27 @@ public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Cl
             this.minKey = minKey;
             this.maxKey = maxKey;
             this.reverse = reverse;
+            if (LevelDBKVStore.this.log.isTraceEnabled())
+                LevelDBKVStore.this.log.trace("created " + this);
             if (reverse) {
-                if (maxKey != null)
+                if (maxKey != null) {
+                    if (LevelDBKVStore.this.log.isTraceEnabled())
+                        LevelDBKVStore.this.log.trace("seek to " + ByteUtil.toString(maxKey));
                     this.cursor.seek(maxKey);
-                else
+                } else {
+                    if (LevelDBKVStore.this.log.isTraceEnabled())
+                        LevelDBKVStore.this.log.trace("seek to last");
                     this.cursor.seekToLast();
+                }
             } else {
-                if (minKey != null)
+                if (minKey != null) {
+                    if (LevelDBKVStore.this.log.isTraceEnabled())
+                        LevelDBKVStore.this.log.trace("seek to " + ByteUtil.toString(minKey));
                     this.cursor.seek(minKey);
+                }
             }
 
             // Debug
-            if (LevelDBKVStore.this.log.isTraceEnabled())
-                LevelDBKVStore.this.log.trace("created " + this);
         }
 
     // Iterator
@@ -322,6 +330,8 @@ public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Cl
         public synchronized void remove() {
             if (this.closed || this.removeKey == null)
                 throw new IllegalStateException();
+            if (LevelDBKVStore.this.log.isTraceEnabled())
+                LevelDBKVStore.this.log.trace("remove " + ByteUtil.toString(this.removeKey));
             LevelDBKVStore.this.remove(this.removeKey);
             this.removeKey = null;
         }
@@ -336,7 +346,11 @@ public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Cl
             // Advance LevelDB cursor
             try {
                 this.next = new KVPair(this.reverse ? this.cursor.prev() : this.cursor.next());
+                if (LevelDBKVStore.this.log.isTraceEnabled())
+                    LevelDBKVStore.this.log.trace("seek " + (this.reverse ? "previous" : "next") + " -> " + this.next);
             } catch (NoSuchElementException e) {
+                if (LevelDBKVStore.this.log.isTraceEnabled())
+                    LevelDBKVStore.this.log.trace("seek " + (this.reverse ? "previous" : "next") + " -> NO MORE");
                 this.finished = true;
                 return false;
             }
@@ -345,6 +359,10 @@ public class LevelDBKVStore extends AbstractKVStore implements AtomicKVStore, Cl
             if (this.reverse ?
               (this.minKey != null && ByteUtil.compare(this.next.getKey(), this.minKey) < 0) :
               (this.maxKey != null && ByteUtil.compare(this.next.getKey(), this.maxKey) >= 0)) {
+                if (LevelDBKVStore.this.log.isTraceEnabled()) {
+                    LevelDBKVStore.this.log.trace("stopping at bound "
+                      + ByteUtil.toString(this.reverse ? this.minKey : this.maxKey));
+                }
                 this.next = null;
                 this.finished = true;
                 return false;
