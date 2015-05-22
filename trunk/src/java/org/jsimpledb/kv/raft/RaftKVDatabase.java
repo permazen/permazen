@@ -1651,21 +1651,6 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Raft Roles
 
-static String dump(KVStore kvs) {
-    return dump(kvs, new byte[0], null);
-}
-static String dump(KVStore kvs, byte[] minKey, byte[] maxKey) {
-    try {
-        final java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();
-        final javax.xml.stream.XMLStreamWriter writer = new org.dellroad.stuff.xml.IndentXMLStreamWriter(
-          javax.xml.stream.XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
-        new org.jsimpledb.kv.util.XMLSerializer(kvs).write(writer, minKey, maxKey);
-        return new String(buf.toByteArray(), java.nio.charset.Charset.forName("UTF-8"));
-    } catch (javax.xml.stream.XMLStreamException e) {
-        throw new RuntimeException(e);
-    }
-}
-
     abstract static class Role implements MessageSwitch {
 
         protected final Logger log = LoggerFactory.getLogger(this.getClass());
