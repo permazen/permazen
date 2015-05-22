@@ -40,7 +40,7 @@ public abstract class Message {
     static final byte REQUEST_VOTE_TYPE = 7;
 
     // Minimum buffer size to use a direct buffer
-    public static final int MIN_DIRECT_BUFFER_SIZE = 128;
+    private static final int MIN_DIRECT_BUFFER_SIZE = 128;
 
     private final byte type;
     private final String senderId;
