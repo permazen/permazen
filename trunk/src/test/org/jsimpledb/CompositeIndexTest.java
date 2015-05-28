@@ -44,7 +44,12 @@ public class CompositeIndexTest extends TestSupport {
                 final Top top2 = this.getRandomTop(jtx);
                 switch (top1 != null ? this.random.nextInt(4) : 0) {
                 case 0:
-                    jtx.create(this.random.nextBoolean() ? Foo1.class : this.random.nextBoolean() ? Foo2.class : Foo3.class);
+                    if (this.random.nextBoolean())
+                        jtx.create(Foo1.class);
+                    else if (this.random.nextBoolean())
+                        jtx.create(Foo2.class);
+                    else
+                        jtx.create(Foo3.class);
                     break;
                 case 1:
                     jtx.delete(top1);
