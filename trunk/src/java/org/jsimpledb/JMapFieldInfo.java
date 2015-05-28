@@ -100,13 +100,15 @@ class JMapFieldInfo extends JComplexFieldInfo {
 
     @Override
     public NavigableMapConverter<?, ?, ?, ?> getConverter(JTransaction jtx) {
-        final Converter<?, ?> keyConverter = this.getKeyFieldInfo().getConverter(jtx);
-        final Converter<?, ?> valueConverter = this.getValueFieldInfo().getConverter(jtx);
-        return keyConverter != null || valueConverter != null ?
-          this.createConverter(
-           keyConverter != null ? keyConverter : Converter.identity(),
-           valueConverter != null ? valueConverter : Converter.identity()) :
-          null;
+        Converter<?, ?> keyConverter = this.getKeyFieldInfo().getConverter(jtx);
+        Converter<?, ?> valueConverter = this.getValueFieldInfo().getConverter(jtx);
+        if (keyConverter == null && valueConverter == null)
+            return null;
+        if (keyConverter == null)
+           keyConverter = Converter.<Object>identity();
+        if (valueConverter == null)
+           valueConverter = Converter.<Object>identity();
+        return this.createConverter(keyConverter, valueConverter);
     }
 
     // This method exists solely to bind the generic type parameters
