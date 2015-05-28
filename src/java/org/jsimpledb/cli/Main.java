@@ -131,10 +131,16 @@ public class Main extends AbstractMain {
         this.coreMode |= jdb == null;
 
         // Perform test transaction
-        if (this.coreMode)
-            this.performTestTransaction(db, schemaModel);
-        else
-            this.performTestTransaction(jdb);
+        try {
+            if (this.coreMode)
+                this.performTestTransaction(db, schemaModel);
+            else
+                this.performTestTransaction(jdb);
+        } catch (Exception e) {
+            System.err.println(this.getName() + ": warning: test transaction failed: " + e.getMessage());
+            if (this.verbose)
+                e.printStackTrace(System.err);
+        }
 
         // Set up console
         final Console console = this.coreMode ?
