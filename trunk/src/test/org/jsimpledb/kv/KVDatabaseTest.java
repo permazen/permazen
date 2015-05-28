@@ -20,7 +20,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -37,6 +36,7 @@ import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.net.TestNetwork;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.sql.IsolationLevel;
@@ -157,11 +157,6 @@ public class KVDatabaseTest extends TestSupport {
         Assert.assertTrue(this.topRaftDir.delete());
         Assert.assertTrue(this.topRaftDir.mkdirs());
         this.topRaftDir.deleteOnExit();
-        final HashMap<String, String> peerMap = new HashMap<>();
-        for (int i = 0; i < numNodes; i++) {
-            final String name = "node" + i;
-            peerMap.put(name, name);
-        }
         for (int i = 0; i < numNodes; i++) {
             final String name = "node" + i;
             final File dir = new File(this.topRaftDir, name);
@@ -171,7 +166,6 @@ public class KVDatabaseTest extends TestSupport {
             this.rafts[i].setLogDirectory(dir);
             this.rafts[i].setNetwork(this.raftNetworks[i]);
             this.rafts[i].setIdentity(name);
-            this.rafts[i].setPeers(peerMap);
             this.rafts[i].setCommitTimeout(commitTimeout);
             this.rafts[i].setMinElectionTimeout(minElectionTimeout);
             this.rafts[i].setMaxElectionTimeout(maxElectionTimeout);
@@ -179,6 +173,19 @@ public class KVDatabaseTest extends TestSupport {
         }
         for (int i = 0; i < numNodes; i++)
             this.rafts[i].start();
+        for (int i = 0; i < numNodes; i++) {
+            final int targetIndex = (i < 2 ? 1 : i) % numNodes;
+            final int addIndex = (i + 1) % numNodes;
+            final String node = this.rafts[addIndex].getIdentity();
+            this.log.debug("adding node \"" + node + "\" to test cluster");
+            this.try3times(this.rafts[targetIndex], new Transactional<Void>() {
+                @Override
+                public Void transact(KVTransaction tx) {
+                    ((RaftKVTransaction)tx).configChange(node, node);
+                    return null;
+                }
+            });
+        }
     }
 
     @BeforeClass

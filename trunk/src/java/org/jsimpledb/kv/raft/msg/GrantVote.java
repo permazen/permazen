@@ -19,12 +19,13 @@ public class GrantVote extends Message {
     /**
      * Constructor.
      *
+     * @param clusterId cluster ID
      * @param senderId sending node identity
      * @param recipientId identity of recipient
      * @param term current term
      */
-    public GrantVote(String senderId, String recipientId, long term) {
-        super(Message.GRANT_VOTE_TYPE, senderId, recipientId, term);
+    public GrantVote(int clusterId, String senderId, String recipientId, long term) {
+        super(Message.GRANT_VOTE_TYPE, clusterId, senderId, recipientId, term);
     }
 
     GrantVote(ByteBuffer buf) {
@@ -44,6 +45,7 @@ public class GrantVote extends Message {
     public String toString() {
         return this.getClass().getSimpleName()
           + "[\"" + this.getSenderId() + "\"->\"" + this.getRecipientId() + "\""
+          + ",clusterId=" + String.format("%08x", this.getClusterId())
           + ",term=" + this.getTerm()
           + "]";
     }

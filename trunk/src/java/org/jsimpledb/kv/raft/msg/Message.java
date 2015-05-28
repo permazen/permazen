@@ -39,18 +39,21 @@ public abstract class Message {
     static final byte INSTALL_SNAPSHOT_TYPE = 6;
     static final byte REQUEST_VOTE_TYPE = 7;
 
+    // Serialization version number
+    private static final byte VERSION_1 = 1;
+
     // Minimum buffer size to use a direct buffer
     private static final int MIN_DIRECT_BUFFER_SIZE = 128;
 
     private final byte type;
+    private final int clusterId;
     private final String senderId;
     private final String recipientId;
     private final long term;
 
-    protected Message(byte type, String senderId, String recipientId, long term) {
-        Preconditions.checkArgument(senderId != null);
-        Preconditions.checkArgument(recipientId != null);
+    protected Message(byte type, int clusterId, String senderId, String recipientId, long term) {
         this.type = type;
+        this.clusterId = clusterId;
         this.senderId = senderId;
         this.recipientId = recipientId;
         this.term = term;
@@ -58,12 +61,30 @@ public abstract class Message {
 
     protected Message(byte type, ByteBuffer buf) {
         this.type = type;
+        this.clusterId = buf.getInt();
         this.senderId = Message.getString(buf);
         this.recipientId = Message.getString(buf);
         this.term = LongEncoder.read(buf);
     }
 
+    void checkArguments() {
+        Preconditions.checkArgument(this.type >= APPEND_REQUEST_TYPE && this.type <= REQUEST_VOTE_TYPE);
+        Preconditions.checkArgument(this.clusterId != 0);
+        Preconditions.checkArgument(this.senderId != null);
+        Preconditions.checkArgument(this.recipientId != null);
+        Preconditions.checkArgument(this.term > 0);
+    }
+
 // Properties
+
+    /**
+     * Get the cluster ID of the sender.
+     *
+     * @return sender's cluster ID
+     */
+    public int getClusterId() {
+        return this.clusterId;
+    }
 
     /**
      * Get the identity of the sender.
@@ -127,6 +148,15 @@ public abstract class Message {
      */
     public static Message decode(ByteBuffer buf) {
 
+        // Check encoding format version
+        final byte version = buf.get();
+        switch (version) {
+        case Message.VERSION_1:
+            break;
+        default:
+            throw new IllegalArgumentException("unrecognized message format version " + version);
+        }
+
         // Read type and decode message
         final Message msg;
         final byte type = buf.get();
@@ -185,7 +215,9 @@ public abstract class Message {
      * @throws java.nio.BufferOverflowException if data overflows {@code buf}
      */
     public void writeTo(ByteBuffer buf) {
+        buf.put(Message.VERSION_1);
         buf.put(this.type);
+        buf.putInt(this.clusterId);
         Message.putString(buf, this.senderId);
         Message.putString(buf, this.recipientId);
         LongEncoder.write(buf, this.term);
@@ -198,6 +230,8 @@ public abstract class Message {
      */
     protected int calculateSize() {
         return 1
+          + 1
+          + 4
           + Message.calculateSize(this.senderId)
           + Message.calculateSize(this.recipientId)
           + LongEncoder.encodeLength(this.term);

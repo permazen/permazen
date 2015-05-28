@@ -43,6 +43,7 @@ public class CommitResponse extends Message {
      * Constructor for success case, when there is no minimum leader lease timeout required for commit
      * (read-write transaction, or read-only transaction occurring within the current leader lease timeout).
      *
+     * @param clusterId cluster ID
      * @param senderId sending node identity
      * @param recipientId identity of recipient
      * @param term current term
@@ -50,14 +51,16 @@ public class CommitResponse extends Message {
      * @param commitTerm transaction commit term
      * @param commitIndex transaction commit index
      */
-    public CommitResponse(String senderId, String recipientId, long term, long txId, long commitTerm, long commitIndex) {
-        this(senderId, recipientId, term, txId, commitTerm, commitIndex, null);
+    public CommitResponse(int clusterId, String senderId, String recipientId, long term, long txId,
+      long commitTerm, long commitIndex) {
+        this(clusterId, senderId, recipientId, term, txId, commitTerm, commitIndex, null);
     }
 
     /**
      * Constructor for success case when a minimum leader lease timeout is required for commit (read-only transaction
      * when leader has not heard from a majority of followers in at least a minimum election timeout.
      *
+     * @param clusterId cluster ID
      * @param senderId sending node identity
      * @param recipientId identity of recipient
      * @param term current term
@@ -66,33 +69,35 @@ public class CommitResponse extends Message {
      * @param commitIndex transaction commit index
      * @param commitLeaderLeaseTimeout minimum leader lease time required for commit, or null for none
      */
-    public CommitResponse(String senderId, String recipientId, long term,
+    public CommitResponse(int clusterId, String senderId, String recipientId, long term,
       long txId, long commitTerm, long commitIndex, Timestamp commitLeaderLeaseTimeout) {
-        this(senderId, recipientId, term, txId, commitTerm, commitIndex, commitLeaderLeaseTimeout, null);
+        this(clusterId, senderId, recipientId, term, txId, commitTerm, commitIndex, commitLeaderLeaseTimeout, null);
     }
 
     /**
      * Constructor for error case.
      *
+     * @param clusterId cluster ID
      * @param senderId sending node identity
      * @param recipientId identity of recipient
      * @param term current term
      * @param txId recipient's original transaction ID
      * @param errorMessage failure error message
      */
-    public CommitResponse(String senderId, String recipientId, long term, long txId, String errorMessage) {
-        this(senderId, recipientId, term, txId, 0, 0, null, errorMessage);
+    public CommitResponse(int clusterId, String senderId, String recipientId, long term, long txId, String errorMessage) {
+        this(clusterId, senderId, recipientId, term, txId, 0, 0, null, errorMessage);
         Preconditions.checkArgument(errorMessage != null, "null errorMessage");
     }
 
-    private CommitResponse(String senderId, String recipientId, long term, long txId,
+    private CommitResponse(int clusterId, String senderId, String recipientId, long term, long txId,
       long commitTerm, long commitIndex, Timestamp commitLeaderLeaseTimeout, String errorMessage) {
-        super(Message.COMMIT_RESPONSE_TYPE, senderId, recipientId, term);
+        super(Message.COMMIT_RESPONSE_TYPE, clusterId, senderId, recipientId, term);
         this.txId = txId;
         this.commitTerm = commitTerm;
         this.commitIndex = commitIndex;
         this.commitLeaderLeaseTimeout = commitLeaderLeaseTimeout;
         this.errorMessage = errorMessage;
+        this.checkArguments();
     }
 
     CommitResponse(ByteBuffer buf) {
@@ -102,6 +107,16 @@ public class CommitResponse extends Message {
         this.commitIndex = LongEncoder.read(buf);
         this.commitLeaderLeaseTimeout = Message.getBoolean(buf) ? Message.getTimestamp(buf) : null;
         this.errorMessage = Message.getBoolean(buf) ? Message.getString(buf) : null;
+        this.checkArguments();
+    }
+
+    @Override
+    void checkArguments() {
+        super.checkArguments();
+        Preconditions.checkArgument(this.txId != 0);
+        Preconditions.checkArgument(this.commitTerm >= 0);
+        Preconditions.checkArgument(this.commitIndex >= 0);
+        Preconditions.checkArgument(this.errorMessage == null || this.commitLeaderLeaseTimeout == null);
     }
 
 // Properties
@@ -205,6 +220,7 @@ public class CommitResponse extends Message {
         final boolean success = this.errorMessage == null;
         return this.getClass().getSimpleName()
           + "[\"" + this.getSenderId() + "\"->\"" + this.getRecipientId() + "\""
+          + ",clusterId=" + String.format("%08x", this.getClusterId())
           + ",term=" + this.getTerm()
           + ",txId=" + this.txId
           + (success ?

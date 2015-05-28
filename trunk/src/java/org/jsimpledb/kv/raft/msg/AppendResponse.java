@@ -32,6 +32,7 @@ public class AppendResponse extends Message {
     /**
      * Constructor.
      *
+     * @param clusterId cluster ID
      * @param senderId identity of sender
      * @param recipientId identity of recipient
      * @param term sender's current term
@@ -40,16 +41,14 @@ public class AppendResponse extends Message {
      * @param matchIndex highest known matching log index
      * @param lastLogIndex index of follower's last log entry
      */
-    public AppendResponse(String senderId, String recipientId, long term, Timestamp leaderTimestamp,
+    public AppendResponse(int clusterId, String senderId, String recipientId, long term, Timestamp leaderTimestamp,
       boolean success, long matchIndex, long lastLogIndex) {
-        super(Message.APPEND_RESPONSE_TYPE, senderId, recipientId, term);
-        Preconditions.checkArgument(leaderTimestamp != null, "null leaderTimestamp");
-        Preconditions.checkArgument(matchIndex >= -1, "matchIndex < -1");
-        Preconditions.checkArgument(matchIndex <= lastLogIndex);
+        super(Message.APPEND_RESPONSE_TYPE, clusterId, senderId, recipientId, term);
         this.leaderTimestamp = leaderTimestamp;
         this.success = success;
         this.matchIndex = matchIndex;
         this.lastLogIndex = lastLogIndex;
+        this.checkArguments();
     }
 
     AppendResponse(ByteBuffer buf) {
@@ -58,7 +57,14 @@ public class AppendResponse extends Message {
         this.success = Message.getBoolean(buf);
         this.matchIndex = LongEncoder.read(buf);
         this.lastLogIndex = LongEncoder.read(buf);
-        Preconditions.checkArgument(this.matchIndex >= -1, "matchIndex < -1");
+        this.checkArguments();
+    }
+
+    @Override
+    void checkArguments() {
+        super.checkArguments();
+        Preconditions.checkArgument(this.leaderTimestamp != null);
+        Preconditions.checkArgument(this.matchIndex >= -1);
         Preconditions.checkArgument(this.matchIndex <= this.lastLogIndex);
     }
 
@@ -135,6 +141,7 @@ public class AppendResponse extends Message {
     public String toString() {
         return this.getClass().getSimpleName()
           + "[\"" + this.getSenderId() + "\"->\"" + this.getRecipientId() + "\""
+          + ",clusterId=" + String.format("%08x", this.getClusterId())
           + ",term=" + this.getTerm()
           + ",leaderTimestamp=" + this.leaderTimestamp
           + ",success=" + this.success

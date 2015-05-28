@@ -83,6 +83,24 @@ public class Timestamp implements Comparable<Timestamp> {
         return new Timestamp(this.millis + offset);
     }
 
+    /**
+     * Determine whether this timestamp is in the past or the future.
+     *
+     * @return true if this timestamp is in the past
+     */
+    public boolean hasOccurred() {
+        return Timestamp.now() - this.millis >= 0;
+    }
+
+    /**
+     * Get a {@link Timestamp} in the distant past. The actual returned value is about 12 days ago.
+     *
+     * @return timestamp value in the distant past
+     */
+    public static Timestamp distantPast() {
+        return new Timestamp(Timestamp.now() - 0x40000000);
+    }
+
 // Internal methods
 
     private static int now() {
