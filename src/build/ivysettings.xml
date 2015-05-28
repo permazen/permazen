@@ -18,8 +18,8 @@
             <!-- Ivy RoundUp - Off the Internet -->
             <packager name="ivyroundup-http" checkmodified="true" restricted="false"
               buildRoot="${user.home}/.ivy2/packager/build" resourceCache="${user.home}/.ivy2/packager/cache">
-                <ivy      pattern="https://raw.githubusercontent.com/archiecobbs/ivyroundup/master/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
-                <artifact pattern="https://raw.githubusercontent.com/archiecobbs/ivyroundup/master/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
+                <ivy      pattern="http://archiecobbs.github.io/ivyroundup/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
+                <artifact pattern="http://archiecobbs.github.io/ivyroundup/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
             </packager>
         </chain>
     </resolvers>
