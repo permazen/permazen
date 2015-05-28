@@ -28,14 +28,19 @@ import org.slf4j.LoggerFactory;
  */
 class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
 
+    /**
+     * Minimum buffer size to use a direct buffer.
+     */
+    private static final int MIN_DIRECT_BUFFER_SIZE = 128;
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final ByteBuffer inbuf;
     private final TCPNetwork network;
     private final String peer;
     private final SocketChannel socketChannel;
     private final SelectionKey selectionKey;
     private final ArrayDeque<ByteBuffer> output = new ArrayDeque<>();
 
+    private ByteBuffer inbuf;
     private long queueSize;                                 // invariant: always equals the total number of bytes in 'output'
     private long lastActiveTime;
     private boolean readingLength;                          // indicates 'inbuf' is reading the message length (4 bytes)
@@ -70,8 +75,7 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
         this.network.wakeup();
 
         // Initialize input state
-        this.inbuf = ByteBuffer.allocateDirect(this.network.getMaxMessageSize());
-        this.inbuf.limit(4);
+        this.inbuf = ByteBuffer.allocate(4);
         this.readingLength = true;
     }
 
@@ -109,8 +113,8 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
         if (buf == null)
             throw new IllegalArgumentException("null buf");
 
-        // Avoid anyone else mucking with buffer position, etc.
-        buf = buf.duplicate();
+        // Avoid anyone else mucking with my buffer position, etc.
+        buf = buf.asReadOnlyBuffer();
 
         // Check output queue capacity
         final int length = buf.remaining();
@@ -119,7 +123,7 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
             return false;
 
         // Add to queue
-        this.output.add(ByteBuffer.allocate(4).putInt(length));
+        this.output.add((ByteBuffer)ByteBuffer.allocate(4).putInt(length).flip());
         this.output.add(buf);
         this.queueSize += increment;
 
@@ -205,7 +209,7 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
             if (len == -1)
                 throw new EOFException("connection closed");
 
-            // Is the message (or length header) now complete?
+            // Is the message (or length header) still incomplete?
             if (this.inbuf.hasRemaining())
                 break;
 
@@ -217,23 +221,21 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
 
                 // Get and validate length
                 assert this.inbuf.remaining() == 4;
-                final int messageLength = this.inbuf.getInt();
-                if (messageLength < 0 || messageLength > this.inbuf.capacity())
-                    throw new IOException("rec'd message with bogus length " + messageLength);
+                final int length = this.inbuf.getInt();
+                if (length < 0 || length > this.network.getMaxMessageSize())
+                    throw new IOException("rec'd message with bogus length " + length);
 
-                // Set up for reading message
-                this.inbuf.rewind();
-                this.inbuf.limit(messageLength);
+                // Set up for reading the actual message
+                this.inbuf = length >= MIN_DIRECT_BUFFER_SIZE ? ByteBuffer.allocateDirect(length) : ByteBuffer.allocate(length);
                 this.readingLength = false;
                 continue;
             }
 
-            // Deliver completed message
-            this.network.handleMessage(this, this.inbuf.asReadOnlyBuffer());
+            // Deliver the completed message
+            this.network.handleMessage(this, this.inbuf);
 
             // Set up for reading next length header
-            this.inbuf.rewind();
-            this.inbuf.limit(4);
+            this.inbuf = ByteBuffer.allocate(4);
             this.readingLength = true;
         }
 
@@ -244,22 +246,19 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
     private void handleWritable() throws IOException {
 
         // Write more data, if present
-        final ByteBuffer buf = this.output.peekFirst();
         boolean queueBecameEmpty = false;
-        if (buf != null) {
+        if (!this.output.isEmpty()) {
 
             // Write data
-            final int startPosition = buf.position();
-            this.socketChannel.write(buf);
-            this.queueSize -= buf.position() - startPosition;
+            final long written = this.socketChannel.write(this.output.toArray(new ByteBuffer[this.output.size()]));
+            this.queueSize -= written;
 
-            // Done with this chunk?
-            if (!buf.hasRemaining())
+            // Clear away empty buffers
+            while (!this.output.isEmpty() && !this.output.peekFirst().hasRemaining())
                 this.output.removeFirst();
 
             // Set flag if queue became empty
-            if (this.output.isEmpty())
-                queueBecameEmpty = true;
+            queueBecameEmpty = this.output.isEmpty();
         }
 
         // Notify when writeable - only if queue still not empty

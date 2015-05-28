@@ -49,6 +49,10 @@ public interface Network {
     /**
      * Send (or enqueue for sending) a message to a remote peer.
      *
+     * <p>
+     * If this method returns true, then {@link Handler#outputQueueEmpty Handler.outputQueueEmpty()}
+     * is guaranteed to be invoked with parameter {@code peer} at some later point.
+     *
      * @param peer message destination
      * @param msg message to send
      * @return true if message was succesfully enqueued for output; false if message failed to be delivered due to local reasons,
