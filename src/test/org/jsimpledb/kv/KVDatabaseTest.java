@@ -270,7 +270,8 @@ public class KVDatabaseTest extends TestSupport {
             @Override
             public Void transact(KVTransaction tx) {
                 final byte[] x = tx.get(b("01"));
-                Assert.assertNull(x);
+                if (x != null)
+                    Assert.assertEquals(tx.get(b("01")), b("02"));          // transaction was retried even though it succeeded
                 tx.put(b("01"), b("02"));
                 Assert.assertEquals(tx.get(b("01")), b("02"));
                 return null;
@@ -284,7 +285,8 @@ public class KVDatabaseTest extends TestSupport {
             @Override
             public Void transact(KVTransaction tx) {
                 final byte[] x = tx.get(b("01"));
-                Assert.assertEquals(x, b("02"));
+                Assert.assertNotNull(x);
+                Assert.assertTrue(Arrays.equals(x, b("02")) || Arrays.equals(x, b("03")));
                 tx.put(b("01"), b("03"));
                 Assert.assertEquals(tx.get(b("01")), b("03"));
                 return null;
