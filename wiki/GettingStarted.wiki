@@ -28,9 +28,9 @@ To view the demo database in the CLI:
 <code>
     java -jar jsimpledb-cli.jar</code>
 
-Use the `help` command to see all commands and functions. In particular, the `expr` command evaluates any Java expression and is used for database queries. For example, to query for all Moon objects, enter `expr all(Moon)`.
+Use the `help` command to see all commands and functions. In particular, the `eval` command evaluates any Java expression and is used for database queries. For example, to query for all Moon objects, enter `eval all(Moon)`.
 
-The `expr` command supports several extensions to Java syntax, including:
+The `eval` command supports several extensions to Java syntax, including:
  * Function invocations (the `all()` function used above is an example)
  * Objects may be referred to by object ID literal with a leading at-sign, eg., `@fc02ac0000000001`
  * Session variables have the form `$foo`; you can set them and use them later in other expressions
