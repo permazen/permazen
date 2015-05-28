@@ -11,14 +11,15 @@ import com.google.common.base.Function;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
@@ -35,6 +36,7 @@ import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.net.TCPNetwork;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
@@ -67,9 +69,10 @@ public abstract class AbstractMain extends MainClass {
     protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
     protected File leveldbDirectory;
     protected File raftDirectory;
-    protected int raftPort = -1;
     protected String raftIdentity;
-    protected final HashMap<String, String> raftPeers = new HashMap<>();
+    protected String raftAddress;
+    protected int raftPort = TCPNetwork.DEFAULT_TCP_PORT;
+    protected boolean raftNewCluster;
     protected int raftMinElectionTimeout = -1;
     protected int raftMaxElectionTimeout = -1;
     protected int raftHeartbeatTimeout = -1;
@@ -203,13 +206,13 @@ public abstract class AbstractMain extends MainClass {
                     System.err.println(this.getName() + ": file `" + this.leveldbDirectory + "' is not a directory");
                     return 1;
                 }
-            } else if (option.equals("--raft")) {
+            } else if (option.equals("--raft-dir")) {
                 if (params.isEmpty())
                     this.usageError();
                 this.kvType = KV_RAFT;
                 this.raftDirectory = new File(params.removeFirst());
-                if (!this.raftDirectory.exists()) {
-                    System.err.println(this.getName() + ": directory `" + this.raftDirectory + "' does not exist");
+                if (!this.raftDirectory.exists() && !this.raftDirectory.mkdirs()) {
+                    System.err.println(this.getName() + ": could not create directory `" + this.raftDirectory + "'");
                     return 1;
                 }
                 if (!this.raftDirectory.isDirectory()) {
@@ -238,20 +241,15 @@ public abstract class AbstractMain extends MainClass {
             } else if (option.equals("--raft-identity")) {
                 if (params.isEmpty())
                     this.usageError();
+                this.kvType = KV_RAFT;
                 this.raftIdentity = params.removeFirst();
-            } else if (option.equals("--raft-peers")) {
+            } else if (option.equals("--raft-address")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.raftPeers.clear();
-                for (String peer : params.removeFirst().split(",\\s*")) {
-                    final int sep = peer.indexOf(':');
-                    if (sep == -1) {
-                        System.err.println(this.getName() + ": invalid Raft peer `" + peer + "'");
-                        return 1;
-                    }
-                    this.raftPeers.put(peer.substring(0, sep), peer.substring(sep + 1));
-                }
-            } else if (option.equals("--raft-port")) {
+                this.raftAddress = params.removeFirst();
+            } else if (option.equals("--raft-new-cluster"))
+                this.raftNewCluster = true;
+            else if (option.equals("--raft-port")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String pstring = params.removeFirst();
@@ -288,10 +286,6 @@ public abstract class AbstractMain extends MainClass {
                 this.usageError();
                 return 1;
             }
-        }
-        if (this.kvType == KV_RAFT && this.raftIdentity == null) {
-            System.err.println(this.getName() + ": identity required for Raft; use `--raft-identity'");
-            return 1;
         }
 
         // Scan for model and type classes
@@ -524,27 +518,63 @@ public abstract class AbstractMain extends MainClass {
         }
         case KV_RAFT:
         {
+
+            // Setup network
             final TCPNetwork network = new TCPNetwork();
-            if (this.raftPort != -1)
-                network.setListenAddress(new InetSocketAddress(this.raftPort));
+            try {
+                network.setListenAddress(this.raftAddress != null ?
+                  new InetSocketAddress(InetAddress.getByName(this.raftAddress), this.raftPort) :
+                  new InetSocketAddress(this.raftPort));
+            } catch (UnknownHostException e) {
+                throw new RuntimeException("can't resolve address `" + this.raftAddress + "'", e);
+            }
+
+            // Set up Raft DB
+            if (this.raftNewCluster && this.raftAddress == null)
+                throw new RuntimeException("`--raft-new-cluster' requires specifying `--raft-address'");
             final RaftKVDatabase raft = new RaftKVDatabase();
             raft.setLogDirectory(this.raftDirectory);
             raft.setNetwork(network);
             raft.setIdentity(this.raftIdentity);
-            raft.setPeers(this.raftPeers);
             if (this.raftMinElectionTimeout != -1)
-                raft.setMinElectionTimeout(raftMinElectionTimeout);
+                raft.setMinElectionTimeout(this.raftMinElectionTimeout);
             if (this.raftMaxElectionTimeout != -1)
-                raft.setMaxElectionTimeout(raftMaxElectionTimeout);
+                raft.setMaxElectionTimeout(this.raftMaxElectionTimeout);
             if (this.raftHeartbeatTimeout != -1)
-                raft.setHeartbeatTimeout(raftHeartbeatTimeout);
-            raft.setMaxElectionTimeout(1000);
-            raft.setHeartbeatTimeout(300);
+                raft.setHeartbeatTimeout(this.raftHeartbeatTimeout);
             try {
                 raft.start();
             } catch (Exception e) {
                 throw new RuntimeException("error starting Raft database", e);
             }
+
+            // Initialize new cluster
+            if (this.raftNewCluster) {
+                assert this.raftAddress != null;
+
+                // Set up local address
+                final String nodeAddress = this.raftAddress
+                  + (this.raftPort != TCPNetwork.DEFAULT_TCP_PORT ? ":" + this.raftPort : "");
+
+                // Add local node to new cluster
+                try {
+                    final RaftKVTransaction tx = raft.createTransaction();
+                    boolean success = false;
+                    try {
+                        tx.configChange(this.raftIdentity, nodeAddress);
+                        tx.commit();
+                        success = true;
+                    } finally {
+                        if (!success)
+                            tx.rollback();
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("error initializing new Raft cluster", e);
+                }
+            }
+
+            this.kvdb = raft;
+            this.databaseDescription = "Raft " + this.raftDirectory.getName();
             break;
         }
         default:
@@ -635,13 +665,18 @@ public abstract class AbstractMain extends MainClass {
             { "--mem",                          "Use an empty in-memory database (default)" },
             { "--mysql URL",                    "Use MySQL with the given JDBC URL" },
             { "--prefix prefix",                "FoundationDB key prefix (hex or string)" },
-            { "--raft directory",               "Raft database directory" },
-            { "--raft-min-election-timeout",    "Raft minimum election timeout in ms" },
-            { "--raft-max-election-timeout",    "Raft maximum election timeout in ms" },
-            { "--raft-heartbeat-timeout",       "Raft leader heartbeat timeout in ms" },
+            { "--raft-dir directory",           "Raft local persistence directory" },
+            { "--raft-min-election-timeout",    "Raft minimum election timeout in ms (default "
+                                                  + RaftKVDatabase.DEFAULT_MIN_ELECTION_TIMEOUT + ")" },
+            { "--raft-max-election-timeout",    "Raft maximum election timeout in ms (default "
+                                                  + RaftKVDatabase.DEFAULT_MAX_ELECTION_TIMEOUT + ")" },
+            { "--raft-heartbeat-timeout",       "Raft leader heartbeat timeout in ms (default "
+                                                  + RaftKVDatabase.DEFAULT_HEARTBEAT_TIMEOUT + ")" },
             { "--raft-identity",                "Raft identity" },
-            { "--raft-peers",                   "Raft peers in the form `id1:addr1[:port1],id2:addr2[:port2],...' " },
-            { "--raft-port",                    "Raft TCP listen port (default " + TCPNetwork.DEFAULT_TCP_PORT + ")" },
+            { "--raft-address address",         "Specify local Raft node's IP address" },
+            { "--raft-port",                    "Specify local Raft node's TCP port (default "
+                                                  + TCPNetwork.DEFAULT_TCP_PORT + ")" },
+            { "--raft-new-cluster",             "Create a new Raft cluster (requires `--raft-address')" },
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
             { "--xml file",                     "Use the specified XML flat file database" },

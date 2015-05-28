@@ -7,6 +7,8 @@
 
 package org.jsimpledb.kv.raft.msg;
 
+import com.google.common.base.Preconditions;
+
 import java.nio.ByteBuffer;
 
 import org.jsimpledb.util.LongEncoder;
@@ -24,22 +26,32 @@ public class RequestVote extends Message {
     /**
      * Constructor.
      *
+     * @param clusterId cluster ID
      * @param senderId identity of sender
      * @param recipientId identity of recipient
      * @param term sender's current term
      * @param lastLogTerm term of the sender's last log entry
      * @param lastLogIndex index of the sender's last log entry
      */
-    public RequestVote(String senderId, String recipientId, long term, long lastLogTerm, long lastLogIndex) {
-        super(Message.REQUEST_VOTE_TYPE, senderId, recipientId, term);
+    public RequestVote(int clusterId, String senderId, String recipientId, long term, long lastLogTerm, long lastLogIndex) {
+        super(Message.REQUEST_VOTE_TYPE, clusterId, senderId, recipientId, term);
         this.lastLogTerm = lastLogTerm;
         this.lastLogIndex = lastLogIndex;
+        this.checkArguments();
     }
 
     RequestVote(ByteBuffer buf) {
         super(Message.REQUEST_VOTE_TYPE, buf);
         this.lastLogTerm = LongEncoder.read(buf);
         this.lastLogIndex = LongEncoder.read(buf);
+        this.checkArguments();
+    }
+
+    @Override
+    void checkArguments() {
+        super.checkArguments();
+        Preconditions.checkArgument(this.lastLogTerm > 0);
+        Preconditions.checkArgument(this.lastLogIndex > 0);
     }
 
 // Properties
@@ -79,6 +91,7 @@ public class RequestVote extends Message {
     public String toString() {
         return this.getClass().getSimpleName()
           + "[\"" + this.getSenderId() + "\"->\"" + this.getRecipientId() + "\""
+          + ",clusterId=" + String.format("%08x", this.getClusterId())
           + ",term=" + this.getTerm()
           + ",lastLogTerm=" + this.lastLogTerm
           + ",lastLogIndex=" + this.lastLogIndex

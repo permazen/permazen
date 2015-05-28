@@ -7,16 +7,19 @@
 
 package org.jsimpledb.kv.raft;
 
+import com.google.common.base.Preconditions;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.dellroad.stuff.io.ByteBufferOutputStream;
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.util.KeyListEncoder;
-import org.jsimpledb.kv.util.PrefixKVStore;
 
 /**
  * Represents and in-progress snapshot installation from the leader's point of view.
@@ -31,6 +34,7 @@ class SnapshotTransmit implements Closeable {
     private final Timestamp createTime = new Timestamp();
     private final long snapshotTerm;
     private final long snapshotIndex;
+    private final Map<String, String> snapshotConfig;
 
     private CloseableKVStore snapshot;                              // snapshot view of key/value store
     private Iterator<KVPair> iterator;
@@ -38,14 +42,20 @@ class SnapshotTransmit implements Closeable {
     private long pairIndex;                                         // count of how many key/value pairs sent so far
     private KVPair nextPair;
     private byte[] previousKey;
+    private boolean anyChunksSent;
 
 // Constructors
 
-    public SnapshotTransmit(long snapshotTerm, long snapshotIndex, CloseableKVStore snapshot, byte[] keyPrefix) {
+    public SnapshotTransmit(long snapshotTerm, long snapshotIndex, Map<String, String> snapshotConfig,
+      CloseableKVStore snapshot, KVStore view) {
+        Preconditions.checkArgument(snapshotTerm > 0);
+        Preconditions.checkArgument(snapshotIndex > 0);
+        Preconditions.checkArgument(snapshotConfig != null);
         this.snapshotTerm = snapshotTerm;
         this.snapshotIndex = snapshotIndex;
+        this.snapshotConfig = snapshotConfig;
         this.snapshot = snapshot;
-        this.iterator = PrefixKVStore.create(this.snapshot, keyPrefix).getRange(null, null, false);
+        this.iterator = view.getRange(null, null, false);
         this.advance();
     }
 
@@ -68,6 +78,10 @@ class SnapshotTransmit implements Closeable {
         return this.snapshotIndex;
     }
 
+    public Map<String, String> getSnapshotConfig() {
+        return this.snapshotConfig;
+    }
+
     public long getPairIndex() {
         return this.pairIndex;
     }
@@ -79,8 +93,17 @@ class SnapshotTransmit implements Closeable {
     public ByteBuffer getNextChunk() {
 
         // Any more key/value pairs?
-        if (this.nextPair == null)
+        if (this.nextPair == null) {
+
+            // In the case of a completely empty snapshot, ensure we send at least one (empty) chunk
+            if (!this.anyChunksSent) {
+                this.anyChunksSent = true;
+                return ByteBuffer.allocate(0);
+            }
+
+            // Done
             return null;
+        }
 
         // Allocate buffer
         final ByteBuffer buf = Util.allocateByteBuffer(Math.max(this.nextPairLength(), MAX_CHUNK_SIZE));
@@ -101,6 +124,7 @@ class SnapshotTransmit implements Closeable {
         } while (this.advance() && buf.remaining() >= this.nextPairLength());
 
         // Done
+        this.anyChunksSent = true;
         return (ByteBuffer)buf.flip();
     }
 
@@ -138,6 +162,7 @@ class SnapshotTransmit implements Closeable {
         return this.getClass().getSimpleName()
           + "[snapshotTerm=" + this.snapshotTerm
           + ",snapshotIndex=" + this.snapshotIndex
+          + ",snapshotConfig=" + this.snapshotConfig
           + ",pairIndex=" + this.pairIndex
           + (this.snapshot == null ? ",closed" : "")
           + "]";

@@ -10,6 +10,7 @@ package org.jsimpledb.kv.raft;
 import com.google.common.base.Preconditions;
 
 import java.io.Closeable;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,6 +45,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     private volatile TxState state = TxState.EXECUTING;
     private volatile boolean readOnlySnapshot;
     private volatile int timeout;
+    private volatile String[] configChange;             // cluster config change associated with this transaction
     private RaftKVDatabase.Timer commitTimer;
     private long commitTerm;                            // term of the log entry representing this transaction's commit
     private long commitIndex;                           // index of the log entry representing this transaction's commit
@@ -123,6 +125,43 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         return this.readOnlySnapshot;
     }
 
+// Configuration Stuff
+
+    /**
+     * Include a cluster configuration change when this transaction is committed.
+     *
+     * <p>
+     * The change will have been applied once this transaction is successfully committed.
+     *
+     * <p>
+     * Raft supports configuration changes that add or remove one node at a time to/from the cluster.
+     * If this method is invoked more than once in a single transaction, all but the last invocation are ignored.
+     *
+     * <p>
+     * Initially, nodes are <i>unconfigured</i>. An unconfigured node becomes configured in one of two ways:
+     * <ul>
+     *  <li>By receiving a message from a leader of some existing cluster, in which case the node joins that cluster
+     *      based on the provided configuration; or</li>
+     *  <li>By this method being invoked with {@code identity} equal to this node's identity and a non-null {@code address},
+     *      which creates a new cluster and adds this node to it.</li>
+     * </ul>
+     * Therefore, this method must be used to intialize a new cluster.
+     *
+     * @param identity the identity of the node to add or remove
+     * @param address the network address of the node if adding, or null if removing
+     * @throws IllegalArgumentException if {@code identity} is null
+     */
+    public void configChange(String identity, String address) {
+
+        // Sanity check
+        Preconditions.checkArgument(identity != null, "null identity");
+        if (!this.state.equals(TxState.EXECUTING))
+            throw new StaleTransactionException(this);
+
+        // Set config change
+        this.configChange = new String[] { identity, address };
+    }
+
 // ForwardingKVStore
 
     @Override
@@ -178,6 +217,10 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
 
     int getTimeout() {
         return this.timeout;
+    }
+
+    String[] getConfigChange() {
+        return this.configChange;
     }
 
     CommitFuture getCommitFuture() {
@@ -238,6 +281,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
           + "[txId=" + this.txId
           + ",state=" + this.state
           + ",base=" + this.baseTerm + "/" + this.baseIndex
+          + (this.configChange != null ? ",configChange=" + Arrays.<String>asList(this.configChange) : "")
           + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitTerm + "/" + this.commitIndex : "")
           + (this.timeout != 0 ? ",timeout=" + this.timeout : "")
           + "]";

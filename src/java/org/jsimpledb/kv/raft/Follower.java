@@ -18,6 +18,7 @@ import java.util.TreeSet;
 class Follower {
 
     private final String identity;                      // follower's unique identity
+    private final String address;                       // follower's network address
     private RaftKVDatabase.Timer updateTimer;           // heartbeat/update timer
 
     // Used to avoid sending data for log entry back to the follower if the follower, as the originator, already has the data
@@ -36,16 +37,24 @@ class Follower {
 
 // Construtors
 
-    public Follower(String identity, long lastLogIndex) {
+    public Follower(String identity, String address, long lastLogIndex) {
+        assert identity != null;
+        assert address != null;
+        assert lastLogIndex >= 0;
         this.identity = identity;
+        this.address = address;
         this.nextIndex = lastLogIndex + 1;
-        this.leaderTimestamp = new Timestamp().offset(-24 * 60 * 60 * 1000);                // set it to a long time ago
+        this.leaderTimestamp = Timestamp.distantPast();
     }
 
 // Properties
 
     public String getIdentity() {
         return this.identity;
+    }
+
+    public String getAddress() {
+        return this.address;
     }
 
     public long getNextIndex() {
@@ -111,6 +120,10 @@ class Follower {
         this.updateTimer = updateTimer;
     }
 
+    public void updateNow() {
+        this.updateTimer.timeoutNow();
+    }
+
     public void cancelSnapshotTransmit() {
         if (this.snapshotTransmit != null)  {
             this.matchIndex = Math.min(this.matchIndex, this.snapshotTransmit.getSnapshotIndex());
@@ -118,6 +131,13 @@ class Follower {
             this.snapshotTransmit = null;
             this.synced = false;
         }
+    }
+
+// Clean up this follower
+
+    public void cleanup() {
+        this.cancelSnapshotTransmit();
+        this.updateTimer.cancel();
     }
 
 // Object

@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 import org.dellroad.stuff.io.ByteBufferInputStream;
 import org.jsimpledb.kv.KVStore;
@@ -28,16 +29,21 @@ class SnapshotReceive {
     private final KVStore kv;
     private final long snapshotTerm;
     private final long snapshotIndex;
+    private final Map<String, String> snapshotConfig;
 
     private long pairIndex;
     private byte[] previousKey;
 
 // Constructors
 
-    public SnapshotReceive(KVStore kv, long snapshotTerm, long snapshotIndex) {
+    public SnapshotReceive(KVStore kv, long snapshotTerm, long snapshotIndex, Map<String, String> snapshotConfig) {
         Preconditions.checkArgument(kv != null, "null kv");
+        Preconditions.checkArgument(snapshotTerm > 0);
+        Preconditions.checkArgument(snapshotIndex > 0);
+        Preconditions.checkArgument(snapshotConfig != null);
         this.snapshotTerm = snapshotTerm;
         this.snapshotIndex = snapshotIndex;
+        this.snapshotConfig = snapshotConfig;
         this.kv = kv;
     }
 
@@ -53,6 +59,10 @@ class SnapshotReceive {
 
     public long getPairIndex() {
         return this.pairIndex;
+    }
+
+    public Map<String, String> getSnapshotConfig() {
+        return this.snapshotConfig;
     }
 
     /**
@@ -101,6 +111,7 @@ class SnapshotReceive {
         return this.getClass().getSimpleName()
           + "[snapshotTerm=" + this.snapshotTerm
           + ",snapshotIndex=" + this.snapshotIndex
+          + ",snapshotConfig=" + this.snapshotConfig
           + ",pairIndex=" + this.pairIndex
           + "]";
     }
