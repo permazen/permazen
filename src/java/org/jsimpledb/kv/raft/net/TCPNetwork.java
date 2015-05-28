@@ -19,6 +19,9 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,6 +95,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
     private ServerSocketChannel serverSocketChannel;
     private SelectionKey selectionKey;
     private ServiceThread serviceThread;
+    private ExecutorService executor;
     private Selector selector;
 
 // Public API
@@ -222,6 +226,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
             this.selectForAccept(true);
             this.serviceThread = new ServiceThread();
             this.serviceThread.start();
+            this.executor = Executors.newSingleThreadExecutor();
             this.handler = handler;
             successful = true;
         } finally {
@@ -263,6 +268,15 @@ public class TCPNetwork extends SelectorSupport implements Network {
                 if (!this.serviceThread.equals(Thread.currentThread()))
                     waitForThread = this.serviceThread;
                 this.serviceThread = null;
+            }
+            if (this.executor != null) {
+                this.executor.shutdownNow();
+                try {
+                    this.executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                this.executor = null;
             }
             this.selectionKey = null;
             this.handler = null;
@@ -420,17 +434,35 @@ public class TCPNetwork extends SelectorSupport implements Network {
 // Connection API
 
     // Invoked when a message arrives on a connection
-    void handleMessage(Connection connection, ByteBuffer msg) {
+    void handleMessage(final Connection connection, final ByteBuffer msg) {
         assert Thread.holdsLock(this);
         assert TCPNetwork.isServiceThread();
-        this.handler.handle(connection.getPeer(), msg);
+        this.executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TCPNetwork.this.handler.handle(connection.getPeer(), msg);
+                } catch (Throwable t) {
+                    TCPNetwork.this.log.error("exception in callback", t);
+                }
+            }
+        });
     }
 
     // Invoked a connection's output queue goes empty
-    void handleOutputQueueEmpty(Connection connection) {
+    void handleOutputQueueEmpty(final Connection connection) {
         assert Thread.holdsLock(this);
         assert TCPNetwork.isServiceThread();
-        this.handler.outputQueueEmpty(connection.getPeer());
+        this.executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TCPNetwork.this.handler.outputQueueEmpty(connection.getPeer());
+                } catch (Throwable t) {
+                    TCPNetwork.this.log.error("exception in callback", t);
+                }
+            }
+        });
     }
 
     // Invoked when a connection closes
@@ -462,26 +494,26 @@ public class TCPNetwork extends SelectorSupport implements Network {
         this.configureSocketChannel(socketChannel);
         socketChannel.configureBlocking(false);
         if (this.log.isDebugEnabled())
-            this.log.debug(this + " looking up peer name `" + peer + "'");
+            this.log.debug(this + " looking up peer address `" + peer + "'");
 
         // Resolve peer name into a socket address
-        final Matcher matcher = Pattern.compile("(.+)(:[0-9]+)?").matcher(peer);
+        final Matcher matcher = Pattern.compile("(.+)(:([0-9]+))?").matcher(peer);
         InetSocketAddress socketAddress = null;
         if (matcher.matches()) {
             try {
                 socketAddress = new InetSocketAddress(matcher.group(1),
-                  matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : DEFAULT_TCP_PORT);
+                  matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : DEFAULT_TCP_PORT);
             } catch (IllegalArgumentException e) {
                 if (this.log.isTraceEnabled())
-                    this.log.trace(this + " peer name `" + peer + "' is invalid", e);
+                    this.log.trace(this + " peer address `" + peer + "' is invalid", e);
             }
         }
         if (socketAddress == null || socketAddress.isUnresolved())
-            throw new IOException("invalid or unresolvable peer name `" + peer + "'");
+            throw new IOException("invalid or unresolvable peer address `" + peer + "'");
 
         // Initiate connection to peer
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this + ": resolved peer name `" + peer + "' to " + socketAddress.getAddress()
+            this.log.debug(this + ": resolved peer address `" + peer + "' to " + socketAddress.getAddress()
               + "; now initiating connection");
         }
         socketChannel.connect(socketAddress);
