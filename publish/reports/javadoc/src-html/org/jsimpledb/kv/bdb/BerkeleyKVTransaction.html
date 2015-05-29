@@ -196,7 +196,7 @@
 <span class="sourceLineNo">188</span>    @Override<a name="line.188"></a>
 <span class="sourceLineNo">189</span>    public synchronized void rollback() {<a name="line.189"></a>
 <span class="sourceLineNo">190</span>        if (this.closed)<a name="line.190"></a>
-<span class="sourceLineNo">191</span>            throw new StaleTransactionException(this);<a name="line.191"></a>
+<span class="sourceLineNo">191</span>            return;<a name="line.191"></a>
 <span class="sourceLineNo">192</span>        this.close();<a name="line.192"></a>
 <span class="sourceLineNo">193</span>        try {<a name="line.193"></a>
 <span class="sourceLineNo">194</span>            this.tx.abort();<a name="line.194"></a>
@@ -227,210 +227,212 @@
 <span class="sourceLineNo">219</span>    @Override<a name="line.219"></a>
 <span class="sourceLineNo">220</span>    protected void finalize() throws Throwable {<a name="line.220"></a>
 <span class="sourceLineNo">221</span>        try {<a name="line.221"></a>
-<span class="sourceLineNo">222</span>            this.close();<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        } finally {<a name="line.223"></a>
-<span class="sourceLineNo">224</span>            super.finalize();<a name="line.224"></a>
-<span class="sourceLineNo">225</span>        }<a name="line.225"></a>
-<span class="sourceLineNo">226</span>    }<a name="line.226"></a>
-<span class="sourceLineNo">227</span><a name="line.227"></a>
-<span class="sourceLineNo">228</span>// Other methods<a name="line.228"></a>
+<span class="sourceLineNo">222</span>            if (!this.closed)<a name="line.222"></a>
+<span class="sourceLineNo">223</span>               this.log.warn(this + " leaked without commit() or rollback()");<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            this.close();<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        } finally {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            super.finalize();<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        }<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    }<a name="line.228"></a>
 <span class="sourceLineNo">229</span><a name="line.229"></a>
-<span class="sourceLineNo">230</span>    /**<a name="line.230"></a>
-<span class="sourceLineNo">231</span>     * Wrap the given {@link DatabaseException} in the appropriate {@link KVTransactionException}.<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     *<a name="line.232"></a>
-<span class="sourceLineNo">233</span>     * @param e Berkeley database exception<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     * @return appropriate {@link KVTransactionException} with chained exception {@code e}<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     * @throws NullPointerException if {@code e} is null<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     */<a name="line.236"></a>
-<span class="sourceLineNo">237</span>    public KVTransactionException wrapException(DatabaseException e) {<a name="line.237"></a>
-<span class="sourceLineNo">238</span>        if (e instanceof LockConflictException)<a name="line.238"></a>
-<span class="sourceLineNo">239</span>            return new RetryTransactionException(this, e);<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        return new KVTransactionException(this, e);<a name="line.240"></a>
-<span class="sourceLineNo">241</span>    }<a name="line.241"></a>
-<span class="sourceLineNo">242</span><a name="line.242"></a>
-<span class="sourceLineNo">243</span>    private KVTransactionException weirdStatus(OperationStatus status, String methodName) {<a name="line.243"></a>
-<span class="sourceLineNo">244</span>        return new KVTransactionException(BerkeleyKVTransaction.this, "unexpected status " + status + " from " + methodName + "()");<a name="line.244"></a>
-<span class="sourceLineNo">245</span>    }<a name="line.245"></a>
-<span class="sourceLineNo">246</span><a name="line.246"></a>
-<span class="sourceLineNo">247</span>// CursorIterator<a name="line.247"></a>
+<span class="sourceLineNo">230</span>// Other methods<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>    /**<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * Wrap the given {@link DatabaseException} in the appropriate {@link KVTransactionException}.<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     *<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * @param e Berkeley database exception<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * @return appropriate {@link KVTransactionException} with chained exception {@code e}<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * @throws NullPointerException if {@code e} is null<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     */<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    public KVTransactionException wrapException(DatabaseException e) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        if (e instanceof LockConflictException)<a name="line.240"></a>
+<span class="sourceLineNo">241</span>            return new RetryTransactionException(this, e);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        return new KVTransactionException(this, e);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    }<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>    private KVTransactionException weirdStatus(OperationStatus status, String methodName) {<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        return new KVTransactionException(BerkeleyKVTransaction.this, "unexpected status " + status + " from " + methodName + "()");<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    }<a name="line.247"></a>
 <span class="sourceLineNo">248</span><a name="line.248"></a>
-<span class="sourceLineNo">249</span>    /**<a name="line.249"></a>
-<span class="sourceLineNo">250</span>     * {@link Iterator} implementation used by {@link BerkeleyKVTransaction#getRange BerkeleyKVTransaction.getRange()}.<a name="line.250"></a>
-<span class="sourceLineNo">251</span>     *<a name="line.251"></a>
-<span class="sourceLineNo">252</span>     * &lt;p&gt;<a name="line.252"></a>
-<span class="sourceLineNo">253</span>     * Instances implement {@link Closeable}.<a name="line.253"></a>
-<span class="sourceLineNo">254</span>     * &lt;/p&gt;<a name="line.254"></a>
-<span class="sourceLineNo">255</span>     */<a name="line.255"></a>
-<span class="sourceLineNo">256</span>    public final class CursorIterator implements Iterator&lt;KVPair&gt;, Closeable {<a name="line.256"></a>
-<span class="sourceLineNo">257</span><a name="line.257"></a>
-<span class="sourceLineNo">258</span>        private final Cursor cursor;<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        private final byte[] minKey;<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        private final byte[] maxKey;<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        private final boolean reverse;<a name="line.261"></a>
-<span class="sourceLineNo">262</span><a name="line.262"></a>
-<span class="sourceLineNo">263</span>        private KVPair nextPair;<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        private byte[] removeKey;<a name="line.264"></a>
-<span class="sourceLineNo">265</span>        private boolean canRemoveWithCursor;<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        private boolean completed;<a name="line.266"></a>
-<span class="sourceLineNo">267</span>        private boolean initialized;<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>        CursorIterator(Cursor cursor, byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>            assert Thread.holdsLock(BerkeleyKVTransaction.this);<a name="line.270"></a>
-<span class="sourceLineNo">271</span>            assert cursor != null;<a name="line.271"></a>
-<span class="sourceLineNo">272</span>            if (minKey != null &amp;&amp; maxKey != null &amp;&amp; ByteUtil.compare(minKey, maxKey) &gt; 0)<a name="line.272"></a>
-<span class="sourceLineNo">273</span>                throw new IllegalArgumentException("minKey &gt; maxKey");<a name="line.273"></a>
-<span class="sourceLineNo">274</span>            this.cursor = cursor;<a name="line.274"></a>
-<span class="sourceLineNo">275</span>            this.minKey = minKey != null ? ByteUtil.min(minKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MIN_KEY;<a name="line.275"></a>
-<span class="sourceLineNo">276</span>            this.maxKey = maxKey != null ? ByteUtil.min(maxKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MAX_KEY;<a name="line.276"></a>
-<span class="sourceLineNo">277</span>            this.reverse = reverse;<a name="line.277"></a>
-<span class="sourceLineNo">278</span><a name="line.278"></a>
-<span class="sourceLineNo">279</span>            // Make sure we eventually close the BDB cursor<a name="line.279"></a>
-<span class="sourceLineNo">280</span>            BerkeleyKVTransaction.this.cursorTracker.add(this, this.cursor);<a name="line.280"></a>
-<span class="sourceLineNo">281</span>        }<a name="line.281"></a>
-<span class="sourceLineNo">282</span><a name="line.282"></a>
-<span class="sourceLineNo">283</span>    // Iterator<a name="line.283"></a>
+<span class="sourceLineNo">249</span>// CursorIterator<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>    /**<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * {@link Iterator} implementation used by {@link BerkeleyKVTransaction#getRange BerkeleyKVTransaction.getRange()}.<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     *<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     * &lt;p&gt;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     * Instances implement {@link Closeable}.<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * &lt;/p&gt;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     */<a name="line.257"></a>
+<span class="sourceLineNo">258</span>    public final class CursorIterator implements Iterator&lt;KVPair&gt;, Closeable {<a name="line.258"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>        private final Cursor cursor;<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        private final byte[] minKey;<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        private final byte[] maxKey;<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        private final boolean reverse;<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>        private KVPair nextPair;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        private byte[] removeKey;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        private boolean canRemoveWithCursor;<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        private boolean completed;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        private boolean initialized;<a name="line.269"></a>
+<span class="sourceLineNo">270</span><a name="line.270"></a>
+<span class="sourceLineNo">271</span>        CursorIterator(Cursor cursor, byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>            assert Thread.holdsLock(BerkeleyKVTransaction.this);<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            assert cursor != null;<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            if (minKey != null &amp;&amp; maxKey != null &amp;&amp; ByteUtil.compare(minKey, maxKey) &gt; 0)<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                throw new IllegalArgumentException("minKey &gt; maxKey");<a name="line.275"></a>
+<span class="sourceLineNo">276</span>            this.cursor = cursor;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            this.minKey = minKey != null ? ByteUtil.min(minKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MIN_KEY;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>            this.maxKey = maxKey != null ? ByteUtil.min(maxKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MAX_KEY;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>            this.reverse = reverse;<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>            // Make sure we eventually close the BDB cursor<a name="line.281"></a>
+<span class="sourceLineNo">282</span>            BerkeleyKVTransaction.this.cursorTracker.add(this, this.cursor);<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        }<a name="line.283"></a>
 <span class="sourceLineNo">284</span><a name="line.284"></a>
-<span class="sourceLineNo">285</span>        @Override<a name="line.285"></a>
-<span class="sourceLineNo">286</span>        public synchronized boolean hasNext() {<a name="line.286"></a>
-<span class="sourceLineNo">287</span>            return this.findNext();<a name="line.287"></a>
-<span class="sourceLineNo">288</span>        }<a name="line.288"></a>
-<span class="sourceLineNo">289</span><a name="line.289"></a>
-<span class="sourceLineNo">290</span>        @Override<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        public synchronized KVPair next() {<a name="line.291"></a>
-<span class="sourceLineNo">292</span>            if (!this.findNext())<a name="line.292"></a>
-<span class="sourceLineNo">293</span>                throw new NoSuchElementException();<a name="line.293"></a>
-<span class="sourceLineNo">294</span>            assert this.nextPair != null;<a name="line.294"></a>
-<span class="sourceLineNo">295</span>            final KVPair result = this.nextPair;<a name="line.295"></a>
-<span class="sourceLineNo">296</span>            this.removeKey = result.getKey().clone();<a name="line.296"></a>
-<span class="sourceLineNo">297</span>            this.canRemoveWithCursor = true;<a name="line.297"></a>
-<span class="sourceLineNo">298</span>            this.nextPair = null;<a name="line.298"></a>
-<span class="sourceLineNo">299</span>            return result;<a name="line.299"></a>
-<span class="sourceLineNo">300</span>        }<a name="line.300"></a>
-<span class="sourceLineNo">301</span><a name="line.301"></a>
-<span class="sourceLineNo">302</span>        @Override<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        public synchronized void remove() {<a name="line.303"></a>
-<span class="sourceLineNo">304</span>            if (BerkeleyKVTransaction.this.closed)<a name="line.304"></a>
-<span class="sourceLineNo">305</span>                throw new StaleTransactionException(BerkeleyKVTransaction.this);<a name="line.305"></a>
-<span class="sourceLineNo">306</span>            if (this.removeKey == null)<a name="line.306"></a>
-<span class="sourceLineNo">307</span>                throw new IllegalStateException();<a name="line.307"></a>
-<span class="sourceLineNo">308</span>            try {<a name="line.308"></a>
-<span class="sourceLineNo">309</span>                final OperationStatus status = this.canRemoveWithCursor ? this.cursor.delete() :<a name="line.309"></a>
-<span class="sourceLineNo">310</span>                  this.cursor.getDatabase().delete(BerkeleyKVTransaction.this.tx, new DatabaseEntry(this.removeKey));<a name="line.310"></a>
-<span class="sourceLineNo">311</span>                switch (status) {<a name="line.311"></a>
-<span class="sourceLineNo">312</span>                case SUCCESS:<a name="line.312"></a>
-<span class="sourceLineNo">313</span>                case KEYEMPTY:<a name="line.313"></a>
-<span class="sourceLineNo">314</span>                    break;<a name="line.314"></a>
-<span class="sourceLineNo">315</span>                default:<a name="line.315"></a>
-<span class="sourceLineNo">316</span>                    throw BerkeleyKVTransaction.this.weirdStatus(status, "delete");<a name="line.316"></a>
-<span class="sourceLineNo">317</span>                }<a name="line.317"></a>
-<span class="sourceLineNo">318</span>            } catch (DatabaseException e) {<a name="line.318"></a>
-<span class="sourceLineNo">319</span>                throw BerkeleyKVTransaction.this.wrapException(e);<a name="line.319"></a>
-<span class="sourceLineNo">320</span>            }<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            this.removeKey = null;<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        }<a name="line.322"></a>
-<span class="sourceLineNo">323</span><a name="line.323"></a>
-<span class="sourceLineNo">324</span>    // Closeable<a name="line.324"></a>
+<span class="sourceLineNo">285</span>    // Iterator<a name="line.285"></a>
+<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">287</span>        @Override<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        public synchronized boolean hasNext() {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            return this.findNext();<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        }<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>        @Override<a name="line.292"></a>
+<span class="sourceLineNo">293</span>        public synchronized KVPair next() {<a name="line.293"></a>
+<span class="sourceLineNo">294</span>            if (!this.findNext())<a name="line.294"></a>
+<span class="sourceLineNo">295</span>                throw new NoSuchElementException();<a name="line.295"></a>
+<span class="sourceLineNo">296</span>            assert this.nextPair != null;<a name="line.296"></a>
+<span class="sourceLineNo">297</span>            final KVPair result = this.nextPair;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            this.removeKey = result.getKey().clone();<a name="line.298"></a>
+<span class="sourceLineNo">299</span>            this.canRemoveWithCursor = true;<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            this.nextPair = null;<a name="line.300"></a>
+<span class="sourceLineNo">301</span>            return result;<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        }<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>        @Override<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        public synchronized void remove() {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>            if (BerkeleyKVTransaction.this.closed)<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                throw new StaleTransactionException(BerkeleyKVTransaction.this);<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            if (this.removeKey == null)<a name="line.308"></a>
+<span class="sourceLineNo">309</span>                throw new IllegalStateException();<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            try {<a name="line.310"></a>
+<span class="sourceLineNo">311</span>                final OperationStatus status = this.canRemoveWithCursor ? this.cursor.delete() :<a name="line.311"></a>
+<span class="sourceLineNo">312</span>                  this.cursor.getDatabase().delete(BerkeleyKVTransaction.this.tx, new DatabaseEntry(this.removeKey));<a name="line.312"></a>
+<span class="sourceLineNo">313</span>                switch (status) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>                case SUCCESS:<a name="line.314"></a>
+<span class="sourceLineNo">315</span>                case KEYEMPTY:<a name="line.315"></a>
+<span class="sourceLineNo">316</span>                    break;<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                default:<a name="line.317"></a>
+<span class="sourceLineNo">318</span>                    throw BerkeleyKVTransaction.this.weirdStatus(status, "delete");<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                }<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            } catch (DatabaseException e) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>                throw BerkeleyKVTransaction.this.wrapException(e);<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            }<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            this.removeKey = null;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
 <span class="sourceLineNo">325</span><a name="line.325"></a>
-<span class="sourceLineNo">326</span>        @Override<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        public void close() {<a name="line.327"></a>
-<span class="sourceLineNo">328</span>            try {<a name="line.328"></a>
-<span class="sourceLineNo">329</span>                this.cursor.close();<a name="line.329"></a>
-<span class="sourceLineNo">330</span>            } catch (Throwable e) {<a name="line.330"></a>
-<span class="sourceLineNo">331</span>                BerkeleyKVTransaction.this.log.debug("caught exception closing iterator cursor (ignoring)", e);<a name="line.331"></a>
-<span class="sourceLineNo">332</span>            }<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        }<a name="line.333"></a>
-<span class="sourceLineNo">334</span><a name="line.334"></a>
-<span class="sourceLineNo">335</span>    // Internal methods<a name="line.335"></a>
+<span class="sourceLineNo">326</span>    // Closeable<a name="line.326"></a>
+<span class="sourceLineNo">327</span><a name="line.327"></a>
+<span class="sourceLineNo">328</span>        @Override<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        public void close() {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            try {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                this.cursor.close();<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            } catch (Throwable e) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                BerkeleyKVTransaction.this.log.debug("caught exception closing iterator cursor (ignoring)", e);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            }<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        }<a name="line.335"></a>
 <span class="sourceLineNo">336</span><a name="line.336"></a>
-<span class="sourceLineNo">337</span>        @SuppressWarnings("fallthrough")<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        private /*synchronized*/ boolean findNext() {<a name="line.338"></a>
-<span class="sourceLineNo">339</span>            assert Thread.holdsLock(this);<a name="line.339"></a>
-<span class="sourceLineNo">340</span>            if (BerkeleyKVTransaction.this.closed)<a name="line.340"></a>
-<span class="sourceLineNo">341</span>                throw new StaleTransactionException(BerkeleyKVTransaction.this);<a name="line.341"></a>
-<span class="sourceLineNo">342</span>            if (!this.initialized)<a name="line.342"></a>
-<span class="sourceLineNo">343</span>                this.initialize();<a name="line.343"></a>
-<span class="sourceLineNo">344</span>            assert this.initialized;<a name="line.344"></a>
-<span class="sourceLineNo">345</span>            if (this.nextPair != null)<a name="line.345"></a>
-<span class="sourceLineNo">346</span>                return true;<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            if (this.completed)<a name="line.347"></a>
-<span class="sourceLineNo">348</span>                return false;<a name="line.348"></a>
-<span class="sourceLineNo">349</span>            final DatabaseEntry key = new DatabaseEntry();<a name="line.349"></a>
-<span class="sourceLineNo">350</span>            final DatabaseEntry value = new DatabaseEntry();<a name="line.350"></a>
-<span class="sourceLineNo">351</span>            this.canRemoveWithCursor = false;<a name="line.351"></a>
-<span class="sourceLineNo">352</span>            try {<a name="line.352"></a>
-<span class="sourceLineNo">353</span>                final OperationStatus status = this.reverse ?<a name="line.353"></a>
-<span class="sourceLineNo">354</span>                  this.cursor.getPrev(key, value, null) : this.cursor.getNext(key, value, null);<a name="line.354"></a>
-<span class="sourceLineNo">355</span>                switch (status) {<a name="line.355"></a>
-<span class="sourceLineNo">356</span>                case SUCCESS:<a name="line.356"></a>
-<span class="sourceLineNo">357</span>                    final byte[] keyData = key.getData();<a name="line.357"></a>
-<span class="sourceLineNo">358</span>                    if (this.reverse ? ByteUtil.compare(keyData, this.minKey) &gt;= 0 : ByteUtil.compare(keyData, this.maxKey) &lt; 0) {<a name="line.358"></a>
-<span class="sourceLineNo">359</span>                        this.nextPair = new KVPair(keyData, value.getData());<a name="line.359"></a>
-<span class="sourceLineNo">360</span>                        return true;<a name="line.360"></a>
-<span class="sourceLineNo">361</span>                    }<a name="line.361"></a>
-<span class="sourceLineNo">362</span>                    // FALLTHROUGH<a name="line.362"></a>
-<span class="sourceLineNo">363</span>                case NOTFOUND:<a name="line.363"></a>
-<span class="sourceLineNo">364</span>                    this.completed = true;<a name="line.364"></a>
-<span class="sourceLineNo">365</span>                    return false;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>                default:<a name="line.366"></a>
-<span class="sourceLineNo">367</span>                    throw BerkeleyKVTransaction.this.weirdStatus(status, this.reverse ? "getPrev" : "getNext");<a name="line.367"></a>
-<span class="sourceLineNo">368</span>                }<a name="line.368"></a>
-<span class="sourceLineNo">369</span>            } catch (DatabaseException e) {<a name="line.369"></a>
-<span class="sourceLineNo">370</span>                throw BerkeleyKVTransaction.this.wrapException(e);<a name="line.370"></a>
-<span class="sourceLineNo">371</span>            }<a name="line.371"></a>
-<span class="sourceLineNo">372</span>        }<a name="line.372"></a>
-<span class="sourceLineNo">373</span><a name="line.373"></a>
-<span class="sourceLineNo">374</span>        // We initialize on demand from findNext()<a name="line.374"></a>
-<span class="sourceLineNo">375</span>        @SuppressWarnings("fallthrough")<a name="line.375"></a>
-<span class="sourceLineNo">376</span>        private /*synchronized*/ void initialize() {<a name="line.376"></a>
-<span class="sourceLineNo">377</span>            assert Thread.holdsLock(this);<a name="line.377"></a>
-<span class="sourceLineNo">378</span>            assert !this.initialized;<a name="line.378"></a>
-<span class="sourceLineNo">379</span>            assert !this.completed;<a name="line.379"></a>
-<span class="sourceLineNo">380</span>            assert this.nextPair == null;<a name="line.380"></a>
-<span class="sourceLineNo">381</span>            if (reverse) {<a name="line.381"></a>
-<span class="sourceLineNo">382</span><a name="line.382"></a>
-<span class="sourceLineNo">383</span>                // Search for maxKey; thereafter, a call to getPrev() will return the first element in the reverse iteration.<a name="line.383"></a>
-<span class="sourceLineNo">384</span>                // We don't care whether maxKey is found or not, we are just positioning the cursor.<a name="line.384"></a>
-<span class="sourceLineNo">385</span>                try {<a name="line.385"></a>
-<span class="sourceLineNo">386</span>                    final OperationStatus status = this.cursor.getSearchKey(<a name="line.386"></a>
-<span class="sourceLineNo">387</span>                      new DatabaseEntry(this.maxKey), new DatabaseEntry(), null);<a name="line.387"></a>
-<span class="sourceLineNo">388</span>                    switch (status) {<a name="line.388"></a>
-<span class="sourceLineNo">389</span>                    case SUCCESS:<a name="line.389"></a>
-<span class="sourceLineNo">390</span>                    case NOTFOUND:<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                        break;<a name="line.391"></a>
-<span class="sourceLineNo">392</span>                    default:<a name="line.392"></a>
-<span class="sourceLineNo">393</span>                        throw BerkeleyKVTransaction.this.weirdStatus(status, "getSearchKey");<a name="line.393"></a>
-<span class="sourceLineNo">394</span>                    }<a name="line.394"></a>
-<span class="sourceLineNo">395</span>                } catch (DatabaseException e) {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>                    throw BerkeleyKVTransaction.this.wrapException(e);<a name="line.396"></a>
-<span class="sourceLineNo">397</span>                }<a name="line.397"></a>
-<span class="sourceLineNo">398</span>            } else if (this.minKey.length &gt; 0) {    // if minKey has zero length, no need to initialize (getNext() will just work)<a name="line.398"></a>
-<span class="sourceLineNo">399</span>                final DatabaseEntry key = new DatabaseEntry(this.minKey);<a name="line.399"></a>
-<span class="sourceLineNo">400</span>                final DatabaseEntry value = new DatabaseEntry();<a name="line.400"></a>
-<span class="sourceLineNo">401</span>                try {<a name="line.401"></a>
-<span class="sourceLineNo">402</span>                    final OperationStatus status = this.cursor.getSearchKeyRange(key, value, null);<a name="line.402"></a>
-<span class="sourceLineNo">403</span>                    switch (status) {<a name="line.403"></a>
-<span class="sourceLineNo">404</span>                    case SUCCESS:<a name="line.404"></a>
-<span class="sourceLineNo">405</span>                        final byte[] keyData = key.getData();<a name="line.405"></a>
-<span class="sourceLineNo">406</span>                        if (ByteUtil.compare(keyData, this.maxKey) &lt; 0) {<a name="line.406"></a>
-<span class="sourceLineNo">407</span>                            this.nextPair = new KVPair(keyData, value.getData());<a name="line.407"></a>
-<span class="sourceLineNo">408</span>                            break;<a name="line.408"></a>
-<span class="sourceLineNo">409</span>                        }<a name="line.409"></a>
-<span class="sourceLineNo">410</span>                        // FALLTHROUGH<a name="line.410"></a>
-<span class="sourceLineNo">411</span>                    case NOTFOUND:<a name="line.411"></a>
-<span class="sourceLineNo">412</span>                        this.completed = true;<a name="line.412"></a>
-<span class="sourceLineNo">413</span>                        break;<a name="line.413"></a>
-<span class="sourceLineNo">414</span>                    default:<a name="line.414"></a>
-<span class="sourceLineNo">415</span>                        throw BerkeleyKVTransaction.this.weirdStatus(status, "getSearchKeyRange");<a name="line.415"></a>
-<span class="sourceLineNo">416</span>                    }<a name="line.416"></a>
-<span class="sourceLineNo">417</span>                } catch (DatabaseException e) {<a name="line.417"></a>
-<span class="sourceLineNo">418</span>                    throw BerkeleyKVTransaction.this.wrapException(e);<a name="line.418"></a>
-<span class="sourceLineNo">419</span>                }<a name="line.419"></a>
-<span class="sourceLineNo">420</span>            }<a name="line.420"></a>
-<span class="sourceLineNo">421</span>            this.initialized = true;<a name="line.421"></a>
-<span class="sourceLineNo">422</span>        }<a name="line.422"></a>
-<span class="sourceLineNo">423</span>    }<a name="line.423"></a>
-<span class="sourceLineNo">424</span>}<a name="line.424"></a>
-<span class="sourceLineNo">425</span><a name="line.425"></a>
+<span class="sourceLineNo">337</span>    // Internal methods<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>        @SuppressWarnings("fallthrough")<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        private /*synchronized*/ boolean findNext() {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            assert Thread.holdsLock(this);<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            if (BerkeleyKVTransaction.this.closed)<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                throw new StaleTransactionException(BerkeleyKVTransaction.this);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>            if (!this.initialized)<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                this.initialize();<a name="line.345"></a>
+<span class="sourceLineNo">346</span>            assert this.initialized;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>            if (this.nextPair != null)<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                return true;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            if (this.completed)<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                return false;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>            final DatabaseEntry key = new DatabaseEntry();<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            final DatabaseEntry value = new DatabaseEntry();<a name="line.352"></a>
+<span class="sourceLineNo">353</span>            this.canRemoveWithCursor = false;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>            try {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                final OperationStatus status = this.reverse ?<a name="line.355"></a>
+<span class="sourceLineNo">356</span>                  this.cursor.getPrev(key, value, null) : this.cursor.getNext(key, value, null);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>                switch (status) {<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                case SUCCESS:<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                    final byte[] keyData = key.getData();<a name="line.359"></a>
+<span class="sourceLineNo">360</span>                    if (this.reverse ? ByteUtil.compare(keyData, this.minKey) &gt;= 0 : ByteUtil.compare(keyData, this.maxKey) &lt; 0) {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                        this.nextPair = new KVPair(keyData, value.getData());<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                        return true;<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                    }<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                    // FALLTHROUGH<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                case NOTFOUND:<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                    this.completed = true;<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                    return false;<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                default:<a name="line.368"></a>
+<span class="sourceLineNo">369</span>                    throw BerkeleyKVTransaction.this.weirdStatus(status, this.reverse ? "getPrev" : "getNext");<a name="line.369"></a>
+<span class="sourceLineNo">370</span>                }<a name="line.370"></a>
+<span class="sourceLineNo">371</span>            } catch (DatabaseException e) {<a name="line.371"></a>
+<span class="sourceLineNo">372</span>                throw BerkeleyKVTransaction.this.wrapException(e);<a name="line.372"></a>
+<span class="sourceLineNo">373</span>            }<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        }<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>        // We initialize on demand from findNext()<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        @SuppressWarnings("fallthrough")<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        private /*synchronized*/ void initialize() {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            assert Thread.holdsLock(this);<a name="line.379"></a>
+<span class="sourceLineNo">380</span>            assert !this.initialized;<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            assert !this.completed;<a name="line.381"></a>
+<span class="sourceLineNo">382</span>            assert this.nextPair == null;<a name="line.382"></a>
+<span class="sourceLineNo">383</span>            if (reverse) {<a name="line.383"></a>
+<span class="sourceLineNo">384</span><a name="line.384"></a>
+<span class="sourceLineNo">385</span>                // Search for maxKey; thereafter, a call to getPrev() will return the first element in the reverse iteration.<a name="line.385"></a>
+<span class="sourceLineNo">386</span>                // We don't care whether maxKey is found or not, we are just positioning the cursor.<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                try {<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                    final OperationStatus status = this.cursor.getSearchKey(<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                      new DatabaseEntry(this.maxKey), new DatabaseEntry(), null);<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                    switch (status) {<a name="line.390"></a>
+<span class="sourceLineNo">391</span>                    case SUCCESS:<a name="line.391"></a>
+<span class="sourceLineNo">392</span>                    case NOTFOUND:<a name="line.392"></a>
+<span class="sourceLineNo">393</span>                        break;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>                    default:<a name="line.394"></a>
+<span class="sourceLineNo">395</span>                        throw BerkeleyKVTransaction.this.weirdStatus(status, "getSearchKey");<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                    }<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                } catch (DatabaseException e) {<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                    throw BerkeleyKVTransaction.this.wrapException(e);<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                }<a name="line.399"></a>
+<span class="sourceLineNo">400</span>            } else if (this.minKey.length &gt; 0) {    // if minKey has zero length, no need to initialize (getNext() will just work)<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                final DatabaseEntry key = new DatabaseEntry(this.minKey);<a name="line.401"></a>
+<span class="sourceLineNo">402</span>                final DatabaseEntry value = new DatabaseEntry();<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                try {<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                    final OperationStatus status = this.cursor.getSearchKeyRange(key, value, null);<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                    switch (status) {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                    case SUCCESS:<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                        final byte[] keyData = key.getData();<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                        if (ByteUtil.compare(keyData, this.maxKey) &lt; 0) {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                            this.nextPair = new KVPair(keyData, value.getData());<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                            break;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                        }<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                        // FALLTHROUGH<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                    case NOTFOUND:<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                        this.completed = true;<a name="line.414"></a>
+<span class="sourceLineNo">415</span>                        break;<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                    default:<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                        throw BerkeleyKVTransaction.this.weirdStatus(status, "getSearchKeyRange");<a name="line.417"></a>
+<span class="sourceLineNo">418</span>                    }<a name="line.418"></a>
+<span class="sourceLineNo">419</span>                } catch (DatabaseException e) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                    throw BerkeleyKVTransaction.this.wrapException(e);<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                }<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            }<a name="line.422"></a>
+<span class="sourceLineNo">423</span>            this.initialized = true;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        }<a name="line.424"></a>
+<span class="sourceLineNo">425</span>    }<a name="line.425"></a>
+<span class="sourceLineNo">426</span>}<a name="line.426"></a>
+<span class="sourceLineNo">427</span><a name="line.427"></a>
 
 
 

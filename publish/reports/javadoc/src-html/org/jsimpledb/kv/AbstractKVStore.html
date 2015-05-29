@@ -116,9 +116,9 @@
 <span class="sourceLineNo">108</span>    public void adjustCounter(byte[] key, long amount) {<a name="line.108"></a>
 <span class="sourceLineNo">109</span>        if (key == null)<a name="line.109"></a>
 <span class="sourceLineNo">110</span>            throw new NullPointerException("null key");<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        byte[] previous = this.get(key);<a name="line.111"></a>
+<span class="sourceLineNo">111</span>        final byte[] previous = this.get(key);<a name="line.111"></a>
 <span class="sourceLineNo">112</span>        if (previous == null)<a name="line.112"></a>
-<span class="sourceLineNo">113</span>            previous = new byte[8];<a name="line.113"></a>
+<span class="sourceLineNo">113</span>            return;<a name="line.113"></a>
 <span class="sourceLineNo">114</span>        this.put(key, this.encodeCounter(this.decodeCounter(previous) + amount));<a name="line.114"></a>
 <span class="sourceLineNo">115</span>    }<a name="line.115"></a>
 <span class="sourceLineNo">116</span><a name="line.116"></a>

@@ -12,7 +12,7 @@
 <div class="separator">&nbsp;</div>
 <table class="report">
 <thead><tr>  <td class="heading">Classes in this File</td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Line Coverage</a></td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Branch Coverage</a></td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Complexity</a></td></tr></thead>
-  <tr><td><a href="org.jsimpledb.core.Index4View.html">Index4View</a></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">0%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:0px"><span class="text">0/114</span></div></div></td></tr></table></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">0%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:0px"><span class="text">0/64</span></div></div></td></tr></table></td><td class="value"><span class="hidden">3.1333333333333333;</span>3.133</td></tr>
+  <tr><td><a href="org.jsimpledb.core.Index4View.html">Index4View</a></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">0%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:0px"><span class="text">0/104</span></div></div></td></tr></table></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">0%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:0px"><span class="text">0/64</span></div></div></td></tr></table></td><td class="value"><span class="hidden">3.1333333333333333;</span>3.133</td></tr>
 
 </table>
 <div class="separator">&nbsp;</div>
@@ -202,8 +202,10 @@
 <tr>  <td class="numLine">&nbsp;99</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Create new IndexView</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;100</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        IndexView&lt;Tuple4&lt;V1, V2, V3, V4&gt;, T&gt; indexView = <span class="keyword">new</span> IndexView&lt;Tuple4&lt;V1, V2, V3, V4&gt;, T&gt;(<span class="keyword">this</span>.prefix, <span class="keyword">this</span>.prefixMode,</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;101</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          <span class="keyword">new</span> Tuple4FieldType&lt;V1, V2, V3, V4&gt;(<span class="keyword">this</span>.getValue1Type(),</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;102</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;           <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type()), <span class="keyword">this</span>.getTargetType());</span></pre></td></tr>
+<tr>  <td class="numLine">&nbsp;101</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;          <span class="keyword">new</span> Tuple4FieldType&lt;V1, V2, V3, V4&gt;(<span class="keyword">this</span>.getValue1Type(),</pre></td></tr>
+<tr>  <td class="numLine">&nbsp;102</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;           <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type()), <span class="keyword">this</span>.getTargetType());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;103</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;104</td>  <td class="nbHits">&nbsp;</td>
@@ -219,7 +221,8 @@
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Apply filtering to tuple field</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;112</td>  <td class="nbHitsUncovered"><a title="Line 112: Conditional coverage 0% (0/8) [each condition: 0%, 0%, 0%, 0%].">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 112: Conditional coverage 0% (0/8) [each condition: 0%, 0%, 0%, 0%].">        <span class="keyword">if</span> (value1Filter != <span class="keyword">null</span> || value2Filter != <span class="keyword">null</span> || value3Filter != <span class="keyword">null</span> || value4Filter != <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;113</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            FieldTypesFilter tupleFilter = <span class="keyword">new</span> FieldTypesFilter(<span class="keyword">null</span>,</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;114</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;              <span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type());</span></pre></td></tr>
+<tr>  <td class="numLine">&nbsp;114</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;              <span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type());</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;115</td>  <td class="nbHitsUncovered"><a title="Line 115: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 115: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (value1Filter != <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;116</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                tupleFilter = tupleFilter.filter(0, value1Filter);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;117</td>  <td class="nbHitsUncovered"><a title="Line 117: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 117: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (value2Filter != <span class="keyword">null</span>)</a></span></pre></td></tr>
@@ -253,8 +256,10 @@
 <tr>  <td class="numLine">&nbsp;136</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Create new IndexView</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;137</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        Index2View&lt;Tuple3&lt;V1, V2, V3&gt;, V4, T&gt; indexView = <span class="keyword">new</span> Index2View&lt;Tuple3&lt;V1, V2, V3&gt;, V4, T&gt;(<span class="keyword">this</span>.prefix, <span class="keyword">this</span>.prefixMode,</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;138</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          <span class="keyword">new</span> Tuple3FieldType&lt;V1, V2, V3&gt;(<span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type()), <span class="keyword">this</span>.getValue4Type(),</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;139</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          <span class="keyword">this</span>.getTargetType());</span></pre></td></tr>
+<tr>  <td class="numLine">&nbsp;138</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;          <span class="keyword">new</span> Tuple3FieldType&lt;V1, V2, V3&gt;(<span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type()), <span class="keyword">this</span>.getValue4Type(),</pre></td></tr>
+<tr>  <td class="numLine">&nbsp;139</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.getTargetType());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;140</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;141</td>  <td class="nbHits">&nbsp;</td>
@@ -270,7 +275,8 @@
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Apply filtering to tuple field</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;149</td>  <td class="nbHitsUncovered"><a title="Line 149: Conditional coverage 0% (0/6) [each condition: 0%, 0%, 0%].">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 149: Conditional coverage 0% (0/6) [each condition: 0%, 0%, 0%].">        <span class="keyword">if</span> (value1Filter != <span class="keyword">null</span> || value2Filter != <span class="keyword">null</span> || value3Filter != <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;150</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            FieldTypesFilter tupleFilter = <span class="keyword">new</span> FieldTypesFilter(<span class="keyword">null</span>,</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;151</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;              <span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type());</span></pre></td></tr>
+<tr>  <td class="numLine">&nbsp;151</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;              <span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type());</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;152</td>  <td class="nbHitsUncovered"><a title="Line 152: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 152: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (value1Filter != <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;153</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                tupleFilter = tupleFilter.filter(0, value1Filter);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;154</td>  <td class="nbHitsUncovered"><a title="Line 154: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 154: Conditional coverage 0% (0/2).">            <span class="keyword">if</span> (value2Filter != <span class="keyword">null</span>)</a></span></pre></td></tr>
@@ -308,8 +314,10 @@
 <tr>  <td class="numLine">&nbsp;175</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Create new IndexView</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;176</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        Index3View&lt;Tuple2&lt;V1, V2&gt;, V3, V4, T&gt; indexView = <span class="keyword">new</span> Index3View&lt;Tuple2&lt;V1, V2&gt;, V3, V4, T&gt;(<span class="keyword">this</span>.prefix, <span class="keyword">this</span>.prefixMode,</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;177</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          <span class="keyword">new</span> Tuple2FieldType&lt;V1, V2&gt;(<span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type()), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type(),</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;178</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          <span class="keyword">this</span>.getTargetType());</span></pre></td></tr>
+<tr>  <td class="numLine">&nbsp;177</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;          <span class="keyword">new</span> Tuple2FieldType&lt;V1, V2&gt;(<span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type()), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type(),</pre></td></tr>
+<tr>  <td class="numLine">&nbsp;178</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.getTargetType());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;179</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;180</td>  <td class="nbHits">&nbsp;</td>
@@ -370,7 +378,8 @@
 <tr>  <td class="numLine">&nbsp;217</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Create IndexView</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;218</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        Index3View&lt;V1, V2, V3, V4&gt; indexView = <span class="keyword">new</span> Index3View&lt;V1, V2, V3, V4&gt;(<span class="keyword">this</span>.prefix,</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;219</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          <span class="keyword">true</span>, <span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type());</span></pre></td></tr>
+<tr>  <td class="numLine">&nbsp;219</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;          <span class="keyword">true</span>, <span class="keyword">this</span>.getValue1Type(), <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;220</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;221</td>  <td class="nbHits">&nbsp;</td>
@@ -412,7 +421,8 @@
 <tr>  <td class="numLine">&nbsp;246</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Create IndexView</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;247</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        Index3View&lt;V2, V3, V4, T&gt; indexView = <span class="keyword">new</span> Index3View&lt;V2, V3, V4, T&gt;(keyPrefix,</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;248</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          <span class="keyword">this</span>.prefixMode, <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type(), <span class="keyword">this</span>.getTargetType());</span></pre></td></tr>
+<tr>  <td class="numLine">&nbsp;248</td>  <td class="nbHits">&nbsp;</td>
+  <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.prefixMode, <span class="keyword">this</span>.getValue2Type(), <span class="keyword">this</span>.getValue3Type(), <span class="keyword">this</span>.getValue4Type(), <span class="keyword">this</span>.getTargetType());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;249</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;250</td>  <td class="nbHits">&nbsp;</td>
@@ -447,6 +457,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 4/16/15 8:30 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/28/15 8:10 PM.</div>
 </body>
 </html>
