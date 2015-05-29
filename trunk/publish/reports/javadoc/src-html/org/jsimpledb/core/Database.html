@@ -369,7 +369,7 @@
 <span class="sourceLineNo">361</span>                    throw new InconsistentDatabaseException("database failed basic read/write test");<a name="line.361"></a>
 <span class="sourceLineNo">362</span>            } else {<a name="line.362"></a>
 <span class="sourceLineNo">363</span>                try {<a name="line.363"></a>
-<span class="sourceLineNo">364</span>                    formatVersion = UnsignedIntEncoder.read(new ByteReader(formatVersionBytes));<a name="line.364"></a>
+<span class="sourceLineNo">364</span>                    formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);<a name="line.364"></a>
 <span class="sourceLineNo">365</span>                } catch (IllegalArgumentException e) {<a name="line.365"></a>
 <span class="sourceLineNo">366</span>                    throw new InconsistentDatabaseException("database contains invalid encoded format version "<a name="line.366"></a>
 <span class="sourceLineNo">367</span>                      + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));<a name="line.367"></a>

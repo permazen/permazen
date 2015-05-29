@@ -214,7 +214,7 @@
 <span class="sourceLineNo">206</span>    @Override<a name="line.206"></a>
 <span class="sourceLineNo">207</span>    public void rollback() {<a name="line.207"></a>
 <span class="sourceLineNo">208</span>        if (this.stale)<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            throw new StaleTransactionException(this);<a name="line.209"></a>
+<span class="sourceLineNo">209</span>            return;<a name="line.209"></a>
 <span class="sourceLineNo">210</span>        this.stale = true;<a name="line.210"></a>
 <span class="sourceLineNo">211</span>        this.cancel();<a name="line.211"></a>
 <span class="sourceLineNo">212</span>    }<a name="line.212"></a>

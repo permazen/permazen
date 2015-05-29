@@ -86,14 +86,18 @@
 <span class="sourceLineNo">078</span>    void commit();<a name="line.78"></a>
 <span class="sourceLineNo">079</span><a name="line.79"></a>
 <span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * Cancel this transaction. Note, this method may not throw {@link RetryTransactionException}.<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * After this method returns, this instance is no longer usable.<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     * @throws StaleTransactionException if this transaction is no longer usable<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    void rollback();<a name="line.86"></a>
-<span class="sourceLineNo">087</span>}<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">081</span>     * Cancel this transaction.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * &lt;p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * After this method returns, this instance is no longer usable.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     *<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * &lt;p&gt;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * This method may be invoked at any time, even after a previous invocation of<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * {@link #commit} or {@link #rollback}, in which case the invocation will be ignored.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    void rollback();<a name="line.90"></a>
+<span class="sourceLineNo">091</span>}<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
 
 
 

@@ -14,6 +14,9 @@ org.jsimpledb.kv.bdb
 org.jsimpledb.kv.fdb
 org.jsimpledb.kv.leveldb
 org.jsimpledb.kv.mvcc
+org.jsimpledb.kv.raft
+org.jsimpledb.kv.raft.msg
+org.jsimpledb.kv.raft.net
 org.jsimpledb.kv.simple
 org.jsimpledb.kv.sql
 org.jsimpledb.kv.util
