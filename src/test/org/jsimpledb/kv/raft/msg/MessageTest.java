@@ -64,8 +64,10 @@ public class MessageTest extends TestSupport {
             { new CommitResponse(123, "sender", "", 4444, 123, 45678, 459487463) },
             { new CommitResponse(123, "sender", "\uffff", 4444, 123, 45678, 459487463, new Timestamp(12313423)) },
             { new GrantVote(123, "blah", "namama", 4444) },
-            { new InstallSnapshot(123, "adlasdf", "\u1234haha", 234453, 234234, 34545, 4544,
+            { new InstallSnapshot(123, "adlasdf", "\u1234haha", 234453, 234234, 34545, 0,
               config, false, ByteBuffer.wrap(writesData)) },
+            { new InstallSnapshot(123, "adlasdf", "\u1234haha", 234453, 234234, 34545, 787,
+              null, false, ByteBuffer.wrap(writesData)) },
             { new RequestVote(123, "adlasdf", "blooby", 234453, 234234, 34545) },
         };
     }
