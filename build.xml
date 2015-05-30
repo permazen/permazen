@@ -7,7 +7,6 @@
   xmlns:ivy="urn:org.apache.ivy.ant">
 
     <!-- Configure build & stuff -->
-    <property name="library.version" value="1.0"/>
     <property name="javac.compiler.flags" value="-Xlint:all"/>
 
     <!-- Other constants -->
@@ -17,11 +16,12 @@
     <!-- Import generic build macros -->
     <import file="${basedir}/src/build/macros.xml"/>
 
-    <!-- Determine SVN revision and full version -->
-    <dellroad:svnrevision property="svn.revision"/>
-    <property name="full.version" value="${library.version}.${svn.revision}"/>
+    <!-- Determine version -->
+    <exec outputproperty="library.version" executable="git" logError="true" failonerror="true">
+        <arg value="describe"/>
+    </exec>
     <echo message=""/>
-    <echo message="Version is ${library.version}.${svn.revision}"/>
+    <echo message="Version is ${library.version}"/>
     <echo message=""/>
 
     <!-- Classpath targets -->
@@ -94,7 +94,7 @@
             <fileset dir="src/java" includes="**/*.xsd"/>
             <fileset dir="src/java" includes="**/*.sql"/>
             <filterset>
-                <filter token="VERSION" value="${full.version}"/>
+                <filter token="VERSION" value="${library.version}"/>
             </filterset>
         </copy>
         <property name="resources.completed" value="true"/>
@@ -169,8 +169,8 @@
     <target name="jar" depends="javac, javac-vaadin7, jibx-bind, aspects, aspects-vaadin7, resources" unless="jar.completed"
       description="Build main JAR">
         <mkdir dir="build/dist"/>
-        <delete file="build/dist/${ant.project.name}-${full.version}.jar"/>
-        <jar destfile="build/dist/${ant.project.name}-${full.version}.jar">
+        <delete file="build/dist/${ant.project.name}-${library.version}.jar"/>
+        <jar destfile="build/dist/${ant.project.name}-${library.version}.jar">
             <fileset dir="build/classes"/>
             <fileset dir="build/resources"/>
             <metainf dir="src/java/org/dellroad/stuff/spring" includes="spring.*"/>
@@ -193,14 +193,14 @@
         <copy todir="build/addon/maven/${vaadin.plugin.groupId}/${vaadin.plugin.artifactId}">
             <fileset dir="src/addon" includes="pom.xml"/>
             <filterset>
-                <filter token="VERSION" value="${full.version}"/>
+                <filter token="VERSION" value="${library.version}"/>
                 <filter token="GROUP_ID" value="${vaadin.plugin.groupId}"/>
                 <filter token="ARTIFACT_ID" value="${vaadin.plugin.artifactId}"/>
             </filterset>
         </copy>
         <mkdir dir="build/dist"/>
-        <delete file="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar"/>
-        <jar destfile="build/dist/${ant.project.name}-vaadin-addon-${full.version}.jar">
+        <delete file="build/dist/${ant.project.name}-vaadin-addon-${library.version}.jar"/>
+        <jar destfile="build/dist/${ant.project.name}-vaadin-addon-${library.version}.jar">
             <fileset dir="build/classes">
                 <include name="org/dellroad/stuff/io/NullModemInputStream*"/>
                 <include name="org/dellroad/stuff/io/WriteCallback*"/>
@@ -219,7 +219,7 @@
             <manifest>
                 <attribute name="Vaadin-Package-Version" value="1"/>
                 <attribute name="Implementation-Title" value="Spring Stuff"/>
-                <attribute name="Implementation-Version" value="${full.version}"/>
+                <attribute name="Implementation-Version" value="${library.version}"/>
             </manifest>
         </jar>
         <property name="addon.completed" value="true"/>
@@ -229,12 +229,12 @@
     <target name="jars" depends="jar, javadoc" unless="jars.completed"
       description="Build JARs">
         <mkdir dir="build/dist"/>
-        <delete file="build/dist/${ant.project.name}-sources-${full.version}.zip"/>
-        <zip destfile="build/dist/${ant.project.name}-sources-${full.version}.zip">
+        <delete file="build/dist/${ant.project.name}-sources-${library.version}.zip"/>
+        <zip destfile="build/dist/${ant.project.name}-sources-${library.version}.zip">
             <fileset dir="src/java" includes="**/*"/>
         </zip>
-        <delete file="build/dist/${ant.project.name}-javadocs-${full.version}.zip"/>
-        <zip destfile="build/dist/${ant.project.name}-javadocs-${full.version}.zip">
+        <delete file="build/dist/${ant.project.name}-javadocs-${library.version}.zip"/>
+        <zip destfile="build/dist/${ant.project.name}-javadocs-${library.version}.zip">
             <fileset dir="build/reports/javadoc" includes="**/*"/>
         </zip>
         <property name="jars.completed" value="true"/>
@@ -248,7 +248,7 @@
         <copy todir="build/javadoc">
             <fileset dir="src/java/org/dellroad/stuff" includes="overview.html"/>
             <filterset>
-                <filter token="VERSION" value="${full.version}"/>
+                <filter token="VERSION" value="${library.version}"/>
             </filterset>
         </copy>
         <dellroad:javadoc overview="build/javadoc/overview.html">
@@ -331,7 +331,7 @@
         <!-- Define Maven coordinates -->
         <property name="groupId" value="org.dellroad"/>
         <property name="artifactId" value="${ant.project.name}"/>
-        <property name="version" value="${full.version}"/>
+        <property name="version" value="${library.version}"/>
 
         <!-- Define artifacts' name, which follows the convention of Maven -->
         <property name="maven-jar" value="${dist}/lib/${artifactId}-${version}.jar" />
@@ -348,7 +348,7 @@
         <copy todir="build">
             <fileset dir="src/mvn" includes="pom.xml"/>
             <filterset>
-                <filter token="VERSION" value="${full.version}"/>
+                <filter token="VERSION" value="${library.version}"/>
                 <filter token="GROUP_ID" value="org.dellroad"/>
                 <filter token="ARTIFACT_ID" value="${ant.project.name}"/>
             </filterset>
@@ -361,7 +361,7 @@
             <arg value="-Durl=${maven-staging-repository-url}" />
             <arg value="-DrepositoryId=${maven-staging-repository-id}" />
             <arg value="-DpomFile=build/pom.xml" />
-            <arg value="-Dfile=build/dist/${ant.project.name}-${full.version}.jar"/>
+            <arg value="-Dfile=build/dist/${ant.project.name}-${library.version}.jar"/>
             <arg value="-Pgpg" />
         </artifact:mvn>
 
@@ -372,7 +372,7 @@
             <arg value="-Durl=${maven-staging-repository-url}" />
             <arg value="-DrepositoryId=${maven-staging-repository-id}" />
             <arg value="-DpomFile=build/pom.xml" />
-            <arg value="-Dfile=build/dist/${ant.project.name}-sources-${full.version}.zip"/>
+            <arg value="-Dfile=build/dist/${ant.project.name}-sources-${library.version}.zip"/>
             <arg value="-Dclassifier=sources" />
             <arg value="-Pgpg" />
         </artifact:mvn>
@@ -384,7 +384,7 @@
             <arg value="-Durl=${maven-staging-repository-url}" />
             <arg value="-DrepositoryId=${maven-staging-repository-id}" />
             <arg value="-DpomFile=build/pom.xml" />
-            <arg value="-Dfile=build/dist/${ant.project.name}-javadocs-${full.version}.zip"/>
+            <arg value="-Dfile=build/dist/${ant.project.name}-javadocs-${library.version}.zip"/>
             <arg value="-Dclassifier=javadoc" />
             <arg value="-Pgpg" />
         </artifact:mvn>
