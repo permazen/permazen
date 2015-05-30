@@ -8,7 +8,6 @@
     - All updates are defined using <dellroad-stuff:sql-update> tags with inline SQL (no "resource" attributes)
 -->
 
-<!-- $Id$ -->
 <xsl:transform
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:beans="http://www.springframework.org/schema/beans"

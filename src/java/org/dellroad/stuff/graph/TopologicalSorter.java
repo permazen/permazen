@@ -1,8 +1,6 @@
 
 /*
- * Copyright (C) 2008-2009 Archie L. Cobbs. All rights reserved.
- *
- * $Id$
+ * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.
  */
 
 package org.dellroad.stuff.graph;

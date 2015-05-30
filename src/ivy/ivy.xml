@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id$ -->
 <ivy-module version="1.0">
 
     <info organisation="org.dellroad" module="dellroad-stuff">

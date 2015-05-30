@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id$ -->
 <project name="dellroad-stuff" default="build"
   xmlns:dellroad="urn:org.dellroad.ant"
   xmlns:antcontrib="urn:net.sf.antcontrib"

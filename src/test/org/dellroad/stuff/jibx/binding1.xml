@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id$ -->
 <binding name="binding1" package="org.dellroad.stuff.jibx">
 
     <mapping name="Employee" class="org.dellroad.stuff.jibx.Employee">

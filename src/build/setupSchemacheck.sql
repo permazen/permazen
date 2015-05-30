@@ -1,5 +1,3 @@
--- $Id$
-
 CREATE USER 'schemacheck'@'localhost'
   IDENTIFIED BY 'schemacheck';
 GRANT USAGE

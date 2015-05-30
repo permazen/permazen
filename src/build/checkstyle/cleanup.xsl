@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id$ -->
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
     <xsl:output encoding="ISO-8859-1" method="text"/>
@@ -8,7 +7,6 @@
     <xsl:template match="/">
         <xsl:value-of select="'#!/bin/sh&#10;'"/>
         <xsl:value-of select="'# GENERATED FILE - DO NOT EDIT&#10;'"/>
-        <xsl:value-of select="'# Style: $Id$&#10;'"/>
         <xsl:value-of select="'&#10;'"/>
         <xsl:apply-templates/>
     </xsl:template>

@@ -1,5 +1,3 @@
--- $Id$
-
 CREATE TABLE `SchemaUpdate` (
    `updateName` VARCHAR(255) NOT NULL,
    `updateTime` DATETIME NOT NULL,

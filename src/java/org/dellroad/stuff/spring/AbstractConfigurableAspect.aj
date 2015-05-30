@@ -1,8 +1,6 @@
 
 /*
  * Copyright (C) 2011 Archie L. Cobbs and other authors. All rights reserved.
- *
- * $Id: VaadinConfigurableAspect.aj 282 2012-02-16 20:48:06Z archie.cobbs $
  */
 
 package org.dellroad.stuff.spring;
