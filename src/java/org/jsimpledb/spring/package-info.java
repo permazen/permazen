@@ -1,8 +1,6 @@
 
 /*
  * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.
- *
- * $Id$
  */
 
 /**
@@ -114,7 +112,8 @@
  *   xmlns:p="http://www.springframework.org/schema/p"
  *   xmlns:c="http://www.springframework.org/schema/c"
  *   xsi:schemaLocation="
- *      <b>http://jsimpledb.googlecode.com/schema/jsimpledb http://jsimpledb.googlecode.com/svn/schemas/jsimpledb-1.0.xsd</b>
+ *      <b>http://jsimpledb.googlecode.com/schema/jsimpledb
+ *        http://archiecobbs.github.io/jsimpledb/src/java/org/jsimpledb/spring/jsimpledb-1.0.xsd</b>
  *      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
  *      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"&gt;
  *

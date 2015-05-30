@@ -1,5 +1,3 @@
--- $Id$
-
 CREATE TABLE KV (
    kv_key VARBINARY(4194304) NOT NULL,
    kv_value VARBINARY(4194304) NOT NULL,

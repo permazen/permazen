@@ -68,4 +68,3 @@ The "expr" command supports several extensions to Java syntax, including:
     * Objects may be referred to by object ID literal, eg., @fc02ac0000000001
     * Session variables have the form $NAME; you can set them and use them later
 
-$Id$

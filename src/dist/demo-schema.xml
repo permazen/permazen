@@ -12,7 +12,6 @@
     See the Javadoc for org.jsimpledb.ant.SchemaGeneratorTask for more info.
 -->
 
-<!-- $Id$ -->
 <Schema formatVersion="2">
     <ObjectType storageId="63949" name="Moon">
         <SimpleField storageId="40763" name="image" type="byte[]"/>

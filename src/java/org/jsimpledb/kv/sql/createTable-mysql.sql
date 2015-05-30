@@ -1,5 +1,3 @@
--- $Id$
-
 CREATE TABLE IF NOT EXISTS `KV` (
     -- MySQL InnoDB indexes are limited to 767 bytes
     -- You can go up to 3072 bytes if you set innodb_large_prefix 

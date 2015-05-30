@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id$ -->
 <suite name="Unit Test Suite" verbose="2">
 
     <parameter name="deleteTempDirs" value="true"/>
