@@ -17,6 +17,6 @@ JSimpleDB also adds important new features that traditional databases don't prov
   * Extensible command line interface (CLI) supporting arbitrary Java queries
   * Built-in Java-aware graphical user interface (GUI) based on Vaadin
 
-Read the [FAQ](FAQ.md) and [Introduction](Introduction.md) for more info, check out the [JPA\_Comparison](JPA_Comparison.md), browse the [Javadocs](http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JSimpleDB.html), or join the [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.
+Read the [FAQ](FAQ) and [Introduction](Introduction) for more info, check out the [JPA\_Comparison](JPA_Comparison), browse the [Javadocs](http://jsimpledb.googlecode.com/svn/trunk/publish/reports/javadoc/index.html?org/jsimpledb/JSimpleDB.html), or join the [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.
 
 JSimpleDB is a new project (created in 2014) but developing rapidly.
