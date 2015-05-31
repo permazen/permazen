@@ -9,182 +9,180 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.mvcc;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.mvcc;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.base.Converter;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.google.common.base.Preconditions;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.io.IOException;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.io.InputStream;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.io.OutputStream;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.util.ArrayList;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import java.util.Map;<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.kv.KeyRange;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.kv.KeyRanges;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.util.ByteUtil;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.util.SizeEstimating;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.util.SizeEstimator;<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * Holds a set of reads from a {@link org.jsimpledb.kv.KVStore}.<a name="line.26"></a>
-<span class="sourceLineNo">027</span> *<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * &lt;p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * Only the (ranges of) keys read are retained, not the values.<a name="line.29"></a>
-<span class="sourceLineNo">030</span> *<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * &lt;p&gt;<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * Instances are not thread safe.<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * &lt;/p&gt;<a name="line.33"></a>
-<span class="sourceLineNo">034</span> */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>public class Reads implements SizeEstimating {<a name="line.35"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Converter;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.google.common.base.Preconditions;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.io.IOException;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.io.InputStream;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.io.OutputStream;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.util.ArrayList;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.Map;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.kv.KeyRange;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.kv.KeyRanges;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.util.ByteUtil;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.util.SizeEstimating;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.util.SizeEstimator;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Holds a set of reads from a {@link org.jsimpledb.kv.KVStore}.<a name="line.24"></a>
+<span class="sourceLineNo">025</span> *<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * &lt;p&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * Only the (ranges of) keys read are retained, not the values.<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * Instances are not thread safe.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;/p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public class Reads implements SizeEstimating {<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>    private KeyRanges reads;<a name="line.35"></a>
 <span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>    private KeyRanges reads;<a name="line.37"></a>
+<span class="sourceLineNo">037</span>// Constructors<a name="line.37"></a>
 <span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>// Constructors<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    /**<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * Constructs an empty instance.<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public Reads() {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        this(KeyRanges.EMPTY);<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * Constructs an instance initialized with the given read ranges<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     *<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * @param reads read ranges<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * @throws IllegalArgumentException if {@code reads} is null<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     */<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    public Reads(KeyRanges reads) {<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        this.setReads(reads);<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    }<a name="line.56"></a>
+<span class="sourceLineNo">039</span>    /**<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * Constructs an empty instance.<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    public Reads() {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        this(KeyRanges.EMPTY);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /**<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * Constructs an instance initialized with the given read ranges<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     *<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * @param reads read ranges<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * @throws IllegalArgumentException if {@code reads} is null<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    public Reads(KeyRanges reads) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        this.setReads(reads);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>// Public methods<a name="line.56"></a>
 <span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>// Public methods<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     * Get the ranges of keys read.<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     * @return ranges of keys read<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    public KeyRanges getReads() {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        return this.reads;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     * Set the ranges of keys read.<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     *<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * @param reads ranges of keys read<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * @throws IllegalArgumentException if {@code reads} is null<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    public void setReads(KeyRanges reads) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        Preconditions.checkArgument(reads != null, "null reads");<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        this.reads = reads;<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
+<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * Get the ranges of keys read.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     *<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * @return ranges of keys read<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    public KeyRanges getReads() {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        return this.reads;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * Set the ranges of keys read.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     *<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @param reads ranges of keys read<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * @throws IllegalArgumentException if {@code reads} is null<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    public void setReads(KeyRanges reads) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        Preconditions.checkArgument(reads != null, "null reads");<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        this.reads = reads;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>// MVCC<a name="line.78"></a>
 <span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>// MVCC<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>    /**<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * Determine whether any of the given mutations conflict with any of the keys read by this instance.<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     *<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     * &lt;p&gt;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     * If this method returns false, then if two transactions T1 and T2 are based on the same underlying<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     * {@link org.jsimpledb.kv.KVStore} snapshot, and T1 writes {@code mutations} and T2 reads according to this instance,<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     * then T2 can be ordered after T1 while still preserving linearizable semantics. That is, the given {@code mutations}<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     * are invisible to this instance.<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     *<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     * &lt;p&gt;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * This method guarantees that it will access the given {@code mutations} in this order: removes, puts, adjusts.<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     *<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * @param mutations mutations to check for conflicts<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * @return true if the {@code mutations} are invisible to this instance, false if there is a read/write conflict<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * @throws IllegalArgumentException if {@code mutations} is null<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    public boolean isConflict(Mutations mutations) {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        Preconditions.checkArgument(mutations != null, "null mutations");<a name="line.99"></a>
-<span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>        // Check removes<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        final ArrayList&lt;KeyRange&gt; removes = new ArrayList&lt;KeyRange&gt;();<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        for (KeyRange remove : mutations.getRemoveRanges())<a name="line.103"></a>
-<span class="sourceLineNo">104</span>            removes.add(remove);<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        if (!this.reads.intersection(new KeyRanges(removes)).isEmpty())<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            return true;                        // read/remove conflict<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>        // Check puts<a name="line.108"></a>
-<span class="sourceLineNo">109</span>        for (Map.Entry&lt;byte[], byte[]&gt; entry : mutations.getPutPairs()) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>            if (this.reads.contains(entry.getKey()))<a name="line.110"></a>
-<span class="sourceLineNo">111</span>                return true;                    // read/write conflict<a name="line.111"></a>
-<span class="sourceLineNo">112</span>        }<a name="line.112"></a>
-<span class="sourceLineNo">113</span><a name="line.113"></a>
-<span class="sourceLineNo">114</span>        // Check adjusts<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        for (Map.Entry&lt;byte[], Long&gt; entry : mutations.getAdjustPairs()) {<a name="line.115"></a>
-<span class="sourceLineNo">116</span>            if (this.reads.contains(entry.getKey()))<a name="line.116"></a>
-<span class="sourceLineNo">117</span>                return true;                    // read/adjust conflict<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        }<a name="line.118"></a>
-<span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>        // No conflicts<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        return false;<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
+<span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * Determine whether any of the given mutations conflict with any of the keys read by this instance.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * &lt;p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * If this method returns false, then if two transactions T1 and T2 are based on the same underlying<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * {@link org.jsimpledb.kv.KVStore} snapshot, and T1 writes {@code mutations} and T2 reads according to this instance,<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * then T2 can be ordered after T1 while still preserving linearizable semantics. That is, the given {@code mutations}<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * are invisible to this instance.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * &lt;p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * This method guarantees that it will access the given {@code mutations} in this order: removes, puts, adjusts.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @param mutations mutations to check for conflicts<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @return true if the {@code mutations} are invisible to this instance, false if there is a read/write conflict<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @throws IllegalArgumentException if {@code mutations} is null<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    public boolean isConflict(Mutations mutations) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        Preconditions.checkArgument(mutations != null, "null mutations");<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>        // Check removes<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        final ArrayList&lt;KeyRange&gt; removes = new ArrayList&lt;KeyRange&gt;();<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        for (KeyRange remove : mutations.getRemoveRanges())<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            removes.add(remove);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        if (!this.reads.intersection(new KeyRanges(removes)).isEmpty())<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            return true;                        // read/remove conflict<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>        // Check puts<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        for (Map.Entry&lt;byte[], byte[]&gt; entry : mutations.getPutPairs()) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            if (this.reads.contains(entry.getKey()))<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                return true;                    // read/write conflict<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>        // Check adjusts<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        for (Map.Entry&lt;byte[], Long&gt; entry : mutations.getAdjustPairs()) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            if (this.reads.contains(entry.getKey()))<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                return true;                    // read/adjust conflict<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        }<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>        // No conflicts<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        return false;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    }<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>// Serialization<a name="line.122"></a>
 <span class="sourceLineNo">123</span><a name="line.123"></a>
-<span class="sourceLineNo">124</span>// Serialization<a name="line.124"></a>
-<span class="sourceLineNo">125</span><a name="line.125"></a>
-<span class="sourceLineNo">126</span>    /**<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     * Serialize this instance.<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     *<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     * @param out output<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * @throws IOException if an error occurs<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     */<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    public void serialize(OutputStream out) throws IOException {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>        this.reads.serialize(out);<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
-<span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     * Calculate the number of bytes required to serialize this instance via {@link #serialize serialize()}.<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * @return number of serialized bytes<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     */<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    public long serializedLength() {<a name="line.141"></a>
-<span class="sourceLineNo">142</span>        return this.reads.serializedLength();<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    }<a name="line.143"></a>
-<span class="sourceLineNo">144</span><a name="line.144"></a>
-<span class="sourceLineNo">145</span>    /**<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     * Deserialize an instance created by {@link #serialize serialize()}.<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     *<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     * @param input input stream containing data from {@link #serialize serialize()}<a name="line.148"></a>
-<span class="sourceLineNo">149</span>     * @return deserialized instance<a name="line.149"></a>
-<span class="sourceLineNo">150</span>     * @throws IOException if an I/O error occurs<a name="line.150"></a>
-<span class="sourceLineNo">151</span>     * @throws java.io.EOFException if the input ends unexpectedly<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     * @throws IllegalArgumentException if malformed input is detected<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     * @throws IllegalArgumentException if {@code input} is null<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     */<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    public static Reads deserialize(InputStream input) throws IOException {<a name="line.155"></a>
-<span class="sourceLineNo">156</span>        Preconditions.checkArgument(input != null, "null input");<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        return new Reads(KeyRanges.deserialize(input));<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    }<a name="line.158"></a>
+<span class="sourceLineNo">124</span>    /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * Serialize this instance.<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     *<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * @param out output<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * @throws IOException if an error occurs<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    public void serialize(OutputStream out) throws IOException {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        this.reads.serialize(out);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>    /**<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * Calculate the number of bytes required to serialize this instance via {@link #serialize serialize()}.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     *<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * @return number of serialized bytes<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     */<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    public long serializedLength() {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        return this.reads.serializedLength();<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    /**<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * Deserialize an instance created by {@link #serialize serialize()}.<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     *<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * @param input input stream containing data from {@link #serialize serialize()}<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * @return deserialized instance<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     * @throws IOException if an I/O error occurs<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * @throws java.io.EOFException if the input ends unexpectedly<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * @throws IllegalArgumentException if malformed input is detected<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * @throws IllegalArgumentException if {@code input} is null<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     */<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    public static Reads deserialize(InputStream input) throws IOException {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        Preconditions.checkArgument(input != null, "null input");<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        return new Reads(KeyRanges.deserialize(input));<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>// SizeEstimating<a name="line.158"></a>
 <span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>// SizeEstimating<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>    @Override<a name="line.162"></a>
-<span class="sourceLineNo">163</span>    public void addTo(SizeEstimator estimator) {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        estimator<a name="line.164"></a>
-<span class="sourceLineNo">165</span>          .addObjectOverhead()<a name="line.165"></a>
-<span class="sourceLineNo">166</span>          .addField(this.reads);<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
+<span class="sourceLineNo">160</span>    @Override<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    public void addTo(SizeEstimator estimator) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        estimator<a name="line.162"></a>
+<span class="sourceLineNo">163</span>          .addObjectOverhead()<a name="line.163"></a>
+<span class="sourceLineNo">164</span>          .addField(this.reads);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>// Object<a name="line.167"></a>
 <span class="sourceLineNo">168</span><a name="line.168"></a>
-<span class="sourceLineNo">169</span>// Object<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>    @Override<a name="line.171"></a>
-<span class="sourceLineNo">172</span>    public String toString() {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        final Converter&lt;String, byte[]&gt; byteConverter = ByteUtil.STRING_CONVERTER.reverse();<a name="line.173"></a>
-<span class="sourceLineNo">174</span>        return this.getClass().getSimpleName()<a name="line.174"></a>
-<span class="sourceLineNo">175</span>          + "[reads=" + reads<a name="line.175"></a>
-<span class="sourceLineNo">176</span>          + "]";<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
-<span class="sourceLineNo">178</span>}<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">169</span>    @Override<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    public String toString() {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        final Converter&lt;String, byte[]&gt; byteConverter = ByteUtil.STRING_CONVERTER.reverse();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        return this.getClass().getSimpleName()<a name="line.172"></a>
+<span class="sourceLineNo">173</span>          + "[reads=" + reads<a name="line.173"></a>
+<span class="sourceLineNo">174</span>          + "]";<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
+<span class="sourceLineNo">176</span>}<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
 
 
 

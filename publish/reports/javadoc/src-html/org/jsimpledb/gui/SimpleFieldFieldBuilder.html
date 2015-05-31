@@ -9,117 +9,115 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.gui;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.gui;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.vaadin.shared.ui.datefield.Resolution;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.vaadin.ui.CheckBox;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import com.vaadin.ui.Field;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import com.vaadin.ui.PopupDateField;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import com.vaadin.ui.TextField;<a name="line.14"></a>
+<span class="sourceLineNo">008</span>import com.vaadin.shared.ui.datefield.Resolution;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.vaadin.ui.CheckBox;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import com.vaadin.ui.Field;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import com.vaadin.ui.PopupDateField;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import com.vaadin.ui.TextField;<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.util.Date;<a name="line.14"></a>
 <span class="sourceLineNo">015</span><a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.util.Date;<a name="line.16"></a>
-<span class="sourceLineNo">017</span><a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.dellroad.stuff.vaadin7.EnumComboBox;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.JReferenceField;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.JSimpleField;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.JTransaction;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.core.FieldType;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.parse.ParseSession;<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * Builds {@link Field}s for editing {@link JSimpleField} values.<a name="line.26"></a>
-<span class="sourceLineNo">027</span> */<a name="line.27"></a>
-<span class="sourceLineNo">028</span>@SuppressWarnings("serial")<a name="line.28"></a>
-<span class="sourceLineNo">029</span>public class SimpleFieldFieldBuilder {<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    private final JTransaction jtx;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>    private final JSimpleField jfield;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    private final ParseSession session;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    private final boolean allowNull;<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    /**<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     * Constructor.<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     *<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * @param jtx target transaction used by {@link JObjectChooser}<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * @param jfield the database {@link JSimpleField} for which to build a Vaadin {@link Field}<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * @param session session used by {@link JObjectChooser}<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * @param allowNull whether null values are allowed<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public SimpleFieldFieldBuilder(JTransaction jtx, JSimpleField jfield, ParseSession session, boolean allowNull) {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        if (jtx == null)<a name="line.45"></a>
-<span class="sourceLineNo">046</span>            throw new IllegalArgumentException("null jtx");<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        if (jfield == null)<a name="line.47"></a>
-<span class="sourceLineNo">048</span>            throw new IllegalArgumentException("null jfield");<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        if (session == null)<a name="line.49"></a>
-<span class="sourceLineNo">050</span>            throw new IllegalArgumentException("null session");<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        this.jtx = jtx;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        this.jfield = jfield;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        this.session = session;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>        this.allowNull = allowNull &amp;&amp; !jfield.getTypeToken().isPrimitive();<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>    /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * Build a {@link Field} appropriate for the configured {@link JSimpleField}.<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     *<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * @return Vaadin {@link Field} for editing the field value<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    public Field&lt;?&gt; buildField() {<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>        // Get property type<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        final Class&lt;?&gt; propertyType = jfield.getTypeToken().getRawType();<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>        // Build an appropriate field<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        Field&lt;?&gt; field;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        if (jfield instanceof JReferenceField)                                          // use object choosers for references<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            field = new ReferenceFieldField(this.jtx, this.session, jfield.getName(), jfield.getTypeToken().getRawType());<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        else if (Enum.class.isAssignableFrom(propertyType)) {                           // use ComboBox for Enum's<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            final EnumComboBox comboBox = this.createEnumComboBox(propertyType.asSubclass(Enum.class));<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            comboBox.setInputPrompt("Null");<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            field = comboBox;<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        } else if (propertyType.isAssignableFrom(Date.class)) {                         // use DatePicker for dates<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            final PopupDateField dateField = new PopupDateField();<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            dateField.setResolution(Resolution.SECOND);<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            field = dateField;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        } else if (propertyType == boolean.class || propertyType == Boolean.class)      // use CheckBox for booleans<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            field = new CheckBox();<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        else {                                                                          // use text field for all others<a name="line.81"></a>
-<span class="sourceLineNo">082</span>            final TextField textField = new TextField();<a name="line.82"></a>
-<span class="sourceLineNo">083</span>            textField.setWidth("100%");<a name="line.83"></a>
-<span class="sourceLineNo">084</span>            textField.setNullRepresentation("");<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            textField.setNullSettingAllowed(false);<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            final FieldType&lt;?&gt; fieldType = jfield.getFieldType();<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            textField.setConverter(this.buildSimpleFieldConverter(fieldType));<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            field = textField;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        }<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>        // Add a "Null" button if field can be null<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        if (this.allowNull)<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            field = this.addNullButton(field);<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>        // Done<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        return field;<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>    @SuppressWarnings({ "unchecked", "rawtypes" })<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    private &lt;T extends Enum&gt; EnumComboBox createEnumComboBox(Class&lt;T&gt; enumType) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        return new EnumComboBox(enumType, this.allowNull);<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    // This method exists solely to bind the generic type parameters<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    private &lt;T&gt; SimpleFieldConverter&lt;T&gt; buildSimpleFieldConverter(FieldType&lt;T&gt; fieldType) {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        return new SimpleFieldConverter&lt;T&gt;(fieldType);<a name="line.106"></a>
-<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
-<span class="sourceLineNo">109</span>    // This method exists solely to bind the generic type parameters<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    private &lt;T&gt; NullableField&lt;T&gt; addNullButton(Field&lt;T&gt; field) {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        return new NullableField&lt;T&gt;(field);<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
-<span class="sourceLineNo">113</span>}<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">016</span>import org.dellroad.stuff.vaadin7.EnumComboBox;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.JReferenceField;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.JSimpleField;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.JTransaction;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.core.FieldType;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.parse.ParseSession;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Builds {@link Field}s for editing {@link JSimpleField} values.<a name="line.24"></a>
+<span class="sourceLineNo">025</span> */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>@SuppressWarnings("serial")<a name="line.26"></a>
+<span class="sourceLineNo">027</span>public class SimpleFieldFieldBuilder {<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    private final JTransaction jtx;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    private final JSimpleField jfield;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    private final ParseSession session;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    private final boolean allowNull;<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>    /**<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * Constructor.<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     *<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * @param jtx target transaction used by {@link JObjectChooser}<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * @param jfield the database {@link JSimpleField} for which to build a Vaadin {@link Field}<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * @param session session used by {@link JObjectChooser}<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * @param allowNull whether null values are allowed<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    public SimpleFieldFieldBuilder(JTransaction jtx, JSimpleField jfield, ParseSession session, boolean allowNull) {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        if (jtx == null)<a name="line.43"></a>
+<span class="sourceLineNo">044</span>            throw new IllegalArgumentException("null jtx");<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        if (jfield == null)<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            throw new IllegalArgumentException("null jfield");<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        if (session == null)<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            throw new IllegalArgumentException("null session");<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        this.jtx = jtx;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        this.jfield = jfield;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        this.session = session;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        this.allowNull = allowNull &amp;&amp; !jfield.getTypeToken().isPrimitive();<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /**<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * Build a {@link Field} appropriate for the configured {@link JSimpleField}.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     *<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * @return Vaadin {@link Field} for editing the field value<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    public Field&lt;?&gt; buildField() {<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>        // Get property type<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        final Class&lt;?&gt; propertyType = jfield.getTypeToken().getRawType();<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>        // Build an appropriate field<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        Field&lt;?&gt; field;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        if (jfield instanceof JReferenceField)                                          // use object choosers for references<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            field = new ReferenceFieldField(this.jtx, this.session, jfield.getName(), jfield.getTypeToken().getRawType());<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        else if (Enum.class.isAssignableFrom(propertyType)) {                           // use ComboBox for Enum's<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            final EnumComboBox comboBox = this.createEnumComboBox(propertyType.asSubclass(Enum.class));<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            comboBox.setInputPrompt("Null");<a name="line.71"></a>
+<span class="sourceLineNo">072</span>            field = comboBox;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        } else if (propertyType.isAssignableFrom(Date.class)) {                         // use DatePicker for dates<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            final PopupDateField dateField = new PopupDateField();<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            dateField.setResolution(Resolution.SECOND);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            field = dateField;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        } else if (propertyType == boolean.class || propertyType == Boolean.class)      // use CheckBox for booleans<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            field = new CheckBox();<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        else {                                                                          // use text field for all others<a name="line.79"></a>
+<span class="sourceLineNo">080</span>            final TextField textField = new TextField();<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            textField.setWidth("100%");<a name="line.81"></a>
+<span class="sourceLineNo">082</span>            textField.setNullRepresentation("");<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            textField.setNullSettingAllowed(false);<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            final FieldType&lt;?&gt; fieldType = jfield.getFieldType();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            textField.setConverter(this.buildSimpleFieldConverter(fieldType));<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            field = textField;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>        // Add a "Null" button if field can be null<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        if (this.allowNull)<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            field = this.addNullButton(field);<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>        // Done<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        return field;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    @SuppressWarnings({ "unchecked", "rawtypes" })<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    private &lt;T extends Enum&gt; EnumComboBox createEnumComboBox(Class&lt;T&gt; enumType) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        return new EnumComboBox(enumType, this.allowNull);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    // This method exists solely to bind the generic type parameters<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    private &lt;T&gt; SimpleFieldConverter&lt;T&gt; buildSimpleFieldConverter(FieldType&lt;T&gt; fieldType) {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        return new SimpleFieldConverter&lt;T&gt;(fieldType);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    // This method exists solely to bind the generic type parameters<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    private &lt;T&gt; NullableField&lt;T&gt; addNullButton(Field&lt;T&gt; field) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        return new NullableField&lt;T&gt;(field);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span>}<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
 
 
 

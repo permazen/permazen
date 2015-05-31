@@ -9,100 +9,98 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.change;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.change;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import java.util.Map;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.Map;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.jsimpledb.JObject;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.JTransaction;<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>/**<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &amp;#64;OnChange}-annotated methods<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * when a new key/value pair is added to a map field.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> *<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * @param &lt;T&gt; the type of the object containing the changed field<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * @param &lt;K&gt; the type of the changed map's key<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * @param &lt;V&gt; the type of the changed map's value<a name="line.21"></a>
-<span class="sourceLineNo">022</span> */<a name="line.22"></a>
-<span class="sourceLineNo">023</span>public class MapFieldAdd&lt;T, K, V&gt; extends MapFieldChange&lt;T&gt; {<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>    private final K key;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>    private final V value;<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>    /**<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     * Constructor.<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     *<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @param jobj Java object containing the map field that changed<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * @param storageId the storage ID of the affected field<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * @param fieldName the name of the field that changed<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     * @param key the key of the new key/value pair<a name="line.34"></a>
-<span class="sourceLineNo">035</span>     * @param value the value of the new key/value pair<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     */<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    public MapFieldAdd(T jobj, int storageId, String fieldName, K key, V value) {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        super(jobj, storageId, fieldName);<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        this.key = key;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>        this.value = value;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    }<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>    @Override<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    public &lt;R&gt; R visit(ChangeSwitch&lt;R&gt; target) {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        return target.caseMapFieldAdd(this);<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    }<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
-<span class="sourceLineNo">049</span>    @Override<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    @SuppressWarnings("unchecked")<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    public void apply(JTransaction jtx, JObject jobj) {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        ((Map&lt;K, V&gt;)jtx.readMapField(jobj, this.getStorageId(), false)).put(this.key, this.value);<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
-<span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>    /**<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * Get the key of the new key/value pair that was added.<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     *<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @return the key of the newly added key/value pair<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public K getKey() {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        return this.key;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * Get the value of the new key/value pair that was added.<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * @return the value of the newly added key/value pair<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    public V getValue() {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        return this.value;<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">010</span>import org.jsimpledb.JObject;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.jsimpledb.JTransaction;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>/**<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &amp;#64;OnChange}-annotated methods<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * when a new key/value pair is added to a map field.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> *<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * @param &lt;T&gt; the type of the object containing the changed field<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * @param &lt;K&gt; the type of the changed map's key<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * @param &lt;V&gt; the type of the changed map's value<a name="line.19"></a>
+<span class="sourceLineNo">020</span> */<a name="line.20"></a>
+<span class="sourceLineNo">021</span>public class MapFieldAdd&lt;T, K, V&gt; extends MapFieldChange&lt;T&gt; {<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>    private final K key;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>    private final V value;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>    /**<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * Constructor.<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     *<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @param jobj Java object containing the map field that changed<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * @param storageId the storage ID of the affected field<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * @param fieldName the name of the field that changed<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * @param key the key of the new key/value pair<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * @param value the value of the new key/value pair<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * @throws IllegalArgumentException if {@code jobj} or {@code fieldName} is null<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    public MapFieldAdd(T jobj, int storageId, String fieldName, K key, V value) {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        super(jobj, storageId, fieldName);<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        this.key = key;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>        this.value = value;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    }<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    @Override<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    public &lt;R&gt; R visit(ChangeSwitch&lt;R&gt; target) {<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        return target.caseMapFieldAdd(this);<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    }<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    @Override<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    @SuppressWarnings("unchecked")<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    public void apply(JTransaction jtx, JObject jobj) {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        ((Map&lt;K, V&gt;)jtx.readMapField(jobj, this.getStorageId(), false)).put(this.key, this.value);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * Get the key of the new key/value pair that was added.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @return the key of the newly added key/value pair<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public K getKey() {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        return this.key;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * Get the value of the new key/value pair that was added.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     *<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @return the value of the newly added key/value pair<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    public V getValue() {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        return this.value;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    }<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>// Object<a name="line.71"></a>
 <span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>// Object<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    public boolean equals(Object obj) {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        if (obj == this)<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            return true;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        if (!super.equals(obj))<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            return false;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        final MapFieldAdd&lt;?, ?, ?&gt; that = (MapFieldAdd&lt;?, ?, ?&gt;)obj;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        return (this.key != null ? this.key.equals(that.key) : that.key == null)<a name="line.82"></a>
-<span class="sourceLineNo">083</span>          &amp;&amp; (this.value != null ? this.value.equals(that.value) : that.value == null);<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
-<span class="sourceLineNo">085</span><a name="line.85"></a>
-<span class="sourceLineNo">086</span>    @Override<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    public int hashCode() {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        return super.hashCode() ^ (this.key != null ? this.key.hashCode() : 0) ^ (this.value != null ? this.value.hashCode() : 0);<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>    @Override<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    public String toString() {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        return "MapFieldAdd[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",key="<a name="line.93"></a>
-<span class="sourceLineNo">094</span>          + this.key + ",value=" + this.value + "]";<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
-<span class="sourceLineNo">096</span>}<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">073</span>    @Override<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    public boolean equals(Object obj) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        if (obj == this)<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            return true;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        if (!super.equals(obj))<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            return false;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        final MapFieldAdd&lt;?, ?, ?&gt; that = (MapFieldAdd&lt;?, ?, ?&gt;)obj;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        return (this.key != null ? this.key.equals(that.key) : that.key == null)<a name="line.80"></a>
+<span class="sourceLineNo">081</span>          &amp;&amp; (this.value != null ? this.value.equals(that.value) : that.value == null);<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    @Override<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    public int hashCode() {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        return super.hashCode() ^ (this.key != null ? this.key.hashCode() : 0) ^ (this.value != null ? this.value.hashCode() : 0);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    @Override<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    public String toString() {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        return "MapFieldAdd[object=" + this.getObject() + ",field=\"" + this.getFieldName() + "\",key="<a name="line.91"></a>
+<span class="sourceLineNo">092</span>          + this.key + ",value=" + this.value + "]";<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>}<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
 
 
 

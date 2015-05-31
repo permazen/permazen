@@ -9,241 +9,239 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.util;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.util;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import java.util.Arrays;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.Arrays;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import javax.xml.namespace.QName;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import javax.xml.stream.XMLStreamConstants;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import javax.xml.stream.XMLStreamException;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import javax.xml.stream.XMLStreamReader;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import javax.xml.stream.XMLStreamWriter;<a name="line.16"></a>
-<span class="sourceLineNo">017</span><a name="line.17"></a>
-<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * Support superclass for classes that serialize and deserialize via XML.<a name="line.19"></a>
-<span class="sourceLineNo">020</span> */<a name="line.20"></a>
-<span class="sourceLineNo">021</span>public abstract class AbstractXMLStreaming {<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>    protected AbstractXMLStreaming() {<a name="line.23"></a>
-<span class="sourceLineNo">024</span>    }<a name="line.24"></a>
-<span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>    /**<a name="line.26"></a>
-<span class="sourceLineNo">027</span>     * Scan forward until we see an opening or closing tag.<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * If opening tag is seen, it must match one of {@code names} and then we return true, if not or if {@code names}<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     * is empty throw an exception; if a closing tag is seen, return false if {@code closingOK}, else throw exception.<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     *<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @param reader XML input<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * @param closingOK true if a closing tag is OK, otherwise false<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * @param names expected opening tag, or null if we expected a closing tag<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     * @return true if matching opening tag seen, false otherwise<a name="line.34"></a>
-<span class="sourceLineNo">035</span>     * @throws XMLStreamException if something unexpected is encountered<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     */<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    protected boolean expect(XMLStreamReader reader, boolean closingOK, QName... names) throws XMLStreamException {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        while (true) {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>            if (!reader.hasNext())<a name="line.39"></a>
-<span class="sourceLineNo">040</span>                throw new XMLStreamException("unexpected end of input", reader.getLocation());<a name="line.40"></a>
-<span class="sourceLineNo">041</span>            final int eventType = reader.next();<a name="line.41"></a>
-<span class="sourceLineNo">042</span>            if (eventType == XMLStreamConstants.START_ELEMENT)<a name="line.42"></a>
-<span class="sourceLineNo">043</span>                break;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>            if (eventType == XMLStreamConstants.END_ELEMENT) {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>                if (!closingOK) {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>                    throw new XMLStreamException("expected " + this.description(names) + " but found closing &lt;"<a name="line.46"></a>
-<span class="sourceLineNo">047</span>                      + reader.getName() + "&gt; tag instead", reader.getLocation());<a name="line.47"></a>
-<span class="sourceLineNo">048</span>                }<a name="line.48"></a>
-<span class="sourceLineNo">049</span>                return false;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>            }<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        }<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        if (names.length == 0) {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>            throw new XMLStreamException("expected closing tag but found opening &lt;"<a name="line.53"></a>
-<span class="sourceLineNo">054</span>              + reader.getName() + "&gt; tag instead", reader.getLocation());<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        }<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        if (!Arrays.asList(names).contains(reader.getName())) {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>            throw new XMLStreamException("expected " + this.description(names)<a name="line.57"></a>
-<span class="sourceLineNo">058</span>              + " but found &lt;" + reader.getName() + "&gt; instead", reader.getLocation());<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        }<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        return true;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     * Scan forward expecting to see a closing tag.<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     *<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * @param reader XML input<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * @throws XMLStreamException if something other than a closing tag is encountered<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    protected void expectClose(XMLStreamReader reader) throws XMLStreamException {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        this.expect(reader, true);<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>    private String description(QName[] names) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        switch (names.length) {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        case 0:<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            return "closing tag";<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        case 1:<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            return "opening &lt;" + names[0] + "&gt; tag";<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        default:<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            final StringBuilder buf = new StringBuilder();<a name="line.80"></a>
-<span class="sourceLineNo">081</span>            for (QName name : names) {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                if (buf.length() == 0)<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                    buf.append("one of ");<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                else<a name="line.84"></a>
-<span class="sourceLineNo">085</span>                    buf.append(", ");<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                buf.append('&lt;').append(name).append('&gt;');<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            }<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            return buf.toString();<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        }<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * Write out a simple XML element containing the given content.<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     *<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * @param writer XML output<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * @param element element name<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * @param content simple content<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * @throws XMLStreamException if error occurs writing output<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    protected void writeElement(XMLStreamWriter writer, QName element, String content) throws XMLStreamException {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        writer.writeStartElement(element.getNamespaceURI(), element.getLocalPart());<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        writer.writeCharacters(content);<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        writer.writeEndElement();<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>    /**<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * Get an attribute from the current element.<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     *<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * @param reader XML input<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * @param name attribute name<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * @param required whether attribute must be present<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     * @return attribute value, or null if not {@code required} and no attribute is present<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     * @throws XMLStreamException if {@code required} is true and no such attribute is found<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     */<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    protected String getAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        final String value = reader.getAttributeValue(name.getNamespaceURI(), name.getLocalPart());<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        if (value == null &amp;&amp; required) {<a name="line.118"></a>
-<span class="sourceLineNo">119</span>            throw new XMLStreamException("&lt;" + reader.getName().getLocalPart() + "&gt; element is missing required \""<a name="line.119"></a>
-<span class="sourceLineNo">120</span>              + name + "\" attribute", reader.getLocation());<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        }<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        return value;<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>    /**<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     * Get a requried attribute from the current element. Equivalent to: {@code getAttr(reader, name, true)}.<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     *<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     * @param reader XML input<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     * @param name attribute name<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * @return attribute value<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * @throws XMLStreamException if no such attribute is found<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     */<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    protected String getAttr(XMLStreamReader reader, QName name) throws XMLStreamException {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        return this.getAttr(reader, name, true);<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>    /**<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * Get an attribute from the current element and parse as a decimal integer value.<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     *<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * @param reader XML input<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     * @param name attribute name<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * @param required whether attribute must be present<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     * @return attribute value, or null if not {@code required} and no attribute is present<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     * @throws XMLStreamException if {@code required} is true and no such attribute is found<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     * @throws XMLStreamException if attribute is not an integer value<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     */<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    protected Integer getIntAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>        final String text = this.getAttr(reader, name, required);<a name="line.150"></a>
-<span class="sourceLineNo">151</span>        if (text == null)<a name="line.151"></a>
-<span class="sourceLineNo">152</span>            return null;<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        try {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            return Integer.parseInt(text, 10);<a name="line.154"></a>
-<span class="sourceLineNo">155</span>        } catch (NumberFormatException e) {<a name="line.155"></a>
-<span class="sourceLineNo">156</span>            throw new XMLStreamException("&lt;" + reader.getName().getLocalPart() + "&gt; element attribute \""<a name="line.156"></a>
-<span class="sourceLineNo">157</span>              + name + "\" value `" + text + "' is invalid: not a valid value", reader.getLocation(), e);<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        }<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    }<a name="line.159"></a>
-<span class="sourceLineNo">160</span><a name="line.160"></a>
-<span class="sourceLineNo">161</span>    /**<a name="line.161"></a>
-<span class="sourceLineNo">162</span>     * Get an attribute from the current element and parse as a decimal long value.<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     *<a name="line.163"></a>
-<span class="sourceLineNo">164</span>     * @param reader XML input<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     * @param name attribute name<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * @param required whether attribute must be present<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     * @return attribute value, or null if not {@code required} and no attribute is present<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     * @throws XMLStreamException if {@code required} is true and no such attribute is found<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     * @throws XMLStreamException if attribute is not an integer value<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     */<a name="line.171"></a>
-<span class="sourceLineNo">172</span>    protected Long getLongAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        final String text = this.getAttr(reader, name, required);<a name="line.173"></a>
-<span class="sourceLineNo">174</span>        if (text == null)<a name="line.174"></a>
-<span class="sourceLineNo">175</span>            return null;<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        try {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            return Long.parseLong(text, 10);<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        } catch (NumberFormatException e) {<a name="line.178"></a>
-<span class="sourceLineNo">179</span>            throw new XMLStreamException("&lt;" + reader.getName().getLocalPart() + "&gt; element attribute \""<a name="line.179"></a>
-<span class="sourceLineNo">180</span>              + name + "\" value `" + text + "' is invalid: not a valid long value", reader.getLocation(), e);<a name="line.180"></a>
-<span class="sourceLineNo">181</span>        }<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
-<span class="sourceLineNo">183</span><a name="line.183"></a>
-<span class="sourceLineNo">184</span>    /**<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     * Get a requried integer attribute from the current element. Equivalent to: {@code getIntAttr(reader, name, true)}.<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     *<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * @param reader XML input<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     * @param name attribute name<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     * @return attribute value<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     * @throws XMLStreamException if no such attribute is found<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     * @throws XMLStreamException if attribute is not an integer value<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     */<a name="line.193"></a>
-<span class="sourceLineNo">194</span>    protected int getIntAttr(XMLStreamReader reader, QName name) throws XMLStreamException {<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        return this.getIntAttr(reader, name, true);<a name="line.195"></a>
-<span class="sourceLineNo">196</span>    }<a name="line.196"></a>
-<span class="sourceLineNo">197</span><a name="line.197"></a>
-<span class="sourceLineNo">198</span>    /**<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     * Get an attribute from the current element and parse as a boolean value.<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     *<a name="line.200"></a>
-<span class="sourceLineNo">201</span>     * @param reader XML input<a name="line.201"></a>
-<span class="sourceLineNo">202</span>     * @param name attribute name<a name="line.202"></a>
-<span class="sourceLineNo">203</span>     * @param required whether attribute must be present<a name="line.203"></a>
-<span class="sourceLineNo">204</span>     * @return attribute value, or null if not {@code required} and no attribute is present<a name="line.204"></a>
-<span class="sourceLineNo">205</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     * @throws XMLStreamException if {@code required} is true and no such attribute is found<a name="line.206"></a>
-<span class="sourceLineNo">207</span>     * @throws XMLStreamException if attribute is not {@code "true"} or {@code "false"}<a name="line.207"></a>
-<span class="sourceLineNo">208</span>     */<a name="line.208"></a>
-<span class="sourceLineNo">209</span>    protected Boolean getBooleanAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {<a name="line.209"></a>
-<span class="sourceLineNo">210</span>        final String text = this.getAttr(reader, name, required);<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        if (text == null)<a name="line.211"></a>
-<span class="sourceLineNo">212</span>            return null;<a name="line.212"></a>
-<span class="sourceLineNo">213</span>        switch (text) {<a name="line.213"></a>
-<span class="sourceLineNo">214</span>        case "true":<a name="line.214"></a>
-<span class="sourceLineNo">215</span>            return true;<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        case "false":<a name="line.216"></a>
-<span class="sourceLineNo">217</span>            return false;<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        default:<a name="line.218"></a>
-<span class="sourceLineNo">219</span>            throw new XMLStreamException("&lt;" + reader.getName().getLocalPart() + "&gt; element attribute \""<a name="line.219"></a>
-<span class="sourceLineNo">220</span>              + name + "\" value `" + text + "' is invalid: expected either \"true\" or \"false\"", reader.getLocation());<a name="line.220"></a>
-<span class="sourceLineNo">221</span>        }<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    }<a name="line.222"></a>
-<span class="sourceLineNo">223</span><a name="line.223"></a>
-<span class="sourceLineNo">224</span>    /**<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     * Get a requried boolean attribute from the current element. Equivalent to: {@code getBooleanAttr(reader, name, true)}.<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     *<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     * @param reader XML input<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     * @param name attribute name<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     * @return attribute value<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.230"></a>
-<span class="sourceLineNo">231</span>     * @throws XMLStreamException if no such attribute is found<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     * @throws XMLStreamException if attribute is not {@code "true"} or {@code "false"}<a name="line.232"></a>
-<span class="sourceLineNo">233</span>     */<a name="line.233"></a>
-<span class="sourceLineNo">234</span>    protected boolean getBooleanAttr(XMLStreamReader reader, QName name) throws XMLStreamException {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>        return this.getBooleanAttr(reader, name, true);<a name="line.235"></a>
-<span class="sourceLineNo">236</span>    }<a name="line.236"></a>
-<span class="sourceLineNo">237</span>}<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
+<span class="sourceLineNo">010</span>import javax.xml.namespace.QName;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.xml.stream.XMLStreamConstants;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.xml.stream.XMLStreamException;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.xml.stream.XMLStreamReader;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import javax.xml.stream.XMLStreamWriter;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>/**<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * Support superclass for classes that serialize and deserialize via XML.<a name="line.17"></a>
+<span class="sourceLineNo">018</span> */<a name="line.18"></a>
+<span class="sourceLineNo">019</span>public abstract class AbstractXMLStreaming {<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>    protected AbstractXMLStreaming() {<a name="line.21"></a>
+<span class="sourceLineNo">022</span>    }<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>    /**<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     * Scan forward until we see an opening or closing tag.<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * If opening tag is seen, it must match one of {@code names} and then we return true, if not or if {@code names}<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * is empty throw an exception; if a closing tag is seen, return false if {@code closingOK}, else throw exception.<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     *<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @param reader XML input<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * @param closingOK true if a closing tag is OK, otherwise false<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * @param names expected opening tag, or null if we expected a closing tag<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * @return true if matching opening tag seen, false otherwise<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * @throws XMLStreamException if something unexpected is encountered<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    protected boolean expect(XMLStreamReader reader, boolean closingOK, QName... names) throws XMLStreamException {<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        while (true) {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>            if (!reader.hasNext())<a name="line.37"></a>
+<span class="sourceLineNo">038</span>                throw new XMLStreamException("unexpected end of input", reader.getLocation());<a name="line.38"></a>
+<span class="sourceLineNo">039</span>            final int eventType = reader.next();<a name="line.39"></a>
+<span class="sourceLineNo">040</span>            if (eventType == XMLStreamConstants.START_ELEMENT)<a name="line.40"></a>
+<span class="sourceLineNo">041</span>                break;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>            if (eventType == XMLStreamConstants.END_ELEMENT) {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>                if (!closingOK) {<a name="line.43"></a>
+<span class="sourceLineNo">044</span>                    throw new XMLStreamException("expected " + this.description(names) + " but found closing &lt;"<a name="line.44"></a>
+<span class="sourceLineNo">045</span>                      + reader.getName() + "&gt; tag instead", reader.getLocation());<a name="line.45"></a>
+<span class="sourceLineNo">046</span>                }<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                return false;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            }<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        }<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        if (names.length == 0) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            throw new XMLStreamException("expected closing tag but found opening &lt;"<a name="line.51"></a>
+<span class="sourceLineNo">052</span>              + reader.getName() + "&gt; tag instead", reader.getLocation());<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        }<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        if (!Arrays.asList(names).contains(reader.getName())) {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            throw new XMLStreamException("expected " + this.description(names)<a name="line.55"></a>
+<span class="sourceLineNo">056</span>              + " but found &lt;" + reader.getName() + "&gt; instead", reader.getLocation());<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        }<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        return true;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * Scan forward expecting to see a closing tag.<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     *<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @param reader XML input<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @throws XMLStreamException if something other than a closing tag is encountered<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    protected void expectClose(XMLStreamReader reader) throws XMLStreamException {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        this.expect(reader, true);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    }<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>    private String description(QName[] names) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        switch (names.length) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        case 0:<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            return "closing tag";<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        case 1:<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            return "opening &lt;" + names[0] + "&gt; tag";<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        default:<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            final StringBuilder buf = new StringBuilder();<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            for (QName name : names) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                if (buf.length() == 0)<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                    buf.append("one of ");<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                else<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                    buf.append(", ");<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                buf.append('&lt;').append(name).append('&gt;');<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            }<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            return buf.toString();<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>    /**<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * Write out a simple XML element containing the given content.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param writer XML output<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @param element element name<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @param content simple content<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @throws XMLStreamException if error occurs writing output<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    protected void writeElement(XMLStreamWriter writer, QName element, String content) throws XMLStreamException {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        writer.writeStartElement(element.getNamespaceURI(), element.getLocalPart());<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        writer.writeCharacters(content);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        writer.writeEndElement();<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * Get an attribute from the current element.<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     *<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @param reader XML input<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * @param name attribute name<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * @param required whether attribute must be present<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * @return attribute value, or null if not {@code required} and no attribute is present<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * @throws XMLStreamException if {@code required} is true and no such attribute is found<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    protected String getAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        final String value = reader.getAttributeValue(name.getNamespaceURI(), name.getLocalPart());<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        if (value == null &amp;&amp; required) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            throw new XMLStreamException("&lt;" + reader.getName().getLocalPart() + "&gt; element is missing required \""<a name="line.117"></a>
+<span class="sourceLineNo">118</span>              + name + "\" attribute", reader.getLocation());<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        }<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        return value;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    /**<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * Get a requried attribute from the current element. Equivalent to: {@code getAttr(reader, name, true)}.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     *<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * @param reader XML input<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * @param name attribute name<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * @return attribute value<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * @throws XMLStreamException if no such attribute is found<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     */<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    protected String getAttr(XMLStreamReader reader, QName name) throws XMLStreamException {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        return this.getAttr(reader, name, true);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * Get an attribute from the current element and parse as a decimal integer value.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * @param reader XML input<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * @param name attribute name<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @param required whether attribute must be present<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * @return attribute value, or null if not {@code required} and no attribute is present<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * @throws XMLStreamException if {@code required} is true and no such attribute is found<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * @throws XMLStreamException if attribute is not an integer value<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    protected Integer getIntAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        final String text = this.getAttr(reader, name, required);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        if (text == null)<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            return null;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        try {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            return Integer.parseInt(text, 10);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        } catch (NumberFormatException e) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            throw new XMLStreamException("&lt;" + reader.getName().getLocalPart() + "&gt; element attribute \""<a name="line.154"></a>
+<span class="sourceLineNo">155</span>              + name + "\" value `" + text + "' is invalid: not a valid value", reader.getLocation(), e);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        }<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    }<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>    /**<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * Get an attribute from the current element and parse as a decimal long value.<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     *<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * @param reader XML input<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @param name attribute name<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * @param required whether attribute must be present<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * @return attribute value, or null if not {@code required} and no attribute is present<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * @throws XMLStreamException if {@code required} is true and no such attribute is found<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * @throws XMLStreamException if attribute is not an integer value<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     */<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    protected Long getLongAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        final String text = this.getAttr(reader, name, required);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        if (text == null)<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            return null;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        try {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            return Long.parseLong(text, 10);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        } catch (NumberFormatException e) {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            throw new XMLStreamException("&lt;" + reader.getName().getLocalPart() + "&gt; element attribute \""<a name="line.177"></a>
+<span class="sourceLineNo">178</span>              + name + "\" value `" + text + "' is invalid: not a valid long value", reader.getLocation(), e);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        }<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    }<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>    /**<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * Get a requried integer attribute from the current element. Equivalent to: {@code getIntAttr(reader, name, true)}.<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     *<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * @param reader XML input<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * @param name attribute name<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * @return attribute value<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * @throws XMLStreamException if no such attribute is found<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * @throws XMLStreamException if attribute is not an integer value<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     */<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    protected int getIntAttr(XMLStreamReader reader, QName name) throws XMLStreamException {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        return this.getIntAttr(reader, name, true);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    }<a name="line.194"></a>
+<span class="sourceLineNo">195</span><a name="line.195"></a>
+<span class="sourceLineNo">196</span>    /**<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * Get an attribute from the current element and parse as a boolean value.<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     *<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * @param reader XML input<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * @param name attribute name<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * @param required whether attribute must be present<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * @return attribute value, or null if not {@code required} and no attribute is present<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * @throws XMLStreamException if {@code required} is true and no such attribute is found<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * @throws XMLStreamException if attribute is not {@code "true"} or {@code "false"}<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     */<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    protected Boolean getBooleanAttr(XMLStreamReader reader, QName name, boolean required) throws XMLStreamException {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        final String text = this.getAttr(reader, name, required);<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        if (text == null)<a name="line.209"></a>
+<span class="sourceLineNo">210</span>            return null;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        switch (text) {<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        case "true":<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            return true;<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        case "false":<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            return false;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        default:<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            throw new XMLStreamException("&lt;" + reader.getName().getLocalPart() + "&gt; element attribute \""<a name="line.217"></a>
+<span class="sourceLineNo">218</span>              + name + "\" value `" + text + "' is invalid: expected either \"true\" or \"false\"", reader.getLocation());<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        }<a name="line.219"></a>
+<span class="sourceLineNo">220</span>    }<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>    /**<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * Get a requried boolean attribute from the current element. Equivalent to: {@code getBooleanAttr(reader, name, true)}.<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     *<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * @param reader XML input<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * @param name attribute name<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * @return attribute value<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * @throws IllegalStateException if the current event is not a start element event<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * @throws XMLStreamException if no such attribute is found<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * @throws XMLStreamException if attribute is not {@code "true"} or {@code "false"}<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     */<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    protected boolean getBooleanAttr(XMLStreamReader reader, QName name) throws XMLStreamException {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        return this.getBooleanAttr(reader, name, true);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    }<a name="line.234"></a>
+<span class="sourceLineNo">235</span>}<a name="line.235"></a>
+<span class="sourceLineNo">236</span><a name="line.236"></a>
 
 
 

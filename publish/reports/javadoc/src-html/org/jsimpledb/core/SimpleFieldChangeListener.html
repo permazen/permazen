@@ -9,45 +9,43 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.core;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.core;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import java.util.NavigableSet;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.NavigableSet;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>/**<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * Listener interface for notifications of a change in value of a {@link SimpleField}.<a name="line.13"></a>
-<span class="sourceLineNo">014</span> *<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * @see Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()<a name="line.15"></a>
-<span class="sourceLineNo">016</span> */<a name="line.16"></a>
-<span class="sourceLineNo">017</span>public interface SimpleFieldChangeListener {<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>    /**<a name="line.19"></a>
-<span class="sourceLineNo">020</span>     * Receive notification of a change in the value of a {@link SimpleField} in an object.<a name="line.20"></a>
-<span class="sourceLineNo">021</span>     *<a name="line.21"></a>
-<span class="sourceLineNo">022</span>     * &lt;p&gt;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>     * Notifications are only delivered when the set of referring objects is non-empty.<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     * &lt;/p&gt;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     *<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     * &lt;p&gt;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>     * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * &lt;/p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     *<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     * @param tx associated transaction<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @param id the ID of the affected object (i.e., the object containing the field that changed)<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * @param field the field that changed<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * @param path path of reference fields (represented by storage IDs) that lead to {@code id}<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     * @param referrers all objects that (indirectly) refer to the affected object via the {@code path}<a name="line.34"></a>
-<span class="sourceLineNo">035</span>     * @param oldValue the field's previous value<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     * @param newValue the field's new value<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     * @param &lt;V&gt; Java type for {@code field}'s values<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    &lt;V&gt; void onSimpleFieldChange(Transaction tx, ObjId id, SimpleField&lt;V&gt; field,<a name="line.39"></a>
-<span class="sourceLineNo">040</span>      int[] path, NavigableSet&lt;ObjId&gt; referrers, V oldValue, V newValue);<a name="line.40"></a>
-<span class="sourceLineNo">041</span>}<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Listener interface for notifications of a change in value of a {@link SimpleField}.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> *<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * @see Transaction#addSimpleFieldChangeListener Transaction.addSimpleFieldChangeListener()<a name="line.13"></a>
+<span class="sourceLineNo">014</span> */<a name="line.14"></a>
+<span class="sourceLineNo">015</span>public interface SimpleFieldChangeListener {<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>    /**<a name="line.17"></a>
+<span class="sourceLineNo">018</span>     * Receive notification of a change in the value of a {@link SimpleField} in an object.<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     *<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     * &lt;p&gt;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * Notifications are only delivered when the set of referring objects is non-empty.<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     * &lt;/p&gt;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     *<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * &lt;p&gt;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * &lt;/p&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     *<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     * @param tx associated transaction<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @param id the ID of the affected object (i.e., the object containing the field that changed)<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * @param field the field that changed<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * @param path path of reference fields (represented by storage IDs) that lead to {@code id}<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * @param referrers all objects that (indirectly) refer to the affected object via the {@code path}<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * @param oldValue the field's previous value<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * @param newValue the field's new value<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * @param &lt;V&gt; Java type for {@code field}'s values<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    &lt;V&gt; void onSimpleFieldChange(Transaction tx, ObjId id, SimpleField&lt;V&gt; field,<a name="line.37"></a>
+<span class="sourceLineNo">038</span>      int[] path, NavigableSet&lt;ObjId&gt; referrers, V oldValue, V newValue);<a name="line.38"></a>
+<span class="sourceLineNo">039</span>}<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
 
 
 

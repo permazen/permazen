@@ -9,56 +9,54 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.raft.msg;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.raft.msg;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import java.nio.ByteBuffer;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.nio.ByteBuffer;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>/**<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * Sent from a follower to a candidate to grant a vote during an election.<a name="line.13"></a>
-<span class="sourceLineNo">014</span> */<a name="line.14"></a>
-<span class="sourceLineNo">015</span>public class GrantVote extends Message {<a name="line.15"></a>
+<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Sent from a follower to a candidate to grant a vote during an election.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>public class GrantVote extends Message {<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>// Constructors<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>// Constructors<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>    /**<a name="line.19"></a>
-<span class="sourceLineNo">020</span>     * Constructor.<a name="line.20"></a>
-<span class="sourceLineNo">021</span>     *<a name="line.21"></a>
-<span class="sourceLineNo">022</span>     * @param clusterId cluster ID<a name="line.22"></a>
-<span class="sourceLineNo">023</span>     * @param senderId sending node identity<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     * @param recipientId identity of recipient<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     * @param term current term<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     */<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    public GrantVote(int clusterId, String senderId, String recipientId, long term) {<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        super(Message.GRANT_VOTE_TYPE, clusterId, senderId, recipientId, term);<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    }<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    GrantVote(ByteBuffer buf) {<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        super(Message.GRANT_VOTE_TYPE, buf);<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    }<a name="line.33"></a>
+<span class="sourceLineNo">017</span>    /**<a name="line.17"></a>
+<span class="sourceLineNo">018</span>     * Constructor.<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     *<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     * @param clusterId cluster ID<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * @param senderId sending node identity<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     * @param recipientId identity of recipient<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * @param term current term<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    public GrantVote(int clusterId, String senderId, String recipientId, long term) {<a name="line.25"></a>
+<span class="sourceLineNo">026</span>        super(Message.GRANT_VOTE_TYPE, clusterId, senderId, recipientId, term);<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    }<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    GrantVote(ByteBuffer buf) {<a name="line.29"></a>
+<span class="sourceLineNo">030</span>        super(Message.GRANT_VOTE_TYPE, buf);<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    }<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>// Message<a name="line.33"></a>
 <span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>// Message<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>    @Override<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    public void visit(MessageSwitch handler) {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        handler.caseGrantVote(this);<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    }<a name="line.40"></a>
+<span class="sourceLineNo">035</span>    @Override<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    public void visit(MessageSwitch handler) {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        handler.caseGrantVote(this);<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>// Object<a name="line.40"></a>
 <span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>// Object<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>    @Override<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    public String toString() {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        return this.getClass().getSimpleName()<a name="line.46"></a>
-<span class="sourceLineNo">047</span>          + "[\"" + this.getSenderId() + "\"-&gt;\"" + this.getRecipientId() + "\""<a name="line.47"></a>
-<span class="sourceLineNo">048</span>          + ",clusterId=" + String.format("%08x", this.getClusterId())<a name="line.48"></a>
-<span class="sourceLineNo">049</span>          + ",term=" + this.getTerm()<a name="line.49"></a>
-<span class="sourceLineNo">050</span>          + "]";<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
-<span class="sourceLineNo">052</span>}<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">042</span>    @Override<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    public String toString() {<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        return this.getClass().getSimpleName()<a name="line.44"></a>
+<span class="sourceLineNo">045</span>          + "[\"" + this.getSenderId() + "\"-&gt;\"" + this.getRecipientId() + "\""<a name="line.45"></a>
+<span class="sourceLineNo">046</span>          + ",clusterId=" + String.format("%08x", this.getClusterId())<a name="line.46"></a>
+<span class="sourceLineNo">047</span>          + ",term=" + this.getTerm()<a name="line.47"></a>
+<span class="sourceLineNo">048</span>          + "]";<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
+<span class="sourceLineNo">050</span>}<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
 
 
 

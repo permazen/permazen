@@ -9,530 +9,528 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.raft.msg;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.raft.msg;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.base.Preconditions;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.io.IOException;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.io.StringWriter;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.nio.BufferOverflowException;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.nio.BufferUnderflowException;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.nio.ByteBuffer;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import java.nio.ReadOnlyBufferException;<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.dellroad.stuff.io.ByteBufferInputStream;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.dellroad.stuff.io.ByteBufferOutputStream;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.kv.mvcc.Reads;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.kv.mvcc.Writes;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.kv.raft.Timestamp;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.util.ByteUtil;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.util.LongEncoder;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jsimpledb.util.UnsignedIntEncoder;<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * Support superclass for Raft messages.<a name="line.29"></a>
-<span class="sourceLineNo">030</span> */<a name="line.30"></a>
-<span class="sourceLineNo">031</span>public abstract class Message {<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>    // Codes identifying serialized message type<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    static final byte APPEND_REQUEST_TYPE = 1;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>    static final byte APPEND_RESPONSE_TYPE = 2;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    static final byte COMMIT_REQUEST_TYPE = 3;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    static final byte COMMIT_RESPONSE_TYPE = 4;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    static final byte GRANT_VOTE_TYPE = 5;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    static final byte INSTALL_SNAPSHOT_TYPE = 6;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    static final byte REQUEST_VOTE_TYPE = 7;<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>    // Serialization version number<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    private static final byte VERSION_1 = 1;<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    // Minimum buffer size to use a direct buffer<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    private static final int MIN_DIRECT_BUFFER_SIZE = 128;<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    private final byte type;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    private final int clusterId;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    private final String senderId;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    private final String recipientId;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    private final long term;<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    protected Message(byte type, int clusterId, String senderId, String recipientId, long term) {<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        this.type = type;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        this.clusterId = clusterId;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        this.senderId = senderId;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        this.recipientId = recipientId;<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        this.term = term;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
-<span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>    protected Message(byte type, ByteBuffer buf) {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        this.type = type;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        this.clusterId = buf.getInt();<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        this.senderId = Message.getString(buf);<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        this.recipientId = Message.getString(buf);<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        this.term = LongEncoder.read(buf);<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    void checkArguments() {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        Preconditions.checkArgument(this.type &gt;= APPEND_REQUEST_TYPE &amp;&amp; this.type &lt;= REQUEST_VOTE_TYPE);<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        Preconditions.checkArgument(this.clusterId != 0);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        Preconditions.checkArgument(this.senderId != null);<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        Preconditions.checkArgument(this.recipientId != null);<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        Preconditions.checkArgument(this.term &gt; 0);<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">010</span>import java.io.IOException;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.io.StringWriter;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.nio.BufferOverflowException;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.nio.BufferUnderflowException;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.nio.ByteBuffer;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.nio.ReadOnlyBufferException;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.dellroad.stuff.io.ByteBufferInputStream;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.dellroad.stuff.io.ByteBufferOutputStream;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.kv.mvcc.Reads;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.kv.mvcc.Writes;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.kv.raft.Timestamp;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.util.ByteUtil;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.util.LongEncoder;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jsimpledb.util.UnsignedIntEncoder;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>/**<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * Support superclass for Raft messages.<a name="line.27"></a>
+<span class="sourceLineNo">028</span> */<a name="line.28"></a>
+<span class="sourceLineNo">029</span>public abstract class Message {<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>    // Codes identifying serialized message type<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    static final byte APPEND_REQUEST_TYPE = 1;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    static final byte APPEND_RESPONSE_TYPE = 2;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    static final byte COMMIT_REQUEST_TYPE = 3;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    static final byte COMMIT_RESPONSE_TYPE = 4;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    static final byte GRANT_VOTE_TYPE = 5;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    static final byte INSTALL_SNAPSHOT_TYPE = 6;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    static final byte REQUEST_VOTE_TYPE = 7;<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    // Serialization version number<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    private static final byte VERSION_1 = 1;<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    // Minimum buffer size to use a direct buffer<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private static final int MIN_DIRECT_BUFFER_SIZE = 128;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private final byte type;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    private final int clusterId;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private final String senderId;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    private final String recipientId;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    private final long term;<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    protected Message(byte type, int clusterId, String senderId, String recipientId, long term) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        this.type = type;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        this.clusterId = clusterId;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        this.senderId = senderId;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        this.recipientId = recipientId;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        this.term = term;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    }<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    protected Message(byte type, ByteBuffer buf) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        this.type = type;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        this.clusterId = buf.getInt();<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        this.senderId = Message.getString(buf);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        this.recipientId = Message.getString(buf);<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        this.term = LongEncoder.read(buf);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    void checkArguments() {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        Preconditions.checkArgument(this.type &gt;= APPEND_REQUEST_TYPE &amp;&amp; this.type &lt;= REQUEST_VOTE_TYPE);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        Preconditions.checkArgument(this.clusterId != 0);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        Preconditions.checkArgument(this.senderId != null);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        Preconditions.checkArgument(this.recipientId != null);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        Preconditions.checkArgument(this.term &gt; 0);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>// Properties<a name="line.76"></a>
 <span class="sourceLineNo">077</span><a name="line.77"></a>
-<span class="sourceLineNo">078</span>// Properties<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * Get the cluster ID of the sender.<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * @return sender's cluster ID<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    public int getClusterId() {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        return this.clusterId;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    /**<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     * Get the identity of the sender.<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * @return sender's unique identity string<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     */<a name="line.93"></a>
-<span class="sourceLineNo">094</span>    public String getSenderId() {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        return this.senderId;<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    /**<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * Get the identity of the recipient.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     *<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * @return recipient's unique identity string<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     */<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    public String getRecipientId() {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        return this.recipientId;<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>    /**<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * Get the term of the sender of this message.<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     *<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * @return requester's unique ID<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     */<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    public long getTerm() {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        return this.term;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>    /**<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     * Determine whether this message is only sent by leaders.<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     *<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     * @return true if receipt of this message implies sender is a leader<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     */<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    public boolean isLeaderMessage() {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        return false;<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">078</span>    /**<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * Get the cluster ID of the sender.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     *<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @return sender's cluster ID<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    public int getClusterId() {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        return this.clusterId;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * Get the identity of the sender.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     *<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * @return sender's unique identity string<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    public String getSenderId() {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        return this.senderId;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    /**<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * Get the identity of the recipient.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     *<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @return recipient's unique identity string<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    public String getRecipientId() {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        return this.recipientId;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>    /**<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * Get the term of the sender of this message.<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     *<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * @return requester's unique ID<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    public long getTerm() {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        return this.term;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    /**<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * Determine whether this message is only sent by leaders.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     *<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @return true if receipt of this message implies sender is a leader<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    public boolean isLeaderMessage() {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        return false;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>// MessageSwitch<a name="line.123"></a>
 <span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>// MessageSwitch<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>    /**<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     * Apply the visitor pattern based on this instance's type.<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     *<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * @param handler target for visit<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     */<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    public abstract void visit(MessageSwitch handler);<a name="line.132"></a>
+<span class="sourceLineNo">125</span>    /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * Apply the visitor pattern based on this instance's type.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * @param handler target for visit<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    public abstract void visit(MessageSwitch handler);<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>// (De)serialization methods<a name="line.132"></a>
 <span class="sourceLineNo">133</span><a name="line.133"></a>
-<span class="sourceLineNo">134</span>// (De)serialization methods<a name="line.134"></a>
-<span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     * Decode a message from the given input.<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * &lt;p&gt;<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     * Note that data is not necessarily copied out of {@code buf}, so the returned instance may become invalid<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * if the data in {@code buf} gets overwritten.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     *<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * @param buf source for encoded message<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     * @return decoded message<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * @throws java.nio.BufferUnderflowException if there is not enough data<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     * @throws IllegalArgumentException if encoded message is bogus<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     * @throws IllegalArgumentException if there is trailing garbage<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     */<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    public static Message decode(ByteBuffer buf) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>        // Check encoding format version<a name="line.151"></a>
-<span class="sourceLineNo">152</span>        final byte version = buf.get();<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        switch (version) {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>        case Message.VERSION_1:<a name="line.154"></a>
-<span class="sourceLineNo">155</span>            break;<a name="line.155"></a>
-<span class="sourceLineNo">156</span>        default:<a name="line.156"></a>
-<span class="sourceLineNo">157</span>            throw new IllegalArgumentException("unrecognized message format version " + version);<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        }<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>        // Read type and decode message<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        final Message msg;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        final byte type = buf.get();<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        switch (type) {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        case APPEND_REQUEST_TYPE:<a name="line.164"></a>
-<span class="sourceLineNo">165</span>            msg = new AppendRequest(buf);<a name="line.165"></a>
-<span class="sourceLineNo">166</span>            break;<a name="line.166"></a>
-<span class="sourceLineNo">167</span>        case APPEND_RESPONSE_TYPE:<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            msg = new AppendResponse(buf);<a name="line.168"></a>
-<span class="sourceLineNo">169</span>            break;<a name="line.169"></a>
-<span class="sourceLineNo">170</span>        case COMMIT_REQUEST_TYPE:<a name="line.170"></a>
-<span class="sourceLineNo">171</span>            msg = new CommitRequest(buf);<a name="line.171"></a>
-<span class="sourceLineNo">172</span>            break;<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        case COMMIT_RESPONSE_TYPE:<a name="line.173"></a>
-<span class="sourceLineNo">174</span>            msg = new CommitResponse(buf);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>            break;<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        case GRANT_VOTE_TYPE:<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            msg = new GrantVote(buf);<a name="line.177"></a>
-<span class="sourceLineNo">178</span>            break;<a name="line.178"></a>
-<span class="sourceLineNo">179</span>        case INSTALL_SNAPSHOT_TYPE:<a name="line.179"></a>
-<span class="sourceLineNo">180</span>            msg = new InstallSnapshot(buf);<a name="line.180"></a>
-<span class="sourceLineNo">181</span>            break;<a name="line.181"></a>
-<span class="sourceLineNo">182</span>        case REQUEST_VOTE_TYPE:<a name="line.182"></a>
-<span class="sourceLineNo">183</span>            msg = new RequestVote(buf);<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            break;<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        default:<a name="line.185"></a>
-<span class="sourceLineNo">186</span>            throw new IllegalArgumentException("invalid message type " + type);<a name="line.186"></a>
-<span class="sourceLineNo">187</span>        }<a name="line.187"></a>
-<span class="sourceLineNo">188</span><a name="line.188"></a>
-<span class="sourceLineNo">189</span>        // Check for trailing garbage<a name="line.189"></a>
-<span class="sourceLineNo">190</span>        if (buf.hasRemaining())<a name="line.190"></a>
-<span class="sourceLineNo">191</span>            throw new IllegalArgumentException("buffer contains " + buf.remaining() + " bytes of extra garbage after " + msg);<a name="line.191"></a>
-<span class="sourceLineNo">192</span><a name="line.192"></a>
-<span class="sourceLineNo">193</span>        // Done<a name="line.193"></a>
-<span class="sourceLineNo">194</span>        return msg;<a name="line.194"></a>
-<span class="sourceLineNo">195</span>    }<a name="line.195"></a>
-<span class="sourceLineNo">196</span><a name="line.196"></a>
-<span class="sourceLineNo">197</span>    /**<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     * Serialize this instance.<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     *<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     * @return encoded message<a name="line.200"></a>
-<span class="sourceLineNo">201</span>     */<a name="line.201"></a>
-<span class="sourceLineNo">202</span>    public ByteBuffer encode() {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        final int size = this.calculateSize();<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        final ByteBuffer buf = size &gt;= MIN_DIRECT_BUFFER_SIZE ? ByteBuffer.allocateDirect(size) : ByteBuffer.allocate(size);<a name="line.204"></a>
-<span class="sourceLineNo">205</span>        this.writeTo(buf);<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        if (buf.hasRemaining())<a name="line.206"></a>
-<span class="sourceLineNo">207</span>            throw new RuntimeException("internal error: " + buf.remaining() + " remaining bytes in buffer from " + this);<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        return (ByteBuffer)buf.flip();<a name="line.208"></a>
-<span class="sourceLineNo">209</span>    }<a name="line.209"></a>
-<span class="sourceLineNo">210</span><a name="line.210"></a>
-<span class="sourceLineNo">211</span>    /**<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     * Serialize this instance into the given buffer.<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     *<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     * @param buf destination for encoded data<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     * @throws java.nio.BufferOverflowException if data overflows {@code buf}<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     */<a name="line.216"></a>
-<span class="sourceLineNo">217</span>    public void writeTo(ByteBuffer buf) {<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        buf.put(Message.VERSION_1);<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        buf.put(this.type);<a name="line.219"></a>
-<span class="sourceLineNo">220</span>        buf.putInt(this.clusterId);<a name="line.220"></a>
-<span class="sourceLineNo">221</span>        Message.putString(buf, this.senderId);<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        Message.putString(buf, this.recipientId);<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        LongEncoder.write(buf, this.term);<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span><a name="line.225"></a>
-<span class="sourceLineNo">226</span>    /**<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     * Calculate an upper bound on the number of bytes required by {@link #writeTo writeTo()}.<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     *<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     * @return an upper bound on the number of encoded bytes<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     */<a name="line.230"></a>
-<span class="sourceLineNo">231</span>    protected int calculateSize() {<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        return 1<a name="line.232"></a>
-<span class="sourceLineNo">233</span>          + 1<a name="line.233"></a>
-<span class="sourceLineNo">234</span>          + 4<a name="line.234"></a>
-<span class="sourceLineNo">235</span>          + Message.calculateSize(this.senderId)<a name="line.235"></a>
-<span class="sourceLineNo">236</span>          + Message.calculateSize(this.recipientId)<a name="line.236"></a>
-<span class="sourceLineNo">237</span>          + LongEncoder.encodeLength(this.term);<a name="line.237"></a>
-<span class="sourceLineNo">238</span>    }<a name="line.238"></a>
+<span class="sourceLineNo">134</span>    /**<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * Decode a message from the given input.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     *<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * &lt;p&gt;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * Note that data is not necessarily copied out of {@code buf}, so the returned instance may become invalid<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * if the data in {@code buf} gets overwritten.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     *<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @param buf source for encoded message<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * @return decoded message<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * @throws java.nio.BufferUnderflowException if there is not enough data<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * @throws IllegalArgumentException if encoded message is bogus<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * @throws IllegalArgumentException if there is trailing garbage<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    public static Message decode(ByteBuffer buf) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>        // Check encoding format version<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        final byte version = buf.get();<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        switch (version) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        case Message.VERSION_1:<a name="line.152"></a>
+<span class="sourceLineNo">153</span>            break;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        default:<a name="line.154"></a>
+<span class="sourceLineNo">155</span>            throw new IllegalArgumentException("unrecognized message format version " + version);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>        // Read type and decode message<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        final Message msg;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        final byte type = buf.get();<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        switch (type) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        case APPEND_REQUEST_TYPE:<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            msg = new AppendRequest(buf);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            break;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        case APPEND_RESPONSE_TYPE:<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            msg = new AppendResponse(buf);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            break;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        case COMMIT_REQUEST_TYPE:<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            msg = new CommitRequest(buf);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            break;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        case COMMIT_RESPONSE_TYPE:<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            msg = new CommitResponse(buf);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            break;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        case GRANT_VOTE_TYPE:<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            msg = new GrantVote(buf);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>            break;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        case INSTALL_SNAPSHOT_TYPE:<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            msg = new InstallSnapshot(buf);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            break;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        case REQUEST_VOTE_TYPE:<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            msg = new RequestVote(buf);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            break;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        default:<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            throw new IllegalArgumentException("invalid message type " + type);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        }<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>        // Check for trailing garbage<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        if (buf.hasRemaining())<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            throw new IllegalArgumentException("buffer contains " + buf.remaining() + " bytes of extra garbage after " + msg);<a name="line.189"></a>
+<span class="sourceLineNo">190</span><a name="line.190"></a>
+<span class="sourceLineNo">191</span>        // Done<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        return msg;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    }<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>    /**<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * Serialize this instance.<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     *<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * @return encoded message<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     */<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    public ByteBuffer encode() {<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        final int size = this.calculateSize();<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        final ByteBuffer buf = size &gt;= MIN_DIRECT_BUFFER_SIZE ? ByteBuffer.allocateDirect(size) : ByteBuffer.allocate(size);<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        this.writeTo(buf);<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        if (buf.hasRemaining())<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            throw new RuntimeException("internal error: " + buf.remaining() + " remaining bytes in buffer from " + this);<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        return (ByteBuffer)buf.flip();<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    }<a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>    /**<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * Serialize this instance into the given buffer.<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     *<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * @param buf destination for encoded data<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * @throws java.nio.BufferOverflowException if data overflows {@code buf}<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     */<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    public void writeTo(ByteBuffer buf) {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        buf.put(Message.VERSION_1);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        buf.put(this.type);<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        buf.putInt(this.clusterId);<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        Message.putString(buf, this.senderId);<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        Message.putString(buf, this.recipientId);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        LongEncoder.write(buf, this.term);<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    }<a name="line.222"></a>
+<span class="sourceLineNo">223</span><a name="line.223"></a>
+<span class="sourceLineNo">224</span>    /**<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * Calculate an upper bound on the number of bytes required by {@link #writeTo writeTo()}.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     *<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * @return an upper bound on the number of encoded bytes<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     */<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    protected int calculateSize() {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        return 1<a name="line.230"></a>
+<span class="sourceLineNo">231</span>          + 1<a name="line.231"></a>
+<span class="sourceLineNo">232</span>          + 4<a name="line.232"></a>
+<span class="sourceLineNo">233</span>          + Message.calculateSize(this.senderId)<a name="line.233"></a>
+<span class="sourceLineNo">234</span>          + Message.calculateSize(this.recipientId)<a name="line.234"></a>
+<span class="sourceLineNo">235</span>          + LongEncoder.encodeLength(this.term);<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    }<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>// Object<a name="line.238"></a>
 <span class="sourceLineNo">239</span><a name="line.239"></a>
-<span class="sourceLineNo">240</span>// Object<a name="line.240"></a>
-<span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>    @Override<a name="line.242"></a>
-<span class="sourceLineNo">243</span>    public abstract String toString();<a name="line.243"></a>
+<span class="sourceLineNo">240</span>    @Override<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    public abstract String toString();<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>// Helpers<a name="line.243"></a>
 <span class="sourceLineNo">244</span><a name="line.244"></a>
-<span class="sourceLineNo">245</span>// Helpers<a name="line.245"></a>
-<span class="sourceLineNo">246</span><a name="line.246"></a>
-<span class="sourceLineNo">247</span>    /**<a name="line.247"></a>
-<span class="sourceLineNo">248</span>     * Serialize a {@link ByteBuffer} into the buffer.<a name="line.248"></a>
-<span class="sourceLineNo">249</span>     *<a name="line.249"></a>
-<span class="sourceLineNo">250</span>     * @param dest destination for encoded data<a name="line.250"></a>
-<span class="sourceLineNo">251</span>     * @param buf data to encode<a name="line.251"></a>
-<span class="sourceLineNo">252</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.252"></a>
-<span class="sourceLineNo">253</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.253"></a>
-<span class="sourceLineNo">254</span>     * @throws IllegalArgumentException if {@code buf} has more than 2&lt;sup&gt;^31&lt;/sup&gt; bytes remaining<a name="line.254"></a>
-<span class="sourceLineNo">255</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.255"></a>
-<span class="sourceLineNo">256</span>     */<a name="line.256"></a>
-<span class="sourceLineNo">257</span>    protected static void putByteBuffer(ByteBuffer dest, ByteBuffer buf) {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        UnsignedIntEncoder.write(dest, buf.remaining());<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        dest.put(buf.asReadOnlyBuffer());<a name="line.261"></a>
-<span class="sourceLineNo">262</span>    }<a name="line.262"></a>
-<span class="sourceLineNo">263</span><a name="line.263"></a>
-<span class="sourceLineNo">264</span>    /**<a name="line.264"></a>
-<span class="sourceLineNo">265</span>     * Deserialize a {@link ByteBuffer} previously serialized by {@link #putByteBuffer putByteBuffer()} from the buffer.<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     *<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * @param buf source for encoded data<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     * @return decoded data<a name="line.268"></a>
-<span class="sourceLineNo">269</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     * @throws IllegalArgumentException if input is bogus<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     * @throws IllegalArgumentException if {@code buf} is null<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     */<a name="line.272"></a>
-<span class="sourceLineNo">273</span>    protected static ByteBuffer getByteBuffer(ByteBuffer buf) {<a name="line.273"></a>
-<span class="sourceLineNo">274</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.274"></a>
-<span class="sourceLineNo">275</span>        final int numBytes = UnsignedIntEncoder.read(buf);<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        if (numBytes &gt; buf.remaining())<a name="line.276"></a>
-<span class="sourceLineNo">277</span>            throw new IllegalArgumentException("bogus buffer length " + numBytes + " &gt; " + buf.remaining());<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        final ByteBuffer result = (ByteBuffer)buf.slice().limit(numBytes);<a name="line.278"></a>
-<span class="sourceLineNo">279</span>        buf.position(buf.position() + numBytes);<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        return result;<a name="line.280"></a>
-<span class="sourceLineNo">281</span>    }<a name="line.281"></a>
-<span class="sourceLineNo">282</span><a name="line.282"></a>
-<span class="sourceLineNo">283</span>    protected static int calculateSize(ByteBuffer buf) {<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        return UnsignedIntEncoder.encodeLength(buf.remaining()) + buf.remaining();<a name="line.284"></a>
-<span class="sourceLineNo">285</span>    }<a name="line.285"></a>
-<span class="sourceLineNo">286</span><a name="line.286"></a>
-<span class="sourceLineNo">287</span>    /**<a name="line.287"></a>
-<span class="sourceLineNo">288</span>     * Serialize a {@link String} into the buffer.<a name="line.288"></a>
-<span class="sourceLineNo">289</span>     *<a name="line.289"></a>
-<span class="sourceLineNo">290</span>     * @param dest destination for encoded data<a name="line.290"></a>
-<span class="sourceLineNo">291</span>     * @param string string to encode<a name="line.291"></a>
-<span class="sourceLineNo">292</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.292"></a>
-<span class="sourceLineNo">293</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.293"></a>
-<span class="sourceLineNo">294</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.294"></a>
-<span class="sourceLineNo">295</span>     */<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    protected static void putString(ByteBuffer dest, String string) {<a name="line.296"></a>
-<span class="sourceLineNo">297</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.297"></a>
-<span class="sourceLineNo">298</span>        Preconditions.checkArgument(string != null, "null string");<a name="line.298"></a>
-<span class="sourceLineNo">299</span>        for (int i = 0; i &lt; string.length(); i++) {<a name="line.299"></a>
-<span class="sourceLineNo">300</span>            final int c = string.charAt(i);<a name="line.300"></a>
-<span class="sourceLineNo">301</span>            if (c &gt;= 0x0001 &amp;&amp; c &lt;= 0x007f)<a name="line.301"></a>
-<span class="sourceLineNo">302</span>                dest.put((byte)c);<a name="line.302"></a>
-<span class="sourceLineNo">303</span>            else if (c &lt; 0x0800) {<a name="line.303"></a>
-<span class="sourceLineNo">304</span>                dest.put((byte)(0xc0 | ((c &gt;&gt; 6) &amp; 0x1f)));<a name="line.304"></a>
-<span class="sourceLineNo">305</span>                dest.put((byte)(0x80 | ((c &gt;&gt; 0) &amp; 0x3f)));<a name="line.305"></a>
-<span class="sourceLineNo">306</span>            } else {<a name="line.306"></a>
-<span class="sourceLineNo">307</span>                dest.put((byte)(0xe0 | ((c &gt;&gt; 12) &amp; 0x0f)));<a name="line.307"></a>
-<span class="sourceLineNo">308</span>                dest.put((byte)(0x80 | ((c &gt;&gt;  6) &amp; 0x3f)));<a name="line.308"></a>
-<span class="sourceLineNo">309</span>                dest.put((byte)(0x80 | ((c &gt;&gt;  0) &amp; 0x3f)));<a name="line.309"></a>
-<span class="sourceLineNo">310</span>            }<a name="line.310"></a>
-<span class="sourceLineNo">311</span>        }<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        dest.put((byte)0);<a name="line.312"></a>
-<span class="sourceLineNo">313</span>    }<a name="line.313"></a>
-<span class="sourceLineNo">314</span><a name="line.314"></a>
-<span class="sourceLineNo">315</span>    /**<a name="line.315"></a>
-<span class="sourceLineNo">316</span>     * Deserialize a {@link String} previously serialized by {@link #putString putString()} from the buffer.<a name="line.316"></a>
-<span class="sourceLineNo">317</span>     *<a name="line.317"></a>
-<span class="sourceLineNo">318</span>     * @param buf source for encoded data<a name="line.318"></a>
-<span class="sourceLineNo">319</span>     * @return decoded string, never null<a name="line.319"></a>
-<span class="sourceLineNo">320</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.320"></a>
-<span class="sourceLineNo">321</span>     * @throws IllegalArgumentException if input is bogus<a name="line.321"></a>
-<span class="sourceLineNo">322</span>     */<a name="line.322"></a>
-<span class="sourceLineNo">323</span>    protected static String getString(ByteBuffer buf) {<a name="line.323"></a>
-<span class="sourceLineNo">324</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.324"></a>
-<span class="sourceLineNo">325</span>        final StringWriter writer = new StringWriter();<a name="line.325"></a>
-<span class="sourceLineNo">326</span>        while (true) {<a name="line.326"></a>
-<span class="sourceLineNo">327</span>            final int b1 = buf.get() &amp; 0xff;<a name="line.327"></a>
-<span class="sourceLineNo">328</span>            if (b1 == 0)<a name="line.328"></a>
-<span class="sourceLineNo">329</span>                break;<a name="line.329"></a>
-<span class="sourceLineNo">330</span>            if ((b1 &amp; 0x80) == 0)<a name="line.330"></a>
-<span class="sourceLineNo">331</span>                writer.append((char)b1);<a name="line.331"></a>
-<span class="sourceLineNo">332</span>            else if ((b1 &amp; 0xe0) == 0xc0) {<a name="line.332"></a>
-<span class="sourceLineNo">333</span>                final int b2 = buf.get() &amp; 0xff;<a name="line.333"></a>
-<span class="sourceLineNo">334</span>                if ((b2 &amp; 0xc0) != 0x80)<a name="line.334"></a>
-<span class="sourceLineNo">335</span>                    throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1 + " " + b2);<a name="line.335"></a>
-<span class="sourceLineNo">336</span>                writer.append((char)((b1 &amp; 0x1f) &lt;&lt; 6 | (b2 &amp; 0x3f)));<a name="line.336"></a>
-<span class="sourceLineNo">337</span>            } else if ((b1 &amp; 0xf0) == 0xe0) {<a name="line.337"></a>
-<span class="sourceLineNo">338</span>                final int b2 = buf.get() &amp; 0xff;<a name="line.338"></a>
-<span class="sourceLineNo">339</span>                final int b3 = buf.get() &amp; 0xff;<a name="line.339"></a>
-<span class="sourceLineNo">340</span>                if ((b2 &amp; 0xc0) != 0x80 || (b3 &amp; 0xc0) != 0x80)<a name="line.340"></a>
-<span class="sourceLineNo">341</span>                    throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1 + " " + b2 + " " + b3);<a name="line.341"></a>
-<span class="sourceLineNo">342</span>                writer.append((char)(((b1 &amp; 0x0f) &lt;&lt; 12) | ((b2 &amp; 0x3f) &lt;&lt; 6) | (b3 &amp; 0x3f)));<a name="line.342"></a>
-<span class="sourceLineNo">343</span>            } else<a name="line.343"></a>
-<span class="sourceLineNo">344</span>                throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1);<a name="line.344"></a>
-<span class="sourceLineNo">345</span>        }<a name="line.345"></a>
-<span class="sourceLineNo">346</span>        return writer.toString();<a name="line.346"></a>
-<span class="sourceLineNo">347</span>    }<a name="line.347"></a>
-<span class="sourceLineNo">348</span><a name="line.348"></a>
-<span class="sourceLineNo">349</span>    protected static int calculateSize(String string) {<a name="line.349"></a>
-<span class="sourceLineNo">350</span>        Preconditions.checkArgument(string != null, "null string");<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        int total = 1;<a name="line.351"></a>
-<span class="sourceLineNo">352</span>        for (int i = 0; i &lt; string.length(); i++) {<a name="line.352"></a>
-<span class="sourceLineNo">353</span>            final int ch = string.charAt(i);<a name="line.353"></a>
-<span class="sourceLineNo">354</span>            total += (ch != 0x0000 &amp;&amp; ch &lt; 0x0080) ? 1 : ch &lt; 0x0800 ? 2 : 3;<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        }<a name="line.355"></a>
-<span class="sourceLineNo">356</span>        return total;<a name="line.356"></a>
-<span class="sourceLineNo">357</span>    }<a name="line.357"></a>
-<span class="sourceLineNo">358</span><a name="line.358"></a>
-<span class="sourceLineNo">359</span>    /**<a name="line.359"></a>
-<span class="sourceLineNo">360</span>     * Serialize a boolean value into the buffer.<a name="line.360"></a>
-<span class="sourceLineNo">361</span>     *<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     * @param dest destination for encoded data<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     * @param value value to encode<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.364"></a>
-<span class="sourceLineNo">365</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.365"></a>
-<span class="sourceLineNo">366</span>     * @throws IllegalArgumentException if {@code dest} is null<a name="line.366"></a>
-<span class="sourceLineNo">367</span>     */<a name="line.367"></a>
-<span class="sourceLineNo">368</span>    protected static void putBoolean(ByteBuffer dest, boolean value) {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.369"></a>
-<span class="sourceLineNo">370</span>        dest.put(value ? (byte)1 : (byte)0);<a name="line.370"></a>
-<span class="sourceLineNo">371</span>    }<a name="line.371"></a>
-<span class="sourceLineNo">372</span><a name="line.372"></a>
-<span class="sourceLineNo">373</span>    /**<a name="line.373"></a>
-<span class="sourceLineNo">374</span>     * Deserialize a boolean value previously serialized by {@link #putBoolean putBoolean()} from the buffer.<a name="line.374"></a>
-<span class="sourceLineNo">375</span>     *<a name="line.375"></a>
-<span class="sourceLineNo">376</span>     * @param buf source for encoded data<a name="line.376"></a>
-<span class="sourceLineNo">377</span>     * @return decoded value<a name="line.377"></a>
-<span class="sourceLineNo">378</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.378"></a>
-<span class="sourceLineNo">379</span>     * @throws IllegalArgumentException if input is bogus<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     */<a name="line.380"></a>
-<span class="sourceLineNo">381</span>    protected static boolean getBoolean(ByteBuffer buf) {<a name="line.381"></a>
-<span class="sourceLineNo">382</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.382"></a>
-<span class="sourceLineNo">383</span>        switch (buf.get()) {<a name="line.383"></a>
-<span class="sourceLineNo">384</span>        case (byte)0:<a name="line.384"></a>
-<span class="sourceLineNo">385</span>            return false;<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        case (byte)1:<a name="line.386"></a>
-<span class="sourceLineNo">387</span>            return true;<a name="line.387"></a>
-<span class="sourceLineNo">388</span>        default:<a name="line.388"></a>
-<span class="sourceLineNo">389</span>            throw new IllegalArgumentException("read invalid boolean value");<a name="line.389"></a>
-<span class="sourceLineNo">390</span>        }<a name="line.390"></a>
-<span class="sourceLineNo">391</span>    }<a name="line.391"></a>
-<span class="sourceLineNo">392</span><a name="line.392"></a>
-<span class="sourceLineNo">393</span>    /**<a name="line.393"></a>
-<span class="sourceLineNo">394</span>     * Serialize a {@link Timestamp} value into the buffer.<a name="line.394"></a>
-<span class="sourceLineNo">395</span>     *<a name="line.395"></a>
-<span class="sourceLineNo">396</span>     * @param dest destination for encoded data<a name="line.396"></a>
-<span class="sourceLineNo">397</span>     * @param timestamp value to encode<a name="line.397"></a>
-<span class="sourceLineNo">398</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.398"></a>
-<span class="sourceLineNo">399</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.399"></a>
-<span class="sourceLineNo">400</span>     * @throws IllegalArgumentException if {@code dest} or {@code timestamp} is null<a name="line.400"></a>
-<span class="sourceLineNo">401</span>     */<a name="line.401"></a>
-<span class="sourceLineNo">402</span>    protected static void putTimestamp(ByteBuffer dest, Timestamp timestamp) {<a name="line.402"></a>
-<span class="sourceLineNo">403</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.403"></a>
-<span class="sourceLineNo">404</span>        Preconditions.checkArgument(timestamp != null, "null timestamp");<a name="line.404"></a>
-<span class="sourceLineNo">405</span>        UnsignedIntEncoder.write(dest, timestamp.getMillis());<a name="line.405"></a>
-<span class="sourceLineNo">406</span>    }<a name="line.406"></a>
-<span class="sourceLineNo">407</span><a name="line.407"></a>
-<span class="sourceLineNo">408</span>    /**<a name="line.408"></a>
-<span class="sourceLineNo">409</span>     * Deserialize a {@link Timestamp} value previously serialized by {@link #putTimestamp putTimestamp()} from the buffer.<a name="line.409"></a>
-<span class="sourceLineNo">410</span>     *<a name="line.410"></a>
-<span class="sourceLineNo">411</span>     * @param buf source for encoded data<a name="line.411"></a>
-<span class="sourceLineNo">412</span>     * @return decoded value<a name="line.412"></a>
-<span class="sourceLineNo">413</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.413"></a>
-<span class="sourceLineNo">414</span>     * @throws IllegalArgumentException if input is bogus<a name="line.414"></a>
-<span class="sourceLineNo">415</span>     */<a name="line.415"></a>
-<span class="sourceLineNo">416</span>    protected static Timestamp getTimestamp(ByteBuffer buf) {<a name="line.416"></a>
-<span class="sourceLineNo">417</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.417"></a>
-<span class="sourceLineNo">418</span>        return new Timestamp(UnsignedIntEncoder.read(buf));<a name="line.418"></a>
-<span class="sourceLineNo">419</span>    }<a name="line.419"></a>
-<span class="sourceLineNo">420</span><a name="line.420"></a>
-<span class="sourceLineNo">421</span>    protected static int calculateSize(Timestamp timestamp) {<a name="line.421"></a>
-<span class="sourceLineNo">422</span>        return UnsignedIntEncoder.encodeLength(timestamp.getMillis());<a name="line.422"></a>
-<span class="sourceLineNo">423</span>    }<a name="line.423"></a>
-<span class="sourceLineNo">424</span><a name="line.424"></a>
-<span class="sourceLineNo">425</span>    /**<a name="line.425"></a>
-<span class="sourceLineNo">426</span>     * Serialize a {@link Reads} into the buffer.<a name="line.426"></a>
-<span class="sourceLineNo">427</span>     *<a name="line.427"></a>
-<span class="sourceLineNo">428</span>     * @param dest destination for encoded data<a name="line.428"></a>
-<span class="sourceLineNo">429</span>     * @param reads value to encode<a name="line.429"></a>
-<span class="sourceLineNo">430</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.430"></a>
-<span class="sourceLineNo">431</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.431"></a>
-<span class="sourceLineNo">432</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.432"></a>
-<span class="sourceLineNo">433</span>     */<a name="line.433"></a>
-<span class="sourceLineNo">434</span>    protected static void putReads(ByteBuffer dest, Reads reads) {<a name="line.434"></a>
-<span class="sourceLineNo">435</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.435"></a>
-<span class="sourceLineNo">436</span>        Preconditions.checkArgument(reads != null, "null reads");<a name="line.436"></a>
-<span class="sourceLineNo">437</span>        final ByteBufferOutputStream output = new ByteBufferOutputStream(dest);<a name="line.437"></a>
-<span class="sourceLineNo">438</span>        try {<a name="line.438"></a>
-<span class="sourceLineNo">439</span>            reads.serialize(output);<a name="line.439"></a>
-<span class="sourceLineNo">440</span>            output.flush();<a name="line.440"></a>
-<span class="sourceLineNo">441</span>        } catch (IOException e) {<a name="line.441"></a>
-<span class="sourceLineNo">442</span>            if (e.getCause() instanceof BufferOverflowException)<a name="line.442"></a>
-<span class="sourceLineNo">443</span>                throw (BufferOverflowException)e.getCause();<a name="line.443"></a>
-<span class="sourceLineNo">444</span>            if (e.getCause() instanceof ReadOnlyBufferException)<a name="line.444"></a>
-<span class="sourceLineNo">445</span>                throw (ReadOnlyBufferException)e.getCause();<a name="line.445"></a>
-<span class="sourceLineNo">446</span>            throw new RuntimeException("unexpected exception", e);<a name="line.446"></a>
-<span class="sourceLineNo">447</span>        }<a name="line.447"></a>
-<span class="sourceLineNo">448</span>    }<a name="line.448"></a>
-<span class="sourceLineNo">449</span><a name="line.449"></a>
-<span class="sourceLineNo">450</span>    /**<a name="line.450"></a>
-<span class="sourceLineNo">451</span>     * Deserialize a {@link Reads} previously serialized by {@link #putReads putReads()} from the buffer.<a name="line.451"></a>
-<span class="sourceLineNo">452</span>     *<a name="line.452"></a>
-<span class="sourceLineNo">453</span>     * @param buf source for encoded data<a name="line.453"></a>
-<span class="sourceLineNo">454</span>     * @return decoded value, never null<a name="line.454"></a>
-<span class="sourceLineNo">455</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.455"></a>
-<span class="sourceLineNo">456</span>     */<a name="line.456"></a>
-<span class="sourceLineNo">457</span>    protected static Reads getReads(ByteBuffer buf) {<a name="line.457"></a>
-<span class="sourceLineNo">458</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.458"></a>
-<span class="sourceLineNo">459</span>        final ByteBufferInputStream in = new ByteBufferInputStream(buf);<a name="line.459"></a>
-<span class="sourceLineNo">460</span>        try {<a name="line.460"></a>
-<span class="sourceLineNo">461</span>            return Reads.deserialize(in);<a name="line.461"></a>
-<span class="sourceLineNo">462</span>        } catch (IOException e) {<a name="line.462"></a>
-<span class="sourceLineNo">463</span>            if (e.getCause() instanceof BufferUnderflowException)<a name="line.463"></a>
-<span class="sourceLineNo">464</span>                throw (BufferUnderflowException)e.getCause();<a name="line.464"></a>
-<span class="sourceLineNo">465</span>            throw new RuntimeException("unexpected exception", e);<a name="line.465"></a>
-<span class="sourceLineNo">466</span>        }<a name="line.466"></a>
-<span class="sourceLineNo">467</span>    }<a name="line.467"></a>
-<span class="sourceLineNo">468</span><a name="line.468"></a>
-<span class="sourceLineNo">469</span>    /**<a name="line.469"></a>
-<span class="sourceLineNo">470</span>     * Serialize a {@link Writes} into the buffer.<a name="line.470"></a>
-<span class="sourceLineNo">471</span>     *<a name="line.471"></a>
-<span class="sourceLineNo">472</span>     * @param dest destination for encoded data<a name="line.472"></a>
-<span class="sourceLineNo">473</span>     * @param writes value to encode<a name="line.473"></a>
-<span class="sourceLineNo">474</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.474"></a>
-<span class="sourceLineNo">475</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.475"></a>
-<span class="sourceLineNo">476</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.476"></a>
-<span class="sourceLineNo">477</span>     */<a name="line.477"></a>
-<span class="sourceLineNo">478</span>    protected static void putWrites(ByteBuffer dest, Writes writes) {<a name="line.478"></a>
-<span class="sourceLineNo">479</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.479"></a>
-<span class="sourceLineNo">480</span>        Preconditions.checkArgument(writes != null, "null writes");<a name="line.480"></a>
-<span class="sourceLineNo">481</span>        final ByteBufferOutputStream output = new ByteBufferOutputStream(dest);<a name="line.481"></a>
-<span class="sourceLineNo">482</span>        try {<a name="line.482"></a>
-<span class="sourceLineNo">483</span>            writes.serialize(output);<a name="line.483"></a>
-<span class="sourceLineNo">484</span>            output.flush();<a name="line.484"></a>
-<span class="sourceLineNo">485</span>        } catch (IOException e) {<a name="line.485"></a>
-<span class="sourceLineNo">486</span>            if (e.getCause() instanceof BufferOverflowException)<a name="line.486"></a>
-<span class="sourceLineNo">487</span>                throw (BufferOverflowException)e.getCause();<a name="line.487"></a>
-<span class="sourceLineNo">488</span>            if (e.getCause() instanceof ReadOnlyBufferException)<a name="line.488"></a>
-<span class="sourceLineNo">489</span>                throw (ReadOnlyBufferException)e.getCause();<a name="line.489"></a>
-<span class="sourceLineNo">490</span>            throw new RuntimeException("unexpected exception", e);<a name="line.490"></a>
-<span class="sourceLineNo">491</span>        }<a name="line.491"></a>
-<span class="sourceLineNo">492</span>    }<a name="line.492"></a>
-<span class="sourceLineNo">493</span><a name="line.493"></a>
-<span class="sourceLineNo">494</span>    /**<a name="line.494"></a>
-<span class="sourceLineNo">495</span>     * Deserialize a {@link Writes} previously serialized by {@link #putWrites putWrites()} from the buffer.<a name="line.495"></a>
-<span class="sourceLineNo">496</span>     *<a name="line.496"></a>
-<span class="sourceLineNo">497</span>     * @param buf source for encoded data<a name="line.497"></a>
-<span class="sourceLineNo">498</span>     * @return decoded value, never null<a name="line.498"></a>
-<span class="sourceLineNo">499</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.499"></a>
-<span class="sourceLineNo">500</span>     */<a name="line.500"></a>
-<span class="sourceLineNo">501</span>    protected static Writes getWrites(ByteBuffer buf) {<a name="line.501"></a>
-<span class="sourceLineNo">502</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.502"></a>
-<span class="sourceLineNo">503</span>        final ByteBufferInputStream in = new ByteBufferInputStream(buf);<a name="line.503"></a>
-<span class="sourceLineNo">504</span>        try {<a name="line.504"></a>
-<span class="sourceLineNo">505</span>            return Writes.deserialize(in);<a name="line.505"></a>
-<span class="sourceLineNo">506</span>        } catch (IOException e) {<a name="line.506"></a>
-<span class="sourceLineNo">507</span>            if (e.getCause() instanceof BufferUnderflowException)<a name="line.507"></a>
-<span class="sourceLineNo">508</span>                throw (BufferUnderflowException)e.getCause();<a name="line.508"></a>
-<span class="sourceLineNo">509</span>            throw new RuntimeException("unexpected exception", e);<a name="line.509"></a>
-<span class="sourceLineNo">510</span>        }<a name="line.510"></a>
-<span class="sourceLineNo">511</span>    }<a name="line.511"></a>
+<span class="sourceLineNo">245</span>    /**<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * Serialize a {@link ByteBuffer} into the buffer.<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     *<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * @param dest destination for encoded data<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     * @param buf data to encode<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * @throws IllegalArgumentException if {@code buf} has more than 2&lt;sup&gt;^31&lt;/sup&gt; bytes remaining<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     */<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    protected static void putByteBuffer(ByteBuffer dest, ByteBuffer buf) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        UnsignedIntEncoder.write(dest, buf.remaining());<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        dest.put(buf.asReadOnlyBuffer());<a name="line.259"></a>
+<span class="sourceLineNo">260</span>    }<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>    /**<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * Deserialize a {@link ByteBuffer} previously serialized by {@link #putByteBuffer putByteBuffer()} from the buffer.<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     *<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * @param buf source for encoded data<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * @return decoded data<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * @throws IllegalArgumentException if input is bogus<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * @throws IllegalArgumentException if {@code buf} is null<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     */<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    protected static ByteBuffer getByteBuffer(ByteBuffer buf) {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        final int numBytes = UnsignedIntEncoder.read(buf);<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        if (numBytes &gt; buf.remaining())<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            throw new IllegalArgumentException("bogus buffer length " + numBytes + " &gt; " + buf.remaining());<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        final ByteBuffer result = (ByteBuffer)buf.slice().limit(numBytes);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        buf.position(buf.position() + numBytes);<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        return result;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    }<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>    protected static int calculateSize(ByteBuffer buf) {<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        return UnsignedIntEncoder.encodeLength(buf.remaining()) + buf.remaining();<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    }<a name="line.283"></a>
+<span class="sourceLineNo">284</span><a name="line.284"></a>
+<span class="sourceLineNo">285</span>    /**<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * Serialize a {@link String} into the buffer.<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     *<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     * @param dest destination for encoded data<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     * @param string string to encode<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     */<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    protected static void putString(ByteBuffer dest, String string) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        Preconditions.checkArgument(string != null, "null string");<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        for (int i = 0; i &lt; string.length(); i++) {<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            final int c = string.charAt(i);<a name="line.298"></a>
+<span class="sourceLineNo">299</span>            if (c &gt;= 0x0001 &amp;&amp; c &lt;= 0x007f)<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                dest.put((byte)c);<a name="line.300"></a>
+<span class="sourceLineNo">301</span>            else if (c &lt; 0x0800) {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>                dest.put((byte)(0xc0 | ((c &gt;&gt; 6) &amp; 0x1f)));<a name="line.302"></a>
+<span class="sourceLineNo">303</span>                dest.put((byte)(0x80 | ((c &gt;&gt; 0) &amp; 0x3f)));<a name="line.303"></a>
+<span class="sourceLineNo">304</span>            } else {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>                dest.put((byte)(0xe0 | ((c &gt;&gt; 12) &amp; 0x0f)));<a name="line.305"></a>
+<span class="sourceLineNo">306</span>                dest.put((byte)(0x80 | ((c &gt;&gt;  6) &amp; 0x3f)));<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                dest.put((byte)(0x80 | ((c &gt;&gt;  0) &amp; 0x3f)));<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            }<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        }<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        dest.put((byte)0);<a name="line.310"></a>
+<span class="sourceLineNo">311</span>    }<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>    /**<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     * Deserialize a {@link String} previously serialized by {@link #putString putString()} from the buffer.<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     *<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     * @param buf source for encoded data<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     * @return decoded string, never null<a name="line.317"></a>
+<span class="sourceLineNo">318</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.318"></a>
+<span class="sourceLineNo">319</span>     * @throws IllegalArgumentException if input is bogus<a name="line.319"></a>
+<span class="sourceLineNo">320</span>     */<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    protected static String getString(ByteBuffer buf) {<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        final StringWriter writer = new StringWriter();<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        while (true) {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            final int b1 = buf.get() &amp; 0xff;<a name="line.325"></a>
+<span class="sourceLineNo">326</span>            if (b1 == 0)<a name="line.326"></a>
+<span class="sourceLineNo">327</span>                break;<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            if ((b1 &amp; 0x80) == 0)<a name="line.328"></a>
+<span class="sourceLineNo">329</span>                writer.append((char)b1);<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            else if ((b1 &amp; 0xe0) == 0xc0) {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                final int b2 = buf.get() &amp; 0xff;<a name="line.331"></a>
+<span class="sourceLineNo">332</span>                if ((b2 &amp; 0xc0) != 0x80)<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                    throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1 + " " + b2);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                writer.append((char)((b1 &amp; 0x1f) &lt;&lt; 6 | (b2 &amp; 0x3f)));<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            } else if ((b1 &amp; 0xf0) == 0xe0) {<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                final int b2 = buf.get() &amp; 0xff;<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                final int b3 = buf.get() &amp; 0xff;<a name="line.337"></a>
+<span class="sourceLineNo">338</span>                if ((b2 &amp; 0xc0) != 0x80 || (b3 &amp; 0xc0) != 0x80)<a name="line.338"></a>
+<span class="sourceLineNo">339</span>                    throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1 + " " + b2 + " " + b3);<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                writer.append((char)(((b1 &amp; 0x0f) &lt;&lt; 12) | ((b2 &amp; 0x3f) &lt;&lt; 6) | (b3 &amp; 0x3f)));<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            } else<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                throw new IllegalArgumentException("invalid UTF-8 sequence: " + b1);<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        }<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        return writer.toString();<a name="line.344"></a>
+<span class="sourceLineNo">345</span>    }<a name="line.345"></a>
+<span class="sourceLineNo">346</span><a name="line.346"></a>
+<span class="sourceLineNo">347</span>    protected static int calculateSize(String string) {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        Preconditions.checkArgument(string != null, "null string");<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        int total = 1;<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        for (int i = 0; i &lt; string.length(); i++) {<a name="line.350"></a>
+<span class="sourceLineNo">351</span>            final int ch = string.charAt(i);<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            total += (ch != 0x0000 &amp;&amp; ch &lt; 0x0080) ? 1 : ch &lt; 0x0800 ? 2 : 3;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        }<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        return total;<a name="line.354"></a>
+<span class="sourceLineNo">355</span>    }<a name="line.355"></a>
+<span class="sourceLineNo">356</span><a name="line.356"></a>
+<span class="sourceLineNo">357</span>    /**<a name="line.357"></a>
+<span class="sourceLineNo">358</span>     * Serialize a boolean value into the buffer.<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     *<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * @param dest destination for encoded data<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     * @param value value to encode<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * @throws IllegalArgumentException if {@code dest} is null<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     */<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    protected static void putBoolean(ByteBuffer dest, boolean value) {<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        dest.put(value ? (byte)1 : (byte)0);<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    }<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>    /**<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     * Deserialize a boolean value previously serialized by {@link #putBoolean putBoolean()} from the buffer.<a name="line.372"></a>
+<span class="sourceLineNo">373</span>     *<a name="line.373"></a>
+<span class="sourceLineNo">374</span>     * @param buf source for encoded data<a name="line.374"></a>
+<span class="sourceLineNo">375</span>     * @return decoded value<a name="line.375"></a>
+<span class="sourceLineNo">376</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.376"></a>
+<span class="sourceLineNo">377</span>     * @throws IllegalArgumentException if input is bogus<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     */<a name="line.378"></a>
+<span class="sourceLineNo">379</span>    protected static boolean getBoolean(ByteBuffer buf) {<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        switch (buf.get()) {<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        case (byte)0:<a name="line.382"></a>
+<span class="sourceLineNo">383</span>            return false;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        case (byte)1:<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            return true;<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        default:<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            throw new IllegalArgumentException("read invalid boolean value");<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        }<a name="line.388"></a>
+<span class="sourceLineNo">389</span>    }<a name="line.389"></a>
+<span class="sourceLineNo">390</span><a name="line.390"></a>
+<span class="sourceLineNo">391</span>    /**<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     * Serialize a {@link Timestamp} value into the buffer.<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     *<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     * @param dest destination for encoded data<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     * @param timestamp value to encode<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     * @throws IllegalArgumentException if {@code dest} or {@code timestamp} is null<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     */<a name="line.399"></a>
+<span class="sourceLineNo">400</span>    protected static void putTimestamp(ByteBuffer dest, Timestamp timestamp) {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        Preconditions.checkArgument(timestamp != null, "null timestamp");<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        UnsignedIntEncoder.write(dest, timestamp.getMillis());<a name="line.403"></a>
+<span class="sourceLineNo">404</span>    }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>    /**<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     * Deserialize a {@link Timestamp} value previously serialized by {@link #putTimestamp putTimestamp()} from the buffer.<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     *<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     * @param buf source for encoded data<a name="line.409"></a>
+<span class="sourceLineNo">410</span>     * @return decoded value<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     * @throws IllegalArgumentException if input is bogus<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     */<a name="line.413"></a>
+<span class="sourceLineNo">414</span>    protected static Timestamp getTimestamp(ByteBuffer buf) {<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        return new Timestamp(UnsignedIntEncoder.read(buf));<a name="line.416"></a>
+<span class="sourceLineNo">417</span>    }<a name="line.417"></a>
+<span class="sourceLineNo">418</span><a name="line.418"></a>
+<span class="sourceLineNo">419</span>    protected static int calculateSize(Timestamp timestamp) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        return UnsignedIntEncoder.encodeLength(timestamp.getMillis());<a name="line.420"></a>
+<span class="sourceLineNo">421</span>    }<a name="line.421"></a>
+<span class="sourceLineNo">422</span><a name="line.422"></a>
+<span class="sourceLineNo">423</span>    /**<a name="line.423"></a>
+<span class="sourceLineNo">424</span>     * Serialize a {@link Reads} into the buffer.<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     *<a name="line.425"></a>
+<span class="sourceLineNo">426</span>     * @param dest destination for encoded data<a name="line.426"></a>
+<span class="sourceLineNo">427</span>     * @param reads value to encode<a name="line.427"></a>
+<span class="sourceLineNo">428</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.428"></a>
+<span class="sourceLineNo">429</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.429"></a>
+<span class="sourceLineNo">430</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.430"></a>
+<span class="sourceLineNo">431</span>     */<a name="line.431"></a>
+<span class="sourceLineNo">432</span>    protected static void putReads(ByteBuffer dest, Reads reads) {<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        Preconditions.checkArgument(reads != null, "null reads");<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        final ByteBufferOutputStream output = new ByteBufferOutputStream(dest);<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        try {<a name="line.436"></a>
+<span class="sourceLineNo">437</span>            reads.serialize(output);<a name="line.437"></a>
+<span class="sourceLineNo">438</span>            output.flush();<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        } catch (IOException e) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            if (e.getCause() instanceof BufferOverflowException)<a name="line.440"></a>
+<span class="sourceLineNo">441</span>                throw (BufferOverflowException)e.getCause();<a name="line.441"></a>
+<span class="sourceLineNo">442</span>            if (e.getCause() instanceof ReadOnlyBufferException)<a name="line.442"></a>
+<span class="sourceLineNo">443</span>                throw (ReadOnlyBufferException)e.getCause();<a name="line.443"></a>
+<span class="sourceLineNo">444</span>            throw new RuntimeException("unexpected exception", e);<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        }<a name="line.445"></a>
+<span class="sourceLineNo">446</span>    }<a name="line.446"></a>
+<span class="sourceLineNo">447</span><a name="line.447"></a>
+<span class="sourceLineNo">448</span>    /**<a name="line.448"></a>
+<span class="sourceLineNo">449</span>     * Deserialize a {@link Reads} previously serialized by {@link #putReads putReads()} from the buffer.<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     *<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     * @param buf source for encoded data<a name="line.451"></a>
+<span class="sourceLineNo">452</span>     * @return decoded value, never null<a name="line.452"></a>
+<span class="sourceLineNo">453</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.453"></a>
+<span class="sourceLineNo">454</span>     */<a name="line.454"></a>
+<span class="sourceLineNo">455</span>    protected static Reads getReads(ByteBuffer buf) {<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        final ByteBufferInputStream in = new ByteBufferInputStream(buf);<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        try {<a name="line.458"></a>
+<span class="sourceLineNo">459</span>            return Reads.deserialize(in);<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        } catch (IOException e) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>            if (e.getCause() instanceof BufferUnderflowException)<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                throw (BufferUnderflowException)e.getCause();<a name="line.462"></a>
+<span class="sourceLineNo">463</span>            throw new RuntimeException("unexpected exception", e);<a name="line.463"></a>
+<span class="sourceLineNo">464</span>        }<a name="line.464"></a>
+<span class="sourceLineNo">465</span>    }<a name="line.465"></a>
+<span class="sourceLineNo">466</span><a name="line.466"></a>
+<span class="sourceLineNo">467</span>    /**<a name="line.467"></a>
+<span class="sourceLineNo">468</span>     * Serialize a {@link Writes} into the buffer.<a name="line.468"></a>
+<span class="sourceLineNo">469</span>     *<a name="line.469"></a>
+<span class="sourceLineNo">470</span>     * @param dest destination for encoded data<a name="line.470"></a>
+<span class="sourceLineNo">471</span>     * @param writes value to encode<a name="line.471"></a>
+<span class="sourceLineNo">472</span>     * @throws ReadOnlyBufferException if {@code dest} is read only<a name="line.472"></a>
+<span class="sourceLineNo">473</span>     * @throws BufferOverflowException if {@code dest} overflows<a name="line.473"></a>
+<span class="sourceLineNo">474</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.474"></a>
+<span class="sourceLineNo">475</span>     */<a name="line.475"></a>
+<span class="sourceLineNo">476</span>    protected static void putWrites(ByteBuffer dest, Writes writes) {<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        Preconditions.checkArgument(dest != null, "null dest");<a name="line.477"></a>
+<span class="sourceLineNo">478</span>        Preconditions.checkArgument(writes != null, "null writes");<a name="line.478"></a>
+<span class="sourceLineNo">479</span>        final ByteBufferOutputStream output = new ByteBufferOutputStream(dest);<a name="line.479"></a>
+<span class="sourceLineNo">480</span>        try {<a name="line.480"></a>
+<span class="sourceLineNo">481</span>            writes.serialize(output);<a name="line.481"></a>
+<span class="sourceLineNo">482</span>            output.flush();<a name="line.482"></a>
+<span class="sourceLineNo">483</span>        } catch (IOException e) {<a name="line.483"></a>
+<span class="sourceLineNo">484</span>            if (e.getCause() instanceof BufferOverflowException)<a name="line.484"></a>
+<span class="sourceLineNo">485</span>                throw (BufferOverflowException)e.getCause();<a name="line.485"></a>
+<span class="sourceLineNo">486</span>            if (e.getCause() instanceof ReadOnlyBufferException)<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                throw (ReadOnlyBufferException)e.getCause();<a name="line.487"></a>
+<span class="sourceLineNo">488</span>            throw new RuntimeException("unexpected exception", e);<a name="line.488"></a>
+<span class="sourceLineNo">489</span>        }<a name="line.489"></a>
+<span class="sourceLineNo">490</span>    }<a name="line.490"></a>
+<span class="sourceLineNo">491</span><a name="line.491"></a>
+<span class="sourceLineNo">492</span>    /**<a name="line.492"></a>
+<span class="sourceLineNo">493</span>     * Deserialize a {@link Writes} previously serialized by {@link #putWrites putWrites()} from the buffer.<a name="line.493"></a>
+<span class="sourceLineNo">494</span>     *<a name="line.494"></a>
+<span class="sourceLineNo">495</span>     * @param buf source for encoded data<a name="line.495"></a>
+<span class="sourceLineNo">496</span>     * @return decoded value, never null<a name="line.496"></a>
+<span class="sourceLineNo">497</span>     * @throws BufferUnderflowException if {@code buf} underflows<a name="line.497"></a>
+<span class="sourceLineNo">498</span>     */<a name="line.498"></a>
+<span class="sourceLineNo">499</span>    protected static Writes getWrites(ByteBuffer buf) {<a name="line.499"></a>
+<span class="sourceLineNo">500</span>        Preconditions.checkArgument(buf != null, "null buf");<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        final ByteBufferInputStream in = new ByteBufferInputStream(buf);<a name="line.501"></a>
+<span class="sourceLineNo">502</span>        try {<a name="line.502"></a>
+<span class="sourceLineNo">503</span>            return Writes.deserialize(in);<a name="line.503"></a>
+<span class="sourceLineNo">504</span>        } catch (IOException e) {<a name="line.504"></a>
+<span class="sourceLineNo">505</span>            if (e.getCause() instanceof BufferUnderflowException)<a name="line.505"></a>
+<span class="sourceLineNo">506</span>                throw (BufferUnderflowException)e.getCause();<a name="line.506"></a>
+<span class="sourceLineNo">507</span>            throw new RuntimeException("unexpected exception", e);<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        }<a name="line.508"></a>
+<span class="sourceLineNo">509</span>    }<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>// Debugging<a name="line.511"></a>
 <span class="sourceLineNo">512</span><a name="line.512"></a>
-<span class="sourceLineNo">513</span>// Debugging<a name="line.513"></a>
-<span class="sourceLineNo">514</span><a name="line.514"></a>
-<span class="sourceLineNo">515</span>    String describe(ByteBuffer buf) {<a name="line.515"></a>
-<span class="sourceLineNo">516</span>        if (buf == null)<a name="line.516"></a>
-<span class="sourceLineNo">517</span>            return null;<a name="line.517"></a>
-<span class="sourceLineNo">518</span>        final int size = buf.remaining();<a name="line.518"></a>
-<span class="sourceLineNo">519</span>        if (size &lt;= 32) {<a name="line.519"></a>
-<span class="sourceLineNo">520</span>            final byte[] data = new byte[size];<a name="line.520"></a>
-<span class="sourceLineNo">521</span>            buf.asReadOnlyBuffer().get(data);<a name="line.521"></a>
-<span class="sourceLineNo">522</span>            return ByteUtil.toString(data);<a name="line.522"></a>
-<span class="sourceLineNo">523</span>        }<a name="line.523"></a>
-<span class="sourceLineNo">524</span>        return size + " bytes";<a name="line.524"></a>
-<span class="sourceLineNo">525</span>    }<a name="line.525"></a>
-<span class="sourceLineNo">526</span>}<a name="line.526"></a>
-<span class="sourceLineNo">527</span><a name="line.527"></a>
+<span class="sourceLineNo">513</span>    String describe(ByteBuffer buf) {<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        if (buf == null)<a name="line.514"></a>
+<span class="sourceLineNo">515</span>            return null;<a name="line.515"></a>
+<span class="sourceLineNo">516</span>        final int size = buf.remaining();<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        if (size &lt;= 32) {<a name="line.517"></a>
+<span class="sourceLineNo">518</span>            final byte[] data = new byte[size];<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            buf.asReadOnlyBuffer().get(data);<a name="line.519"></a>
+<span class="sourceLineNo">520</span>            return ByteUtil.toString(data);<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        }<a name="line.521"></a>
+<span class="sourceLineNo">522</span>        return size + " bytes";<a name="line.522"></a>
+<span class="sourceLineNo">523</span>    }<a name="line.523"></a>
+<span class="sourceLineNo">524</span>}<a name="line.524"></a>
+<span class="sourceLineNo">525</span><a name="line.525"></a>
 
 
 

@@ -9,51 +9,49 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.cli.func;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.cli.func;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import org.jsimpledb.cli.CliSession;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import org.jsimpledb.parse.ParseSession;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.jsimpledb.parse.expr.Value;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.parse.func.SimpleFunction;<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>/**<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * CLI extension of {@link SimpleFunction}.<a name="line.16"></a>
-<span class="sourceLineNo">017</span> */<a name="line.17"></a>
-<span class="sourceLineNo">018</span>public abstract class SimpleCliFunction extends SimpleFunction {<a name="line.18"></a>
+<span class="sourceLineNo">008</span>import org.jsimpledb.cli.CliSession;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import org.jsimpledb.parse.ParseSession;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import org.jsimpledb.parse.expr.Value;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.jsimpledb.parse.func.SimpleFunction;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>/**<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * CLI extension of {@link SimpleFunction}.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>public abstract class SimpleCliFunction extends SimpleFunction {<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>// Constructors<a name="line.18"></a>
 <span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>// Constructors<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>    /**<a name="line.22"></a>
-<span class="sourceLineNo">023</span>     * Constructor.<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     *<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     * @param name function name<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     * @param minArgs minimum number of arguments (inclusive)<a name="line.26"></a>
-<span class="sourceLineNo">027</span>     * @param maxArgs maximum number of arguments (inclusive)<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     */<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    protected SimpleCliFunction(String name, int minArgs, int maxArgs) {<a name="line.29"></a>
-<span class="sourceLineNo">030</span>        super(name, minArgs, maxArgs);<a name="line.30"></a>
-<span class="sourceLineNo">031</span>    }<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>    @Override<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    protected final Value apply(ParseSession session, Value[] params) {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        return this.apply((CliSession)session, params);<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * Apply this function to the given values.<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     *<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * @param session CLI session<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * @param params parsed parameters; will already be checked between {@link #getMinArgs} and {@link #getMaxArgs}<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     * @return value returned by this function<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * @throws RuntimeException if there is an error<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    protected abstract Value apply(CliSession session, Value[] params);<a name="line.46"></a>
-<span class="sourceLineNo">047</span>}<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">020</span>    /**<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * Constructor.<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     *<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * @param name function name<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * @param minArgs minimum number of arguments (inclusive)<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     * @param maxArgs maximum number of arguments (inclusive)<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     */<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    protected SimpleCliFunction(String name, int minArgs, int maxArgs) {<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        super(name, minArgs, maxArgs);<a name="line.28"></a>
+<span class="sourceLineNo">029</span>    }<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>    @Override<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    protected final Value apply(ParseSession session, Value[] params) {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        return this.apply((CliSession)session, params);<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    /**<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * Apply this function to the given values.<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     *<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * @param session CLI session<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * @param params parsed parameters; will already be checked between {@link #getMinArgs} and {@link #getMaxArgs}<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * @return value returned by this function<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * @throws RuntimeException if there is an error<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     */<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    protected abstract Value apply(CliSession session, Value[] params);<a name="line.44"></a>
+<span class="sourceLineNo">045</span>}<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
 
 
 

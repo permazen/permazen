@@ -9,506 +9,504 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.mvcc;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.mvcc;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.base.Preconditions;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.Iterator;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.util.Map;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.util.NoSuchElementException;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.Set;<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.kv.AbstractKVStore;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.kv.KVPair;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.kv.KVPairIterator;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.kv.KVStore;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.kv.KeyRange;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.kv.KeyRanges;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.util.ByteUtil;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.util.SizeEstimating;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.util.SizeEstimator;<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * Provides a mutable view of an underlying, read-only {@link KVStore}.<a name="line.28"></a>
-<span class="sourceLineNo">029</span> *<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * Instances intercept all operations to the underlying {@link KVStore}, recording mutations in a {@link Writes} instance<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * instead of applying them to the {@link KVStore}. Instances then provide a view of the mutated {@link KVStore} based those<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * mutations. Mutations that overwrite previous mutations are consolidated.<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * &lt;/p&gt;<a name="line.34"></a>
-<span class="sourceLineNo">035</span> *<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * &lt;p&gt;<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * Unlike writes, reads are passed through to the underlying {@link KVStore}, except where they intersect a previous write.<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * Reads may also be optionally recorded.<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * &lt;/p&gt;<a name="line.39"></a>
-<span class="sourceLineNo">040</span> *<a name="line.40"></a>
-<span class="sourceLineNo">041</span> * &lt;p&gt;<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * In all cases, then underlying {@link KVStore} is never modified.<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * &lt;/p&gt;<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * &lt;p&gt;<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * Instances are also capable of performing certain MVCC-related calculations, such as whether two transactions may be re-ordered.<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * &lt;/p&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * &lt;p&gt;<a name="line.49"></a>
-<span class="sourceLineNo">050</span> * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe.<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * &lt;/p&gt;<a name="line.51"></a>
-<span class="sourceLineNo">052</span> */<a name="line.52"></a>
-<span class="sourceLineNo">053</span>public class MutableView extends AbstractKVStore implements SizeEstimating {<a name="line.53"></a>
-<span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>    private final KVStore kv;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    private final Writes writes;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    private Reads reads;<a name="line.57"></a>
+<span class="sourceLineNo">010</span>import java.util.Iterator;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Map;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.NoSuchElementException;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.Set;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.kv.AbstractKVStore;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.kv.KVPair;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.kv.KVPairIterator;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.kv.KVStore;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.kv.KeyRange;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.kv.KeyRanges;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.util.ByteUtil;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.util.SizeEstimating;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.util.SizeEstimator;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * Provides a mutable view of an underlying, read-only {@link KVStore}.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;p&gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Instances intercept all operations to the underlying {@link KVStore}, recording mutations in a {@link Writes} instance<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * instead of applying them to the {@link KVStore}. Instances then provide a view of the mutated {@link KVStore} based those<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * mutations. Mutations that overwrite previous mutations are consolidated.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * &lt;/p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;p&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * Unlike writes, reads are passed through to the underlying {@link KVStore}, except where they intersect a previous write.<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * Reads may also be optionally recorded.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;/p&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * In all cases, then underlying {@link KVStore} is never modified.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;/p&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * Instances are also capable of performing certain MVCC-related calculations, such as whether two transactions may be re-ordered.<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;/p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;p&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;/p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>public class MutableView extends AbstractKVStore implements SizeEstimating {<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    private final KVStore kv;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    private final Writes writes;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    private Reads reads;<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>// Constructors<a name="line.57"></a>
 <span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>// Constructors<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>    /**<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     * Constructor.<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     *<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     * @param kv underlying {@link KVStore}<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * @throws IllegalArgumentException if {@code kv} is null<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    public MutableView(KVStore kv) {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        this(kv, new Reads(), new Writes());<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    }<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>    /**<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * Constructor using caller-provided {@link Reads} (optional} and {@link Writes}.<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     *<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     * @param kv underlying {@link KVStore}<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * @param reads recorded reads, or null for none<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * @param writes recorded writes<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * @throws IllegalArgumentException if {@code kv} is null<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * @throws IllegalArgumentException if {@code writes} is null<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    public MutableView(KVStore kv, Reads reads, Writes writes) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        Preconditions.checkArgument(kv != null, "null kv");<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        Preconditions.checkArgument(writes != null, "null writes");<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        this.kv = kv;<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        this.reads = reads;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        this.writes = writes;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        synchronized (this) { }                                     // because this.reads is not final<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">059</span>    /**<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * Constructor.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     *<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * @param kv underlying {@link KVStore}<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @throws IllegalArgumentException if {@code kv} is null<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    public MutableView(KVStore kv) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        this(kv, new Reads(), new Writes());<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * Constructor using caller-provided {@link Reads} (optional} and {@link Writes}.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     *<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * @param kv underlying {@link KVStore}<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * @param reads recorded reads, or null for none<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * @param writes recorded writes<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @throws IllegalArgumentException if {@code kv} is null<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * @throws IllegalArgumentException if {@code writes} is null<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    public MutableView(KVStore kv, Reads reads, Writes writes) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        Preconditions.checkArgument(kv != null, "null kv");<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        Preconditions.checkArgument(writes != null, "null writes");<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        this.kv = kv;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        this.reads = reads;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        this.writes = writes;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        synchronized (this) { }                                     // because this.reads is not final<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>// Public methods<a name="line.87"></a>
 <span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>// Public methods<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>    /**<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * Get the {@link Reads} associated with this instance.<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     *<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * &lt;p&gt;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * This includes all keys explicitly or implicitly read by calls to<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * {@link #get get()}, {@link #getAtLeast getAtLeast()}, {@link #getAtMost getAtMost()}, and {@link #getRange getRange()}.<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     *<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * @return reads recorded, or null if this instance is not configured to record reads<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    public synchronized Reads getReads() {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        return this.reads;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     * Get the {@link Writes} associated with this instance.<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     *<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * @return writes recorded<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     */<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    public synchronized Writes getWrites() {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        return this.writes;<a name="line.110"></a>
-<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
-<span class="sourceLineNo">112</span><a name="line.112"></a>
-<span class="sourceLineNo">113</span>    /**<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     * Disable read tracking and discard the {@link Reads} associated with this instance.<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     *<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     * &lt;p&gt;<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     * Can be used to save some memory when read tracking information is no longer needed.<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     */<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    public synchronized void disableReadTracking() {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        this.reads = null;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">089</span>    /**<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * Get the {@link Reads} associated with this instance.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * &lt;p&gt;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * This includes all keys explicitly or implicitly read by calls to<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * {@link #get get()}, {@link #getAtLeast getAtLeast()}, {@link #getAtMost getAtMost()}, and {@link #getRange getRange()}.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     *<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @return reads recorded, or null if this instance is not configured to record reads<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    public synchronized Reads getReads() {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        return this.reads;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * Get the {@link Writes} associated with this instance.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     *<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * @return writes recorded<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     */<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    public synchronized Writes getWrites() {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        return this.writes;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>    /**<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * Disable read tracking and discard the {@link Reads} associated with this instance.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     *<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * &lt;p&gt;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * Can be used to save some memory when read tracking information is no longer needed.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     */<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    public synchronized void disableReadTracking() {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        this.reads = null;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    }<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>// KVStore<a name="line.121"></a>
 <span class="sourceLineNo">122</span><a name="line.122"></a>
-<span class="sourceLineNo">123</span>// KVStore<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>    @Override<a name="line.125"></a>
-<span class="sourceLineNo">126</span>    public synchronized byte[] get(byte[] key) {<a name="line.126"></a>
-<span class="sourceLineNo">127</span><a name="line.127"></a>
-<span class="sourceLineNo">128</span>        // Sanity check<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        assert this.check();<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>        // Check puts<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        final byte[] putValue = this.writes.getPuts().get(key);<a name="line.132"></a>
-<span class="sourceLineNo">133</span>        if (putValue != null)<a name="line.133"></a>
-<span class="sourceLineNo">134</span>            return putValue;<a name="line.134"></a>
-<span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>        // Check removes<a name="line.136"></a>
-<span class="sourceLineNo">137</span>        if (this.writes.getRemoves().contains(key))<a name="line.137"></a>
-<span class="sourceLineNo">138</span>            return null;<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>        // Read from k/v store<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        byte[] value = this.kv.get(key);<a name="line.141"></a>
-<span class="sourceLineNo">142</span><a name="line.142"></a>
-<span class="sourceLineNo">143</span>        // Record the read<a name="line.143"></a>
-<span class="sourceLineNo">144</span>        this.recordReads(key, ByteUtil.getNextKey(key));<a name="line.144"></a>
-<span class="sourceLineNo">145</span><a name="line.145"></a>
-<span class="sourceLineNo">146</span>        // Check counter adjustments<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        if (value == null)                      // we can ignore adjustments of missing values<a name="line.147"></a>
-<span class="sourceLineNo">148</span>            return null;<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        final Long adjust = this.writes.getAdjusts().get(key);<a name="line.149"></a>
-<span class="sourceLineNo">150</span>        if (adjust != null) {<a name="line.150"></a>
-<span class="sourceLineNo">151</span><a name="line.151"></a>
-<span class="sourceLineNo">152</span>            // Decode value we just read as a counter<a name="line.152"></a>
-<span class="sourceLineNo">153</span>            final long counterValue;<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            try {<a name="line.154"></a>
-<span class="sourceLineNo">155</span>                counterValue = this.kv.decodeCounter(value);<a name="line.155"></a>
-<span class="sourceLineNo">156</span>            } catch (IllegalArgumentException e) {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>                this.writes.getAdjusts().remove(key);       // previous adjustment was bogus because value was not decodable<a name="line.157"></a>
-<span class="sourceLineNo">158</span>                return value;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            }<a name="line.159"></a>
-<span class="sourceLineNo">160</span><a name="line.160"></a>
-<span class="sourceLineNo">161</span>            // Adjust counter value by adjustment and re-encode<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            value = this.kv.encodeCounter(counterValue + adjust);<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        }<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>        // Done<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        return value;<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
-<span class="sourceLineNo">168</span><a name="line.168"></a>
-<span class="sourceLineNo">169</span>    @Override<a name="line.169"></a>
-<span class="sourceLineNo">170</span>    public Iterator&lt;KVPair&gt; getRange(byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.170"></a>
-<span class="sourceLineNo">171</span><a name="line.171"></a>
-<span class="sourceLineNo">172</span>        // Sanity check<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        assert this.check();<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>        // Build iterator<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        return new RangeIterator(minKey, maxKey, reverse);<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
-<span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>    @Override<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    public synchronized void put(byte[] key, byte[] value) {<a name="line.180"></a>
-<span class="sourceLineNo">181</span><a name="line.181"></a>
-<span class="sourceLineNo">182</span>        // Sanity check<a name="line.182"></a>
-<span class="sourceLineNo">183</span>        assert this.check();<a name="line.183"></a>
-<span class="sourceLineNo">184</span>        Preconditions.checkArgument(key != null, "null key");<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        Preconditions.checkArgument(value != null, "null value");<a name="line.185"></a>
-<span class="sourceLineNo">186</span><a name="line.186"></a>
-<span class="sourceLineNo">187</span>        // Overwrite any counter adjustment<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        this.writes.getAdjusts().remove(key);<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>        // Overwrite any removal<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        if (this.writes.getRemoves().contains(key))<a name="line.191"></a>
-<span class="sourceLineNo">192</span>            this.writes.setRemoves(this.writes.getRemoves().remove(new KeyRange(key)));<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>        // Record the put<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        this.writes.getPuts().put(key.clone(), value.clone());<a name="line.195"></a>
-<span class="sourceLineNo">196</span>    }<a name="line.196"></a>
-<span class="sourceLineNo">197</span><a name="line.197"></a>
-<span class="sourceLineNo">198</span>    @Override<a name="line.198"></a>
-<span class="sourceLineNo">199</span>    public synchronized void remove(byte[] key) {<a name="line.199"></a>
-<span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>        // Sanity check<a name="line.201"></a>
-<span class="sourceLineNo">202</span>        assert this.check();<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        Preconditions.checkArgument(key != null, "null key");<a name="line.203"></a>
-<span class="sourceLineNo">204</span><a name="line.204"></a>
-<span class="sourceLineNo">205</span>        // Overwrite any counter adjustment<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        this.writes.getAdjusts().remove(key);<a name="line.206"></a>
-<span class="sourceLineNo">207</span><a name="line.207"></a>
-<span class="sourceLineNo">208</span>        // Overwrite any put<a name="line.208"></a>
-<span class="sourceLineNo">209</span>        this.writes.getPuts().remove(key);<a name="line.209"></a>
-<span class="sourceLineNo">210</span><a name="line.210"></a>
-<span class="sourceLineNo">211</span>        // Record the remove<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        this.writes.setRemoves(this.writes.getRemoves().add(new KeyRange(key)));<a name="line.212"></a>
-<span class="sourceLineNo">213</span>    }<a name="line.213"></a>
-<span class="sourceLineNo">214</span><a name="line.214"></a>
-<span class="sourceLineNo">215</span>    @Override<a name="line.215"></a>
-<span class="sourceLineNo">216</span>    public synchronized void removeRange(byte[] minKey, byte[] maxKey) {<a name="line.216"></a>
-<span class="sourceLineNo">217</span><a name="line.217"></a>
-<span class="sourceLineNo">218</span>        // Sanity check<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        assert this.check();<a name="line.219"></a>
-<span class="sourceLineNo">220</span><a name="line.220"></a>
-<span class="sourceLineNo">221</span>        // Realize minKey<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        if (minKey == null)<a name="line.222"></a>
-<span class="sourceLineNo">223</span>            minKey = ByteUtil.EMPTY;<a name="line.223"></a>
-<span class="sourceLineNo">224</span><a name="line.224"></a>
-<span class="sourceLineNo">225</span>        // Overwrite any puts and counter adjustments<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        if (maxKey != null) {<a name="line.226"></a>
-<span class="sourceLineNo">227</span>            this.writes.getPuts().subMap(minKey, maxKey).clear();<a name="line.227"></a>
-<span class="sourceLineNo">228</span>            this.writes.getAdjusts().subMap(minKey, maxKey).clear();<a name="line.228"></a>
-<span class="sourceLineNo">229</span>        } else {<a name="line.229"></a>
-<span class="sourceLineNo">230</span>            this.writes.getPuts().tailMap(minKey).clear();<a name="line.230"></a>
-<span class="sourceLineNo">231</span>            this.writes.getAdjusts().tailMap(minKey).clear();<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        }<a name="line.232"></a>
-<span class="sourceLineNo">233</span><a name="line.233"></a>
-<span class="sourceLineNo">234</span>        // Record the remove<a name="line.234"></a>
-<span class="sourceLineNo">235</span>        this.writes.setRemoves(this.writes.getRemoves().add(new KeyRange(minKey, maxKey)));<a name="line.235"></a>
-<span class="sourceLineNo">236</span>    }<a name="line.236"></a>
-<span class="sourceLineNo">237</span><a name="line.237"></a>
-<span class="sourceLineNo">238</span>    @Override<a name="line.238"></a>
-<span class="sourceLineNo">239</span>    public byte[] encodeCounter(long value) {<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        return this.kv.encodeCounter(value);<a name="line.240"></a>
-<span class="sourceLineNo">241</span>    }<a name="line.241"></a>
-<span class="sourceLineNo">242</span><a name="line.242"></a>
-<span class="sourceLineNo">243</span>    @Override<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    public long decodeCounter(byte[] bytes) {<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        return this.kv.decodeCounter(bytes);<a name="line.245"></a>
-<span class="sourceLineNo">246</span>    }<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
-<span class="sourceLineNo">248</span>    @Override<a name="line.248"></a>
-<span class="sourceLineNo">249</span>    public synchronized void adjustCounter(byte[] key, long amount) {<a name="line.249"></a>
-<span class="sourceLineNo">250</span><a name="line.250"></a>
-<span class="sourceLineNo">251</span>        // Sanity check<a name="line.251"></a>
-<span class="sourceLineNo">252</span>        assert this.check();<a name="line.252"></a>
-<span class="sourceLineNo">253</span><a name="line.253"></a>
-<span class="sourceLineNo">254</span>        // Check puts<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        final byte[] putValue = this.writes.getPuts().get(key);<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        if (putValue != null) {<a name="line.256"></a>
-<span class="sourceLineNo">257</span>            final long value;<a name="line.257"></a>
-<span class="sourceLineNo">258</span>            try {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>                value = this.kv.decodeCounter(putValue);<a name="line.259"></a>
-<span class="sourceLineNo">260</span>            } catch (IllegalArgumentException e) {<a name="line.260"></a>
-<span class="sourceLineNo">261</span>                return;                                 // previously put value was not decodable, so ignore this adjustment<a name="line.261"></a>
-<span class="sourceLineNo">262</span>            }<a name="line.262"></a>
-<span class="sourceLineNo">263</span>            this.writes.getPuts().put(key, this.kv.encodeCounter(value + amount));<a name="line.263"></a>
-<span class="sourceLineNo">264</span>            return;<a name="line.264"></a>
-<span class="sourceLineNo">265</span>        }<a name="line.265"></a>
-<span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>        // Check removes<a name="line.267"></a>
-<span class="sourceLineNo">268</span>        if (this.writes.getRemoves().contains(key))<a name="line.268"></a>
-<span class="sourceLineNo">269</span>            return;<a name="line.269"></a>
-<span class="sourceLineNo">270</span><a name="line.270"></a>
-<span class="sourceLineNo">271</span>        // Calculate new, cumulative adjustment<a name="line.271"></a>
-<span class="sourceLineNo">272</span>        final Long oldAdjust = this.writes.getAdjusts().get(key);<a name="line.272"></a>
-<span class="sourceLineNo">273</span>        final long adjust = (oldAdjust != null ? oldAdjust : 0) + amount;<a name="line.273"></a>
-<span class="sourceLineNo">274</span><a name="line.274"></a>
-<span class="sourceLineNo">275</span>        // Record/update adjustment<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        if (adjust != 0)<a name="line.276"></a>
-<span class="sourceLineNo">277</span>            this.writes.getAdjusts().put(key, adjust);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        else<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            this.writes.getAdjusts().remove(key);<a name="line.279"></a>
-<span class="sourceLineNo">280</span>    }<a name="line.280"></a>
+<span class="sourceLineNo">123</span>    @Override<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    public synchronized byte[] get(byte[] key) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>        // Sanity check<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        assert this.check();<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>        // Check puts<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        final byte[] putValue = this.writes.getPuts().get(key);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        if (putValue != null)<a name="line.131"></a>
+<span class="sourceLineNo">132</span>            return putValue;<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>        // Check removes<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        if (this.writes.getRemoves().contains(key))<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            return null;<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>        // Read from k/v store<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        byte[] value = this.kv.get(key);<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>        // Record the read<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        this.recordReads(key, ByteUtil.getNextKey(key));<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>        // Check counter adjustments<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        if (value == null)                      // we can ignore adjustments of missing values<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            return null;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        final Long adjust = this.writes.getAdjusts().get(key);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        if (adjust != null) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>            // Decode value we just read as a counter<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            final long counterValue;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            try {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                counterValue = this.kv.decodeCounter(value);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            } catch (IllegalArgumentException e) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                this.writes.getAdjusts().remove(key);       // previous adjustment was bogus because value was not decodable<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                return value;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            }<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>            // Adjust counter value by adjustment and re-encode<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            value = this.kv.encodeCounter(counterValue + adjust);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>        // Done<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        return value;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>    @Override<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    public Iterator&lt;KVPair&gt; getRange(byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>        // Sanity check<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        assert this.check();<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>        // Build iterator<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        return new RangeIterator(minKey, maxKey, reverse);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>    @Override<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    public synchronized void put(byte[] key, byte[] value) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>        // Sanity check<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        assert this.check();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        Preconditions.checkArgument(key != null, "null key");<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        Preconditions.checkArgument(value != null, "null value");<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>        // Overwrite any counter adjustment<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        this.writes.getAdjusts().remove(key);<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>        // Overwrite any removal<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        if (this.writes.getRemoves().contains(key))<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            this.writes.setRemoves(this.writes.getRemoves().remove(new KeyRange(key)));<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>        // Record the put<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        this.writes.getPuts().put(key.clone(), value.clone());<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    }<a name="line.194"></a>
+<span class="sourceLineNo">195</span><a name="line.195"></a>
+<span class="sourceLineNo">196</span>    @Override<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    public synchronized void remove(byte[] key) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>        // Sanity check<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        assert this.check();<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        Preconditions.checkArgument(key != null, "null key");<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>        // Overwrite any counter adjustment<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        this.writes.getAdjusts().remove(key);<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>        // Overwrite any put<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        this.writes.getPuts().remove(key);<a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>        // Record the remove<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        this.writes.setRemoves(this.writes.getRemoves().add(new KeyRange(key)));<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    }<a name="line.211"></a>
+<span class="sourceLineNo">212</span><a name="line.212"></a>
+<span class="sourceLineNo">213</span>    @Override<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    public synchronized void removeRange(byte[] minKey, byte[] maxKey) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>        // Sanity check<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        assert this.check();<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>        // Realize minKey<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        if (minKey == null)<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            minKey = ByteUtil.EMPTY;<a name="line.221"></a>
+<span class="sourceLineNo">222</span><a name="line.222"></a>
+<span class="sourceLineNo">223</span>        // Overwrite any puts and counter adjustments<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        if (maxKey != null) {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>            this.writes.getPuts().subMap(minKey, maxKey).clear();<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            this.writes.getAdjusts().subMap(minKey, maxKey).clear();<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        } else {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            this.writes.getPuts().tailMap(minKey).clear();<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            this.writes.getAdjusts().tailMap(minKey).clear();<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        }<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>        // Record the remove<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        this.writes.setRemoves(this.writes.getRemoves().add(new KeyRange(minKey, maxKey)));<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    }<a name="line.234"></a>
+<span class="sourceLineNo">235</span><a name="line.235"></a>
+<span class="sourceLineNo">236</span>    @Override<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    public byte[] encodeCounter(long value) {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        return this.kv.encodeCounter(value);<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    }<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span>    @Override<a name="line.241"></a>
+<span class="sourceLineNo">242</span>    public long decodeCounter(byte[] bytes) {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        return this.kv.decodeCounter(bytes);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    }<a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
+<span class="sourceLineNo">246</span>    @Override<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    public synchronized void adjustCounter(byte[] key, long amount) {<a name="line.247"></a>
+<span class="sourceLineNo">248</span><a name="line.248"></a>
+<span class="sourceLineNo">249</span>        // Sanity check<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        assert this.check();<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>        // Check puts<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        final byte[] putValue = this.writes.getPuts().get(key);<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        if (putValue != null) {<a name="line.254"></a>
+<span class="sourceLineNo">255</span>            final long value;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>            try {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                value = this.kv.decodeCounter(putValue);<a name="line.257"></a>
+<span class="sourceLineNo">258</span>            } catch (IllegalArgumentException e) {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                return;                                 // previously put value was not decodable, so ignore this adjustment<a name="line.259"></a>
+<span class="sourceLineNo">260</span>            }<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            this.writes.getPuts().put(key, this.kv.encodeCounter(value + amount));<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            return;<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        }<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>        // Check removes<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        if (this.writes.getRemoves().contains(key))<a name="line.266"></a>
+<span class="sourceLineNo">267</span>            return;<a name="line.267"></a>
+<span class="sourceLineNo">268</span><a name="line.268"></a>
+<span class="sourceLineNo">269</span>        // Calculate new, cumulative adjustment<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        final Long oldAdjust = this.writes.getAdjusts().get(key);<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        final long adjust = (oldAdjust != null ? oldAdjust : 0) + amount;<a name="line.271"></a>
+<span class="sourceLineNo">272</span><a name="line.272"></a>
+<span class="sourceLineNo">273</span>        // Record/update adjustment<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        if (adjust != 0)<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            this.writes.getAdjusts().put(key, adjust);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        else<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            this.writes.getAdjusts().remove(key);<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    }<a name="line.278"></a>
+<span class="sourceLineNo">279</span><a name="line.279"></a>
+<span class="sourceLineNo">280</span>// SizeEstimating<a name="line.280"></a>
 <span class="sourceLineNo">281</span><a name="line.281"></a>
-<span class="sourceLineNo">282</span>// SizeEstimating<a name="line.282"></a>
-<span class="sourceLineNo">283</span><a name="line.283"></a>
-<span class="sourceLineNo">284</span>    /**<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     * Add the estimated size of this instance (in bytes) to the given estimator.<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     *<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     * &lt;p&gt;<a name="line.287"></a>
-<span class="sourceLineNo">288</span>     * The size estimate returned by this method does not include the underlying {@link KVStore}.<a name="line.288"></a>
-<span class="sourceLineNo">289</span>     *<a name="line.289"></a>
-<span class="sourceLineNo">290</span>     * @param estimator size estimator<a name="line.290"></a>
-<span class="sourceLineNo">291</span>     */<a name="line.291"></a>
-<span class="sourceLineNo">292</span>    @Override<a name="line.292"></a>
-<span class="sourceLineNo">293</span>    public void addTo(SizeEstimator estimator) {<a name="line.293"></a>
-<span class="sourceLineNo">294</span>        estimator<a name="line.294"></a>
-<span class="sourceLineNo">295</span>          .addObjectOverhead()<a name="line.295"></a>
-<span class="sourceLineNo">296</span>          .addReferenceField()                              // kv<a name="line.296"></a>
-<span class="sourceLineNo">297</span>          .addField(this.reads)                             // reads<a name="line.297"></a>
-<span class="sourceLineNo">298</span>          .addField(this.writes);                           // writes<a name="line.298"></a>
-<span class="sourceLineNo">299</span>    }<a name="line.299"></a>
+<span class="sourceLineNo">282</span>    /**<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * Add the estimated size of this instance (in bytes) to the given estimator.<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     *<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * &lt;p&gt;<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * The size estimate returned by this method does not include the underlying {@link KVStore}.<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     *<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     * @param estimator size estimator<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     */<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    @Override<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    public void addTo(SizeEstimator estimator) {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        estimator<a name="line.292"></a>
+<span class="sourceLineNo">293</span>          .addObjectOverhead()<a name="line.293"></a>
+<span class="sourceLineNo">294</span>          .addReferenceField()                              // kv<a name="line.294"></a>
+<span class="sourceLineNo">295</span>          .addField(this.reads)                             // reads<a name="line.295"></a>
+<span class="sourceLineNo">296</span>          .addField(this.writes);                           // writes<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    }<a name="line.297"></a>
+<span class="sourceLineNo">298</span><a name="line.298"></a>
+<span class="sourceLineNo">299</span>// Object<a name="line.299"></a>
 <span class="sourceLineNo">300</span><a name="line.300"></a>
-<span class="sourceLineNo">301</span>// Object<a name="line.301"></a>
-<span class="sourceLineNo">302</span><a name="line.302"></a>
-<span class="sourceLineNo">303</span>    @Override<a name="line.303"></a>
-<span class="sourceLineNo">304</span>    public String toString() {<a name="line.304"></a>
-<span class="sourceLineNo">305</span>        return this.getClass().getSimpleName()<a name="line.305"></a>
-<span class="sourceLineNo">306</span>          + "[writes=" + this.writes<a name="line.306"></a>
-<span class="sourceLineNo">307</span>          + (this.reads != null ? ",reads=" + this.reads : "")<a name="line.307"></a>
-<span class="sourceLineNo">308</span>          + "]";<a name="line.308"></a>
-<span class="sourceLineNo">309</span>    }<a name="line.309"></a>
+<span class="sourceLineNo">301</span>    @Override<a name="line.301"></a>
+<span class="sourceLineNo">302</span>    public String toString() {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        return this.getClass().getSimpleName()<a name="line.303"></a>
+<span class="sourceLineNo">304</span>          + "[writes=" + this.writes<a name="line.304"></a>
+<span class="sourceLineNo">305</span>          + (this.reads != null ? ",reads=" + this.reads : "")<a name="line.305"></a>
+<span class="sourceLineNo">306</span>          + "]";<a name="line.306"></a>
+<span class="sourceLineNo">307</span>    }<a name="line.307"></a>
+<span class="sourceLineNo">308</span><a name="line.308"></a>
+<span class="sourceLineNo">309</span>// Internal methods<a name="line.309"></a>
 <span class="sourceLineNo">310</span><a name="line.310"></a>
-<span class="sourceLineNo">311</span>// Internal methods<a name="line.311"></a>
-<span class="sourceLineNo">312</span><a name="line.312"></a>
-<span class="sourceLineNo">313</span>    // Record that keys were read in the range [minKey, maxKey)<a name="line.313"></a>
-<span class="sourceLineNo">314</span>    private synchronized void recordReads(byte[] minKey, byte[] maxKey) {<a name="line.314"></a>
-<span class="sourceLineNo">315</span><a name="line.315"></a>
-<span class="sourceLineNo">316</span>        // Not tracking reads?<a name="line.316"></a>
-<span class="sourceLineNo">317</span>        if (this.reads == null)<a name="line.317"></a>
-<span class="sourceLineNo">318</span>            return;<a name="line.318"></a>
-<span class="sourceLineNo">319</span><a name="line.319"></a>
-<span class="sourceLineNo">320</span>        // Realize minKey<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        if (minKey == null)<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            minKey = ByteUtil.EMPTY;<a name="line.322"></a>
-<span class="sourceLineNo">323</span><a name="line.323"></a>
-<span class="sourceLineNo">324</span>        // Already tracked?<a name="line.324"></a>
-<span class="sourceLineNo">325</span>        final KeyRange readRange = new KeyRange(minKey, maxKey);<a name="line.325"></a>
-<span class="sourceLineNo">326</span>        if (this.reads.getReads().contains(readRange))<a name="line.326"></a>
-<span class="sourceLineNo">327</span>            return;<a name="line.327"></a>
-<span class="sourceLineNo">328</span><a name="line.328"></a>
-<span class="sourceLineNo">329</span>        // Subtract out the part of the read range that did not really go through to k/v store due to puts or removes<a name="line.329"></a>
-<span class="sourceLineNo">330</span>        KeyRanges readRanges = new KeyRanges(readRange);<a name="line.330"></a>
-<span class="sourceLineNo">331</span>        final Set&lt;byte[]&gt; putKeys = (maxKey != null ?<a name="line.331"></a>
-<span class="sourceLineNo">332</span>          this.writes.getPuts().subMap(minKey, maxKey) : this.writes.getPuts().tailMap(minKey)).keySet();<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        for (byte[] key : putKeys)<a name="line.333"></a>
-<span class="sourceLineNo">334</span>            readRanges = readRanges.remove(new KeyRange(key));<a name="line.334"></a>
-<span class="sourceLineNo">335</span>        readRanges = readRanges.intersection(this.writes.getRemoves().inverse());<a name="line.335"></a>
-<span class="sourceLineNo">336</span><a name="line.336"></a>
-<span class="sourceLineNo">337</span>        // Record reads<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        if (!readRanges.isEmpty())<a name="line.338"></a>
-<span class="sourceLineNo">339</span>            this.reads.setReads(this.reads.getReads().union(readRanges));<a name="line.339"></a>
-<span class="sourceLineNo">340</span>    }<a name="line.340"></a>
+<span class="sourceLineNo">311</span>    // Record that keys were read in the range [minKey, maxKey)<a name="line.311"></a>
+<span class="sourceLineNo">312</span>    private synchronized void recordReads(byte[] minKey, byte[] maxKey) {<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>        // Not tracking reads?<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        if (this.reads == null)<a name="line.315"></a>
+<span class="sourceLineNo">316</span>            return;<a name="line.316"></a>
+<span class="sourceLineNo">317</span><a name="line.317"></a>
+<span class="sourceLineNo">318</span>        // Realize minKey<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        if (minKey == null)<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            minKey = ByteUtil.EMPTY;<a name="line.320"></a>
+<span class="sourceLineNo">321</span><a name="line.321"></a>
+<span class="sourceLineNo">322</span>        // Already tracked?<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        final KeyRange readRange = new KeyRange(minKey, maxKey);<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        if (this.reads.getReads().contains(readRange))<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            return;<a name="line.325"></a>
+<span class="sourceLineNo">326</span><a name="line.326"></a>
+<span class="sourceLineNo">327</span>        // Subtract out the part of the read range that did not really go through to k/v store due to puts or removes<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        KeyRanges readRanges = new KeyRanges(readRange);<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        final Set&lt;byte[]&gt; putKeys = (maxKey != null ?<a name="line.329"></a>
+<span class="sourceLineNo">330</span>          this.writes.getPuts().subMap(minKey, maxKey) : this.writes.getPuts().tailMap(minKey)).keySet();<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        for (byte[] key : putKeys)<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            readRanges = readRanges.remove(new KeyRange(key));<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        readRanges = readRanges.intersection(this.writes.getRemoves().inverse());<a name="line.333"></a>
+<span class="sourceLineNo">334</span><a name="line.334"></a>
+<span class="sourceLineNo">335</span>        // Record reads<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        if (!readRanges.isEmpty())<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            this.reads.setReads(this.reads.getReads().union(readRanges));<a name="line.337"></a>
+<span class="sourceLineNo">338</span>    }<a name="line.338"></a>
+<span class="sourceLineNo">339</span><a name="line.339"></a>
+<span class="sourceLineNo">340</span>// Debugging<a name="line.340"></a>
 <span class="sourceLineNo">341</span><a name="line.341"></a>
-<span class="sourceLineNo">342</span>// Debugging<a name="line.342"></a>
-<span class="sourceLineNo">343</span><a name="line.343"></a>
-<span class="sourceLineNo">344</span>    // Verify puts, removes, and adjusts are all mutually disjoint<a name="line.344"></a>
-<span class="sourceLineNo">345</span>    private synchronized boolean check() {<a name="line.345"></a>
-<span class="sourceLineNo">346</span>        MutableView.verifyDisjoint(<a name="line.346"></a>
-<span class="sourceLineNo">347</span>          this.writes.getRemoves(),<a name="line.347"></a>
-<span class="sourceLineNo">348</span>          MutableView.buildKeyRanges(this.writes.getPuts().keySet()),<a name="line.348"></a>
-<span class="sourceLineNo">349</span>          MutableView.buildKeyRanges(this.writes.getAdjusts().keySet()));<a name="line.349"></a>
-<span class="sourceLineNo">350</span>        return true;<a name="line.350"></a>
-<span class="sourceLineNo">351</span>    }<a name="line.351"></a>
-<span class="sourceLineNo">352</span><a name="line.352"></a>
-<span class="sourceLineNo">353</span>    private static void verifyDisjoint(KeyRanges... rangeses) {<a name="line.353"></a>
-<span class="sourceLineNo">354</span>        for (int i = 0; i &lt; rangeses.length - 1; i++) {<a name="line.354"></a>
-<span class="sourceLineNo">355</span>            for (int j = i + 1; j &lt; rangeses.length; j++)<a name="line.355"></a>
-<span class="sourceLineNo">356</span>                assert rangeses[i].intersection(rangeses[j]).isEmpty();<a name="line.356"></a>
-<span class="sourceLineNo">357</span>        }<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    }<a name="line.358"></a>
-<span class="sourceLineNo">359</span><a name="line.359"></a>
-<span class="sourceLineNo">360</span>    private static KeyRanges buildKeyRanges(Iterable&lt;byte[]&gt; keys) {<a name="line.360"></a>
-<span class="sourceLineNo">361</span>        KeyRanges ranges = KeyRanges.EMPTY;<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        for (byte[] key : keys)<a name="line.362"></a>
-<span class="sourceLineNo">363</span>            ranges = ranges.add(new KeyRange(key));<a name="line.363"></a>
-<span class="sourceLineNo">364</span>        return ranges;<a name="line.364"></a>
-<span class="sourceLineNo">365</span>    }<a name="line.365"></a>
+<span class="sourceLineNo">342</span>    // Verify puts, removes, and adjusts are all mutually disjoint<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    private synchronized boolean check() {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        MutableView.verifyDisjoint(<a name="line.344"></a>
+<span class="sourceLineNo">345</span>          this.writes.getRemoves(),<a name="line.345"></a>
+<span class="sourceLineNo">346</span>          MutableView.buildKeyRanges(this.writes.getPuts().keySet()),<a name="line.346"></a>
+<span class="sourceLineNo">347</span>          MutableView.buildKeyRanges(this.writes.getAdjusts().keySet()));<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        return true;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>    }<a name="line.349"></a>
+<span class="sourceLineNo">350</span><a name="line.350"></a>
+<span class="sourceLineNo">351</span>    private static void verifyDisjoint(KeyRanges... rangeses) {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        for (int i = 0; i &lt; rangeses.length - 1; i++) {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>            for (int j = i + 1; j &lt; rangeses.length; j++)<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                assert rangeses[i].intersection(rangeses[j]).isEmpty();<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        }<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>    private static KeyRanges buildKeyRanges(Iterable&lt;byte[]&gt; keys) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        KeyRanges ranges = KeyRanges.EMPTY;<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        for (byte[] key : keys)<a name="line.360"></a>
+<span class="sourceLineNo">361</span>            ranges = ranges.add(new KeyRange(key));<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        return ranges;<a name="line.362"></a>
+<span class="sourceLineNo">363</span>    }<a name="line.363"></a>
+<span class="sourceLineNo">364</span><a name="line.364"></a>
+<span class="sourceLineNo">365</span>// RangeIterator<a name="line.365"></a>
 <span class="sourceLineNo">366</span><a name="line.366"></a>
-<span class="sourceLineNo">367</span>// RangeIterator<a name="line.367"></a>
+<span class="sourceLineNo">367</span>    private class RangeIterator implements Iterator&lt;KVPair&gt; {<a name="line.367"></a>
 <span class="sourceLineNo">368</span><a name="line.368"></a>
-<span class="sourceLineNo">369</span>    private class RangeIterator implements Iterator&lt;KVPair&gt; {<a name="line.369"></a>
-<span class="sourceLineNo">370</span><a name="line.370"></a>
-<span class="sourceLineNo">371</span>        private final KVPairIterator pi;<a name="line.371"></a>
-<span class="sourceLineNo">372</span>        private final byte[] limit;<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        private final boolean reverse;<a name="line.373"></a>
-<span class="sourceLineNo">374</span><a name="line.374"></a>
-<span class="sourceLineNo">375</span>        private byte[] cursor;                  // current position; inclusive if forward, exclusive if reverse<a name="line.375"></a>
-<span class="sourceLineNo">376</span>        private KVPair next;                    // the next k/v pair queued up, or null if not found yet<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        private byte[] removeKey;               // key to remove if remove() is invoked<a name="line.377"></a>
-<span class="sourceLineNo">378</span>        private boolean finished;<a name="line.378"></a>
+<span class="sourceLineNo">369</span>        private final KVPairIterator pi;<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        private final byte[] limit;<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        private final boolean reverse;<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>        private byte[] cursor;                  // current position; inclusive if forward, exclusive if reverse<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        private KVPair next;                    // the next k/v pair queued up, or null if not found yet<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        private byte[] removeKey;               // key to remove if remove() is invoked<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        private boolean finished;<a name="line.376"></a>
+<span class="sourceLineNo">377</span><a name="line.377"></a>
+<span class="sourceLineNo">378</span>        RangeIterator(byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.378"></a>
 <span class="sourceLineNo">379</span><a name="line.379"></a>
-<span class="sourceLineNo">380</span>        RangeIterator(byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.380"></a>
-<span class="sourceLineNo">381</span><a name="line.381"></a>
-<span class="sourceLineNo">382</span>            // Realize minKey<a name="line.382"></a>
-<span class="sourceLineNo">383</span>            if (minKey == null)<a name="line.383"></a>
-<span class="sourceLineNo">384</span>                minKey = ByteUtil.EMPTY;<a name="line.384"></a>
-<span class="sourceLineNo">385</span><a name="line.385"></a>
-<span class="sourceLineNo">386</span>            // Build KVPairIterator that omits keys we've put or removed so far; this is safe even if more keys are put and/or<a name="line.386"></a>
-<span class="sourceLineNo">387</span>            // removed after creation, because the set "keys we've put or removed so far" can only increase over time.<a name="line.387"></a>
-<span class="sourceLineNo">388</span>            synchronized (MutableView.this) {<a name="line.388"></a>
-<span class="sourceLineNo">389</span>                final KeyRanges putsAndRemoves = MutableView.buildKeyRanges(MutableView.this.writes.getPuts().keySet())<a name="line.389"></a>
-<span class="sourceLineNo">390</span>                  .union(MutableView.this.writes.getRemoves());<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                this.pi = new KVPairIterator(MutableView.this.kv, new KeyRange(minKey, maxKey), putsAndRemoves.inverse(), reverse);<a name="line.391"></a>
-<span class="sourceLineNo">392</span>            }<a name="line.392"></a>
-<span class="sourceLineNo">393</span><a name="line.393"></a>
-<span class="sourceLineNo">394</span>            // Initialize cursor<a name="line.394"></a>
-<span class="sourceLineNo">395</span>            this.cursor = reverse ? maxKey : minKey;<a name="line.395"></a>
-<span class="sourceLineNo">396</span>            this.limit = reverse ? minKey : maxKey;<a name="line.396"></a>
-<span class="sourceLineNo">397</span>            this.reverse = reverse;<a name="line.397"></a>
-<span class="sourceLineNo">398</span>        }<a name="line.398"></a>
-<span class="sourceLineNo">399</span><a name="line.399"></a>
-<span class="sourceLineNo">400</span>        @Override<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        public synchronized boolean hasNext() {<a name="line.401"></a>
-<span class="sourceLineNo">402</span>            return this.next != null || this.findNext();<a name="line.402"></a>
-<span class="sourceLineNo">403</span>        }<a name="line.403"></a>
-<span class="sourceLineNo">404</span><a name="line.404"></a>
-<span class="sourceLineNo">405</span>        @Override<a name="line.405"></a>
-<span class="sourceLineNo">406</span>        public synchronized KVPair next() {<a name="line.406"></a>
-<span class="sourceLineNo">407</span>            if (this.next == null &amp;&amp; !this.findNext())<a name="line.407"></a>
-<span class="sourceLineNo">408</span>                throw new NoSuchElementException();<a name="line.408"></a>
-<span class="sourceLineNo">409</span>            final KVPair pair = this.next;<a name="line.409"></a>
-<span class="sourceLineNo">410</span>            assert pair != null;<a name="line.410"></a>
-<span class="sourceLineNo">411</span>            this.removeKey = pair.getKey();<a name="line.411"></a>
-<span class="sourceLineNo">412</span>            this.next = null;<a name="line.412"></a>
-<span class="sourceLineNo">413</span>            return pair;<a name="line.413"></a>
-<span class="sourceLineNo">414</span>        }<a name="line.414"></a>
-<span class="sourceLineNo">415</span><a name="line.415"></a>
-<span class="sourceLineNo">416</span>        @Override<a name="line.416"></a>
-<span class="sourceLineNo">417</span>        public synchronized void remove() {<a name="line.417"></a>
-<span class="sourceLineNo">418</span>            Preconditions.checkState(this.removeKey != null);<a name="line.418"></a>
-<span class="sourceLineNo">419</span>            MutableView.this.remove(this.removeKey);<a name="line.419"></a>
-<span class="sourceLineNo">420</span>            this.removeKey = null;<a name="line.420"></a>
-<span class="sourceLineNo">421</span>        }<a name="line.421"></a>
+<span class="sourceLineNo">380</span>            // Realize minKey<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            if (minKey == null)<a name="line.381"></a>
+<span class="sourceLineNo">382</span>                minKey = ByteUtil.EMPTY;<a name="line.382"></a>
+<span class="sourceLineNo">383</span><a name="line.383"></a>
+<span class="sourceLineNo">384</span>            // Build KVPairIterator that omits keys we've put or removed so far; this is safe even if more keys are put and/or<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            // removed after creation, because the set "keys we've put or removed so far" can only increase over time.<a name="line.385"></a>
+<span class="sourceLineNo">386</span>            synchronized (MutableView.this) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                final KeyRanges putsAndRemoves = MutableView.buildKeyRanges(MutableView.this.writes.getPuts().keySet())<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                  .union(MutableView.this.writes.getRemoves());<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                this.pi = new KVPairIterator(MutableView.this.kv, new KeyRange(minKey, maxKey), putsAndRemoves.inverse(), reverse);<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            }<a name="line.390"></a>
+<span class="sourceLineNo">391</span><a name="line.391"></a>
+<span class="sourceLineNo">392</span>            // Initialize cursor<a name="line.392"></a>
+<span class="sourceLineNo">393</span>            this.cursor = reverse ? maxKey : minKey;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>            this.limit = reverse ? minKey : maxKey;<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            this.reverse = reverse;<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        }<a name="line.396"></a>
+<span class="sourceLineNo">397</span><a name="line.397"></a>
+<span class="sourceLineNo">398</span>        @Override<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        public synchronized boolean hasNext() {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>            return this.next != null || this.findNext();<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        }<a name="line.401"></a>
+<span class="sourceLineNo">402</span><a name="line.402"></a>
+<span class="sourceLineNo">403</span>        @Override<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        public synchronized KVPair next() {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            if (this.next == null &amp;&amp; !this.findNext())<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                throw new NoSuchElementException();<a name="line.406"></a>
+<span class="sourceLineNo">407</span>            final KVPair pair = this.next;<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            assert pair != null;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            this.removeKey = pair.getKey();<a name="line.409"></a>
+<span class="sourceLineNo">410</span>            this.next = null;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>            return pair;<a name="line.411"></a>
+<span class="sourceLineNo">412</span>        }<a name="line.412"></a>
+<span class="sourceLineNo">413</span><a name="line.413"></a>
+<span class="sourceLineNo">414</span>        @Override<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        public synchronized void remove() {<a name="line.415"></a>
+<span class="sourceLineNo">416</span>            Preconditions.checkState(this.removeKey != null);<a name="line.416"></a>
+<span class="sourceLineNo">417</span>            MutableView.this.remove(this.removeKey);<a name="line.417"></a>
+<span class="sourceLineNo">418</span>            this.removeKey = null;<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        }<a name="line.419"></a>
+<span class="sourceLineNo">420</span><a name="line.420"></a>
+<span class="sourceLineNo">421</span>        private synchronized boolean findNext() {<a name="line.421"></a>
 <span class="sourceLineNo">422</span><a name="line.422"></a>
-<span class="sourceLineNo">423</span>        private synchronized boolean findNext() {<a name="line.423"></a>
-<span class="sourceLineNo">424</span><a name="line.424"></a>
-<span class="sourceLineNo">425</span>            // Invariants<a name="line.425"></a>
-<span class="sourceLineNo">426</span>            assert this.next == null;<a name="line.426"></a>
-<span class="sourceLineNo">427</span>            assert this.cursor != null || this.reverse;<a name="line.427"></a>
-<span class="sourceLineNo">428</span><a name="line.428"></a>
-<span class="sourceLineNo">429</span>            // Exhausted?<a name="line.429"></a>
-<span class="sourceLineNo">430</span>            if (this.finished)<a name="line.430"></a>
-<span class="sourceLineNo">431</span>                return false;<a name="line.431"></a>
-<span class="sourceLineNo">432</span><a name="line.432"></a>
-<span class="sourceLineNo">433</span>            // Compare against most current MutableView puts and removes<a name="line.433"></a>
-<span class="sourceLineNo">434</span>            synchronized (MutableView.this) {<a name="line.434"></a>
-<span class="sourceLineNo">435</span><a name="line.435"></a>
-<span class="sourceLineNo">436</span>                // Find the next k/v pair not filtered out by (newly added) removes, if any<a name="line.436"></a>
-<span class="sourceLineNo">437</span>                KVPair readPair = null;<a name="line.437"></a>
-<span class="sourceLineNo">438</span>                while (this.pi.hasNext()) {<a name="line.438"></a>
-<span class="sourceLineNo">439</span>                    readPair = this.pi.next();<a name="line.439"></a>
-<span class="sourceLineNo">440</span>                    if (MutableView.this.writes.getRemoves().contains(readPair.getKey())) {<a name="line.440"></a>
-<span class="sourceLineNo">441</span>                        readPair = null;<a name="line.441"></a>
-<span class="sourceLineNo">442</span>                        continue;<a name="line.442"></a>
-<span class="sourceLineNo">443</span>                    }<a name="line.443"></a>
-<span class="sourceLineNo">444</span>                    break;<a name="line.444"></a>
-<span class="sourceLineNo">445</span>                }<a name="line.445"></a>
-<span class="sourceLineNo">446</span><a name="line.446"></a>
-<span class="sourceLineNo">447</span>                // Find the next put, if any<a name="line.447"></a>
-<span class="sourceLineNo">448</span>                final Map.Entry&lt;byte[], byte[]&gt; putEntry = this.reverse ?<a name="line.448"></a>
-<span class="sourceLineNo">449</span>                  (this.cursor != null ?<a name="line.449"></a>
-<span class="sourceLineNo">450</span>                   MutableView.this.writes.getPuts().lowerEntry(this.cursor) : MutableView.this.writes.getPuts().lastEntry()) :<a name="line.450"></a>
-<span class="sourceLineNo">451</span>                  MutableView.this.writes.getPuts().ceilingEntry(this.cursor);<a name="line.451"></a>
-<span class="sourceLineNo">452</span>                final KVPair putPair = putEntry != null ? new KVPair(putEntry) : null;<a name="line.452"></a>
-<span class="sourceLineNo">453</span><a name="line.453"></a>
-<span class="sourceLineNo">454</span>                // Figure out which pair wins (read or put)<a name="line.454"></a>
-<span class="sourceLineNo">455</span>                final KVPair pair;<a name="line.455"></a>
-<span class="sourceLineNo">456</span>                int diff = 0;<a name="line.456"></a>
-<span class="sourceLineNo">457</span>                if (readPair == null &amp;&amp; putPair == null)<a name="line.457"></a>
-<span class="sourceLineNo">458</span>                    pair = null;<a name="line.458"></a>
-<span class="sourceLineNo">459</span>                else if (readPair == null)<a name="line.459"></a>
-<span class="sourceLineNo">460</span>                    pair = putPair;<a name="line.460"></a>
-<span class="sourceLineNo">461</span>                else if (putPair == null)<a name="line.461"></a>
-<span class="sourceLineNo">462</span>                    pair = readPair;<a name="line.462"></a>
-<span class="sourceLineNo">463</span>                else {<a name="line.463"></a>
-<span class="sourceLineNo">464</span>                    diff = ByteUtil.compare(putPair.getKey(), readPair.getKey());<a name="line.464"></a>
-<span class="sourceLineNo">465</span>                    if (reverse)<a name="line.465"></a>
-<span class="sourceLineNo">466</span>                        diff = -diff;<a name="line.466"></a>
-<span class="sourceLineNo">467</span>                    pair = diff &lt;= 0 ? putPair : readPair;                  // if there's a tie, the put wins<a name="line.467"></a>
-<span class="sourceLineNo">468</span>                }<a name="line.468"></a>
-<span class="sourceLineNo">469</span><a name="line.469"></a>
-<span class="sourceLineNo">470</span>                // Record that we read from everything we just scanned over in the underlying KVStore<a name="line.470"></a>
-<span class="sourceLineNo">471</span>                final byte[] skipMin;<a name="line.471"></a>
-<span class="sourceLineNo">472</span>                final byte[] skipMax;<a name="line.472"></a>
-<span class="sourceLineNo">473</span>                if (this.reverse) {<a name="line.473"></a>
-<span class="sourceLineNo">474</span>                    skipMin = pair != null ? pair.getKey() : ByteUtil.EMPTY;<a name="line.474"></a>
-<span class="sourceLineNo">475</span>                    skipMax = this.cursor;<a name="line.475"></a>
-<span class="sourceLineNo">476</span>                } else {<a name="line.476"></a>
-<span class="sourceLineNo">477</span>                    skipMin = this.cursor;<a name="line.477"></a>
-<span class="sourceLineNo">478</span>                    skipMax = pair != null ? ByteUtil.getNextKey(pair.getKey()) : null;<a name="line.478"></a>
-<span class="sourceLineNo">479</span>                }<a name="line.479"></a>
-<span class="sourceLineNo">480</span>                if (skipMax == null || ByteUtil.compare(skipMin, skipMax) &lt; 0)<a name="line.480"></a>
-<span class="sourceLineNo">481</span>                    MutableView.this.recordReads(skipMin, skipMax);<a name="line.481"></a>
-<span class="sourceLineNo">482</span><a name="line.482"></a>
-<span class="sourceLineNo">483</span>                // Finished?<a name="line.483"></a>
-<span class="sourceLineNo">484</span>                if (pair == null) {<a name="line.484"></a>
-<span class="sourceLineNo">485</span>                    this.finished = true;<a name="line.485"></a>
-<span class="sourceLineNo">486</span>                    return false;<a name="line.486"></a>
-<span class="sourceLineNo">487</span>                }<a name="line.487"></a>
-<span class="sourceLineNo">488</span><a name="line.488"></a>
-<span class="sourceLineNo">489</span>                // Update state<a name="line.489"></a>
-<span class="sourceLineNo">490</span>                this.next = pair;<a name="line.490"></a>
-<span class="sourceLineNo">491</span>                this.cursor = pair != null ? (this.reverse ? pair.getKey() : ByteUtil.getNextKey(pair.getKey())) : null;<a name="line.491"></a>
-<span class="sourceLineNo">492</span><a name="line.492"></a>
-<span class="sourceLineNo">493</span>                // If a put appeared prior to the KVPPairIterator's next k/v pair, backup the KVPairIterator for next time<a name="line.493"></a>
-<span class="sourceLineNo">494</span>                if (diff &lt; 0)<a name="line.494"></a>
-<span class="sourceLineNo">495</span>                    this.pi.setNextTarget(this.cursor);<a name="line.495"></a>
-<span class="sourceLineNo">496</span><a name="line.496"></a>
-<span class="sourceLineNo">497</span>                // Done<a name="line.497"></a>
-<span class="sourceLineNo">498</span>                return this.next != null;<a name="line.498"></a>
-<span class="sourceLineNo">499</span>            }<a name="line.499"></a>
-<span class="sourceLineNo">500</span>        }<a name="line.500"></a>
-<span class="sourceLineNo">501</span>    }<a name="line.501"></a>
-<span class="sourceLineNo">502</span>}<a name="line.502"></a>
-<span class="sourceLineNo">503</span><a name="line.503"></a>
+<span class="sourceLineNo">423</span>            // Invariants<a name="line.423"></a>
+<span class="sourceLineNo">424</span>            assert this.next == null;<a name="line.424"></a>
+<span class="sourceLineNo">425</span>            assert this.cursor != null || this.reverse;<a name="line.425"></a>
+<span class="sourceLineNo">426</span><a name="line.426"></a>
+<span class="sourceLineNo">427</span>            // Exhausted?<a name="line.427"></a>
+<span class="sourceLineNo">428</span>            if (this.finished)<a name="line.428"></a>
+<span class="sourceLineNo">429</span>                return false;<a name="line.429"></a>
+<span class="sourceLineNo">430</span><a name="line.430"></a>
+<span class="sourceLineNo">431</span>            // Compare against most current MutableView puts and removes<a name="line.431"></a>
+<span class="sourceLineNo">432</span>            synchronized (MutableView.this) {<a name="line.432"></a>
+<span class="sourceLineNo">433</span><a name="line.433"></a>
+<span class="sourceLineNo">434</span>                // Find the next k/v pair not filtered out by (newly added) removes, if any<a name="line.434"></a>
+<span class="sourceLineNo">435</span>                KVPair readPair = null;<a name="line.435"></a>
+<span class="sourceLineNo">436</span>                while (this.pi.hasNext()) {<a name="line.436"></a>
+<span class="sourceLineNo">437</span>                    readPair = this.pi.next();<a name="line.437"></a>
+<span class="sourceLineNo">438</span>                    if (MutableView.this.writes.getRemoves().contains(readPair.getKey())) {<a name="line.438"></a>
+<span class="sourceLineNo">439</span>                        readPair = null;<a name="line.439"></a>
+<span class="sourceLineNo">440</span>                        continue;<a name="line.440"></a>
+<span class="sourceLineNo">441</span>                    }<a name="line.441"></a>
+<span class="sourceLineNo">442</span>                    break;<a name="line.442"></a>
+<span class="sourceLineNo">443</span>                }<a name="line.443"></a>
+<span class="sourceLineNo">444</span><a name="line.444"></a>
+<span class="sourceLineNo">445</span>                // Find the next put, if any<a name="line.445"></a>
+<span class="sourceLineNo">446</span>                final Map.Entry&lt;byte[], byte[]&gt; putEntry = this.reverse ?<a name="line.446"></a>
+<span class="sourceLineNo">447</span>                  (this.cursor != null ?<a name="line.447"></a>
+<span class="sourceLineNo">448</span>                   MutableView.this.writes.getPuts().lowerEntry(this.cursor) : MutableView.this.writes.getPuts().lastEntry()) :<a name="line.448"></a>
+<span class="sourceLineNo">449</span>                  MutableView.this.writes.getPuts().ceilingEntry(this.cursor);<a name="line.449"></a>
+<span class="sourceLineNo">450</span>                final KVPair putPair = putEntry != null ? new KVPair(putEntry) : null;<a name="line.450"></a>
+<span class="sourceLineNo">451</span><a name="line.451"></a>
+<span class="sourceLineNo">452</span>                // Figure out which pair wins (read or put)<a name="line.452"></a>
+<span class="sourceLineNo">453</span>                final KVPair pair;<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                int diff = 0;<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                if (readPair == null &amp;&amp; putPair == null)<a name="line.455"></a>
+<span class="sourceLineNo">456</span>                    pair = null;<a name="line.456"></a>
+<span class="sourceLineNo">457</span>                else if (readPair == null)<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                    pair = putPair;<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                else if (putPair == null)<a name="line.459"></a>
+<span class="sourceLineNo">460</span>                    pair = readPair;<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                else {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                    diff = ByteUtil.compare(putPair.getKey(), readPair.getKey());<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                    if (reverse)<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                        diff = -diff;<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                    pair = diff &lt;= 0 ? putPair : readPair;                  // if there's a tie, the put wins<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                }<a name="line.466"></a>
+<span class="sourceLineNo">467</span><a name="line.467"></a>
+<span class="sourceLineNo">468</span>                // Record that we read from everything we just scanned over in the underlying KVStore<a name="line.468"></a>
+<span class="sourceLineNo">469</span>                final byte[] skipMin;<a name="line.469"></a>
+<span class="sourceLineNo">470</span>                final byte[] skipMax;<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                if (this.reverse) {<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                    skipMin = pair != null ? pair.getKey() : ByteUtil.EMPTY;<a name="line.472"></a>
+<span class="sourceLineNo">473</span>                    skipMax = this.cursor;<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                } else {<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                    skipMin = this.cursor;<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                    skipMax = pair != null ? ByteUtil.getNextKey(pair.getKey()) : null;<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                }<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                if (skipMax == null || ByteUtil.compare(skipMin, skipMax) &lt; 0)<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                    MutableView.this.recordReads(skipMin, skipMax);<a name="line.479"></a>
+<span class="sourceLineNo">480</span><a name="line.480"></a>
+<span class="sourceLineNo">481</span>                // Finished?<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                if (pair == null) {<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                    this.finished = true;<a name="line.483"></a>
+<span class="sourceLineNo">484</span>                    return false;<a name="line.484"></a>
+<span class="sourceLineNo">485</span>                }<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>                // Update state<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                this.next = pair;<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                this.cursor = pair != null ? (this.reverse ? pair.getKey() : ByteUtil.getNextKey(pair.getKey())) : null;<a name="line.489"></a>
+<span class="sourceLineNo">490</span><a name="line.490"></a>
+<span class="sourceLineNo">491</span>                // If a put appeared prior to the KVPPairIterator's next k/v pair, backup the KVPairIterator for next time<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                if (diff &lt; 0)<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                    this.pi.setNextTarget(this.cursor);<a name="line.493"></a>
+<span class="sourceLineNo">494</span><a name="line.494"></a>
+<span class="sourceLineNo">495</span>                // Done<a name="line.495"></a>
+<span class="sourceLineNo">496</span>                return this.next != null;<a name="line.496"></a>
+<span class="sourceLineNo">497</span>            }<a name="line.497"></a>
+<span class="sourceLineNo">498</span>        }<a name="line.498"></a>
+<span class="sourceLineNo">499</span>    }<a name="line.499"></a>
+<span class="sourceLineNo">500</span>}<a name="line.500"></a>
+<span class="sourceLineNo">501</span><a name="line.501"></a>
 
 
 

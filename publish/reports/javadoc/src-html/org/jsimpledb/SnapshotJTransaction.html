@@ -9,131 +9,129 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import org.jsimpledb.core.ObjId;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import org.jsimpledb.core.SnapshotTransaction;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>/**<a name="line.13"></a>
-<span class="sourceLineNo">014</span> * An initially empty, in-memory {@link JTransaction} that persists indefinitely.<a name="line.14"></a>
-<span class="sourceLineNo">015</span> *<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * &lt;p&gt;<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * {@link SnapshotJTransaction}s hold a "snapshot" some portion of the state of a {@link JTransaction} for later use.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * Each {@link SnapshotJTransaction}s contains its own set of "snapshot" {@link JObject}s that are copies of<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * corresponding "real" database {@link JObject}s (as of the time they were copied). Because a {@link SnapshotJTransaction}<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * lives in memory indefinitely, these objects can be used just like normal Java objects, outside of any regular transaction.<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * However, in addition {@link JSimpleDB} features such as indexing, listeners, validation, etc. will continue to work normally.<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * &lt;/p&gt;<a name="line.22"></a>
-<span class="sourceLineNo">023</span> *<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * &lt;p&gt;<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * Typically, {@link SnapshotJTransaction}s are not utilized directly; instead each {@link JTransaction} has an<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * {@linkplain JTransaction#getSnapshotTransaction associated} default {@link SnapshotJTransaction} instance,<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * and {@link JObject#copyOut JObject.copyOut()} is invoked to copy an object there.<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * However, more general usage is possible by creating instances of this class directly.<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * &lt;/p&gt;<a name="line.29"></a>
-<span class="sourceLineNo">030</span> *<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * &lt;p&gt;<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * This class guarantees that for each {@link ObjId}, there will only exist a single {@link JObject} instance associated with it.<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * While there is a single pool of globally unique "database" {@link JObject}s per {@link JSimpleDB},<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * each {@link SnapshotJTransaction} maintains its own pool of "snapshot" {@link JObject} instances.<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * In turn, each snapshot {@link JObject} instance is {@linkplain JObject#getTransaction associated}<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * with a specific {@link SnapshotJTransaction}.<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * &lt;/p&gt;<a name="line.37"></a>
-<span class="sourceLineNo">038</span> */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>public class SnapshotJTransaction extends JTransaction {<a name="line.39"></a>
+<span class="sourceLineNo">008</span>import org.jsimpledb.core.ObjId;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import org.jsimpledb.core.SnapshotTransaction;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>/**<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * An initially empty, in-memory {@link JTransaction} that persists indefinitely.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> *<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * &lt;p&gt;<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * {@link SnapshotJTransaction}s hold a "snapshot" some portion of the state of a {@link JTransaction} for later use.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * Each {@link SnapshotJTransaction}s contains its own set of "snapshot" {@link JObject}s that are copies of<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * corresponding "real" database {@link JObject}s (as of the time they were copied). Because a {@link SnapshotJTransaction}<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * lives in memory indefinitely, these objects can be used just like normal Java objects, outside of any regular transaction.<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * However, in addition {@link JSimpleDB} features such as indexing, listeners, validation, etc. will continue to work normally.<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * &lt;/p&gt;<a name="line.20"></a>
+<span class="sourceLineNo">021</span> *<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * &lt;p&gt;<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * Typically, {@link SnapshotJTransaction}s are not utilized directly; instead each {@link JTransaction} has an<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * {@linkplain JTransaction#getSnapshotTransaction associated} default {@link SnapshotJTransaction} instance,<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * and {@link JObject#copyOut JObject.copyOut()} is invoked to copy an object there.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * However, more general usage is possible by creating instances of this class directly.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;/p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * This class guarantees that for each {@link ObjId}, there will only exist a single {@link JObject} instance associated with it.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * While there is a single pool of globally unique "database" {@link JObject}s per {@link JSimpleDB},<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * each {@link SnapshotJTransaction} maintains its own pool of "snapshot" {@link JObject} instances.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * In turn, each snapshot {@link JObject} instance is {@linkplain JObject#getTransaction associated}<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * with a specific {@link SnapshotJTransaction}.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;/p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>public class SnapshotJTransaction extends JTransaction {<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    final JObjectCache jobjectCache;<a name="line.39"></a>
 <span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    final JObjectCache jobjectCache;<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * Create a new instance based on the specified transaction. This new instance will be initially empty<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     * but will have the same recorded schema history as {@code jtx}.<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     *<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     * &lt;p&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     * It is not normally necessary to create {@link SnapshotJTransaction}s, as every {@link JTransaction}<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * automatically has an associated default {@link SnapshotJTransaction} created for it and made available<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * via {@link JTransaction#getSnapshotTransaction JTransaction.getSnapshotTransaction()}.<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * &lt;/p&gt;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     *<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * @param jtx open transaction from which to snapshot objects<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * @param validationMode the {@link ValidationMode} to use for this transaction<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @throws org.jsimpledb.core.StaleTransactionException if {@code jtx} is no longer usable<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    public SnapshotJTransaction(JTransaction jtx, ValidationMode validationMode) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        super(jtx.jdb, jtx.tx.createSnapshotTransaction(), validationMode);<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        this.jobjectCache = new JObjectCache(jtx.jdb) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>            @Override<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            protected JObject instantiate(ClassGenerator&lt;?&gt; classGenerator, ObjId id) throws Exception {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>                return (JObject)classGenerator.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);<a name="line.63"></a>
-<span class="sourceLineNo">064</span>            }<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        };<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>    /**<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * Delete all objects contained in this snapshot transaction and reset it back to its initial state.<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     *<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * &lt;p&gt;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * It will contain schema meta-data but no objects.<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * &lt;/p&gt;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    public void reset() {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        this.resetValidationQueue();<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        ((SnapshotTransaction)this.tx).reset();<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * Commit this transaction.<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * &lt;p&gt;<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     * {@link SnapshotJTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     * &lt;/p&gt;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     *<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     * @throws UnsupportedOperationException always<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     */<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    @Override<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    public void commit() {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        throw new UnsupportedOperationException("snapshot transactions");<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * Roll back this transaction.<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     *<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * &lt;p&gt;<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * {@link SnapshotJTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * &lt;/p&gt;<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     *<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * @throws UnsupportedOperationException always<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     */<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    @Override<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    public void rollback() {<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        throw new UnsupportedOperationException("snapshot transactions");<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * Determine whether this transaction is still valid.<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     *<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * &lt;p&gt;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     * {@link SnapshotJTransaction}s are always valid.<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     * &lt;/p&gt;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     *<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     * @return true always<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     */<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    @Override<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    public boolean isValid() {<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        return true;<a name="line.119"></a>
-<span class="sourceLineNo">120</span>    }<a name="line.120"></a>
+<span class="sourceLineNo">041</span>    /**<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * Create a new instance based on the specified transaction. This new instance will be initially empty<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * but will have the same recorded schema history as {@code jtx}.<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     *<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * &lt;p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * It is not normally necessary to create {@link SnapshotJTransaction}s, as every {@link JTransaction}<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * automatically has an associated default {@link SnapshotJTransaction} created for it and made available<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * via {@link JTransaction#getSnapshotTransaction JTransaction.getSnapshotTransaction()}.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * &lt;/p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     *<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @param jtx open transaction from which to snapshot objects<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @param validationMode the {@link ValidationMode} to use for this transaction<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @throws IllegalArgumentException if either parameter is null<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @throws org.jsimpledb.core.StaleTransactionException if {@code jtx} is no longer usable<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    public SnapshotJTransaction(JTransaction jtx, ValidationMode validationMode) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        super(jtx.jdb, jtx.tx.createSnapshotTransaction(), validationMode);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        this.jobjectCache = new JObjectCache(jtx.jdb) {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            @Override<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            protected JObject instantiate(ClassGenerator&lt;?&gt; classGenerator, ObjId id) throws Exception {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                return (JObject)classGenerator.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            }<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        };<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * Delete all objects contained in this snapshot transaction and reset it back to its initial state.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     *<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * &lt;p&gt;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * It will contain schema meta-data but no objects.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * &lt;/p&gt;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    public void reset() {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        this.resetValidationQueue();<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        ((SnapshotTransaction)this.tx).reset();<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    /**<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * Commit this transaction.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     *<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * &lt;p&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * {@link SnapshotJTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * &lt;/p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     *<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * @throws UnsupportedOperationException always<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    @Override<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    public void commit() {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        throw new UnsupportedOperationException("snapshot transactions");<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * Roll back this transaction.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     *<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * &lt;p&gt;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * {@link SnapshotJTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * &lt;/p&gt;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     *<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @throws UnsupportedOperationException always<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    @Override<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public void rollback() {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        throw new UnsupportedOperationException("snapshot transactions");<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    /**<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * Determine whether this transaction is still valid.<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     *<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * &lt;p&gt;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * {@link SnapshotJTransaction}s are always valid.<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * &lt;/p&gt;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     *<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * @return true always<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     */<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    @Override<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    public boolean isValid() {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        return true;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>// Object Cache<a name="line.120"></a>
 <span class="sourceLineNo">121</span><a name="line.121"></a>
-<span class="sourceLineNo">122</span>// Object Cache<a name="line.122"></a>
-<span class="sourceLineNo">123</span><a name="line.123"></a>
-<span class="sourceLineNo">124</span>    JObjectCache getJObjectCache() {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        return this.jobjectCache;<a name="line.125"></a>
-<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
-<span class="sourceLineNo">127</span>}<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">122</span>    JObjectCache getJObjectCache() {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        return this.jobjectCache;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>}<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
 
 
 

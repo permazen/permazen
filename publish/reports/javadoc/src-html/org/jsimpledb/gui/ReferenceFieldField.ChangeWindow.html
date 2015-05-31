@@ -9,179 +9,177 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.gui;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.gui;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.vaadin.data.Property;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.vaadin.server.Sizeable;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import com.vaadin.shared.ui.label.ContentMode;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import com.vaadin.ui.Alignment;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import com.vaadin.ui.Button;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import com.vaadin.ui.Component;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import com.vaadin.ui.CustomField;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import com.vaadin.ui.HorizontalLayout;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import com.vaadin.ui.HorizontalSplitPanel;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import com.vaadin.ui.Label;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import com.vaadin.ui.Notification;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import com.vaadin.ui.VerticalLayout;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.dellroad.stuff.spring.RetryTransaction;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.CopyState;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.JObject;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jsimpledb.JTransaction;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jsimpledb.core.ObjId;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jsimpledb.parse.ParseSession;<a name="line.28"></a>
-<span class="sourceLineNo">029</span><a name="line.29"></a>
-<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * A Vaadin {@link com.vaadin.ui.Field} that edits a database object reference. Supports displaying,<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * but not selecting, a null value; wrap in a {@link NullableField} to allow for that.<a name="line.32"></a>
-<span class="sourceLineNo">033</span> */<a name="line.33"></a>
-<span class="sourceLineNo">034</span>@SuppressWarnings("serial")<a name="line.34"></a>
-<span class="sourceLineNo">035</span>public class ReferenceFieldField extends CustomField&lt;JObject&gt; {<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>    private final JTransaction dest;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    private final HorizontalLayout layout = new HorizontalLayout();<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    private final ParseSession session;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    private final String name;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    private final Class&lt;?&gt; type;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    private final JObjectContainer.RefLabelPropertyDef refLabelPropertyDef = new JObjectContainer.RefLabelPropertyDef();<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    private final SmallButton changeButton = new SmallButton("Change...", new Button.ClickListener() {<a name="line.43"></a>
-<span class="sourceLineNo">044</span>        @Override<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        public void buttonClick(Button.ClickEvent event) {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>            ReferenceFieldField.this.change();<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        }<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    });<a name="line.48"></a>
+<span class="sourceLineNo">008</span>import com.vaadin.data.Property;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.vaadin.server.Sizeable;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import com.vaadin.shared.ui.label.ContentMode;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import com.vaadin.ui.Alignment;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import com.vaadin.ui.Button;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import com.vaadin.ui.Component;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import com.vaadin.ui.CustomField;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import com.vaadin.ui.HorizontalLayout;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import com.vaadin.ui.HorizontalSplitPanel;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import com.vaadin.ui.Label;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import com.vaadin.ui.Notification;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import com.vaadin.ui.VerticalLayout;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.dellroad.stuff.spring.RetryTransaction;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.CopyState;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.JObject;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jsimpledb.JTransaction;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jsimpledb.core.ObjId;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jsimpledb.parse.ParseSession;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * A Vaadin {@link com.vaadin.ui.Field} that edits a database object reference. Supports displaying,<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * but not selecting, a null value; wrap in a {@link NullableField} to allow for that.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>@SuppressWarnings("serial")<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public class ReferenceFieldField extends CustomField&lt;JObject&gt; {<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>    private final JTransaction dest;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    private final HorizontalLayout layout = new HorizontalLayout();<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    private final ParseSession session;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    private final String name;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    private final Class&lt;?&gt; type;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    private final JObjectContainer.RefLabelPropertyDef refLabelPropertyDef = new JObjectContainer.RefLabelPropertyDef();<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    private final SmallButton changeButton = new SmallButton("Change...", new Button.ClickListener() {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        @Override<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        public void buttonClick(Button.ClickEvent event) {<a name="line.43"></a>
+<span class="sourceLineNo">044</span>            ReferenceFieldField.this.change();<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        }<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    });<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private Component refLabel = new Label();<a name="line.48"></a>
 <span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>    private Component refLabel = new Label();<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>    /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * Constructor.<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     *<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * @param dest target transaction for the chosen {@link JObject}<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @param session session for expression parsing<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @param name name of the property<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @param type type restriction, or null for none<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public ReferenceFieldField(JTransaction dest, ParseSession session, String name, Class&lt;?&gt; type) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>        // Initialize<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        if (dest == null)<a name="line.63"></a>
-<span class="sourceLineNo">064</span>            throw new IllegalArgumentException("null dest");<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        if (session == null)<a name="line.65"></a>
-<span class="sourceLineNo">066</span>            throw new IllegalArgumentException("null session");<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        if (name == null)<a name="line.67"></a>
-<span class="sourceLineNo">068</span>            throw new IllegalArgumentException("null name");<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        this.dest = dest;<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        this.session = session;<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        this.name = name;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        this.type = type;<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>        // Listen for property value and read-only status changes<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        this.addValueChangeListener(new Property.ValueChangeListener() {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            @Override<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            public void valueChange(Property.ValueChangeEvent event) {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>                ReferenceFieldField.this.updateDisplay();<a name="line.78"></a>
-<span class="sourceLineNo">079</span>            }<a name="line.79"></a>
-<span class="sourceLineNo">080</span>        });<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        this.addReadOnlyStatusChangeListener(new Property.ReadOnlyStatusChangeListener() {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>            @Override<a name="line.82"></a>
-<span class="sourceLineNo">083</span>            public void readOnlyStatusChange(Property.ReadOnlyStatusChangeEvent event) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                ReferenceFieldField.this.updateDisplay();<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            }<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        });<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">050</span>    /**<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * Constructor.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     *<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @param dest target transaction for the chosen {@link JObject}<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @param session session for expression parsing<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * @param name name of the property<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @param type type restriction, or null for none<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public ReferenceFieldField(JTransaction dest, ParseSession session, String name, Class&lt;?&gt; type) {<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>        // Initialize<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        if (dest == null)<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            throw new IllegalArgumentException("null dest");<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        if (session == null)<a name="line.63"></a>
+<span class="sourceLineNo">064</span>            throw new IllegalArgumentException("null session");<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        if (name == null)<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            throw new IllegalArgumentException("null name");<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        this.dest = dest;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        this.session = session;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        this.name = name;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        this.type = type;<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>        // Listen for property value and read-only status changes<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        this.addValueChangeListener(new Property.ValueChangeListener() {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            @Override<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            public void valueChange(Property.ValueChangeEvent event) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                ReferenceFieldField.this.updateDisplay();<a name="line.76"></a>
+<span class="sourceLineNo">077</span>            }<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        });<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        this.addReadOnlyStatusChangeListener(new Property.ReadOnlyStatusChangeListener() {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>            @Override<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            public void readOnlyStatusChange(Property.ReadOnlyStatusChangeEvent event) {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                ReferenceFieldField.this.updateDisplay();<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            }<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        });<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>// CustomField<a name="line.87"></a>
 <span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>// CustomField<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>    @Override<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    public Class&lt;JObject&gt; getType() {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        return JObject.class;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>    @Override<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    protected HorizontalLayout initContent() {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        this.layout.setMargin(false);<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        this.layout.setSpacing(true);<a name="line.99"></a>
-<span class="sourceLineNo">100</span>        this.layout.addComponent(this.refLabel);<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        this.layout.addComponent(new Label("\u00a0\u00a0"));<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        this.layout.addComponent(this.changeButton);<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        this.layout.setComponentAlignment(this.changeButton, Alignment.MIDDLE_LEFT);<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        this.updateDisplay();<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        return this.layout;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>    @Override<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    protected void setInternalValue(JObject jobj) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        super.setInternalValue(jobj);<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        this.updateDisplay();<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">089</span>    @Override<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    public Class&lt;JObject&gt; getType() {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        return JObject.class;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    @Override<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    protected HorizontalLayout initContent() {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        this.layout.setMargin(false);<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        this.layout.setSpacing(true);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        this.layout.addComponent(this.refLabel);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        this.layout.addComponent(new Label("\u00a0\u00a0"));<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        this.layout.addComponent(this.changeButton);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        this.layout.setComponentAlignment(this.changeButton, Alignment.MIDDLE_LEFT);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        this.updateDisplay();<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        return this.layout;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    @Override<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    protected void setInternalValue(JObject jobj) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        super.setInternalValue(jobj);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        this.updateDisplay();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>// Internal methods<a name="line.112"></a>
 <span class="sourceLineNo">113</span><a name="line.113"></a>
-<span class="sourceLineNo">114</span>// Internal methods<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>    // Update components to reflect new value<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    private void updateDisplay() {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        final JObject jobj = this.getValue();<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        final boolean readOnly = this.isReadOnly();<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        final Component newLabel = jobj != null ?<a name="line.120"></a>
-<span class="sourceLineNo">121</span>          this.refLabelPropertyDef.extract(jobj) : new SizedLabel("&lt;i&gt;Null&lt;/i&gt;&amp;#160;", ContentMode.HTML);<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        this.layout.replaceComponent(this.refLabel, newLabel);<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        this.refLabel = newLabel;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        this.changeButton.setEnabled(!readOnly);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>    // Handle change button click<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    private void change() {<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        this.new ChangeWindow().show();<a name="line.129"></a>
-<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
+<span class="sourceLineNo">114</span>    // Update components to reflect new value<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    private void updateDisplay() {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        final JObject jobj = this.getValue();<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        final boolean readOnly = this.isReadOnly();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        final Component newLabel = jobj != null ?<a name="line.118"></a>
+<span class="sourceLineNo">119</span>          this.refLabelPropertyDef.extract(jobj) : new SizedLabel("&lt;i&gt;Null&lt;/i&gt;&amp;#160;", ContentMode.HTML);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        this.layout.replaceComponent(this.refLabel, newLabel);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        this.refLabel = newLabel;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        this.changeButton.setEnabled(!readOnly);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    // Handle change button click<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    private void change() {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        this.new ChangeWindow().show();<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    }<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>// ChangeWindow<a name="line.130"></a>
 <span class="sourceLineNo">131</span><a name="line.131"></a>
-<span class="sourceLineNo">132</span>// ChangeWindow<a name="line.132"></a>
+<span class="sourceLineNo">132</span>    public class ChangeWindow extends ConfirmWindow {<a name="line.132"></a>
 <span class="sourceLineNo">133</span><a name="line.133"></a>
-<span class="sourceLineNo">134</span>    public class ChangeWindow extends ConfirmWindow {<a name="line.134"></a>
+<span class="sourceLineNo">134</span>        private final JObjectChooser objectChooser;<a name="line.134"></a>
 <span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>        private final JObjectChooser objectChooser;<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>        ChangeWindow() {<a name="line.138"></a>
-<span class="sourceLineNo">139</span>            super(ReferenceFieldField.this.getUI(), "Select " + ReferenceFieldField.this.name);<a name="line.139"></a>
-<span class="sourceLineNo">140</span>            this.setWidth(800, Sizeable.Unit.PIXELS);<a name="line.140"></a>
-<span class="sourceLineNo">141</span>            this.setHeight(500, Sizeable.Unit.PIXELS);<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            this.objectChooser = new JObjectChooser(ReferenceFieldField.this.dest.getJSimpleDB(),<a name="line.142"></a>
-<span class="sourceLineNo">143</span>              ReferenceFieldField.this.session, ReferenceFieldField.this.type, false);<a name="line.143"></a>
-<span class="sourceLineNo">144</span>        }<a name="line.144"></a>
-<span class="sourceLineNo">145</span><a name="line.145"></a>
-<span class="sourceLineNo">146</span>        @Override<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        protected void addContent(VerticalLayout layout) {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>            final HorizontalSplitPanel objectPanel = this.objectChooser.getObjectPanel();<a name="line.148"></a>
-<span class="sourceLineNo">149</span>            objectPanel.setHeight(200, Sizeable.Unit.PIXELS);<a name="line.149"></a>
-<span class="sourceLineNo">150</span>            objectPanel.setSplitPosition(40);<a name="line.150"></a>
-<span class="sourceLineNo">151</span>            layout.addComponent(objectPanel);<a name="line.151"></a>
-<span class="sourceLineNo">152</span>            layout.addComponent(this.objectChooser.getShowForm());<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        }<a name="line.153"></a>
-<span class="sourceLineNo">154</span><a name="line.154"></a>
-<span class="sourceLineNo">155</span>        @Override<a name="line.155"></a>
-<span class="sourceLineNo">156</span>        @RetryTransaction<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        @org.springframework.transaction.annotation.Transactional("jsimpledbGuiTransactionManager")<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        protected boolean execute() {<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            final ObjId id = this.objectChooser.getObjId();<a name="line.159"></a>
-<span class="sourceLineNo">160</span>            if (id == null)<a name="line.160"></a>
-<span class="sourceLineNo">161</span>                return true;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            final JObject jobj = JTransaction.getCurrent().getJObject(id);<a name="line.162"></a>
-<span class="sourceLineNo">163</span>            if (!jobj.exists()) {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>                Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);<a name="line.164"></a>
-<span class="sourceLineNo">165</span>                return false;<a name="line.165"></a>
-<span class="sourceLineNo">166</span>            }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>            try {<a name="line.167"></a>
-<span class="sourceLineNo">168</span>                ReferenceFieldField.this.setValue(jobj.copyTo(ReferenceFieldField.this.dest, id, new CopyState()));<a name="line.168"></a>
-<span class="sourceLineNo">169</span>            } catch (Exception e) {<a name="line.169"></a>
-<span class="sourceLineNo">170</span>                Notification.show("Error: " + e, null, Notification.Type.ERROR_MESSAGE);<a name="line.170"></a>
-<span class="sourceLineNo">171</span>            }<a name="line.171"></a>
-<span class="sourceLineNo">172</span>            return true;<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        }<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    }<a name="line.174"></a>
-<span class="sourceLineNo">175</span>}<a name="line.175"></a>
-<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">136</span>        ChangeWindow() {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            super(ReferenceFieldField.this.getUI(), "Select " + ReferenceFieldField.this.name);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            this.setWidth(800, Sizeable.Unit.PIXELS);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            this.setHeight(500, Sizeable.Unit.PIXELS);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            this.objectChooser = new JObjectChooser(ReferenceFieldField.this.dest.getJSimpleDB(),<a name="line.140"></a>
+<span class="sourceLineNo">141</span>              ReferenceFieldField.this.session, ReferenceFieldField.this.type, false);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        }<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>        @Override<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        protected void addContent(VerticalLayout layout) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            final HorizontalSplitPanel objectPanel = this.objectChooser.getObjectPanel();<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            objectPanel.setHeight(200, Sizeable.Unit.PIXELS);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            objectPanel.setSplitPosition(40);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            layout.addComponent(objectPanel);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            layout.addComponent(this.objectChooser.getShowForm());<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>        @Override<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        @RetryTransaction<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        @org.springframework.transaction.annotation.Transactional("jsimpledbGuiTransactionManager")<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        protected boolean execute() {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            final ObjId id = this.objectChooser.getObjId();<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            if (id == null)<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                return true;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            final JObject jobj = JTransaction.getCurrent().getJObject(id);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            if (!jobj.exists()) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                return false;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            }<a name="line.164"></a>
+<span class="sourceLineNo">165</span>            try {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                ReferenceFieldField.this.setValue(jobj.copyTo(ReferenceFieldField.this.dest, id, new CopyState()));<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            } catch (Exception e) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                Notification.show("Error: " + e, null, Notification.Type.ERROR_MESSAGE);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            }<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            return true;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        }<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span>}<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
 
 
 

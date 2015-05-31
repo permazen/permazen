@@ -9,497 +9,495 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.core;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.core;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.base.Function;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.google.common.collect.Iterables;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import com.google.common.collect.Lists;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import com.google.common.reflect.TypeToken;<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.io.File;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.net.URI;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import java.util.ArrayList;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import java.util.Collections;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import java.util.Date;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import java.util.HashMap;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import java.util.List;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import java.util.Map;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import java.util.UUID;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import java.util.regex.Pattern;<a name="line.24"></a>
-<span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.dellroad.stuff.java.Primitive;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.dellroad.stuff.java.PrimitiveSwitch;<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>/**<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * A registry of {@link FieldType}s.<a name="line.30"></a>
-<span class="sourceLineNo">031</span> *<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * &lt;p&gt;<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * All {@link FieldType}s in a {@link FieldTypeRegistry} are registered under a unique type name.<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * However, multiple registered {@link FieldType}s may support the same {@linkplain FieldType#getTypeToken Java type}.<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * &lt;/p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Function;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.google.common.collect.Iterables;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import com.google.common.collect.Lists;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import com.google.common.reflect.TypeToken;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.io.File;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.net.URI;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.ArrayList;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.util.Collections;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.util.Date;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.util.HashMap;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.List;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.Map;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.UUID;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.regex.Pattern;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.dellroad.stuff.java.Primitive;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.dellroad.stuff.java.PrimitiveSwitch;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * A registry of {@link FieldType}s.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * All {@link FieldType}s in a {@link FieldTypeRegistry} are registered under a unique type name.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * However, multiple registered {@link FieldType}s may support the same {@linkplain FieldType#getTypeToken Java type}.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;/p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;p&gt;&lt;b&gt;Arrays&lt;/b&gt;&lt;/p&gt;<a name="line.35"></a>
 <span class="sourceLineNo">036</span> *<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * &lt;p&gt;&lt;b&gt;Arrays&lt;/b&gt;&lt;/p&gt;<a name="line.37"></a>
-<span class="sourceLineNo">038</span> *<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * &lt;p&gt;<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * Array types will be automatically created and registered on demand, assuming the base element<a name="line.40"></a>
-<span class="sourceLineNo">041</span> * type is already registered.<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * &lt;/p&gt;<a name="line.42"></a>
-<span class="sourceLineNo">043</span> *<a name="line.43"></a>
-<span class="sourceLineNo">044</span> * &lt;p&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * Arrays are passed by value: i.e., the entire array is copied. Therefore, changes to array elements after<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * getting or setting a field have no effect on the field's value.<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * &lt;/p&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * &lt;p&gt;<a name="line.49"></a>
-<span class="sourceLineNo">050</span> * Arrays of references are not currently supported.<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * &lt;/p&gt;<a name="line.51"></a>
-<span class="sourceLineNo">052</span> *<a name="line.52"></a>
-<span class="sourceLineNo">053</span> * &lt;p&gt;<a name="line.53"></a>
-<span class="sourceLineNo">054</span> * The following types are automatically registered (or generated on demand):<a name="line.54"></a>
-<span class="sourceLineNo">055</span> * &lt;ul&gt;<a name="line.55"></a>
-<span class="sourceLineNo">056</span> *  &lt;li&gt;Primitive types ({@code boolean}, {@code int}, etc.)&lt;/li&gt;<a name="line.56"></a>
-<span class="sourceLineNo">057</span> *  &lt;li&gt;Primitive wrapper types ({@link Boolean}, {@link Integer}, etc.)&lt;/li&gt;<a name="line.57"></a>
-<span class="sourceLineNo">058</span> *  &lt;li&gt;{@link String}&lt;/li&gt;<a name="line.58"></a>
-<span class="sourceLineNo">059</span> *  &lt;li&gt;Array types&lt;/li&gt;<a name="line.59"></a>
-<span class="sourceLineNo">060</span> *  &lt;li&gt;{@link Enum} types&lt;/li&gt;<a name="line.60"></a>
-<span class="sourceLineNo">061</span> *  &lt;li&gt;{@link java.util.Date}&lt;/li&gt;<a name="line.61"></a>
-<span class="sourceLineNo">062</span> *  &lt;li&gt;{@link java.util.UUID}&lt;/li&gt;<a name="line.62"></a>
-<span class="sourceLineNo">063</span> *  &lt;li&gt;{@link java.net.URI}&lt;/li&gt;<a name="line.63"></a>
-<span class="sourceLineNo">064</span> *  &lt;li&gt;{@link java.io.File}&lt;/li&gt;<a name="line.64"></a>
-<span class="sourceLineNo">065</span> *  &lt;li&gt;{@link java.util.regex.Pattern}&lt;/li&gt;<a name="line.65"></a>
-<span class="sourceLineNo">066</span> * &lt;/ul&gt;<a name="line.66"></a>
-<span class="sourceLineNo">067</span> */<a name="line.67"></a>
-<span class="sourceLineNo">068</span>public class FieldTypeRegistry {<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * {@code void} primitive wrapper type (null values not allowed).<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    static final VoidType VOID = new VoidType();<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * {@code Void} primitive wrapper type (null values allowed).<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     */<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    static final PrimitiveWrapperType&lt;Void&gt; VOID_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.VOID);<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * {@code boolean} primitive wrapper type (null values not allowed).<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    static final BooleanType BOOLEAN = new BooleanType();<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>    /**<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     * {@code Boolean} primitive wrapper type (null values allowed).<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    static final PrimitiveWrapperType&lt;Boolean&gt; BOOLEAN_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.BOOLEAN);<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    /**<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     * {@code byte} primitive wrapper type (null values not allowed).<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    static final ByteType BYTE = new ByteType();<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * {@code Byte} primitive wrapper type (null values allowed).<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    static final PrimitiveWrapperType&lt;Byte&gt; BYTE_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.BYTE);<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>    /**<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * {@code char} primitive wrapper type (null values not allowed).<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     */<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    static final CharacterType CHARACTER = new CharacterType();<a name="line.103"></a>
-<span class="sourceLineNo">104</span><a name="line.104"></a>
-<span class="sourceLineNo">105</span>    /**<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * {@code Character} primitive wrapper type (null values allowed).<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    static final PrimitiveWrapperType&lt;Character&gt; CHARACTER_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.CHARACTER);<a name="line.108"></a>
-<span class="sourceLineNo">109</span><a name="line.109"></a>
-<span class="sourceLineNo">110</span>    /**<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * {@code short} primitive wrapper type (null values not allowed).<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     */<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    static final ShortType SHORT = new ShortType();<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
-<span class="sourceLineNo">115</span>    /**<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     * {@code Short} primitive wrapper type (null values allowed).<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     */<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    static final PrimitiveWrapperType&lt;Short&gt; SHORT_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.SHORT);<a name="line.118"></a>
-<span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>    /**<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     * {@code int} primitive type (null values not allowed).<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     */<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    static final IntegerType INTEGER = new IntegerType();<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>    /**<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     * {@code Integer} primitive wrapper type (null values allowed).<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     */<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    static final PrimitiveWrapperType&lt;Integer&gt; INTEGER_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.INTEGER);<a name="line.128"></a>
-<span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>    /**<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     * {@code float} primitive wrapper type (null values not allowed).<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     */<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    static final FloatType FLOAT = new FloatType();<a name="line.133"></a>
-<span class="sourceLineNo">134</span><a name="line.134"></a>
-<span class="sourceLineNo">135</span>    /**<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * {@code Float} primitive wrapper type (null values allowed).<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     */<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    static final PrimitiveWrapperType&lt;Float&gt; FLOAT_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.FLOAT);<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * {@code long} primitive wrapper type (null values not allowed).<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     */<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    static final LongType LONG = new LongType();<a name="line.143"></a>
-<span class="sourceLineNo">144</span><a name="line.144"></a>
-<span class="sourceLineNo">145</span>    /**<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     * {@code Long} primitive wrapper type (null values allowed).<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     */<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    static final PrimitiveWrapperType&lt;Long&gt; LONG_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.LONG);<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>    /**<a name="line.150"></a>
-<span class="sourceLineNo">151</span>     * {@code double} primitive wrapper type (null values not allowed).<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     */<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    static final DoubleType DOUBLE = new DoubleType();<a name="line.153"></a>
-<span class="sourceLineNo">154</span><a name="line.154"></a>
-<span class="sourceLineNo">155</span>    /**<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     * {@code Double} primitive wrapper type (null values allowed).<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     */<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    static final PrimitiveWrapperType&lt;Double&gt; DOUBLE_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.DOUBLE);<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>    /**<a name="line.160"></a>
-<span class="sourceLineNo">161</span>     * Type for {@link ObjId}s (null values are not allowed).<a name="line.161"></a>
-<span class="sourceLineNo">162</span>     */<a name="line.162"></a>
-<span class="sourceLineNo">163</span>    static final ObjIdType OBJ_ID = new ObjIdType();<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>    /**<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * Type for object references with no restriction (null values are allowed).<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     */<a name="line.167"></a>
-<span class="sourceLineNo">168</span>    static final ReferenceFieldType REFERENCE = new ReferenceFieldType();<a name="line.168"></a>
-<span class="sourceLineNo">169</span><a name="line.169"></a>
-<span class="sourceLineNo">170</span>    /**<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     * Type for {@link String}s.<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     */<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    static final NullSafeType&lt;String&gt; STRING = new NullSafeType&lt;&gt;(new StringType());<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>    /**<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     * Type for {@link Date}s.<a name="line.176"></a>
-<span class="sourceLineNo">177</span>     */<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    static final NullSafeType&lt;Date&gt; DATE = new NullSafeType&lt;&gt;(new DateType());<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>    /**<a name="line.180"></a>
-<span class="sourceLineNo">181</span>     * Type for {@link UUID}s.<a name="line.181"></a>
-<span class="sourceLineNo">182</span>     */<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    static final NullSafeType&lt;UUID&gt; UUID = new NullSafeType&lt;&gt;(new UUIDType());<a name="line.183"></a>
-<span class="sourceLineNo">184</span><a name="line.184"></a>
-<span class="sourceLineNo">185</span>    /**<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     * Type for {@link URI}s.<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     */<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    static final NullSafeType&lt;URI&gt; URI = new URIType();<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>    /**<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     * Type for {@link File}s.<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     */<a name="line.192"></a>
-<span class="sourceLineNo">193</span>    static final NullSafeType&lt;File&gt; FILE = new FileType();<a name="line.193"></a>
-<span class="sourceLineNo">194</span><a name="line.194"></a>
-<span class="sourceLineNo">195</span>    /**<a name="line.195"></a>
-<span class="sourceLineNo">196</span>     * Type for {@link Pattern}s.<a name="line.196"></a>
-<span class="sourceLineNo">197</span>     */<a name="line.197"></a>
-<span class="sourceLineNo">198</span>    static final NullSafeType&lt;Pattern&gt; PATTERN = new PatternType();<a name="line.198"></a>
-<span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>    private final HashMap&lt;String, FieldType&lt;?&gt;&gt; typesByName = new HashMap&lt;&gt;();<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    private final HashMap&lt;TypeToken&lt;?&gt;, ArrayList&lt;FieldType&lt;?&gt;&gt;&gt; typesByType = new HashMap&lt;&gt;();<a name="line.201"></a>
-<span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>    /**<a name="line.203"></a>
-<span class="sourceLineNo">204</span>     * Constructor. Creates an instance with all of the pre-defined {@link FieldType}s (e.g., for<a name="line.204"></a>
-<span class="sourceLineNo">205</span>     * types such as primitive types, {@link String}, etc.) already registered.<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     */<a name="line.206"></a>
-<span class="sourceLineNo">207</span>    public FieldTypeRegistry() {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        this.add(FieldTypeRegistry.REFERENCE);<a name="line.208"></a>
-<span class="sourceLineNo">209</span>        this.add(FieldTypeRegistry.VOID_WRAPPER);<a name="line.209"></a>
-<span class="sourceLineNo">210</span>        this.add(FieldTypeRegistry.BOOLEAN);<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        this.add(FieldTypeRegistry.BOOLEAN_WRAPPER);<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        this.add(FieldTypeRegistry.BYTE);<a name="line.212"></a>
-<span class="sourceLineNo">213</span>        this.add(FieldTypeRegistry.BYTE_WRAPPER);<a name="line.213"></a>
-<span class="sourceLineNo">214</span>        this.add(FieldTypeRegistry.SHORT);<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        this.add(FieldTypeRegistry.SHORT_WRAPPER);<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        this.add(FieldTypeRegistry.CHARACTER);<a name="line.216"></a>
-<span class="sourceLineNo">217</span>        this.add(FieldTypeRegistry.CHARACTER_WRAPPER);<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        this.add(FieldTypeRegistry.INTEGER);<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        this.add(FieldTypeRegistry.INTEGER_WRAPPER);<a name="line.219"></a>
-<span class="sourceLineNo">220</span>        this.add(FieldTypeRegistry.FLOAT);<a name="line.220"></a>
-<span class="sourceLineNo">221</span>        this.add(FieldTypeRegistry.FLOAT_WRAPPER);<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        this.add(FieldTypeRegistry.LONG);<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        this.add(FieldTypeRegistry.LONG_WRAPPER);<a name="line.223"></a>
-<span class="sourceLineNo">224</span>        this.add(FieldTypeRegistry.DOUBLE);<a name="line.224"></a>
-<span class="sourceLineNo">225</span>        this.add(FieldTypeRegistry.DOUBLE_WRAPPER);<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        this.add(FieldTypeRegistry.STRING);<a name="line.226"></a>
-<span class="sourceLineNo">227</span>        this.add(FieldTypeRegistry.DATE);<a name="line.227"></a>
-<span class="sourceLineNo">228</span>        this.add(FieldTypeRegistry.UUID);<a name="line.228"></a>
-<span class="sourceLineNo">229</span>        this.add(FieldTypeRegistry.URI);<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        this.add(FieldTypeRegistry.FILE);<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        this.add(FieldTypeRegistry.PATTERN);<a name="line.231"></a>
-<span class="sourceLineNo">232</span>    }<a name="line.232"></a>
-<span class="sourceLineNo">233</span><a name="line.233"></a>
-<span class="sourceLineNo">234</span>    /**<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     * Add multiple user-defined {@link FieldType} to this registry, using newly created instances of the named classes.<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     *<a name="line.236"></a>
-<span class="sourceLineNo">237</span>     * @param classNames names of classes that implement {@link FieldType}<a name="line.237"></a>
-<span class="sourceLineNo">238</span>     * @throws IllegalArgumentException if {@code classNames} is null<a name="line.238"></a>
-<span class="sourceLineNo">239</span>     * @throws IllegalArgumentException if {@code classNames} contains a null class or a class with invalid annotation(s)<a name="line.239"></a>
-<span class="sourceLineNo">240</span>     * @throws IllegalArgumentException if {@code classNames} contains an invalid {@link FieldType} class<a name="line.240"></a>
-<span class="sourceLineNo">241</span>     * @throws RuntimeException if instantiation of a class fails<a name="line.241"></a>
-<span class="sourceLineNo">242</span>     */<a name="line.242"></a>
-<span class="sourceLineNo">243</span>    public void addNamedClasses(Iterable&lt;String&gt; classNames) {<a name="line.243"></a>
-<span class="sourceLineNo">244</span>        if (classNames == null)<a name="line.244"></a>
-<span class="sourceLineNo">245</span>            throw new IllegalArgumentException("null classNames");<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        this.addClasses(Iterables.transform(classNames, new Function&lt;String, Class&lt;? extends FieldType&lt;?&gt;&gt;&gt;() {<a name="line.246"></a>
-<span class="sourceLineNo">247</span>            @Override<a name="line.247"></a>
-<span class="sourceLineNo">248</span>            @SuppressWarnings("unchecked")<a name="line.248"></a>
-<span class="sourceLineNo">249</span>            public Class&lt;? extends FieldType&lt;?&gt;&gt; apply(String name) {<a name="line.249"></a>
-<span class="sourceLineNo">250</span>                final Class&lt;?&gt; c;<a name="line.250"></a>
-<span class="sourceLineNo">251</span>                try {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>                    c = Class.forName(name, false, Thread.currentThread().getContextClassLoader());<a name="line.252"></a>
-<span class="sourceLineNo">253</span>                } catch (RuntimeException e) {<a name="line.253"></a>
-<span class="sourceLineNo">254</span>                    throw e;<a name="line.254"></a>
-<span class="sourceLineNo">255</span>                } catch (Exception e) {<a name="line.255"></a>
-<span class="sourceLineNo">256</span>                    throw new RuntimeException(e);<a name="line.256"></a>
-<span class="sourceLineNo">257</span>                }<a name="line.257"></a>
-<span class="sourceLineNo">258</span>                try {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>                    return (Class&lt;? extends FieldType&lt;?&gt;&gt;)(Object)c.asSubclass(FieldType.class);<a name="line.259"></a>
-<span class="sourceLineNo">260</span>                } catch (ClassCastException e) {<a name="line.260"></a>
-<span class="sourceLineNo">261</span>                    throw new IllegalArgumentException("class `" + name + "' does not implement " + FieldType.class, e);<a name="line.261"></a>
-<span class="sourceLineNo">262</span>                }<a name="line.262"></a>
-<span class="sourceLineNo">263</span>            }<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        }));<a name="line.264"></a>
-<span class="sourceLineNo">265</span>    }<a name="line.265"></a>
-<span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>    /**<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     * Add multiple user-defined {@link FieldType} to this registry, using newly created instances of the specified classes.<a name="line.268"></a>
-<span class="sourceLineNo">269</span>     *<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     * @param classes implementations of types to add<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     * @throws IllegalArgumentException if {@code classes} is null<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)<a name="line.272"></a>
-<span class="sourceLineNo">273</span>     * @throws IllegalArgumentException if {@code classes} contains an invalid {@link FieldType} class<a name="line.273"></a>
-<span class="sourceLineNo">274</span>     */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>    public void addClasses(Iterable&lt;? extends Class&lt;? extends FieldType&lt;?&gt;&gt;&gt; classes) {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        if (classes == null)<a name="line.276"></a>
-<span class="sourceLineNo">277</span>            throw new IllegalArgumentException("null classes");<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        for (Class&lt;? extends FieldType&lt;?&gt;&gt; type : classes)<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            this.addClass(type);<a name="line.279"></a>
-<span class="sourceLineNo">280</span>    }<a name="line.280"></a>
-<span class="sourceLineNo">281</span><a name="line.281"></a>
-<span class="sourceLineNo">282</span>    /**<a name="line.282"></a>
-<span class="sourceLineNo">283</span>     * Add a user-defined {@link FieldType} to this registry, using a newly created instance of the specified class.<a name="line.283"></a>
-<span class="sourceLineNo">284</span>     *<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     * @param typeClass implementation of type to add<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     * @throws IllegalArgumentException if {@code typeClass} is null<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     * @throws IllegalArgumentException if {@code typeClass} cannot be instantiated<a name="line.287"></a>
-<span class="sourceLineNo">288</span>     * @throws IllegalArgumentException if the {@linkplain FieldType#getName type name} conflicts with an existing type<a name="line.288"></a>
-<span class="sourceLineNo">289</span>     * @throws IllegalArgumentException if the {@linkplain FieldType#getName type name} ends with {@code []} (array name)<a name="line.289"></a>
-<span class="sourceLineNo">290</span>     */<a name="line.290"></a>
-<span class="sourceLineNo">291</span>    public void addClass(Class&lt;? extends FieldType&lt;?&gt;&gt; typeClass) {<a name="line.291"></a>
-<span class="sourceLineNo">292</span><a name="line.292"></a>
-<span class="sourceLineNo">293</span>        // Sanity check<a name="line.293"></a>
-<span class="sourceLineNo">294</span>        if (typeClass == null)<a name="line.294"></a>
-<span class="sourceLineNo">295</span>            throw new IllegalArgumentException("null typeClass");<a name="line.295"></a>
-<span class="sourceLineNo">296</span><a name="line.296"></a>
-<span class="sourceLineNo">297</span>        // Instantiate class<a name="line.297"></a>
-<span class="sourceLineNo">298</span>        final FieldType&lt;?&gt; fieldType;<a name="line.298"></a>
-<span class="sourceLineNo">299</span>        try {<a name="line.299"></a>
-<span class="sourceLineNo">300</span>            fieldType = (FieldType&lt;?&gt;)typeClass.newInstance();<a name="line.300"></a>
-<span class="sourceLineNo">301</span>        } catch (Exception e) {<a name="line.301"></a>
-<span class="sourceLineNo">302</span>            throw new IllegalArgumentException("can't instantiate " + typeClass, e);<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        }<a name="line.303"></a>
-<span class="sourceLineNo">304</span><a name="line.304"></a>
-<span class="sourceLineNo">305</span>        // Register it<a name="line.305"></a>
-<span class="sourceLineNo">306</span>        this.add(fieldType);<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    }<a name="line.307"></a>
-<span class="sourceLineNo">308</span><a name="line.308"></a>
-<span class="sourceLineNo">309</span>    /**<a name="line.309"></a>
-<span class="sourceLineNo">310</span>     * Add a user-defined {@link FieldType} to the registry.<a name="line.310"></a>
-<span class="sourceLineNo">311</span>     *<a name="line.311"></a>
-<span class="sourceLineNo">312</span>     * @param type type to add<a name="line.312"></a>
-<span class="sourceLineNo">313</span>     * @return true if type was added, false if type was already registered<a name="line.313"></a>
-<span class="sourceLineNo">314</span>     * @throws IllegalArgumentException if {@code type} is null<a name="line.314"></a>
-<span class="sourceLineNo">315</span>     * @throws IllegalArgumentException if {@code type} has a name that conflicts with an existing, but different, type<a name="line.315"></a>
-<span class="sourceLineNo">316</span>     * @throws IllegalArgumentException if {@code type} has a name that ends with {@code []} (array name)<a name="line.316"></a>
-<span class="sourceLineNo">317</span>     */<a name="line.317"></a>
-<span class="sourceLineNo">318</span>    public synchronized boolean add(FieldType&lt;?&gt; type) {<a name="line.318"></a>
-<span class="sourceLineNo">319</span>        if (type == null)<a name="line.319"></a>
-<span class="sourceLineNo">320</span>            throw new IllegalArgumentException("null type");<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        if (type.name.endsWith(ArrayType.ARRAY_SUFFIX))<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            throw new IllegalArgumentException("illegal array type name `" + type.name + "'");<a name="line.322"></a>
-<span class="sourceLineNo">323</span>        final FieldType&lt;?&gt; other = this.typesByName.get(type.name);<a name="line.323"></a>
-<span class="sourceLineNo">324</span>        if (other != null) {<a name="line.324"></a>
-<span class="sourceLineNo">325</span>            if (other.equals(type))<a name="line.325"></a>
-<span class="sourceLineNo">326</span>                return false;<a name="line.326"></a>
-<span class="sourceLineNo">327</span>            throw new IllegalArgumentException("type name `" + type.name + "' conflicts with existing type " + other);<a name="line.327"></a>
-<span class="sourceLineNo">328</span>        }<a name="line.328"></a>
-<span class="sourceLineNo">329</span>        this.typesByName.put(type.name, type);<a name="line.329"></a>
-<span class="sourceLineNo">330</span>        final TypeToken&lt;?&gt; typeToken = type.getTypeToken();<a name="line.330"></a>
-<span class="sourceLineNo">331</span>        if (!this.typesByType.containsKey(typeToken))<a name="line.331"></a>
-<span class="sourceLineNo">332</span>            this.typesByType.put(typeToken, Lists.newArrayList(Collections.&lt;FieldType&lt;?&gt;&gt;singleton(type)));<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        else<a name="line.333"></a>
-<span class="sourceLineNo">334</span>            this.typesByType.get(typeToken).add(type);<a name="line.334"></a>
-<span class="sourceLineNo">335</span>        return true;<a name="line.335"></a>
-<span class="sourceLineNo">336</span>    }<a name="line.336"></a>
-<span class="sourceLineNo">337</span><a name="line.337"></a>
-<span class="sourceLineNo">338</span>    /**<a name="line.338"></a>
-<span class="sourceLineNo">339</span>     * Get the {@link FieldType} with the given name in this registry.<a name="line.339"></a>
-<span class="sourceLineNo">340</span>     *<a name="line.340"></a>
-<span class="sourceLineNo">341</span>     * @param name type name<a name="line.341"></a>
-<span class="sourceLineNo">342</span>     * @return type with name {@code name}, or null if not found<a name="line.342"></a>
-<span class="sourceLineNo">343</span>     * @throws IllegalArgumentException if {@code name} is null<a name="line.343"></a>
-<span class="sourceLineNo">344</span>     */<a name="line.344"></a>
-<span class="sourceLineNo">345</span>    public synchronized FieldType&lt;?&gt; getFieldType(final String name) {<a name="line.345"></a>
-<span class="sourceLineNo">346</span><a name="line.346"></a>
-<span class="sourceLineNo">347</span>        // Sanity check<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        if (name == null)<a name="line.348"></a>
-<span class="sourceLineNo">349</span>            throw new IllegalArgumentException("null name");<a name="line.349"></a>
-<span class="sourceLineNo">350</span><a name="line.350"></a>
-<span class="sourceLineNo">351</span>        // Handle array types<a name="line.351"></a>
-<span class="sourceLineNo">352</span>        if (name.endsWith(ArrayType.ARRAY_SUFFIX)) {<a name="line.352"></a>
-<span class="sourceLineNo">353</span>            final FieldType&lt;?&gt; elementType = this.getFieldType(name.substring(0, name.length() - ArrayType.ARRAY_SUFFIX.length()));<a name="line.353"></a>
-<span class="sourceLineNo">354</span>            return this.getArrayType(elementType);<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        }<a name="line.355"></a>
-<span class="sourceLineNo">356</span><a name="line.356"></a>
-<span class="sourceLineNo">357</span>        // Handle non-array type<a name="line.357"></a>
-<span class="sourceLineNo">358</span>        return this.typesByName.get(name);<a name="line.358"></a>
-<span class="sourceLineNo">359</span>    }<a name="line.359"></a>
-<span class="sourceLineNo">360</span><a name="line.360"></a>
-<span class="sourceLineNo">361</span>    /**<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     * Get the array {@link FieldType} with the given element type.<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     *<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     * @param elementType array element type<a name="line.364"></a>
-<span class="sourceLineNo">365</span>     * @param &lt;E&gt; array element type<a name="line.365"></a>
-<span class="sourceLineNo">366</span>     * @throws IllegalArgumentException if {@code elementType} is null<a name="line.366"></a>
-<span class="sourceLineNo">367</span>     * @throws IllegalArgumentException if the resulting array type has too many dimensions<a name="line.367"></a>
-<span class="sourceLineNo">368</span>     * @return array type with element type {@code elementType}<a name="line.368"></a>
-<span class="sourceLineNo">369</span>     */<a name="line.369"></a>
-<span class="sourceLineNo">370</span>    @SuppressWarnings("unchecked")<a name="line.370"></a>
-<span class="sourceLineNo">371</span>    public &lt;E&gt; FieldType&lt;E[]&gt; getArrayType(final FieldType&lt;E&gt; elementType) {<a name="line.371"></a>
-<span class="sourceLineNo">372</span><a name="line.372"></a>
-<span class="sourceLineNo">373</span>        // Sanity check<a name="line.373"></a>
-<span class="sourceLineNo">374</span>        if (elementType == null)<a name="line.374"></a>
-<span class="sourceLineNo">375</span>            throw new IllegalArgumentException("null elementType");<a name="line.375"></a>
-<span class="sourceLineNo">376</span><a name="line.376"></a>
-<span class="sourceLineNo">377</span>        // Create array type<a name="line.377"></a>
-<span class="sourceLineNo">378</span>        final Primitive&lt;?&gt; primitive = Primitive.get(elementType.typeToken.getRawType());<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        final ArrayType&lt;?, ?&gt; notNullType = primitive == null ? this.createObjectArrayType(elementType) :<a name="line.379"></a>
-<span class="sourceLineNo">380</span>          primitive.visit(new PrimitiveSwitch&lt;ArrayType&lt;?, ?&gt;&gt;() {<a name="line.380"></a>
-<span class="sourceLineNo">381</span>            @Override<a name="line.381"></a>
-<span class="sourceLineNo">382</span>            public ArrayType&lt;?, ?&gt; caseVoid() {<a name="line.382"></a>
-<span class="sourceLineNo">383</span>                throw new IllegalArgumentException("cannot create array of type `" + elementType.name + "'");<a name="line.383"></a>
-<span class="sourceLineNo">384</span>            }<a name="line.384"></a>
-<span class="sourceLineNo">385</span>            @Override<a name="line.385"></a>
-<span class="sourceLineNo">386</span>            public ArrayType&lt;?, ?&gt; caseBoolean() {<a name="line.386"></a>
-<span class="sourceLineNo">387</span>                return new BooleanArrayType();<a name="line.387"></a>
-<span class="sourceLineNo">388</span>            }<a name="line.388"></a>
-<span class="sourceLineNo">389</span>            @Override<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            public ArrayType&lt;?, ?&gt; caseByte() {<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                return new ByteArrayType();<a name="line.391"></a>
-<span class="sourceLineNo">392</span>            }<a name="line.392"></a>
-<span class="sourceLineNo">393</span>            @Override<a name="line.393"></a>
-<span class="sourceLineNo">394</span>            public ArrayType&lt;?, ?&gt; caseCharacter() {<a name="line.394"></a>
-<span class="sourceLineNo">395</span>                return new CharacterArrayType();<a name="line.395"></a>
-<span class="sourceLineNo">396</span>            }<a name="line.396"></a>
-<span class="sourceLineNo">397</span>            @Override<a name="line.397"></a>
-<span class="sourceLineNo">398</span>            public ArrayType&lt;?, ?&gt; caseShort() {<a name="line.398"></a>
-<span class="sourceLineNo">399</span>                return new ShortArrayType();<a name="line.399"></a>
-<span class="sourceLineNo">400</span>            }<a name="line.400"></a>
-<span class="sourceLineNo">401</span>            @Override<a name="line.401"></a>
-<span class="sourceLineNo">402</span>            public ArrayType&lt;?, ?&gt; caseInteger() {<a name="line.402"></a>
-<span class="sourceLineNo">403</span>                return new IntegerArrayType();<a name="line.403"></a>
-<span class="sourceLineNo">404</span>            }<a name="line.404"></a>
-<span class="sourceLineNo">405</span>            @Override<a name="line.405"></a>
-<span class="sourceLineNo">406</span>            public ArrayType&lt;?, ?&gt; caseFloat() {<a name="line.406"></a>
-<span class="sourceLineNo">407</span>                return new FloatArrayType();<a name="line.407"></a>
-<span class="sourceLineNo">408</span>            }<a name="line.408"></a>
-<span class="sourceLineNo">409</span>            @Override<a name="line.409"></a>
-<span class="sourceLineNo">410</span>            public ArrayType&lt;?, ?&gt; caseLong() {<a name="line.410"></a>
-<span class="sourceLineNo">411</span>                return new LongArrayType();<a name="line.411"></a>
-<span class="sourceLineNo">412</span>            }<a name="line.412"></a>
-<span class="sourceLineNo">413</span>            @Override<a name="line.413"></a>
-<span class="sourceLineNo">414</span>            public ArrayType&lt;?, ?&gt; caseDouble() {<a name="line.414"></a>
-<span class="sourceLineNo">415</span>                return new DoubleArrayType();<a name="line.415"></a>
-<span class="sourceLineNo">416</span>            }<a name="line.416"></a>
-<span class="sourceLineNo">417</span>        });<a name="line.417"></a>
-<span class="sourceLineNo">418</span>        return (FieldType&lt;E[]&gt;)this.createNullSafeType(notNullType);<a name="line.418"></a>
-<span class="sourceLineNo">419</span>    }<a name="line.419"></a>
-<span class="sourceLineNo">420</span><a name="line.420"></a>
-<span class="sourceLineNo">421</span>    /**<a name="line.421"></a>
-<span class="sourceLineNo">422</span>     * Get all {@link FieldType}s in this registry that supports values of the given Java type, which must<a name="line.422"></a>
-<span class="sourceLineNo">423</span>     * exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.<a name="line.423"></a>
-<span class="sourceLineNo">424</span>     *<a name="line.424"></a>
-<span class="sourceLineNo">425</span>     * @param typeToken field value type<a name="line.425"></a>
-<span class="sourceLineNo">426</span>     * @param &lt;T&gt; field value type<a name="line.426"></a>
-<span class="sourceLineNo">427</span>     * @return unmodifiable list of {@link FieldType}s supporting Java values of type {@code typeToken}<a name="line.427"></a>
-<span class="sourceLineNo">428</span>     * @throws IllegalArgumentException if {@code typeToken} is null<a name="line.428"></a>
-<span class="sourceLineNo">429</span>     */<a name="line.429"></a>
-<span class="sourceLineNo">430</span>    @SuppressWarnings("unchecked")<a name="line.430"></a>
-<span class="sourceLineNo">431</span>    public synchronized &lt;T&gt; List&lt;FieldType&lt;T&gt;&gt; getFieldTypes(TypeToken&lt;T&gt; typeToken) {<a name="line.431"></a>
-<span class="sourceLineNo">432</span><a name="line.432"></a>
-<span class="sourceLineNo">433</span>        // Sanity check<a name="line.433"></a>
-<span class="sourceLineNo">434</span>        if (typeToken == null)<a name="line.434"></a>
-<span class="sourceLineNo">435</span>            throw new IllegalArgumentException("null typeToken");<a name="line.435"></a>
-<span class="sourceLineNo">436</span><a name="line.436"></a>
-<span class="sourceLineNo">437</span>        // Handle array types<a name="line.437"></a>
-<span class="sourceLineNo">438</span>        final TypeToken&lt;?&gt; elementTypeToken = typeToken.getComponentType();<a name="line.438"></a>
-<span class="sourceLineNo">439</span>        if (elementTypeToken != null) {<a name="line.439"></a>
-<span class="sourceLineNo">440</span>            final ArrayList&lt;FieldType&lt;T&gt;&gt; fieldTypes = new ArrayList&lt;FieldType&lt;T&gt;&gt;();<a name="line.440"></a>
-<span class="sourceLineNo">441</span>            for (FieldType&lt;?&gt; elementFieldType : this.getFieldTypes(elementTypeToken))<a name="line.441"></a>
-<span class="sourceLineNo">442</span>                fieldTypes.add((FieldType&lt;T&gt;)this.getArrayType(this.getFieldType(elementTypeToken)));<a name="line.442"></a>
-<span class="sourceLineNo">443</span>            return Collections.unmodifiableList(fieldTypes);<a name="line.443"></a>
-<span class="sourceLineNo">444</span>        }<a name="line.444"></a>
-<span class="sourceLineNo">445</span><a name="line.445"></a>
-<span class="sourceLineNo">446</span>        // Handle non-array types<a name="line.446"></a>
-<span class="sourceLineNo">447</span>        final ArrayList&lt;FieldType&lt;T&gt;&gt; fieldTypes = (ArrayList&lt;FieldType&lt;T&gt;&gt;)(Object)this.typesByType.get(typeToken);<a name="line.447"></a>
-<span class="sourceLineNo">448</span>        return fieldTypes != null ? Collections.unmodifiableList(fieldTypes) : Collections.&lt;FieldType&lt;T&gt;&gt;emptyList();<a name="line.448"></a>
-<span class="sourceLineNo">449</span>    }<a name="line.449"></a>
-<span class="sourceLineNo">450</span><a name="line.450"></a>
-<span class="sourceLineNo">451</span>    /**<a name="line.451"></a>
-<span class="sourceLineNo">452</span>     * Get the unique {@link FieldType} in this registry that supports values of the given Java type, which must<a name="line.452"></a>
-<span class="sourceLineNo">453</span>     * exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.<a name="line.453"></a>
-<span class="sourceLineNo">454</span>     * There must be exactly one such {@link FieldType}, otherwise an {@link IllegalArgumentException} is thrown.<a name="line.454"></a>
-<span class="sourceLineNo">455</span>     *<a name="line.455"></a>
-<span class="sourceLineNo">456</span>     * @param typeToken field value type<a name="line.456"></a>
-<span class="sourceLineNo">457</span>     * @param &lt;T&gt; field value type<a name="line.457"></a>
-<span class="sourceLineNo">458</span>     * @return {@link FieldType} supporting Java values of type {@code typeToken}<a name="line.458"></a>
-<span class="sourceLineNo">459</span>     * @throws IllegalArgumentException if {@code typeToken} is null<a name="line.459"></a>
-<span class="sourceLineNo">460</span>     * @throws IllegalArgumentException if no registered {@link FieldType}s supports {@code typeToken}<a name="line.460"></a>
-<span class="sourceLineNo">461</span>     * @throws IllegalArgumentException if more than one registered {@link FieldType} supports {@code typeToken}<a name="line.461"></a>
-<span class="sourceLineNo">462</span>     */<a name="line.462"></a>
-<span class="sourceLineNo">463</span>    public &lt;T&gt; FieldType&lt;T&gt; getFieldType(TypeToken&lt;T&gt; typeToken) {<a name="line.463"></a>
-<span class="sourceLineNo">464</span>        final List&lt;FieldType&lt;T&gt;&gt; fieldTypes = this.getFieldTypes(typeToken);<a name="line.464"></a>
-<span class="sourceLineNo">465</span>        switch (fieldTypes.size()) {<a name="line.465"></a>
-<span class="sourceLineNo">466</span>        case 0:<a name="line.466"></a>
-<span class="sourceLineNo">467</span>            throw new IllegalArgumentException("no registered types support values of type " + typeToken);<a name="line.467"></a>
-<span class="sourceLineNo">468</span>        case 1:<a name="line.468"></a>
-<span class="sourceLineNo">469</span>            return fieldTypes.get(0);<a name="line.469"></a>
-<span class="sourceLineNo">470</span>        default:<a name="line.470"></a>
-<span class="sourceLineNo">471</span>            throw new IllegalArgumentException("multiple registered types support values of type " + typeToken + ": " + fieldTypes);<a name="line.471"></a>
-<span class="sourceLineNo">472</span>        }<a name="line.472"></a>
-<span class="sourceLineNo">473</span>    }<a name="line.473"></a>
-<span class="sourceLineNo">474</span><a name="line.474"></a>
-<span class="sourceLineNo">475</span>    /**<a name="line.475"></a>
-<span class="sourceLineNo">476</span>     * Get all types registered with this instance.<a name="line.476"></a>
-<span class="sourceLineNo">477</span>     *<a name="line.477"></a>
-<span class="sourceLineNo">478</span>     * @return mapping from type name to type<a name="line.478"></a>
-<span class="sourceLineNo">479</span>     */<a name="line.479"></a>
-<span class="sourceLineNo">480</span>    public synchronized Map&lt;String, FieldType&lt;?&gt;&gt; getAll() {<a name="line.480"></a>
-<span class="sourceLineNo">481</span>        return new HashMap&lt;String, FieldType&lt;?&gt;&gt;(this.typesByName);<a name="line.481"></a>
-<span class="sourceLineNo">482</span>    }<a name="line.482"></a>
-<span class="sourceLineNo">483</span><a name="line.483"></a>
-<span class="sourceLineNo">484</span>    // This method exists solely to bind the generic type parameters<a name="line.484"></a>
-<span class="sourceLineNo">485</span>    private &lt;E&gt; ObjectArrayType&lt;E&gt; createObjectArrayType(FieldType&lt;E&gt; elementType) {<a name="line.485"></a>
-<span class="sourceLineNo">486</span>        return new ObjectArrayType&lt;E&gt;(elementType);<a name="line.486"></a>
-<span class="sourceLineNo">487</span>    }<a name="line.487"></a>
-<span class="sourceLineNo">488</span><a name="line.488"></a>
-<span class="sourceLineNo">489</span>    // This method exists solely to bind the generic type parameters<a name="line.489"></a>
-<span class="sourceLineNo">490</span>    private &lt;T&gt; NullSafeType&lt;T&gt; createNullSafeType(FieldType&lt;T&gt; notNullType) {<a name="line.490"></a>
-<span class="sourceLineNo">491</span>        return new NullSafeType&lt;T&gt;(notNullType);<a name="line.491"></a>
-<span class="sourceLineNo">492</span>    }<a name="line.492"></a>
-<span class="sourceLineNo">493</span>}<a name="line.493"></a>
-<span class="sourceLineNo">494</span><a name="line.494"></a>
+<span class="sourceLineNo">037</span> * &lt;p&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * Array types will be automatically created and registered on demand, assuming the base element<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * type is already registered.<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;/p&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * &lt;p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * Arrays are passed by value: i.e., the entire array is copied. Therefore, changes to array elements after<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * getting or setting a field have no effect on the field's value.<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;/p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;p&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * Arrays of references are not currently supported.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;/p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * &lt;p&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * The following types are automatically registered (or generated on demand):<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;ul&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *  &lt;li&gt;Primitive types ({@code boolean}, {@code int}, etc.)&lt;/li&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *  &lt;li&gt;Primitive wrapper types ({@link Boolean}, {@link Integer}, etc.)&lt;/li&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *  &lt;li&gt;{@link String}&lt;/li&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *  &lt;li&gt;Array types&lt;/li&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *  &lt;li&gt;{@link Enum} types&lt;/li&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *  &lt;li&gt;{@link java.util.Date}&lt;/li&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span> *  &lt;li&gt;{@link java.util.UUID}&lt;/li&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *  &lt;li&gt;{@link java.net.URI}&lt;/li&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span> *  &lt;li&gt;{@link java.io.File}&lt;/li&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *  &lt;li&gt;{@link java.util.regex.Pattern}&lt;/li&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * &lt;/ul&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>public class FieldTypeRegistry {<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /**<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * {@code void} primitive wrapper type (null values not allowed).<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    static final VoidType VOID = new VoidType();<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * {@code Void} primitive wrapper type (null values allowed).<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     */<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    static final PrimitiveWrapperType&lt;Void&gt; VOID_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.VOID);<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    /**<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * {@code boolean} primitive wrapper type (null values not allowed).<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    static final BooleanType BOOLEAN = new BooleanType();<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * {@code Boolean} primitive wrapper type (null values allowed).<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    static final PrimitiveWrapperType&lt;Boolean&gt; BOOLEAN_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.BOOLEAN);<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    /**<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * {@code byte} primitive wrapper type (null values not allowed).<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    static final ByteType BYTE = new ByteType();<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * {@code Byte} primitive wrapper type (null values allowed).<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    static final PrimitiveWrapperType&lt;Byte&gt; BYTE_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.BYTE);<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    /**<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * {@code char} primitive wrapper type (null values not allowed).<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    static final CharacterType CHARACTER = new CharacterType();<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>    /**<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * {@code Character} primitive wrapper type (null values allowed).<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    static final PrimitiveWrapperType&lt;Character&gt; CHARACTER_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.CHARACTER);<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * {@code short} primitive wrapper type (null values not allowed).<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    static final ShortType SHORT = new ShortType();<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    /**<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * {@code Short} primitive wrapper type (null values allowed).<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     */<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    static final PrimitiveWrapperType&lt;Short&gt; SHORT_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.SHORT);<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * {@code int} primitive type (null values not allowed).<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     */<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    static final IntegerType INTEGER = new IntegerType();<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    /**<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * {@code Integer} primitive wrapper type (null values allowed).<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     */<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    static final PrimitiveWrapperType&lt;Integer&gt; INTEGER_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.INTEGER);<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    /**<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * {@code float} primitive wrapper type (null values not allowed).<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    static final FloatType FLOAT = new FloatType();<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>    /**<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * {@code Float} primitive wrapper type (null values allowed).<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     */<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    static final PrimitiveWrapperType&lt;Float&gt; FLOAT_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.FLOAT);<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>    /**<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * {@code long} primitive wrapper type (null values not allowed).<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    static final LongType LONG = new LongType();<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    /**<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * {@code Long} primitive wrapper type (null values allowed).<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     */<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    static final PrimitiveWrapperType&lt;Long&gt; LONG_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.LONG);<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    /**<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * {@code double} primitive wrapper type (null values not allowed).<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     */<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    static final DoubleType DOUBLE = new DoubleType();<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>    /**<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * {@code Double} primitive wrapper type (null values allowed).<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     */<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    static final PrimitiveWrapperType&lt;Double&gt; DOUBLE_WRAPPER = new PrimitiveWrapperType&lt;&gt;(FieldTypeRegistry.DOUBLE);<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>    /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * Type for {@link ObjId}s (null values are not allowed).<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     */<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    static final ObjIdType OBJ_ID = new ObjIdType();<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>    /**<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * Type for object references with no restriction (null values are allowed).<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    static final ReferenceFieldType REFERENCE = new ReferenceFieldType();<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>    /**<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * Type for {@link String}s.<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     */<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    static final NullSafeType&lt;String&gt; STRING = new NullSafeType&lt;&gt;(new StringType());<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>    /**<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * Type for {@link Date}s.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     */<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    static final NullSafeType&lt;Date&gt; DATE = new NullSafeType&lt;&gt;(new DateType());<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>    /**<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * Type for {@link UUID}s.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    static final NullSafeType&lt;UUID&gt; UUID = new NullSafeType&lt;&gt;(new UUIDType());<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>    /**<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * Type for {@link URI}s.<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     */<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    static final NullSafeType&lt;URI&gt; URI = new URIType();<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>    /**<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * Type for {@link File}s.<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     */<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    static final NullSafeType&lt;File&gt; FILE = new FileType();<a name="line.191"></a>
+<span class="sourceLineNo">192</span><a name="line.192"></a>
+<span class="sourceLineNo">193</span>    /**<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * Type for {@link Pattern}s.<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     */<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    static final NullSafeType&lt;Pattern&gt; PATTERN = new PatternType();<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>    private final HashMap&lt;String, FieldType&lt;?&gt;&gt; typesByName = new HashMap&lt;&gt;();<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    private final HashMap&lt;TypeToken&lt;?&gt;, ArrayList&lt;FieldType&lt;?&gt;&gt;&gt; typesByType = new HashMap&lt;&gt;();<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    /**<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * Constructor. Creates an instance with all of the pre-defined {@link FieldType}s (e.g., for<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * types such as primitive types, {@link String}, etc.) already registered.<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     */<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    public FieldTypeRegistry() {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        this.add(FieldTypeRegistry.REFERENCE);<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        this.add(FieldTypeRegistry.VOID_WRAPPER);<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        this.add(FieldTypeRegistry.BOOLEAN);<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        this.add(FieldTypeRegistry.BOOLEAN_WRAPPER);<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        this.add(FieldTypeRegistry.BYTE);<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        this.add(FieldTypeRegistry.BYTE_WRAPPER);<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        this.add(FieldTypeRegistry.SHORT);<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        this.add(FieldTypeRegistry.SHORT_WRAPPER);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        this.add(FieldTypeRegistry.CHARACTER);<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        this.add(FieldTypeRegistry.CHARACTER_WRAPPER);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        this.add(FieldTypeRegistry.INTEGER);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        this.add(FieldTypeRegistry.INTEGER_WRAPPER);<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        this.add(FieldTypeRegistry.FLOAT);<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        this.add(FieldTypeRegistry.FLOAT_WRAPPER);<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        this.add(FieldTypeRegistry.LONG);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        this.add(FieldTypeRegistry.LONG_WRAPPER);<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        this.add(FieldTypeRegistry.DOUBLE);<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        this.add(FieldTypeRegistry.DOUBLE_WRAPPER);<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        this.add(FieldTypeRegistry.STRING);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        this.add(FieldTypeRegistry.DATE);<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        this.add(FieldTypeRegistry.UUID);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        this.add(FieldTypeRegistry.URI);<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        this.add(FieldTypeRegistry.FILE);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        this.add(FieldTypeRegistry.PATTERN);<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    }<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>    /**<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * Add multiple user-defined {@link FieldType} to this registry, using newly created instances of the named classes.<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     *<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * @param classNames names of classes that implement {@link FieldType}<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * @throws IllegalArgumentException if {@code classNames} is null<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * @throws IllegalArgumentException if {@code classNames} contains a null class or a class with invalid annotation(s)<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * @throws IllegalArgumentException if {@code classNames} contains an invalid {@link FieldType} class<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * @throws RuntimeException if instantiation of a class fails<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     */<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    public void addNamedClasses(Iterable&lt;String&gt; classNames) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        if (classNames == null)<a name="line.242"></a>
+<span class="sourceLineNo">243</span>            throw new IllegalArgumentException("null classNames");<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        this.addClasses(Iterables.transform(classNames, new Function&lt;String, Class&lt;? extends FieldType&lt;?&gt;&gt;&gt;() {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>            @Override<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            @SuppressWarnings("unchecked")<a name="line.246"></a>
+<span class="sourceLineNo">247</span>            public Class&lt;? extends FieldType&lt;?&gt;&gt; apply(String name) {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                final Class&lt;?&gt; c;<a name="line.248"></a>
+<span class="sourceLineNo">249</span>                try {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>                    c = Class.forName(name, false, Thread.currentThread().getContextClassLoader());<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                } catch (RuntimeException e) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                    throw e;<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                } catch (Exception e) {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                    throw new RuntimeException(e);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                }<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                try {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                    return (Class&lt;? extends FieldType&lt;?&gt;&gt;)(Object)c.asSubclass(FieldType.class);<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                } catch (ClassCastException e) {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                    throw new IllegalArgumentException("class `" + name + "' does not implement " + FieldType.class, e);<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                }<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            }<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        }));<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    }<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>    /**<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * Add multiple user-defined {@link FieldType} to this registry, using newly created instances of the specified classes.<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     *<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * @param classes implementations of types to add<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * @throws IllegalArgumentException if {@code classes} is null<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     * @throws IllegalArgumentException if {@code classes} contains an invalid {@link FieldType} class<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     */<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    public void addClasses(Iterable&lt;? extends Class&lt;? extends FieldType&lt;?&gt;&gt;&gt; classes) {<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        if (classes == null)<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            throw new IllegalArgumentException("null classes");<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        for (Class&lt;? extends FieldType&lt;?&gt;&gt; type : classes)<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            this.addClass(type);<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    }<a name="line.278"></a>
+<span class="sourceLineNo">279</span><a name="line.279"></a>
+<span class="sourceLineNo">280</span>    /**<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * Add a user-defined {@link FieldType} to this registry, using a newly created instance of the specified class.<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     *<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @param typeClass implementation of type to add<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * @throws IllegalArgumentException if {@code typeClass} is null<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * @throws IllegalArgumentException if {@code typeClass} cannot be instantiated<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * @throws IllegalArgumentException if the {@linkplain FieldType#getName type name} conflicts with an existing type<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     * @throws IllegalArgumentException if the {@linkplain FieldType#getName type name} ends with {@code []} (array name)<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     */<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    public void addClass(Class&lt;? extends FieldType&lt;?&gt;&gt; typeClass) {<a name="line.289"></a>
+<span class="sourceLineNo">290</span><a name="line.290"></a>
+<span class="sourceLineNo">291</span>        // Sanity check<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        if (typeClass == null)<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            throw new IllegalArgumentException("null typeClass");<a name="line.293"></a>
+<span class="sourceLineNo">294</span><a name="line.294"></a>
+<span class="sourceLineNo">295</span>        // Instantiate class<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        final FieldType&lt;?&gt; fieldType;<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        try {<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            fieldType = (FieldType&lt;?&gt;)typeClass.newInstance();<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        } catch (Exception e) {<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            throw new IllegalArgumentException("can't instantiate " + typeClass, e);<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        }<a name="line.301"></a>
+<span class="sourceLineNo">302</span><a name="line.302"></a>
+<span class="sourceLineNo">303</span>        // Register it<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        this.add(fieldType);<a name="line.304"></a>
+<span class="sourceLineNo">305</span>    }<a name="line.305"></a>
+<span class="sourceLineNo">306</span><a name="line.306"></a>
+<span class="sourceLineNo">307</span>    /**<a name="line.307"></a>
+<span class="sourceLineNo">308</span>     * Add a user-defined {@link FieldType} to the registry.<a name="line.308"></a>
+<span class="sourceLineNo">309</span>     *<a name="line.309"></a>
+<span class="sourceLineNo">310</span>     * @param type type to add<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     * @return true if type was added, false if type was already registered<a name="line.311"></a>
+<span class="sourceLineNo">312</span>     * @throws IllegalArgumentException if {@code type} is null<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     * @throws IllegalArgumentException if {@code type} has a name that conflicts with an existing, but different, type<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     * @throws IllegalArgumentException if {@code type} has a name that ends with {@code []} (array name)<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     */<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    public synchronized boolean add(FieldType&lt;?&gt; type) {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        if (type == null)<a name="line.317"></a>
+<span class="sourceLineNo">318</span>            throw new IllegalArgumentException("null type");<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        if (type.name.endsWith(ArrayType.ARRAY_SUFFIX))<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            throw new IllegalArgumentException("illegal array type name `" + type.name + "'");<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        final FieldType&lt;?&gt; other = this.typesByName.get(type.name);<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        if (other != null) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            if (other.equals(type))<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                return false;<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            throw new IllegalArgumentException("type name `" + type.name + "' conflicts with existing type " + other);<a name="line.325"></a>
+<span class="sourceLineNo">326</span>        }<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        this.typesByName.put(type.name, type);<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        final TypeToken&lt;?&gt; typeToken = type.getTypeToken();<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        if (!this.typesByType.containsKey(typeToken))<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            this.typesByType.put(typeToken, Lists.newArrayList(Collections.&lt;FieldType&lt;?&gt;&gt;singleton(type)));<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        else<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            this.typesByType.get(typeToken).add(type);<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        return true;<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    }<a name="line.334"></a>
+<span class="sourceLineNo">335</span><a name="line.335"></a>
+<span class="sourceLineNo">336</span>    /**<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * Get the {@link FieldType} with the given name in this registry.<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     *<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     * @param name type name<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     * @return type with name {@code name}, or null if not found<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     * @throws IllegalArgumentException if {@code name} is null<a name="line.341"></a>
+<span class="sourceLineNo">342</span>     */<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    public synchronized FieldType&lt;?&gt; getFieldType(final String name) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span><a name="line.344"></a>
+<span class="sourceLineNo">345</span>        // Sanity check<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        if (name == null)<a name="line.346"></a>
+<span class="sourceLineNo">347</span>            throw new IllegalArgumentException("null name");<a name="line.347"></a>
+<span class="sourceLineNo">348</span><a name="line.348"></a>
+<span class="sourceLineNo">349</span>        // Handle array types<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        if (name.endsWith(ArrayType.ARRAY_SUFFIX)) {<a name="line.350"></a>
+<span class="sourceLineNo">351</span>            final FieldType&lt;?&gt; elementType = this.getFieldType(name.substring(0, name.length() - ArrayType.ARRAY_SUFFIX.length()));<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            return this.getArrayType(elementType);<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        }<a name="line.353"></a>
+<span class="sourceLineNo">354</span><a name="line.354"></a>
+<span class="sourceLineNo">355</span>        // Handle non-array type<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        return this.typesByName.get(name);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>    }<a name="line.357"></a>
+<span class="sourceLineNo">358</span><a name="line.358"></a>
+<span class="sourceLineNo">359</span>    /**<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * Get the array {@link FieldType} with the given element type.<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     *<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * @param elementType array element type<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     * @param &lt;E&gt; array element type<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * @throws IllegalArgumentException if {@code elementType} is null<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     * @throws IllegalArgumentException if the resulting array type has too many dimensions<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     * @return array type with element type {@code elementType}<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     */<a name="line.367"></a>
+<span class="sourceLineNo">368</span>    @SuppressWarnings("unchecked")<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    public &lt;E&gt; FieldType&lt;E[]&gt; getArrayType(final FieldType&lt;E&gt; elementType) {<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>        // Sanity check<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        if (elementType == null)<a name="line.372"></a>
+<span class="sourceLineNo">373</span>            throw new IllegalArgumentException("null elementType");<a name="line.373"></a>
+<span class="sourceLineNo">374</span><a name="line.374"></a>
+<span class="sourceLineNo">375</span>        // Create array type<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        final Primitive&lt;?&gt; primitive = Primitive.get(elementType.typeToken.getRawType());<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        final ArrayType&lt;?, ?&gt; notNullType = primitive == null ? this.createObjectArrayType(elementType) :<a name="line.377"></a>
+<span class="sourceLineNo">378</span>          primitive.visit(new PrimitiveSwitch&lt;ArrayType&lt;?, ?&gt;&gt;() {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            @Override<a name="line.379"></a>
+<span class="sourceLineNo">380</span>            public ArrayType&lt;?, ?&gt; caseVoid() {<a name="line.380"></a>
+<span class="sourceLineNo">381</span>                throw new IllegalArgumentException("cannot create array of type `" + elementType.name + "'");<a name="line.381"></a>
+<span class="sourceLineNo">382</span>            }<a name="line.382"></a>
+<span class="sourceLineNo">383</span>            @Override<a name="line.383"></a>
+<span class="sourceLineNo">384</span>            public ArrayType&lt;?, ?&gt; caseBoolean() {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>                return new BooleanArrayType();<a name="line.385"></a>
+<span class="sourceLineNo">386</span>            }<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            @Override<a name="line.387"></a>
+<span class="sourceLineNo">388</span>            public ArrayType&lt;?, ?&gt; caseByte() {<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                return new ByteArrayType();<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            }<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            @Override<a name="line.391"></a>
+<span class="sourceLineNo">392</span>            public ArrayType&lt;?, ?&gt; caseCharacter() {<a name="line.392"></a>
+<span class="sourceLineNo">393</span>                return new CharacterArrayType();<a name="line.393"></a>
+<span class="sourceLineNo">394</span>            }<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            @Override<a name="line.395"></a>
+<span class="sourceLineNo">396</span>            public ArrayType&lt;?, ?&gt; caseShort() {<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                return new ShortArrayType();<a name="line.397"></a>
+<span class="sourceLineNo">398</span>            }<a name="line.398"></a>
+<span class="sourceLineNo">399</span>            @Override<a name="line.399"></a>
+<span class="sourceLineNo">400</span>            public ArrayType&lt;?, ?&gt; caseInteger() {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                return new IntegerArrayType();<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            }<a name="line.402"></a>
+<span class="sourceLineNo">403</span>            @Override<a name="line.403"></a>
+<span class="sourceLineNo">404</span>            public ArrayType&lt;?, ?&gt; caseFloat() {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                return new FloatArrayType();<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            }<a name="line.406"></a>
+<span class="sourceLineNo">407</span>            @Override<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            public ArrayType&lt;?, ?&gt; caseLong() {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                return new LongArrayType();<a name="line.409"></a>
+<span class="sourceLineNo">410</span>            }<a name="line.410"></a>
+<span class="sourceLineNo">411</span>            @Override<a name="line.411"></a>
+<span class="sourceLineNo">412</span>            public ArrayType&lt;?, ?&gt; caseDouble() {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                return new DoubleArrayType();<a name="line.413"></a>
+<span class="sourceLineNo">414</span>            }<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        });<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        return (FieldType&lt;E[]&gt;)this.createNullSafeType(notNullType);<a name="line.416"></a>
+<span class="sourceLineNo">417</span>    }<a name="line.417"></a>
+<span class="sourceLineNo">418</span><a name="line.418"></a>
+<span class="sourceLineNo">419</span>    /**<a name="line.419"></a>
+<span class="sourceLineNo">420</span>     * Get all {@link FieldType}s in this registry that supports values of the given Java type, which must<a name="line.420"></a>
+<span class="sourceLineNo">421</span>     * exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.<a name="line.421"></a>
+<span class="sourceLineNo">422</span>     *<a name="line.422"></a>
+<span class="sourceLineNo">423</span>     * @param typeToken field value type<a name="line.423"></a>
+<span class="sourceLineNo">424</span>     * @param &lt;T&gt; field value type<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     * @return unmodifiable list of {@link FieldType}s supporting Java values of type {@code typeToken}<a name="line.425"></a>
+<span class="sourceLineNo">426</span>     * @throws IllegalArgumentException if {@code typeToken} is null<a name="line.426"></a>
+<span class="sourceLineNo">427</span>     */<a name="line.427"></a>
+<span class="sourceLineNo">428</span>    @SuppressWarnings("unchecked")<a name="line.428"></a>
+<span class="sourceLineNo">429</span>    public synchronized &lt;T&gt; List&lt;FieldType&lt;T&gt;&gt; getFieldTypes(TypeToken&lt;T&gt; typeToken) {<a name="line.429"></a>
+<span class="sourceLineNo">430</span><a name="line.430"></a>
+<span class="sourceLineNo">431</span>        // Sanity check<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        if (typeToken == null)<a name="line.432"></a>
+<span class="sourceLineNo">433</span>            throw new IllegalArgumentException("null typeToken");<a name="line.433"></a>
+<span class="sourceLineNo">434</span><a name="line.434"></a>
+<span class="sourceLineNo">435</span>        // Handle array types<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        final TypeToken&lt;?&gt; elementTypeToken = typeToken.getComponentType();<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        if (elementTypeToken != null) {<a name="line.437"></a>
+<span class="sourceLineNo">438</span>            final ArrayList&lt;FieldType&lt;T&gt;&gt; fieldTypes = new ArrayList&lt;FieldType&lt;T&gt;&gt;();<a name="line.438"></a>
+<span class="sourceLineNo">439</span>            for (FieldType&lt;?&gt; elementFieldType : this.getFieldTypes(elementTypeToken))<a name="line.439"></a>
+<span class="sourceLineNo">440</span>                fieldTypes.add((FieldType&lt;T&gt;)this.getArrayType(this.getFieldType(elementTypeToken)));<a name="line.440"></a>
+<span class="sourceLineNo">441</span>            return Collections.unmodifiableList(fieldTypes);<a name="line.441"></a>
+<span class="sourceLineNo">442</span>        }<a name="line.442"></a>
+<span class="sourceLineNo">443</span><a name="line.443"></a>
+<span class="sourceLineNo">444</span>        // Handle non-array types<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        final ArrayList&lt;FieldType&lt;T&gt;&gt; fieldTypes = (ArrayList&lt;FieldType&lt;T&gt;&gt;)(Object)this.typesByType.get(typeToken);<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        return fieldTypes != null ? Collections.unmodifiableList(fieldTypes) : Collections.&lt;FieldType&lt;T&gt;&gt;emptyList();<a name="line.446"></a>
+<span class="sourceLineNo">447</span>    }<a name="line.447"></a>
+<span class="sourceLineNo">448</span><a name="line.448"></a>
+<span class="sourceLineNo">449</span>    /**<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     * Get the unique {@link FieldType} in this registry that supports values of the given Java type, which must<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     * exactly match the {@link FieldType}'s {@linkplain FieldType#getTypeToken supported Java type}.<a name="line.451"></a>
+<span class="sourceLineNo">452</span>     * There must be exactly one such {@link FieldType}, otherwise an {@link IllegalArgumentException} is thrown.<a name="line.452"></a>
+<span class="sourceLineNo">453</span>     *<a name="line.453"></a>
+<span class="sourceLineNo">454</span>     * @param typeToken field value type<a name="line.454"></a>
+<span class="sourceLineNo">455</span>     * @param &lt;T&gt; field value type<a name="line.455"></a>
+<span class="sourceLineNo">456</span>     * @return {@link FieldType} supporting Java values of type {@code typeToken}<a name="line.456"></a>
+<span class="sourceLineNo">457</span>     * @throws IllegalArgumentException if {@code typeToken} is null<a name="line.457"></a>
+<span class="sourceLineNo">458</span>     * @throws IllegalArgumentException if no registered {@link FieldType}s supports {@code typeToken}<a name="line.458"></a>
+<span class="sourceLineNo">459</span>     * @throws IllegalArgumentException if more than one registered {@link FieldType} supports {@code typeToken}<a name="line.459"></a>
+<span class="sourceLineNo">460</span>     */<a name="line.460"></a>
+<span class="sourceLineNo">461</span>    public &lt;T&gt; FieldType&lt;T&gt; getFieldType(TypeToken&lt;T&gt; typeToken) {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>        final List&lt;FieldType&lt;T&gt;&gt; fieldTypes = this.getFieldTypes(typeToken);<a name="line.462"></a>
+<span class="sourceLineNo">463</span>        switch (fieldTypes.size()) {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>        case 0:<a name="line.464"></a>
+<span class="sourceLineNo">465</span>            throw new IllegalArgumentException("no registered types support values of type " + typeToken);<a name="line.465"></a>
+<span class="sourceLineNo">466</span>        case 1:<a name="line.466"></a>
+<span class="sourceLineNo">467</span>            return fieldTypes.get(0);<a name="line.467"></a>
+<span class="sourceLineNo">468</span>        default:<a name="line.468"></a>
+<span class="sourceLineNo">469</span>            throw new IllegalArgumentException("multiple registered types support values of type " + typeToken + ": " + fieldTypes);<a name="line.469"></a>
+<span class="sourceLineNo">470</span>        }<a name="line.470"></a>
+<span class="sourceLineNo">471</span>    }<a name="line.471"></a>
+<span class="sourceLineNo">472</span><a name="line.472"></a>
+<span class="sourceLineNo">473</span>    /**<a name="line.473"></a>
+<span class="sourceLineNo">474</span>     * Get all types registered with this instance.<a name="line.474"></a>
+<span class="sourceLineNo">475</span>     *<a name="line.475"></a>
+<span class="sourceLineNo">476</span>     * @return mapping from type name to type<a name="line.476"></a>
+<span class="sourceLineNo">477</span>     */<a name="line.477"></a>
+<span class="sourceLineNo">478</span>    public synchronized Map&lt;String, FieldType&lt;?&gt;&gt; getAll() {<a name="line.478"></a>
+<span class="sourceLineNo">479</span>        return new HashMap&lt;String, FieldType&lt;?&gt;&gt;(this.typesByName);<a name="line.479"></a>
+<span class="sourceLineNo">480</span>    }<a name="line.480"></a>
+<span class="sourceLineNo">481</span><a name="line.481"></a>
+<span class="sourceLineNo">482</span>    // This method exists solely to bind the generic type parameters<a name="line.482"></a>
+<span class="sourceLineNo">483</span>    private &lt;E&gt; ObjectArrayType&lt;E&gt; createObjectArrayType(FieldType&lt;E&gt; elementType) {<a name="line.483"></a>
+<span class="sourceLineNo">484</span>        return new ObjectArrayType&lt;E&gt;(elementType);<a name="line.484"></a>
+<span class="sourceLineNo">485</span>    }<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>    // This method exists solely to bind the generic type parameters<a name="line.487"></a>
+<span class="sourceLineNo">488</span>    private &lt;T&gt; NullSafeType&lt;T&gt; createNullSafeType(FieldType&lt;T&gt; notNullType) {<a name="line.488"></a>
+<span class="sourceLineNo">489</span>        return new NullSafeType&lt;T&gt;(notNullType);<a name="line.489"></a>
+<span class="sourceLineNo">490</span>    }<a name="line.490"></a>
+<span class="sourceLineNo">491</span>}<a name="line.491"></a>
+<span class="sourceLineNo">492</span><a name="line.492"></a>
 
 
 

@@ -9,300 +9,298 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.parse;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.parse;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.lang.reflect.InvocationTargetException;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.ArrayList;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.LinkedHashSet;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.util.Set;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.util.SortedMap;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.TreeMap;<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.JSimpleDB;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.Session;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.core.Database;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.core.Transaction;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.parse.expr.Value;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.parse.func.AbstractFunction;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.parse.func.AllFunction;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.parse.func.ConcatFunction;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.parse.func.CountFunction;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jsimpledb.parse.func.CreateFunction;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jsimpledb.parse.func.FilterFunction;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jsimpledb.parse.func.ForEachFunction;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.jsimpledb.parse.func.InvertFunction;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jsimpledb.parse.func.LimitFunction;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.jsimpledb.parse.func.ListFunction;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.jsimpledb.parse.func.QueryCompositeIndexFunction;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.jsimpledb.parse.func.QueryIndexFunction;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.jsimpledb.parse.func.QueryListElementIndexFunction;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.jsimpledb.parse.func.QueryMapValueIndexFunction;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.jsimpledb.parse.func.QueryVersionFunction;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.jsimpledb.parse.func.TransformFunction;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import org.jsimpledb.parse.func.UpgradeFunction;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import org.jsimpledb.parse.func.VersionFunction;<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>/**<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * A {@link Session} with support for parsing Java expressions.<a name="line.42"></a>
-<span class="sourceLineNo">043</span> */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>public class ParseSession extends Session {<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>    private final LinkedHashSet&lt;String&gt; imports = new LinkedHashSet&lt;&gt;();<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    private final TreeMap&lt;String, AbstractFunction&gt; functions = new TreeMap&lt;&gt;();<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    private final TreeMap&lt;String, Value&gt; variables = new TreeMap&lt;&gt;();<a name="line.48"></a>
+<span class="sourceLineNo">008</span>import java.lang.reflect.InvocationTargetException;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.ArrayList;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.LinkedHashSet;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Set;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.SortedMap;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.TreeMap;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.JSimpleDB;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.Session;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.core.Database;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.core.Transaction;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.parse.expr.Value;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.parse.func.AbstractFunction;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.parse.func.AllFunction;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.parse.func.ConcatFunction;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.parse.func.CountFunction;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jsimpledb.parse.func.CreateFunction;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jsimpledb.parse.func.FilterFunction;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jsimpledb.parse.func.ForEachFunction;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jsimpledb.parse.func.InvertFunction;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jsimpledb.parse.func.LimitFunction;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jsimpledb.parse.func.ListFunction;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jsimpledb.parse.func.QueryCompositeIndexFunction;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jsimpledb.parse.func.QueryIndexFunction;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jsimpledb.parse.func.QueryListElementIndexFunction;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jsimpledb.parse.func.QueryMapValueIndexFunction;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jsimpledb.parse.func.QueryVersionFunction;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.jsimpledb.parse.func.TransformFunction;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.jsimpledb.parse.func.UpgradeFunction;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jsimpledb.parse.func.VersionFunction;<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>/**<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * A {@link Session} with support for parsing Java expressions.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>public class ParseSession extends Session {<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private final LinkedHashSet&lt;String&gt; imports = new LinkedHashSet&lt;&gt;();<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private final TreeMap&lt;String, AbstractFunction&gt; functions = new TreeMap&lt;&gt;();<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private final TreeMap&lt;String, Value&gt; variables = new TreeMap&lt;&gt;();<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>// Constructors<a name="line.48"></a>
 <span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>// Constructors<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>    /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * Constructor for core API level access.<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     *<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * @param db core database<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @throws IllegalArgumentException if {@code db} is null<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    public ParseSession(Database db) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        super(db);<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        this.imports.add("java.lang.*");<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     * Constructor for {@link JSimpleDB} level access.<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     *<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * @param jdb database<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * @throws IllegalArgumentException if {@code jdb} is null<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    public ParseSession(JSimpleDB jdb) {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        super(jdb);<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        this.imports.add("java.lang.*");<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
+<span class="sourceLineNo">050</span>    /**<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * Constructor for core API level access.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     *<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @param db core database<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @throws IllegalArgumentException if {@code db} is null<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    public ParseSession(Database db) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        super(db);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        this.imports.add("java.lang.*");<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * Constructor for {@link JSimpleDB} level access.<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     *<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @param jdb database<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @throws IllegalArgumentException if {@code jdb} is null<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    public ParseSession(JSimpleDB jdb) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        super(jdb);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        this.imports.add("java.lang.*");<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>// Accessors<a name="line.72"></a>
 <span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>// Accessors<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>    /**<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * Get currently configured Java imports.<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     *<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     * &lt;p&gt;<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     * Each entry should of the form {@code foo.bar.Name} or {@code foo.bar.*}.<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * &lt;/p&gt;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * @return configured imports<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    public Set&lt;String&gt; getImports() {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        return this.imports;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    /**<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     * Get the {@link AbstractFunction}s registered with this instance.<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * @return registered functions indexed by name<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     */<a name="line.93"></a>
-<span class="sourceLineNo">094</span>    public SortedMap&lt;String, AbstractFunction&gt; getFunctions() {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        return this.functions;<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    /**<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * Get all variables set on this instance.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     *<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * @return variables indexed by name<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     */<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    public SortedMap&lt;String, Value&gt; getVars() {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        return this.variables;<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">074</span>    /**<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * Get currently configured Java imports.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     *<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * &lt;p&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * Each entry should of the form {@code foo.bar.Name} or {@code foo.bar.*}.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * &lt;/p&gt;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     *<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @return configured imports<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    public Set&lt;String&gt; getImports() {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        return this.imports;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * Get the {@link AbstractFunction}s registered with this instance.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     *<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * @return registered functions indexed by name<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    public SortedMap&lt;String, AbstractFunction&gt; getFunctions() {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        return this.functions;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    /**<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * Get all variables set on this instance.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     *<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @return variables indexed by name<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    public SortedMap&lt;String, Value&gt; getVars() {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        return this.variables;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>// Function registration<a name="line.105"></a>
 <span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>// Function registration<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
-<span class="sourceLineNo">109</span>    /**<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * Register the standard built-in functions such as {@code all()}, {@code foreach()}, etc.<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     */<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    public void registerStandardFunctions() {<a name="line.112"></a>
-<span class="sourceLineNo">113</span><a name="line.113"></a>
-<span class="sourceLineNo">114</span>        // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        this.registerFunction(AllFunction.class);<a name="line.115"></a>
-<span class="sourceLineNo">116</span>        this.registerFunction(ConcatFunction.class);<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        this.registerFunction(CountFunction.class);<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        this.registerFunction(CreateFunction.class);<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        this.registerFunction(FilterFunction.class);<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        this.registerFunction(ForEachFunction.class);<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        if (this.hasJSimpleDB())<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            this.registerFunction(InvertFunction.class);<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        this.registerFunction(LimitFunction.class);<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        this.registerFunction(ListFunction.class);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        this.registerFunction(QueryCompositeIndexFunction.class);<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        this.registerFunction(QueryIndexFunction.class);<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        this.registerFunction(QueryListElementIndexFunction.class);<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        this.registerFunction(QueryMapValueIndexFunction.class);<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        this.registerFunction(QueryVersionFunction.class);<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        this.registerFunction(TransformFunction.class);<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        this.registerFunction(UpgradeFunction.class);<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        this.registerFunction(VersionFunction.class);<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
-<span class="sourceLineNo">134</span><a name="line.134"></a>
-<span class="sourceLineNo">135</span>    /**<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * Create an instance of the specified class and register it as an {@link AbstractFunction}.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     * as appropriate. The class must have a public constructor taking either a single {@link ParseSession} parameter<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     * or no parameters; they will be tried in that order.<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     *<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     * @param cl function class<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * @throws IllegalArgumentException if {@code cl} has no suitable constructor<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     * @throws IllegalArgumentException if {@code cl} instantiation fails<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * @throws IllegalArgumentException if {@code cl} does not subclass {@link AbstractFunction}<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
-<span class="sourceLineNo">145</span>    public void registerFunction(Class&lt;?&gt; cl) {<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        if (!AbstractFunction.class.isAssignableFrom(cl))<a name="line.146"></a>
-<span class="sourceLineNo">147</span>            throw new IllegalArgumentException(cl + " does not subclass " + AbstractFunction.class.getName());<a name="line.147"></a>
-<span class="sourceLineNo">148</span>        final AbstractFunction function = this.instantiate(cl.asSubclass(AbstractFunction.class));<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        this.functions.put(function.getName(), function);<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    }<a name="line.150"></a>
-<span class="sourceLineNo">151</span><a name="line.151"></a>
-<span class="sourceLineNo">152</span>    /**<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     * Instantiate an instance of the given class.<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     * The class must have a public constructor taking either a single {@link ParseSession} parameter<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     * or no parameters; they will be tried in that order.<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     */<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    private &lt;T&gt; T instantiate(Class&lt;T&gt; cl) {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        Throwable failure;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>        try {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>            return cl.getConstructor(ParseSession.class).newInstance(this);<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        } catch (NoSuchMethodException e) {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            try {<a name="line.162"></a>
-<span class="sourceLineNo">163</span>                return cl.getConstructor().newInstance();<a name="line.163"></a>
-<span class="sourceLineNo">164</span>            } catch (NoSuchMethodException e2) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>                throw new IllegalArgumentException("no suitable constructor found in class " + cl.getName());<a name="line.165"></a>
-<span class="sourceLineNo">166</span>            } catch (Exception e2) {<a name="line.166"></a>
-<span class="sourceLineNo">167</span>                failure = e2;<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            }<a name="line.168"></a>
-<span class="sourceLineNo">169</span>        } catch (Exception e) {<a name="line.169"></a>
-<span class="sourceLineNo">170</span>            failure = e;<a name="line.170"></a>
-<span class="sourceLineNo">171</span>        }<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        if (failure instanceof InvocationTargetException)<a name="line.172"></a>
-<span class="sourceLineNo">173</span>            failure = failure.getCause();<a name="line.173"></a>
-<span class="sourceLineNo">174</span>        throw new IllegalArgumentException("unable to instantiate class " + cl.getName() + ": " + failure, failure);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
+<span class="sourceLineNo">107</span>    /**<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * Register the standard built-in functions such as {@code all()}, {@code foreach()}, etc.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    public void registerStandardFunctions() {<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>        // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        this.registerFunction(AllFunction.class);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        this.registerFunction(ConcatFunction.class);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        this.registerFunction(CountFunction.class);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        this.registerFunction(CreateFunction.class);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        this.registerFunction(FilterFunction.class);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        this.registerFunction(ForEachFunction.class);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        if (this.hasJSimpleDB())<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            this.registerFunction(InvertFunction.class);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        this.registerFunction(LimitFunction.class);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        this.registerFunction(ListFunction.class);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        this.registerFunction(QueryCompositeIndexFunction.class);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        this.registerFunction(QueryIndexFunction.class);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        this.registerFunction(QueryListElementIndexFunction.class);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        this.registerFunction(QueryMapValueIndexFunction.class);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        this.registerFunction(QueryVersionFunction.class);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        this.registerFunction(TransformFunction.class);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        this.registerFunction(UpgradeFunction.class);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        this.registerFunction(VersionFunction.class);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>    /**<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * Create an instance of the specified class and register it as an {@link AbstractFunction}.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * as appropriate. The class must have a public constructor taking either a single {@link ParseSession} parameter<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * or no parameters; they will be tried in that order.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     *<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * @param cl function class<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * @throws IllegalArgumentException if {@code cl} has no suitable constructor<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * @throws IllegalArgumentException if {@code cl} instantiation fails<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @throws IllegalArgumentException if {@code cl} does not subclass {@link AbstractFunction}<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     */<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    public void registerFunction(Class&lt;?&gt; cl) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        if (!AbstractFunction.class.isAssignableFrom(cl))<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            throw new IllegalArgumentException(cl + " does not subclass " + AbstractFunction.class.getName());<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        final AbstractFunction function = this.instantiate(cl.asSubclass(AbstractFunction.class));<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        this.functions.put(function.getName(), function);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    }<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>    /**<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * Instantiate an instance of the given class.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * The class must have a public constructor taking either a single {@link ParseSession} parameter<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * or no parameters; they will be tried in that order.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     */<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    private &lt;T&gt; T instantiate(Class&lt;T&gt; cl) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        Throwable failure;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        try {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            return cl.getConstructor(ParseSession.class).newInstance(this);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        } catch (NoSuchMethodException e) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            try {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                return cl.getConstructor().newInstance();<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            } catch (NoSuchMethodException e2) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                throw new IllegalArgumentException("no suitable constructor found in class " + cl.getName());<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            } catch (Exception e2) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                failure = e2;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            }<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        } catch (Exception e) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            failure = e;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        }<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        if (failure instanceof InvocationTargetException)<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            failure = failure.getCause();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        throw new IllegalArgumentException("unable to instantiate class " + cl.getName() + ": " + failure, failure);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    }<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>// Class name resolution<a name="line.175"></a>
 <span class="sourceLineNo">176</span><a name="line.176"></a>
-<span class="sourceLineNo">177</span>// Class name resolution<a name="line.177"></a>
-<span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>    /**<a name="line.179"></a>
-<span class="sourceLineNo">180</span>     * Resolve a class name against this instance's currently configured class imports.<a name="line.180"></a>
-<span class="sourceLineNo">181</span>     *<a name="line.181"></a>
-<span class="sourceLineNo">182</span>     * @param name class name<a name="line.182"></a>
-<span class="sourceLineNo">183</span>     * @return resolved class, or null if not found<a name="line.183"></a>
-<span class="sourceLineNo">184</span>     */<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    public Class&lt;?&gt; resolveClass(final String name) {<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        final int firstDot = name.indexOf('.');<a name="line.186"></a>
-<span class="sourceLineNo">187</span>        final String firstPart = firstDot != -1 ? name.substring(0, firstDot - 1) : name;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        final ArrayList&lt;String&gt; packages = new ArrayList&lt;&gt;(this.imports.size() + 1);<a name="line.188"></a>
-<span class="sourceLineNo">189</span>        packages.add(null);<a name="line.189"></a>
-<span class="sourceLineNo">190</span>        packages.addAll(this.imports);<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        for (String pkg : packages) {<a name="line.191"></a>
-<span class="sourceLineNo">192</span><a name="line.192"></a>
-<span class="sourceLineNo">193</span>            // Get absolute class name<a name="line.193"></a>
-<span class="sourceLineNo">194</span>            String className;<a name="line.194"></a>
-<span class="sourceLineNo">195</span>            if (pkg == null)<a name="line.195"></a>
-<span class="sourceLineNo">196</span>                className = name;<a name="line.196"></a>
-<span class="sourceLineNo">197</span>            else if (pkg.endsWith(".*"))<a name="line.197"></a>
-<span class="sourceLineNo">198</span>                className = pkg.substring(0, pkg.length() - 1) + name;<a name="line.198"></a>
-<span class="sourceLineNo">199</span>            else {<a name="line.199"></a>
-<span class="sourceLineNo">200</span>                if (!firstPart.equals(pkg.substring(pkg.lastIndexOf('.') + 1, pkg.length() - 2)))<a name="line.200"></a>
-<span class="sourceLineNo">201</span>                    continue;<a name="line.201"></a>
-<span class="sourceLineNo">202</span>                className = pkg.substring(0, pkg.length() - 2 - firstPart.length()) + name;<a name="line.202"></a>
-<span class="sourceLineNo">203</span>            }<a name="line.203"></a>
-<span class="sourceLineNo">204</span><a name="line.204"></a>
-<span class="sourceLineNo">205</span>            // Try package vs. nested classes<a name="line.205"></a>
-<span class="sourceLineNo">206</span>            while (true) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>                try {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>                    return Class.forName(className, false, Thread.currentThread().getContextClassLoader());<a name="line.208"></a>
-<span class="sourceLineNo">209</span>                } catch (ClassNotFoundException e) {<a name="line.209"></a>
-<span class="sourceLineNo">210</span>                    // not found<a name="line.210"></a>
-<span class="sourceLineNo">211</span>                }<a name="line.211"></a>
-<span class="sourceLineNo">212</span>                final int lastDot = className.lastIndexOf('.');<a name="line.212"></a>
-<span class="sourceLineNo">213</span>                if (lastDot == -1)<a name="line.213"></a>
-<span class="sourceLineNo">214</span>                    break;<a name="line.214"></a>
-<span class="sourceLineNo">215</span>                className = className.substring(0, lastDot) + "$" + className.substring(lastDot + 1);<a name="line.215"></a>
-<span class="sourceLineNo">216</span>            }<a name="line.216"></a>
-<span class="sourceLineNo">217</span>        }<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        return null;<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    }<a name="line.219"></a>
-<span class="sourceLineNo">220</span><a name="line.220"></a>
-<span class="sourceLineNo">221</span>    /**<a name="line.221"></a>
-<span class="sourceLineNo">222</span>     * Relativize the given class's name, so that it is as short as possible given the configured imports.<a name="line.222"></a>
-<span class="sourceLineNo">223</span>     * For example, for class {@link String} this will return {@code String}, but for class {@link ArrayList}<a name="line.223"></a>
-<span class="sourceLineNo">224</span>     * this will return {@code java.util.ArrayList} unless {@code java.util.*} has been imported.<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     *<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     * @param klass class whose name to relativize<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     * @return relativized class name<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     * @throws IllegalArgumentException if {@code klass} is null<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     */<a name="line.229"></a>
-<span class="sourceLineNo">230</span>    public String relativizeClassName(Class&lt;?&gt; klass) {<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        if (klass == null)<a name="line.231"></a>
-<span class="sourceLineNo">232</span>            throw new IllegalArgumentException("null klass");<a name="line.232"></a>
-<span class="sourceLineNo">233</span>        final String name = klass.getName();<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        for (int pos = name.lastIndexOf('.'); pos &gt; 0; pos = name.lastIndexOf('.', pos - 1)) {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>            final String shortName = name.substring(pos + 1);<a name="line.235"></a>
-<span class="sourceLineNo">236</span>            if (this.resolveClass(shortName) == klass)<a name="line.236"></a>
-<span class="sourceLineNo">237</span>                return shortName;<a name="line.237"></a>
-<span class="sourceLineNo">238</span>        }<a name="line.238"></a>
-<span class="sourceLineNo">239</span>        return klass.getName();<a name="line.239"></a>
-<span class="sourceLineNo">240</span>    }<a name="line.240"></a>
+<span class="sourceLineNo">177</span>    /**<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * Resolve a class name against this instance's currently configured class imports.<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     *<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * @param name class name<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     * @return resolved class, or null if not found<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     */<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    public Class&lt;?&gt; resolveClass(final String name) {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        final int firstDot = name.indexOf('.');<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        final String firstPart = firstDot != -1 ? name.substring(0, firstDot - 1) : name;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        final ArrayList&lt;String&gt; packages = new ArrayList&lt;&gt;(this.imports.size() + 1);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        packages.add(null);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        packages.addAll(this.imports);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        for (String pkg : packages) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span><a name="line.190"></a>
+<span class="sourceLineNo">191</span>            // Get absolute class name<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            String className;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            if (pkg == null)<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                className = name;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            else if (pkg.endsWith(".*"))<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                className = pkg.substring(0, pkg.length() - 1) + name;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>            else {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                if (!firstPart.equals(pkg.substring(pkg.lastIndexOf('.') + 1, pkg.length() - 2)))<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                    continue;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                className = pkg.substring(0, pkg.length() - 2 - firstPart.length()) + name;<a name="line.200"></a>
+<span class="sourceLineNo">201</span>            }<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>            // Try package vs. nested classes<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            while (true) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>                try {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>                    return Class.forName(className, false, Thread.currentThread().getContextClassLoader());<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                } catch (ClassNotFoundException e) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                    // not found<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                }<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                final int lastDot = className.lastIndexOf('.');<a name="line.210"></a>
+<span class="sourceLineNo">211</span>                if (lastDot == -1)<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                    break;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                className = className.substring(0, lastDot) + "$" + className.substring(lastDot + 1);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            }<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        }<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        return null;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    }<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>    /**<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * Relativize the given class's name, so that it is as short as possible given the configured imports.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * For example, for class {@link String} this will return {@code String}, but for class {@link ArrayList}<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * this will return {@code java.util.ArrayList} unless {@code java.util.*} has been imported.<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     *<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * @param klass class whose name to relativize<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * @return relativized class name<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * @throws IllegalArgumentException if {@code klass} is null<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     */<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    public String relativizeClassName(Class&lt;?&gt; klass) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        if (klass == null)<a name="line.229"></a>
+<span class="sourceLineNo">230</span>            throw new IllegalArgumentException("null klass");<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        final String name = klass.getName();<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        for (int pos = name.lastIndexOf('.'); pos &gt; 0; pos = name.lastIndexOf('.', pos - 1)) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            final String shortName = name.substring(pos + 1);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            if (this.resolveClass(shortName) == klass)<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                return shortName;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        }<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        return klass.getName();<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    }<a name="line.238"></a>
+<span class="sourceLineNo">239</span><a name="line.239"></a>
+<span class="sourceLineNo">240</span>// Action<a name="line.240"></a>
 <span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>// Action<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>    /**<a name="line.244"></a>
-<span class="sourceLineNo">245</span>     * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}<a name="line.245"></a>
-<span class="sourceLineNo">246</span>     *<a name="line.246"></a>
-<span class="sourceLineNo">247</span>     * @param action action to perform<a name="line.247"></a>
-<span class="sourceLineNo">248</span>     * @return true if {@code action} completed successfully, false if the transaction could not be created<a name="line.248"></a>
-<span class="sourceLineNo">249</span>     *  or {@code action} threw an exception<a name="line.249"></a>
-<span class="sourceLineNo">250</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.250"></a>
-<span class="sourceLineNo">251</span>     */<a name="line.251"></a>
-<span class="sourceLineNo">252</span>    public boolean perform(Action action) {<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        return this.perform(null, action);<a name="line.253"></a>
-<span class="sourceLineNo">254</span>    }<a name="line.254"></a>
-<span class="sourceLineNo">255</span><a name="line.255"></a>
-<span class="sourceLineNo">256</span>    /**<a name="line.256"></a>
-<span class="sourceLineNo">257</span>     * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.<a name="line.257"></a>
-<span class="sourceLineNo">258</span>     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise,<a name="line.258"></a>
-<span class="sourceLineNo">259</span>     * if there is already an open transaction associated with this instance, it will be used;<a name="line.259"></a>
-<span class="sourceLineNo">260</span>     * otherwise, a new transaction is created for the duration of {@code action} and then committed.<a name="line.260"></a>
-<span class="sourceLineNo">261</span>     *<a name="line.261"></a>
-<span class="sourceLineNo">262</span>     * &lt;p&gt;<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     * If {@code tx} is not null and there is already an open transaction associated with this instance and they<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     * are not the same transaction, an {@link IllegalStateException} is thrown.<a name="line.264"></a>
-<span class="sourceLineNo">265</span>     * &lt;/p&gt;<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     *<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * @param tx transaction in which to perform the action, or null to create a new one (if necessary)<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     * @param action action to perform<a name="line.268"></a>
-<span class="sourceLineNo">269</span>     * @return true if {@code action} completed successfully, false if the transaction could not be created<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     *  or {@code action} threw an exception<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.272"></a>
-<span class="sourceLineNo">273</span>     */<a name="line.273"></a>
-<span class="sourceLineNo">274</span>    public boolean perform(Transaction tx, final Action action) {<a name="line.274"></a>
-<span class="sourceLineNo">275</span>        return this.perform(tx, new Session.Action() {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>            @Override<a name="line.276"></a>
-<span class="sourceLineNo">277</span>            public void run(Session session) throws Exception {<a name="line.277"></a>
-<span class="sourceLineNo">278</span>                action.run((ParseSession)session);<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            }<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        });<a name="line.280"></a>
-<span class="sourceLineNo">281</span>    }<a name="line.281"></a>
-<span class="sourceLineNo">282</span><a name="line.282"></a>
-<span class="sourceLineNo">283</span>    /**<a name="line.283"></a>
-<span class="sourceLineNo">284</span>     * Callback interface used by {@link ParseSession#perform ParseSession.perform()}.<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     */<a name="line.285"></a>
-<span class="sourceLineNo">286</span>    public interface Action {<a name="line.286"></a>
-<span class="sourceLineNo">287</span><a name="line.287"></a>
-<span class="sourceLineNo">288</span>        /**<a name="line.288"></a>
-<span class="sourceLineNo">289</span>         * Perform some action using the given {@link ParseSession} while a transaction is open.<a name="line.289"></a>
-<span class="sourceLineNo">290</span>         *<a name="line.290"></a>
-<span class="sourceLineNo">291</span>         * @param session session with open transaction<a name="line.291"></a>
-<span class="sourceLineNo">292</span>         * @throws Exception if an error occurs<a name="line.292"></a>
-<span class="sourceLineNo">293</span>         */<a name="line.293"></a>
-<span class="sourceLineNo">294</span>        void run(ParseSession session) throws Exception;<a name="line.294"></a>
-<span class="sourceLineNo">295</span>    }<a name="line.295"></a>
-<span class="sourceLineNo">296</span>}<a name="line.296"></a>
-<span class="sourceLineNo">297</span><a name="line.297"></a>
+<span class="sourceLineNo">242</span>    /**<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     *<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * @param action action to perform<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * @return true if {@code action} completed successfully, false if the transaction could not be created<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     *  or {@code action} threw an exception<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     */<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    public boolean perform(Action action) {<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        return this.perform(null, action);<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    }<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>    /**<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise,<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * if there is already an open transaction associated with this instance, it will be used;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * otherwise, a new transaction is created for the duration of {@code action} and then committed.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     *<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * &lt;p&gt;<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * If {@code tx} is not null and there is already an open transaction associated with this instance and they<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * are not the same transaction, an {@link IllegalStateException} is thrown.<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * &lt;/p&gt;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     *<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * @param tx transaction in which to perform the action, or null to create a new one (if necessary)<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * @param action action to perform<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * @return true if {@code action} completed successfully, false if the transaction could not be created<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     *  or {@code action} threw an exception<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     */<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    public boolean perform(Transaction tx, final Action action) {<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        return this.perform(tx, new Session.Action() {<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            @Override<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            public void run(Session session) throws Exception {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                action.run((ParseSession)session);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            }<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        });<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    }<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>    /**<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * Callback interface used by {@link ParseSession#perform ParseSession.perform()}.<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     */<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    public interface Action {<a name="line.284"></a>
+<span class="sourceLineNo">285</span><a name="line.285"></a>
+<span class="sourceLineNo">286</span>        /**<a name="line.286"></a>
+<span class="sourceLineNo">287</span>         * Perform some action using the given {@link ParseSession} while a transaction is open.<a name="line.287"></a>
+<span class="sourceLineNo">288</span>         *<a name="line.288"></a>
+<span class="sourceLineNo">289</span>         * @param session session with open transaction<a name="line.289"></a>
+<span class="sourceLineNo">290</span>         * @throws Exception if an error occurs<a name="line.290"></a>
+<span class="sourceLineNo">291</span>         */<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        void run(ParseSession session) throws Exception;<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    }<a name="line.293"></a>
+<span class="sourceLineNo">294</span>}<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
 
 
 

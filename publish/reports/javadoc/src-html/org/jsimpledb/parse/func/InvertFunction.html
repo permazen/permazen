@@ -9,159 +9,157 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.parse.func;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.parse.func;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.collect.Iterables;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.collect.Iterables;<a name="line.10"></a>
+<span class="sourceLineNo">010</span>import java.util.regex.Matcher;<a name="line.10"></a>
 <span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.regex.Matcher;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.jsimpledb.JClass;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jsimpledb.JObject;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.JTransaction;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.core.UnknownTypeException;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.parse.ParseContext;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.parse.ParseException;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.parse.ParseSession;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.parse.expr.AbstractValue;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.parse.expr.EvalException;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.parse.expr.ExprParser;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.parse.expr.IdentNode;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.parse.expr.Node;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jsimpledb.parse.expr.Value;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jsimpledb.parse.util.ParseCastFunction;<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>@Function(worksInCoreAPIMode = false)<a name="line.29"></a>
-<span class="sourceLineNo">030</span>public class InvertFunction extends AbstractFunction {<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>    public InvertFunction() {<a name="line.32"></a>
-<span class="sourceLineNo">033</span>        super("invert");<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    @Override<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    public String getHelpSummary() {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        return "invert a path of references";<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    }<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    @Override<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    public String getUsage() {<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        return "invert(type.fields..., objects)";<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>    @Override<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    public String getHelpDetail() {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        return "The invert() function inverts a reference path. The first parameter is the reference path, in the form"<a name="line.48"></a>
-<span class="sourceLineNo">049</span>          + " of type name followed by a dot-separated list of one or more reference fields. The second parameter is a"<a name="line.49"></a>
-<span class="sourceLineNo">050</span>          + " collection of target objects. The return value is the set of all objects that refer to any of the target"<a name="line.50"></a>
-<span class="sourceLineNo">051</span>          + " objects through the path of references. This function does not work when running in core API mode.";<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    @Override<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    public InvertInfo parseParams(final ParseSession session, final ParseContext ctx, final boolean complete) {<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>        // Sanity check<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        if (!session.hasJSimpleDB())<a name="line.58"></a>
-<span class="sourceLineNo">059</span>            throw new ParseException(ctx, "invert() does not work in core API mode");<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>        // Parse entire reference path<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        final int mark = ctx.getIndex();<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        final Matcher matcher = ctx.tryPattern(IdentNode.NAME_PATTERN + "\\s*(\\.\\s*" + IdentNode.NAME_PATTERN + "\\s*)*");<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        if (matcher == null)<a name="line.64"></a>
-<span class="sourceLineNo">065</span>            throw new ParseException(ctx, "invalid reference path");<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        final String path = matcher.group().replaceAll("\\s+", "");<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        final int firstDot = path.indexOf('.');<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        if (firstDot == -1) {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>            ctx.setIndex(mark);<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            throw new ParseException(ctx, "invalid reference path");<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        }<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        final String typeName = path.substring(0, firstDot);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        final String fieldPath = path.substring(firstDot + 1);<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>        // Find start type<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        final JClass&lt;?&gt; jclass;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        try {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            jclass = session.getJSimpleDB().getJClass(session.getNameIndex().getSchemaObjectType(typeName).getStorageId());<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        } catch (UnknownTypeException e) {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            ctx.setIndex(mark);<a name="line.80"></a>
-<span class="sourceLineNo">081</span>            throw new ParseException(ctx, "invalid type `" + typeName + "': " + e.getMessage(), e);<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        }<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>        // Verify reference path is valid (although we don't verify the last field in the path is a reference field here)<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        try {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            session.getJSimpleDB().parseReferencePath(jclass.getType(), fieldPath);<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        } catch (IllegalArgumentException e) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            ctx.setIndex(mark);<a name="line.88"></a>
-<span class="sourceLineNo">089</span>            throw new ParseException(ctx, "invalid path `" + fieldPath + "': " + e.getMessage(), e);<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        }<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>        // Parase expression<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        ctx.skipWhitespace();<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        if (!ctx.tryLiteral(","))<a name="line.94"></a>
-<span class="sourceLineNo">095</span>            throw new ParseException(ctx, "expected `,'").addCompletion(", ");<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        this.spaceParser.parse(ctx, complete);<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        final Node expr = new ExprParser().parse(session, ctx, complete);<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>        // Finish parse<a name="line.99"></a>
-<span class="sourceLineNo">100</span>        ctx.skipWhitespace();<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        if (!ctx.tryLiteral(")"))<a name="line.101"></a>
-<span class="sourceLineNo">102</span>            throw new ParseException(ctx, "expected `)'").addCompletion(") ");<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>        // Done<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        return new InvertInfo(jclass, fieldPath, expr);<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>    @Override<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    public Value apply(ParseSession session, Object params) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        final InvertInfo info = (InvertInfo)params;<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        return new AbstractValue() {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>            @Override<a name="line.112"></a>
-<span class="sourceLineNo">113</span>            public Object get(ParseSession session) {<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
-<span class="sourceLineNo">115</span>                // Evaluate expression<a name="line.115"></a>
-<span class="sourceLineNo">116</span>                final Iterable&lt;?&gt; items = info.getExpr().evaluate(session).checkType(session, "invert()", Iterable.class);<a name="line.116"></a>
-<span class="sourceLineNo">117</span>                final Iterable&lt;JObject&gt; jobjs = Iterables.transform(items, new ParseCastFunction&lt;JObject&gt;(JObject.class));<a name="line.117"></a>
-<span class="sourceLineNo">118</span><a name="line.118"></a>
-<span class="sourceLineNo">119</span>                // Invert references to iterated objects<a name="line.119"></a>
-<span class="sourceLineNo">120</span>                try {<a name="line.120"></a>
-<span class="sourceLineNo">121</span>                    return JTransaction.getCurrent().invertReferencePath(info.getJClass().getType(), info.getFieldPath(), jobjs);<a name="line.121"></a>
-<span class="sourceLineNo">122</span>                } catch (Exception e) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>                    throw new EvalException("invert() failed: " + e, e);<a name="line.123"></a>
-<span class="sourceLineNo">124</span>                }<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            }<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        };<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    }<a name="line.127"></a>
+<span class="sourceLineNo">012</span>import org.jsimpledb.JClass;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.jsimpledb.JObject;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.JTransaction;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.core.UnknownTypeException;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.parse.ParseContext;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.parse.ParseException;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.parse.ParseSession;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.parse.expr.AbstractValue;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.parse.expr.EvalException;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.parse.expr.ExprParser;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.parse.expr.IdentNode;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.parse.expr.Node;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jsimpledb.parse.expr.Value;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jsimpledb.parse.util.ParseCastFunction;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>@Function(worksInCoreAPIMode = false)<a name="line.27"></a>
+<span class="sourceLineNo">028</span>public class InvertFunction extends AbstractFunction {<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>    public InvertFunction() {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        super("invert");<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    }<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>    @Override<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    public String getHelpSummary() {<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        return "invert a path of references";<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    }<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    @Override<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    public String getUsage() {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        return "invert(type.fields..., objects)";<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    }<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    @Override<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    public String getHelpDetail() {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        return "The invert() function inverts a reference path. The first parameter is the reference path, in the form"<a name="line.46"></a>
+<span class="sourceLineNo">047</span>          + " of type name followed by a dot-separated list of one or more reference fields. The second parameter is a"<a name="line.47"></a>
+<span class="sourceLineNo">048</span>          + " collection of target objects. The return value is the set of all objects that refer to any of the target"<a name="line.48"></a>
+<span class="sourceLineNo">049</span>          + " objects through the path of references. This function does not work when running in core API mode.";<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    @Override<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    public InvertInfo parseParams(final ParseSession session, final ParseContext ctx, final boolean complete) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>        // Sanity check<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        if (!session.hasJSimpleDB())<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            throw new ParseException(ctx, "invert() does not work in core API mode");<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>        // Parse entire reference path<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        final int mark = ctx.getIndex();<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        final Matcher matcher = ctx.tryPattern(IdentNode.NAME_PATTERN + "\\s*(\\.\\s*" + IdentNode.NAME_PATTERN + "\\s*)*");<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        if (matcher == null)<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            throw new ParseException(ctx, "invalid reference path");<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        final String path = matcher.group().replaceAll("\\s+", "");<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        final int firstDot = path.indexOf('.');<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        if (firstDot == -1) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            ctx.setIndex(mark);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            throw new ParseException(ctx, "invalid reference path");<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        }<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        final String typeName = path.substring(0, firstDot);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        final String fieldPath = path.substring(firstDot + 1);<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>        // Find start type<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        final JClass&lt;?&gt; jclass;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        try {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            jclass = session.getJSimpleDB().getJClass(session.getNameIndex().getSchemaObjectType(typeName).getStorageId());<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        } catch (UnknownTypeException e) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            ctx.setIndex(mark);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            throw new ParseException(ctx, "invalid type `" + typeName + "': " + e.getMessage(), e);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        }<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>        // Verify reference path is valid (although we don't verify the last field in the path is a reference field here)<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        try {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            session.getJSimpleDB().parseReferencePath(jclass.getType(), fieldPath);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        } catch (IllegalArgumentException e) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            ctx.setIndex(mark);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            throw new ParseException(ctx, "invalid path `" + fieldPath + "': " + e.getMessage(), e);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>        // Parase expression<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        ctx.skipWhitespace();<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        if (!ctx.tryLiteral(","))<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            throw new ParseException(ctx, "expected `,'").addCompletion(", ");<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        this.spaceParser.parse(ctx, complete);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        final Node expr = new ExprParser().parse(session, ctx, complete);<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>        // Finish parse<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        ctx.skipWhitespace();<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        if (!ctx.tryLiteral(")"))<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            throw new ParseException(ctx, "expected `)'").addCompletion(") ");<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>        // Done<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        return new InvertInfo(jclass, fieldPath, expr);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    @Override<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    public Value apply(ParseSession session, Object params) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        final InvertInfo info = (InvertInfo)params;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        return new AbstractValue() {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            @Override<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            public Object get(ParseSession session) {<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>                // Evaluate expression<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                final Iterable&lt;?&gt; items = info.getExpr().evaluate(session).checkType(session, "invert()", Iterable.class);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                final Iterable&lt;JObject&gt; jobjs = Iterables.transform(items, new ParseCastFunction&lt;JObject&gt;(JObject.class));<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>                // Invert references to iterated objects<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                try {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                    return JTransaction.getCurrent().invertReferencePath(info.getJClass().getType(), info.getFieldPath(), jobjs);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                } catch (Exception e) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                    throw new EvalException("invert() failed: " + e, e);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            }<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        };<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>// InvertInfo<a name="line.127"></a>
 <span class="sourceLineNo">128</span><a name="line.128"></a>
-<span class="sourceLineNo">129</span>// InvertInfo<a name="line.129"></a>
+<span class="sourceLineNo">129</span>    private static class InvertInfo {<a name="line.129"></a>
 <span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>    private static class InvertInfo {<a name="line.131"></a>
-<span class="sourceLineNo">132</span><a name="line.132"></a>
-<span class="sourceLineNo">133</span>        private final JClass&lt;?&gt; jclass;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>        private final String fieldPath;<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        private final Node expr;<a name="line.135"></a>
-<span class="sourceLineNo">136</span><a name="line.136"></a>
-<span class="sourceLineNo">137</span>        InvertInfo(JClass&lt;?&gt; jclass, String fieldPath, Node expr) {<a name="line.137"></a>
-<span class="sourceLineNo">138</span>            this.jclass = jclass;<a name="line.138"></a>
-<span class="sourceLineNo">139</span>            this.fieldPath = fieldPath;<a name="line.139"></a>
-<span class="sourceLineNo">140</span>            this.expr = expr;<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        }<a name="line.141"></a>
-<span class="sourceLineNo">142</span><a name="line.142"></a>
-<span class="sourceLineNo">143</span>        public JClass&lt;?&gt; getJClass() {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>            return this.jclass;<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        }<a name="line.145"></a>
-<span class="sourceLineNo">146</span><a name="line.146"></a>
-<span class="sourceLineNo">147</span>        public String getFieldPath() {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>            return this.fieldPath;<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        }<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>        public Node getExpr() {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>            return this.expr;<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        }<a name="line.153"></a>
-<span class="sourceLineNo">154</span>    }<a name="line.154"></a>
-<span class="sourceLineNo">155</span>}<a name="line.155"></a>
-<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">131</span>        private final JClass&lt;?&gt; jclass;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        private final String fieldPath;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        private final Node expr;<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>        InvertInfo(JClass&lt;?&gt; jclass, String fieldPath, Node expr) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            this.jclass = jclass;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            this.fieldPath = fieldPath;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            this.expr = expr;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        }<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>        public JClass&lt;?&gt; getJClass() {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            return this.jclass;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        }<a name="line.143"></a>
+<span class="sourceLineNo">144</span><a name="line.144"></a>
+<span class="sourceLineNo">145</span>        public String getFieldPath() {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            return this.fieldPath;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>        public Node getExpr() {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            return this.expr;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        }<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    }<a name="line.152"></a>
+<span class="sourceLineNo">153</span>}<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
 
 
 

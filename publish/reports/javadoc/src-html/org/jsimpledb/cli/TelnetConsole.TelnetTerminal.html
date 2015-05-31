@@ -9,245 +9,243 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.cli;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.cli;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.io.IOException;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.io.InputStream;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.io.OutputStream;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.net.Socket;<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jsimpledb.JSimpleDB;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.core.Database;<a name="line.16"></a>
+<span class="sourceLineNo">008</span>import java.io.IOException;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.io.InputStream;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.OutputStream;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.net.Socket;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.jsimpledb.JSimpleDB;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.core.Database;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>import jline.TerminalFactory;<a name="line.16"></a>
 <span class="sourceLineNo">017</span><a name="line.17"></a>
-<span class="sourceLineNo">018</span>import jline.TerminalFactory;<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>/**<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * A {@link Console} connected to a telnet client via a {@link Socket}.<a name="line.21"></a>
-<span class="sourceLineNo">022</span> *<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * This class can be used to implement an embedded CLI console within an application, accessed via telnet. For example:<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * &lt;pre&gt;<a name="line.25"></a>
-<span class="sourceLineNo">026</span> *      // Accept a new connection<a name="line.26"></a>
-<span class="sourceLineNo">027</span> *      final Socket socket = ...<a name="line.27"></a>
-<span class="sourceLineNo">028</span> *<a name="line.28"></a>
-<span class="sourceLineNo">029</span> *      // Set up telnet CLI console<a name="line.29"></a>
-<span class="sourceLineNo">030</span> *      final TelnetConsole console = TelnetConsole.create(database, socket);<a name="line.30"></a>
-<span class="sourceLineNo">031</span> *      console.getSession().registerStandardFunctions();<a name="line.31"></a>
-<span class="sourceLineNo">032</span> *      console.getSession().registerStandardCommands();<a name="line.32"></a>
-<span class="sourceLineNo">033</span> *<a name="line.33"></a>
-<span class="sourceLineNo">034</span> *      // Run the console<a name="line.34"></a>
-<span class="sourceLineNo">035</span> *      console.run();<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * &lt;/pre&gt;<a name="line.36"></a>
-<span class="sourceLineNo">037</span> */<a name="line.37"></a>
-<span class="sourceLineNo">038</span>public final class TelnetConsole extends Console {<a name="line.38"></a>
-<span class="sourceLineNo">039</span><a name="line.39"></a>
-<span class="sourceLineNo">040</span>    /**<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * Internal constructor.<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     */<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    private TelnetConsole(Database db, JSimpleDB jdb, InputStream input, OutputStream output,<a name="line.43"></a>
-<span class="sourceLineNo">044</span>      jline.Terminal terminal, String encoding, String appName) throws IOException {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        super(db, jdb, input, output, terminal, encoding, appName);<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * Simplified factory method for core API CLI mode.<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     *<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * @param db core API {@link Database}<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * @param socket socket connected to telnet client<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * @return new telnet console instance<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * @throws IOException if an I/O error occurs<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    public static TelnetConsole create(Database db, Socket socket) throws IOException {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        return TelnetConsole.create(db, null, socket.getInputStream(), socket.getOutputStream(), null, null);<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    }<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     * Simplified factory method for {@link JSimpleDB} API CLI mode.<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     * @param jdb {@link JSimpleDB} database<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     * @param socket socket connected to telnet client<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * @return new telnet console instance<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * @throws IOException if an I/O error occurs<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     */<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    public static TelnetConsole create(JSimpleDB jdb, Socket socket) throws IOException {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        return TelnetConsole.create(null, jdb, socket.getInputStream(), socket.getOutputStream(), null, null);<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * Generic factory method.<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     *<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * @param db core API {@link Database}; must be null if and only if {@code jdb} is not null<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * @param jdb {@link JSimpleDB} database; must be null if and only if {@code db} is not null<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * @param input console input<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * @param output console output<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     * @param encoding character encoding for {@code terminal}, or null for default<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     * @param appName JLine application name, or null for none<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * @return new telnet console instance<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * @throws IOException if an I/O error occurs<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * @throws IllegalArgumentException if {@code db} and {@code jdb} are both null or both not null<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    public static TelnetConsole create(Database db, JSimpleDB jdb, InputStream input, OutputStream output,<a name="line.85"></a>
-<span class="sourceLineNo">086</span>      String encoding, String appName) throws IOException {<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>        // Set up nvt4j; ignore the initial clear &amp; reposition<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        final nvt4j.impl.Terminal nvt4jTerminal = new nvt4j.impl.Terminal(input, output) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>            private boolean cleared;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>            private boolean moved;<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>            @Override<a name="line.94"></a>
-<span class="sourceLineNo">095</span>            public void clear() throws IOException {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>                if (this.cleared)<a name="line.96"></a>
-<span class="sourceLineNo">097</span>                    super.clear();<a name="line.97"></a>
-<span class="sourceLineNo">098</span>                this.cleared = true;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>            }<a name="line.99"></a>
-<span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>            @Override<a name="line.101"></a>
-<span class="sourceLineNo">102</span>            public void move(int row, int col) throws IOException {<a name="line.102"></a>
-<span class="sourceLineNo">103</span>                if (this.moved)<a name="line.103"></a>
-<span class="sourceLineNo">104</span>                    super.move(row, col);<a name="line.104"></a>
-<span class="sourceLineNo">105</span>                this.moved = true;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            }<a name="line.106"></a>
-<span class="sourceLineNo">107</span>        };<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        nvt4jTerminal.put(nvt4j.impl.Terminal.AUTO_WRAP_ON);<a name="line.108"></a>
-<span class="sourceLineNo">109</span>        nvt4jTerminal.setCursor(true);<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
-<span class="sourceLineNo">111</span>        // Have JLine do input &amp; output through telnet terminal<a name="line.111"></a>
-<span class="sourceLineNo">112</span>        final InputStream jlineInput = new InputStream() {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>            @Override<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            public int read() throws IOException {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>                return nvt4jTerminal.get();<a name="line.115"></a>
-<span class="sourceLineNo">116</span>            }<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        };<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        final OutputStream jlineOutput = new OutputStream() {<a name="line.118"></a>
-<span class="sourceLineNo">119</span>            @Override<a name="line.119"></a>
-<span class="sourceLineNo">120</span>            public void write(int value) throws IOException {<a name="line.120"></a>
-<span class="sourceLineNo">121</span>                nvt4jTerminal.put(value);<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            }<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        };<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>        // Build console<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        return new TelnetConsole(db, jdb, jlineInput, jlineOutput,<a name="line.126"></a>
-<span class="sourceLineNo">127</span>          new TelnetTerminal(TerminalFactory.get(), nvt4jTerminal), encoding, appName);<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    }<a name="line.128"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * A {@link Console} connected to a telnet client via a {@link Socket}.<a name="line.19"></a>
+<span class="sourceLineNo">020</span> *<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * &lt;p&gt;<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * This class can be used to implement an embedded CLI console within an application, accessed via telnet. For example:<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * &lt;pre&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> *      // Accept a new connection<a name="line.24"></a>
+<span class="sourceLineNo">025</span> *      final Socket socket = ...<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *      // Set up telnet CLI console<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *      final TelnetConsole console = TelnetConsole.create(database, socket);<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *      console.getSession().registerStandardFunctions();<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *      console.getSession().registerStandardCommands();<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *      // Run the console<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *      console.run();<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;/pre&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>public final class TelnetConsole extends Console {<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * Internal constructor.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    private TelnetConsole(Database db, JSimpleDB jdb, InputStream input, OutputStream output,<a name="line.41"></a>
+<span class="sourceLineNo">042</span>      jline.Terminal terminal, String encoding, String appName) throws IOException {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        super(db, jdb, input, output, terminal, encoding, appName);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /**<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * Simplified factory method for core API CLI mode.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     *<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * @param db core API {@link Database}<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * @param socket socket connected to telnet client<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @return new telnet console instance<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @throws IOException if an I/O error occurs<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    public static TelnetConsole create(Database db, Socket socket) throws IOException {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        return TelnetConsole.create(db, null, socket.getInputStream(), socket.getOutputStream(), null, null);<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    }<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * Simplified factory method for {@link JSimpleDB} API CLI mode.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     *<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * @param jdb {@link JSimpleDB} database<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * @param socket socket connected to telnet client<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @return new telnet console instance<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @throws IOException if an I/O error occurs<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    public static TelnetConsole create(JSimpleDB jdb, Socket socket) throws IOException {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        return TelnetConsole.create(null, jdb, socket.getInputStream(), socket.getOutputStream(), null, null);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * Generic factory method.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     *<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * @param db core API {@link Database}; must be null if and only if {@code jdb} is not null<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * @param jdb {@link JSimpleDB} database; must be null if and only if {@code db} is not null<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @param input console input<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * @param output console output<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * @param encoding character encoding for {@code terminal}, or null for default<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @param appName JLine application name, or null for none<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @return new telnet console instance<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @throws IOException if an I/O error occurs<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @throws IllegalArgumentException if {@code db} and {@code jdb} are both null or both not null<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    public static TelnetConsole create(Database db, JSimpleDB jdb, InputStream input, OutputStream output,<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      String encoding, String appName) throws IOException {<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>        // Set up nvt4j; ignore the initial clear &amp; reposition<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        final nvt4j.impl.Terminal nvt4jTerminal = new nvt4j.impl.Terminal(input, output) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>            private boolean cleared;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            private boolean moved;<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>            @Override<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            public void clear() throws IOException {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                if (this.cleared)<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                    super.clear();<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                this.cleared = true;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>            @Override<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            public void move(int row, int col) throws IOException {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                if (this.moved)<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                    super.move(row, col);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                this.moved = true;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            }<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        };<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        nvt4jTerminal.put(nvt4j.impl.Terminal.AUTO_WRAP_ON);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        nvt4jTerminal.setCursor(true);<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>        // Have JLine do input &amp; output through telnet terminal<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        final InputStream jlineInput = new InputStream() {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            @Override<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            public int read() throws IOException {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                return nvt4jTerminal.get();<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        };<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        final OutputStream jlineOutput = new OutputStream() {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            @Override<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            public void write(int value) throws IOException {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                nvt4jTerminal.put(value);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        };<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>        // Build console<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        return new TelnetConsole(db, jdb, jlineInput, jlineOutput,<a name="line.124"></a>
+<span class="sourceLineNo">125</span>          new TelnetTerminal(TerminalFactory.get(), nvt4jTerminal), encoding, appName);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>// ForwardingTerminal<a name="line.128"></a>
 <span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>// ForwardingTerminal<a name="line.130"></a>
-<span class="sourceLineNo">131</span><a name="line.131"></a>
-<span class="sourceLineNo">132</span>    /**<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * Wrapper class for a JLine {@link jline.Terminal} that forwards all methods to the wrapped delegate.<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     */<a name="line.134"></a>
-<span class="sourceLineNo">135</span>    public static class ForwardingTerminal implements jline.Terminal {<a name="line.135"></a>
+<span class="sourceLineNo">130</span>    /**<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * Wrapper class for a JLine {@link jline.Terminal} that forwards all methods to the wrapped delegate.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     */<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    public static class ForwardingTerminal implements jline.Terminal {<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>        protected final jline.Terminal terminal;<a name="line.135"></a>
 <span class="sourceLineNo">136</span><a name="line.136"></a>
-<span class="sourceLineNo">137</span>        protected final jline.Terminal terminal;<a name="line.137"></a>
-<span class="sourceLineNo">138</span><a name="line.138"></a>
-<span class="sourceLineNo">139</span>        public ForwardingTerminal(jline.Terminal terminal) {<a name="line.139"></a>
-<span class="sourceLineNo">140</span>            if (terminal == null)<a name="line.140"></a>
-<span class="sourceLineNo">141</span>                throw new IllegalArgumentException("null terminal");<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            this.terminal = terminal;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>        }<a name="line.143"></a>
-<span class="sourceLineNo">144</span><a name="line.144"></a>
-<span class="sourceLineNo">145</span>        @Override<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        public void init() throws Exception {<a name="line.146"></a>
-<span class="sourceLineNo">147</span>            this.terminal.init();<a name="line.147"></a>
-<span class="sourceLineNo">148</span>        }<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>        @Override<a name="line.150"></a>
-<span class="sourceLineNo">151</span>        public void restore() throws Exception {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>            this.terminal.restore();<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        }<a name="line.153"></a>
-<span class="sourceLineNo">154</span><a name="line.154"></a>
-<span class="sourceLineNo">155</span>        @Override<a name="line.155"></a>
-<span class="sourceLineNo">156</span>        public void reset() throws Exception {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>            this.terminal.reset();<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        }<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>        @Override<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        public boolean isSupported() {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            return this.terminal.isSupported();<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        }<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>        @Override<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        public int getWidth() {<a name="line.166"></a>
-<span class="sourceLineNo">167</span>            return this.terminal.getWidth();<a name="line.167"></a>
-<span class="sourceLineNo">168</span>        }<a name="line.168"></a>
-<span class="sourceLineNo">169</span><a name="line.169"></a>
-<span class="sourceLineNo">170</span>        @Override<a name="line.170"></a>
-<span class="sourceLineNo">171</span>        public int getHeight() {<a name="line.171"></a>
-<span class="sourceLineNo">172</span>            return this.terminal.getHeight();<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        }<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>        @Override<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        public boolean isAnsiSupported() {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            return this.terminal.isAnsiSupported();<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        }<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>        @Override<a name="line.180"></a>
-<span class="sourceLineNo">181</span>        public OutputStream wrapOutIfNeeded(OutputStream out) {<a name="line.181"></a>
-<span class="sourceLineNo">182</span>            return this.terminal.wrapOutIfNeeded(out);<a name="line.182"></a>
-<span class="sourceLineNo">183</span>        }<a name="line.183"></a>
-<span class="sourceLineNo">184</span><a name="line.184"></a>
-<span class="sourceLineNo">185</span>        @Override<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        public InputStream wrapInIfNeeded(InputStream in) throws IOException {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>            return this.terminal.wrapInIfNeeded(in);<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        }<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>        @Override<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        public boolean hasWeirdWrap() {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>            return this.terminal.hasWeirdWrap();<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        }<a name="line.193"></a>
-<span class="sourceLineNo">194</span><a name="line.194"></a>
-<span class="sourceLineNo">195</span>        @Override<a name="line.195"></a>
-<span class="sourceLineNo">196</span>        public boolean isEchoEnabled() {<a name="line.196"></a>
-<span class="sourceLineNo">197</span>            return this.terminal.isEchoEnabled();<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        }<a name="line.198"></a>
-<span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>        @Override<a name="line.200"></a>
-<span class="sourceLineNo">201</span>        public void setEchoEnabled(boolean enabled) {<a name="line.201"></a>
-<span class="sourceLineNo">202</span>            this.terminal.setEchoEnabled(enabled);<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
-<span class="sourceLineNo">204</span><a name="line.204"></a>
-<span class="sourceLineNo">205</span>        @Override<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        public String getOutputEncoding() {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>            return this.terminal.getOutputEncoding();<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        }<a name="line.208"></a>
-<span class="sourceLineNo">209</span>    }<a name="line.209"></a>
+<span class="sourceLineNo">137</span>        public ForwardingTerminal(jline.Terminal terminal) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            if (terminal == null)<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                throw new IllegalArgumentException("null terminal");<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            this.terminal = terminal;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        }<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>        @Override<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        public void init() throws Exception {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            this.terminal.init();<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>        @Override<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        public void restore() throws Exception {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            this.terminal.restore();<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>        @Override<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        public void reset() throws Exception {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>            this.terminal.reset();<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>        @Override<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        public boolean isSupported() {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            return this.terminal.isSupported();<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>        @Override<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        public int getWidth() {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>            return this.terminal.getWidth();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        }<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>        @Override<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        public int getHeight() {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            return this.terminal.getHeight();<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        }<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>        @Override<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        public boolean isAnsiSupported() {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            return this.terminal.isAnsiSupported();<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        }<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>        @Override<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        public OutputStream wrapOutIfNeeded(OutputStream out) {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            return this.terminal.wrapOutIfNeeded(out);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        }<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>        @Override<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        public InputStream wrapInIfNeeded(InputStream in) throws IOException {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            return this.terminal.wrapInIfNeeded(in);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        }<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>        @Override<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        public boolean hasWeirdWrap() {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            return this.terminal.hasWeirdWrap();<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
+<span class="sourceLineNo">192</span><a name="line.192"></a>
+<span class="sourceLineNo">193</span>        @Override<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        public boolean isEchoEnabled() {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            return this.terminal.isEchoEnabled();<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        }<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>        @Override<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        public void setEchoEnabled(boolean enabled) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            this.terminal.setEchoEnabled(enabled);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        }<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>        @Override<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        public String getOutputEncoding() {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            return this.terminal.getOutputEncoding();<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        }<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    }<a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>// TelnetTerminal<a name="line.209"></a>
 <span class="sourceLineNo">210</span><a name="line.210"></a>
-<span class="sourceLineNo">211</span>// TelnetTerminal<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>    /**<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     * JLine {@link jline.Terminal} that gets window size information from an associated nvt4j {@link nvt4j.impl.Terminal}.<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     */<a name="line.215"></a>
-<span class="sourceLineNo">216</span>    public static class TelnetTerminal extends ForwardingTerminal {<a name="line.216"></a>
+<span class="sourceLineNo">211</span>    /**<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * JLine {@link jline.Terminal} that gets window size information from an associated nvt4j {@link nvt4j.impl.Terminal}.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    public static class TelnetTerminal extends ForwardingTerminal {<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>        private final nvt4j.impl.Terminal nvt;<a name="line.216"></a>
 <span class="sourceLineNo">217</span><a name="line.217"></a>
-<span class="sourceLineNo">218</span>        private final nvt4j.impl.Terminal nvt;<a name="line.218"></a>
-<span class="sourceLineNo">219</span><a name="line.219"></a>
-<span class="sourceLineNo">220</span>        public TelnetTerminal(jline.Terminal terminal, nvt4j.impl.Terminal nvt) {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>            super(terminal);<a name="line.221"></a>
-<span class="sourceLineNo">222</span>            if (nvt == null)<a name="line.222"></a>
-<span class="sourceLineNo">223</span>                throw new IllegalArgumentException("null nvt");<a name="line.223"></a>
-<span class="sourceLineNo">224</span>            this.nvt = nvt;<a name="line.224"></a>
-<span class="sourceLineNo">225</span>        }<a name="line.225"></a>
-<span class="sourceLineNo">226</span><a name="line.226"></a>
-<span class="sourceLineNo">227</span>        @Override<a name="line.227"></a>
-<span class="sourceLineNo">228</span>        public int getWidth() {<a name="line.228"></a>
-<span class="sourceLineNo">229</span>            final int width = this.nvt.getColumns();<a name="line.229"></a>
-<span class="sourceLineNo">230</span>            return width &gt; 0 ? width : super.getWidth();<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        }<a name="line.231"></a>
-<span class="sourceLineNo">232</span><a name="line.232"></a>
-<span class="sourceLineNo">233</span>        @Override<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        public int getHeight() {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>            final int height = this.nvt.getRows();<a name="line.235"></a>
-<span class="sourceLineNo">236</span>            return height &gt; 0 ? height : super.getHeight();<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        }<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>        // TODO: echoEnabled &lt;-&gt; EchoOptionHandler, possibly others<a name="line.239"></a>
-<span class="sourceLineNo">240</span>    }<a name="line.240"></a>
-<span class="sourceLineNo">241</span>}<a name="line.241"></a>
-<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">218</span>        public TelnetTerminal(jline.Terminal terminal, nvt4j.impl.Terminal nvt) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            super(terminal);<a name="line.219"></a>
+<span class="sourceLineNo">220</span>            if (nvt == null)<a name="line.220"></a>
+<span class="sourceLineNo">221</span>                throw new IllegalArgumentException("null nvt");<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            this.nvt = nvt;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>        @Override<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        public int getWidth() {<a name="line.226"></a>
+<span class="sourceLineNo">227</span>            final int width = this.nvt.getColumns();<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            return width &gt; 0 ? width : super.getWidth();<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        }<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>        @Override<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        public int getHeight() {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            final int height = this.nvt.getRows();<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            return height &gt; 0 ? height : super.getHeight();<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        }<a name="line.235"></a>
+<span class="sourceLineNo">236</span><a name="line.236"></a>
+<span class="sourceLineNo">237</span>        // TODO: echoEnabled &lt;-&gt; EchoOptionHandler, possibly others<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    }<a name="line.238"></a>
+<span class="sourceLineNo">239</span>}<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
 
 
 

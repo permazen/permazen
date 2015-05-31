@@ -9,82 +9,80 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.parse.func;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.parse.func;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.collect.Iterables;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.collect.Iterables;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.jsimpledb.JTransaction;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.core.Field;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.jsimpledb.core.MapField;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jsimpledb.core.SimpleField;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.parse.IndexedFieldParser;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.parse.ParseContext;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.parse.ParseSession;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.parse.ParseUtil;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.parse.expr.AbstractValue;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.parse.expr.Value;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.parse.util.InstancePredicate;<a name="line.22"></a>
-<span class="sourceLineNo">023</span><a name="line.23"></a>
-<span class="sourceLineNo">024</span>@Function<a name="line.24"></a>
-<span class="sourceLineNo">025</span>public class QueryMapValueIndexFunction extends AbstractQueryFunction {<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>    public QueryMapValueIndexFunction() {<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        super("queryMapValueIndex", 2, 2);<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    }<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    @Override<a name="line.31"></a>
-<span class="sourceLineNo">032</span>    public String getHelpSummary() {<a name="line.32"></a>
-<span class="sourceLineNo">033</span>        return "queries the composite index on a map value field that includes the map keys";<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    @Override<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    public String getUsage() {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        return this.getName() + "(object-type, field-name, value-type, key-type) (JSimpleDB mode only)\n"<a name="line.38"></a>
-<span class="sourceLineNo">039</span>          + "       " + this.getName() + "(type-name.field-name)"<a name="line.39"></a>
-<span class="sourceLineNo">040</span>          + "       " + this.getName() + "(storage-id)";<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    }<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    @Override<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public String getHelpDetail() {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        return "Queries the composite index associated with an indexed map value field. The object-type is the type of object"<a name="line.45"></a>
-<span class="sourceLineNo">046</span>          + " to be queried, i.e., the object type that contains the map field, or any super-type or sub-type; a strict"<a name="line.46"></a>
-<span class="sourceLineNo">047</span>          + " sub-type will cause the returned index to be restricted to that sub-type. The field-name"<a name="line.47"></a>
-<span class="sourceLineNo">048</span>          + " is the name of the map value field; it must include the `value' sub-field name, e.g., `mymap.value'."<a name="line.48"></a>
-<span class="sourceLineNo">049</span>          + " The key-type and value-type are the map key and value types; in the case of reference fields,"<a name="line.49"></a>
-<span class="sourceLineNo">050</span>          + " a super-type or more restrictive sub-type may also be specified, otherwise the type must exactly match."<a name="line.50"></a>
-<span class="sourceLineNo">051</span>          + "\n\nThe first form is only valid in JSimpleDB mode; the second and third forms may be used in either JSimpleDB"<a name="line.51"></a>
-<span class="sourceLineNo">052</span>          + " mode or Core API mode.";<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
-<span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>    @Override<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    protected int parseName(ParseSession session, ParseContext ctx, boolean complete) {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        return new IndexedFieldParser() {<a name="line.57"></a>
-<span class="sourceLineNo">058</span>            @Override<a name="line.58"></a>
-<span class="sourceLineNo">059</span>            protected Iterable&lt;? extends Field&lt;?&gt;&gt; filterFields(Iterable&lt;? extends Field&lt;?&gt;&gt; fields) {<a name="line.59"></a>
-<span class="sourceLineNo">060</span>                return Iterables.filter(fields, new InstancePredicate(MapField.class));<a name="line.60"></a>
-<span class="sourceLineNo">061</span>            }<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            @Override<a name="line.62"></a>
-<span class="sourceLineNo">063</span>            protected Iterable&lt;? extends SimpleField&lt;?&gt;&gt; filterSubFields(Iterable&lt;? extends SimpleField&lt;?&gt;&gt; subFields) {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>                return Iterables.filter(subFields, new ParseUtil.HasNamePredicate(MapField.VALUE_FIELD_NAME));<a name="line.64"></a>
-<span class="sourceLineNo">065</span>            }<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        }.parse(session, ctx, complete).getField().getStorageId();<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>    @Override<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    protected Value apply(ParseSession session, final Class&lt;?&gt; objectType, final String fieldName, final Class&lt;?&gt;[] valueTypes) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        return new AbstractValue() {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            @Override<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            public Object get(ParseSession session) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>                return JTransaction.getCurrent().queryMapValueIndex(objectType, fieldName, valueTypes[0], valueTypes[1]);<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            }<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        };<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    }<a name="line.77"></a>
-<span class="sourceLineNo">078</span>}<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">010</span>import org.jsimpledb.JTransaction;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.jsimpledb.core.Field;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import org.jsimpledb.core.MapField;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.jsimpledb.core.SimpleField;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.parse.IndexedFieldParser;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.parse.ParseContext;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.parse.ParseSession;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.parse.ParseUtil;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.parse.expr.AbstractValue;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.parse.expr.Value;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.parse.util.InstancePredicate;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>@Function<a name="line.22"></a>
+<span class="sourceLineNo">023</span>public class QueryMapValueIndexFunction extends AbstractQueryFunction {<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>    public QueryMapValueIndexFunction() {<a name="line.25"></a>
+<span class="sourceLineNo">026</span>        super("queryMapValueIndex", 2, 2);<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    }<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    @Override<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    public String getHelpSummary() {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        return "queries the composite index on a map value field that includes the map keys";<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    }<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>    @Override<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    public String getUsage() {<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        return this.getName() + "(object-type, field-name, value-type, key-type) (JSimpleDB mode only)\n"<a name="line.36"></a>
+<span class="sourceLineNo">037</span>          + "       " + this.getName() + "(type-name.field-name)"<a name="line.37"></a>
+<span class="sourceLineNo">038</span>          + "       " + this.getName() + "(storage-id)";<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    }<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    @Override<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    public String getHelpDetail() {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        return "Queries the composite index associated with an indexed map value field. The object-type is the type of object"<a name="line.43"></a>
+<span class="sourceLineNo">044</span>          + " to be queried, i.e., the object type that contains the map field, or any super-type or sub-type; a strict"<a name="line.44"></a>
+<span class="sourceLineNo">045</span>          + " sub-type will cause the returned index to be restricted to that sub-type. The field-name"<a name="line.45"></a>
+<span class="sourceLineNo">046</span>          + " is the name of the map value field; it must include the `value' sub-field name, e.g., `mymap.value'."<a name="line.46"></a>
+<span class="sourceLineNo">047</span>          + " The key-type and value-type are the map key and value types; in the case of reference fields,"<a name="line.47"></a>
+<span class="sourceLineNo">048</span>          + " a super-type or more restrictive sub-type may also be specified, otherwise the type must exactly match."<a name="line.48"></a>
+<span class="sourceLineNo">049</span>          + "\n\nThe first form is only valid in JSimpleDB mode; the second and third forms may be used in either JSimpleDB"<a name="line.49"></a>
+<span class="sourceLineNo">050</span>          + " mode or Core API mode.";<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    @Override<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    protected int parseName(ParseSession session, ParseContext ctx, boolean complete) {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        return new IndexedFieldParser() {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>            @Override<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            protected Iterable&lt;? extends Field&lt;?&gt;&gt; filterFields(Iterable&lt;? extends Field&lt;?&gt;&gt; fields) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                return Iterables.filter(fields, new InstancePredicate(MapField.class));<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            }<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            @Override<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            protected Iterable&lt;? extends SimpleField&lt;?&gt;&gt; filterSubFields(Iterable&lt;? extends SimpleField&lt;?&gt;&gt; subFields) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                return Iterables.filter(subFields, new ParseUtil.HasNamePredicate(MapField.VALUE_FIELD_NAME));<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            }<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        }.parse(session, ctx, complete).getField().getStorageId();<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    @Override<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    protected Value apply(ParseSession session, final Class&lt;?&gt; objectType, final String fieldName, final Class&lt;?&gt;[] valueTypes) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        return new AbstractValue() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            @Override<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            public Object get(ParseSession session) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                return JTransaction.getCurrent().queryMapValueIndex(objectType, fieldName, valueTypes[0], valueTypes[1]);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            }<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        };<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    }<a name="line.75"></a>
+<span class="sourceLineNo">076</span>}<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
 
 
 

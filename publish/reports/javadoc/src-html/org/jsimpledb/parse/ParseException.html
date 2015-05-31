@@ -9,59 +9,57 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.parse;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.parse;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.ArrayList;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.Arrays;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.List;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>@SuppressWarnings("serial")<a name="line.14"></a>
-<span class="sourceLineNo">015</span>public class ParseException extends RuntimeException {<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>    private final ArrayList&lt;String&gt; completions = new ArrayList&lt;&gt;();<a name="line.17"></a>
-<span class="sourceLineNo">018</span>    private final ParseContext ctx;<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>    public ParseException(ParseContext ctx) {<a name="line.20"></a>
-<span class="sourceLineNo">021</span>        this(ctx, null);<a name="line.21"></a>
-<span class="sourceLineNo">022</span>    }<a name="line.22"></a>
-<span class="sourceLineNo">023</span><a name="line.23"></a>
-<span class="sourceLineNo">024</span>    public ParseException(ParseContext ctx, String message) {<a name="line.24"></a>
-<span class="sourceLineNo">025</span>        this(ctx, message, null);<a name="line.25"></a>
-<span class="sourceLineNo">026</span>    }<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>    public ParseException(ParseContext ctx, String message, Throwable cause) {<a name="line.28"></a>
-<span class="sourceLineNo">029</span>        super((message != null ? message : "parse error") + " at "<a name="line.29"></a>
-<span class="sourceLineNo">030</span>          + (ctx.isEOF() ? "end of input" : "`" + ParseUtil.truncate(ctx.getInput(), 20) + "'"), cause);<a name="line.30"></a>
-<span class="sourceLineNo">031</span>        this.ctx = ctx;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>    }<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>    public ParseContext getParseContext() {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        return this.ctx;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>    public List&lt;String&gt; getCompletions() {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        return this.completions;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    }<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>    public ParseException addCompletion(String completion) {<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        return this.addCompletions(Arrays.asList(completion));<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>    public ParseException addCompletions(String... completions) {<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        return this.addCompletions(Arrays.asList(completions));<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    }<a name="line.48"></a>
-<span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>    public ParseException addCompletions(Iterable&lt;String&gt; completions) {<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        for (String completion : completions)<a name="line.51"></a>
-<span class="sourceLineNo">052</span>            this.completions.add(completion);<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        return this;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
-<span class="sourceLineNo">055</span>}<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">008</span>import java.util.ArrayList;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.Arrays;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.List;<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>@SuppressWarnings("serial")<a name="line.12"></a>
+<span class="sourceLineNo">013</span>public class ParseException extends RuntimeException {<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>    private final ArrayList&lt;String&gt; completions = new ArrayList&lt;&gt;();<a name="line.15"></a>
+<span class="sourceLineNo">016</span>    private final ParseContext ctx;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>    public ParseException(ParseContext ctx) {<a name="line.18"></a>
+<span class="sourceLineNo">019</span>        this(ctx, null);<a name="line.19"></a>
+<span class="sourceLineNo">020</span>    }<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>    public ParseException(ParseContext ctx, String message) {<a name="line.22"></a>
+<span class="sourceLineNo">023</span>        this(ctx, message, null);<a name="line.23"></a>
+<span class="sourceLineNo">024</span>    }<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>    public ParseException(ParseContext ctx, String message, Throwable cause) {<a name="line.26"></a>
+<span class="sourceLineNo">027</span>        super((message != null ? message : "parse error") + " at "<a name="line.27"></a>
+<span class="sourceLineNo">028</span>          + (ctx.isEOF() ? "end of input" : "`" + ParseUtil.truncate(ctx.getInput(), 20) + "'"), cause);<a name="line.28"></a>
+<span class="sourceLineNo">029</span>        this.ctx = ctx;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    }<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>    public ParseContext getParseContext() {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        return this.ctx;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    public List&lt;String&gt; getCompletions() {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        return this.completions;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    public ParseException addCompletion(String completion) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        return this.addCompletions(Arrays.asList(completion));<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    }<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    public ParseException addCompletions(String... completions) {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        return this.addCompletions(Arrays.asList(completions));<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    public ParseException addCompletions(Iterable&lt;String&gt; completions) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        for (String completion : completions)<a name="line.49"></a>
+<span class="sourceLineNo">050</span>            this.completions.add(completion);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        return this;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
+<span class="sourceLineNo">053</span>}<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
 
 
 

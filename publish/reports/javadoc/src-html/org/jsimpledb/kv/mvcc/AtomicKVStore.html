@@ -9,65 +9,63 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.mvcc;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.mvcc;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import org.jsimpledb.kv.CloseableKVStore;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import org.jsimpledb.kv.KVStore;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>/**<a name="line.13"></a>
-<span class="sourceLineNo">014</span> * Extension of the {@link KVStore} interface for implementations that support atomic, batched reads and writes.<a name="line.14"></a>
-<span class="sourceLineNo">015</span> *<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * &lt;p&gt;<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * Atomic batch reads are available via {@link #snapshot}, which returns a consistent point-in-time views of the {@link KVStore}.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * Atomic batch writes are available via {@link #mutate mutate()}, which applies a set of mutations in an "all or none" fashion.<a name="line.18"></a>
-<span class="sourceLineNo">019</span> */<a name="line.19"></a>
-<span class="sourceLineNo">020</span>public interface AtomicKVStore extends KVStore {<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>    /**<a name="line.22"></a>
-<span class="sourceLineNo">023</span>     * Acquire a read-only, snapshot view of this instance based on the current state.<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     *<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     * &lt;p&gt;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     * The returned {@link KVStore} view should remain constant even if this instance is subsequently mutated.<a name="line.26"></a>
-<span class="sourceLineNo">027</span>     *<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * &lt;p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     * Note: callers are required to {@link CloseableKVStore#close close} the returned instance when no longer in use.<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     *<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @return read-only, snapshot view of this instance<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * @throws org.jsimpledb.kv.StaleTransactionException if an underlying transaction is no longer usable<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * @throws org.jsimpledb.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>    CloseableKVStore snapshot();<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>    /**<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * Apply a set of mutations to this instance atomically.<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     *<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * &lt;p&gt;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * If this method returns normally, all of the given mutations will have been applied. If this method<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * returns abnormally, then none of the given mutations will have been applied.<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * &lt;p&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     * In any case, other threads observing this instance will never see a partial application of the given mutations.<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     *<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     * &lt;p&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     * This method is required to apply the mutations in this order: removes, puts, adjusts.<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     *<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * &lt;p&gt;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * If {@code sync} is true, the implementation must durably persist the changes before returning.<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     *<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * @param mutations the mutations to apply<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * @param sync if true, caller requires that the changes be durably persisted<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * @throws org.jsimpledb.kv.StaleTransactionException if an underlying transaction is no longer usable<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @throws org.jsimpledb.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @throws UnsupportedOperationException if {@code sync} is true and this implementation cannot guarantee durability<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @throws IllegalArgumentException if {@code mutations} is null<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    void mutate(Mutations mutations, boolean sync);<a name="line.60"></a>
-<span class="sourceLineNo">061</span>}<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">008</span>import org.jsimpledb.kv.CloseableKVStore;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import org.jsimpledb.kv.KVStore;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>/**<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * Extension of the {@link KVStore} interface for implementations that support atomic, batched reads and writes.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> *<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * &lt;p&gt;<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * Atomic batch reads are available via {@link #snapshot}, which returns a consistent point-in-time views of the {@link KVStore}.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * Atomic batch writes are available via {@link #mutate mutate()}, which applies a set of mutations in an "all or none" fashion.<a name="line.16"></a>
+<span class="sourceLineNo">017</span> */<a name="line.17"></a>
+<span class="sourceLineNo">018</span>public interface AtomicKVStore extends KVStore {<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>    /**<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * Acquire a read-only, snapshot view of this instance based on the current state.<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     *<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * &lt;p&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * The returned {@link KVStore} view should remain constant even if this instance is subsequently mutated.<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     *<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * &lt;p&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * Note: callers are required to {@link CloseableKVStore#close close} the returned instance when no longer in use.<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     *<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @return read-only, snapshot view of this instance<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * @throws org.jsimpledb.kv.StaleTransactionException if an underlying transaction is no longer usable<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * @throws org.jsimpledb.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    CloseableKVStore snapshot();<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>    /**<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * Apply a set of mutations to this instance atomically.<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     *<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * &lt;p&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * If this method returns normally, all of the given mutations will have been applied. If this method<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * returns abnormally, then none of the given mutations will have been applied.<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     *<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * &lt;p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * In any case, other threads observing this instance will never see a partial application of the given mutations.<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     *<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * &lt;p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * This method is required to apply the mutations in this order: removes, puts, adjusts.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     *<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * &lt;p&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * If {@code sync} is true, the implementation must durably persist the changes before returning.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     *<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @param mutations the mutations to apply<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @param sync if true, caller requires that the changes be durably persisted<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @throws org.jsimpledb.kv.StaleTransactionException if an underlying transaction is no longer usable<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @throws org.jsimpledb.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * @throws UnsupportedOperationException if {@code sync} is true and this implementation cannot guarantee durability<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @throws IllegalArgumentException if {@code mutations} is null<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    void mutate(Mutations mutations, boolean sync);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>}<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
 
 
 

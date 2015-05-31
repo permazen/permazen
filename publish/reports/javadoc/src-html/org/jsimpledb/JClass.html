@@ -9,574 +9,572 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.collect.Iterables;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.google.common.reflect.TypeToken;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.lang.reflect.Method;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.lang.reflect.Type;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.ArrayList;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.util.Collections;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import java.util.HashSet;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import java.util.List;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import java.util.Set;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import java.util.SortedMap;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import java.util.TreeMap;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.annotation.JSimpleClass;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.core.DeleteAction;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.core.FieldType;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jsimpledb.core.ListField;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jsimpledb.core.MapField;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jsimpledb.core.SetField;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.jsimpledb.core.UnknownFieldException;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jsimpledb.schema.SchemaCompositeIndex;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.jsimpledb.schema.SchemaField;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.jsimpledb.schema.SchemaObjectType;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.jsimpledb.util.AnnotationScanner;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.slf4j.Logger;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.slf4j.LoggerFactory;<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>/**<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * Information about a Java class that is used to represent a specific JSimpleDB object type.<a name="line.38"></a>
-<span class="sourceLineNo">039</span> *<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * @param &lt;T&gt; the Java class<a name="line.40"></a>
-<span class="sourceLineNo">041</span> */<a name="line.41"></a>
-<span class="sourceLineNo">042</span>public class JClass&lt;T&gt; extends JSchemaObject {<a name="line.42"></a>
+<span class="sourceLineNo">008</span>import com.google.common.collect.Iterables;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.google.common.reflect.TypeToken;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.lang.reflect.Method;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.lang.reflect.Type;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.ArrayList;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.util.Collections;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.HashSet;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.util.List;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.util.Set;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.util.SortedMap;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.TreeMap;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.annotation.JSimpleClass;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.core.DeleteAction;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.core.FieldType;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jsimpledb.core.ListField;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jsimpledb.core.MapField;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jsimpledb.core.SetField;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jsimpledb.core.UnknownFieldException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jsimpledb.schema.SchemaCompositeIndex;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jsimpledb.schema.SchemaField;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jsimpledb.schema.SchemaObjectType;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jsimpledb.util.AnnotationScanner;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.slf4j.Logger;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.slf4j.LoggerFactory;<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>/**<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * Information about a Java class that is used to represent a specific JSimpleDB object type.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * @param &lt;T&gt; the Java class<a name="line.38"></a>
+<span class="sourceLineNo">039</span> */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>public class JClass&lt;T&gt; extends JSchemaObject {<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.42"></a>
 <span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>    final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>    final Class&lt;T&gt; type;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    final ClassGenerator&lt;T&gt; classGenerator;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    final TreeMap&lt;Integer, JField&gt; jfields = new TreeMap&lt;&gt;();<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    final TreeMap&lt;String, JField&gt; jfieldsByName = new TreeMap&lt;&gt;();<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    final TreeMap&lt;Integer, JCompositeIndex&gt; jcompositeIndexes = new TreeMap&lt;&gt;();<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    final TreeMap&lt;String, JCompositeIndex&gt; jcompositeIndexesByName = new TreeMap&lt;&gt;();<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    Set&lt;OnCreateScanner&lt;T&gt;.MethodInfo&gt; onCreateMethods;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    Set&lt;OnDeleteScanner&lt;T&gt;.MethodInfo&gt; onDeleteMethods;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    Set&lt;OnChangeScanner&lt;T&gt;.MethodInfo&gt; onChangeMethods;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    Set&lt;ValidateScanner&lt;T&gt;.MethodInfo&gt; validateMethods;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    ArrayList&lt;OnVersionChangeScanner&lt;T&gt;.MethodInfo&gt; onVersionChangeMethods;<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    int[] subtypeStorageIds;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    boolean requiresValidation;<a name="line.60"></a>
-<span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>    /**<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     * Constructor.<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     *<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * @param jdb the associated {@link JSimpleDB}<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * @param name the name of the object type<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * @param storageId object type storage ID<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * @param type object type Java model class<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * @throws IllegalArgumentException if any parameter is null<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     * @throws IllegalArgumentException if {@code storageId} is non-positive<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    JClass(JSimpleDB jdb, String name, int storageId, Class&lt;T&gt; type) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        super(jdb, name, storageId, "object type `" + name + "' (" + type + ")");<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        if (name == null)<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            throw new IllegalArgumentException("null name");<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        this.type = type;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        this.classGenerator = new ClassGenerator&lt;T&gt;(this);<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    // Get class generator<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    ClassGenerator&lt;T&gt; getClassGenerator() {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        return this.classGenerator;<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
+<span class="sourceLineNo">044</span>    final Class&lt;T&gt; type;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    final ClassGenerator&lt;T&gt; classGenerator;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    final TreeMap&lt;Integer, JField&gt; jfields = new TreeMap&lt;&gt;();<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    final TreeMap&lt;String, JField&gt; jfieldsByName = new TreeMap&lt;&gt;();<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    final TreeMap&lt;Integer, JCompositeIndex&gt; jcompositeIndexes = new TreeMap&lt;&gt;();<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    final TreeMap&lt;String, JCompositeIndex&gt; jcompositeIndexesByName = new TreeMap&lt;&gt;();<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    Set&lt;OnCreateScanner&lt;T&gt;.MethodInfo&gt; onCreateMethods;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    Set&lt;OnDeleteScanner&lt;T&gt;.MethodInfo&gt; onDeleteMethods;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    Set&lt;OnChangeScanner&lt;T&gt;.MethodInfo&gt; onChangeMethods;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    Set&lt;ValidateScanner&lt;T&gt;.MethodInfo&gt; validateMethods;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    ArrayList&lt;OnVersionChangeScanner&lt;T&gt;.MethodInfo&gt; onVersionChangeMethods;<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>    int[] subtypeStorageIds;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    boolean requiresValidation;<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * Constructor.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @param jdb the associated {@link JSimpleDB}<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @param name the name of the object type<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @param storageId object type storage ID<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * @param type object type Java model class<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @throws IllegalArgumentException if any parameter is null<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @throws IllegalArgumentException if {@code storageId} is non-positive<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    JClass(JSimpleDB jdb, String name, int storageId, Class&lt;T&gt; type) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        super(jdb, name, storageId, "object type `" + name + "' (" + type + ")");<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        if (name == null)<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            throw new IllegalArgumentException("null name");<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        this.type = type;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        this.classGenerator = new ClassGenerator&lt;T&gt;(this);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    // Get class generator<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    ClassGenerator&lt;T&gt; getClassGenerator() {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        return this.classGenerator;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>// Public API<a name="line.83"></a>
 <span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>// Public API<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     * Get the Java model object type associated with this instance.<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     *<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     * @return associated Java type<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    public Class&lt;T&gt; getType() {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        return this.type;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>    /**<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * Get all {@link JField}'s associated with this instance, indexed by storage ID.<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     *<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * @return read-only mapping from storage ID to {@link JClass}<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    public SortedMap&lt;Integer, JField&gt; getJFieldsByStorageId() {<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        return Collections.unmodifiableSortedMap(this.jfields);<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
-<span class="sourceLineNo">104</span><a name="line.104"></a>
-<span class="sourceLineNo">105</span>    /**<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * Get all {@link JField}'s associated with this instance, indexed by name.<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     *<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * @return read-only mapping from storage ID to {@link JClass}<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    public SortedMap&lt;String, JField&gt; getJFieldsByName() {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        return Collections.unmodifiableSortedMap(this.jfieldsByName);<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
-<span class="sourceLineNo">113</span><a name="line.113"></a>
-<span class="sourceLineNo">114</span>    /**<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     * Get the {@link JField} in this instance associated with the specified storage ID, cast to the given type.<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     *<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     * @param storageId field storage ID<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     * @param type required type<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     * @param &lt;T&gt; expected field type<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     * @return {@link JField} in this instance corresponding to {@code storageId}<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     * @throws UnknownFieldException if {@code storageId} does not correspond to any field in this instance<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     * @throws UnknownFieldException if the field is not an instance of of {@code type}<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     */<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    public &lt;T extends JField&gt; T getJField(int storageId, Class&lt;T&gt; type) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        if (type == null)<a name="line.125"></a>
-<span class="sourceLineNo">126</span>            throw new IllegalArgumentException("null type");<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        final JField jfield = this.jfields.get(storageId);<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        if (jfield == null)<a name="line.128"></a>
-<span class="sourceLineNo">129</span>            throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID " + storageId);<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        try {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>            return type.cast(jfield);<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        } catch (ClassCastException e) {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>            throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID "<a name="line.133"></a>
-<span class="sourceLineNo">134</span>              + storageId + " of type " + type.getName() + " (found " + jfield + " instead)");<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        }<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">085</span>    /**<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * Get the Java model object type associated with this instance.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     *<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * @return associated Java type<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    public Class&lt;T&gt; getType() {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        return this.type;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * Get all {@link JField}'s associated with this instance, indexed by storage ID.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     *<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @return read-only mapping from storage ID to {@link JClass}<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    public SortedMap&lt;Integer, JField&gt; getJFieldsByStorageId() {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        return Collections.unmodifiableSortedMap(this.jfields);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>    /**<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * Get all {@link JField}'s associated with this instance, indexed by name.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     *<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @return read-only mapping from storage ID to {@link JClass}<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    public SortedMap&lt;String, JField&gt; getJFieldsByName() {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        return Collections.unmodifiableSortedMap(this.jfieldsByName);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    /**<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * Get the {@link JField} in this instance associated with the specified storage ID, cast to the given type.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     *<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * @param storageId field storage ID<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * @param type required type<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @param &lt;T&gt; expected field type<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * @return {@link JField} in this instance corresponding to {@code storageId}<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @throws UnknownFieldException if {@code storageId} does not correspond to any field in this instance<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @throws UnknownFieldException if the field is not an instance of of {@code type}<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    public &lt;T extends JField&gt; T getJField(int storageId, Class&lt;T&gt; type) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        if (type == null)<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            throw new IllegalArgumentException("null type");<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        final JField jfield = this.jfields.get(storageId);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        if (jfield == null)<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID " + storageId);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        try {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            return type.cast(jfield);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        } catch (ClassCastException e) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID "<a name="line.131"></a>
+<span class="sourceLineNo">132</span>              + storageId + " of type " + type.getName() + " (found " + jfield + " instead)");<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        }<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>// Internal methods<a name="line.136"></a>
 <span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>// Internal methods<a name="line.138"></a>
+<span class="sourceLineNo">138</span>    void createFields(JSimpleDB jdb) {<a name="line.138"></a>
 <span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    void createFields(JSimpleDB jdb) {<a name="line.140"></a>
-<span class="sourceLineNo">141</span><a name="line.141"></a>
-<span class="sourceLineNo">142</span>        // Auto-generate properties?<a name="line.142"></a>
-<span class="sourceLineNo">143</span>        final boolean autogenFields = this.type.getAnnotation(JSimpleClass.class).autogenFields();<a name="line.143"></a>
-<span class="sourceLineNo">144</span><a name="line.144"></a>
-<span class="sourceLineNo">145</span>        // Scan for Simple fields<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        final JFieldScanner&lt;T&gt; simpleFieldScanner = new JFieldScanner&lt;T&gt;(this, autogenFields);<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        for (JFieldScanner&lt;T&gt;.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {<a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>            // Get info<a name="line.149"></a>
-<span class="sourceLineNo">150</span>            final org.jsimpledb.annotation.JField annotation = info.getAnnotation();<a name="line.150"></a>
-<span class="sourceLineNo">151</span>            final Method getter = info.getMethod();<a name="line.151"></a>
-<span class="sourceLineNo">152</span>            final String description = simpleFieldScanner.getAnnotationDescription() + " annotation on method " + getter;<a name="line.152"></a>
-<span class="sourceLineNo">153</span>            final String fieldName = this.getFieldName(annotation.name(), info, description);<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            final TypeToken&lt;?&gt; fieldTypeToken = TypeToken.of(this.type).resolveType(getter.getGenericReturnType());<a name="line.154"></a>
-<span class="sourceLineNo">155</span>            if (this.log.isTraceEnabled())<a name="line.155"></a>
-<span class="sourceLineNo">156</span>                this.log.trace("found " + description);<a name="line.156"></a>
-<span class="sourceLineNo">157</span><a name="line.157"></a>
-<span class="sourceLineNo">158</span>            // Get storage ID<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            int storageId = annotation.storageId();<a name="line.159"></a>
-<span class="sourceLineNo">160</span>            if (storageId == 0)<a name="line.160"></a>
-<span class="sourceLineNo">161</span>                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);<a name="line.161"></a>
-<span class="sourceLineNo">162</span><a name="line.162"></a>
-<span class="sourceLineNo">163</span>            // Handle Counter fields<a name="line.163"></a>
-<span class="sourceLineNo">164</span>            if (fieldTypeToken.equals(TypeToken.of(Counter.class))) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span><a name="line.165"></a>
-<span class="sourceLineNo">166</span>                // Sanity check annotation<a name="line.166"></a>
-<span class="sourceLineNo">167</span>                if (annotation.type().length() != 0)<a name="line.167"></a>
-<span class="sourceLineNo">168</span>                    throw new IllegalArgumentException("invalid " + description + ": counter fields must not specify a type");<a name="line.168"></a>
-<span class="sourceLineNo">169</span>                if (annotation.indexed())<a name="line.169"></a>
-<span class="sourceLineNo">170</span>                    throw new IllegalArgumentException("invalid " + description + ": counter fields cannot be indexed");<a name="line.170"></a>
-<span class="sourceLineNo">171</span><a name="line.171"></a>
-<span class="sourceLineNo">172</span>                // Create counter field<a name="line.172"></a>
-<span class="sourceLineNo">173</span>                final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId,<a name="line.173"></a>
-<span class="sourceLineNo">174</span>                  "counter field `" + fieldName + "' of object type `" + this.name + "'", getter);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>                jfield.parent = this;<a name="line.175"></a>
-<span class="sourceLineNo">176</span><a name="line.176"></a>
-<span class="sourceLineNo">177</span>                // Add field<a name="line.177"></a>
-<span class="sourceLineNo">178</span>                this.addField(jfield);<a name="line.178"></a>
-<span class="sourceLineNo">179</span>                continue;<a name="line.179"></a>
-<span class="sourceLineNo">180</span>            }<a name="line.180"></a>
-<span class="sourceLineNo">181</span><a name="line.181"></a>
-<span class="sourceLineNo">182</span>            // Find corresponding setter method<a name="line.182"></a>
-<span class="sourceLineNo">183</span>            final Method setter;<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            try {<a name="line.184"></a>
-<span class="sourceLineNo">185</span>                setter = Util.findSetterMethod(this.type, getter);<a name="line.185"></a>
-<span class="sourceLineNo">186</span>            } catch (IllegalArgumentException e) {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>                throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage());<a name="line.187"></a>
-<span class="sourceLineNo">188</span>            }<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>            // Create simple field<a name="line.190"></a>
-<span class="sourceLineNo">191</span>            final JSimpleField jfield = this.createSimpleField(description, fieldTypeToken,<a name="line.191"></a>
-<span class="sourceLineNo">192</span>              fieldName, storageId, annotation, getter, setter, "field `" + fieldName + "' of object type `" + this.name + "'");<a name="line.192"></a>
-<span class="sourceLineNo">193</span>            jfield.parent = this;<a name="line.193"></a>
-<span class="sourceLineNo">194</span><a name="line.194"></a>
-<span class="sourceLineNo">195</span>            // Add field<a name="line.195"></a>
-<span class="sourceLineNo">196</span>            this.addField(jfield);<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        }<a name="line.197"></a>
-<span class="sourceLineNo">198</span><a name="line.198"></a>
-<span class="sourceLineNo">199</span>        // Scan for Set fields<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        final JSetFieldScanner&lt;T&gt; setFieldScanner = new JSetFieldScanner&lt;T&gt;(this, autogenFields);<a name="line.200"></a>
-<span class="sourceLineNo">201</span>        for (JSetFieldScanner&lt;T&gt;.MethodInfo info : setFieldScanner.findAnnotatedMethods()) {<a name="line.201"></a>
-<span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>            // Get info<a name="line.203"></a>
-<span class="sourceLineNo">204</span>            final org.jsimpledb.annotation.JSetField annotation = info.getAnnotation();<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            final org.jsimpledb.annotation.JField elementAnnotation = annotation.element();<a name="line.205"></a>
-<span class="sourceLineNo">206</span>            final Method getter = info.getMethod();<a name="line.206"></a>
-<span class="sourceLineNo">207</span>            final String description = setFieldScanner.getAnnotationDescription() + " annotation on method " + getter;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>            final String fieldName = this.getFieldName(annotation.name(), info, description);<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            if (this.log.isTraceEnabled())<a name="line.209"></a>
-<span class="sourceLineNo">210</span>                this.log.trace("found " + description);<a name="line.210"></a>
-<span class="sourceLineNo">211</span><a name="line.211"></a>
-<span class="sourceLineNo">212</span>            // Get storage ID's<a name="line.212"></a>
-<span class="sourceLineNo">213</span>            int storageId = annotation.storageId();<a name="line.213"></a>
-<span class="sourceLineNo">214</span>            if (storageId == 0)<a name="line.214"></a>
-<span class="sourceLineNo">215</span>                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);<a name="line.215"></a>
-<span class="sourceLineNo">216</span>            int elementStorageId = elementAnnotation.storageId();<a name="line.216"></a>
-<span class="sourceLineNo">217</span>            if (elementStorageId == 0) {<a name="line.217"></a>
-<span class="sourceLineNo">218</span>                elementStorageId = jdb.getStorageIdGenerator(elementAnnotation, getter)<a name="line.218"></a>
-<span class="sourceLineNo">219</span>                  .generateSetElementStorageId(getter, fieldName);<a name="line.219"></a>
-<span class="sourceLineNo">220</span>            }<a name="line.220"></a>
-<span class="sourceLineNo">221</span><a name="line.221"></a>
-<span class="sourceLineNo">222</span>            // Get element type (the raw return type has already been validated by the annotation scanner)<a name="line.222"></a>
-<span class="sourceLineNo">223</span>            final TypeToken&lt;?&gt; elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));<a name="line.223"></a>
-<span class="sourceLineNo">224</span><a name="line.224"></a>
-<span class="sourceLineNo">225</span>            // Create element sub-field<a name="line.225"></a>
-<span class="sourceLineNo">226</span>            final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,<a name="line.226"></a>
-<span class="sourceLineNo">227</span>              SetField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,<a name="line.227"></a>
-<span class="sourceLineNo">228</span>              "element field of set field `" + fieldName + "' in object type `" + this.name + "'");<a name="line.228"></a>
-<span class="sourceLineNo">229</span><a name="line.229"></a>
-<span class="sourceLineNo">230</span>            // Create set field<a name="line.230"></a>
-<span class="sourceLineNo">231</span>            final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, elementField,<a name="line.231"></a>
-<span class="sourceLineNo">232</span>              "set field `" + fieldName + "' in object type `" + this.name + "'", getter);<a name="line.232"></a>
-<span class="sourceLineNo">233</span>            elementField.parent = jfield;<a name="line.233"></a>
-<span class="sourceLineNo">234</span><a name="line.234"></a>
-<span class="sourceLineNo">235</span>            // Add field<a name="line.235"></a>
-<span class="sourceLineNo">236</span>            this.addField(jfield);<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        }<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>        // Scan for List fields<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        final JListFieldScanner&lt;T&gt; listFieldScanner = new JListFieldScanner&lt;T&gt;(this, autogenFields);<a name="line.240"></a>
-<span class="sourceLineNo">241</span>        for (JListFieldScanner&lt;T&gt;.MethodInfo info : listFieldScanner.findAnnotatedMethods()) {<a name="line.241"></a>
-<span class="sourceLineNo">242</span><a name="line.242"></a>
-<span class="sourceLineNo">243</span>            // Get info<a name="line.243"></a>
-<span class="sourceLineNo">244</span>            final org.jsimpledb.annotation.JListField annotation = info.getAnnotation();<a name="line.244"></a>
-<span class="sourceLineNo">245</span>            final org.jsimpledb.annotation.JField elementAnnotation = annotation.element();<a name="line.245"></a>
-<span class="sourceLineNo">246</span>            final Method getter = info.getMethod();<a name="line.246"></a>
-<span class="sourceLineNo">247</span>            final String description = listFieldScanner.getAnnotationDescription() + " annotation on method " + getter;<a name="line.247"></a>
-<span class="sourceLineNo">248</span>            final String fieldName = this.getFieldName(annotation.name(), info, description);<a name="line.248"></a>
-<span class="sourceLineNo">249</span>            if (this.log.isTraceEnabled())<a name="line.249"></a>
-<span class="sourceLineNo">250</span>                this.log.trace("found " + description);<a name="line.250"></a>
-<span class="sourceLineNo">251</span><a name="line.251"></a>
-<span class="sourceLineNo">252</span>            // Get storage ID's<a name="line.252"></a>
-<span class="sourceLineNo">253</span>            int storageId = annotation.storageId();<a name="line.253"></a>
-<span class="sourceLineNo">254</span>            if (storageId == 0)<a name="line.254"></a>
-<span class="sourceLineNo">255</span>                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);<a name="line.255"></a>
-<span class="sourceLineNo">256</span>            int elementStorageId = elementAnnotation.storageId();<a name="line.256"></a>
-<span class="sourceLineNo">257</span>            if (elementStorageId == 0) {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>                elementStorageId = jdb.getStorageIdGenerator(elementAnnotation, getter)<a name="line.258"></a>
-<span class="sourceLineNo">259</span>                  .generateListElementStorageId(getter, fieldName);<a name="line.259"></a>
-<span class="sourceLineNo">260</span>            }<a name="line.260"></a>
-<span class="sourceLineNo">261</span><a name="line.261"></a>
-<span class="sourceLineNo">262</span>            // Get element type (the raw return type has already been validated by the annotation scanner)<a name="line.262"></a>
-<span class="sourceLineNo">263</span>            final TypeToken&lt;?&gt; elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));<a name="line.263"></a>
-<span class="sourceLineNo">264</span><a name="line.264"></a>
-<span class="sourceLineNo">265</span>            // Create element sub-field<a name="line.265"></a>
-<span class="sourceLineNo">266</span>            final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,<a name="line.266"></a>
-<span class="sourceLineNo">267</span>              ListField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,<a name="line.267"></a>
-<span class="sourceLineNo">268</span>              "element field of list field `" + fieldName + "' in object type `" + this.name + "'");<a name="line.268"></a>
-<span class="sourceLineNo">269</span><a name="line.269"></a>
-<span class="sourceLineNo">270</span>            // Create list field<a name="line.270"></a>
-<span class="sourceLineNo">271</span>            final JListField jfield = new JListField(this.jdb, fieldName, storageId, elementField,<a name="line.271"></a>
-<span class="sourceLineNo">272</span>              "list field `" + fieldName + "' in object type `" + this.name + "'", getter);<a name="line.272"></a>
-<span class="sourceLineNo">273</span>            elementField.parent = jfield;<a name="line.273"></a>
-<span class="sourceLineNo">274</span><a name="line.274"></a>
-<span class="sourceLineNo">275</span>            // Add field<a name="line.275"></a>
-<span class="sourceLineNo">276</span>            this.addField(jfield);<a name="line.276"></a>
-<span class="sourceLineNo">277</span>        }<a name="line.277"></a>
-<span class="sourceLineNo">278</span><a name="line.278"></a>
-<span class="sourceLineNo">279</span>        // Scan for Map fields<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        final JMapFieldScanner&lt;T&gt; mapFieldScanner = new JMapFieldScanner&lt;T&gt;(this, autogenFields);<a name="line.280"></a>
-<span class="sourceLineNo">281</span>        for (JMapFieldScanner&lt;T&gt;.MethodInfo info : mapFieldScanner.findAnnotatedMethods()) {<a name="line.281"></a>
-<span class="sourceLineNo">282</span><a name="line.282"></a>
-<span class="sourceLineNo">283</span>            // Get info<a name="line.283"></a>
-<span class="sourceLineNo">284</span>            final org.jsimpledb.annotation.JMapField annotation = info.getAnnotation();<a name="line.284"></a>
-<span class="sourceLineNo">285</span>            final org.jsimpledb.annotation.JField keyAnnotation = annotation.key();<a name="line.285"></a>
-<span class="sourceLineNo">286</span>            final org.jsimpledb.annotation.JField valueAnnotation = annotation.value();<a name="line.286"></a>
-<span class="sourceLineNo">287</span>            final Method getter = info.getMethod();<a name="line.287"></a>
-<span class="sourceLineNo">288</span>            final String description = mapFieldScanner.getAnnotationDescription() + " annotation on method " + getter;<a name="line.288"></a>
-<span class="sourceLineNo">289</span>            final String fieldName = this.getFieldName(annotation.name(), info, description);<a name="line.289"></a>
-<span class="sourceLineNo">290</span>            if (this.log.isTraceEnabled())<a name="line.290"></a>
-<span class="sourceLineNo">291</span>                this.log.trace("found " + description);<a name="line.291"></a>
-<span class="sourceLineNo">292</span><a name="line.292"></a>
-<span class="sourceLineNo">293</span>            // Get storage ID's<a name="line.293"></a>
-<span class="sourceLineNo">294</span>            int storageId = annotation.storageId();<a name="line.294"></a>
-<span class="sourceLineNo">295</span>            if (storageId == 0)<a name="line.295"></a>
-<span class="sourceLineNo">296</span>                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);<a name="line.296"></a>
-<span class="sourceLineNo">297</span>            int keyStorageId = keyAnnotation.storageId();<a name="line.297"></a>
-<span class="sourceLineNo">298</span>            if (keyStorageId == 0)<a name="line.298"></a>
-<span class="sourceLineNo">299</span>                keyStorageId = jdb.getStorageIdGenerator(keyAnnotation, getter).generateMapKeyStorageId(getter, fieldName);<a name="line.299"></a>
-<span class="sourceLineNo">300</span>            int valueStorageId = valueAnnotation.storageId();<a name="line.300"></a>
-<span class="sourceLineNo">301</span>            if (valueStorageId == 0)<a name="line.301"></a>
-<span class="sourceLineNo">302</span>                valueStorageId = jdb.getStorageIdGenerator(valueAnnotation, getter).generateMapValueStorageId(getter, fieldName);<a name="line.302"></a>
-<span class="sourceLineNo">303</span><a name="line.303"></a>
-<span class="sourceLineNo">304</span>            // Get key and value types (the raw return type has already been validated by the annotation scanner)<a name="line.304"></a>
-<span class="sourceLineNo">305</span>            final TypeToken&lt;?&gt; keyType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));<a name="line.305"></a>
-<span class="sourceLineNo">306</span>            final TypeToken&lt;?&gt; valueType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 1));<a name="line.306"></a>
-<span class="sourceLineNo">307</span><a name="line.307"></a>
-<span class="sourceLineNo">308</span>            // Create key and value sub-fields<a name="line.308"></a>
-<span class="sourceLineNo">309</span>            final JSimpleField keyField = this.createSimpleField("key() property of " + description, keyType,<a name="line.309"></a>
-<span class="sourceLineNo">310</span>              MapField.KEY_FIELD_NAME, keyStorageId, keyAnnotation, null, null,<a name="line.310"></a>
-<span class="sourceLineNo">311</span>              "key field of map field `" + fieldName + "' in object type `" + this.name + "'");<a name="line.311"></a>
-<span class="sourceLineNo">312</span>            final JSimpleField valueField = this.createSimpleField("value() property of " + description, valueType,<a name="line.312"></a>
-<span class="sourceLineNo">313</span>              MapField.VALUE_FIELD_NAME, valueStorageId, valueAnnotation, null, null,<a name="line.313"></a>
-<span class="sourceLineNo">314</span>              "value field of map field `" + fieldName + "' in object type `" + this.name + "'");<a name="line.314"></a>
-<span class="sourceLineNo">315</span><a name="line.315"></a>
-<span class="sourceLineNo">316</span>            // Create map field<a name="line.316"></a>
-<span class="sourceLineNo">317</span>            final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, keyField, valueField,<a name="line.317"></a>
-<span class="sourceLineNo">318</span>              "map field `" + fieldName + "' in object type `" + this.name + "'", getter);<a name="line.318"></a>
-<span class="sourceLineNo">319</span>            keyField.parent = jfield;<a name="line.319"></a>
-<span class="sourceLineNo">320</span>            valueField.parent = jfield;<a name="line.320"></a>
-<span class="sourceLineNo">321</span><a name="line.321"></a>
-<span class="sourceLineNo">322</span>            // Add field<a name="line.322"></a>
-<span class="sourceLineNo">323</span>            this.addField(jfield);<a name="line.323"></a>
-<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
-<span class="sourceLineNo">325</span><a name="line.325"></a>
-<span class="sourceLineNo">326</span>        // Calculate which fields require validation<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        for (JField jfield : this.jfields.values())<a name="line.327"></a>
-<span class="sourceLineNo">328</span>            jfield.calculateRequiresValidation();<a name="line.328"></a>
-<span class="sourceLineNo">329</span>    }<a name="line.329"></a>
+<span class="sourceLineNo">140</span>        // Auto-generate properties?<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        final boolean autogenFields = this.type.getAnnotation(JSimpleClass.class).autogenFields();<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>        // Scan for Simple fields<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        final JFieldScanner&lt;T&gt; simpleFieldScanner = new JFieldScanner&lt;T&gt;(this, autogenFields);<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        for (JFieldScanner&lt;T&gt;.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>            // Get info<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            final org.jsimpledb.annotation.JField annotation = info.getAnnotation();<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            final Method getter = info.getMethod();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            final String description = simpleFieldScanner.getAnnotationDescription() + " annotation on method " + getter;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            final String fieldName = this.getFieldName(annotation.name(), info, description);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            final TypeToken&lt;?&gt; fieldTypeToken = TypeToken.of(this.type).resolveType(getter.getGenericReturnType());<a name="line.152"></a>
+<span class="sourceLineNo">153</span>            if (this.log.isTraceEnabled())<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                this.log.trace("found " + description);<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>            // Get storage ID<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            int storageId = annotation.storageId();<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            if (storageId == 0)<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>            // Handle Counter fields<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            if (fieldTypeToken.equals(TypeToken.of(Counter.class))) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>                // Sanity check annotation<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                if (annotation.type().length() != 0)<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                    throw new IllegalArgumentException("invalid " + description + ": counter fields must not specify a type");<a name="line.166"></a>
+<span class="sourceLineNo">167</span>                if (annotation.indexed())<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                    throw new IllegalArgumentException("invalid " + description + ": counter fields cannot be indexed");<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>                // Create counter field<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                final JCounterField jfield = new JCounterField(this.jdb, fieldName, storageId,<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                  "counter field `" + fieldName + "' of object type `" + this.name + "'", getter);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                jfield.parent = this;<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>                // Add field<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                this.addField(jfield);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                continue;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            }<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>            // Find corresponding setter method<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            final Method setter;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            try {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                setter = Util.findSetterMethod(this.type, getter);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            } catch (IllegalArgumentException e) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage());<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            }<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>            // Create simple field<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            final JSimpleField jfield = this.createSimpleField(description, fieldTypeToken,<a name="line.189"></a>
+<span class="sourceLineNo">190</span>              fieldName, storageId, annotation, getter, setter, "field `" + fieldName + "' of object type `" + this.name + "'");<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            jfield.parent = this;<a name="line.191"></a>
+<span class="sourceLineNo">192</span><a name="line.192"></a>
+<span class="sourceLineNo">193</span>            // Add field<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            this.addField(jfield);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        }<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>        // Scan for Set fields<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        final JSetFieldScanner&lt;T&gt; setFieldScanner = new JSetFieldScanner&lt;T&gt;(this, autogenFields);<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        for (JSetFieldScanner&lt;T&gt;.MethodInfo info : setFieldScanner.findAnnotatedMethods()) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>            // Get info<a name="line.201"></a>
+<span class="sourceLineNo">202</span>            final org.jsimpledb.annotation.JSetField annotation = info.getAnnotation();<a name="line.202"></a>
+<span class="sourceLineNo">203</span>            final org.jsimpledb.annotation.JField elementAnnotation = annotation.element();<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            final Method getter = info.getMethod();<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            final String description = setFieldScanner.getAnnotationDescription() + " annotation on method " + getter;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>            final String fieldName = this.getFieldName(annotation.name(), info, description);<a name="line.206"></a>
+<span class="sourceLineNo">207</span>            if (this.log.isTraceEnabled())<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                this.log.trace("found " + description);<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>            // Get storage ID's<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            int storageId = annotation.storageId();<a name="line.211"></a>
+<span class="sourceLineNo">212</span>            if (storageId == 0)<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            int elementStorageId = elementAnnotation.storageId();<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            if (elementStorageId == 0) {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>                elementStorageId = jdb.getStorageIdGenerator(elementAnnotation, getter)<a name="line.216"></a>
+<span class="sourceLineNo">217</span>                  .generateSetElementStorageId(getter, fieldName);<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            }<a name="line.218"></a>
+<span class="sourceLineNo">219</span><a name="line.219"></a>
+<span class="sourceLineNo">220</span>            // Get element type (the raw return type has already been validated by the annotation scanner)<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            final TypeToken&lt;?&gt; elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));<a name="line.221"></a>
+<span class="sourceLineNo">222</span><a name="line.222"></a>
+<span class="sourceLineNo">223</span>            // Create element sub-field<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,<a name="line.224"></a>
+<span class="sourceLineNo">225</span>              SetField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,<a name="line.225"></a>
+<span class="sourceLineNo">226</span>              "element field of set field `" + fieldName + "' in object type `" + this.name + "'");<a name="line.226"></a>
+<span class="sourceLineNo">227</span><a name="line.227"></a>
+<span class="sourceLineNo">228</span>            // Create set field<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            final JSetField jfield = new JSetField(this.jdb, fieldName, storageId, elementField,<a name="line.229"></a>
+<span class="sourceLineNo">230</span>              "set field `" + fieldName + "' in object type `" + this.name + "'", getter);<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            elementField.parent = jfield;<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>            // Add field<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            this.addField(jfield);<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        }<a name="line.235"></a>
+<span class="sourceLineNo">236</span><a name="line.236"></a>
+<span class="sourceLineNo">237</span>        // Scan for List fields<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        final JListFieldScanner&lt;T&gt; listFieldScanner = new JListFieldScanner&lt;T&gt;(this, autogenFields);<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        for (JListFieldScanner&lt;T&gt;.MethodInfo info : listFieldScanner.findAnnotatedMethods()) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span>            // Get info<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            final org.jsimpledb.annotation.JListField annotation = info.getAnnotation();<a name="line.242"></a>
+<span class="sourceLineNo">243</span>            final org.jsimpledb.annotation.JField elementAnnotation = annotation.element();<a name="line.243"></a>
+<span class="sourceLineNo">244</span>            final Method getter = info.getMethod();<a name="line.244"></a>
+<span class="sourceLineNo">245</span>            final String description = listFieldScanner.getAnnotationDescription() + " annotation on method " + getter;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            final String fieldName = this.getFieldName(annotation.name(), info, description);<a name="line.246"></a>
+<span class="sourceLineNo">247</span>            if (this.log.isTraceEnabled())<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                this.log.trace("found " + description);<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>            // Get storage ID's<a name="line.250"></a>
+<span class="sourceLineNo">251</span>            int storageId = annotation.storageId();<a name="line.251"></a>
+<span class="sourceLineNo">252</span>            if (storageId == 0)<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);<a name="line.253"></a>
+<span class="sourceLineNo">254</span>            int elementStorageId = elementAnnotation.storageId();<a name="line.254"></a>
+<span class="sourceLineNo">255</span>            if (elementStorageId == 0) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                elementStorageId = jdb.getStorageIdGenerator(elementAnnotation, getter)<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                  .generateListElementStorageId(getter, fieldName);<a name="line.257"></a>
+<span class="sourceLineNo">258</span>            }<a name="line.258"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>            // Get element type (the raw return type has already been validated by the annotation scanner)<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            final TypeToken&lt;?&gt; elementType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));<a name="line.261"></a>
+<span class="sourceLineNo">262</span><a name="line.262"></a>
+<span class="sourceLineNo">263</span>            // Create element sub-field<a name="line.263"></a>
+<span class="sourceLineNo">264</span>            final JSimpleField elementField = this.createSimpleField("element() property of " + description, elementType,<a name="line.264"></a>
+<span class="sourceLineNo">265</span>              ListField.ELEMENT_FIELD_NAME, elementStorageId, elementAnnotation, null, null,<a name="line.265"></a>
+<span class="sourceLineNo">266</span>              "element field of list field `" + fieldName + "' in object type `" + this.name + "'");<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>            // Create list field<a name="line.268"></a>
+<span class="sourceLineNo">269</span>            final JListField jfield = new JListField(this.jdb, fieldName, storageId, elementField,<a name="line.269"></a>
+<span class="sourceLineNo">270</span>              "list field `" + fieldName + "' in object type `" + this.name + "'", getter);<a name="line.270"></a>
+<span class="sourceLineNo">271</span>            elementField.parent = jfield;<a name="line.271"></a>
+<span class="sourceLineNo">272</span><a name="line.272"></a>
+<span class="sourceLineNo">273</span>            // Add field<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            this.addField(jfield);<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        }<a name="line.275"></a>
+<span class="sourceLineNo">276</span><a name="line.276"></a>
+<span class="sourceLineNo">277</span>        // Scan for Map fields<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        final JMapFieldScanner&lt;T&gt; mapFieldScanner = new JMapFieldScanner&lt;T&gt;(this, autogenFields);<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        for (JMapFieldScanner&lt;T&gt;.MethodInfo info : mapFieldScanner.findAnnotatedMethods()) {<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>            // Get info<a name="line.281"></a>
+<span class="sourceLineNo">282</span>            final org.jsimpledb.annotation.JMapField annotation = info.getAnnotation();<a name="line.282"></a>
+<span class="sourceLineNo">283</span>            final org.jsimpledb.annotation.JField keyAnnotation = annotation.key();<a name="line.283"></a>
+<span class="sourceLineNo">284</span>            final org.jsimpledb.annotation.JField valueAnnotation = annotation.value();<a name="line.284"></a>
+<span class="sourceLineNo">285</span>            final Method getter = info.getMethod();<a name="line.285"></a>
+<span class="sourceLineNo">286</span>            final String description = mapFieldScanner.getAnnotationDescription() + " annotation on method " + getter;<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            final String fieldName = this.getFieldName(annotation.name(), info, description);<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            if (this.log.isTraceEnabled())<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                this.log.trace("found " + description);<a name="line.289"></a>
+<span class="sourceLineNo">290</span><a name="line.290"></a>
+<span class="sourceLineNo">291</span>            // Get storage ID's<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            int storageId = annotation.storageId();<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            if (storageId == 0)<a name="line.293"></a>
+<span class="sourceLineNo">294</span>                storageId = jdb.getStorageIdGenerator(annotation, getter).generateFieldStorageId(getter, fieldName);<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            int keyStorageId = keyAnnotation.storageId();<a name="line.295"></a>
+<span class="sourceLineNo">296</span>            if (keyStorageId == 0)<a name="line.296"></a>
+<span class="sourceLineNo">297</span>                keyStorageId = jdb.getStorageIdGenerator(keyAnnotation, getter).generateMapKeyStorageId(getter, fieldName);<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            int valueStorageId = valueAnnotation.storageId();<a name="line.298"></a>
+<span class="sourceLineNo">299</span>            if (valueStorageId == 0)<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                valueStorageId = jdb.getStorageIdGenerator(valueAnnotation, getter).generateMapValueStorageId(getter, fieldName);<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>            // Get key and value types (the raw return type has already been validated by the annotation scanner)<a name="line.302"></a>
+<span class="sourceLineNo">303</span>            final TypeToken&lt;?&gt; keyType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 0));<a name="line.303"></a>
+<span class="sourceLineNo">304</span>            final TypeToken&lt;?&gt; valueType = TypeToken.of(this.type).resolveType(this.getParameterType(description, getter, 1));<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>            // Create key and value sub-fields<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            final JSimpleField keyField = this.createSimpleField("key() property of " + description, keyType,<a name="line.307"></a>
+<span class="sourceLineNo">308</span>              MapField.KEY_FIELD_NAME, keyStorageId, keyAnnotation, null, null,<a name="line.308"></a>
+<span class="sourceLineNo">309</span>              "key field of map field `" + fieldName + "' in object type `" + this.name + "'");<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            final JSimpleField valueField = this.createSimpleField("value() property of " + description, valueType,<a name="line.310"></a>
+<span class="sourceLineNo">311</span>              MapField.VALUE_FIELD_NAME, valueStorageId, valueAnnotation, null, null,<a name="line.311"></a>
+<span class="sourceLineNo">312</span>              "value field of map field `" + fieldName + "' in object type `" + this.name + "'");<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>            // Create map field<a name="line.314"></a>
+<span class="sourceLineNo">315</span>            final JMapField jfield = new JMapField(this.jdb, fieldName, storageId, keyField, valueField,<a name="line.315"></a>
+<span class="sourceLineNo">316</span>              "map field `" + fieldName + "' in object type `" + this.name + "'", getter);<a name="line.316"></a>
+<span class="sourceLineNo">317</span>            keyField.parent = jfield;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>            valueField.parent = jfield;<a name="line.318"></a>
+<span class="sourceLineNo">319</span><a name="line.319"></a>
+<span class="sourceLineNo">320</span>            // Add field<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            this.addField(jfield);<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        }<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>        // Calculate which fields require validation<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        for (JField jfield : this.jfields.values())<a name="line.325"></a>
+<span class="sourceLineNo">326</span>            jfield.calculateRequiresValidation();<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    }<a name="line.327"></a>
+<span class="sourceLineNo">328</span><a name="line.328"></a>
+<span class="sourceLineNo">329</span>    void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {<a name="line.329"></a>
 <span class="sourceLineNo">330</span><a name="line.330"></a>
-<span class="sourceLineNo">331</span>    void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {<a name="line.331"></a>
-<span class="sourceLineNo">332</span><a name="line.332"></a>
-<span class="sourceLineNo">333</span>        // Get info<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        final String indexName = annotation.name();<a name="line.334"></a>
-<span class="sourceLineNo">335</span><a name="line.335"></a>
-<span class="sourceLineNo">336</span>        // Resolve field names<a name="line.336"></a>
-<span class="sourceLineNo">337</span>        final String[] fieldNames = annotation.fields();<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        final JSimpleField[] indexFields = new JSimpleField[fieldNames.length];<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        final int[] indexFieldStorageIds = new int[fieldNames.length];<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        final HashSet&lt;String&gt; seenFieldNames = new HashSet&lt;String&gt;();<a name="line.340"></a>
-<span class="sourceLineNo">341</span>        for (int i = 0; i &lt; fieldNames.length; i++) {<a name="line.341"></a>
-<span class="sourceLineNo">342</span>            final String fieldName = fieldNames[i];<a name="line.342"></a>
-<span class="sourceLineNo">343</span>            if (!seenFieldNames.add(fieldName))<a name="line.343"></a>
-<span class="sourceLineNo">344</span>                throw this.invalidIndex(annotation, "field `" + fieldName + "' appears more than once");<a name="line.344"></a>
-<span class="sourceLineNo">345</span>            final JField jfield = this.jfieldsByName.get(fieldName);<a name="line.345"></a>
-<span class="sourceLineNo">346</span>            if (!(jfield instanceof JSimpleField)) {<a name="line.346"></a>
-<span class="sourceLineNo">347</span>                throw this.invalidIndex(annotation, "field `" + fieldName + "' "<a name="line.347"></a>
-<span class="sourceLineNo">348</span>                  + (jfield != null ? "is not a simple field" : "not found"));<a name="line.348"></a>
-<span class="sourceLineNo">349</span>            }<a name="line.349"></a>
-<span class="sourceLineNo">350</span>            indexFields[i] = (JSimpleField)jfield;<a name="line.350"></a>
-<span class="sourceLineNo">351</span>            indexFieldStorageIds[i] = jfield.storageId;<a name="line.351"></a>
-<span class="sourceLineNo">352</span>        }<a name="line.352"></a>
-<span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>        // Get storage ID<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        int storageId = annotation.storageId();<a name="line.355"></a>
-<span class="sourceLineNo">356</span>        if (storageId == 0) {<a name="line.356"></a>
-<span class="sourceLineNo">357</span>            storageId = jdb.getStorageIdGenerator(annotation, type)<a name="line.357"></a>
-<span class="sourceLineNo">358</span>              .generateCompositeIndexStorageId(this.type, indexName, indexFieldStorageIds);<a name="line.358"></a>
-<span class="sourceLineNo">359</span>        }<a name="line.359"></a>
-<span class="sourceLineNo">360</span><a name="line.360"></a>
-<span class="sourceLineNo">361</span>        // Create and add index<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        final JCompositeIndex index = new JCompositeIndex(this.jdb, indexName, storageId, indexFields);<a name="line.362"></a>
-<span class="sourceLineNo">363</span>        if (this.jcompositeIndexes.put(index.storageId, index) != null)<a name="line.363"></a>
-<span class="sourceLineNo">364</span>            throw this.invalidIndex(annotation, "duplicate use of storage ID " + index.storageId);<a name="line.364"></a>
-<span class="sourceLineNo">365</span>        if (this.jcompositeIndexesByName.put(index.name, index) != null)<a name="line.365"></a>
-<span class="sourceLineNo">366</span>            throw this.invalidIndex(annotation, "duplicate use of composite index name `" + index.name + "'");<a name="line.366"></a>
-<span class="sourceLineNo">367</span>    }<a name="line.367"></a>
-<span class="sourceLineNo">368</span><a name="line.368"></a>
-<span class="sourceLineNo">369</span>    void scanAnnotations() {<a name="line.369"></a>
-<span class="sourceLineNo">370</span>        this.onCreateMethods = new OnCreateScanner&lt;T&gt;(this).findAnnotatedMethods();<a name="line.370"></a>
-<span class="sourceLineNo">371</span>        this.onDeleteMethods = new OnDeleteScanner&lt;T&gt;(this).findAnnotatedMethods();<a name="line.371"></a>
-<span class="sourceLineNo">372</span>        this.onChangeMethods = new OnChangeScanner&lt;T&gt;(this).findAnnotatedMethods();<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        this.validateMethods = new ValidateScanner&lt;T&gt;(this).findAnnotatedMethods();<a name="line.373"></a>
-<span class="sourceLineNo">374</span>        final OnVersionChangeScanner&lt;T&gt; onVersionChangeScanner = new OnVersionChangeScanner&lt;T&gt;(this);<a name="line.374"></a>
-<span class="sourceLineNo">375</span>        this.onVersionChangeMethods = new ArrayList&lt;&gt;(onVersionChangeScanner.findAnnotatedMethods());<a name="line.375"></a>
-<span class="sourceLineNo">376</span>        Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);<a name="line.376"></a>
-<span class="sourceLineNo">377</span>    }<a name="line.377"></a>
+<span class="sourceLineNo">331</span>        // Get info<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        final String indexName = annotation.name();<a name="line.332"></a>
+<span class="sourceLineNo">333</span><a name="line.333"></a>
+<span class="sourceLineNo">334</span>        // Resolve field names<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        final String[] fieldNames = annotation.fields();<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        final JSimpleField[] indexFields = new JSimpleField[fieldNames.length];<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        final int[] indexFieldStorageIds = new int[fieldNames.length];<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        final HashSet&lt;String&gt; seenFieldNames = new HashSet&lt;String&gt;();<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        for (int i = 0; i &lt; fieldNames.length; i++) {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            final String fieldName = fieldNames[i];<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            if (!seenFieldNames.add(fieldName))<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                throw this.invalidIndex(annotation, "field `" + fieldName + "' appears more than once");<a name="line.342"></a>
+<span class="sourceLineNo">343</span>            final JField jfield = this.jfieldsByName.get(fieldName);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>            if (!(jfield instanceof JSimpleField)) {<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                throw this.invalidIndex(annotation, "field `" + fieldName + "' "<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                  + (jfield != null ? "is not a simple field" : "not found"));<a name="line.346"></a>
+<span class="sourceLineNo">347</span>            }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            indexFields[i] = (JSimpleField)jfield;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            indexFieldStorageIds[i] = jfield.storageId;<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        }<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>        // Get storage ID<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        int storageId = annotation.storageId();<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        if (storageId == 0) {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>            storageId = jdb.getStorageIdGenerator(annotation, type)<a name="line.355"></a>
+<span class="sourceLineNo">356</span>              .generateCompositeIndexStorageId(this.type, indexName, indexFieldStorageIds);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        }<a name="line.357"></a>
+<span class="sourceLineNo">358</span><a name="line.358"></a>
+<span class="sourceLineNo">359</span>        // Create and add index<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        final JCompositeIndex index = new JCompositeIndex(this.jdb, indexName, storageId, indexFields);<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        if (this.jcompositeIndexes.put(index.storageId, index) != null)<a name="line.361"></a>
+<span class="sourceLineNo">362</span>            throw this.invalidIndex(annotation, "duplicate use of storage ID " + index.storageId);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        if (this.jcompositeIndexesByName.put(index.name, index) != null)<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            throw this.invalidIndex(annotation, "duplicate use of composite index name `" + index.name + "'");<a name="line.364"></a>
+<span class="sourceLineNo">365</span>    }<a name="line.365"></a>
+<span class="sourceLineNo">366</span><a name="line.366"></a>
+<span class="sourceLineNo">367</span>    void scanAnnotations() {<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        this.onCreateMethods = new OnCreateScanner&lt;T&gt;(this).findAnnotatedMethods();<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        this.onDeleteMethods = new OnDeleteScanner&lt;T&gt;(this).findAnnotatedMethods();<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        this.onChangeMethods = new OnChangeScanner&lt;T&gt;(this).findAnnotatedMethods();<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        this.validateMethods = new ValidateScanner&lt;T&gt;(this).findAnnotatedMethods();<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        final OnVersionChangeScanner&lt;T&gt; onVersionChangeScanner = new OnVersionChangeScanner&lt;T&gt;(this);<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        this.onVersionChangeMethods = new ArrayList&lt;&gt;(onVersionChangeScanner.findAnnotatedMethods());<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    }<a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>    void calculateValidationRequirement() {<a name="line.377"></a>
 <span class="sourceLineNo">378</span><a name="line.378"></a>
-<span class="sourceLineNo">379</span>    void calculateValidationRequirement() {<a name="line.379"></a>
-<span class="sourceLineNo">380</span><a name="line.380"></a>
-<span class="sourceLineNo">381</span>        // Check for JSR 303 or @Validate annotations<a name="line.381"></a>
-<span class="sourceLineNo">382</span>        if ((this.requiresValidation = Util.requiresValidation(this.type)))<a name="line.382"></a>
-<span class="sourceLineNo">383</span>            return;<a name="line.383"></a>
-<span class="sourceLineNo">384</span><a name="line.384"></a>
-<span class="sourceLineNo">385</span>        // Check for any uniqueness constraints<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        for (JSimpleField jfield : Iterables.filter(this.jfields.values(), JSimpleField.class)) {<a name="line.386"></a>
-<span class="sourceLineNo">387</span>            if (jfield.unique) {<a name="line.387"></a>
-<span class="sourceLineNo">388</span>                this.requiresValidation = true;<a name="line.388"></a>
-<span class="sourceLineNo">389</span>                return;<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            }<a name="line.390"></a>
-<span class="sourceLineNo">391</span>        }<a name="line.391"></a>
-<span class="sourceLineNo">392</span>    }<a name="line.392"></a>
-<span class="sourceLineNo">393</span><a name="line.393"></a>
-<span class="sourceLineNo">394</span>    @Override<a name="line.394"></a>
-<span class="sourceLineNo">395</span>    SchemaObjectType toSchemaItem(JSimpleDB jdb) {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>        final SchemaObjectType schemaObjectType = new SchemaObjectType();<a name="line.396"></a>
-<span class="sourceLineNo">397</span>        this.initialize(jdb, schemaObjectType);<a name="line.397"></a>
-<span class="sourceLineNo">398</span>        for (JField field : this.jfields.values()) {<a name="line.398"></a>
-<span class="sourceLineNo">399</span>            final SchemaField schemaField = field.toSchemaItem(jdb);<a name="line.399"></a>
-<span class="sourceLineNo">400</span>            schemaObjectType.getSchemaFields().put(schemaField.getStorageId(), schemaField);<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        }<a name="line.401"></a>
-<span class="sourceLineNo">402</span>        for (JCompositeIndex index : this.jcompositeIndexes.values()) {<a name="line.402"></a>
-<span class="sourceLineNo">403</span>            final SchemaCompositeIndex schemaIndex = index.toSchemaItem(jdb);<a name="line.403"></a>
-<span class="sourceLineNo">404</span>            schemaObjectType.getSchemaCompositeIndexes().put(index.getStorageId(), schemaIndex);<a name="line.404"></a>
-<span class="sourceLineNo">405</span>        }<a name="line.405"></a>
-<span class="sourceLineNo">406</span>        return schemaObjectType;<a name="line.406"></a>
-<span class="sourceLineNo">407</span>    }<a name="line.407"></a>
-<span class="sourceLineNo">408</span><a name="line.408"></a>
-<span class="sourceLineNo">409</span>    private IllegalArgumentException invalidIndex(org.jsimpledb.annotation.JCompositeIndex annotation, String message) {<a name="line.409"></a>
-<span class="sourceLineNo">410</span>        return new IllegalArgumentException("invalid @JCompositeIndex annotation for index `"<a name="line.410"></a>
-<span class="sourceLineNo">411</span>          + annotation.name() + "' on " + this.type + ": " + message);<a name="line.411"></a>
-<span class="sourceLineNo">412</span>    }<a name="line.412"></a>
-<span class="sourceLineNo">413</span><a name="line.413"></a>
-<span class="sourceLineNo">414</span>    // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts<a name="line.414"></a>
-<span class="sourceLineNo">415</span>    private void addField(JField jfield) {<a name="line.415"></a>
-<span class="sourceLineNo">416</span><a name="line.416"></a>
-<span class="sourceLineNo">417</span>        // Check for storage ID conflict<a name="line.417"></a>
-<span class="sourceLineNo">418</span>        JField other = this.jfields.get(jfield.storageId);<a name="line.418"></a>
-<span class="sourceLineNo">419</span>        if (other != null) {<a name="line.419"></a>
-<span class="sourceLineNo">420</span>            throw new IllegalArgumentException("illegal duplicate use of storage ID "<a name="line.420"></a>
-<span class="sourceLineNo">421</span>              + jfield.storageId + " for both " + other + " and " + jfield);<a name="line.421"></a>
-<span class="sourceLineNo">422</span>        }<a name="line.422"></a>
-<span class="sourceLineNo">423</span>        this.jfields.put(jfield.storageId, jfield);<a name="line.423"></a>
-<span class="sourceLineNo">424</span><a name="line.424"></a>
-<span class="sourceLineNo">425</span>        // Check for name conflict<a name="line.425"></a>
-<span class="sourceLineNo">426</span>        if ((other = this.jfieldsByName.get(jfield.name)) != null)<a name="line.426"></a>
-<span class="sourceLineNo">427</span>            throw new IllegalArgumentException("illegal duplicate use of field name `" + jfield.name + "' in " + this);<a name="line.427"></a>
-<span class="sourceLineNo">428</span>        this.jfieldsByName.put(jfield.name, jfield);<a name="line.428"></a>
-<span class="sourceLineNo">429</span><a name="line.429"></a>
-<span class="sourceLineNo">430</span>        // Logging<a name="line.430"></a>
-<span class="sourceLineNo">431</span>        if (this.log.isTraceEnabled())<a name="line.431"></a>
-<span class="sourceLineNo">432</span>            this.log.trace("added " + jfield + " to object type `" + this.name + "'");<a name="line.432"></a>
-<span class="sourceLineNo">433</span>    }<a name="line.433"></a>
-<span class="sourceLineNo">434</span><a name="line.434"></a>
-<span class="sourceLineNo">435</span>    // Get field name, deriving it from the getter property name if necessary<a name="line.435"></a>
-<span class="sourceLineNo">436</span>    private String getFieldName(String fieldName, AnnotationScanner&lt;T, ?&gt;.MethodInfo info, String description) {<a name="line.436"></a>
-<span class="sourceLineNo">437</span>        if (fieldName.length() &gt; 0)<a name="line.437"></a>
-<span class="sourceLineNo">438</span>            return fieldName;<a name="line.438"></a>
-<span class="sourceLineNo">439</span>        try {<a name="line.439"></a>
-<span class="sourceLineNo">440</span>            return info.getMethodPropertyName();<a name="line.440"></a>
-<span class="sourceLineNo">441</span>        } catch (IllegalArgumentException e) {<a name="line.441"></a>
-<span class="sourceLineNo">442</span>            throw new IllegalArgumentException("invalid " + description + ": can't infer field name: " + e, e);<a name="line.442"></a>
-<span class="sourceLineNo">443</span>        }<a name="line.443"></a>
-<span class="sourceLineNo">444</span>    }<a name="line.444"></a>
-<span class="sourceLineNo">445</span><a name="line.445"></a>
-<span class="sourceLineNo">446</span>    // Get the n'th generic type parameter<a name="line.446"></a>
-<span class="sourceLineNo">447</span>    private Type getParameterType(String description, Method method, int index) {<a name="line.447"></a>
-<span class="sourceLineNo">448</span>        try {<a name="line.448"></a>
-<span class="sourceLineNo">449</span>            return Util.getTypeParameter(method.getGenericReturnType(), index);<a name="line.449"></a>
-<span class="sourceLineNo">450</span>        } catch (IllegalArgumentException e) {<a name="line.450"></a>
-<span class="sourceLineNo">451</span>            throw new IllegalArgumentException("invalid " + description + ": invalid method return type: " + e.getMessage(), e);<a name="line.451"></a>
-<span class="sourceLineNo">452</span>        }<a name="line.452"></a>
-<span class="sourceLineNo">453</span>    }<a name="line.453"></a>
-<span class="sourceLineNo">454</span><a name="line.454"></a>
-<span class="sourceLineNo">455</span>    // Create a simple field, either regular object field or sub-field of complex field<a name="line.455"></a>
-<span class="sourceLineNo">456</span>    @SuppressWarnings("unchecked")<a name="line.456"></a>
-<span class="sourceLineNo">457</span>    private JSimpleField createSimpleField(String description, TypeToken&lt;?&gt; fieldTypeToken, String fieldName,<a name="line.457"></a>
-<span class="sourceLineNo">458</span>      int storageId, org.jsimpledb.annotation.JField annotation, Method getter, Method setter, String fieldDescription) {<a name="line.458"></a>
-<span class="sourceLineNo">459</span><a name="line.459"></a>
-<span class="sourceLineNo">460</span>        // Get explicit type name, if any<a name="line.460"></a>
-<span class="sourceLineNo">461</span>        final String typeName = annotation.type().length() &gt; 0 ? annotation.type() : null;<a name="line.461"></a>
-<span class="sourceLineNo">462</span><a name="line.462"></a>
-<span class="sourceLineNo">463</span>        // Include containing type for annotation description; with autogenProperties it can be more than one<a name="line.463"></a>
-<span class="sourceLineNo">464</span>        description += " in " + this.type;<a name="line.464"></a>
-<span class="sourceLineNo">465</span><a name="line.465"></a>
-<span class="sourceLineNo">466</span>        // Complex sub-field?<a name="line.466"></a>
-<span class="sourceLineNo">467</span>        final boolean isSubField = getter == null;<a name="line.467"></a>
-<span class="sourceLineNo">468</span><a name="line.468"></a>
-<span class="sourceLineNo">469</span>        // Sanity check annotation<a name="line.469"></a>
-<span class="sourceLineNo">470</span>        if (isSubField &amp;&amp; annotation.unique())<a name="line.470"></a>
-<span class="sourceLineNo">471</span>            throw new IllegalArgumentException("invalid " + description + ": unique() constraint not allowed on complex sub-field");<a name="line.471"></a>
-<span class="sourceLineNo">472</span>        if (annotation.uniqueExclude().length &gt; 0 &amp;&amp; !annotation.unique())<a name="line.472"></a>
-<span class="sourceLineNo">473</span>            throw new IllegalArgumentException("invalid " + description + ": use of uniqueExclude() requires unique = true");<a name="line.473"></a>
-<span class="sourceLineNo">474</span>        if (annotation.uniqueExcludeNull() &amp;&amp; !annotation.unique())<a name="line.474"></a>
-<span class="sourceLineNo">475</span>            throw new IllegalArgumentException("invalid " + description + ": use of uniqueExcludeNull() requires unique = true");<a name="line.475"></a>
-<span class="sourceLineNo">476</span><a name="line.476"></a>
-<span class="sourceLineNo">477</span>        // See if field type encompasses one or more JClass types and is therefore a reference type<a name="line.477"></a>
-<span class="sourceLineNo">478</span>        boolean isReferenceType = false;<a name="line.478"></a>
-<span class="sourceLineNo">479</span>        for (JClass&lt;?&gt; jclass : this.jdb.jclasses.values()) {<a name="line.479"></a>
-<span class="sourceLineNo">480</span>            if (fieldTypeToken.getRawType().isAssignableFrom(jclass.type)) {<a name="line.480"></a>
-<span class="sourceLineNo">481</span>                isReferenceType = true;<a name="line.481"></a>
-<span class="sourceLineNo">482</span>                break;<a name="line.482"></a>
-<span class="sourceLineNo">483</span>            }<a name="line.483"></a>
-<span class="sourceLineNo">484</span>        }<a name="line.484"></a>
-<span class="sourceLineNo">485</span><a name="line.485"></a>
-<span class="sourceLineNo">486</span>        // See if field type is a simple type, known either by explicitly-given name or type<a name="line.486"></a>
-<span class="sourceLineNo">487</span>        FieldType&lt;?&gt; nonReferenceType = null;<a name="line.487"></a>
-<span class="sourceLineNo">488</span>        if (typeName != null) {<a name="line.488"></a>
-<span class="sourceLineNo">489</span><a name="line.489"></a>
-<span class="sourceLineNo">490</span>            // Field type is explicitly specified by name<a name="line.490"></a>
-<span class="sourceLineNo">491</span>            if ((nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(typeName)) == null)<a name="line.491"></a>
-<span class="sourceLineNo">492</span>                throw new IllegalArgumentException("invalid " + description + ": unknown simple field type `" + typeName + "'");<a name="line.492"></a>
-<span class="sourceLineNo">493</span><a name="line.493"></a>
-<span class="sourceLineNo">494</span>            // Verify field type matches what we expect<a name="line.494"></a>
-<span class="sourceLineNo">495</span>            final TypeToken&lt;?&gt; expectedType = isSubField ? nonReferenceType.getTypeToken().wrap() : nonReferenceType.getTypeToken();<a name="line.495"></a>
-<span class="sourceLineNo">496</span>            if (!expectedType.equals(fieldTypeToken)) {<a name="line.496"></a>
-<span class="sourceLineNo">497</span>                throw new IllegalArgumentException("invalid " + description + ": field type `" + typeName<a name="line.497"></a>
-<span class="sourceLineNo">498</span>                  + "' supports values of type " + nonReferenceType.getTypeToken() + " but " + fieldTypeToken<a name="line.498"></a>
-<span class="sourceLineNo">499</span>                  + " is required (according to the getter method's return type)");<a name="line.499"></a>
-<span class="sourceLineNo">500</span>            }<a name="line.500"></a>
-<span class="sourceLineNo">501</span>        } else {<a name="line.501"></a>
-<span class="sourceLineNo">502</span><a name="line.502"></a>
-<span class="sourceLineNo">503</span>            // Try to find a field type supporting getter method return type<a name="line.503"></a>
-<span class="sourceLineNo">504</span>            final List&lt;? extends FieldType&lt;?&gt;&gt; fieldTypes = this.jdb.db.getFieldTypeRegistry().getFieldTypes(fieldTypeToken);<a name="line.504"></a>
-<span class="sourceLineNo">505</span>            switch (fieldTypes.size()) {<a name="line.505"></a>
-<span class="sourceLineNo">506</span>            case 0:<a name="line.506"></a>
-<span class="sourceLineNo">507</span>                nonReferenceType = null;<a name="line.507"></a>
-<span class="sourceLineNo">508</span>                break;<a name="line.508"></a>
-<span class="sourceLineNo">509</span>            case 1:<a name="line.509"></a>
-<span class="sourceLineNo">510</span>                nonReferenceType = fieldTypes.get(0);<a name="line.510"></a>
-<span class="sourceLineNo">511</span>                break;<a name="line.511"></a>
-<span class="sourceLineNo">512</span>            default:<a name="line.512"></a>
-<span class="sourceLineNo">513</span>                if (!isReferenceType) {<a name="line.513"></a>
-<span class="sourceLineNo">514</span>                    throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"<a name="line.514"></a>
-<span class="sourceLineNo">515</span>                      + " because type " + fieldTypeToken + " is supported by multiple registered simple field types: "<a name="line.515"></a>
-<span class="sourceLineNo">516</span>                      + fieldTypes);<a name="line.516"></a>
-<span class="sourceLineNo">517</span>                }<a name="line.517"></a>
-<span class="sourceLineNo">518</span>                break;<a name="line.518"></a>
-<span class="sourceLineNo">519</span>            }<a name="line.519"></a>
-<span class="sourceLineNo">520</span>        }<a name="line.520"></a>
-<span class="sourceLineNo">521</span><a name="line.521"></a>
-<span class="sourceLineNo">522</span>        // Detect enum types<a name="line.522"></a>
-<span class="sourceLineNo">523</span>        final Class&lt;? extends Enum&lt;?&gt;&gt; enumType = Enum.class.isAssignableFrom(fieldTypeToken.getRawType()) ?<a name="line.523"></a>
-<span class="sourceLineNo">524</span>          (Class&lt;? extends Enum&lt;?&gt;&gt;)fieldTypeToken.getRawType().asSubclass(Enum.class) : null;<a name="line.524"></a>
-<span class="sourceLineNo">525</span><a name="line.525"></a>
-<span class="sourceLineNo">526</span>        // If field type neither refers to a JClass type, nor is a registered field type, nor is an enum type, fail<a name="line.526"></a>
-<span class="sourceLineNo">527</span>        if (!isReferenceType &amp;&amp; nonReferenceType == null &amp;&amp; enumType == null) {<a name="line.527"></a>
-<span class="sourceLineNo">528</span>            throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"<a name="line.528"></a>
-<span class="sourceLineNo">529</span>              + " because no known type supports values of type " + fieldTypeToken);<a name="line.529"></a>
-<span class="sourceLineNo">530</span>        }<a name="line.530"></a>
-<span class="sourceLineNo">531</span><a name="line.531"></a>
-<span class="sourceLineNo">532</span>        // Handle ambiguity between reference vs. non-reference<a name="line.532"></a>
-<span class="sourceLineNo">533</span>        if (isReferenceType &amp;&amp; nonReferenceType != null) {<a name="line.533"></a>
-<span class="sourceLineNo">534</span><a name="line.534"></a>
-<span class="sourceLineNo">535</span>            // If an explicit type name was provided, assume they want the specified non-reference type<a name="line.535"></a>
-<span class="sourceLineNo">536</span>            if (typeName != null)<a name="line.536"></a>
-<span class="sourceLineNo">537</span>                isReferenceType = false;<a name="line.537"></a>
-<span class="sourceLineNo">538</span>            else {<a name="line.538"></a>
-<span class="sourceLineNo">539</span>                throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"<a name="line.539"></a>
-<span class="sourceLineNo">540</span>                  + " because type " + fieldTypeToken + " is ambiguous, being both a @" + JSimpleClass.class.getSimpleName()<a name="line.540"></a>
-<span class="sourceLineNo">541</span>                  + " reference type and a simple Java type supported by type `" + nonReferenceType + "'");<a name="line.541"></a>
-<span class="sourceLineNo">542</span>            }<a name="line.542"></a>
-<span class="sourceLineNo">543</span>        }<a name="line.543"></a>
-<span class="sourceLineNo">544</span><a name="line.544"></a>
-<span class="sourceLineNo">545</span>        // Sanity check annotation some more<a name="line.545"></a>
-<span class="sourceLineNo">546</span>        if (!isReferenceType &amp;&amp; annotation.onDelete() != DeleteAction.EXCEPTION)<a name="line.546"></a>
-<span class="sourceLineNo">547</span>            throw new IllegalArgumentException("invalid " + description + ": onDelete() only allowed on reference fields");<a name="line.547"></a>
-<span class="sourceLineNo">548</span>        if (!isReferenceType &amp;&amp; annotation.cascadeDelete())<a name="line.548"></a>
-<span class="sourceLineNo">549</span>            throw new IllegalArgumentException("invalid " + description + ": cascadeDelete() only allowed on reference fields");<a name="line.549"></a>
-<span class="sourceLineNo">550</span>        if (!isReferenceType &amp;&amp; annotation.unique() &amp;&amp; !annotation.indexed())<a name="line.550"></a>
-<span class="sourceLineNo">551</span>            throw new IllegalArgumentException("invalid " + description + ": unique() constraint requires field to be indexed");<a name="line.551"></a>
-<span class="sourceLineNo">552</span>        if (nonReferenceType != null &amp;&amp; nonReferenceType.getTypeToken().isPrimitive() &amp;&amp; annotation.uniqueExcludeNull()) {<a name="line.552"></a>
-<span class="sourceLineNo">553</span>            throw new IllegalArgumentException("invalid " + description + ": uniqueExcludeNull() is incompatible with fields"<a name="line.553"></a>
-<span class="sourceLineNo">554</span>              + " having primitive type");<a name="line.554"></a>
-<span class="sourceLineNo">555</span>        }<a name="line.555"></a>
-<span class="sourceLineNo">556</span><a name="line.556"></a>
-<span class="sourceLineNo">557</span>        // Create simple, enum, or reference field<a name="line.557"></a>
-<span class="sourceLineNo">558</span>        try {<a name="line.558"></a>
-<span class="sourceLineNo">559</span>            return<a name="line.559"></a>
-<span class="sourceLineNo">560</span>              isReferenceType ?<a name="line.560"></a>
-<span class="sourceLineNo">561</span>                new JReferenceField(this.jdb, fieldName, storageId, fieldDescription, fieldTypeToken, annotation, getter, setter) :<a name="line.561"></a>
-<span class="sourceLineNo">562</span>              enumType != null ?<a name="line.562"></a>
-<span class="sourceLineNo">563</span>                new JEnumField(this.jdb, fieldName, storageId, enumType, annotation, fieldDescription, getter, setter) :<a name="line.563"></a>
-<span class="sourceLineNo">564</span>                new JSimpleField(this.jdb, fieldName, storageId, fieldTypeToken,<a name="line.564"></a>
-<span class="sourceLineNo">565</span>                  nonReferenceType, annotation.indexed(), annotation, fieldDescription, getter, setter);<a name="line.565"></a>
-<span class="sourceLineNo">566</span>        } catch (IllegalArgumentException e) {<a name="line.566"></a>
-<span class="sourceLineNo">567</span>            throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage(), e);<a name="line.567"></a>
-<span class="sourceLineNo">568</span>        }<a name="line.568"></a>
-<span class="sourceLineNo">569</span>    }<a name="line.569"></a>
-<span class="sourceLineNo">570</span>}<a name="line.570"></a>
-<span class="sourceLineNo">571</span><a name="line.571"></a>
+<span class="sourceLineNo">379</span>        // Check for JSR 303 or @Validate annotations<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        if ((this.requiresValidation = Util.requiresValidation(this.type)))<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            return;<a name="line.381"></a>
+<span class="sourceLineNo">382</span><a name="line.382"></a>
+<span class="sourceLineNo">383</span>        // Check for any uniqueness constraints<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        for (JSimpleField jfield : Iterables.filter(this.jfields.values(), JSimpleField.class)) {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            if (jfield.unique) {<a name="line.385"></a>
+<span class="sourceLineNo">386</span>                this.requiresValidation = true;<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                return;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>            }<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        }<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    }<a name="line.390"></a>
+<span class="sourceLineNo">391</span><a name="line.391"></a>
+<span class="sourceLineNo">392</span>    @Override<a name="line.392"></a>
+<span class="sourceLineNo">393</span>    SchemaObjectType toSchemaItem(JSimpleDB jdb) {<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        final SchemaObjectType schemaObjectType = new SchemaObjectType();<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        this.initialize(jdb, schemaObjectType);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        for (JField field : this.jfields.values()) {<a name="line.396"></a>
+<span class="sourceLineNo">397</span>            final SchemaField schemaField = field.toSchemaItem(jdb);<a name="line.397"></a>
+<span class="sourceLineNo">398</span>            schemaObjectType.getSchemaFields().put(schemaField.getStorageId(), schemaField);<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        }<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        for (JCompositeIndex index : this.jcompositeIndexes.values()) {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            final SchemaCompositeIndex schemaIndex = index.toSchemaItem(jdb);<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            schemaObjectType.getSchemaCompositeIndexes().put(index.getStorageId(), schemaIndex);<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        }<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        return schemaObjectType;<a name="line.404"></a>
+<span class="sourceLineNo">405</span>    }<a name="line.405"></a>
+<span class="sourceLineNo">406</span><a name="line.406"></a>
+<span class="sourceLineNo">407</span>    private IllegalArgumentException invalidIndex(org.jsimpledb.annotation.JCompositeIndex annotation, String message) {<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        return new IllegalArgumentException("invalid @JCompositeIndex annotation for index `"<a name="line.408"></a>
+<span class="sourceLineNo">409</span>          + annotation.name() + "' on " + this.type + ": " + message);<a name="line.409"></a>
+<span class="sourceLineNo">410</span>    }<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>    // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts<a name="line.412"></a>
+<span class="sourceLineNo">413</span>    private void addField(JField jfield) {<a name="line.413"></a>
+<span class="sourceLineNo">414</span><a name="line.414"></a>
+<span class="sourceLineNo">415</span>        // Check for storage ID conflict<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        JField other = this.jfields.get(jfield.storageId);<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        if (other != null) {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>            throw new IllegalArgumentException("illegal duplicate use of storage ID "<a name="line.418"></a>
+<span class="sourceLineNo">419</span>              + jfield.storageId + " for both " + other + " and " + jfield);<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        }<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        this.jfields.put(jfield.storageId, jfield);<a name="line.421"></a>
+<span class="sourceLineNo">422</span><a name="line.422"></a>
+<span class="sourceLineNo">423</span>        // Check for name conflict<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        if ((other = this.jfieldsByName.get(jfield.name)) != null)<a name="line.424"></a>
+<span class="sourceLineNo">425</span>            throw new IllegalArgumentException("illegal duplicate use of field name `" + jfield.name + "' in " + this);<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        this.jfieldsByName.put(jfield.name, jfield);<a name="line.426"></a>
+<span class="sourceLineNo">427</span><a name="line.427"></a>
+<span class="sourceLineNo">428</span>        // Logging<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        if (this.log.isTraceEnabled())<a name="line.429"></a>
+<span class="sourceLineNo">430</span>            this.log.trace("added " + jfield + " to object type `" + this.name + "'");<a name="line.430"></a>
+<span class="sourceLineNo">431</span>    }<a name="line.431"></a>
+<span class="sourceLineNo">432</span><a name="line.432"></a>
+<span class="sourceLineNo">433</span>    // Get field name, deriving it from the getter property name if necessary<a name="line.433"></a>
+<span class="sourceLineNo">434</span>    private String getFieldName(String fieldName, AnnotationScanner&lt;T, ?&gt;.MethodInfo info, String description) {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        if (fieldName.length() &gt; 0)<a name="line.435"></a>
+<span class="sourceLineNo">436</span>            return fieldName;<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        try {<a name="line.437"></a>
+<span class="sourceLineNo">438</span>            return info.getMethodPropertyName();<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        } catch (IllegalArgumentException e) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            throw new IllegalArgumentException("invalid " + description + ": can't infer field name: " + e, e);<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        }<a name="line.441"></a>
+<span class="sourceLineNo">442</span>    }<a name="line.442"></a>
+<span class="sourceLineNo">443</span><a name="line.443"></a>
+<span class="sourceLineNo">444</span>    // Get the n'th generic type parameter<a name="line.444"></a>
+<span class="sourceLineNo">445</span>    private Type getParameterType(String description, Method method, int index) {<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        try {<a name="line.446"></a>
+<span class="sourceLineNo">447</span>            return Util.getTypeParameter(method.getGenericReturnType(), index);<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        } catch (IllegalArgumentException e) {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>            throw new IllegalArgumentException("invalid " + description + ": invalid method return type: " + e.getMessage(), e);<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        }<a name="line.450"></a>
+<span class="sourceLineNo">451</span>    }<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>    // Create a simple field, either regular object field or sub-field of complex field<a name="line.453"></a>
+<span class="sourceLineNo">454</span>    @SuppressWarnings("unchecked")<a name="line.454"></a>
+<span class="sourceLineNo">455</span>    private JSimpleField createSimpleField(String description, TypeToken&lt;?&gt; fieldTypeToken, String fieldName,<a name="line.455"></a>
+<span class="sourceLineNo">456</span>      int storageId, org.jsimpledb.annotation.JField annotation, Method getter, Method setter, String fieldDescription) {<a name="line.456"></a>
+<span class="sourceLineNo">457</span><a name="line.457"></a>
+<span class="sourceLineNo">458</span>        // Get explicit type name, if any<a name="line.458"></a>
+<span class="sourceLineNo">459</span>        final String typeName = annotation.type().length() &gt; 0 ? annotation.type() : null;<a name="line.459"></a>
+<span class="sourceLineNo">460</span><a name="line.460"></a>
+<span class="sourceLineNo">461</span>        // Include containing type for annotation description; with autogenProperties it can be more than one<a name="line.461"></a>
+<span class="sourceLineNo">462</span>        description += " in " + this.type;<a name="line.462"></a>
+<span class="sourceLineNo">463</span><a name="line.463"></a>
+<span class="sourceLineNo">464</span>        // Complex sub-field?<a name="line.464"></a>
+<span class="sourceLineNo">465</span>        final boolean isSubField = getter == null;<a name="line.465"></a>
+<span class="sourceLineNo">466</span><a name="line.466"></a>
+<span class="sourceLineNo">467</span>        // Sanity check annotation<a name="line.467"></a>
+<span class="sourceLineNo">468</span>        if (isSubField &amp;&amp; annotation.unique())<a name="line.468"></a>
+<span class="sourceLineNo">469</span>            throw new IllegalArgumentException("invalid " + description + ": unique() constraint not allowed on complex sub-field");<a name="line.469"></a>
+<span class="sourceLineNo">470</span>        if (annotation.uniqueExclude().length &gt; 0 &amp;&amp; !annotation.unique())<a name="line.470"></a>
+<span class="sourceLineNo">471</span>            throw new IllegalArgumentException("invalid " + description + ": use of uniqueExclude() requires unique = true");<a name="line.471"></a>
+<span class="sourceLineNo">472</span>        if (annotation.uniqueExcludeNull() &amp;&amp; !annotation.unique())<a name="line.472"></a>
+<span class="sourceLineNo">473</span>            throw new IllegalArgumentException("invalid " + description + ": use of uniqueExcludeNull() requires unique = true");<a name="line.473"></a>
+<span class="sourceLineNo">474</span><a name="line.474"></a>
+<span class="sourceLineNo">475</span>        // See if field type encompasses one or more JClass types and is therefore a reference type<a name="line.475"></a>
+<span class="sourceLineNo">476</span>        boolean isReferenceType = false;<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        for (JClass&lt;?&gt; jclass : this.jdb.jclasses.values()) {<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            if (fieldTypeToken.getRawType().isAssignableFrom(jclass.type)) {<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                isReferenceType = true;<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                break;<a name="line.480"></a>
+<span class="sourceLineNo">481</span>            }<a name="line.481"></a>
+<span class="sourceLineNo">482</span>        }<a name="line.482"></a>
+<span class="sourceLineNo">483</span><a name="line.483"></a>
+<span class="sourceLineNo">484</span>        // See if field type is a simple type, known either by explicitly-given name or type<a name="line.484"></a>
+<span class="sourceLineNo">485</span>        FieldType&lt;?&gt; nonReferenceType = null;<a name="line.485"></a>
+<span class="sourceLineNo">486</span>        if (typeName != null) {<a name="line.486"></a>
+<span class="sourceLineNo">487</span><a name="line.487"></a>
+<span class="sourceLineNo">488</span>            // Field type is explicitly specified by name<a name="line.488"></a>
+<span class="sourceLineNo">489</span>            if ((nonReferenceType = this.jdb.db.getFieldTypeRegistry().getFieldType(typeName)) == null)<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                throw new IllegalArgumentException("invalid " + description + ": unknown simple field type `" + typeName + "'");<a name="line.490"></a>
+<span class="sourceLineNo">491</span><a name="line.491"></a>
+<span class="sourceLineNo">492</span>            // Verify field type matches what we expect<a name="line.492"></a>
+<span class="sourceLineNo">493</span>            final TypeToken&lt;?&gt; expectedType = isSubField ? nonReferenceType.getTypeToken().wrap() : nonReferenceType.getTypeToken();<a name="line.493"></a>
+<span class="sourceLineNo">494</span>            if (!expectedType.equals(fieldTypeToken)) {<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                throw new IllegalArgumentException("invalid " + description + ": field type `" + typeName<a name="line.495"></a>
+<span class="sourceLineNo">496</span>                  + "' supports values of type " + nonReferenceType.getTypeToken() + " but " + fieldTypeToken<a name="line.496"></a>
+<span class="sourceLineNo">497</span>                  + " is required (according to the getter method's return type)");<a name="line.497"></a>
+<span class="sourceLineNo">498</span>            }<a name="line.498"></a>
+<span class="sourceLineNo">499</span>        } else {<a name="line.499"></a>
+<span class="sourceLineNo">500</span><a name="line.500"></a>
+<span class="sourceLineNo">501</span>            // Try to find a field type supporting getter method return type<a name="line.501"></a>
+<span class="sourceLineNo">502</span>            final List&lt;? extends FieldType&lt;?&gt;&gt; fieldTypes = this.jdb.db.getFieldTypeRegistry().getFieldTypes(fieldTypeToken);<a name="line.502"></a>
+<span class="sourceLineNo">503</span>            switch (fieldTypes.size()) {<a name="line.503"></a>
+<span class="sourceLineNo">504</span>            case 0:<a name="line.504"></a>
+<span class="sourceLineNo">505</span>                nonReferenceType = null;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>                break;<a name="line.506"></a>
+<span class="sourceLineNo">507</span>            case 1:<a name="line.507"></a>
+<span class="sourceLineNo">508</span>                nonReferenceType = fieldTypes.get(0);<a name="line.508"></a>
+<span class="sourceLineNo">509</span>                break;<a name="line.509"></a>
+<span class="sourceLineNo">510</span>            default:<a name="line.510"></a>
+<span class="sourceLineNo">511</span>                if (!isReferenceType) {<a name="line.511"></a>
+<span class="sourceLineNo">512</span>                    throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"<a name="line.512"></a>
+<span class="sourceLineNo">513</span>                      + " because type " + fieldTypeToken + " is supported by multiple registered simple field types: "<a name="line.513"></a>
+<span class="sourceLineNo">514</span>                      + fieldTypes);<a name="line.514"></a>
+<span class="sourceLineNo">515</span>                }<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                break;<a name="line.516"></a>
+<span class="sourceLineNo">517</span>            }<a name="line.517"></a>
+<span class="sourceLineNo">518</span>        }<a name="line.518"></a>
+<span class="sourceLineNo">519</span><a name="line.519"></a>
+<span class="sourceLineNo">520</span>        // Detect enum types<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        final Class&lt;? extends Enum&lt;?&gt;&gt; enumType = Enum.class.isAssignableFrom(fieldTypeToken.getRawType()) ?<a name="line.521"></a>
+<span class="sourceLineNo">522</span>          (Class&lt;? extends Enum&lt;?&gt;&gt;)fieldTypeToken.getRawType().asSubclass(Enum.class) : null;<a name="line.522"></a>
+<span class="sourceLineNo">523</span><a name="line.523"></a>
+<span class="sourceLineNo">524</span>        // If field type neither refers to a JClass type, nor is a registered field type, nor is an enum type, fail<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        if (!isReferenceType &amp;&amp; nonReferenceType == null &amp;&amp; enumType == null) {<a name="line.525"></a>
+<span class="sourceLineNo">526</span>            throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"<a name="line.526"></a>
+<span class="sourceLineNo">527</span>              + " because no known type supports values of type " + fieldTypeToken);<a name="line.527"></a>
+<span class="sourceLineNo">528</span>        }<a name="line.528"></a>
+<span class="sourceLineNo">529</span><a name="line.529"></a>
+<span class="sourceLineNo">530</span>        // Handle ambiguity between reference vs. non-reference<a name="line.530"></a>
+<span class="sourceLineNo">531</span>        if (isReferenceType &amp;&amp; nonReferenceType != null) {<a name="line.531"></a>
+<span class="sourceLineNo">532</span><a name="line.532"></a>
+<span class="sourceLineNo">533</span>            // If an explicit type name was provided, assume they want the specified non-reference type<a name="line.533"></a>
+<span class="sourceLineNo">534</span>            if (typeName != null)<a name="line.534"></a>
+<span class="sourceLineNo">535</span>                isReferenceType = false;<a name="line.535"></a>
+<span class="sourceLineNo">536</span>            else {<a name="line.536"></a>
+<span class="sourceLineNo">537</span>                throw new IllegalArgumentException("invalid " + description + ": an explicit type() must be specified"<a name="line.537"></a>
+<span class="sourceLineNo">538</span>                  + " because type " + fieldTypeToken + " is ambiguous, being both a @" + JSimpleClass.class.getSimpleName()<a name="line.538"></a>
+<span class="sourceLineNo">539</span>                  + " reference type and a simple Java type supported by type `" + nonReferenceType + "'");<a name="line.539"></a>
+<span class="sourceLineNo">540</span>            }<a name="line.540"></a>
+<span class="sourceLineNo">541</span>        }<a name="line.541"></a>
+<span class="sourceLineNo">542</span><a name="line.542"></a>
+<span class="sourceLineNo">543</span>        // Sanity check annotation some more<a name="line.543"></a>
+<span class="sourceLineNo">544</span>        if (!isReferenceType &amp;&amp; annotation.onDelete() != DeleteAction.EXCEPTION)<a name="line.544"></a>
+<span class="sourceLineNo">545</span>            throw new IllegalArgumentException("invalid " + description + ": onDelete() only allowed on reference fields");<a name="line.545"></a>
+<span class="sourceLineNo">546</span>        if (!isReferenceType &amp;&amp; annotation.cascadeDelete())<a name="line.546"></a>
+<span class="sourceLineNo">547</span>            throw new IllegalArgumentException("invalid " + description + ": cascadeDelete() only allowed on reference fields");<a name="line.547"></a>
+<span class="sourceLineNo">548</span>        if (!isReferenceType &amp;&amp; annotation.unique() &amp;&amp; !annotation.indexed())<a name="line.548"></a>
+<span class="sourceLineNo">549</span>            throw new IllegalArgumentException("invalid " + description + ": unique() constraint requires field to be indexed");<a name="line.549"></a>
+<span class="sourceLineNo">550</span>        if (nonReferenceType != null &amp;&amp; nonReferenceType.getTypeToken().isPrimitive() &amp;&amp; annotation.uniqueExcludeNull()) {<a name="line.550"></a>
+<span class="sourceLineNo">551</span>            throw new IllegalArgumentException("invalid " + description + ": uniqueExcludeNull() is incompatible with fields"<a name="line.551"></a>
+<span class="sourceLineNo">552</span>              + " having primitive type");<a name="line.552"></a>
+<span class="sourceLineNo">553</span>        }<a name="line.553"></a>
+<span class="sourceLineNo">554</span><a name="line.554"></a>
+<span class="sourceLineNo">555</span>        // Create simple, enum, or reference field<a name="line.555"></a>
+<span class="sourceLineNo">556</span>        try {<a name="line.556"></a>
+<span class="sourceLineNo">557</span>            return<a name="line.557"></a>
+<span class="sourceLineNo">558</span>              isReferenceType ?<a name="line.558"></a>
+<span class="sourceLineNo">559</span>                new JReferenceField(this.jdb, fieldName, storageId, fieldDescription, fieldTypeToken, annotation, getter, setter) :<a name="line.559"></a>
+<span class="sourceLineNo">560</span>              enumType != null ?<a name="line.560"></a>
+<span class="sourceLineNo">561</span>                new JEnumField(this.jdb, fieldName, storageId, enumType, annotation, fieldDescription, getter, setter) :<a name="line.561"></a>
+<span class="sourceLineNo">562</span>                new JSimpleField(this.jdb, fieldName, storageId, fieldTypeToken,<a name="line.562"></a>
+<span class="sourceLineNo">563</span>                  nonReferenceType, annotation.indexed(), annotation, fieldDescription, getter, setter);<a name="line.563"></a>
+<span class="sourceLineNo">564</span>        } catch (IllegalArgumentException e) {<a name="line.564"></a>
+<span class="sourceLineNo">565</span>            throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage(), e);<a name="line.565"></a>
+<span class="sourceLineNo">566</span>        }<a name="line.566"></a>
+<span class="sourceLineNo">567</span>    }<a name="line.567"></a>
+<span class="sourceLineNo">568</span>}<a name="line.568"></a>
+<span class="sourceLineNo">569</span><a name="line.569"></a>
 
 
 

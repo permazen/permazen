@@ -9,223 +9,221 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.ArrayList;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.Arrays;<a name="line.11"></a>
+<span class="sourceLineNo">008</span>import java.util.ArrayList;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.Arrays;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.jsimpledb.util.ByteUtil;<a name="line.11"></a>
 <span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.util.ByteUtil;<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>/**<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * Utility methods for dealing with {@link KeyFilter}s.<a name="line.16"></a>
-<span class="sourceLineNo">017</span> *<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * @see KeyFilter<a name="line.18"></a>
-<span class="sourceLineNo">019</span> */<a name="line.19"></a>
-<span class="sourceLineNo">020</span>public final class KeyFilterUtil {<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>    private KeyFilterUtil() {<a name="line.22"></a>
-<span class="sourceLineNo">023</span>    }<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>    /**<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     * Create a {@link KeyFilter} that represents the union of the given instances.<a name="line.26"></a>
-<span class="sourceLineNo">027</span>     *<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * @param keyFilters instances to unify<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     * @return the union of the given {@code keyFilters}<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     * @throws IllegalArgumentException if {@code keyFilters} is empty<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @throws IllegalArgumentException if {@code keyFilters} or any element in {@code keyFilters} is null<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     */<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    public static KeyFilter union(KeyFilter... keyFilters) {<a name="line.33"></a>
-<span class="sourceLineNo">034</span>        if (keyFilters == null)<a name="line.34"></a>
-<span class="sourceLineNo">035</span>            throw new IllegalArgumentException("null keyFilters");<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        switch (keyFilters.length) {<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        case 0:<a name="line.37"></a>
-<span class="sourceLineNo">038</span>            throw new IllegalArgumentException("empty keyFilters");<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        case 1:<a name="line.39"></a>
-<span class="sourceLineNo">040</span>            return keyFilters[0];<a name="line.40"></a>
-<span class="sourceLineNo">041</span>        default:<a name="line.41"></a>
-<span class="sourceLineNo">042</span>            break;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        }<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>        // Optimize when all are KeyRanges instances<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        boolean allKeyRanges = true;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        for (KeyFilter keyFilter : keyFilters) {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>            if (keyFilter == null)<a name="line.48"></a>
-<span class="sourceLineNo">049</span>                throw new IllegalArgumentException("null keyFilter");<a name="line.49"></a>
-<span class="sourceLineNo">050</span>            if (!(keyFilter instanceof KeyRanges))<a name="line.50"></a>
-<span class="sourceLineNo">051</span>                allKeyRanges = false;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        }<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        if (allKeyRanges) {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>            KeyRanges union = (KeyRanges)keyFilters[0];<a name="line.54"></a>
-<span class="sourceLineNo">055</span>            for (int i = 1; i &lt; keyFilters.length; i++)<a name="line.55"></a>
-<span class="sourceLineNo">056</span>                union = union.union((KeyRanges)keyFilters[i]);<a name="line.56"></a>
-<span class="sourceLineNo">057</span>            return union;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        }<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>        // Can't optimize<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        return new UnionKeyFilter(keyFilters);<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * Create a {@link KeyFilter} that represents the intersection of the given instances.<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * @param keyFilters instances to intersect<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * @return the intersection of the given {@code keyFilters}<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * @throws IllegalArgumentException if {@code keyFilters} is empty<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     * @throws IllegalArgumentException if {@code keyFilters} or any element in {@code keyFilters} is null<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    public static KeyFilter intersection(KeyFilter... keyFilters) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        if (keyFilters == null)<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            throw new IllegalArgumentException("null keyFilters");<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        switch (keyFilters.length) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        case 0:<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            throw new IllegalArgumentException("empty keyFilters");<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        case 1:<a name="line.78"></a>
-<span class="sourceLineNo">079</span>            return keyFilters[0];<a name="line.79"></a>
-<span class="sourceLineNo">080</span>        default:<a name="line.80"></a>
-<span class="sourceLineNo">081</span>            break;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        }<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>        // Optimize when all are KeyRanges instances<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        boolean allKeyRanges = true;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        for (KeyFilter keyFilter : keyFilters) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            if (keyFilter == null)<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                throw new IllegalArgumentException("null keyFilter");<a name="line.88"></a>
-<span class="sourceLineNo">089</span>            if (!(keyFilter instanceof KeyRanges))<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                allKeyRanges = false;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        if (allKeyRanges) {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            KeyRanges intersection = (KeyRanges)keyFilters[0];<a name="line.93"></a>
-<span class="sourceLineNo">094</span>            for (int i = 1; i &lt; keyFilters.length; i++)<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                intersection = intersection.intersection((KeyRanges)keyFilters[i]);<a name="line.95"></a>
-<span class="sourceLineNo">096</span>            return intersection;<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        }<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>        // Can't optimize<a name="line.99"></a>
-<span class="sourceLineNo">100</span>        return new IntersectionKeyFilter(keyFilters);<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>    /**<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * Determine if the given instance is empty, i.e., contains no keys.<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     *<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * @param keyFilter instance to check<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * @return true if filter is empty<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * @throws IllegalArgumentException if {@code keyFilter} is null<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    public static boolean isEmpty(KeyFilter keyFilter) {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        if (keyFilter == null)<a name="line.111"></a>
-<span class="sourceLineNo">112</span>            throw new IllegalArgumentException("null keyFilter");<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        return keyFilter.seekHigher(ByteUtil.EMPTY) == null;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>    private static byte[] seek(KeyFilter[] keyFilters, byte[] key, boolean seekHigher, boolean preferHigher) {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        if (key == null)<a name="line.117"></a>
-<span class="sourceLineNo">118</span>            throw new IllegalArgumentException("null key");<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        assert keyFilters.length &gt; 0;<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        final boolean preferNull = seekHigher == preferHigher;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        byte[] best = null;<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        for (int i = 0; i &lt; keyFilters.length; i++) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            final KeyFilter keyFilter = keyFilters[i];<a name="line.123"></a>
-<span class="sourceLineNo">124</span>            final byte[] next = seekHigher ? keyFilter.seekHigher(key) : keyFilter.seekLower(key);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            if (i == 0)<a name="line.125"></a>
-<span class="sourceLineNo">126</span>                best = next;<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            if (next == null) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>                if (preferNull)<a name="line.128"></a>
-<span class="sourceLineNo">129</span>                    return null;<a name="line.129"></a>
-<span class="sourceLineNo">130</span>                continue;<a name="line.130"></a>
-<span class="sourceLineNo">131</span>            }<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            assert next.length != 0 || key.length == 0;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>            if (i &gt; 0 &amp;&amp; best != null) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>                final int diff = (!seekHigher &amp;&amp; next.length == 0) ? 1 : ByteUtil.compare(next, best);<a name="line.134"></a>
-<span class="sourceLineNo">135</span>                if (preferHigher ? diff &lt; 0 : diff &gt; 0)<a name="line.135"></a>
-<span class="sourceLineNo">136</span>                    continue;<a name="line.136"></a>
-<span class="sourceLineNo">137</span>            } else<a name="line.137"></a>
-<span class="sourceLineNo">138</span>                assert i == 0 || !preferNull;<a name="line.138"></a>
-<span class="sourceLineNo">139</span>            best = next;<a name="line.139"></a>
-<span class="sourceLineNo">140</span>        }<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        return best;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>    }<a name="line.142"></a>
+<span class="sourceLineNo">013</span>/**<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * Utility methods for dealing with {@link KeyFilter}s.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> *<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * @see KeyFilter<a name="line.16"></a>
+<span class="sourceLineNo">017</span> */<a name="line.17"></a>
+<span class="sourceLineNo">018</span>public final class KeyFilterUtil {<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>    private KeyFilterUtil() {<a name="line.20"></a>
+<span class="sourceLineNo">021</span>    }<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>    /**<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * Create a {@link KeyFilter} that represents the union of the given instances.<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     *<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * @param keyFilters instances to unify<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * @return the union of the given {@code keyFilters}<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     * @throws IllegalArgumentException if {@code keyFilters} is empty<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @throws IllegalArgumentException if {@code keyFilters} or any element in {@code keyFilters} is null<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    public static KeyFilter union(KeyFilter... keyFilters) {<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        if (keyFilters == null)<a name="line.32"></a>
+<span class="sourceLineNo">033</span>            throw new IllegalArgumentException("null keyFilters");<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        switch (keyFilters.length) {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        case 0:<a name="line.35"></a>
+<span class="sourceLineNo">036</span>            throw new IllegalArgumentException("empty keyFilters");<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        case 1:<a name="line.37"></a>
+<span class="sourceLineNo">038</span>            return keyFilters[0];<a name="line.38"></a>
+<span class="sourceLineNo">039</span>        default:<a name="line.39"></a>
+<span class="sourceLineNo">040</span>            break;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        }<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>        // Optimize when all are KeyRanges instances<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        boolean allKeyRanges = true;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        for (KeyFilter keyFilter : keyFilters) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            if (keyFilter == null)<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                throw new IllegalArgumentException("null keyFilter");<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            if (!(keyFilter instanceof KeyRanges))<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                allKeyRanges = false;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        }<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        if (allKeyRanges) {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            KeyRanges union = (KeyRanges)keyFilters[0];<a name="line.52"></a>
+<span class="sourceLineNo">053</span>            for (int i = 1; i &lt; keyFilters.length; i++)<a name="line.53"></a>
+<span class="sourceLineNo">054</span>                union = union.union((KeyRanges)keyFilters[i]);<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            return union;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        }<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>        // Can't optimize<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        return new UnionKeyFilter(keyFilters);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * Create a {@link KeyFilter} that represents the intersection of the given instances.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     *<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @param keyFilters instances to intersect<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * @return the intersection of the given {@code keyFilters}<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @throws IllegalArgumentException if {@code keyFilters} is empty<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @throws IllegalArgumentException if {@code keyFilters} or any element in {@code keyFilters} is null<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    public static KeyFilter intersection(KeyFilter... keyFilters) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        if (keyFilters == null)<a name="line.71"></a>
+<span class="sourceLineNo">072</span>            throw new IllegalArgumentException("null keyFilters");<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        switch (keyFilters.length) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        case 0:<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            throw new IllegalArgumentException("empty keyFilters");<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        case 1:<a name="line.76"></a>
+<span class="sourceLineNo">077</span>            return keyFilters[0];<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        default:<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            break;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        }<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>        // Optimize when all are KeyRanges instances<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        boolean allKeyRanges = true;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        for (KeyFilter keyFilter : keyFilters) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            if (keyFilter == null)<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                throw new IllegalArgumentException("null keyFilter");<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            if (!(keyFilter instanceof KeyRanges))<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                allKeyRanges = false;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        }<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        if (allKeyRanges) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            KeyRanges intersection = (KeyRanges)keyFilters[0];<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            for (int i = 1; i &lt; keyFilters.length; i++)<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                intersection = intersection.intersection((KeyRanges)keyFilters[i]);<a name="line.93"></a>
+<span class="sourceLineNo">094</span>            return intersection;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>        // Can't optimize<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        return new IntersectionKeyFilter(keyFilters);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    /**<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * Determine if the given instance is empty, i.e., contains no keys.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     *<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @param keyFilter instance to check<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * @return true if filter is empty<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @throws IllegalArgumentException if {@code keyFilter} is null<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    public static boolean isEmpty(KeyFilter keyFilter) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        if (keyFilter == null)<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            throw new IllegalArgumentException("null keyFilter");<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        return keyFilter.seekHigher(ByteUtil.EMPTY) == null;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    private static byte[] seek(KeyFilter[] keyFilters, byte[] key, boolean seekHigher, boolean preferHigher) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        if (key == null)<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            throw new IllegalArgumentException("null key");<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        assert keyFilters.length &gt; 0;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        final boolean preferNull = seekHigher == preferHigher;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        byte[] best = null;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        for (int i = 0; i &lt; keyFilters.length; i++) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            final KeyFilter keyFilter = keyFilters[i];<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            final byte[] next = seekHigher ? keyFilter.seekHigher(key) : keyFilter.seekLower(key);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            if (i == 0)<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                best = next;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>            if (next == null) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                if (preferNull)<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                    return null;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                continue;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            }<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            assert next.length != 0 || key.length == 0;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            if (i &gt; 0 &amp;&amp; best != null) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                final int diff = (!seekHigher &amp;&amp; next.length == 0) ? 1 : ByteUtil.compare(next, best);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                if (preferHigher ? diff &lt; 0 : diff &gt; 0)<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                    continue;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            } else<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                assert i == 0 || !preferNull;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            best = next;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        return best;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>// UnionKeyFilter<a name="line.142"></a>
 <span class="sourceLineNo">143</span><a name="line.143"></a>
-<span class="sourceLineNo">144</span>// UnionKeyFilter<a name="line.144"></a>
+<span class="sourceLineNo">144</span>    private static class UnionKeyFilter implements KeyFilter {<a name="line.144"></a>
 <span class="sourceLineNo">145</span><a name="line.145"></a>
-<span class="sourceLineNo">146</span>    private static class UnionKeyFilter implements KeyFilter {<a name="line.146"></a>
+<span class="sourceLineNo">146</span>        private final KeyFilter[] keyFilters;<a name="line.146"></a>
 <span class="sourceLineNo">147</span><a name="line.147"></a>
-<span class="sourceLineNo">148</span>        private final KeyFilter[] keyFilters;<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>        UnionKeyFilter(KeyFilter[] keyFilters) {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>            assert keyFilters.length &gt;= 2;<a name="line.151"></a>
-<span class="sourceLineNo">152</span>            final ArrayList&lt;KeyFilter&gt; list = new ArrayList&lt;&gt;();<a name="line.152"></a>
-<span class="sourceLineNo">153</span>            for (KeyFilter keyFilter : keyFilters) {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>                if (keyFilter instanceof UnionKeyFilter)<a name="line.154"></a>
-<span class="sourceLineNo">155</span>                    list.addAll(Arrays.asList(((UnionKeyFilter)keyFilter).keyFilters));<a name="line.155"></a>
-<span class="sourceLineNo">156</span>                else<a name="line.156"></a>
-<span class="sourceLineNo">157</span>                    list.add(keyFilter);<a name="line.157"></a>
-<span class="sourceLineNo">158</span>            }<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            this.keyFilters = list.toArray(new KeyFilter[list.size()]);<a name="line.159"></a>
-<span class="sourceLineNo">160</span>        }<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>        @Override<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        public boolean contains(byte[] key) {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>            for (KeyFilter keyFilter : this.keyFilters) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>                if (keyFilter.contains(key))<a name="line.165"></a>
-<span class="sourceLineNo">166</span>                    return true;<a name="line.166"></a>
-<span class="sourceLineNo">167</span>            }<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            return false;<a name="line.168"></a>
-<span class="sourceLineNo">169</span>        }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>        @Override<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        public byte[] seekHigher(byte[] key) {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>            return KeyFilterUtil.seek(this.keyFilters, key, true, false);<a name="line.173"></a>
-<span class="sourceLineNo">174</span>        }<a name="line.174"></a>
-<span class="sourceLineNo">175</span><a name="line.175"></a>
-<span class="sourceLineNo">176</span>        @Override<a name="line.176"></a>
-<span class="sourceLineNo">177</span>        public byte[] seekLower(byte[] key) {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>            return KeyFilterUtil.seek(this.keyFilters, key, false, true);<a name="line.178"></a>
-<span class="sourceLineNo">179</span>        }<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    }<a name="line.180"></a>
+<span class="sourceLineNo">148</span>        UnionKeyFilter(KeyFilter[] keyFilters) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            assert keyFilters.length &gt;= 2;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            final ArrayList&lt;KeyFilter&gt; list = new ArrayList&lt;&gt;();<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            for (KeyFilter keyFilter : keyFilters) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                if (keyFilter instanceof UnionKeyFilter)<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                    list.addAll(Arrays.asList(((UnionKeyFilter)keyFilter).keyFilters));<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                else<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                    list.add(keyFilter);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            }<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            this.keyFilters = list.toArray(new KeyFilter[list.size()]);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        }<a name="line.158"></a>
+<span class="sourceLineNo">159</span><a name="line.159"></a>
+<span class="sourceLineNo">160</span>        @Override<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        public boolean contains(byte[] key) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            for (KeyFilter keyFilter : this.keyFilters) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                if (keyFilter.contains(key))<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                    return true;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>            }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            return false;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>        @Override<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        public byte[] seekHigher(byte[] key) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            return KeyFilterUtil.seek(this.keyFilters, key, true, false);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>        @Override<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        public byte[] seekLower(byte[] key) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>            return KeyFilterUtil.seek(this.keyFilters, key, false, true);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        }<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>// IntersectionKeyFilter<a name="line.180"></a>
 <span class="sourceLineNo">181</span><a name="line.181"></a>
-<span class="sourceLineNo">182</span>// IntersectionKeyFilter<a name="line.182"></a>
+<span class="sourceLineNo">182</span>    private static class IntersectionKeyFilter implements KeyFilter {<a name="line.182"></a>
 <span class="sourceLineNo">183</span><a name="line.183"></a>
-<span class="sourceLineNo">184</span>    private static class IntersectionKeyFilter implements KeyFilter {<a name="line.184"></a>
+<span class="sourceLineNo">184</span>        private final KeyFilter[] keyFilters;<a name="line.184"></a>
 <span class="sourceLineNo">185</span><a name="line.185"></a>
-<span class="sourceLineNo">186</span>        private final KeyFilter[] keyFilters;<a name="line.186"></a>
-<span class="sourceLineNo">187</span><a name="line.187"></a>
-<span class="sourceLineNo">188</span>        IntersectionKeyFilter(KeyFilter[] keyFilters) {<a name="line.188"></a>
-<span class="sourceLineNo">189</span>            assert keyFilters.length &gt;= 2;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>            final ArrayList&lt;KeyFilter&gt; list = new ArrayList&lt;&gt;();<a name="line.190"></a>
-<span class="sourceLineNo">191</span>            for (KeyFilter keyFilter : keyFilters) {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>                if (keyFilter instanceof IntersectionKeyFilter)<a name="line.192"></a>
-<span class="sourceLineNo">193</span>                    list.addAll(Arrays.asList(((IntersectionKeyFilter)keyFilter).keyFilters));<a name="line.193"></a>
-<span class="sourceLineNo">194</span>                else<a name="line.194"></a>
-<span class="sourceLineNo">195</span>                    list.add(keyFilter);<a name="line.195"></a>
-<span class="sourceLineNo">196</span>            }<a name="line.196"></a>
-<span class="sourceLineNo">197</span>            this.keyFilters = list.toArray(new KeyFilter[list.size()]);<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        }<a name="line.198"></a>
-<span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>        @Override<a name="line.200"></a>
-<span class="sourceLineNo">201</span>        public boolean contains(byte[] key) {<a name="line.201"></a>
-<span class="sourceLineNo">202</span>            for (KeyFilter keyFilter : this.keyFilters) {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>                if (!keyFilter.contains(key))<a name="line.203"></a>
-<span class="sourceLineNo">204</span>                    return false;<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            }<a name="line.205"></a>
-<span class="sourceLineNo">206</span>            return true;<a name="line.206"></a>
-<span class="sourceLineNo">207</span>        }<a name="line.207"></a>
-<span class="sourceLineNo">208</span><a name="line.208"></a>
-<span class="sourceLineNo">209</span>        @Override<a name="line.209"></a>
-<span class="sourceLineNo">210</span>        public byte[] seekHigher(byte[] key) {<a name="line.210"></a>
-<span class="sourceLineNo">211</span>            return KeyFilterUtil.seek(this.keyFilters, key, true, true);<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        }<a name="line.212"></a>
-<span class="sourceLineNo">213</span><a name="line.213"></a>
-<span class="sourceLineNo">214</span>        @Override<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        public byte[] seekLower(byte[] key) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>            return KeyFilterUtil.seek(this.keyFilters, key, false, false);<a name="line.216"></a>
-<span class="sourceLineNo">217</span>        }<a name="line.217"></a>
-<span class="sourceLineNo">218</span>    }<a name="line.218"></a>
-<span class="sourceLineNo">219</span>}<a name="line.219"></a>
-<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">186</span>        IntersectionKeyFilter(KeyFilter[] keyFilters) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            assert keyFilters.length &gt;= 2;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            final ArrayList&lt;KeyFilter&gt; list = new ArrayList&lt;&gt;();<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            for (KeyFilter keyFilter : keyFilters) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                if (keyFilter instanceof IntersectionKeyFilter)<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                    list.addAll(Arrays.asList(((IntersectionKeyFilter)keyFilter).keyFilters));<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                else<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                    list.add(keyFilter);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            }<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            this.keyFilters = list.toArray(new KeyFilter[list.size()]);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        }<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>        @Override<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        public boolean contains(byte[] key) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            for (KeyFilter keyFilter : this.keyFilters) {<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                if (!keyFilter.contains(key))<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                    return false;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>            }<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            return true;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        }<a name="line.205"></a>
+<span class="sourceLineNo">206</span><a name="line.206"></a>
+<span class="sourceLineNo">207</span>        @Override<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        public byte[] seekHigher(byte[] key) {<a name="line.208"></a>
+<span class="sourceLineNo">209</span>            return KeyFilterUtil.seek(this.keyFilters, key, true, true);<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        }<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>        @Override<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        public byte[] seekLower(byte[] key) {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            return KeyFilterUtil.seek(this.keyFilters, key, false, false);<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        }<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    }<a name="line.216"></a>
+<span class="sourceLineNo">217</span>}<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
 
 
 

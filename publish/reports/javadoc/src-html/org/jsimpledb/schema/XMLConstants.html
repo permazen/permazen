@@ -9,45 +9,43 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.schema;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.schema;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import javax.xml.namespace.QName;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import javax.xml.namespace.QName;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>/**<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * XML tag and element names.<a name="line.13"></a>
-<span class="sourceLineNo">014</span> */<a name="line.14"></a>
-<span class="sourceLineNo">015</span>public interface XMLConstants {<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>    // Elements<a name="line.17"></a>
-<span class="sourceLineNo">018</span>    QName COMPOSITE_INDEX_TAG = new QName("CompositeIndex");<a name="line.18"></a>
-<span class="sourceLineNo">019</span>    QName COUNTER_FIELD_TAG = new QName("CounterField");<a name="line.19"></a>
-<span class="sourceLineNo">020</span>    QName ENUM_FIELD_TAG = new QName("EnumField");<a name="line.20"></a>
-<span class="sourceLineNo">021</span>    QName IDENTIFIER_TAG = new QName("Identifier");<a name="line.21"></a>
-<span class="sourceLineNo">022</span>    QName INDEXED_FIELD_TAG = new QName("IndexedField");<a name="line.22"></a>
-<span class="sourceLineNo">023</span>    QName LIST_FIELD_TAG = new QName("ListField");<a name="line.23"></a>
-<span class="sourceLineNo">024</span>    QName MAP_FIELD_TAG = new QName("MapField");<a name="line.24"></a>
-<span class="sourceLineNo">025</span>    QName OBJECT_TYPES_TAG = new QName("ObjectTypes");<a name="line.25"></a>
-<span class="sourceLineNo">026</span>    QName OBJECT_TYPE_TAG = new QName("ObjectType");<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    QName REFERENCE_FIELD_TAG = new QName("ReferenceField");<a name="line.27"></a>
-<span class="sourceLineNo">028</span>    QName SCHEMA_MODEL_TAG = new QName("Schema");<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    QName SET_FIELD_TAG = new QName("SetField");<a name="line.29"></a>
-<span class="sourceLineNo">030</span>    QName SIMPLE_FIELD_TAG = new QName("SimpleField");<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>    // Attributes<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    QName CASCADE_DELETE_ATTRIBUTE = new QName("cascadeDelete");<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    QName ENCODING_SIGNATURE_ATTRIBUTE = new QName("encodingSignature");<a name="line.34"></a>
-<span class="sourceLineNo">035</span>    QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    QName INDEXED_ATTRIBUTE = new QName("indexed");<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    QName NAME_ATTRIBUTE = new QName("name");<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    QName ON_DELETE_ATTRIBUTE = new QName("onDelete");<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    QName STORAGE_ID_ATTRIBUTE = new QName("storageId");<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    QName TYPE_ATTRIBUTE = new QName("type");<a name="line.40"></a>
-<span class="sourceLineNo">041</span>}<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * XML tag and element names.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>public interface XMLConstants {<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>    // Elements<a name="line.15"></a>
+<span class="sourceLineNo">016</span>    QName COMPOSITE_INDEX_TAG = new QName("CompositeIndex");<a name="line.16"></a>
+<span class="sourceLineNo">017</span>    QName COUNTER_FIELD_TAG = new QName("CounterField");<a name="line.17"></a>
+<span class="sourceLineNo">018</span>    QName ENUM_FIELD_TAG = new QName("EnumField");<a name="line.18"></a>
+<span class="sourceLineNo">019</span>    QName IDENTIFIER_TAG = new QName("Identifier");<a name="line.19"></a>
+<span class="sourceLineNo">020</span>    QName INDEXED_FIELD_TAG = new QName("IndexedField");<a name="line.20"></a>
+<span class="sourceLineNo">021</span>    QName LIST_FIELD_TAG = new QName("ListField");<a name="line.21"></a>
+<span class="sourceLineNo">022</span>    QName MAP_FIELD_TAG = new QName("MapField");<a name="line.22"></a>
+<span class="sourceLineNo">023</span>    QName OBJECT_TYPES_TAG = new QName("ObjectTypes");<a name="line.23"></a>
+<span class="sourceLineNo">024</span>    QName OBJECT_TYPE_TAG = new QName("ObjectType");<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    QName REFERENCE_FIELD_TAG = new QName("ReferenceField");<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    QName SCHEMA_MODEL_TAG = new QName("Schema");<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    QName SET_FIELD_TAG = new QName("SetField");<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    QName SIMPLE_FIELD_TAG = new QName("SimpleField");<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>    // Attributes<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    QName CASCADE_DELETE_ATTRIBUTE = new QName("cascadeDelete");<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    QName ENCODING_SIGNATURE_ATTRIBUTE = new QName("encodingSignature");<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    QName INDEXED_ATTRIBUTE = new QName("indexed");<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    QName NAME_ATTRIBUTE = new QName("name");<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    QName ON_DELETE_ATTRIBUTE = new QName("onDelete");<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    QName STORAGE_ID_ATTRIBUTE = new QName("storageId");<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    QName TYPE_ATTRIBUTE = new QName("type");<a name="line.38"></a>
+<span class="sourceLineNo">039</span>}<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
 
 
 

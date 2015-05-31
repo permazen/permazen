@@ -9,30 +9,28 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
-<span class="sourceLineNo">011</span> * Represents a {@link JObject} for which no Java model type is defined in the current schema.<a name="line.11"></a>
-<span class="sourceLineNo">012</span> *<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * &lt;p&gt;<a name="line.13"></a>
-<span class="sourceLineNo">014</span> * Instances of this class are used to represent objects with a type that is defined in some older schema version<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * but not in the current schema version. This situation can occur when a new schema is added that drops a previously<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * defined Java model type, yet for which objects of that type still exist in the database. If encountered, these<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * objects will be represented by instances of this class.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * &lt;/p&gt;<a name="line.18"></a>
-<span class="sourceLineNo">019</span> *<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * &lt;p&gt;<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * All object fields are still accessible, but they must be accessed directly via the {@link JTransaction} field access methods<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * with {@code upgradeVersion} set to false (otherwise, a {@link org.jsimpledb.core.TypeNotInSchemaVersionException} is thrown).<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * &lt;/p&gt;<a name="line.23"></a>
-<span class="sourceLineNo">024</span> */<a name="line.24"></a>
-<span class="sourceLineNo">025</span>public abstract class UntypedJObject implements JObject {<a name="line.25"></a>
-<span class="sourceLineNo">026</span>}<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">008</span>/**<a name="line.8"></a>
+<span class="sourceLineNo">009</span> * Represents a {@link JObject} for which no Java model type is defined in the current schema.<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * &lt;p&gt;<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * Instances of this class are used to represent objects with a type that is defined in some older schema version<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * but not in the current schema version. This situation can occur when a new schema is added that drops a previously<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * defined Java model type, yet for which objects of that type still exist in the database. If encountered, these<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * objects will be represented by instances of this class.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * &lt;/p&gt;<a name="line.16"></a>
+<span class="sourceLineNo">017</span> *<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * &lt;p&gt;<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * All object fields are still accessible, but they must be accessed directly via the {@link JTransaction} field access methods<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * with {@code upgradeVersion} set to false (otherwise, a {@link org.jsimpledb.core.TypeNotInSchemaVersionException} is thrown).<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * &lt;/p&gt;<a name="line.21"></a>
+<span class="sourceLineNo">022</span> */<a name="line.22"></a>
+<span class="sourceLineNo">023</span>public abstract class UntypedJObject implements JObject {<a name="line.23"></a>
+<span class="sourceLineNo">024</span>}<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
 
 
 

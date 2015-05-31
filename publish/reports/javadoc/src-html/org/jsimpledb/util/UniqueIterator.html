@@ -9,75 +9,73 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.util;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.util;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.collect.Iterators;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.google.common.collect.PeekingIterator;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.util.Comparator;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.util.Iterator;<a name="line.14"></a>
-<span class="sourceLineNo">015</span><a name="line.15"></a>
-<span class="sourceLineNo">016</span>/**<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * {@link Iterator} implementation that provides a read-only view of an inner {@link Iterator}<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * in which consecutive duplicate values are eliminated.<a name="line.18"></a>
-<span class="sourceLineNo">019</span> */<a name="line.19"></a>
-<span class="sourceLineNo">020</span>public class UniqueIterator&lt;E&gt; implements Iterator&lt;E&gt; {<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>    private final PeekingIterator&lt;E&gt; iterator;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>    private final Comparator&lt;? super E&gt; comparator;<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>    /**<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     * Constructor. Object equality using {@link Object#equals} is used to detect duplicates.<a name="line.26"></a>
-<span class="sourceLineNo">027</span>     *<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * @param iterator wrapped {@link Iterator}<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>    public UniqueIterator(Iterator&lt;? extends E&gt; iterator) {<a name="line.30"></a>
-<span class="sourceLineNo">031</span>        this.iterator = Iterators.peekingIterator(iterator);<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        this.comparator = null;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    }<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>    /**<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     * Constructor. A zero result from the provided {@link Comparator} is used to detect duplicates.<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     *<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * @param iterator wrapped {@link Iterator}<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * @param comparator used to compare consecutive values<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * @throws IllegalArgumentException if {@code comparator} is null<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     */<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    public UniqueIterator(Iterator&lt;? extends E&gt; iterator, Comparator&lt;? super E&gt; comparator) {<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        if (comparator == null)<a name="line.43"></a>
-<span class="sourceLineNo">044</span>            throw new IllegalArgumentException("null comparator");<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        this.iterator = Iterators.peekingIterator(iterator);<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        this.comparator = comparator;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    }<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
-<span class="sourceLineNo">049</span>    @Override<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    public boolean hasNext() {<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        return this.iterator.hasNext();<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    @Override<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    public E next() {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        final E next = this.iterator.next();<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        while (this.iterator.hasNext()) {<a name="line.57"></a>
-<span class="sourceLineNo">058</span>            final E peek = this.iterator.peek();<a name="line.58"></a>
-<span class="sourceLineNo">059</span>            if (this.comparator != null ? this.comparator.compare(next, peek) != 0 :<a name="line.59"></a>
-<span class="sourceLineNo">060</span>              next != null ? !next.equals(peek) : peek != null)<a name="line.60"></a>
-<span class="sourceLineNo">061</span>                break;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            this.iterator.next();<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        }<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        return next;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>    @Override<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    public void remove() {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        throw new UnsupportedOperationException();<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
-<span class="sourceLineNo">071</span>}<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">008</span>import com.google.common.collect.Iterators;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.google.common.collect.PeekingIterator;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Comparator;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.Iterator;<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>/**<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * {@link Iterator} implementation that provides a read-only view of an inner {@link Iterator}<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * in which consecutive duplicate values are eliminated.<a name="line.16"></a>
+<span class="sourceLineNo">017</span> */<a name="line.17"></a>
+<span class="sourceLineNo">018</span>public class UniqueIterator&lt;E&gt; implements Iterator&lt;E&gt; {<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>    private final PeekingIterator&lt;E&gt; iterator;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>    private final Comparator&lt;? super E&gt; comparator;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>    /**<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * Constructor. Object equality using {@link Object#equals} is used to detect duplicates.<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     *<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * @param iterator wrapped {@link Iterator}<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    public UniqueIterator(Iterator&lt;? extends E&gt; iterator) {<a name="line.28"></a>
+<span class="sourceLineNo">029</span>        this.iterator = Iterators.peekingIterator(iterator);<a name="line.29"></a>
+<span class="sourceLineNo">030</span>        this.comparator = null;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    }<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>    /**<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * Constructor. A zero result from the provided {@link Comparator} is used to detect duplicates.<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     *<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * @param iterator wrapped {@link Iterator}<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * @param comparator used to compare consecutive values<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * @throws IllegalArgumentException if {@code comparator} is null<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    public UniqueIterator(Iterator&lt;? extends E&gt; iterator, Comparator&lt;? super E&gt; comparator) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        if (comparator == null)<a name="line.41"></a>
+<span class="sourceLineNo">042</span>            throw new IllegalArgumentException("null comparator");<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        this.iterator = Iterators.peekingIterator(iterator);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        this.comparator = comparator;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    }<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    @Override<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    public boolean hasNext() {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        return this.iterator.hasNext();<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    @Override<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    public E next() {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        final E next = this.iterator.next();<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        while (this.iterator.hasNext()) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>            final E peek = this.iterator.peek();<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            if (this.comparator != null ? this.comparator.compare(next, peek) != 0 :<a name="line.57"></a>
+<span class="sourceLineNo">058</span>              next != null ? !next.equals(peek) : peek != null)<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                break;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            this.iterator.next();<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        }<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        return next;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>    @Override<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    public void remove() {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        throw new UnsupportedOperationException();<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
+<span class="sourceLineNo">069</span>}<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
 
 
 

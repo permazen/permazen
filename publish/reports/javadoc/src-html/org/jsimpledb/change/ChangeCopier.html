@@ -9,184 +9,182 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.change;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.change;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import org.jsimpledb.CopyState;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import org.jsimpledb.JObject;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.jsimpledb.JTransaction;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>/**<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * Creates a new {@link Change} object based on an existing one where the {@link JObject}s referred to by the<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * new {@link Change} are copies in a different transaction of the originals. This is useful to allow database<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * change information to be accessed after the transaction in which the change occured has completed.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> *<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * &lt;p&gt;<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * Each instance has an internal {@link CopyState} used to avoid redundant copies, accessible via {@link #getCopyState}.<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * &lt;/p&gt;<a name="line.21"></a>
-<span class="sourceLineNo">022</span> */<a name="line.22"></a>
-<span class="sourceLineNo">023</span>public class ChangeCopier implements ChangeSwitch&lt;Change&lt;?&gt;&gt; {<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>    protected final JTransaction dest;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>    protected final CopyState copyState = new CopyState();<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>    /**<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     * Primary constructor.<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     *<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @param dest destination transaction for copied {@link JObject}s<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * @throws IllegalArgumentException if {@code dest} is null<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     */<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    public ChangeCopier(JTransaction dest) {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        if (dest == null)<a name="line.35"></a>
-<span class="sourceLineNo">036</span>            throw new IllegalArgumentException("null dest");<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        this.dest = dest;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
-<span class="sourceLineNo">039</span><a name="line.39"></a>
-<span class="sourceLineNo">040</span>    /**<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * "Snapshot" constructor for when the destination transaction is the "snapshot" transaction of the transaction<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * associated with the current thread.<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * &lt;p&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     * This is a convenience constructor, equivalent to:<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     * &lt;blockquote&gt;&lt;code&gt;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction())<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     * &lt;/code&gt;&lt;/blockquote&gt;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     *<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     *  associated with the current thread<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     */<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    public ChangeCopier() {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>        this(JTransaction.getCurrent().getSnapshotTransaction());<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>    /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * Get the destination transaction configured in this instance.<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     *<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * @return destination transaction<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    public JTransaction getDestinationTransaction() {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        return this.dest;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
-<span class="sourceLineNo">065</span><a name="line.65"></a>
-<span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * Get the {@link CopyState} used by this instance.<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     *<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * @return associated copy state<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    public CopyState getCopyState() {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        return this.copyState;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    public &lt;T&gt; ObjectCreate&lt;T&gt; caseObjectCreate(ObjectCreate&lt;T&gt; change) {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        return new ObjectCreate&lt;T&gt;(this.copyIfReference(change.getObject()));<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    @Override<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    public &lt;T&gt; ObjectDelete&lt;T&gt; caseObjectDelete(ObjectDelete&lt;T&gt; change) {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        return new ObjectDelete&lt;T&gt;(this.copyIfReference(change.getObject()));<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>    @Override<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    public &lt;T, E&gt; ListFieldAdd&lt;T, E&gt; caseListFieldAdd(ListFieldAdd&lt;T, E&gt; change) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        return new ListFieldAdd&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.87"></a>
-<span class="sourceLineNo">088</span>          change.getIndex(), this.copyIfReference(change.getElement()));<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>    @Override<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    public &lt;T&gt; ListFieldClear&lt;T&gt; caseListFieldClear(ListFieldClear&lt;T&gt; change) {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        return new ListFieldClear&lt;T&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());<a name="line.93"></a>
-<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>    @Override<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    public &lt;T, E&gt; ListFieldRemove&lt;T, E&gt; caseListFieldRemove(ListFieldRemove&lt;T, E&gt; change) {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        return new ListFieldRemove&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.98"></a>
-<span class="sourceLineNo">099</span>          change.getIndex(), this.copyIfReference(change.getElement()));<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>    @Override<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    public &lt;T, E&gt; ListFieldReplace&lt;T, E&gt; caseListFieldReplace(ListFieldReplace&lt;T, E&gt; change) {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        return new ListFieldReplace&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.104"></a>
-<span class="sourceLineNo">105</span>          change.getIndex(), this.copyIfReference(change.getOldValue()), this.copyIfReference(change.getNewValue()));<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>    @Override<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    public &lt;T, K, V&gt; MapFieldAdd&lt;T, K, V&gt; caseMapFieldAdd(MapFieldAdd&lt;T, K, V&gt; change) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        return new MapFieldAdd&lt;T, K, V&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.110"></a>
-<span class="sourceLineNo">111</span>          this.copyIfReference(change.getKey()), this.copyIfReference(change.getValue()));<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
-<span class="sourceLineNo">113</span><a name="line.113"></a>
-<span class="sourceLineNo">114</span>    @Override<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    public &lt;T&gt; MapFieldClear&lt;T&gt; caseMapFieldClear(MapFieldClear&lt;T&gt; change) {<a name="line.115"></a>
-<span class="sourceLineNo">116</span>        return new MapFieldClear&lt;T&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
-<span class="sourceLineNo">118</span><a name="line.118"></a>
-<span class="sourceLineNo">119</span>    @Override<a name="line.119"></a>
-<span class="sourceLineNo">120</span>    public &lt;T, K, V&gt; MapFieldRemove&lt;T, K, V&gt; caseMapFieldRemove(MapFieldRemove&lt;T, K, V&gt; change) {<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        return new MapFieldRemove&lt;T, K, V&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.121"></a>
-<span class="sourceLineNo">122</span>          this.copyIfReference(change.getKey()), this.copyIfReference(change.getValue()));<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>    @Override<a name="line.125"></a>
-<span class="sourceLineNo">126</span>    public &lt;T, K, V&gt; MapFieldReplace&lt;T, K, V&gt; caseMapFieldReplace(MapFieldReplace&lt;T, K, V&gt; change) {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        return new MapFieldReplace&lt;T, K, V&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.127"></a>
-<span class="sourceLineNo">128</span>          this.copyIfReference(change.getKey()), this.copyIfReference(change.getOldValue()),<a name="line.128"></a>
-<span class="sourceLineNo">129</span>          this.copyIfReference(change.getNewValue()));<a name="line.129"></a>
-<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
-<span class="sourceLineNo">131</span><a name="line.131"></a>
-<span class="sourceLineNo">132</span>    @Override<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    public &lt;T, E&gt; SetFieldAdd&lt;T, E&gt; caseSetFieldAdd(SetFieldAdd&lt;T, E&gt; change) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>        return new SetFieldAdd&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.134"></a>
-<span class="sourceLineNo">135</span>          this.copyIfReference(change.getElement()));<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>    @Override<a name="line.138"></a>
-<span class="sourceLineNo">139</span>    public &lt;T&gt; SetFieldClear&lt;T&gt; caseSetFieldClear(SetFieldClear&lt;T&gt; change) {<a name="line.139"></a>
-<span class="sourceLineNo">140</span>        return new SetFieldClear&lt;T&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
-<span class="sourceLineNo">142</span><a name="line.142"></a>
-<span class="sourceLineNo">143</span>    @Override<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    public &lt;T, E&gt; SetFieldRemove&lt;T, E&gt; caseSetFieldRemove(SetFieldRemove&lt;T, E&gt; change) {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        return new SetFieldRemove&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.145"></a>
-<span class="sourceLineNo">146</span>          this.copyIfReference(change.getElement()));<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>    @Override<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    public &lt;T, V&gt; SimpleFieldChange&lt;T, V&gt; caseSimpleFieldChange(SimpleFieldChange&lt;T, V&gt; change) {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>        return new SimpleFieldChange&lt;T, V&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.151"></a>
-<span class="sourceLineNo">152</span>          this.copyIfReference(change.getOldValue()), this.copyIfReference(change.getNewValue()));<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    }<a name="line.153"></a>
-<span class="sourceLineNo">154</span><a name="line.154"></a>
-<span class="sourceLineNo">155</span>    @SuppressWarnings("unchecked")<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    private &lt;T&gt; T copyIfReference(T obj) {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        return obj instanceof JObject ? (T)this.copy((JObject)obj) : obj;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    }<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>    /**<a name="line.160"></a>
-<span class="sourceLineNo">161</span>     * Copy the given {@link JObject} into the destination transaction.<a name="line.161"></a>
-<span class="sourceLineNo">162</span>     *<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     * &lt;p&gt;<a name="line.163"></a>
-<span class="sourceLineNo">164</span>     * The implementation in {@link ChangeCopier} invokes {@code jobj.copyTo(this.dest, null, this.getCopyState())} unless<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     * {@code jobj} does not exist, in which case it is not copied (but the<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * {@linkplain JTransaction#getJObject(ObjId) corresponding} {@link JObject} is still returned).<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     * Subclasses may override to copy additional objects referenced by {@code jobj} as needed.<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     * &lt;/p&gt;<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     *<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     * @param jobj original object<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     * @return copied object in {@link #dest}<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     * @throws IllegalArgumentException if {@code jobj} is null<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     */<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    @SuppressWarnings("unchecked")<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    protected JObject copy(JObject jobj) {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        if (jobj == null)<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            throw new IllegalArgumentException("null jobj");<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        return !jobj.exists() ? this.dest.getJObject(jobj) : jobj.copyTo(this.dest, null, this.getCopyState());<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    }<a name="line.179"></a>
-<span class="sourceLineNo">180</span>}<a name="line.180"></a>
-<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">008</span>import org.jsimpledb.CopyState;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import org.jsimpledb.JObject;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import org.jsimpledb.JTransaction;<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>/**<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * Creates a new {@link Change} object based on an existing one where the {@link JObject}s referred to by the<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * new {@link Change} are copies in a different transaction of the originals. This is useful to allow database<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * change information to be accessed after the transaction in which the change occured has completed.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> *<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * &lt;p&gt;<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * Each instance has an internal {@link CopyState} used to avoid redundant copies, accessible via {@link #getCopyState}.<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * &lt;/p&gt;<a name="line.19"></a>
+<span class="sourceLineNo">020</span> */<a name="line.20"></a>
+<span class="sourceLineNo">021</span>public class ChangeCopier implements ChangeSwitch&lt;Change&lt;?&gt;&gt; {<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>    protected final JTransaction dest;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>    protected final CopyState copyState = new CopyState();<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>    /**<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * Primary constructor.<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     *<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @param dest destination transaction for copied {@link JObject}s<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * @throws IllegalArgumentException if {@code dest} is null<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    public ChangeCopier(JTransaction dest) {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        if (dest == null)<a name="line.33"></a>
+<span class="sourceLineNo">034</span>            throw new IllegalArgumentException("null dest");<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        this.dest = dest;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * "Snapshot" constructor for when the destination transaction is the "snapshot" transaction of the transaction<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * associated with the current thread.<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     *<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * &lt;p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * This is a convenience constructor, equivalent to:<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * &lt;blockquote&gt;&lt;code&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * ChangeCopier(JTransaction.getCurrent().getSnapshotTransaction())<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * &lt;/code&gt;&lt;/blockquote&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     *<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     *  associated with the current thread<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    public ChangeCopier() {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        this(JTransaction.getCurrent().getSnapshotTransaction());<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /**<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * Get the destination transaction configured in this instance.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     *<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * @return destination transaction<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    public JTransaction getDestinationTransaction() {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        return this.dest;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * Get the {@link CopyState} used by this instance.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @return associated copy state<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public CopyState getCopyState() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        return this.copyState;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    @Override<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    public &lt;T&gt; ObjectCreate&lt;T&gt; caseObjectCreate(ObjectCreate&lt;T&gt; change) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        return new ObjectCreate&lt;T&gt;(this.copyIfReference(change.getObject()));<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    @Override<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    public &lt;T&gt; ObjectDelete&lt;T&gt; caseObjectDelete(ObjectDelete&lt;T&gt; change) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        return new ObjectDelete&lt;T&gt;(this.copyIfReference(change.getObject()));<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    @Override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public &lt;T, E&gt; ListFieldAdd&lt;T, E&gt; caseListFieldAdd(ListFieldAdd&lt;T, E&gt; change) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        return new ListFieldAdd&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.85"></a>
+<span class="sourceLineNo">086</span>          change.getIndex(), this.copyIfReference(change.getElement()));<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    @Override<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    public &lt;T&gt; ListFieldClear&lt;T&gt; caseListFieldClear(ListFieldClear&lt;T&gt; change) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        return new ListFieldClear&lt;T&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    @Override<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    public &lt;T, E&gt; ListFieldRemove&lt;T, E&gt; caseListFieldRemove(ListFieldRemove&lt;T, E&gt; change) {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        return new ListFieldRemove&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.96"></a>
+<span class="sourceLineNo">097</span>          change.getIndex(), this.copyIfReference(change.getElement()));<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>    @Override<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    public &lt;T, E&gt; ListFieldReplace&lt;T, E&gt; caseListFieldReplace(ListFieldReplace&lt;T, E&gt; change) {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        return new ListFieldReplace&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.102"></a>
+<span class="sourceLineNo">103</span>          change.getIndex(), this.copyIfReference(change.getOldValue()), this.copyIfReference(change.getNewValue()));<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    @Override<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    public &lt;T, K, V&gt; MapFieldAdd&lt;T, K, V&gt; caseMapFieldAdd(MapFieldAdd&lt;T, K, V&gt; change) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        return new MapFieldAdd&lt;T, K, V&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.108"></a>
+<span class="sourceLineNo">109</span>          this.copyIfReference(change.getKey()), this.copyIfReference(change.getValue()));<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    @Override<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    public &lt;T&gt; MapFieldClear&lt;T&gt; caseMapFieldClear(MapFieldClear&lt;T&gt; change) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        return new MapFieldClear&lt;T&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>    @Override<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    public &lt;T, K, V&gt; MapFieldRemove&lt;T, K, V&gt; caseMapFieldRemove(MapFieldRemove&lt;T, K, V&gt; change) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        return new MapFieldRemove&lt;T, K, V&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.119"></a>
+<span class="sourceLineNo">120</span>          this.copyIfReference(change.getKey()), this.copyIfReference(change.getValue()));<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    @Override<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    public &lt;T, K, V&gt; MapFieldReplace&lt;T, K, V&gt; caseMapFieldReplace(MapFieldReplace&lt;T, K, V&gt; change) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        return new MapFieldReplace&lt;T, K, V&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.125"></a>
+<span class="sourceLineNo">126</span>          this.copyIfReference(change.getKey()), this.copyIfReference(change.getOldValue()),<a name="line.126"></a>
+<span class="sourceLineNo">127</span>          this.copyIfReference(change.getNewValue()));<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    }<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>    @Override<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    public &lt;T, E&gt; SetFieldAdd&lt;T, E&gt; caseSetFieldAdd(SetFieldAdd&lt;T, E&gt; change) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        return new SetFieldAdd&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.132"></a>
+<span class="sourceLineNo">133</span>          this.copyIfReference(change.getElement()));<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    @Override<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    public &lt;T&gt; SetFieldClear&lt;T&gt; caseSetFieldClear(SetFieldClear&lt;T&gt; change) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        return new SetFieldClear&lt;T&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName());<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    }<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    @Override<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    public &lt;T, E&gt; SetFieldRemove&lt;T, E&gt; caseSetFieldRemove(SetFieldRemove&lt;T, E&gt; change) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        return new SetFieldRemove&lt;T, E&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.143"></a>
+<span class="sourceLineNo">144</span>          this.copyIfReference(change.getElement()));<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    }<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>    @Override<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    public &lt;T, V&gt; SimpleFieldChange&lt;T, V&gt; caseSimpleFieldChange(SimpleFieldChange&lt;T, V&gt; change) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        return new SimpleFieldChange&lt;T, V&gt;(this.copyIfReference(change.getObject()), change.getStorageId(), change.getFieldName(),<a name="line.149"></a>
+<span class="sourceLineNo">150</span>          this.copyIfReference(change.getOldValue()), this.copyIfReference(change.getNewValue()));<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>    @SuppressWarnings("unchecked")<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    private &lt;T&gt; T copyIfReference(T obj) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        return obj instanceof JObject ? (T)this.copy((JObject)obj) : obj;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>    /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * Copy the given {@link JObject} into the destination transaction.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     *<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * &lt;p&gt;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * The implementation in {@link ChangeCopier} invokes {@code jobj.copyTo(this.dest, null, this.getCopyState())} unless<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * {@code jobj} does not exist, in which case it is not copied (but the<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * {@linkplain JTransaction#getJObject(ObjId) corresponding} {@link JObject} is still returned).<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * Subclasses may override to copy additional objects referenced by {@code jobj} as needed.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * &lt;/p&gt;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     *<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * @param jobj original object<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * @return copied object in {@link #dest}<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * @throws IllegalArgumentException if {@code jobj} is null<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     */<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    @SuppressWarnings("unchecked")<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    protected JObject copy(JObject jobj) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        if (jobj == null)<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            throw new IllegalArgumentException("null jobj");<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        return !jobj.exists() ? this.dest.getJObject(jobj) : jobj.copyTo(this.dest, null, this.getCopyState());<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
+<span class="sourceLineNo">178</span>}<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
 
 
 

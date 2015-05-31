@@ -9,115 +9,113 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.reflect.TypeToken;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.reflect.TypeToken;<a name="line.10"></a>
+<span class="sourceLineNo">010</span>import java.lang.reflect.Method;<a name="line.10"></a>
 <span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.lang.reflect.Method;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.dellroad.stuff.java.Primitive;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jsimpledb.schema.SchemaField;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.objectweb.asm.ClassWriter;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.objectweb.asm.MethodVisitor;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.objectweb.asm.Opcodes;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.objectweb.asm.Type;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>/**<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * Represents a field in a Java model object.<a name="line.22"></a>
-<span class="sourceLineNo">023</span> */<a name="line.23"></a>
-<span class="sourceLineNo">024</span>public abstract class JField extends JSchemaObject {<a name="line.24"></a>
+<span class="sourceLineNo">012</span>import org.dellroad.stuff.java.Primitive;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.jsimpledb.schema.SchemaField;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.objectweb.asm.ClassWriter;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.objectweb.asm.MethodVisitor;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.objectweb.asm.Opcodes;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.objectweb.asm.Type;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * Represents a field in a Java model object.<a name="line.20"></a>
+<span class="sourceLineNo">021</span> */<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public abstract class JField extends JSchemaObject {<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>    final Method getter;<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>    final Method getter;<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>    JSchemaObject parent;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    boolean requiresValidation;<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    JField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        super(jdb, name, storageId, description);<a name="line.32"></a>
-<span class="sourceLineNo">033</span>        this.getter = getter;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    void calculateRequiresValidation() {<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        this.requiresValidation = this.getter != null &amp;&amp; Util.requiresValidation(this.getter);<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
-<span class="sourceLineNo">039</span><a name="line.39"></a>
-<span class="sourceLineNo">040</span>    @Override<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    abstract SchemaField toSchemaItem(JSimpleDB jdb);<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * Get the getter method associated with this field.<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     *<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     * @return field property getter method, or null if this field is a sub-field of a complex field<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     */<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    public Method getGetter() {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        return this.getter;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>    /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * Get the Java value of this field in the given Java model object.<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * Does not alter the schema version of the object.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @param jobj object containing this field<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @throws org.jsimpledb.core.DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @throws org.jsimpledb.kv.StaleTransactionException if the {@link JTransaction} associated with {@code jobj}<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     *  is no longer usable<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * @return this field's value in {@code jobj}<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     * @throws IllegalArgumentException if {@code jobj} is null<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     */<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    public abstract Object getValue(JObject jobj);<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>    /**<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * Apply visitor pattern.<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     *<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * @param target target to invoke<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * @param &lt;R&gt; visit return type<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     * @return value from the method of {@code target} corresponding to this instance's type<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * @throws NullPointerException if {@code target} is null<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    public abstract &lt;R&gt; R visit(JFieldSwitch&lt;R&gt; target);<a name="line.73"></a>
+<span class="sourceLineNo">026</span>    JSchemaObject parent;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    boolean requiresValidation;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    JField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {<a name="line.29"></a>
+<span class="sourceLineNo">030</span>        super(jdb, name, storageId, description);<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        this.getter = getter;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    }<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>    void calculateRequiresValidation() {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        this.requiresValidation = this.getter != null &amp;&amp; Util.requiresValidation(this.getter);<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    @Override<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    abstract SchemaField toSchemaItem(JSimpleDB jdb);<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    /**<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * Get the getter method associated with this field.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @return field property getter method, or null if this field is a sub-field of a complex field<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    public Method getGetter() {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        return this.getter;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    }<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /**<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * Get the Java value of this field in the given Java model object.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * Does not alter the schema version of the object.<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     *<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @param jobj object containing this field<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * @throws org.jsimpledb.core.DeletedObjectException if {@code jobj} does not exist in its associated {@link JTransaction}<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @throws org.jsimpledb.kv.StaleTransactionException if the {@link JTransaction} associated with {@code jobj}<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     *  is no longer usable<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * @return this field's value in {@code jobj}<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @throws IllegalArgumentException if {@code jobj} is null<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    public abstract Object getValue(JObject jobj);<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * Apply visitor pattern.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * @param target target to invoke<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @param &lt;R&gt; visit return type<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @return value from the method of {@code target} corresponding to this instance's type<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @throws NullPointerException if {@code target} is null<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    public abstract &lt;R&gt; R visit(JFieldSwitch&lt;R&gt; target);<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    abstract void outputMethods(ClassGenerator&lt;?&gt; generator, ClassWriter cw);<a name="line.73"></a>
 <span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    abstract void outputMethods(ClassGenerator&lt;?&gt; generator, ClassWriter cw);<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * Generate bytecode for getter method override.<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    void outputReadMethod(final ClassGenerator&lt;?&gt; generator, ClassWriter cw, final Method readMethod) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>        // Get property type<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        final TypeToken&lt;?&gt; propertyType = TypeToken.of(this.getter.getReturnType());<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>        // Generate method override<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        generator.overrideBeanMethod(cw, this.getter, this.storageId, new ClassGenerator.CodeEmitter() {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            @Override<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            public void emit(MethodVisitor mv) {<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>                // Push "true"<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                mv.visitInsn(Opcodes.ICONST_1);<a name="line.91"></a>
-<span class="sourceLineNo">092</span><a name="line.92"></a>
-<span class="sourceLineNo">093</span>                // Invoke JTransaction.readXXX()<a name="line.93"></a>
-<span class="sourceLineNo">094</span>                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                  readMethod.getName(), Type.getMethodDescriptor(readMethod), false);<a name="line.95"></a>
-<span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>                // Cast result value<a name="line.97"></a>
-<span class="sourceLineNo">098</span>                mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>                // Unwrap result if necessary<a name="line.100"></a>
-<span class="sourceLineNo">101</span>                if (propertyType.isPrimitive())<a name="line.101"></a>
-<span class="sourceLineNo">102</span>                    generator.unwrap(mv, Primitive.get(propertyType.getRawType()));<a name="line.102"></a>
-<span class="sourceLineNo">103</span>            }<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        });<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>    /**<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * Create a {@link JFieldInfo} instance that corresponds to this instance.<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    abstract JFieldInfo toJFieldInfo();<a name="line.110"></a>
-<span class="sourceLineNo">111</span>}<a name="line.111"></a>
-<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Generate bytecode for getter method override.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    void outputReadMethod(final ClassGenerator&lt;?&gt; generator, ClassWriter cw, final Method readMethod) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>        // Get property type<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        final TypeToken&lt;?&gt; propertyType = TypeToken.of(this.getter.getReturnType());<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>        // Generate method override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        generator.overrideBeanMethod(cw, this.getter, this.storageId, new ClassGenerator.CodeEmitter() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            @Override<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            public void emit(MethodVisitor mv) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>                // Push "true"<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                mv.visitInsn(Opcodes.ICONST_1);<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>                // Invoke JTransaction.readXXX()<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                  readMethod.getName(), Type.getMethodDescriptor(readMethod), false);<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>                // Cast result value<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>                // Unwrap result if necessary<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                if (propertyType.isPrimitive())<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                    generator.unwrap(mv, Primitive.get(propertyType.getRawType()));<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        });<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>    /**<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * Create a {@link JFieldInfo} instance that corresponds to this instance.<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    abstract JFieldInfo toJFieldInfo();<a name="line.108"></a>
+<span class="sourceLineNo">109</span>}<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
 
 
 

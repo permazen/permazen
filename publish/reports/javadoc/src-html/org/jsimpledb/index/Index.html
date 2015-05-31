@@ -9,45 +9,43 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.index;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.index;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.NavigableMap;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.NavigableSet;<a name="line.11"></a>
+<span class="sourceLineNo">008</span>import java.util.NavigableMap;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.NavigableSet;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.jsimpledb.tuple.Tuple2;<a name="line.11"></a>
 <span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.tuple.Tuple2;<a name="line.13"></a>
-<span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>/**<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * An index on a single field.<a name="line.16"></a>
-<span class="sourceLineNo">017</span> *<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * &lt;p&gt;<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * Indexes are read-only and "live", always reflecting the current transaction state.<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * &lt;/p&gt;<a name="line.20"></a>
-<span class="sourceLineNo">021</span> *<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * @param &lt;V&gt; indexed value type<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * @param &lt;T&gt; index target type<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * @see org.jsimpledb.index<a name="line.24"></a>
-<span class="sourceLineNo">025</span> */<a name="line.25"></a>
-<span class="sourceLineNo">026</span>public interface Index&lt;V, T&gt; {<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>    /**<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     * View this index as a {@link NavigableSet} of tuples.<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     *<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @return {@link NavigableSet} of tuples containing indexed value and target value<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     */<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    NavigableSet&lt;Tuple2&lt;V, T&gt;&gt; asSet();<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>    /**<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     * View this index as a {@link NavigableMap} of target values keyed by indexed value.<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     *<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * @return {@link NavigableMap} from indexed value to the corresponding set of target objects<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     */<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    NavigableMap&lt;V, NavigableSet&lt;T&gt;&gt; asMap();<a name="line.40"></a>
-<span class="sourceLineNo">041</span>}<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">013</span>/**<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * An index on a single field.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> *<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * &lt;p&gt;<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * Indexes are read-only and "live", always reflecting the current transaction state.<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * &lt;/p&gt;<a name="line.18"></a>
+<span class="sourceLineNo">019</span> *<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * @param &lt;V&gt; indexed value type<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * @param &lt;T&gt; index target type<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * @see org.jsimpledb.index<a name="line.22"></a>
+<span class="sourceLineNo">023</span> */<a name="line.23"></a>
+<span class="sourceLineNo">024</span>public interface Index&lt;V, T&gt; {<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>    /**<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * View this index as a {@link NavigableSet} of tuples.<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     *<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @return {@link NavigableSet} of tuples containing indexed value and target value<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    NavigableSet&lt;Tuple2&lt;V, T&gt;&gt; asSet();<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>    /**<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * View this index as a {@link NavigableMap} of target values keyed by indexed value.<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     *<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * @return {@link NavigableMap} from indexed value to the corresponding set of target objects<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    NavigableMap&lt;V, NavigableSet&lt;T&gt;&gt; asMap();<a name="line.38"></a>
+<span class="sourceLineNo">039</span>}<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
 
 
 

@@ -9,82 +9,80 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
-<span class="sourceLineNo">011</span> * A predicate for filtering {@code byte[]} keys that is also capable of efficiently jumping over<a name="line.11"></a>
-<span class="sourceLineNo">012</span> * contiguous regions of uncontained keys.<a name="line.12"></a>
-<span class="sourceLineNo">013</span> *<a name="line.13"></a>
-<span class="sourceLineNo">014</span> * &lt;p&gt;<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * Instances assume {@code byte[]} keys are ordered in unsigned lexicographical order.<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * &lt;/p&gt;<a name="line.16"></a>
-<span class="sourceLineNo">017</span> */<a name="line.17"></a>
-<span class="sourceLineNo">018</span>public interface KeyFilter {<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>    /**<a name="line.20"></a>
-<span class="sourceLineNo">021</span>     * Determine whether this instance contains the given key.<a name="line.21"></a>
-<span class="sourceLineNo">022</span>     *<a name="line.22"></a>
-<span class="sourceLineNo">023</span>     * @param key key to test<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     * @return true if {@code key} is contained by this instance, otherwise false<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     * @throws IllegalArgumentException if {@code key} is null<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     */<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    boolean contains(byte[] key);<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>    /**<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     * Skip over the largest possible uncontained region in an upward direction.<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     *<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * &lt;p&gt;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * This method should return an inclusive lower bound on all keys greater than or equal to {@code key}<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     * that are contained by this instance. The bound does not have to be tight, but the tighter the better.<a name="line.34"></a>
-<span class="sourceLineNo">035</span>     * &lt;/p&gt;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     *<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     * &lt;p&gt;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * A value of null may be returned to indicate that no key greater than or equal to {@code key} is contained by this instance.<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * &lt;/p&gt;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     *<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * &lt;p&gt;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * If {@code key} is contained by this instance, this method must return {@code key};<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     * if {@code key} is not contained by this instance, this method must return a key strictly higher than {@code key} or null.<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * &lt;/p&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     *<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     * @param key starting key<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     * @return a lower bound (inclusive) for contained keys greater than or equal to {@code key},<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     *  or null if no key greater than or equal to {@code key} is contained by this instance<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * @throws IllegalArgumentException if {@code key} is null<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    byte[] seekHigher(byte[] key);<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * Skip over the largest possible uncontained region in a downward direction.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * &lt;p&gt;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * This method should return an exclusive upper bound on all keys strictly less than {@code key}<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * that are contained by this instance. The bound does not have to be tight, but the tighter the better.<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * &lt;/p&gt;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     *<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     * &lt;p&gt;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     * A value of null may be returned to indicate that no key strictly less than {@code key} is contained by this instance.<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     * &lt;/p&gt;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     *<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * &lt;p&gt;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * For the purposes of this method, an empty {@code byte[]} array represents an upper bound greater than all<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * {@code byte[]} keys. This interpretation applies both to the {@code key} parameter and returned value. Note that<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * this implies an empty array cannot be returned to indicate that no keys exist (instead, return null).<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * &lt;/p&gt;<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     *<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * @param key starting key, or an empty array to indicate a maximal upper bound<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * @return an upper bound (exclusive) for contained keys strictly less that {@code key},<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     *  null if no key strictly less than {@code key} is contained by this instance, or an empty {@code byte[]} array<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     *  to indicate an upper bound greater than all {@code byte[]} keys (which implies {@code key} was also empty)<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * @throws IllegalArgumentException if {@code key} is null<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    byte[] seekLower(byte[] key);<a name="line.77"></a>
-<span class="sourceLineNo">078</span>}<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">008</span>/**<a name="line.8"></a>
+<span class="sourceLineNo">009</span> * A predicate for filtering {@code byte[]} keys that is also capable of efficiently jumping over<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * contiguous regions of uncontained keys.<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * &lt;p&gt;<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * Instances assume {@code byte[]} keys are ordered in unsigned lexicographical order.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * &lt;/p&gt;<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>public interface KeyFilter {<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>    /**<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     * Determine whether this instance contains the given key.<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     *<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * @param key key to test<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     * @return true if {@code key} is contained by this instance, otherwise false<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * @throws IllegalArgumentException if {@code key} is null<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    boolean contains(byte[] key);<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>    /**<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     * Skip over the largest possible uncontained region in an upward direction.<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     *<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * &lt;p&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * This method should return an inclusive lower bound on all keys greater than or equal to {@code key}<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * that are contained by this instance. The bound does not have to be tight, but the tighter the better.<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * &lt;/p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     *<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * &lt;p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * A value of null may be returned to indicate that no key greater than or equal to {@code key} is contained by this instance.<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * &lt;/p&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     *<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * &lt;p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * If {@code key} is contained by this instance, this method must return {@code key};<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * if {@code key} is not contained by this instance, this method must return a key strictly higher than {@code key} or null.<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * &lt;/p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @param key starting key<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * @return a lower bound (inclusive) for contained keys greater than or equal to {@code key},<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     *  or null if no key greater than or equal to {@code key} is contained by this instance<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * @throws IllegalArgumentException if {@code key} is null<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    byte[] seekHigher(byte[] key);<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    /**<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * Skip over the largest possible uncontained region in a downward direction.<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     *<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * &lt;p&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * This method should return an exclusive upper bound on all keys strictly less than {@code key}<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * that are contained by this instance. The bound does not have to be tight, but the tighter the better.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * &lt;/p&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     *<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * &lt;p&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * A value of null may be returned to indicate that no key strictly less than {@code key} is contained by this instance.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * &lt;/p&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * &lt;p&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * For the purposes of this method, an empty {@code byte[]} array represents an upper bound greater than all<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * {@code byte[]} keys. This interpretation applies both to the {@code key} parameter and returned value. Note that<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * this implies an empty array cannot be returned to indicate that no keys exist (instead, return null).<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * &lt;/p&gt;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     *<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @param key starting key, or an empty array to indicate a maximal upper bound<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @return an upper bound (exclusive) for contained keys strictly less that {@code key},<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     *  null if no key strictly less than {@code key} is contained by this instance, or an empty {@code byte[]} array<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     *  to indicate an upper bound greater than all {@code byte[]} keys (which implies {@code key} was also empty)<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * @throws IllegalArgumentException if {@code key} is null<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    byte[] seekLower(byte[] key);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>}<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
 
 
 

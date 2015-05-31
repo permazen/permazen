@@ -9,97 +9,95 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.tuple;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.tuple;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.collect.Lists;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.collect.Lists;<a name="line.10"></a>
+<span class="sourceLineNo">010</span>import java.util.Arrays;<a name="line.10"></a>
 <span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.Arrays;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>/**<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * Tuple utility methods.<a name="line.15"></a>
-<span class="sourceLineNo">016</span> */<a name="line.16"></a>
-<span class="sourceLineNo">017</span>public final class Tuples {<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>    private Tuples() {<a name="line.19"></a>
-<span class="sourceLineNo">020</span>    }<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>    /**<a name="line.22"></a>
-<span class="sourceLineNo">023</span>     * Create a {@link Tuple} of the appropriate cardinality for the given number of objects.<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     *<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     * @param values tuple values<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     * @return newly created tuple<a name="line.26"></a>
-<span class="sourceLineNo">027</span>     * @throws IllegalArgumentException if {@code values} is null or empty<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * @throws UnsupportedOperationException if {@code values} has more elements than exist concrete {@link Tuple} classes<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>    public static Tuple createTuple(Iterable&lt;?&gt; values) {<a name="line.30"></a>
-<span class="sourceLineNo">031</span>        if (values == null)<a name="line.31"></a>
-<span class="sourceLineNo">032</span>            throw new IllegalArgumentException("null values");<a name="line.32"></a>
-<span class="sourceLineNo">033</span>        return Tuples.createTuple(Lists.newArrayList(values).toArray());<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    /**<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     * Create a {@link Tuple} of the appropriate cardinality for the given number of objects.<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     *<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * @param values tuple values<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * @return newly created tuple<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * @throws IllegalArgumentException if {@code values} is null or empty<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * @throws UnsupportedOperationException if {@code values} has more elements than exist concrete {@link Tuple} classes<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public static Tuple createTuple(Object... values) {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        if (values == null)<a name="line.45"></a>
-<span class="sourceLineNo">046</span>            throw new IllegalArgumentException("null values");<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        final Class&lt;? extends Tuple&gt; tupleClass = Tuples.tupleClassForSize(values.length);<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        final Class&lt;?&gt;[] parameterTypes = new Class&lt;?&gt;[values.length];<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        Arrays.fill(parameterTypes, Object.class);<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        try {<a name="line.50"></a>
-<span class="sourceLineNo">051</span>            return tupleClass.getConstructor(parameterTypes).newInstance(values);<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        } catch (Exception e) {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>            throw new UnsupportedOperationException("can't instantiate " + tupleClass, e);<a name="line.53"></a>
-<span class="sourceLineNo">054</span>        }<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>    /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * Get the {@link Tuple} subclass having the specified cardinality.<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     *<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * @param size number of objects in the tuple<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     * @return {@link Tuple} subclass with cardinality {@code size}<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     * @throws IllegalArgumentException if {@code size} is less than one<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     * @throws UnsupportedOperationException if {@code size} is more than exist concrete {@link Tuple} classes<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    public static Class&lt;? extends Tuple&gt; tupleClassForSize(int size) {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        if (size &lt; 1)<a name="line.66"></a>
-<span class="sourceLineNo">067</span>            throw new IllegalArgumentException("invalid size " + size);<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        final String name = Tuple.class.getName() + size;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        try {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            return Class.forName(name, false, Tuple.class.getClassLoader()).asSubclass(Tuple.class);<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        } catch (Exception e) {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            throw new UnsupportedOperationException("can't find class `" + name + "' of size " + size, e);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        }<a name="line.73"></a>
-<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>    /**<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * Get the cardinality of the given {@link Tuple} subclass.<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     *<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     * @param tupleClass tuple class<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     * @return cardinality of {@code tupleClass}<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * @throws IllegalArgumentException if {@code tupleClass} is not a recognized tuple class<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    public static int tupleSizeOf(Class&lt;? extends Tuple&gt; tupleClass) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        for (int size = 1; true; size++) {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            try {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                if (Tuples.tupleClassForSize(size).isAssignableFrom(tupleClass))<a name="line.86"></a>
-<span class="sourceLineNo">087</span>                    return size;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            } catch (UnsupportedOperationException e) {<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                throw new IllegalArgumentException("not a tuple (sub)class: " + tupleClass);<a name="line.89"></a>
-<span class="sourceLineNo">090</span>            }<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>}<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">012</span>/**<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * Tuple utility methods.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> */<a name="line.14"></a>
+<span class="sourceLineNo">015</span>public final class Tuples {<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>    private Tuples() {<a name="line.17"></a>
+<span class="sourceLineNo">018</span>    }<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>    /**<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * Create a {@link Tuple} of the appropriate cardinality for the given number of objects.<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     *<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * @param values tuple values<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * @return newly created tuple<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     * @throws IllegalArgumentException if {@code values} is null or empty<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * @throws UnsupportedOperationException if {@code values} has more elements than exist concrete {@link Tuple} classes<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    public static Tuple createTuple(Iterable&lt;?&gt; values) {<a name="line.28"></a>
+<span class="sourceLineNo">029</span>        if (values == null)<a name="line.29"></a>
+<span class="sourceLineNo">030</span>            throw new IllegalArgumentException("null values");<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        return Tuples.createTuple(Lists.newArrayList(values).toArray());<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    }<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>    /**<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * Create a {@link Tuple} of the appropriate cardinality for the given number of objects.<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     *<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * @param values tuple values<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * @return newly created tuple<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * @throws IllegalArgumentException if {@code values} is null or empty<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * @throws UnsupportedOperationException if {@code values} has more elements than exist concrete {@link Tuple} classes<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    public static Tuple createTuple(Object... values) {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        if (values == null)<a name="line.43"></a>
+<span class="sourceLineNo">044</span>            throw new IllegalArgumentException("null values");<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        final Class&lt;? extends Tuple&gt; tupleClass = Tuples.tupleClassForSize(values.length);<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        final Class&lt;?&gt;[] parameterTypes = new Class&lt;?&gt;[values.length];<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        Arrays.fill(parameterTypes, Object.class);<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        try {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>            return tupleClass.getConstructor(parameterTypes).newInstance(values);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        } catch (Exception e) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            throw new UnsupportedOperationException("can't instantiate " + tupleClass, e);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        }<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /**<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * Get the {@link Tuple} subclass having the specified cardinality.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     *<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * @param size number of objects in the tuple<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @return {@link Tuple} subclass with cardinality {@code size}<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * @throws IllegalArgumentException if {@code size} is less than one<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * @throws UnsupportedOperationException if {@code size} is more than exist concrete {@link Tuple} classes<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    public static Class&lt;? extends Tuple&gt; tupleClassForSize(int size) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        if (size &lt; 1)<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            throw new IllegalArgumentException("invalid size " + size);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        final String name = Tuple.class.getName() + size;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        try {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            return Class.forName(name, false, Tuple.class.getClassLoader()).asSubclass(Tuple.class);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        } catch (Exception e) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            throw new UnsupportedOperationException("can't find class `" + name + "' of size " + size, e);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    /**<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * Get the cardinality of the given {@link Tuple} subclass.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     *<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * @param tupleClass tuple class<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @return cardinality of {@code tupleClass}<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @throws IllegalArgumentException if {@code tupleClass} is not a recognized tuple class<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    public static int tupleSizeOf(Class&lt;? extends Tuple&gt; tupleClass) {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        for (int size = 1; true; size++) {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            try {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                if (Tuples.tupleClassForSize(size).isAssignableFrom(tupleClass))<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                    return size;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            } catch (UnsupportedOperationException e) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                throw new IllegalArgumentException("not a tuple (sub)class: " + tupleClass);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        }<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>}<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
 
 
 

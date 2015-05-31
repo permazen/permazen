@@ -9,117 +9,115 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.schema;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.schema;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.LinkedHashMap;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.Map;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import javax.xml.namespace.QName;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import javax.xml.stream.XMLStreamException;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import javax.xml.stream.XMLStreamReader;<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.core.MapField;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.util.DiffGenerating;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.util.Diffs;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>/**<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * A map field in one version of a {@link SchemaObjectType}.<a name="line.22"></a>
-<span class="sourceLineNo">023</span> */<a name="line.23"></a>
-<span class="sourceLineNo">024</span>public class MapSchemaField extends ComplexSchemaField implements DiffGenerating&lt;MapSchemaField&gt; {<a name="line.24"></a>
-<span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>    private SimpleSchemaField keyField;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    private SimpleSchemaField valueField;<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>    public SimpleSchemaField getKeyField() {<a name="line.29"></a>
-<span class="sourceLineNo">030</span>        return this.keyField;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>    }<a name="line.31"></a>
-<span class="sourceLineNo">032</span>    public void setKeyField(SimpleSchemaField keyField) {<a name="line.32"></a>
-<span class="sourceLineNo">033</span>        this.keyField = keyField;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    }<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    public SimpleSchemaField getValueField() {<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        return this.valueField;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    public void setValueField(SimpleSchemaField valueField) {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        this.valueField = valueField;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    }<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    @Override<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public Map&lt;String, SimpleSchemaField&gt; getSubFields() {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        final LinkedHashMap&lt;String, SimpleSchemaField&gt; map = new LinkedHashMap&lt;String, SimpleSchemaField&gt;(2);<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        map.put(MapField.KEY_FIELD_NAME, this.keyField);<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        map.put(MapField.VALUE_FIELD_NAME, this.valueField);<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        return map;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
-<span class="sourceLineNo">050</span><a name="line.50"></a>
-<span class="sourceLineNo">051</span>    @Override<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        this.keyField = this.readSubField(reader, formatVersion, MapField.KEY_FIELD_NAME);<a name="line.53"></a>
-<span class="sourceLineNo">054</span>        this.valueField = this.readSubField(reader, formatVersion, MapField.VALUE_FIELD_NAME);<a name="line.54"></a>
-<span class="sourceLineNo">055</span>        this.expectClose(reader);<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    }<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>    @Override<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    QName getXMLTag() {<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        return MAP_FIELD_TAG;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>    @Override<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    public &lt;R&gt; R visit(SchemaFieldSwitch&lt;R&gt; target) {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        return target.caseMapSchemaField(this);<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">008</span>import java.util.LinkedHashMap;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.Map;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.xml.namespace.QName;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.xml.stream.XMLStreamException;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.xml.stream.XMLStreamReader;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.core.MapField;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.util.DiffGenerating;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.util.Diffs;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * A map field in one version of a {@link SchemaObjectType}.<a name="line.20"></a>
+<span class="sourceLineNo">021</span> */<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public class MapSchemaField extends ComplexSchemaField implements DiffGenerating&lt;MapSchemaField&gt; {<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>    private SimpleSchemaField keyField;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    private SimpleSchemaField valueField;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>    public SimpleSchemaField getKeyField() {<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        return this.keyField;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>    }<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    public void setKeyField(SimpleSchemaField keyField) {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        this.keyField = keyField;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    }<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>    public SimpleSchemaField getValueField() {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        return this.valueField;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    public void setValueField(SimpleSchemaField valueField) {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        this.valueField = valueField;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    }<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    @Override<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    public Map&lt;String, SimpleSchemaField&gt; getSubFields() {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        final LinkedHashMap&lt;String, SimpleSchemaField&gt; map = new LinkedHashMap&lt;String, SimpleSchemaField&gt;(2);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        map.put(MapField.KEY_FIELD_NAME, this.keyField);<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        map.put(MapField.VALUE_FIELD_NAME, this.valueField);<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        return map;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    }<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>    @Override<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        this.keyField = this.readSubField(reader, formatVersion, MapField.KEY_FIELD_NAME);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        this.valueField = this.readSubField(reader, formatVersion, MapField.VALUE_FIELD_NAME);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        this.expectClose(reader);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    @Override<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    QName getXMLTag() {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        return MAP_FIELD_TAG;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    @Override<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    public &lt;R&gt; R visit(SchemaFieldSwitch&lt;R&gt; target) {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        return target.caseMapSchemaField(this);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>// DiffGenerating<a name="line.66"></a>
 <span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>// DiffGenerating<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    @Override<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    public Diffs differencesFrom(MapSchemaField that) {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        final Diffs diffs = new Diffs(super.differencesFrom(that));<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        final Diffs keyDiffs = this.keyField.differencesFrom(that.keyField);<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        if (!keyDiffs.isEmpty())<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            diffs.add("changed key field", keyDiffs);<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        final Diffs valueDiffs = this.valueField.differencesFrom(that.valueField);<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        if (!valueDiffs.isEmpty())<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            diffs.add("changed value field", valueDiffs);<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        return diffs;<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    }<a name="line.80"></a>
+<span class="sourceLineNo">068</span>    @Override<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public Diffs differencesFrom(MapSchemaField that) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        final Diffs diffs = new Diffs(super.differencesFrom(that));<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        final Diffs keyDiffs = this.keyField.differencesFrom(that.keyField);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        if (!keyDiffs.isEmpty())<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            diffs.add("changed key field", keyDiffs);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        final Diffs valueDiffs = this.valueField.differencesFrom(that.valueField);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        if (!valueDiffs.isEmpty())<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            diffs.add("changed value field", valueDiffs);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        return diffs;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>// Object<a name="line.80"></a>
 <span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>// Object<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>    @Override<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    public String toString() {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        return "map " + super.toString() + " with key " + this.keyField + " and value " + this.valueField;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    @Override<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    public boolean equals(Object obj) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        if (obj == this)<a name="line.91"></a>
-<span class="sourceLineNo">092</span>            return true;<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        if (!super.equals(obj))<a name="line.93"></a>
-<span class="sourceLineNo">094</span>            return false;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        final MapSchemaField that = (MapSchemaField)obj;<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        return (this.keyField != null ? this.keyField.equals(that.keyField) : that.keyField == null)<a name="line.96"></a>
-<span class="sourceLineNo">097</span>          &amp;&amp; (this.valueField != null ? this.valueField.equals(that.valueField) : that.valueField == null);<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>    @Override<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    public int hashCode() {<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        return super.hashCode()<a name="line.102"></a>
-<span class="sourceLineNo">103</span>          ^ (this.keyField != null ? this.keyField.hashCode() : 0)<a name="line.103"></a>
-<span class="sourceLineNo">104</span>          ^ (this.valueField != null ? this.valueField.hashCode() : 0);<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">082</span>    @Override<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    public String toString() {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        return "map " + super.toString() + " with key " + this.keyField + " and value " + this.valueField;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    @Override<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    public boolean equals(Object obj) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        if (obj == this)<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            return true;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        if (!super.equals(obj))<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            return false;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        final MapSchemaField that = (MapSchemaField)obj;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        return (this.keyField != null ? this.keyField.equals(that.keyField) : that.keyField == null)<a name="line.94"></a>
+<span class="sourceLineNo">095</span>          &amp;&amp; (this.valueField != null ? this.valueField.equals(that.valueField) : that.valueField == null);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    @Override<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    public int hashCode() {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        return super.hashCode()<a name="line.100"></a>
+<span class="sourceLineNo">101</span>          ^ (this.keyField != null ? this.keyField.hashCode() : 0)<a name="line.101"></a>
+<span class="sourceLineNo">102</span>          ^ (this.valueField != null ? this.valueField.hashCode() : 0);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>// Cloneable<a name="line.105"></a>
 <span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>// Cloneable<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
-<span class="sourceLineNo">109</span>    @Override<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    public MapSchemaField clone() {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        return (MapSchemaField)super.clone();<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
-<span class="sourceLineNo">113</span>}<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">107</span>    @Override<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    public MapSchemaField clone() {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        return (MapSchemaField)super.clone();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span>}<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
 
 
 

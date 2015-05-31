@@ -9,683 +9,681 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.core;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.core;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.primitives.Bytes;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.primitives.Bytes;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.io.ByteArrayInputStream;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.io.ByteArrayOutputStream;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.io.IOException;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.nio.charset.Charset;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.util.Arrays;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import java.util.Iterator;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import java.util.Map;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import java.util.SortedMap;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import java.util.TreeMap;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import java.util.zip.DataFormatException;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import java.util.zip.Deflater;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import java.util.zip.Inflater;<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.kv.KVDatabase;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jsimpledb.kv.KVPair;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jsimpledb.kv.KVStore;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jsimpledb.kv.KVTransaction;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.jsimpledb.kv.KVTransactionException;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jsimpledb.schema.SchemaModel;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.jsimpledb.util.ByteReader;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.jsimpledb.util.ByteUtil;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.jsimpledb.util.ByteWriter;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.jsimpledb.util.Diffs;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.jsimpledb.util.UnsignedIntEncoder;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.slf4j.Logger;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.slf4j.LoggerFactory;<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>/**<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * Provides an object database abstraction on top of a key/value database.<a name="line.40"></a>
-<span class="sourceLineNo">041</span> *<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * &lt;p&gt;<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * Includes support for:<a name="line.43"></a>
-<span class="sourceLineNo">044</span> * &lt;ul&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span> *  &lt;li&gt;Objects and fields defined by a {@link SchemaModel}, with positive schema verification&lt;/li&gt;<a name="line.45"></a>
-<span class="sourceLineNo">046</span> *  &lt;li&gt;Simple values fields containing any atomic type, reference or custom {@link FieldType}&lt;/li&gt;<a name="line.46"></a>
-<span class="sourceLineNo">047</span> *  &lt;li&gt;Complex fields of type {@link java.util.List}, {@link java.util.NavigableSet}, and {@link java.util.NavigableMap}&lt;/li&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *  &lt;li&gt;Invertable reference fields with strong referential integrity and configurable delete cascading&lt;/li&gt;<a name="line.48"></a>
-<span class="sourceLineNo">049</span> *  &lt;li&gt;Configurable indexing of any simple field or complex sub-field&lt;/li&gt;<a name="line.49"></a>
-<span class="sourceLineNo">050</span> *  &lt;li&gt;Composite indexes on multiple simple fields&lt;/li&gt;<a name="line.50"></a>
-<span class="sourceLineNo">051</span> *  &lt;li&gt;Notification of object creation and deletion&lt;/li&gt;<a name="line.51"></a>
-<span class="sourceLineNo">052</span> *  &lt;li&gt;Notification of object field changes, as seen through an arbitrary path of references&lt;/li&gt;<a name="line.52"></a>
-<span class="sourceLineNo">053</span> *  &lt;li&gt;Automatic schema tracking and object versioning with schema change notification support&lt;/li&gt;<a name="line.53"></a>
-<span class="sourceLineNo">054</span> * &lt;/ul&gt;<a name="line.54"></a>
-<span class="sourceLineNo">055</span> *<a name="line.55"></a>
-<span class="sourceLineNo">056</span> * &lt;p&gt;<a name="line.56"></a>
-<span class="sourceLineNo">057</span> * See {@link Transaction} for further details on the above functionality.<a name="line.57"></a>
-<span class="sourceLineNo">058</span> * &lt;/p&gt;<a name="line.58"></a>
-<span class="sourceLineNo">059</span> *<a name="line.59"></a>
-<span class="sourceLineNo">060</span> * &lt;p&gt;<a name="line.60"></a>
-<span class="sourceLineNo">061</span> * This class defines an abstraction layer that usually sits below a {@link org.jsimpledb.JSimpleDB} but is completely<a name="line.61"></a>
-<span class="sourceLineNo">062</span> * independent of {@link org.jsimpledb.JSimpleDB} and can be used on its own.<a name="line.62"></a>
-<span class="sourceLineNo">063</span> * Compared to {@link org.jsimpledb.JSimpleDB}, a {@link Database} has these differences:<a name="line.63"></a>
-<span class="sourceLineNo">064</span> * &lt;ul&gt;<a name="line.64"></a>
-<span class="sourceLineNo">065</span> *  &lt;li&gt;A {@link SchemaModel} must be explicitly provided to define the schema in use, whereas when using a<a name="line.65"></a>
-<span class="sourceLineNo">066</span> *      {@link org.jsimpledb.JSimpleDB} the schema is derived automatically from annotated Java model classes.&lt;/li&gt;<a name="line.66"></a>
-<span class="sourceLineNo">067</span> *  &lt;li&gt;Object references are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type.<a name="line.67"></a>
-<span class="sourceLineNo">068</span> *      However, reference fields may be configured with a restricted set of referrable types.&lt;/li&gt;<a name="line.68"></a>
-<span class="sourceLineNo">069</span> *  &lt;li&gt;All object types and fields are referenced by explicit storage ID.&lt;/li&gt;<a name="line.69"></a>
-<span class="sourceLineNo">070</span> *  &lt;li&gt;Enum values are represented by {@link EnumValue} objects.&lt;/li&gt;<a name="line.70"></a>
-<span class="sourceLineNo">071</span> *  &lt;li&gt;There is no automatic validation support.&lt;/li&gt;<a name="line.71"></a>
-<span class="sourceLineNo">072</span> * &lt;/ul&gt;<a name="line.72"></a>
-<span class="sourceLineNo">073</span> *<a name="line.73"></a>
-<span class="sourceLineNo">074</span> * @see Transaction<a name="line.74"></a>
-<span class="sourceLineNo">075</span> * @see org.jsimpledb<a name="line.75"></a>
-<span class="sourceLineNo">076</span> */<a name="line.76"></a>
-<span class="sourceLineNo">077</span>public class Database {<a name="line.77"></a>
-<span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>    /**<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     * The maximum number of fields that may be indexed in a composite index ({@value #MAX_INDEXED_FIELDS}).<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    // COMPOSITE-INDEX<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    public static final int MAX_INDEXED_FIELDS = 4;<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>    // Prefix of all meta-data keys<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    private static final byte METADATA_PREFIX = (byte)0x00;<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    // Meta-data keys and key prefixes<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    private static final byte[] FORMAT_VERSION_KEY = new byte[] {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>      METADATA_PREFIX, (byte)0x00, (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    };<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    private static final byte[] SCHEMA_KEY_PREFIX = new byte[] {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>      METADATA_PREFIX, (byte)0x01<a name="line.93"></a>
-<span class="sourceLineNo">094</span>    };<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    private static final byte[] VERSION_INDEX_PREFIX = new byte[] {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>      METADATA_PREFIX, (byte)0x80<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    };<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>    // JSimpleDB format version numbers<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    private static final int FORMAT_VERSION_1 = 1;                                      // original format<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    private static final int FORMAT_VERSION_2 = 2;                                      // added compressed schema XML<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    private static final int CURRENT_FORMAT_VERSION = FORMAT_VERSION_2;<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    /* Note: this string must not ever change */<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    private static final byte[] SCHEMA_XML_COMPRESSION_DICTIONARY = (""<a name="line.105"></a>
-<span class="sourceLineNo">106</span>      + "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;"<a name="line.106"></a>
-<span class="sourceLineNo">107</span>      + "&lt;Schema formatVersion=\"2"<a name="line.107"></a>
-<span class="sourceLineNo">108</span>      + "&lt;CompositeIndex"<a name="line.108"></a>
-<span class="sourceLineNo">109</span>      + "&lt;Counter"<a name="line.109"></a>
-<span class="sourceLineNo">110</span>      + "&lt;Enum"<a name="line.110"></a>
-<span class="sourceLineNo">111</span>      + "&lt;Identifier"<a name="line.111"></a>
-<span class="sourceLineNo">112</span>      + "&lt;Indexed"<a name="line.112"></a>
-<span class="sourceLineNo">113</span>      + "&lt;List"<a name="line.113"></a>
-<span class="sourceLineNo">114</span>      + "&lt;Map"<a name="line.114"></a>
-<span class="sourceLineNo">115</span>      + "&lt;ObjectType"<a name="line.115"></a>
-<span class="sourceLineNo">116</span>      + "&lt;ReferenceField"<a name="line.116"></a>
-<span class="sourceLineNo">117</span>      + "&lt;SetField"<a name="line.117"></a>
-<span class="sourceLineNo">118</span>      + "&lt;SimpleField storageId=\""<a name="line.118"></a>
-<span class="sourceLineNo">119</span>      + " cascadeDelete=\""<a name="line.119"></a>
-<span class="sourceLineNo">120</span>      + " encodingSignature=\""<a name="line.120"></a>
-<span class="sourceLineNo">121</span>      + " indexed=\""<a name="line.121"></a>
-<span class="sourceLineNo">122</span>      + " name=\""<a name="line.122"></a>
-<span class="sourceLineNo">123</span>      + " onDelete=\""<a name="line.123"></a>
-<span class="sourceLineNo">124</span>      + " type=\""<a name="line.124"></a>
-<span class="sourceLineNo">125</span>      + "boolean"<a name="line.125"></a>
-<span class="sourceLineNo">126</span>      + "byte[]"<a name="line.126"></a>
-<span class="sourceLineNo">127</span>      + "short"<a name="line.127"></a>
-<span class="sourceLineNo">128</span>      + "char"<a name="line.128"></a>
-<span class="sourceLineNo">129</span>      + "integer"<a name="line.129"></a>
-<span class="sourceLineNo">130</span>      + "float"<a name="line.130"></a>
-<span class="sourceLineNo">131</span>      + "long"<a name="line.131"></a>
-<span class="sourceLineNo">132</span>      + "double"<a name="line.132"></a>
-<span class="sourceLineNo">133</span>      + "java.lang.String"<a name="line.133"></a>
-<span class="sourceLineNo">134</span>      + "util.Date"<a name="line.134"></a>
-<span class="sourceLineNo">135</span>      + "UUID"<a name="line.135"></a>
-<span class="sourceLineNo">136</span>      + "URI"<a name="line.136"></a>
-<span class="sourceLineNo">137</span>      + "io.File"<a name="line.137"></a>
-<span class="sourceLineNo">138</span>      + "regex.Pattern"<a name="line.138"></a>
-<span class="sourceLineNo">139</span>      + "true"<a name="line.139"></a>
-<span class="sourceLineNo">140</span>      + "false"<a name="line.140"></a>
-<span class="sourceLineNo">141</span>      + "NOTHING"<a name="line.141"></a>
-<span class="sourceLineNo">142</span>      + "EXCEPTION"<a name="line.142"></a>
-<span class="sourceLineNo">143</span>      + "UNREFERENCE"<a name="line.143"></a>
-<span class="sourceLineNo">144</span>      + "DELETE"<a name="line.144"></a>
-<span class="sourceLineNo">145</span>      + "\"&gt;&lt;")<a name="line.145"></a>
-<span class="sourceLineNo">146</span>      .getBytes(Charset.forName("UTF-8"));<a name="line.146"></a>
-<span class="sourceLineNo">147</span><a name="line.147"></a>
-<span class="sourceLineNo">148</span>    private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    private final KVDatabase kvdb;<a name="line.150"></a>
+<span class="sourceLineNo">010</span>import java.io.ByteArrayInputStream;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.io.ByteArrayOutputStream;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.io.IOException;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.nio.charset.Charset;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.util.Arrays;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.Iterator;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.util.Map;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.util.SortedMap;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.util.TreeMap;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.zip.DataFormatException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.zip.Deflater;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.zip.Inflater;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.kv.KVDatabase;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jsimpledb.kv.KVPair;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jsimpledb.kv.KVStore;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jsimpledb.kv.KVTransaction;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jsimpledb.kv.KVTransactionException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jsimpledb.schema.SchemaModel;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jsimpledb.util.ByteReader;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jsimpledb.util.ByteUtil;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jsimpledb.util.ByteWriter;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jsimpledb.util.Diffs;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jsimpledb.util.UnsignedIntEncoder;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.slf4j.Logger;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.slf4j.LoggerFactory;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>/**<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * Provides an object database abstraction on top of a key/value database.<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;p&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * Includes support for:<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * &lt;ul&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *  &lt;li&gt;Objects and fields defined by a {@link SchemaModel}, with positive schema verification&lt;/li&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *  &lt;li&gt;Simple values fields containing any atomic type, reference or custom {@link FieldType}&lt;/li&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *  &lt;li&gt;Complex fields of type {@link java.util.List}, {@link java.util.NavigableSet}, and {@link java.util.NavigableMap}&lt;/li&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *  &lt;li&gt;Invertable reference fields with strong referential integrity and configurable delete cascading&lt;/li&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *  &lt;li&gt;Configurable indexing of any simple field or complex sub-field&lt;/li&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *  &lt;li&gt;Composite indexes on multiple simple fields&lt;/li&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *  &lt;li&gt;Notification of object creation and deletion&lt;/li&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *  &lt;li&gt;Notification of object field changes, as seen through an arbitrary path of references&lt;/li&gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *  &lt;li&gt;Automatic schema tracking and object versioning with schema change notification support&lt;/li&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * &lt;/ul&gt;<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * &lt;p&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * See {@link Transaction} for further details on the above functionality.<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * &lt;/p&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * &lt;p&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * This class defines an abstraction layer that usually sits below a {@link org.jsimpledb.JSimpleDB} but is completely<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * independent of {@link org.jsimpledb.JSimpleDB} and can be used on its own.<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * Compared to {@link org.jsimpledb.JSimpleDB}, a {@link Database} has these differences:<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * &lt;ul&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *  &lt;li&gt;A {@link SchemaModel} must be explicitly provided to define the schema in use, whereas when using a<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *      {@link org.jsimpledb.JSimpleDB} the schema is derived automatically from annotated Java model classes.&lt;/li&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *  &lt;li&gt;Object references are represented by {@link ObjId}s instead of Java objects, and there is no notion of object sub-type.<a name="line.65"></a>
+<span class="sourceLineNo">066</span> *      However, reference fields may be configured with a restricted set of referrable types.&lt;/li&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> *  &lt;li&gt;All object types and fields are referenced by explicit storage ID.&lt;/li&gt;<a name="line.67"></a>
+<span class="sourceLineNo">068</span> *  &lt;li&gt;Enum values are represented by {@link EnumValue} objects.&lt;/li&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *  &lt;li&gt;There is no automatic validation support.&lt;/li&gt;<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * &lt;/ul&gt;<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * @see Transaction<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * @see org.jsimpledb<a name="line.73"></a>
+<span class="sourceLineNo">074</span> */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>public class Database {<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * The maximum number of fields that may be indexed in a composite index ({@value #MAX_INDEXED_FIELDS}).<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    // COMPOSITE-INDEX<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    public static final int MAX_INDEXED_FIELDS = 4;<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    // Prefix of all meta-data keys<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    private static final byte METADATA_PREFIX = (byte)0x00;<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    // Meta-data keys and key prefixes<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    private static final byte[] FORMAT_VERSION_KEY = new byte[] {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      METADATA_PREFIX, (byte)0x00, (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    };<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    private static final byte[] SCHEMA_KEY_PREFIX = new byte[] {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      METADATA_PREFIX, (byte)0x01<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    };<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    private static final byte[] VERSION_INDEX_PREFIX = new byte[] {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      METADATA_PREFIX, (byte)0x80<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    };<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    // JSimpleDB format version numbers<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    private static final int FORMAT_VERSION_1 = 1;                                      // original format<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    private static final int FORMAT_VERSION_2 = 2;                                      // added compressed schema XML<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    private static final int CURRENT_FORMAT_VERSION = FORMAT_VERSION_2;<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    /* Note: this string must not ever change */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    private static final byte[] SCHEMA_XML_COMPRESSION_DICTIONARY = (""<a name="line.103"></a>
+<span class="sourceLineNo">104</span>      + "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;"<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      + "&lt;Schema formatVersion=\"2"<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      + "&lt;CompositeIndex"<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      + "&lt;Counter"<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      + "&lt;Enum"<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      + "&lt;Identifier"<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      + "&lt;Indexed"<a name="line.110"></a>
+<span class="sourceLineNo">111</span>      + "&lt;List"<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      + "&lt;Map"<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      + "&lt;ObjectType"<a name="line.113"></a>
+<span class="sourceLineNo">114</span>      + "&lt;ReferenceField"<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      + "&lt;SetField"<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      + "&lt;SimpleField storageId=\""<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      + " cascadeDelete=\""<a name="line.117"></a>
+<span class="sourceLineNo">118</span>      + " encodingSignature=\""<a name="line.118"></a>
+<span class="sourceLineNo">119</span>      + " indexed=\""<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      + " name=\""<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      + " onDelete=\""<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      + " type=\""<a name="line.122"></a>
+<span class="sourceLineNo">123</span>      + "boolean"<a name="line.123"></a>
+<span class="sourceLineNo">124</span>      + "byte[]"<a name="line.124"></a>
+<span class="sourceLineNo">125</span>      + "short"<a name="line.125"></a>
+<span class="sourceLineNo">126</span>      + "char"<a name="line.126"></a>
+<span class="sourceLineNo">127</span>      + "integer"<a name="line.127"></a>
+<span class="sourceLineNo">128</span>      + "float"<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      + "long"<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      + "double"<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      + "java.lang.String"<a name="line.131"></a>
+<span class="sourceLineNo">132</span>      + "util.Date"<a name="line.132"></a>
+<span class="sourceLineNo">133</span>      + "UUID"<a name="line.133"></a>
+<span class="sourceLineNo">134</span>      + "URI"<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      + "io.File"<a name="line.135"></a>
+<span class="sourceLineNo">136</span>      + "regex.Pattern"<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      + "true"<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      + "false"<a name="line.138"></a>
+<span class="sourceLineNo">139</span>      + "NOTHING"<a name="line.139"></a>
+<span class="sourceLineNo">140</span>      + "EXCEPTION"<a name="line.140"></a>
+<span class="sourceLineNo">141</span>      + "UNREFERENCE"<a name="line.141"></a>
+<span class="sourceLineNo">142</span>      + "DELETE"<a name="line.142"></a>
+<span class="sourceLineNo">143</span>      + "\"&gt;&lt;")<a name="line.143"></a>
+<span class="sourceLineNo">144</span>      .getBytes(Charset.forName("UTF-8"));<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>    private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    private final KVDatabase kvdb;<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>    private volatile Schemas lastSchemas;<a name="line.150"></a>
 <span class="sourceLineNo">151</span><a name="line.151"></a>
-<span class="sourceLineNo">152</span>    private volatile Schemas lastSchemas;<a name="line.152"></a>
-<span class="sourceLineNo">153</span><a name="line.153"></a>
-<span class="sourceLineNo">154</span>    /**<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     * Constructor.<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     *<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     * @param kvdb the underlying key/value store in which to store information<a name="line.157"></a>
-<span class="sourceLineNo">158</span>     * @throws IllegalArgumentException if {@code kvdb} is null<a name="line.158"></a>
-<span class="sourceLineNo">159</span>     */<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    public Database(KVDatabase kvdb) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        if (kvdb == null)<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            throw new IllegalArgumentException("null kvdb");<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        this.kvdb = kvdb;<a name="line.163"></a>
-<span class="sourceLineNo">164</span>    }<a name="line.164"></a>
-<span class="sourceLineNo">165</span><a name="line.165"></a>
-<span class="sourceLineNo">166</span>    /**<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     * Get the {@link FieldTypeRegistry} associated with this instance.<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     *<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     * @return field type registry associated with this instance<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     */<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    public FieldTypeRegistry getFieldTypeRegistry() {<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        return this.fieldTypeRegistry;<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    }<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>    /**<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     * Get the {@link KVDatabase} underlying this instance.<a name="line.176"></a>
-<span class="sourceLineNo">177</span>     *<a name="line.177"></a>
-<span class="sourceLineNo">178</span>     * @return underlying key/value database<a name="line.178"></a>
-<span class="sourceLineNo">179</span>     */<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    public KVDatabase getKVDatabase() {<a name="line.180"></a>
-<span class="sourceLineNo">181</span>        return this.kvdb;<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
-<span class="sourceLineNo">183</span><a name="line.183"></a>
-<span class="sourceLineNo">184</span>    /**<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     * Create a new {@link Transaction} on this database and use the specified schema version to access objects and fields.<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     *<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * &lt;p&gt;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     * &lt;b&gt;Schema Versions&lt;/b&gt;<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     * &lt;/p&gt;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     *<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     * &lt;p&gt;<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     * Within each {@link Database} is stored a record of all schema versions previously used with the database.<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     * When creating a new transaction, the caller provides an expected schema version and corresponding {@link SchemaModel}.<a name="line.193"></a>
-<span class="sourceLineNo">194</span>     * Both of these are optional: a schema version of zero means "use the highest version recorded in the<a name="line.194"></a>
-<span class="sourceLineNo">195</span>     * database", and a null {@link SchemaModel} means "use the {@link SchemaModel} already recorded in the database under<a name="line.195"></a>
-<span class="sourceLineNo">196</span>     * {@code version}".<a name="line.196"></a>
-<span class="sourceLineNo">197</span>     * &lt;/p&gt;<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     *<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     * &lt;p&gt;<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     * When this method is invoked, the following checks are applied:<a name="line.200"></a>
-<span class="sourceLineNo">201</span>     * &lt;ul&gt;<a name="line.201"></a>
-<span class="sourceLineNo">202</span>     *  &lt;li&gt;If a schema with version number {@code version != 0} is recorded in the database, and {@code schemaModel} is null or<a name="line.202"></a>
-<span class="sourceLineNo">203</span>     *      matches it, then this method succeeds, and the {@link Transaction} will use that schema.&lt;/li&gt;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>     *  &lt;li&gt;If a schema with version number {@code version} (or the highest numbered schema if {@code version == 0})<a name="line.204"></a>
-<span class="sourceLineNo">205</span>     *      is recorded in the database, and {@code schemaModel} is not null and does not match it, then this method fails<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     *      and throws a {@link SchemaMismatchException}.&lt;/li&gt;<a name="line.206"></a>
-<span class="sourceLineNo">207</span>     *  &lt;li&gt;If {@code allowNewSchema} is false, and no schema with version number {@code version != 0} has yet been<a name="line.207"></a>
-<span class="sourceLineNo">208</span>     *      recorded in the database, then this method fails and throws a {@link SchemaMismatchException}.&lt;/li&gt;<a name="line.208"></a>
-<span class="sourceLineNo">209</span>     *  &lt;li&gt;If {@code allowNewSchema} is true, and no schema with version number {@code version != 0} has yet been<a name="line.209"></a>
-<span class="sourceLineNo">210</span>     *      recorded in the database, then if {@code schemaModel} is null a {@link SchemaMismatchException} is thrown;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>     *      otherwise {@code schemaModel} is checked for compabitility with the schemas previously recorded in the database;<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     *      if compatible, this method succeeds, {@code schema} is recorded in the database under the new version number<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     *      {@code version}, and the {@link Transaction} will use schema version {@code version};<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     *      otherwise a {@link SchemaMismatchException} is thrown.&lt;/li&gt;<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     *  &lt;li&gt;If the database is uninitialized and {@code version == 0} or {@code schemaModel} is null,<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     *      a {@link SchemaMismatchException} is thrown.&lt;/li&gt;<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     * &lt;/ul&gt;<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     *<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     * &lt;p&gt;<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     * For two schemas to "match", they must be identical in all respects, except that object, field, and index names may differ.<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     * In the core API, objects and fields are identified by storage ID, not name.<a name="line.221"></a>
-<span class="sourceLineNo">222</span>     * &lt;/p&gt;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>     *<a name="line.223"></a>
-<span class="sourceLineNo">224</span>     * &lt;p&gt;<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     * Schemas must also be compatible with all other schemas previously recorded in the database.<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     * Basically this means storage IDs must be used consistently from a structural point of view:<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     * &lt;ul&gt;<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     *  &lt;li&gt;Once a storage ID is assigned, it cannot be re-assigned to a different type of item (object or field).&lt;/li&gt;<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     *  &lt;li&gt;Fields must have a consistent type and structural parent (object type or complex field).&lt;/li&gt;<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     * &lt;/ul&gt;<a name="line.230"></a>
-<span class="sourceLineNo">231</span>     *<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     * &lt;p&gt;<a name="line.232"></a>
-<span class="sourceLineNo">233</span>     * However, object types and fields may be added or removed across schema versions, field indexing may change,<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     * and reference field {@link DeleteAction}s may change.<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     * &lt;/p&gt;<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     *<a name="line.236"></a>
-<span class="sourceLineNo">237</span>     * &lt;p&gt;<a name="line.237"></a>
-<span class="sourceLineNo">238</span>     * &lt;b&gt;Object Versions&lt;/b&gt;<a name="line.238"></a>
-<span class="sourceLineNo">239</span>     * &lt;/p&gt;<a name="line.239"></a>
-<span class="sourceLineNo">240</span>     *<a name="line.240"></a>
-<span class="sourceLineNo">241</span>     * &lt;p&gt;<a name="line.241"></a>
-<span class="sourceLineNo">242</span>     * Each object in a {@link Database} contains an internal version number that indicates its current schema version;<a name="line.242"></a>
-<span class="sourceLineNo">243</span>     * this in turn dictates what fields that object contains.<a name="line.243"></a>
-<span class="sourceLineNo">244</span>     * &lt;/p&gt;<a name="line.244"></a>
-<span class="sourceLineNo">245</span>     *<a name="line.245"></a>
-<span class="sourceLineNo">246</span>     * &lt;p&gt;<a name="line.246"></a>
-<span class="sourceLineNo">247</span>     * When an object is accessed during a {@link Transaction}, the object's version is compared to the {@code version} associated<a name="line.247"></a>
-<span class="sourceLineNo">248</span>     * with that {@link Transaction}. If the versions are the same, no version change occurs and fields are accessed normally.<a name="line.248"></a>
-<span class="sourceLineNo">249</span>     * &lt;/p&gt;<a name="line.249"></a>
-<span class="sourceLineNo">250</span>     *<a name="line.250"></a>
-<span class="sourceLineNo">251</span>     * &lt;p&gt;<a name="line.251"></a>
-<span class="sourceLineNo">252</span>     * If the object has a version {@code oldVersion} different from {@code version}, then depending on which {@link Transaction}<a name="line.252"></a>
-<span class="sourceLineNo">253</span>     * method is invoked, the object version may be automatically updated to {@code version}. This will cause fields to be added<a name="line.253"></a>
-<span class="sourceLineNo">254</span>     * or removed, as follows:<a name="line.254"></a>
-<span class="sourceLineNo">255</span>     * &lt;ul&gt;<a name="line.255"></a>
-<span class="sourceLineNo">256</span>     *  &lt;li&gt;Fields that are common to both schema versions remain unchanged (necessarily such fields have the same storage ID,<a name="line.256"></a>
-<span class="sourceLineNo">257</span>     *      type, and structural parent).&lt;/li&gt;<a name="line.257"></a>
-<span class="sourceLineNo">258</span>     *  &lt;li&gt;Fields that exist in {@code oldVersion} but not in {@code version} are removed.&lt;/li&gt;<a name="line.258"></a>
-<span class="sourceLineNo">259</span>     *  &lt;li&gt;Fields that exist in {@code version} but not in {@code oldVersion} are initialized to their default values.&lt;/li&gt;<a name="line.259"></a>
-<span class="sourceLineNo">260</span>     *  &lt;li&gt;All {@link VersionChangeListener}s registered with the {@link Transaction} are notified.&lt;/li&gt;<a name="line.260"></a>
-<span class="sourceLineNo">261</span>     * &lt;/ul&gt;<a name="line.261"></a>
-<span class="sourceLineNo">262</span>     *<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     * &lt;p&gt;<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     * Note that compatibility between schema versions does not depend on the field name, nor does it depend on whether the field<a name="line.264"></a>
-<span class="sourceLineNo">265</span>     * is indexed, or its {@link DeleteAction} (for reference fields). A field's index may be added or removed between schema<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     * versions without losing information, however, querying a field's index will only return those objects whose schema<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * version corresponds to a schema in which the field is indexed. Similarly, the {@link DeleteAction} taken when a<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     * referenced object is deleted depends on the {@link DeleteAction} configured in the schema version of the object<a name="line.268"></a>
-<span class="sourceLineNo">269</span>     * containing the reference.<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     * &lt;/p&gt;<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     *<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     * &lt;p&gt;<a name="line.272"></a>
-<span class="sourceLineNo">273</span>     * Note that an object's current schema version can go up as well as down, may change non-consecutively, and in fact<a name="line.273"></a>
-<span class="sourceLineNo">274</span>     * nothing requires schema version numbers to be consecutive.<a name="line.274"></a>
-<span class="sourceLineNo">275</span>     * &lt;/p&gt;<a name="line.275"></a>
-<span class="sourceLineNo">276</span>     *<a name="line.276"></a>
-<span class="sourceLineNo">277</span>     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database<a name="line.277"></a>
-<span class="sourceLineNo">278</span>     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version<a name="line.278"></a>
-<span class="sourceLineNo">279</span>     * @param allowNewSchema whether creating a new schema version is allowed<a name="line.279"></a>
-<span class="sourceLineNo">280</span>     * @return newly created transaction<a name="line.280"></a>
-<span class="sourceLineNo">281</span>     * @throws IllegalArgumentException if {@code version} is less than zero<a name="line.281"></a>
-<span class="sourceLineNo">282</span>     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)<a name="line.282"></a>
-<span class="sourceLineNo">283</span>     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}<a name="line.283"></a>
-<span class="sourceLineNo">284</span>     *  as recorded in the database<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     *  and {@code allowNewSchema} is false<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,<a name="line.287"></a>
-<span class="sourceLineNo">288</span>     *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas<a name="line.288"></a>
-<span class="sourceLineNo">289</span>     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)<a name="line.289"></a>
-<span class="sourceLineNo">290</span>     * @throws SchemaMismatchException<a name="line.290"></a>
-<span class="sourceLineNo">291</span>     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null<a name="line.291"></a>
-<span class="sourceLineNo">292</span>     * @throws InconsistentDatabaseException if inconsistent or invalid schema information is detected in the database<a name="line.292"></a>
-<span class="sourceLineNo">293</span>     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty<a name="line.293"></a>
-<span class="sourceLineNo">294</span>     * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance<a name="line.294"></a>
-<span class="sourceLineNo">295</span>     */<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    public Transaction createTransaction(final SchemaModel schemaModel, int version, final boolean allowNewSchema) {<a name="line.296"></a>
-<span class="sourceLineNo">297</span><a name="line.297"></a>
-<span class="sourceLineNo">298</span>        // Sanity check<a name="line.298"></a>
-<span class="sourceLineNo">299</span>        if (version &lt; 0)<a name="line.299"></a>
-<span class="sourceLineNo">300</span>            throw new IllegalArgumentException("invalid schema version: " + version);<a name="line.300"></a>
-<span class="sourceLineNo">301</span><a name="line.301"></a>
-<span class="sourceLineNo">302</span>        // Validate schema<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        if (schemaModel != null)<a name="line.303"></a>
-<span class="sourceLineNo">304</span>            schemaModel.validate();<a name="line.304"></a>
-<span class="sourceLineNo">305</span><a name="line.305"></a>
-<span class="sourceLineNo">306</span>        // Open KV transaction<a name="line.306"></a>
-<span class="sourceLineNo">307</span>        final KVTransaction kvt = this.kvdb.createTransaction();<a name="line.307"></a>
-<span class="sourceLineNo">308</span>        boolean success = false;<a name="line.308"></a>
-<span class="sourceLineNo">309</span>        if (this.log.isTraceEnabled()) {<a name="line.309"></a>
-<span class="sourceLineNo">310</span>            this.log.trace("creating transaction using "<a name="line.310"></a>
-<span class="sourceLineNo">311</span>              + (version != 0 ? "schema version " + version : "highest recorded schema version"));<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        }<a name="line.312"></a>
-<span class="sourceLineNo">313</span>        try {<a name="line.313"></a>
-<span class="sourceLineNo">314</span><a name="line.314"></a>
-<span class="sourceLineNo">315</span>            // Get iterator over meta-data key/value pairs<a name="line.315"></a>
-<span class="sourceLineNo">316</span>            final byte[] metaDataPrefix = new byte[] { METADATA_PREFIX };<a name="line.316"></a>
-<span class="sourceLineNo">317</span>            final Iterator&lt;KVPair&gt; metaDataIterator = kvt.getRange(metaDataPrefix,<a name="line.317"></a>
-<span class="sourceLineNo">318</span>              ByteUtil.getKeyAfterPrefix(metaDataPrefix), false);<a name="line.318"></a>
-<span class="sourceLineNo">319</span><a name="line.319"></a>
-<span class="sourceLineNo">320</span>            // Get format version; it should be first; if not found, database is uninitialized (and should be empty)<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            byte[] formatVersionBytes = null;<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            if (metaDataIterator.hasNext()) {<a name="line.322"></a>
-<span class="sourceLineNo">323</span>                final KVPair pair = metaDataIterator.next();<a name="line.323"></a>
-<span class="sourceLineNo">324</span>                if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {<a name="line.324"></a>
-<span class="sourceLineNo">325</span>                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "<a name="line.325"></a>
-<span class="sourceLineNo">326</span>                      + ByteUtil.toString(pair.getKey()) + ")");<a name="line.326"></a>
-<span class="sourceLineNo">327</span>                }<a name="line.327"></a>
-<span class="sourceLineNo">328</span>                formatVersionBytes = pair.getValue();<a name="line.328"></a>
-<span class="sourceLineNo">329</span>            }<a name="line.329"></a>
-<span class="sourceLineNo">330</span><a name="line.330"></a>
-<span class="sourceLineNo">331</span>            // Get database format object; check for an uninitialized database<a name="line.331"></a>
-<span class="sourceLineNo">332</span>            final boolean uninitialized = formatVersionBytes == null;<a name="line.332"></a>
-<span class="sourceLineNo">333</span>            final int formatVersion;<a name="line.333"></a>
-<span class="sourceLineNo">334</span>            if (uninitialized) {<a name="line.334"></a>
-<span class="sourceLineNo">335</span><a name="line.335"></a>
-<span class="sourceLineNo">336</span>                // Sanity checks<a name="line.336"></a>
-<span class="sourceLineNo">337</span>                if (kvt.getAtLeast(new byte[0]) != null)<a name="line.337"></a>
-<span class="sourceLineNo">338</span>                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");<a name="line.338"></a>
-<span class="sourceLineNo">339</span>                if (kvt.getAtMost(new byte[] { (byte)0xff }) != null)<a name="line.339"></a>
-<span class="sourceLineNo">340</span>                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");<a name="line.340"></a>
-<span class="sourceLineNo">341</span>                if (kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false).hasNext())<a name="line.341"></a>
-<span class="sourceLineNo">342</span>                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");<a name="line.342"></a>
-<span class="sourceLineNo">343</span>                this.checkAddNewSchema(schemaModel, version, allowNewSchema);<a name="line.343"></a>
-<span class="sourceLineNo">344</span><a name="line.344"></a>
-<span class="sourceLineNo">345</span>                // Initialize database<a name="line.345"></a>
-<span class="sourceLineNo">346</span>                formatVersion = CURRENT_FORMAT_VERSION;<a name="line.346"></a>
-<span class="sourceLineNo">347</span>                this.log.info("detected an uninitialized database; initializing with format version " + formatVersion);<a name="line.347"></a>
-<span class="sourceLineNo">348</span>                final ByteWriter writer = new ByteWriter();<a name="line.348"></a>
-<span class="sourceLineNo">349</span>                UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);<a name="line.349"></a>
-<span class="sourceLineNo">350</span>                kvt.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());<a name="line.350"></a>
-<span class="sourceLineNo">351</span><a name="line.351"></a>
-<span class="sourceLineNo">352</span>                // Sanity check again<a name="line.352"></a>
-<span class="sourceLineNo">353</span>                formatVersionBytes = kvt.get(FORMAT_VERSION_KEY.clone());<a name="line.353"></a>
-<span class="sourceLineNo">354</span>                if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)<a name="line.354"></a>
-<span class="sourceLineNo">355</span>                    throw new InconsistentDatabaseException("database failed basic read/write test");<a name="line.355"></a>
-<span class="sourceLineNo">356</span>                final KVPair lower = kvt.getAtLeast(new byte[0]);<a name="line.356"></a>
-<span class="sourceLineNo">357</span>                if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))<a name="line.357"></a>
-<span class="sourceLineNo">358</span>                    throw new InconsistentDatabaseException("database failed basic read/write test");<a name="line.358"></a>
-<span class="sourceLineNo">359</span>                final KVPair upper = kvt.getAtMost(new byte[] { (byte)0xff });<a name="line.359"></a>
-<span class="sourceLineNo">360</span>                if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))<a name="line.360"></a>
-<span class="sourceLineNo">361</span>                    throw new InconsistentDatabaseException("database failed basic read/write test");<a name="line.361"></a>
-<span class="sourceLineNo">362</span>            } else {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>                try {<a name="line.363"></a>
-<span class="sourceLineNo">364</span>                    formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);<a name="line.364"></a>
-<span class="sourceLineNo">365</span>                } catch (IllegalArgumentException e) {<a name="line.365"></a>
-<span class="sourceLineNo">366</span>                    throw new InconsistentDatabaseException("database contains invalid encoded format version "<a name="line.366"></a>
-<span class="sourceLineNo">367</span>                      + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));<a name="line.367"></a>
-<span class="sourceLineNo">368</span>                }<a name="line.368"></a>
-<span class="sourceLineNo">369</span>            }<a name="line.369"></a>
-<span class="sourceLineNo">370</span>            final boolean compressedSchemaXML;<a name="line.370"></a>
-<span class="sourceLineNo">371</span>            switch (formatVersion) {<a name="line.371"></a>
-<span class="sourceLineNo">372</span>            case FORMAT_VERSION_1:<a name="line.372"></a>
-<span class="sourceLineNo">373</span>            case FORMAT_VERSION_2:<a name="line.373"></a>
-<span class="sourceLineNo">374</span>                compressedSchemaXML = formatVersion &gt;= FORMAT_VERSION_2;<a name="line.374"></a>
-<span class="sourceLineNo">375</span>                break;<a name="line.375"></a>
-<span class="sourceLineNo">376</span>            default:<a name="line.376"></a>
-<span class="sourceLineNo">377</span>                throw new InconsistentDatabaseException("database contains unrecognized format version "<a name="line.377"></a>
-<span class="sourceLineNo">378</span>                  + formatVersion + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));<a name="line.378"></a>
-<span class="sourceLineNo">379</span>            }<a name="line.379"></a>
-<span class="sourceLineNo">380</span><a name="line.380"></a>
-<span class="sourceLineNo">381</span>            // There should not be any other meta data prior to recorded schemas<a name="line.381"></a>
-<span class="sourceLineNo">382</span>            if (metaDataIterator.hasNext()) {<a name="line.382"></a>
-<span class="sourceLineNo">383</span>                final KVPair pair = metaDataIterator.next();<a name="line.383"></a>
-<span class="sourceLineNo">384</span>                if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) &lt; 0) {<a name="line.384"></a>
-<span class="sourceLineNo">385</span>                    throw new InconsistentDatabaseException("database contains unrecognized garbage at key "<a name="line.385"></a>
-<span class="sourceLineNo">386</span>                      + ByteUtil.toString(pair.getKey()));<a name="line.386"></a>
-<span class="sourceLineNo">387</span>                }<a name="line.387"></a>
-<span class="sourceLineNo">388</span>            }<a name="line.388"></a>
-<span class="sourceLineNo">389</span><a name="line.389"></a>
-<span class="sourceLineNo">390</span>            // Check schema<a name="line.390"></a>
-<span class="sourceLineNo">391</span>            Schemas schemas = null;<a name="line.391"></a>
-<span class="sourceLineNo">392</span>            boolean firstAttempt = true;<a name="line.392"></a>
-<span class="sourceLineNo">393</span>            while (true) {<a name="line.393"></a>
-<span class="sourceLineNo">394</span><a name="line.394"></a>
-<span class="sourceLineNo">395</span>                // Get iterator over schema key/value pairs<a name="line.395"></a>
-<span class="sourceLineNo">396</span>                final Iterator&lt;KVPair&gt; schemaIterator = kvt.getRange(SCHEMA_KEY_PREFIX.clone(),<a name="line.396"></a>
-<span class="sourceLineNo">397</span>                  ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);<a name="line.397"></a>
-<span class="sourceLineNo">398</span><a name="line.398"></a>
-<span class="sourceLineNo">399</span>                // Read recorded database schema versions - should immediately follow FORMAT_VERSION_KEY<a name="line.399"></a>
-<span class="sourceLineNo">400</span>                final TreeMap&lt;Integer, byte[]&gt; bytesMap = new TreeMap&lt;&gt;();<a name="line.400"></a>
-<span class="sourceLineNo">401</span>                while (schemaIterator.hasNext()) {<a name="line.401"></a>
-<span class="sourceLineNo">402</span>                    final KVPair pair = schemaIterator.next();<a name="line.402"></a>
-<span class="sourceLineNo">403</span><a name="line.403"></a>
-<span class="sourceLineNo">404</span>                    // Sanity check<a name="line.404"></a>
-<span class="sourceLineNo">405</span>                    if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) &lt; 0) {<a name="line.405"></a>
-<span class="sourceLineNo">406</span>                        throw new InconsistentDatabaseException("database contains unrecognized garbage key "<a name="line.406"></a>
-<span class="sourceLineNo">407</span>                          + ByteUtil.toString(pair.getKey()));<a name="line.407"></a>
-<span class="sourceLineNo">408</span>                    }<a name="line.408"></a>
-<span class="sourceLineNo">409</span><a name="line.409"></a>
-<span class="sourceLineNo">410</span>                    // Stop at end of recorded schemas<a name="line.410"></a>
-<span class="sourceLineNo">411</span>                    if (!ByteUtil.isPrefixOf(SCHEMA_KEY_PREFIX, pair.getKey()))<a name="line.411"></a>
-<span class="sourceLineNo">412</span>                        break;<a name="line.412"></a>
-<span class="sourceLineNo">413</span><a name="line.413"></a>
-<span class="sourceLineNo">414</span>                    // Decode schema version and get XML<a name="line.414"></a>
-<span class="sourceLineNo">415</span>                    final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));<a name="line.415"></a>
-<span class="sourceLineNo">416</span>                    if (vers == 0)<a name="line.416"></a>
-<span class="sourceLineNo">417</span>                        throw new InconsistentDatabaseException("database contains an invalid schema version zero");<a name="line.417"></a>
-<span class="sourceLineNo">418</span>                    bytesMap.put(vers, pair.getValue());<a name="line.418"></a>
-<span class="sourceLineNo">419</span>                }<a name="line.419"></a>
-<span class="sourceLineNo">420</span><a name="line.420"></a>
-<span class="sourceLineNo">421</span>                // Read and decode database schemas, avoiding rebuild if possible<a name="line.421"></a>
-<span class="sourceLineNo">422</span>                schemas = this.lastSchemas;<a name="line.422"></a>
-<span class="sourceLineNo">423</span>                if (schemas != null &amp;&amp; !schemas.isSameVersions(bytesMap))<a name="line.423"></a>
-<span class="sourceLineNo">424</span>                    schemas = null;<a name="line.424"></a>
-<span class="sourceLineNo">425</span>                if (schemas == null) {<a name="line.425"></a>
-<span class="sourceLineNo">426</span>                    try {<a name="line.426"></a>
-<span class="sourceLineNo">427</span>                        schemas = this.buildSchemas(bytesMap, compressedSchemaXML);<a name="line.427"></a>
-<span class="sourceLineNo">428</span>                    } catch (IllegalArgumentException e) {<a name="line.428"></a>
-<span class="sourceLineNo">429</span>                        if (firstAttempt)<a name="line.429"></a>
-<span class="sourceLineNo">430</span>                            throw new InconsistentDatabaseException("database contains invalid schema information", e);<a name="line.430"></a>
-<span class="sourceLineNo">431</span>                        else<a name="line.431"></a>
-<span class="sourceLineNo">432</span>                            throw new InvalidSchemaException("schema is not valid: " + e.getMessage(), e);<a name="line.432"></a>
-<span class="sourceLineNo">433</span>                    }<a name="line.433"></a>
-<span class="sourceLineNo">434</span>                }<a name="line.434"></a>
-<span class="sourceLineNo">435</span><a name="line.435"></a>
-<span class="sourceLineNo">436</span>                // If no version specified, assume the highest recorded version<a name="line.436"></a>
-<span class="sourceLineNo">437</span>                if (version == 0 &amp;&amp; !bytesMap.isEmpty())<a name="line.437"></a>
-<span class="sourceLineNo">438</span>                    version = bytesMap.lastKey();<a name="line.438"></a>
-<span class="sourceLineNo">439</span><a name="line.439"></a>
-<span class="sourceLineNo">440</span>                // If transaction schema was not found in the database, add it and retry<a name="line.440"></a>
-<span class="sourceLineNo">441</span>                if (!bytesMap.containsKey(version)) {<a name="line.441"></a>
-<span class="sourceLineNo">442</span><a name="line.442"></a>
-<span class="sourceLineNo">443</span>                    // Log it<a name="line.443"></a>
-<span class="sourceLineNo">444</span>                    if (bytesMap.isEmpty()) {<a name="line.444"></a>
-<span class="sourceLineNo">445</span>                        if (!uninitialized)<a name="line.445"></a>
-<span class="sourceLineNo">446</span>                            throw new InconsistentDatabaseException("database is initialized but contains zero schema versions");<a name="line.446"></a>
-<span class="sourceLineNo">447</span>                    } else {<a name="line.447"></a>
-<span class="sourceLineNo">448</span>                        this.log.info("schema version " + version<a name="line.448"></a>
-<span class="sourceLineNo">449</span>                          + " not found in database; known versions are " + bytesMap.keySet());<a name="line.449"></a>
-<span class="sourceLineNo">450</span>                    }<a name="line.450"></a>
-<span class="sourceLineNo">451</span><a name="line.451"></a>
-<span class="sourceLineNo">452</span>                    // Check whether we can add a new schema version<a name="line.452"></a>
-<span class="sourceLineNo">453</span>                    this.checkAddNewSchema(schemaModel, version, allowNewSchema);<a name="line.453"></a>
-<span class="sourceLineNo">454</span><a name="line.454"></a>
-<span class="sourceLineNo">455</span>                    // Record new schema in database<a name="line.455"></a>
-<span class="sourceLineNo">456</span>                    this.log.info("recording new schema version " + version + " into database");<a name="line.456"></a>
-<span class="sourceLineNo">457</span>                    this.writeSchema(kvt, version, schemaModel, compressedSchemaXML);<a name="line.457"></a>
-<span class="sourceLineNo">458</span><a name="line.458"></a>
-<span class="sourceLineNo">459</span>                    // Try again<a name="line.459"></a>
-<span class="sourceLineNo">460</span>                    schemas = null;<a name="line.460"></a>
-<span class="sourceLineNo">461</span>                    firstAttempt = false;<a name="line.461"></a>
-<span class="sourceLineNo">462</span>                    continue;<a name="line.462"></a>
-<span class="sourceLineNo">463</span>                }<a name="line.463"></a>
-<span class="sourceLineNo">464</span><a name="line.464"></a>
-<span class="sourceLineNo">465</span>                // Compare transaction schema with the schema of the same version found in the database<a name="line.465"></a>
-<span class="sourceLineNo">466</span>                if (this.log.isTraceEnabled())<a name="line.466"></a>
-<span class="sourceLineNo">467</span>                    this.log.trace("found schema version " + version + " in database; known versions are " + bytesMap.keySet());<a name="line.467"></a>
-<span class="sourceLineNo">468</span>                final SchemaModel dbSchemaModel = schemas.getVersion(version).getSchemaModel();<a name="line.468"></a>
-<span class="sourceLineNo">469</span>                if (schemaModel != null) {<a name="line.469"></a>
-<span class="sourceLineNo">470</span>                    if (!schemaModel.isCompatibleWith(dbSchemaModel)) {<a name="line.470"></a>
-<span class="sourceLineNo">471</span>                        final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);<a name="line.471"></a>
-<span class="sourceLineNo">472</span>                        this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}"<a name="line.472"></a>
-<span class="sourceLineNo">473</span>                          + "\n=== Differences ===\n{}", dbSchemaModel, schemaModel, diffs);<a name="line.473"></a>
-<span class="sourceLineNo">474</span>                        throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "<a name="line.474"></a>
-<span class="sourceLineNo">475</span>                          + version + " that is already recorded in the database:\n" + diffs);<a name="line.475"></a>
-<span class="sourceLineNo">476</span>                    } else if (this.log.isTraceEnabled() &amp;&amp; !schemaModel.equals(dbSchemaModel)) {<a name="line.476"></a>
-<span class="sourceLineNo">477</span>                        final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);<a name="line.477"></a>
-<span class="sourceLineNo">478</span>                        this.log.trace("the provided schema differs from, but is compatible with, the database schema:\n{}", diffs);<a name="line.478"></a>
-<span class="sourceLineNo">479</span>                    }<a name="line.479"></a>
-<span class="sourceLineNo">480</span>                }<a name="line.480"></a>
-<span class="sourceLineNo">481</span>                break;<a name="line.481"></a>
-<span class="sourceLineNo">482</span>            }<a name="line.482"></a>
-<span class="sourceLineNo">483</span><a name="line.483"></a>
-<span class="sourceLineNo">484</span>            // Save schema for next time<a name="line.484"></a>
-<span class="sourceLineNo">485</span>            this.lastSchemas = schemas;<a name="line.485"></a>
-<span class="sourceLineNo">486</span><a name="line.486"></a>
-<span class="sourceLineNo">487</span>            // Create transaction<a name="line.487"></a>
-<span class="sourceLineNo">488</span>            final Transaction tx = new Transaction(this, kvt, schemas, version);<a name="line.488"></a>
-<span class="sourceLineNo">489</span>            success = true;<a name="line.489"></a>
-<span class="sourceLineNo">490</span>            return tx;<a name="line.490"></a>
-<span class="sourceLineNo">491</span>        } finally {<a name="line.491"></a>
-<span class="sourceLineNo">492</span>            if (!success) {<a name="line.492"></a>
-<span class="sourceLineNo">493</span>                try {<a name="line.493"></a>
-<span class="sourceLineNo">494</span>                    kvt.rollback();<a name="line.494"></a>
-<span class="sourceLineNo">495</span>                } catch (KVTransactionException e) {<a name="line.495"></a>
-<span class="sourceLineNo">496</span>                    // ignore<a name="line.496"></a>
-<span class="sourceLineNo">497</span>                }<a name="line.497"></a>
-<span class="sourceLineNo">498</span>            }<a name="line.498"></a>
-<span class="sourceLineNo">499</span>        }<a name="line.499"></a>
-<span class="sourceLineNo">500</span>    }<a name="line.500"></a>
-<span class="sourceLineNo">501</span><a name="line.501"></a>
-<span class="sourceLineNo">502</span>    /**<a name="line.502"></a>
-<span class="sourceLineNo">503</span>     * Validate a {@link SchemaModel}.<a name="line.503"></a>
-<span class="sourceLineNo">504</span>     *<a name="line.504"></a>
-<span class="sourceLineNo">505</span>     * &lt;p&gt;<a name="line.505"></a>
-<span class="sourceLineNo">506</span>     * This method only performs "static" checks; it does not access the database and therefore<a name="line.506"></a>
-<span class="sourceLineNo">507</span>     * does not validate the schema against existing schema versions previously recorded.<a name="line.507"></a>
-<span class="sourceLineNo">508</span>     * It does however use the {@link FieldTypeRegistry} associated with this instance to look up field types.<a name="line.508"></a>
-<span class="sourceLineNo">509</span>     * &lt;/p&gt;<a name="line.509"></a>
-<span class="sourceLineNo">510</span>     *<a name="line.510"></a>
-<span class="sourceLineNo">511</span>     * &lt;p&gt;<a name="line.511"></a>
-<span class="sourceLineNo">512</span>     * To validate a schema against the database contents as well, simply attempt to create a transaction<a name="line.512"></a>
-<span class="sourceLineNo">513</span>     * via {@link #createTransaction createTransaction()}.<a name="line.513"></a>
-<span class="sourceLineNo">514</span>     * &lt;/p&gt;<a name="line.514"></a>
-<span class="sourceLineNo">515</span>     *<a name="line.515"></a>
-<span class="sourceLineNo">516</span>     * @param schemaModel schema to validate<a name="line.516"></a>
-<span class="sourceLineNo">517</span>     * @throws InvalidSchemaException if {@code schemaModel} is invalid<a name="line.517"></a>
-<span class="sourceLineNo">518</span>     * @throws IllegalArgumentException if {@code schemaModel} is null<a name="line.518"></a>
-<span class="sourceLineNo">519</span>     */<a name="line.519"></a>
-<span class="sourceLineNo">520</span>    public void validateSchema(SchemaModel schemaModel) {<a name="line.520"></a>
-<span class="sourceLineNo">521</span><a name="line.521"></a>
-<span class="sourceLineNo">522</span>        // Sanity check<a name="line.522"></a>
-<span class="sourceLineNo">523</span>        if (schemaModel == null)<a name="line.523"></a>
-<span class="sourceLineNo">524</span>            throw new IllegalArgumentException("null schemaModel");<a name="line.524"></a>
-<span class="sourceLineNo">525</span><a name="line.525"></a>
-<span class="sourceLineNo">526</span>        // Validate<a name="line.526"></a>
-<span class="sourceLineNo">527</span>        schemaModel.validate();<a name="line.527"></a>
-<span class="sourceLineNo">528</span>        try {<a name="line.528"></a>
-<span class="sourceLineNo">529</span>            new Schema(1, new byte[0], schemaModel, this.fieldTypeRegistry);<a name="line.529"></a>
-<span class="sourceLineNo">530</span>        } catch (IllegalArgumentException e) {<a name="line.530"></a>
-<span class="sourceLineNo">531</span>            throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);<a name="line.531"></a>
-<span class="sourceLineNo">532</span>        }<a name="line.532"></a>
-<span class="sourceLineNo">533</span>    }<a name="line.533"></a>
-<span class="sourceLineNo">534</span><a name="line.534"></a>
-<span class="sourceLineNo">535</span>    private void checkAddNewSchema(SchemaModel schemaModel, int version, boolean allowNewSchema) {<a name="line.535"></a>
-<span class="sourceLineNo">536</span>        if (version == 0)<a name="line.536"></a>
-<span class="sourceLineNo">537</span>            throw new SchemaMismatchException("database is uninitialized and no schema version was provided");<a name="line.537"></a>
-<span class="sourceLineNo">538</span>        if (schemaModel == null) {<a name="line.538"></a>
-<span class="sourceLineNo">539</span>            throw new SchemaMismatchException("schema version " + version<a name="line.539"></a>
-<span class="sourceLineNo">540</span>              + " was not found in database, and no schema model was provided");<a name="line.540"></a>
-<span class="sourceLineNo">541</span>        }<a name="line.541"></a>
-<span class="sourceLineNo">542</span>        if (!allowNewSchema) {<a name="line.542"></a>
-<span class="sourceLineNo">543</span>            throw new SchemaMismatchException("schema version " + version<a name="line.543"></a>
-<span class="sourceLineNo">544</span>              + " was not found in database, and recording a new schema version is disabled in this transaction");<a name="line.544"></a>
-<span class="sourceLineNo">545</span>        }<a name="line.545"></a>
-<span class="sourceLineNo">546</span>    }<a name="line.546"></a>
-<span class="sourceLineNo">547</span><a name="line.547"></a>
-<span class="sourceLineNo">548</span>    void copyMetaData(Transaction src, KVStore dst) {<a name="line.548"></a>
-<span class="sourceLineNo">549</span>        for (Iterator&lt;KVPair&gt; i = src.kvt.getRange(new byte[] { METADATA_PREFIX }, VERSION_INDEX_PREFIX.clone(), false);<a name="line.549"></a>
-<span class="sourceLineNo">550</span>          i.hasNext(); ) {<a name="line.550"></a>
-<span class="sourceLineNo">551</span>            final KVPair pair = i.next();<a name="line.551"></a>
-<span class="sourceLineNo">552</span>            dst.put(pair.getKey(), pair.getValue());<a name="line.552"></a>
-<span class="sourceLineNo">553</span>        }<a name="line.553"></a>
-<span class="sourceLineNo">554</span>    }<a name="line.554"></a>
-<span class="sourceLineNo">555</span><a name="line.555"></a>
-<span class="sourceLineNo">556</span>    void reset(SnapshotTransaction tx) {<a name="line.556"></a>
-<span class="sourceLineNo">557</span>        tx.kvt.removeRange(VERSION_INDEX_PREFIX.clone(), null);<a name="line.557"></a>
-<span class="sourceLineNo">558</span>    }<a name="line.558"></a>
-<span class="sourceLineNo">559</span><a name="line.559"></a>
-<span class="sourceLineNo">560</span>    static byte[] buildVersionIndexKey(ObjId id, int version) {<a name="line.560"></a>
-<span class="sourceLineNo">561</span>        final ByteWriter writer = new ByteWriter(VERSION_INDEX_PREFIX.length + 1 + ObjId.NUM_BYTES);<a name="line.561"></a>
-<span class="sourceLineNo">562</span>        writer.write(VERSION_INDEX_PREFIX);<a name="line.562"></a>
-<span class="sourceLineNo">563</span>        UnsignedIntEncoder.write(writer, version);<a name="line.563"></a>
-<span class="sourceLineNo">564</span>        id.writeTo(writer);<a name="line.564"></a>
-<span class="sourceLineNo">565</span>        return writer.getBytes();<a name="line.565"></a>
-<span class="sourceLineNo">566</span>    }<a name="line.566"></a>
-<span class="sourceLineNo">567</span><a name="line.567"></a>
-<span class="sourceLineNo">568</span>    CoreIndex&lt;Integer, ObjId&gt; getVersionIndex(Transaction tx) {<a name="line.568"></a>
-<span class="sourceLineNo">569</span>        return new CoreIndex&lt;Integer, ObjId&gt;(tx,<a name="line.569"></a>
-<span class="sourceLineNo">570</span>          new IndexView&lt;Integer, ObjId&gt;(VERSION_INDEX_PREFIX, false, new UnsignedIntType(), FieldTypeRegistry.OBJ_ID));<a name="line.570"></a>
-<span class="sourceLineNo">571</span>    }<a name="line.571"></a>
-<span class="sourceLineNo">572</span><a name="line.572"></a>
-<span class="sourceLineNo">573</span>    /**<a name="line.573"></a>
-<span class="sourceLineNo">574</span>     * Build {@link Schemas} object from a schema version XMLs.<a name="line.574"></a>
-<span class="sourceLineNo">575</span>     *<a name="line.575"></a>
-<span class="sourceLineNo">576</span>     * @throws InconsistentDatabaseException if any recorded schema version is invalid<a name="line.576"></a>
-<span class="sourceLineNo">577</span>     */<a name="line.577"></a>
-<span class="sourceLineNo">578</span>    private Schemas buildSchemas(SortedMap&lt;Integer, byte[]&gt; bytesMap, boolean compressed) {<a name="line.578"></a>
-<span class="sourceLineNo">579</span>        final TreeMap&lt;Integer, Schema&gt; versionMap = new TreeMap&lt;&gt;();<a name="line.579"></a>
-<span class="sourceLineNo">580</span>        for (Map.Entry&lt;Integer, byte[]&gt; entry : bytesMap.entrySet()) {<a name="line.580"></a>
-<span class="sourceLineNo">581</span>            final int version = entry.getKey();<a name="line.581"></a>
-<span class="sourceLineNo">582</span>            final byte[] bytes = entry.getValue();<a name="line.582"></a>
-<span class="sourceLineNo">583</span>            final SchemaModel schemaModel;<a name="line.583"></a>
-<span class="sourceLineNo">584</span>            try {<a name="line.584"></a>
-<span class="sourceLineNo">585</span>                schemaModel = this.decodeSchema(bytes, compressed);<a name="line.585"></a>
-<span class="sourceLineNo">586</span>            } catch (InvalidSchemaException e) {<a name="line.586"></a>
-<span class="sourceLineNo">587</span>                throw new InconsistentDatabaseException("found invalid schema version " + version + " recorded in database", e);<a name="line.587"></a>
-<span class="sourceLineNo">588</span>            }<a name="line.588"></a>
-<span class="sourceLineNo">589</span>            if (this.log.isTraceEnabled())<a name="line.589"></a>
-<span class="sourceLineNo">590</span>                this.log.trace("read schema version {} from database:\n{}", version, schemaModel);<a name="line.590"></a>
-<span class="sourceLineNo">591</span>            versionMap.put(version, new Schema(version, bytes, schemaModel, this.fieldTypeRegistry));<a name="line.591"></a>
-<span class="sourceLineNo">592</span>        }<a name="line.592"></a>
-<span class="sourceLineNo">593</span>        return new Schemas(versionMap);<a name="line.593"></a>
-<span class="sourceLineNo">594</span>    }<a name="line.594"></a>
-<span class="sourceLineNo">595</span><a name="line.595"></a>
-<span class="sourceLineNo">596</span>    /**<a name="line.596"></a>
-<span class="sourceLineNo">597</span>     * Decode and validate schema XML.<a name="line.597"></a>
-<span class="sourceLineNo">598</span>     *<a name="line.598"></a>
-<span class="sourceLineNo">599</span>     * @throws InvalidSchemaException if schema is invalid<a name="line.599"></a>
-<span class="sourceLineNo">600</span>     */<a name="line.600"></a>
-<span class="sourceLineNo">601</span>    private SchemaModel decodeSchema(byte[] value, boolean compressed) {<a name="line.601"></a>
-<span class="sourceLineNo">602</span><a name="line.602"></a>
-<span class="sourceLineNo">603</span>        // Decompress<a name="line.603"></a>
-<span class="sourceLineNo">604</span>        if (compressed) {<a name="line.604"></a>
-<span class="sourceLineNo">605</span>            try {<a name="line.605"></a>
-<span class="sourceLineNo">606</span>                final Inflater inflater = new Inflater(true);<a name="line.606"></a>
-<span class="sourceLineNo">607</span>                inflater.setDictionary(SCHEMA_XML_COMPRESSION_DICTIONARY);<a name="line.607"></a>
-<span class="sourceLineNo">608</span>                inflater.setInput(Bytes.concat(value, new byte[1]));<a name="line.608"></a>
-<span class="sourceLineNo">609</span>                final ByteArrayOutputStream decompressed = new ByteArrayOutputStream();<a name="line.609"></a>
-<span class="sourceLineNo">610</span>                final byte[] temp = new byte[100];<a name="line.610"></a>
-<span class="sourceLineNo">611</span>                int r;<a name="line.611"></a>
-<span class="sourceLineNo">612</span>                while ((r = inflater.inflate(temp)) != 0)<a name="line.612"></a>
-<span class="sourceLineNo">613</span>                    decompressed.write(temp, 0, r);<a name="line.613"></a>
-<span class="sourceLineNo">614</span>                if (!inflater.finished())<a name="line.614"></a>
-<span class="sourceLineNo">615</span>                    throw new RuntimeException("internal error: inflater did not finish");<a name="line.615"></a>
-<span class="sourceLineNo">616</span>                inflater.end();<a name="line.616"></a>
-<span class="sourceLineNo">617</span>                value = decompressed.toByteArray();<a name="line.617"></a>
-<span class="sourceLineNo">618</span>            } catch (DataFormatException e) {<a name="line.618"></a>
-<span class="sourceLineNo">619</span>                throw new InvalidSchemaException("error in compressed data", e);<a name="line.619"></a>
-<span class="sourceLineNo">620</span>            }<a name="line.620"></a>
-<span class="sourceLineNo">621</span>        }<a name="line.621"></a>
-<span class="sourceLineNo">622</span><a name="line.622"></a>
-<span class="sourceLineNo">623</span>        // Decode XML<a name="line.623"></a>
-<span class="sourceLineNo">624</span>        try {<a name="line.624"></a>
-<span class="sourceLineNo">625</span>            return SchemaModel.fromXML(new ByteArrayInputStream(value));<a name="line.625"></a>
-<span class="sourceLineNo">626</span>        } catch (IOException e) {<a name="line.626"></a>
-<span class="sourceLineNo">627</span>            throw new RuntimeException("unexpected exception", e);<a name="line.627"></a>
-<span class="sourceLineNo">628</span>        }<a name="line.628"></a>
-<span class="sourceLineNo">629</span>    }<a name="line.629"></a>
-<span class="sourceLineNo">630</span><a name="line.630"></a>
-<span class="sourceLineNo">631</span>    /**<a name="line.631"></a>
-<span class="sourceLineNo">632</span>     * Record the given schema into the database.<a name="line.632"></a>
-<span class="sourceLineNo">633</span>     */<a name="line.633"></a>
-<span class="sourceLineNo">634</span>    private void writeSchema(KVTransaction kvt, int version, SchemaModel schemaModel, boolean compress) {<a name="line.634"></a>
-<span class="sourceLineNo">635</span><a name="line.635"></a>
-<span class="sourceLineNo">636</span>        // Encode as XML<a name="line.636"></a>
-<span class="sourceLineNo">637</span>        final ByteArrayOutputStream buf = new ByteArrayOutputStream();<a name="line.637"></a>
-<span class="sourceLineNo">638</span>        try {<a name="line.638"></a>
-<span class="sourceLineNo">639</span>            schemaModel.toXML(buf, false);<a name="line.639"></a>
-<span class="sourceLineNo">640</span>        } catch (IOException e) {<a name="line.640"></a>
-<span class="sourceLineNo">641</span>            throw new RuntimeException("unexpected exception", e);<a name="line.641"></a>
-<span class="sourceLineNo">642</span>        }<a name="line.642"></a>
-<span class="sourceLineNo">643</span>        byte[] value = buf.toByteArray();<a name="line.643"></a>
-<span class="sourceLineNo">644</span><a name="line.644"></a>
-<span class="sourceLineNo">645</span>        // Compress<a name="line.645"></a>
-<span class="sourceLineNo">646</span>        if (compress) {<a name="line.646"></a>
-<span class="sourceLineNo">647</span>            final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);<a name="line.647"></a>
-<span class="sourceLineNo">648</span>            deflater.setDictionary(SCHEMA_XML_COMPRESSION_DICTIONARY);<a name="line.648"></a>
-<span class="sourceLineNo">649</span>            deflater.setInput(value);<a name="line.649"></a>
-<span class="sourceLineNo">650</span>            deflater.finish();<a name="line.650"></a>
-<span class="sourceLineNo">651</span>            final ByteArrayOutputStream compressed = new ByteArrayOutputStream();<a name="line.651"></a>
-<span class="sourceLineNo">652</span>            final byte[] temp = new byte[100];<a name="line.652"></a>
-<span class="sourceLineNo">653</span>            int r;<a name="line.653"></a>
-<span class="sourceLineNo">654</span>            while ((r = deflater.deflate(temp)) != 0)<a name="line.654"></a>
-<span class="sourceLineNo">655</span>                compressed.write(temp, 0, r);<a name="line.655"></a>
-<span class="sourceLineNo">656</span>            if (!deflater.finished())<a name="line.656"></a>
-<span class="sourceLineNo">657</span>                throw new RuntimeException("internal error: deflater did not finish");<a name="line.657"></a>
-<span class="sourceLineNo">658</span>            deflater.end();<a name="line.658"></a>
-<span class="sourceLineNo">659</span>            value = compressed.toByteArray();<a name="line.659"></a>
-<span class="sourceLineNo">660</span>        }<a name="line.660"></a>
-<span class="sourceLineNo">661</span><a name="line.661"></a>
-<span class="sourceLineNo">662</span>        // Write schema<a name="line.662"></a>
-<span class="sourceLineNo">663</span>        kvt.put(this.getSchemaKey(version), value);<a name="line.663"></a>
-<span class="sourceLineNo">664</span>    }<a name="line.664"></a>
-<span class="sourceLineNo">665</span><a name="line.665"></a>
-<span class="sourceLineNo">666</span>    /**<a name="line.666"></a>
-<span class="sourceLineNo">667</span>     * Delete a schema version. Caller must verify no objects exist.<a name="line.667"></a>
-<span class="sourceLineNo">668</span>     */<a name="line.668"></a>
-<span class="sourceLineNo">669</span>    void deleteSchema(KVTransaction kvt, int version) {<a name="line.669"></a>
-<span class="sourceLineNo">670</span>        kvt.remove(this.getSchemaKey(version));<a name="line.670"></a>
-<span class="sourceLineNo">671</span>    }<a name="line.671"></a>
-<span class="sourceLineNo">672</span><a name="line.672"></a>
-<span class="sourceLineNo">673</span>    private byte[] getSchemaKey(int version) {<a name="line.673"></a>
-<span class="sourceLineNo">674</span>        final ByteWriter writer = new ByteWriter();<a name="line.674"></a>
-<span class="sourceLineNo">675</span>        writer.write(SCHEMA_KEY_PREFIX);<a name="line.675"></a>
-<span class="sourceLineNo">676</span>        UnsignedIntEncoder.write(writer, version);<a name="line.676"></a>
-<span class="sourceLineNo">677</span>        return writer.getBytes();<a name="line.677"></a>
-<span class="sourceLineNo">678</span>    }<a name="line.678"></a>
-<span class="sourceLineNo">679</span>}<a name="line.679"></a>
-<span class="sourceLineNo">680</span><a name="line.680"></a>
+<span class="sourceLineNo">152</span>    /**<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * Constructor.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     *<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * @param kvdb the underlying key/value store in which to store information<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * @throws IllegalArgumentException if {@code kvdb} is null<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     */<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    public Database(KVDatabase kvdb) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        if (kvdb == null)<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            throw new IllegalArgumentException("null kvdb");<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        this.kvdb = kvdb;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    }<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>    /**<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * Get the {@link FieldTypeRegistry} associated with this instance.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     *<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * @return field type registry associated with this instance<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    public FieldTypeRegistry getFieldTypeRegistry() {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        return this.fieldTypeRegistry;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    }<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>    /**<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * Get the {@link KVDatabase} underlying this instance.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * @return underlying key/value database<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     */<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    public KVDatabase getKVDatabase() {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        return this.kvdb;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    }<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>    /**<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * Create a new {@link Transaction} on this database and use the specified schema version to access objects and fields.<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     *<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * &lt;p&gt;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * &lt;b&gt;Schema Versions&lt;/b&gt;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * &lt;/p&gt;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     *<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * &lt;p&gt;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * Within each {@link Database} is stored a record of all schema versions previously used with the database.<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * When creating a new transaction, the caller provides an expected schema version and corresponding {@link SchemaModel}.<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * Both of these are optional: a schema version of zero means "use the highest version recorded in the<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * database", and a null {@link SchemaModel} means "use the {@link SchemaModel} already recorded in the database under<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * {@code version}".<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * &lt;/p&gt;<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     *<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * &lt;p&gt;<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * When this method is invoked, the following checks are applied:<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * &lt;ul&gt;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     *  &lt;li&gt;If a schema with version number {@code version != 0} is recorded in the database, and {@code schemaModel} is null or<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     *      matches it, then this method succeeds, and the {@link Transaction} will use that schema.&lt;/li&gt;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     *  &lt;li&gt;If a schema with version number {@code version} (or the highest numbered schema if {@code version == 0})<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     *      is recorded in the database, and {@code schemaModel} is not null and does not match it, then this method fails<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     *      and throws a {@link SchemaMismatchException}.&lt;/li&gt;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     *  &lt;li&gt;If {@code allowNewSchema} is false, and no schema with version number {@code version != 0} has yet been<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     *      recorded in the database, then this method fails and throws a {@link SchemaMismatchException}.&lt;/li&gt;<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     *  &lt;li&gt;If {@code allowNewSchema} is true, and no schema with version number {@code version != 0} has yet been<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     *      recorded in the database, then if {@code schemaModel} is null a {@link SchemaMismatchException} is thrown;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     *      otherwise {@code schemaModel} is checked for compabitility with the schemas previously recorded in the database;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     *      if compatible, this method succeeds, {@code schema} is recorded in the database under the new version number<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     *      {@code version}, and the {@link Transaction} will use schema version {@code version};<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     *      otherwise a {@link SchemaMismatchException} is thrown.&lt;/li&gt;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     *  &lt;li&gt;If the database is uninitialized and {@code version == 0} or {@code schemaModel} is null,<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     *      a {@link SchemaMismatchException} is thrown.&lt;/li&gt;<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * &lt;/ul&gt;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     *<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * &lt;p&gt;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * For two schemas to "match", they must be identical in all respects, except that object, field, and index names may differ.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * In the core API, objects and fields are identified by storage ID, not name.<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * &lt;/p&gt;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     *<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * &lt;p&gt;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * Schemas must also be compatible with all other schemas previously recorded in the database.<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * Basically this means storage IDs must be used consistently from a structural point of view:<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * &lt;ul&gt;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     *  &lt;li&gt;Once a storage ID is assigned, it cannot be re-assigned to a different type of item (object or field).&lt;/li&gt;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     *  &lt;li&gt;Fields must have a consistent type and structural parent (object type or complex field).&lt;/li&gt;<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * &lt;/ul&gt;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     *<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * &lt;p&gt;<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     * However, object types and fields may be added or removed across schema versions, field indexing may change,<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * and reference field {@link DeleteAction}s may change.<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * &lt;/p&gt;<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     *<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * &lt;p&gt;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * &lt;b&gt;Object Versions&lt;/b&gt;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * &lt;/p&gt;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     *<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * &lt;p&gt;<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * Each object in a {@link Database} contains an internal version number that indicates its current schema version;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * this in turn dictates what fields that object contains.<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * &lt;/p&gt;<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     *<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * &lt;p&gt;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * When an object is accessed during a {@link Transaction}, the object's version is compared to the {@code version} associated<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * with that {@link Transaction}. If the versions are the same, no version change occurs and fields are accessed normally.<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     * &lt;/p&gt;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     *<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     * &lt;p&gt;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     * If the object has a version {@code oldVersion} different from {@code version}, then depending on which {@link Transaction}<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * method is invoked, the object version may be automatically updated to {@code version}. This will cause fields to be added<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * or removed, as follows:<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * &lt;ul&gt;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     *  &lt;li&gt;Fields that are common to both schema versions remain unchanged (necessarily such fields have the same storage ID,<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     *      type, and structural parent).&lt;/li&gt;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     *  &lt;li&gt;Fields that exist in {@code oldVersion} but not in {@code version} are removed.&lt;/li&gt;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     *  &lt;li&gt;Fields that exist in {@code version} but not in {@code oldVersion} are initialized to their default values.&lt;/li&gt;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     *  &lt;li&gt;All {@link VersionChangeListener}s registered with the {@link Transaction} are notified.&lt;/li&gt;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * &lt;/ul&gt;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     *<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * &lt;p&gt;<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * Note that compatibility between schema versions does not depend on the field name, nor does it depend on whether the field<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * is indexed, or its {@link DeleteAction} (for reference fields). A field's index may be added or removed between schema<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * versions without losing information, however, querying a field's index will only return those objects whose schema<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * version corresponds to a schema in which the field is indexed. Similarly, the {@link DeleteAction} taken when a<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * referenced object is deleted depends on the {@link DeleteAction} configured in the schema version of the object<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * containing the reference.<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * &lt;/p&gt;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     *<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * &lt;p&gt;<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     * Note that an object's current schema version can go up as well as down, may change non-consecutively, and in fact<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * nothing requires schema version numbers to be consecutive.<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * &lt;/p&gt;<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     *<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * @param allowNewSchema whether creating a new schema version is allowed<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * @return newly created transaction<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * @throws IllegalArgumentException if {@code version} is less than zero<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     *  as recorded in the database<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     *  and {@code allowNewSchema} is false<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     * @throws SchemaMismatchException<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     * @throws InconsistentDatabaseException if inconsistent or invalid schema information is detected in the database<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     */<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    public Transaction createTransaction(final SchemaModel schemaModel, int version, final boolean allowNewSchema) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>        // Sanity check<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        if (version &lt; 0)<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            throw new IllegalArgumentException("invalid schema version: " + version);<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>        // Validate schema<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        if (schemaModel != null)<a name="line.301"></a>
+<span class="sourceLineNo">302</span>            schemaModel.validate();<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>        // Open KV transaction<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        final KVTransaction kvt = this.kvdb.createTransaction();<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        boolean success = false;<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        if (this.log.isTraceEnabled()) {<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            this.log.trace("creating transaction using "<a name="line.308"></a>
+<span class="sourceLineNo">309</span>              + (version != 0 ? "schema version " + version : "highest recorded schema version"));<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        }<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        try {<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>            // Get iterator over meta-data key/value pairs<a name="line.313"></a>
+<span class="sourceLineNo">314</span>            final byte[] metaDataPrefix = new byte[] { METADATA_PREFIX };<a name="line.314"></a>
+<span class="sourceLineNo">315</span>            final Iterator&lt;KVPair&gt; metaDataIterator = kvt.getRange(metaDataPrefix,<a name="line.315"></a>
+<span class="sourceLineNo">316</span>              ByteUtil.getKeyAfterPrefix(metaDataPrefix), false);<a name="line.316"></a>
+<span class="sourceLineNo">317</span><a name="line.317"></a>
+<span class="sourceLineNo">318</span>            // Get format version; it should be first; if not found, database is uninitialized (and should be empty)<a name="line.318"></a>
+<span class="sourceLineNo">319</span>            byte[] formatVersionBytes = null;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            if (metaDataIterator.hasNext()) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>                final KVPair pair = metaDataIterator.next();<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                      + ByteUtil.toString(pair.getKey()) + ")");<a name="line.324"></a>
+<span class="sourceLineNo">325</span>                }<a name="line.325"></a>
+<span class="sourceLineNo">326</span>                formatVersionBytes = pair.getValue();<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            }<a name="line.327"></a>
+<span class="sourceLineNo">328</span><a name="line.328"></a>
+<span class="sourceLineNo">329</span>            // Get database format object; check for an uninitialized database<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            final boolean uninitialized = formatVersionBytes == null;<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            final int formatVersion;<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            if (uninitialized) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span><a name="line.333"></a>
+<span class="sourceLineNo">334</span>                // Sanity checks<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                if (kvt.getAtLeast(new byte[0]) != null)<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                if (kvt.getAtMost(new byte[] { (byte)0xff }) != null)<a name="line.337"></a>
+<span class="sourceLineNo">338</span>                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");<a name="line.338"></a>
+<span class="sourceLineNo">339</span>                if (kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false).hasNext())<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                this.checkAddNewSchema(schemaModel, version, allowNewSchema);<a name="line.341"></a>
+<span class="sourceLineNo">342</span><a name="line.342"></a>
+<span class="sourceLineNo">343</span>                // Initialize database<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                formatVersion = CURRENT_FORMAT_VERSION;<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                this.log.info("detected an uninitialized database; initializing with format version " + formatVersion);<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                final ByteWriter writer = new ByteWriter();<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                kvt.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());<a name="line.348"></a>
+<span class="sourceLineNo">349</span><a name="line.349"></a>
+<span class="sourceLineNo">350</span>                // Sanity check again<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                formatVersionBytes = kvt.get(FORMAT_VERSION_KEY.clone());<a name="line.351"></a>
+<span class="sourceLineNo">352</span>                if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                    throw new InconsistentDatabaseException("database failed basic read/write test");<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                final KVPair lower = kvt.getAtLeast(new byte[0]);<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))<a name="line.355"></a>
+<span class="sourceLineNo">356</span>                    throw new InconsistentDatabaseException("database failed basic read/write test");<a name="line.356"></a>
+<span class="sourceLineNo">357</span>                final KVPair upper = kvt.getAtMost(new byte[] { (byte)0xff });<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                    throw new InconsistentDatabaseException("database failed basic read/write test");<a name="line.359"></a>
+<span class="sourceLineNo">360</span>            } else {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                try {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                    formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                } catch (IllegalArgumentException e) {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                    throw new InconsistentDatabaseException("database contains invalid encoded format version "<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                      + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                }<a name="line.366"></a>
+<span class="sourceLineNo">367</span>            }<a name="line.367"></a>
+<span class="sourceLineNo">368</span>            final boolean compressedSchemaXML;<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            switch (formatVersion) {<a name="line.369"></a>
+<span class="sourceLineNo">370</span>            case FORMAT_VERSION_1:<a name="line.370"></a>
+<span class="sourceLineNo">371</span>            case FORMAT_VERSION_2:<a name="line.371"></a>
+<span class="sourceLineNo">372</span>                compressedSchemaXML = formatVersion &gt;= FORMAT_VERSION_2;<a name="line.372"></a>
+<span class="sourceLineNo">373</span>                break;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            default:<a name="line.374"></a>
+<span class="sourceLineNo">375</span>                throw new InconsistentDatabaseException("database contains unrecognized format version "<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                  + formatVersion + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));<a name="line.376"></a>
+<span class="sourceLineNo">377</span>            }<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>            // There should not be any other meta data prior to recorded schemas<a name="line.379"></a>
+<span class="sourceLineNo">380</span>            if (metaDataIterator.hasNext()) {<a name="line.380"></a>
+<span class="sourceLineNo">381</span>                final KVPair pair = metaDataIterator.next();<a name="line.381"></a>
+<span class="sourceLineNo">382</span>                if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) &lt; 0) {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>                    throw new InconsistentDatabaseException("database contains unrecognized garbage at key "<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                      + ByteUtil.toString(pair.getKey()));<a name="line.384"></a>
+<span class="sourceLineNo">385</span>                }<a name="line.385"></a>
+<span class="sourceLineNo">386</span>            }<a name="line.386"></a>
+<span class="sourceLineNo">387</span><a name="line.387"></a>
+<span class="sourceLineNo">388</span>            // Check schema<a name="line.388"></a>
+<span class="sourceLineNo">389</span>            Schemas schemas = null;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            boolean firstAttempt = true;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            while (true) {<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>                // Get iterator over schema key/value pairs<a name="line.393"></a>
+<span class="sourceLineNo">394</span>                final Iterator&lt;KVPair&gt; schemaIterator = kvt.getRange(SCHEMA_KEY_PREFIX.clone(),<a name="line.394"></a>
+<span class="sourceLineNo">395</span>                  ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);<a name="line.395"></a>
+<span class="sourceLineNo">396</span><a name="line.396"></a>
+<span class="sourceLineNo">397</span>                // Read recorded database schema versions - should immediately follow FORMAT_VERSION_KEY<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                final TreeMap&lt;Integer, byte[]&gt; bytesMap = new TreeMap&lt;&gt;();<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                while (schemaIterator.hasNext()) {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                    final KVPair pair = schemaIterator.next();<a name="line.400"></a>
+<span class="sourceLineNo">401</span><a name="line.401"></a>
+<span class="sourceLineNo">402</span>                    // Sanity check<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                    if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) &lt; 0) {<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                        throw new InconsistentDatabaseException("database contains unrecognized garbage key "<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                          + ByteUtil.toString(pair.getKey()));<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                    }<a name="line.406"></a>
+<span class="sourceLineNo">407</span><a name="line.407"></a>
+<span class="sourceLineNo">408</span>                    // Stop at end of recorded schemas<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                    if (!ByteUtil.isPrefixOf(SCHEMA_KEY_PREFIX, pair.getKey()))<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                        break;<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>                    // Decode schema version and get XML<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                    final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                    if (vers == 0)<a name="line.414"></a>
+<span class="sourceLineNo">415</span>                        throw new InconsistentDatabaseException("database contains an invalid schema version zero");<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                    bytesMap.put(vers, pair.getValue());<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                }<a name="line.417"></a>
+<span class="sourceLineNo">418</span><a name="line.418"></a>
+<span class="sourceLineNo">419</span>                // Read and decode database schemas, avoiding rebuild if possible<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                schemas = this.lastSchemas;<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                if (schemas != null &amp;&amp; !schemas.isSameVersions(bytesMap))<a name="line.421"></a>
+<span class="sourceLineNo">422</span>                    schemas = null;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>                if (schemas == null) {<a name="line.423"></a>
+<span class="sourceLineNo">424</span>                    try {<a name="line.424"></a>
+<span class="sourceLineNo">425</span>                        schemas = this.buildSchemas(bytesMap, compressedSchemaXML);<a name="line.425"></a>
+<span class="sourceLineNo">426</span>                    } catch (IllegalArgumentException e) {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>                        if (firstAttempt)<a name="line.427"></a>
+<span class="sourceLineNo">428</span>                            throw new InconsistentDatabaseException("database contains invalid schema information", e);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>                        else<a name="line.429"></a>
+<span class="sourceLineNo">430</span>                            throw new InvalidSchemaException("schema is not valid: " + e.getMessage(), e);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>                    }<a name="line.431"></a>
+<span class="sourceLineNo">432</span>                }<a name="line.432"></a>
+<span class="sourceLineNo">433</span><a name="line.433"></a>
+<span class="sourceLineNo">434</span>                // If no version specified, assume the highest recorded version<a name="line.434"></a>
+<span class="sourceLineNo">435</span>                if (version == 0 &amp;&amp; !bytesMap.isEmpty())<a name="line.435"></a>
+<span class="sourceLineNo">436</span>                    version = bytesMap.lastKey();<a name="line.436"></a>
+<span class="sourceLineNo">437</span><a name="line.437"></a>
+<span class="sourceLineNo">438</span>                // If transaction schema was not found in the database, add it and retry<a name="line.438"></a>
+<span class="sourceLineNo">439</span>                if (!bytesMap.containsKey(version)) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span><a name="line.440"></a>
+<span class="sourceLineNo">441</span>                    // Log it<a name="line.441"></a>
+<span class="sourceLineNo">442</span>                    if (bytesMap.isEmpty()) {<a name="line.442"></a>
+<span class="sourceLineNo">443</span>                        if (!uninitialized)<a name="line.443"></a>
+<span class="sourceLineNo">444</span>                            throw new InconsistentDatabaseException("database is initialized but contains zero schema versions");<a name="line.444"></a>
+<span class="sourceLineNo">445</span>                    } else {<a name="line.445"></a>
+<span class="sourceLineNo">446</span>                        this.log.info("schema version " + version<a name="line.446"></a>
+<span class="sourceLineNo">447</span>                          + " not found in database; known versions are " + bytesMap.keySet());<a name="line.447"></a>
+<span class="sourceLineNo">448</span>                    }<a name="line.448"></a>
+<span class="sourceLineNo">449</span><a name="line.449"></a>
+<span class="sourceLineNo">450</span>                    // Check whether we can add a new schema version<a name="line.450"></a>
+<span class="sourceLineNo">451</span>                    this.checkAddNewSchema(schemaModel, version, allowNewSchema);<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>                    // Record new schema in database<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                    this.log.info("recording new schema version " + version + " into database");<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                    this.writeSchema(kvt, version, schemaModel, compressedSchemaXML);<a name="line.455"></a>
+<span class="sourceLineNo">456</span><a name="line.456"></a>
+<span class="sourceLineNo">457</span>                    // Try again<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                    schemas = null;<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                    firstAttempt = false;<a name="line.459"></a>
+<span class="sourceLineNo">460</span>                    continue;<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                }<a name="line.461"></a>
+<span class="sourceLineNo">462</span><a name="line.462"></a>
+<span class="sourceLineNo">463</span>                // Compare transaction schema with the schema of the same version found in the database<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                if (this.log.isTraceEnabled())<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                    this.log.trace("found schema version " + version + " in database; known versions are " + bytesMap.keySet());<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                final SchemaModel dbSchemaModel = schemas.getVersion(version).getSchemaModel();<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                if (schemaModel != null) {<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                    if (!schemaModel.isCompatibleWith(dbSchemaModel)) {<a name="line.468"></a>
+<span class="sourceLineNo">469</span>                        final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);<a name="line.469"></a>
+<span class="sourceLineNo">470</span>                        this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}"<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                          + "\n=== Differences ===\n{}", dbSchemaModel, schemaModel, diffs);<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                        throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "<a name="line.472"></a>
+<span class="sourceLineNo">473</span>                          + version + " that is already recorded in the database:\n" + diffs);<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                    } else if (this.log.isTraceEnabled() &amp;&amp; !schemaModel.equals(dbSchemaModel)) {<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                        final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                        this.log.trace("the provided schema differs from, but is compatible with, the database schema:\n{}", diffs);<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                    }<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                }<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                break;<a name="line.479"></a>
+<span class="sourceLineNo">480</span>            }<a name="line.480"></a>
+<span class="sourceLineNo">481</span><a name="line.481"></a>
+<span class="sourceLineNo">482</span>            // Save schema for next time<a name="line.482"></a>
+<span class="sourceLineNo">483</span>            this.lastSchemas = schemas;<a name="line.483"></a>
+<span class="sourceLineNo">484</span><a name="line.484"></a>
+<span class="sourceLineNo">485</span>            // Create transaction<a name="line.485"></a>
+<span class="sourceLineNo">486</span>            final Transaction tx = new Transaction(this, kvt, schemas, version);<a name="line.486"></a>
+<span class="sourceLineNo">487</span>            success = true;<a name="line.487"></a>
+<span class="sourceLineNo">488</span>            return tx;<a name="line.488"></a>
+<span class="sourceLineNo">489</span>        } finally {<a name="line.489"></a>
+<span class="sourceLineNo">490</span>            if (!success) {<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                try {<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                    kvt.rollback();<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                } catch (KVTransactionException e) {<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                    // ignore<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                }<a name="line.495"></a>
+<span class="sourceLineNo">496</span>            }<a name="line.496"></a>
+<span class="sourceLineNo">497</span>        }<a name="line.497"></a>
+<span class="sourceLineNo">498</span>    }<a name="line.498"></a>
+<span class="sourceLineNo">499</span><a name="line.499"></a>
+<span class="sourceLineNo">500</span>    /**<a name="line.500"></a>
+<span class="sourceLineNo">501</span>     * Validate a {@link SchemaModel}.<a name="line.501"></a>
+<span class="sourceLineNo">502</span>     *<a name="line.502"></a>
+<span class="sourceLineNo">503</span>     * &lt;p&gt;<a name="line.503"></a>
+<span class="sourceLineNo">504</span>     * This method only performs "static" checks; it does not access the database and therefore<a name="line.504"></a>
+<span class="sourceLineNo">505</span>     * does not validate the schema against existing schema versions previously recorded.<a name="line.505"></a>
+<span class="sourceLineNo">506</span>     * It does however use the {@link FieldTypeRegistry} associated with this instance to look up field types.<a name="line.506"></a>
+<span class="sourceLineNo">507</span>     * &lt;/p&gt;<a name="line.507"></a>
+<span class="sourceLineNo">508</span>     *<a name="line.508"></a>
+<span class="sourceLineNo">509</span>     * &lt;p&gt;<a name="line.509"></a>
+<span class="sourceLineNo">510</span>     * To validate a schema against the database contents as well, simply attempt to create a transaction<a name="line.510"></a>
+<span class="sourceLineNo">511</span>     * via {@link #createTransaction createTransaction()}.<a name="line.511"></a>
+<span class="sourceLineNo">512</span>     * &lt;/p&gt;<a name="line.512"></a>
+<span class="sourceLineNo">513</span>     *<a name="line.513"></a>
+<span class="sourceLineNo">514</span>     * @param schemaModel schema to validate<a name="line.514"></a>
+<span class="sourceLineNo">515</span>     * @throws InvalidSchemaException if {@code schemaModel} is invalid<a name="line.515"></a>
+<span class="sourceLineNo">516</span>     * @throws IllegalArgumentException if {@code schemaModel} is null<a name="line.516"></a>
+<span class="sourceLineNo">517</span>     */<a name="line.517"></a>
+<span class="sourceLineNo">518</span>    public void validateSchema(SchemaModel schemaModel) {<a name="line.518"></a>
+<span class="sourceLineNo">519</span><a name="line.519"></a>
+<span class="sourceLineNo">520</span>        // Sanity check<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        if (schemaModel == null)<a name="line.521"></a>
+<span class="sourceLineNo">522</span>            throw new IllegalArgumentException("null schemaModel");<a name="line.522"></a>
+<span class="sourceLineNo">523</span><a name="line.523"></a>
+<span class="sourceLineNo">524</span>        // Validate<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        schemaModel.validate();<a name="line.525"></a>
+<span class="sourceLineNo">526</span>        try {<a name="line.526"></a>
+<span class="sourceLineNo">527</span>            new Schema(1, new byte[0], schemaModel, this.fieldTypeRegistry);<a name="line.527"></a>
+<span class="sourceLineNo">528</span>        } catch (IllegalArgumentException e) {<a name="line.528"></a>
+<span class="sourceLineNo">529</span>            throw new InvalidSchemaException("invalid schema: " + e.getMessage(), e);<a name="line.529"></a>
+<span class="sourceLineNo">530</span>        }<a name="line.530"></a>
+<span class="sourceLineNo">531</span>    }<a name="line.531"></a>
+<span class="sourceLineNo">532</span><a name="line.532"></a>
+<span class="sourceLineNo">533</span>    private void checkAddNewSchema(SchemaModel schemaModel, int version, boolean allowNewSchema) {<a name="line.533"></a>
+<span class="sourceLineNo">534</span>        if (version == 0)<a name="line.534"></a>
+<span class="sourceLineNo">535</span>            throw new SchemaMismatchException("database is uninitialized and no schema version was provided");<a name="line.535"></a>
+<span class="sourceLineNo">536</span>        if (schemaModel == null) {<a name="line.536"></a>
+<span class="sourceLineNo">537</span>            throw new SchemaMismatchException("schema version " + version<a name="line.537"></a>
+<span class="sourceLineNo">538</span>              + " was not found in database, and no schema model was provided");<a name="line.538"></a>
+<span class="sourceLineNo">539</span>        }<a name="line.539"></a>
+<span class="sourceLineNo">540</span>        if (!allowNewSchema) {<a name="line.540"></a>
+<span class="sourceLineNo">541</span>            throw new SchemaMismatchException("schema version " + version<a name="line.541"></a>
+<span class="sourceLineNo">542</span>              + " was not found in database, and recording a new schema version is disabled in this transaction");<a name="line.542"></a>
+<span class="sourceLineNo">543</span>        }<a name="line.543"></a>
+<span class="sourceLineNo">544</span>    }<a name="line.544"></a>
+<span class="sourceLineNo">545</span><a name="line.545"></a>
+<span class="sourceLineNo">546</span>    void copyMetaData(Transaction src, KVStore dst) {<a name="line.546"></a>
+<span class="sourceLineNo">547</span>        for (Iterator&lt;KVPair&gt; i = src.kvt.getRange(new byte[] { METADATA_PREFIX }, VERSION_INDEX_PREFIX.clone(), false);<a name="line.547"></a>
+<span class="sourceLineNo">548</span>          i.hasNext(); ) {<a name="line.548"></a>
+<span class="sourceLineNo">549</span>            final KVPair pair = i.next();<a name="line.549"></a>
+<span class="sourceLineNo">550</span>            dst.put(pair.getKey(), pair.getValue());<a name="line.550"></a>
+<span class="sourceLineNo">551</span>        }<a name="line.551"></a>
+<span class="sourceLineNo">552</span>    }<a name="line.552"></a>
+<span class="sourceLineNo">553</span><a name="line.553"></a>
+<span class="sourceLineNo">554</span>    void reset(SnapshotTransaction tx) {<a name="line.554"></a>
+<span class="sourceLineNo">555</span>        tx.kvt.removeRange(VERSION_INDEX_PREFIX.clone(), null);<a name="line.555"></a>
+<span class="sourceLineNo">556</span>    }<a name="line.556"></a>
+<span class="sourceLineNo">557</span><a name="line.557"></a>
+<span class="sourceLineNo">558</span>    static byte[] buildVersionIndexKey(ObjId id, int version) {<a name="line.558"></a>
+<span class="sourceLineNo">559</span>        final ByteWriter writer = new ByteWriter(VERSION_INDEX_PREFIX.length + 1 + ObjId.NUM_BYTES);<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        writer.write(VERSION_INDEX_PREFIX);<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        UnsignedIntEncoder.write(writer, version);<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        id.writeTo(writer);<a name="line.562"></a>
+<span class="sourceLineNo">563</span>        return writer.getBytes();<a name="line.563"></a>
+<span class="sourceLineNo">564</span>    }<a name="line.564"></a>
+<span class="sourceLineNo">565</span><a name="line.565"></a>
+<span class="sourceLineNo">566</span>    CoreIndex&lt;Integer, ObjId&gt; getVersionIndex(Transaction tx) {<a name="line.566"></a>
+<span class="sourceLineNo">567</span>        return new CoreIndex&lt;Integer, ObjId&gt;(tx,<a name="line.567"></a>
+<span class="sourceLineNo">568</span>          new IndexView&lt;Integer, ObjId&gt;(VERSION_INDEX_PREFIX, false, new UnsignedIntType(), FieldTypeRegistry.OBJ_ID));<a name="line.568"></a>
+<span class="sourceLineNo">569</span>    }<a name="line.569"></a>
+<span class="sourceLineNo">570</span><a name="line.570"></a>
+<span class="sourceLineNo">571</span>    /**<a name="line.571"></a>
+<span class="sourceLineNo">572</span>     * Build {@link Schemas} object from a schema version XMLs.<a name="line.572"></a>
+<span class="sourceLineNo">573</span>     *<a name="line.573"></a>
+<span class="sourceLineNo">574</span>     * @throws InconsistentDatabaseException if any recorded schema version is invalid<a name="line.574"></a>
+<span class="sourceLineNo">575</span>     */<a name="line.575"></a>
+<span class="sourceLineNo">576</span>    private Schemas buildSchemas(SortedMap&lt;Integer, byte[]&gt; bytesMap, boolean compressed) {<a name="line.576"></a>
+<span class="sourceLineNo">577</span>        final TreeMap&lt;Integer, Schema&gt; versionMap = new TreeMap&lt;&gt;();<a name="line.577"></a>
+<span class="sourceLineNo">578</span>        for (Map.Entry&lt;Integer, byte[]&gt; entry : bytesMap.entrySet()) {<a name="line.578"></a>
+<span class="sourceLineNo">579</span>            final int version = entry.getKey();<a name="line.579"></a>
+<span class="sourceLineNo">580</span>            final byte[] bytes = entry.getValue();<a name="line.580"></a>
+<span class="sourceLineNo">581</span>            final SchemaModel schemaModel;<a name="line.581"></a>
+<span class="sourceLineNo">582</span>            try {<a name="line.582"></a>
+<span class="sourceLineNo">583</span>                schemaModel = this.decodeSchema(bytes, compressed);<a name="line.583"></a>
+<span class="sourceLineNo">584</span>            } catch (InvalidSchemaException e) {<a name="line.584"></a>
+<span class="sourceLineNo">585</span>                throw new InconsistentDatabaseException("found invalid schema version " + version + " recorded in database", e);<a name="line.585"></a>
+<span class="sourceLineNo">586</span>            }<a name="line.586"></a>
+<span class="sourceLineNo">587</span>            if (this.log.isTraceEnabled())<a name="line.587"></a>
+<span class="sourceLineNo">588</span>                this.log.trace("read schema version {} from database:\n{}", version, schemaModel);<a name="line.588"></a>
+<span class="sourceLineNo">589</span>            versionMap.put(version, new Schema(version, bytes, schemaModel, this.fieldTypeRegistry));<a name="line.589"></a>
+<span class="sourceLineNo">590</span>        }<a name="line.590"></a>
+<span class="sourceLineNo">591</span>        return new Schemas(versionMap);<a name="line.591"></a>
+<span class="sourceLineNo">592</span>    }<a name="line.592"></a>
+<span class="sourceLineNo">593</span><a name="line.593"></a>
+<span class="sourceLineNo">594</span>    /**<a name="line.594"></a>
+<span class="sourceLineNo">595</span>     * Decode and validate schema XML.<a name="line.595"></a>
+<span class="sourceLineNo">596</span>     *<a name="line.596"></a>
+<span class="sourceLineNo">597</span>     * @throws InvalidSchemaException if schema is invalid<a name="line.597"></a>
+<span class="sourceLineNo">598</span>     */<a name="line.598"></a>
+<span class="sourceLineNo">599</span>    private SchemaModel decodeSchema(byte[] value, boolean compressed) {<a name="line.599"></a>
+<span class="sourceLineNo">600</span><a name="line.600"></a>
+<span class="sourceLineNo">601</span>        // Decompress<a name="line.601"></a>
+<span class="sourceLineNo">602</span>        if (compressed) {<a name="line.602"></a>
+<span class="sourceLineNo">603</span>            try {<a name="line.603"></a>
+<span class="sourceLineNo">604</span>                final Inflater inflater = new Inflater(true);<a name="line.604"></a>
+<span class="sourceLineNo">605</span>                inflater.setDictionary(SCHEMA_XML_COMPRESSION_DICTIONARY);<a name="line.605"></a>
+<span class="sourceLineNo">606</span>                inflater.setInput(Bytes.concat(value, new byte[1]));<a name="line.606"></a>
+<span class="sourceLineNo">607</span>                final ByteArrayOutputStream decompressed = new ByteArrayOutputStream();<a name="line.607"></a>
+<span class="sourceLineNo">608</span>                final byte[] temp = new byte[100];<a name="line.608"></a>
+<span class="sourceLineNo">609</span>                int r;<a name="line.609"></a>
+<span class="sourceLineNo">610</span>                while ((r = inflater.inflate(temp)) != 0)<a name="line.610"></a>
+<span class="sourceLineNo">611</span>                    decompressed.write(temp, 0, r);<a name="line.611"></a>
+<span class="sourceLineNo">612</span>                if (!inflater.finished())<a name="line.612"></a>
+<span class="sourceLineNo">613</span>                    throw new RuntimeException("internal error: inflater did not finish");<a name="line.613"></a>
+<span class="sourceLineNo">614</span>                inflater.end();<a name="line.614"></a>
+<span class="sourceLineNo">615</span>                value = decompressed.toByteArray();<a name="line.615"></a>
+<span class="sourceLineNo">616</span>            } catch (DataFormatException e) {<a name="line.616"></a>
+<span class="sourceLineNo">617</span>                throw new InvalidSchemaException("error in compressed data", e);<a name="line.617"></a>
+<span class="sourceLineNo">618</span>            }<a name="line.618"></a>
+<span class="sourceLineNo">619</span>        }<a name="line.619"></a>
+<span class="sourceLineNo">620</span><a name="line.620"></a>
+<span class="sourceLineNo">621</span>        // Decode XML<a name="line.621"></a>
+<span class="sourceLineNo">622</span>        try {<a name="line.622"></a>
+<span class="sourceLineNo">623</span>            return SchemaModel.fromXML(new ByteArrayInputStream(value));<a name="line.623"></a>
+<span class="sourceLineNo">624</span>        } catch (IOException e) {<a name="line.624"></a>
+<span class="sourceLineNo">625</span>            throw new RuntimeException("unexpected exception", e);<a name="line.625"></a>
+<span class="sourceLineNo">626</span>        }<a name="line.626"></a>
+<span class="sourceLineNo">627</span>    }<a name="line.627"></a>
+<span class="sourceLineNo">628</span><a name="line.628"></a>
+<span class="sourceLineNo">629</span>    /**<a name="line.629"></a>
+<span class="sourceLineNo">630</span>     * Record the given schema into the database.<a name="line.630"></a>
+<span class="sourceLineNo">631</span>     */<a name="line.631"></a>
+<span class="sourceLineNo">632</span>    private void writeSchema(KVTransaction kvt, int version, SchemaModel schemaModel, boolean compress) {<a name="line.632"></a>
+<span class="sourceLineNo">633</span><a name="line.633"></a>
+<span class="sourceLineNo">634</span>        // Encode as XML<a name="line.634"></a>
+<span class="sourceLineNo">635</span>        final ByteArrayOutputStream buf = new ByteArrayOutputStream();<a name="line.635"></a>
+<span class="sourceLineNo">636</span>        try {<a name="line.636"></a>
+<span class="sourceLineNo">637</span>            schemaModel.toXML(buf, false);<a name="line.637"></a>
+<span class="sourceLineNo">638</span>        } catch (IOException e) {<a name="line.638"></a>
+<span class="sourceLineNo">639</span>            throw new RuntimeException("unexpected exception", e);<a name="line.639"></a>
+<span class="sourceLineNo">640</span>        }<a name="line.640"></a>
+<span class="sourceLineNo">641</span>        byte[] value = buf.toByteArray();<a name="line.641"></a>
+<span class="sourceLineNo">642</span><a name="line.642"></a>
+<span class="sourceLineNo">643</span>        // Compress<a name="line.643"></a>
+<span class="sourceLineNo">644</span>        if (compress) {<a name="line.644"></a>
+<span class="sourceLineNo">645</span>            final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);<a name="line.645"></a>
+<span class="sourceLineNo">646</span>            deflater.setDictionary(SCHEMA_XML_COMPRESSION_DICTIONARY);<a name="line.646"></a>
+<span class="sourceLineNo">647</span>            deflater.setInput(value);<a name="line.647"></a>
+<span class="sourceLineNo">648</span>            deflater.finish();<a name="line.648"></a>
+<span class="sourceLineNo">649</span>            final ByteArrayOutputStream compressed = new ByteArrayOutputStream();<a name="line.649"></a>
+<span class="sourceLineNo">650</span>            final byte[] temp = new byte[100];<a name="line.650"></a>
+<span class="sourceLineNo">651</span>            int r;<a name="line.651"></a>
+<span class="sourceLineNo">652</span>            while ((r = deflater.deflate(temp)) != 0)<a name="line.652"></a>
+<span class="sourceLineNo">653</span>                compressed.write(temp, 0, r);<a name="line.653"></a>
+<span class="sourceLineNo">654</span>            if (!deflater.finished())<a name="line.654"></a>
+<span class="sourceLineNo">655</span>                throw new RuntimeException("internal error: deflater did not finish");<a name="line.655"></a>
+<span class="sourceLineNo">656</span>            deflater.end();<a name="line.656"></a>
+<span class="sourceLineNo">657</span>            value = compressed.toByteArray();<a name="line.657"></a>
+<span class="sourceLineNo">658</span>        }<a name="line.658"></a>
+<span class="sourceLineNo">659</span><a name="line.659"></a>
+<span class="sourceLineNo">660</span>        // Write schema<a name="line.660"></a>
+<span class="sourceLineNo">661</span>        kvt.put(this.getSchemaKey(version), value);<a name="line.661"></a>
+<span class="sourceLineNo">662</span>    }<a name="line.662"></a>
+<span class="sourceLineNo">663</span><a name="line.663"></a>
+<span class="sourceLineNo">664</span>    /**<a name="line.664"></a>
+<span class="sourceLineNo">665</span>     * Delete a schema version. Caller must verify no objects exist.<a name="line.665"></a>
+<span class="sourceLineNo">666</span>     */<a name="line.666"></a>
+<span class="sourceLineNo">667</span>    void deleteSchema(KVTransaction kvt, int version) {<a name="line.667"></a>
+<span class="sourceLineNo">668</span>        kvt.remove(this.getSchemaKey(version));<a name="line.668"></a>
+<span class="sourceLineNo">669</span>    }<a name="line.669"></a>
+<span class="sourceLineNo">670</span><a name="line.670"></a>
+<span class="sourceLineNo">671</span>    private byte[] getSchemaKey(int version) {<a name="line.671"></a>
+<span class="sourceLineNo">672</span>        final ByteWriter writer = new ByteWriter();<a name="line.672"></a>
+<span class="sourceLineNo">673</span>        writer.write(SCHEMA_KEY_PREFIX);<a name="line.673"></a>
+<span class="sourceLineNo">674</span>        UnsignedIntEncoder.write(writer, version);<a name="line.674"></a>
+<span class="sourceLineNo">675</span>        return writer.getBytes();<a name="line.675"></a>
+<span class="sourceLineNo">676</span>    }<a name="line.676"></a>
+<span class="sourceLineNo">677</span>}<a name="line.677"></a>
+<span class="sourceLineNo">678</span><a name="line.678"></a>
 
 
 

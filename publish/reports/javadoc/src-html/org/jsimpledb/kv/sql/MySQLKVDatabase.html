@@ -9,76 +9,74 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.sql;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.sql;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.mysql.jdbc.MysqlErrorNumbers;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.mysql.jdbc.exceptions.MySQLTimeoutException;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.sql.Connection;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.sql.SQLException;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.sql.Statement;<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.kv.KVTransactionException;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.kv.RetryTransactionException;<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>/**<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * MySQL variant of {@link SQLKVDatabase}.<a name="line.21"></a>
-<span class="sourceLineNo">022</span> *<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * An idempotent script for initializing a MySQL database is available at<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * {@code classpath:org/jsimpledb/kv/sql/createTable-mysql.sql}<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * (see also {@link org.dellroad.stuff.schema.UpdatingDataSource}).<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * &lt;/p&gt;<a name="line.27"></a>
-<span class="sourceLineNo">028</span> *<a name="line.28"></a>
-<span class="sourceLineNo">029</span> */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>public class MySQLKVDatabase extends SQLKVDatabase {<a name="line.30"></a>
+<span class="sourceLineNo">008</span>import com.mysql.jdbc.MysqlErrorNumbers;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.mysql.jdbc.exceptions.MySQLTimeoutException;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.sql.Connection;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.sql.SQLException;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.sql.Statement;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.kv.KVTransactionException;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.kv.RetryTransactionException;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * MySQL variant of {@link SQLKVDatabase}.<a name="line.19"></a>
+<span class="sourceLineNo">020</span> *<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * &lt;p&gt;<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * An idempotent script for initializing a MySQL database is available at<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * {@code classpath:org/jsimpledb/kv/sql/createTable-mysql.sql}<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * (see also {@link org.dellroad.stuff.schema.UpdatingDataSource}).<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;/p&gt;<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *<a name="line.26"></a>
+<span class="sourceLineNo">027</span> */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>public class MySQLKVDatabase extends SQLKVDatabase {<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>    private static final int DEFAULT_LOCK_TIMEOUT = 10;             // 10 seconds<a name="line.30"></a>
 <span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>    private static final int DEFAULT_LOCK_TIMEOUT = 10;             // 10 seconds<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>    @Override<a name="line.34"></a>
-<span class="sourceLineNo">035</span>    protected void preBeginTransaction(Connection connection) throws SQLException {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        final Statement statement = connection.createStatement();<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        statement.execute("SET TRANSACTION ISOLATION LEVEL " + this.isolationLevel.name().replace('_', ' '));<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        statement.execute("SET innodb_lock_wait_timeout = " + DEFAULT_LOCK_TIMEOUT);<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        statement.execute("SET SESSION sql_mode = 'TRADITIONAL'");              // force error if key or value is too long<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        statement.close();<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    }<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * Encloses the given {@code name} in backticks.<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    @Override<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    public String quote(String name) {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        return "`" + name + "`";<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
-<span class="sourceLineNo">050</span><a name="line.50"></a>
-<span class="sourceLineNo">051</span>    /**<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * Appends {@code LIMIT 1} to the statement.<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     */<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    @Override<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    public String limitSingleRow(String sql) {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        return sql + " LIMIT 1";<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    @Override<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public KVTransactionException wrapException(SQLKVTransaction tx, SQLException e) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        switch (e.getErrorCode()) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        case MysqlErrorNumbers.ER_LOCK_WAIT_TIMEOUT:<a name="line.62"></a>
+<span class="sourceLineNo">032</span>    @Override<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    protected void preBeginTransaction(Connection connection) throws SQLException {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        final Statement statement = connection.createStatement();<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        statement.execute("SET TRANSACTION ISOLATION LEVEL " + this.isolationLevel.name().replace('_', ' '));<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        statement.execute("SET innodb_lock_wait_timeout = " + DEFAULT_LOCK_TIMEOUT);<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        statement.execute("SET SESSION sql_mode = 'TRADITIONAL'");              // force error if key or value is too long<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        statement.close();<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    }<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    /**<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * Encloses the given {@code name} in backticks.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     */<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    @Override<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    public String quote(String name) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        return "`" + name + "`";<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    }<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>    /**<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * Appends {@code LIMIT 1} to the statement.<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    @Override<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    public String limitSingleRow(String sql) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        return sql + " LIMIT 1";<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>    @Override<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public KVTransactionException wrapException(SQLKVTransaction tx, SQLException e) {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        switch (e.getErrorCode()) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        case MysqlErrorNumbers.ER_LOCK_WAIT_TIMEOUT:<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            return new RetryTransactionException(tx, e);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        case MysqlErrorNumbers.ER_LOCK_DEADLOCK:<a name="line.62"></a>
 <span class="sourceLineNo">063</span>            return new RetryTransactionException(tx, e);<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        case MysqlErrorNumbers.ER_LOCK_DEADLOCK:<a name="line.64"></a>
-<span class="sourceLineNo">065</span>            return new RetryTransactionException(tx, e);<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        default:<a name="line.66"></a>
-<span class="sourceLineNo">067</span>            if (e instanceof MySQLTimeoutException)<a name="line.67"></a>
-<span class="sourceLineNo">068</span>                return new RetryTransactionException(tx, e);<a name="line.68"></a>
-<span class="sourceLineNo">069</span>            return super.wrapException(tx, e);<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        }<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
-<span class="sourceLineNo">072</span>}<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">064</span>        default:<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            if (e instanceof MySQLTimeoutException)<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                return new RetryTransactionException(tx, e);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            return super.wrapException(tx, e);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        }<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    }<a name="line.69"></a>
+<span class="sourceLineNo">070</span>}<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
 
 
 

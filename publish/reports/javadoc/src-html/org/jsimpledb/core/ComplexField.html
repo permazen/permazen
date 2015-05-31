@@ -9,239 +9,237 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.core;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.core;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.reflect.TypeToken;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.reflect.TypeToken;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.Iterator;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.util.List;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.util.SortedSet;<a name="line.14"></a>
-<span class="sourceLineNo">015</span><a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.kv.KVPair;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.util.ByteReader;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.util.ByteUtil;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.util.ByteWriter;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.util.UnsignedIntEncoder;<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * A complex {@link Field}, such as a collection or map field.<a name="line.23"></a>
-<span class="sourceLineNo">024</span> *<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * @param &lt;T&gt; Java type for the field's values<a name="line.25"></a>
-<span class="sourceLineNo">026</span> */<a name="line.26"></a>
-<span class="sourceLineNo">027</span>public abstract class ComplexField&lt;T&gt; extends Field&lt;T&gt; {<a name="line.27"></a>
+<span class="sourceLineNo">010</span>import java.util.Iterator;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.List;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.SortedSet;<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.kv.KVPair;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.util.ByteReader;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.util.ByteUtil;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.util.ByteWriter;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.util.UnsignedIntEncoder;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>/**<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * A complex {@link Field}, such as a collection or map field.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> *<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * @param &lt;T&gt; Java type for the field's values<a name="line.23"></a>
+<span class="sourceLineNo">024</span> */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>public abstract class ComplexField&lt;T&gt; extends Field&lt;T&gt; {<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>    private final int storageIdLength;<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>    private final int storageIdLength;<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    /**<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * Constructor.<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     *<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     * @param name the name of the field<a name="line.34"></a>
-<span class="sourceLineNo">035</span>     * @param storageId field content storage ID<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     * @param schema schema version<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     * @param typeToken Java type for the field's values<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * @throws IllegalArgumentException if any parameter is null<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * @throws IllegalArgumentException if {@code name} is invalid<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * @throws IllegalArgumentException if {@code storageId} is non-positive<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     */<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    ComplexField(String name, int storageId, Schema schema, TypeToken&lt;T&gt; typeToken) {<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        super(name, storageId, schema, typeToken);<a name="line.43"></a>
-<span class="sourceLineNo">044</span>        this.storageIdLength = UnsignedIntEncoder.encodeLength(storageId);<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    }<a name="line.45"></a>
+<span class="sourceLineNo">029</span>    /**<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * Constructor.<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     *<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * @param name the name of the field<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * @param storageId field content storage ID<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * @param schema schema version<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * @param typeToken Java type for the field's values<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * @throws IllegalArgumentException if any parameter is null<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * @throws IllegalArgumentException if {@code name} is invalid<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * @throws IllegalArgumentException if {@code storageId} is non-positive<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    ComplexField(String name, int storageId, Schema schema, TypeToken&lt;T&gt; typeToken) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        super(name, storageId, schema, typeToken);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        this.storageIdLength = UnsignedIntEncoder.encodeLength(storageId);<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    }<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>// Public methods<a name="line.45"></a>
 <span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>// Public methods<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
-<span class="sourceLineNo">049</span>    /**<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * Get the sub-field(s) associated with this instance, ordered according to their meaning.<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     *<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * @return unmodifiable list of simple fields<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     */<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    public abstract List&lt;? extends SimpleField&lt;?&gt;&gt; getSubFields();<a name="line.54"></a>
+<span class="sourceLineNo">047</span>    /**<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * Get the sub-field(s) associated with this instance, ordered according to their meaning.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     *<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * @return unmodifiable list of simple fields<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    public abstract List&lt;? extends SimpleField&lt;?&gt;&gt; getSubFields();<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>// Non-public methods<a name="line.54"></a>
 <span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>// Non-public methods<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * Get the Java collection object representing the value of this instance in the given object.<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * This method does not need to do any validity checking of its parameters.<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    abstract T getValueInternal(Transaction tx, ObjId id);<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * Copy the Java collection object representing the value of this instance into memory and return a read-only view.<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * This method does not need to do any validity checking of its parameters.<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     */<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    abstract T getValueReadOnlyCopy(Transaction tx, ObjId id);<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * Iterate all values in the specified subfield.<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     *<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * @throws IllegalArgumentException if {@code subField} is not a sub-field of this instance<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    abstract &lt;F&gt; Iterable&lt;F&gt; iterateSubField(Transaction tx, ObjId id, SimpleField&lt;F&gt; subField);<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>    @Override<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    abstract ComplexFieldStorageInfo&lt;T&gt; toStorageInfo();<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * Delete all content (but not index entries) for the given object.<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * @param tx transaction<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     * @param id object id<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    void deleteContent(Transaction tx, ObjId id) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        final byte[] minKey = this.buildKey(id);<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        this.deleteContent(tx, minKey, maxKey);<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * Delete all content (but not index entries) for the given object in the given key range.<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     *<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * @param tx transaction<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * @param id object id<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * @see #removeIndexEntries(Transaction, ObjId)<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     */<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    void deleteContent(Transaction tx, byte[] minKey, byte[] maxKey) {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>        tx.kvt.removeRange(minKey, maxKey);<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>    /**<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * Add an index entry corresponding to the given sub-field and content key/value pair.<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     *<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * @param tx transaction<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * @param id object id<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * @param subField indexed sub-field<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * @param contentKey the content key<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * @param contentValue the value associated with the content key, or null if not needed<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     */<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    void addIndexEntry(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField, byte[] contentKey, byte[] contentValue) {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        tx.kvt.put(this.buildIndexEntry(id, subField, contentKey, contentValue), ByteUtil.EMPTY);<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>    /**<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     * Remove an index entry corresponding to the given sub-field and content key/value pair.<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     *<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     * @param tx transaction<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     * @param id object id<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     * @param subField indexed sub-field<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     * @param contentKey the content key<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     * @param contentValue the value associated with the content key, or null if not needed<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     */<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    void removeIndexEntry(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField, byte[] contentKey, byte[] contentValue) {<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        tx.kvt.remove(this.buildIndexEntry(id, subField, contentKey, contentValue));<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    }<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
-<span class="sourceLineNo">129</span>    private byte[] buildIndexEntry(ObjId id, SimpleField&lt;?&gt; subField, byte[] contentKey, byte[] contentValue) {<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        final ByteReader contentKeyReader = new ByteReader(contentKey);<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        contentKeyReader.skip(ObjId.NUM_BYTES + this.storageIdLength);                  // skip to content<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        final ByteWriter writer = new ByteWriter();<a name="line.132"></a>
-<span class="sourceLineNo">133</span>        UnsignedIntEncoder.write(writer, subField.storageId);<a name="line.133"></a>
-<span class="sourceLineNo">134</span>        this.buildIndexEntry(id, subField, contentKeyReader, contentValue, writer);<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        return writer.getBytes();<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>    /**<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * Build an index key for the given object, sub-field, and content key/value pair.<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     *<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * @param id object id<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     * @param subField indexed sub-field<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * @param reader reader of content key, positioned just after the object ID and the storage ID for this field<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     * @param value the value associated with the content key, or null if not needed<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * @param writer writer for the index entry, with the sub-field's storage ID already written<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    abstract void buildIndexEntry(ObjId id, SimpleField&lt;?&gt; subField, ByteReader reader, byte[] value, ByteWriter writer);<a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>    /**<a name="line.149"></a>
-<span class="sourceLineNo">150</span>     * Add or remove index entries for the given object as appropriate after a schema version change<a name="line.150"></a>
-<span class="sourceLineNo">151</span>     * which changed only whether some or all sub-field(s) are indexed.<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     *<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     * @param kvt KV store<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     * @param oldField compatible field in older schema<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     * @param id object id<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     */<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    void updateSubFieldIndexes(Transaction tx, ComplexField&lt;?&gt; oldField, ObjId id) {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        final Iterator&lt;? extends SimpleField&lt;?&gt;&gt; oldSubFields = oldField.getSubFields().iterator();<a name="line.158"></a>
-<span class="sourceLineNo">159</span>        final Iterator&lt;? extends SimpleField&lt;?&gt;&gt; newSubFields = this.getSubFields().iterator();<a name="line.159"></a>
-<span class="sourceLineNo">160</span>        while (oldSubFields.hasNext() || newSubFields.hasNext()) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>            final SimpleField&lt;?&gt; oldSubField = oldSubFields.next();<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            final SimpleField&lt;?&gt; newSubField = newSubFields.next();<a name="line.162"></a>
-<span class="sourceLineNo">163</span>            if (!oldSubField.indexed &amp;&amp; newSubField.indexed)<a name="line.163"></a>
-<span class="sourceLineNo">164</span>                this.addIndexEntries(tx, id, newSubField);<a name="line.164"></a>
-<span class="sourceLineNo">165</span>            else if (oldSubField.indexed &amp;&amp; !newSubField.indexed)<a name="line.165"></a>
-<span class="sourceLineNo">166</span>                oldField.removeIndexEntries(tx, id, oldSubField);<a name="line.166"></a>
-<span class="sourceLineNo">167</span>        }<a name="line.167"></a>
-<span class="sourceLineNo">168</span>    }<a name="line.168"></a>
-<span class="sourceLineNo">169</span><a name="line.169"></a>
-<span class="sourceLineNo">170</span>    /**<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     * Add all index entries for the given object and sub-field.<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     *<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     * @param tx transaction<a name="line.173"></a>
-<span class="sourceLineNo">174</span>     * @param id object id<a name="line.174"></a>
-<span class="sourceLineNo">175</span>     * @param subField sub-field of this field<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     */<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    void addIndexEntries(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField) {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        if (!subField.indexed)<a name="line.178"></a>
-<span class="sourceLineNo">179</span>            throw new IllegalArgumentException(this + " is not indexed");<a name="line.179"></a>
-<span class="sourceLineNo">180</span>        final byte[] prefix = this.buildKey(id);<a name="line.180"></a>
-<span class="sourceLineNo">181</span>        final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);<a name="line.181"></a>
-<span class="sourceLineNo">182</span>        for (Iterator&lt;KVPair&gt; i = tx.kvt.getRange(prefix, prefixEnd, false); i.hasNext(); ) {<a name="line.182"></a>
-<span class="sourceLineNo">183</span>            final KVPair pair = i.next();<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        }<a name="line.185"></a>
-<span class="sourceLineNo">186</span>    }<a name="line.186"></a>
-<span class="sourceLineNo">187</span><a name="line.187"></a>
-<span class="sourceLineNo">188</span>    /**<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     * Remove all index entries for the given object.<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     *<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     * @param tx transaction<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     * @param id object id<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     */<a name="line.193"></a>
-<span class="sourceLineNo">194</span>    void removeIndexEntries(Transaction tx, ObjId id) {<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        for (SimpleField&lt;?&gt; subField : this.getSubFields()) {<a name="line.195"></a>
-<span class="sourceLineNo">196</span>            if (subField.indexed)<a name="line.196"></a>
-<span class="sourceLineNo">197</span>                this.removeIndexEntries(tx, id, subField);<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        }<a name="line.198"></a>
-<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
-<span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>    /**<a name="line.201"></a>
-<span class="sourceLineNo">202</span>     * Remove all index entries for the given object and sub-field.<a name="line.202"></a>
-<span class="sourceLineNo">203</span>     *<a name="line.203"></a>
-<span class="sourceLineNo">204</span>     * @param tx transaction<a name="line.204"></a>
-<span class="sourceLineNo">205</span>     * @param id object id<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     * @param subField sub-field of this field<a name="line.206"></a>
-<span class="sourceLineNo">207</span>     */<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    void removeIndexEntries(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField) {<a name="line.208"></a>
-<span class="sourceLineNo">209</span>        final byte[] prefix = this.buildKey(id);<a name="line.209"></a>
-<span class="sourceLineNo">210</span>        this.removeIndexEntries(tx, id, subField, prefix, ByteUtil.getKeyAfterPrefix(prefix));<a name="line.210"></a>
-<span class="sourceLineNo">211</span>    }<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>    /**<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     * Remove index entries for the given object and sub-field, restricted to the given key range.<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     *<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     * @param tx transaction<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     * @param id object id<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     * @param subField sub-field of this field<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     */<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    void removeIndexEntries(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField, byte[] minKey, byte[] maxKey) {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>        if (!subField.indexed)<a name="line.221"></a>
-<span class="sourceLineNo">222</span>            throw new IllegalArgumentException(this + " is not indexed");<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        for (Iterator&lt;KVPair&gt; i = tx.kvt.getRange(minKey, maxKey, false); i.hasNext(); ) {<a name="line.223"></a>
-<span class="sourceLineNo">224</span>            final KVPair pair = i.next();<a name="line.224"></a>
-<span class="sourceLineNo">225</span>            this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        }<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    }<a name="line.227"></a>
-<span class="sourceLineNo">228</span><a name="line.228"></a>
-<span class="sourceLineNo">229</span>    /**<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     * Remove all field entries in which the specified reference sub-field refers to an object<a name="line.230"></a>
-<span class="sourceLineNo">231</span>     * type that is in the specified set of newly disallowed object types.<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     */<a name="line.232"></a>
-<span class="sourceLineNo">233</span>    abstract void unreferenceRemovedObjectTypes(Transaction tx,<a name="line.233"></a>
-<span class="sourceLineNo">234</span>      ObjId id, ReferenceField subField, SortedSet&lt;Integer&gt; removedStorageIds);<a name="line.234"></a>
-<span class="sourceLineNo">235</span>}<a name="line.235"></a>
-<span class="sourceLineNo">236</span><a name="line.236"></a>
+<span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * Get the Java collection object representing the value of this instance in the given object.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * This method does not need to do any validity checking of its parameters.<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    abstract T getValueInternal(Transaction tx, ObjId id);<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * Copy the Java collection object representing the value of this instance into memory and return a read-only view.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * This method does not need to do any validity checking of its parameters.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    abstract T getValueReadOnlyCopy(Transaction tx, ObjId id);<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /**<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * Iterate all values in the specified subfield.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     *<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * @throws IllegalArgumentException if {@code subField} is not a sub-field of this instance<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    abstract &lt;F&gt; Iterable&lt;F&gt; iterateSubField(Transaction tx, ObjId id, SimpleField&lt;F&gt; subField);<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    abstract ComplexFieldStorageInfo&lt;T&gt; toStorageInfo();<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    /**<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * Delete all content (but not index entries) for the given object.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     *<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @param tx transaction<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * @param id object id<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    void deleteContent(Transaction tx, ObjId id) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        final byte[] minKey = this.buildKey(id);<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        final byte[] maxKey = ByteUtil.getKeyAfterPrefix(minKey);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        this.deleteContent(tx, minKey, maxKey);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>    /**<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * Delete all content (but not index entries) for the given object in the given key range.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param tx transaction<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @param id object id<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @see #removeIndexEntries(Transaction, ObjId)<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    void deleteContent(Transaction tx, byte[] minKey, byte[] maxKey) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        tx.kvt.removeRange(minKey, maxKey);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    /**<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * Add an index entry corresponding to the given sub-field and content key/value pair.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     *<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @param tx transaction<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * @param id object id<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @param subField indexed sub-field<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @param contentKey the content key<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * @param contentValue the value associated with the content key, or null if not needed<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    void addIndexEntry(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField, byte[] contentKey, byte[] contentValue) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        tx.kvt.put(this.buildIndexEntry(id, subField, contentKey, contentValue), ByteUtil.EMPTY);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    /**<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * Remove an index entry corresponding to the given sub-field and content key/value pair.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     *<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @param tx transaction<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * @param id object id<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @param subField indexed sub-field<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @param contentKey the content key<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * @param contentValue the value associated with the content key, or null if not needed<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     */<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    void removeIndexEntry(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField, byte[] contentKey, byte[] contentValue) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        tx.kvt.remove(this.buildIndexEntry(id, subField, contentKey, contentValue));<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    private byte[] buildIndexEntry(ObjId id, SimpleField&lt;?&gt; subField, byte[] contentKey, byte[] contentValue) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        final ByteReader contentKeyReader = new ByteReader(contentKey);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        contentKeyReader.skip(ObjId.NUM_BYTES + this.storageIdLength);                  // skip to content<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        final ByteWriter writer = new ByteWriter();<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        UnsignedIntEncoder.write(writer, subField.storageId);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        this.buildIndexEntry(id, subField, contentKeyReader, contentValue, writer);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        return writer.getBytes();<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * Build an index key for the given object, sub-field, and content key/value pair.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * @param id object id<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * @param subField indexed sub-field<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @param reader reader of content key, positioned just after the object ID and the storage ID for this field<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * @param value the value associated with the content key, or null if not needed<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * @param writer writer for the index entry, with the sub-field's storage ID already written<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    abstract void buildIndexEntry(ObjId id, SimpleField&lt;?&gt; subField, ByteReader reader, byte[] value, ByteWriter writer);<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>    /**<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     * Add or remove index entries for the given object as appropriate after a schema version change<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * which changed only whether some or all sub-field(s) are indexed.<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     *<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * @param kvt KV store<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * @param oldField compatible field in older schema<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * @param id object id<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     */<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    void updateSubFieldIndexes(Transaction tx, ComplexField&lt;?&gt; oldField, ObjId id) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        final Iterator&lt;? extends SimpleField&lt;?&gt;&gt; oldSubFields = oldField.getSubFields().iterator();<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        final Iterator&lt;? extends SimpleField&lt;?&gt;&gt; newSubFields = this.getSubFields().iterator();<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        while (oldSubFields.hasNext() || newSubFields.hasNext()) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            final SimpleField&lt;?&gt; oldSubField = oldSubFields.next();<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            final SimpleField&lt;?&gt; newSubField = newSubFields.next();<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            if (!oldSubField.indexed &amp;&amp; newSubField.indexed)<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                this.addIndexEntries(tx, id, newSubField);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            else if (oldSubField.indexed &amp;&amp; !newSubField.indexed)<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                oldField.removeIndexEntries(tx, id, oldSubField);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    }<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>    /**<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * Add all index entries for the given object and sub-field.<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     *<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * @param tx transaction<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * @param id object id<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * @param subField sub-field of this field<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     */<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    void addIndexEntries(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        if (!subField.indexed)<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            throw new IllegalArgumentException(this + " is not indexed");<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        final byte[] prefix = this.buildKey(id);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        for (Iterator&lt;KVPair&gt; i = tx.kvt.getRange(prefix, prefixEnd, false); i.hasNext(); ) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            final KVPair pair = i.next();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        }<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    }<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span>    /**<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * Remove all index entries for the given object.<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     *<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * @param tx transaction<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * @param id object id<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     */<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    void removeIndexEntries(Transaction tx, ObjId id) {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        for (SimpleField&lt;?&gt; subField : this.getSubFields()) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            if (subField.indexed)<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                this.removeIndexEntries(tx, id, subField);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        }<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>    /**<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * Remove all index entries for the given object and sub-field.<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     *<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * @param tx transaction<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * @param id object id<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * @param subField sub-field of this field<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     */<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    void removeIndexEntries(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        final byte[] prefix = this.buildKey(id);<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        this.removeIndexEntries(tx, id, subField, prefix, ByteUtil.getKeyAfterPrefix(prefix));<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    }<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
+<span class="sourceLineNo">211</span>    /**<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * Remove index entries for the given object and sub-field, restricted to the given key range.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     *<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * @param tx transaction<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * @param id object id<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     * @param subField sub-field of this field<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     */<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    void removeIndexEntries(Transaction tx, ObjId id, SimpleField&lt;?&gt; subField, byte[] minKey, byte[] maxKey) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        if (!subField.indexed)<a name="line.219"></a>
+<span class="sourceLineNo">220</span>            throw new IllegalArgumentException(this + " is not indexed");<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        for (Iterator&lt;KVPair&gt; i = tx.kvt.getRange(minKey, maxKey, false); i.hasNext(); ) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            final KVPair pair = i.next();<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        }<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    }<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>    /**<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * Remove all field entries in which the specified reference sub-field refers to an object<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * type that is in the specified set of newly disallowed object types.<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     */<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    abstract void unreferenceRemovedObjectTypes(Transaction tx,<a name="line.231"></a>
+<span class="sourceLineNo">232</span>      ObjId id, ReferenceField subField, SortedSet&lt;Integer&gt; removedStorageIds);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>}<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
 
 
 

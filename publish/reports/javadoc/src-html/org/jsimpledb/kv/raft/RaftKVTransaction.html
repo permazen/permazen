@@ -9,150 +9,150 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.raft;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.raft;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.base.Preconditions;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.io.Closeable;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.util.Arrays;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.util.concurrent.Callable;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.concurrent.FutureTask;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.util.concurrent.atomic.AtomicLong;<a name="line.16"></a>
-<span class="sourceLineNo">017</span><a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.kv.CloseableKVStore;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.kv.KVStore;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.kv.KVTransaction;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.kv.StaleTransactionException;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.kv.mvcc.MutableView;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.kv.util.ForwardingKVStore;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.slf4j.Logger;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.slf4j.LoggerFactory;<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * {@link RaftKVDatabase} transaction.<a name="line.28"></a>
-<span class="sourceLineNo">029</span> */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>public class RaftKVTransaction extends ForwardingKVStore implements KVTransaction, Closeable {<a name="line.30"></a>
+<span class="sourceLineNo">010</span>import java.io.Closeable;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Arrays;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.concurrent.Callable;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.concurrent.FutureTask;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.util.concurrent.atomic.AtomicLong;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.kv.CloseableKVStore;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.kv.KVStore;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.kv.KVTransaction;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.kv.StaleTransactionException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.kv.mvcc.MutableView;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.kv.util.ForwardingKVStore;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.slf4j.Logger;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.slf4j.LoggerFactory;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * {@link RaftKVDatabase} transaction.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>public class RaftKVTransaction extends ForwardingKVStore implements KVTransaction, Closeable {<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>    private static final AtomicLong COUNTER = new AtomicLong();                 // provides unique transaction ID numbers<a name="line.30"></a>
 <span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>    private static final AtomicLong COUNTER = new AtomicLong();                 // provides unique transaction ID numbers<a name="line.32"></a>
+<span class="sourceLineNo">032</span>    private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.32"></a>
 <span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>    private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    // Transaction info<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    private final long txId = COUNTER.incrementAndGet();<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    private final CommitFuture commitFuture = new CommitFuture();<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    private final RaftKVDatabase kvdb;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    private CloseableKVStore snapshot;                  // snapshot of the committed key/value store<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    private final MutableView view;                     // transaction's view of key/value store (restricted to prefix)<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    private final long baseTerm;                        // term of the log entry on which this transaction is based<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    private final long baseIndex;                       // index of the log entry on which this transaction is based<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    private volatile TxState state = TxState.EXECUTING;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    private volatile boolean readOnlySnapshot;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    private volatile int timeout;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    private volatile String[] configChange;             // cluster config change associated with this transaction<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    private RaftKVDatabase.Timer commitTimer;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    private long commitTerm;                            // term of the log entry representing this transaction's commit<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    private long commitIndex;                           // index of the log entry representing this transaction's commit<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * Constructor.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @param kvdb associated database<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @param baseTerm term of the Raft log entry on which this transaction is based<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @param baseIndex index of the Raft log entry on which this transaction is based<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * @param snapshot underlying state machine snapshot; will be closed with this instance<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * @param view this transaction's view of the (prefixed) key/value store<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    RaftKVTransaction(RaftKVDatabase kvdb, long baseTerm, long baseIndex, CloseableKVStore snapshot, MutableView view) {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        this.kvdb = kvdb;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        this.baseTerm = baseTerm;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        this.baseIndex = baseIndex;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        this.snapshot = snapshot;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        this.view = view;<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
+<span class="sourceLineNo">034</span>    // Transaction info<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    private final long txId = COUNTER.incrementAndGet();<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    private final CommitFuture commitFuture = new CommitFuture();<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    private final RaftKVDatabase kvdb;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    private CloseableKVStore snapshot;                  // snapshot of the committed key/value store<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    private final MutableView view;                     // transaction's view of key/value store (restricted to prefix)<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    private final long baseTerm;                        // term of the log entry on which this transaction is based<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    private final long baseIndex;                       // index of the log entry on which this transaction is based<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    private volatile TxState state = TxState.EXECUTING;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private volatile boolean readOnlySnapshot;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private volatile int timeout;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private volatile String[] configChange;             // cluster config change associated with this transaction<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    private RaftKVDatabase.Timer commitTimer;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private long commitTerm;                            // term of the log entry representing this transaction's commit<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    private long commitIndex;                           // index of the log entry representing this transaction's commit<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    /**<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * Constructor.<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     *<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @param kvdb associated database<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * @param baseTerm term of the Raft log entry on which this transaction is based<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @param baseIndex index of the Raft log entry on which this transaction is based<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * @param snapshot underlying state machine snapshot; will be closed with this instance<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * @param view this transaction's view of the (prefixed) key/value store<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    RaftKVTransaction(RaftKVDatabase kvdb, long baseTerm, long baseIndex, CloseableKVStore snapshot, MutableView view) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        this.kvdb = kvdb;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        this.baseTerm = baseTerm;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        this.baseIndex = baseIndex;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        this.snapshot = snapshot;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        this.view = view;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>// Properties<a name="line.68"></a>
 <span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>// Properties<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * Get the term of the log entry on which this transaction is based.<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     *<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * @return associated base log term<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    public long getBaseTerm() {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        return this.baseTerm;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * Get the index of the log entry on which this transaction is based.<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     * @return associated base log index<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    public long getBaseIndex() {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        return this.baseIndex;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    /**<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     * Configure whether to reduce the isolation guarantees for this transaction from linearizable consistency<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * to read-only, "stale snapshot" consistency (technically, serializable consistency).<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     *<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * &lt;p&gt;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * If so configured, this transaction guarantees a consistent, read-only view of the database as it existed<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * at some point in the "recent past". The view is not guaranteed to be up-to-date; it's only guaranteed<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * to be as up-to-date as is known to this node when the transaction was opened. For example, it will be<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * at least as up to date as the most recently committed normal (linearizable) transaction on this node.<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * However, in general (for example, if stuck in a network partition minority), the snapshot could be arbitrarily<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     * far in the past.<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * &lt;p&gt;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * This setting may be modified freely during a transaction; it only determines behavior at {@link #commit} time.<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * If set:<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     *  &lt;ul&gt;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     *  &lt;li&gt;The transaction will be read-only: modifications will be allowed (and reflected in subsequent reads),<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     *      but they will be discarded on {@link #commit}.&lt;/li&gt;<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     *  &lt;li&gt;The {@link #commit} operation will be faster, and possibly not require any network traffic at all.&lt;/li&gt;<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     *  &lt;/ul&gt;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     *<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * @param readOnlySnapshot true for snapshot isolation, false for normal linearizable ACID semantics<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     * @see &lt;a href="https://aphyr.com/posts/313-strong-consistency-models"&gt;Strong consistency models&lt;/a&gt;<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     */<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    public void setReadOnlySnapshot(boolean readOnlySnapshot) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        this.readOnlySnapshot = readOnlySnapshot;<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     * Determine whether this instance is configured for read-only, snapshot isolation.<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     *<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     * @return true if this instance is configured for snapshot isolation<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     * @see #setReadOnlySnapshot<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     */<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    public boolean isReadOnlySnapshot() {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        return this.readOnlySnapshot;<a name="line.125"></a>
-<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * Get the term of the log entry on which this transaction is based.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     *<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * @return associated base log term<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    public long getBaseTerm() {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        return this.baseTerm;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    }<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>    /**<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * Get the index of the log entry on which this transaction is based.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     *<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * @return associated base log index<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public long getBaseIndex() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        return this.baseIndex;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    /**<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * Configure whether to reduce the isolation guarantees for this transaction from linearizable consistency<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * to read-only, "stale snapshot" consistency (technically, serializable consistency).<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * &lt;p&gt;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * If so configured, this transaction guarantees a consistent, read-only view of the database as it existed<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * at some point in the "recent past". The view is not guaranteed to be up-to-date; it's only guaranteed<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * to be as up-to-date as is known to this node when the transaction was opened. For example, it will be<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * at least as up to date as the most recently committed normal (linearizable) transaction on this node.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * However, in general (for example, if stuck in a network partition minority), the snapshot could be arbitrarily<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * far in the past.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     *<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * &lt;p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * This setting may be modified freely during a transaction; it only determines behavior at {@link #commit} time.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * If set:<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     *  &lt;ul&gt;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     *  &lt;li&gt;The transaction will be read-only: modifications will be allowed (and reflected in subsequent reads),<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     *      but they will be discarded on {@link #commit}.&lt;/li&gt;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     *  &lt;li&gt;The {@link #commit} operation will be faster, and possibly not require any network traffic at all.&lt;/li&gt;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     *  &lt;/ul&gt;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     *<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * @param readOnlySnapshot true for snapshot isolation, false for normal linearizable ACID semantics<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * @see &lt;a href="https://aphyr.com/posts/313-strong-consistency-models"&gt;Strong consistency models&lt;/a&gt;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    public void setReadOnlySnapshot(boolean readOnlySnapshot) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        this.readOnlySnapshot = readOnlySnapshot;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>    /**<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * Determine whether this instance is configured for read-only, snapshot isolation.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     *<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @return true if this instance is configured for snapshot isolation<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @see #setReadOnlySnapshot<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    public boolean isReadOnlySnapshot() {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        return this.readOnlySnapshot;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>// Configuration Stuff<a name="line.126"></a>
 <span class="sourceLineNo">127</span><a name="line.127"></a>
-<span class="sourceLineNo">128</span>// Configuration Stuff<a name="line.128"></a>
-<span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>    /**<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     * Include a cluster configuration change when this transaction is committed.<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     *<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * &lt;p&gt;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * The change will have been applied once this transaction is successfully committed.<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     *<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * &lt;p&gt;<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     * Raft supports configuration changes that add or remove one node at a time to/from the cluster.<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     * If this method is invoked more than once in a single transaction, all but the last invocation are ignored.<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     *<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     * &lt;p&gt;<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * Initially, nodes are &lt;i&gt;unconfigured&lt;/i&gt;. An unconfigured node becomes configured in one of two ways:<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     * &lt;ul&gt;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     *  &lt;li&gt;By receiving a message from a leader of some existing cluster, in which case the node joins that cluster<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     *      based on the provided configuration; or&lt;/li&gt;<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     *  &lt;li&gt;By this method being invoked with {@code identity} equal to this node's identity and a non-null {@code address},<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     *      which creates a new cluster and adds this node to it.&lt;/li&gt;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     * &lt;/ul&gt;<a name="line.147"></a>
+<span class="sourceLineNo">128</span>    /**<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * Include a cluster configuration change when this transaction is committed.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     *<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * &lt;p&gt;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * The change will have been applied once this transaction is successfully committed.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * &lt;p&gt;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * Raft supports configuration changes that add or remove one node at a time to/from the cluster.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * If this method is invoked more than once in a single transaction, all but the last invocation are ignored.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     *<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * &lt;p&gt;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * Initially, nodes are &lt;i&gt;unconfigured&lt;/i&gt;. An unconfigured node becomes configured in one of two ways:<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * &lt;ul&gt;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     *  &lt;li&gt;By receiving a message from a leader of some existing cluster, in which case the node joins that cluster<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *      based on the provided configuration; or&lt;/li&gt;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *  &lt;li&gt;By this method being invoked with {@code identity} equal to this node's identity and a non-null {@code address},<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     *      which creates a new cluster and adds this node to it.&lt;/li&gt;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * &lt;/ul&gt;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     *<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * &lt;p&gt;<a name="line.147"></a>
 <span class="sourceLineNo">148</span>     * Therefore, this method must be used to intialize a new cluster.<a name="line.148"></a>
 <span class="sourceLineNo">149</span>     *<a name="line.149"></a>
 <span class="sourceLineNo">150</span>     * @param identity the identity of the node to add or remove<a name="line.150"></a>
@@ -288,9 +288,9 @@
 <span class="sourceLineNo">280</span>        return this.getClass().getSimpleName()<a name="line.280"></a>
 <span class="sourceLineNo">281</span>          + "[txId=" + this.txId<a name="line.281"></a>
 <span class="sourceLineNo">282</span>          + ",state=" + this.state<a name="line.282"></a>
-<span class="sourceLineNo">283</span>          + ",base=" + this.baseTerm + "/" + this.baseIndex<a name="line.283"></a>
+<span class="sourceLineNo">283</span>          + ",base=" + this.baseIndex + "t" + this.baseTerm<a name="line.283"></a>
 <span class="sourceLineNo">284</span>          + (this.configChange != null ? ",configChange=" + Arrays.&lt;String&gt;asList(this.configChange) : "")<a name="line.284"></a>
-<span class="sourceLineNo">285</span>          + (this.state.compareTo(TxState.COMMIT_WAITING) &gt;= 0 ? ",commit=" + this.commitTerm + "/" + this.commitIndex : "")<a name="line.285"></a>
+<span class="sourceLineNo">285</span>          + (this.state.compareTo(TxState.COMMIT_WAITING) &gt;= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")<a name="line.285"></a>
 <span class="sourceLineNo">286</span>          + (this.timeout != 0 ? ",timeout=" + this.timeout : "")<a name="line.286"></a>
 <span class="sourceLineNo">287</span>          + "]";<a name="line.287"></a>
 <span class="sourceLineNo">288</span>    }<a name="line.288"></a>

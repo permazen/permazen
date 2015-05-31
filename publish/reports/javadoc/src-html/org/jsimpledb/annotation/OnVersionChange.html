@@ -9,111 +9,109 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.annotation;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.annotation;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.lang.annotation.Documented;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.lang.annotation.ElementType;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.lang.annotation.Retention;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.lang.annotation.RetentionPolicy;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.lang.annotation.Target;<a name="line.14"></a>
-<span class="sourceLineNo">015</span><a name="line.15"></a>
-<span class="sourceLineNo">016</span>/**<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * Annotation for methods that are to be invoked whenever an object's schema version has just changed.<a name="line.17"></a>
+<span class="sourceLineNo">008</span>import java.lang.annotation.Documented;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.lang.annotation.ElementType;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.lang.annotation.Retention;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.lang.annotation.RetentionPolicy;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.lang.annotation.Target;<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>/**<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * Annotation for methods that are to be invoked whenever an object's schema version has just changed.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> *<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * &lt;p&gt;&lt;b&gt;Method Parameters&lt;/b&gt;&lt;/p&gt;<a name="line.17"></a>
 <span class="sourceLineNo">018</span> *<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * &lt;p&gt;&lt;b&gt;Method Parameters&lt;/b&gt;&lt;/p&gt;<a name="line.19"></a>
-<span class="sourceLineNo">020</span> *<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * &lt;p&gt;<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * The annotated method must be an instance method (i.e., not static), return void, and<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * take one, two, or all three of the following parameters in order:<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * &lt;ol&gt;<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * &lt;li&gt;{@code int oldVersion} - previous schema version; should be present only if {@link #oldVersion} is zero&lt;/li&gt;<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * &lt;li&gt;{@code int newVersion} - new schema version; should be present only if {@link #newVersion} is zero&lt;/li&gt;<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * &lt;li&gt;{@code Map&lt;Integer, Object&gt; oldValues} &lt;i&gt;or&lt;/i&gt; {@code Map&lt;String, Object&gt; oldValues} - immutable map containing<a name="line.27"></a>
-<span class="sourceLineNo">028</span> *      all field values from the previous version of the object, indexed by either storage ID or field name.&lt;/li&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * &lt;/ol&gt;<a name="line.29"></a>
-<span class="sourceLineNo">030</span> *<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * &lt;p&gt;<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * If a class has multiple {@link OnVersionChange &amp;#64;OnVersionChange}-annotated methods, methods with more specific<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * constraint(s) (i.e., non-zero {@link #oldVersion} and/or {@link #newVersion}) will be invoked first.<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * &lt;/p&gt;<a name="line.34"></a>
+<span class="sourceLineNo">019</span> * &lt;p&gt;<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * The annotated method must be an instance method (i.e., not static), return void, and<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * take one, two, or all three of the following parameters in order:<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * &lt;ol&gt;<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * &lt;li&gt;{@code int oldVersion} - previous schema version; should be present only if {@link #oldVersion} is zero&lt;/li&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * &lt;li&gt;{@code int newVersion} - new schema version; should be present only if {@link #newVersion} is zero&lt;/li&gt;<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;li&gt;{@code Map&lt;Integer, Object&gt; oldValues} &lt;i&gt;or&lt;/i&gt; {@code Map&lt;String, Object&gt; oldValues} - immutable map containing<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *      all field values from the previous version of the object, indexed by either storage ID or field name.&lt;/li&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;/ol&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * If a class has multiple {@link OnVersionChange &amp;#64;OnVersionChange}-annotated methods, methods with more specific<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * constraint(s) (i.e., non-zero {@link #oldVersion} and/or {@link #newVersion}) will be invoked first.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * &lt;/p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;p&gt;&lt;b&gt;Incompatible Schema Changes&lt;/b&gt;&lt;/p&gt;<a name="line.34"></a>
 <span class="sourceLineNo">035</span> *<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * &lt;p&gt;&lt;b&gt;Incompatible Schema Changes&lt;/b&gt;&lt;/p&gt;<a name="line.36"></a>
-<span class="sourceLineNo">037</span> *<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * &lt;p&gt;<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * JSimpleDB supports arbitrary Java model schema changes across schema versions, including adding and removing Java types.<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * As a result, it's possible for the previous version of an object to contain reference fields whose Java types no longer exist<a name="line.40"></a>
-<span class="sourceLineNo">041</span> * in the current Java model. Specifically, this can happen in two ways:<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * &lt;ul&gt;<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * &lt;li&gt;A reference field refers to an object type that no longer exists; or&lt;/li&gt;<a name="line.43"></a>
-<span class="sourceLineNo">044</span> * &lt;li&gt;An {@link Enum} field refers to an {@link Enum} type that no longer exists, or whose constants have changed&lt;/li&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * &lt;/ul&gt;<a name="line.45"></a>
-<span class="sourceLineNo">046</span> *<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * &lt;p&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span> * In these cases, the old field's value cannot be represented in {@code oldValues} using the original Java types.<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * Instead, more generic types are used:<a name="line.49"></a>
-<span class="sourceLineNo">050</span> * &lt;ul&gt;<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * &lt;li&gt;For a reference field whose type no longer exists, the referenced object will be an {@link org.jsimpledb.UntypedJObject}.<a name="line.51"></a>
-<span class="sourceLineNo">052</span> *      Note that the fields in the {@link org.jsimpledb.UntypedJObject} may still be accessed by invoking the<a name="line.52"></a>
-<span class="sourceLineNo">053</span> *      {@link org.jsimpledb.JTransaction} field access methods with {@code upgradeVersion} set to false (otherwise,<a name="line.53"></a>
-<span class="sourceLineNo">054</span> *      a {@link org.jsimpledb.core.TypeNotInSchemaVersionException} is thrown).<a name="line.54"></a>
-<span class="sourceLineNo">055</span> * &lt;li&gt;For {@link Enum} fields whose type no longer exists or has modified constants, the old value<a name="line.55"></a>
-<span class="sourceLineNo">056</span> *      will be represented as an {@link org.jsimpledb.core.EnumValue} object.&lt;/li&gt;<a name="line.56"></a>
-<span class="sourceLineNo">057</span> * &lt;/ul&gt;<a name="line.57"></a>
-<span class="sourceLineNo">058</span> *<a name="line.58"></a>
-<span class="sourceLineNo">059</span> * &lt;p&gt;<a name="line.59"></a>
-<span class="sourceLineNo">060</span> * In addition to Java types disappearing, it's also possible that the type of a reference field is narrower in the current<a name="line.60"></a>
-<span class="sourceLineNo">061</span> * Java code than it was in the previous Java code. If an object held a reference in such a field to another object outside<a name="line.61"></a>
-<span class="sourceLineNo">062</span> * the new, narrower type, then upgrading the object without change would represent a violation of Java type safety.<a name="line.62"></a>
-<span class="sourceLineNo">063</span> * Therefore, when any object is upgraded, all references that would otherwise be illegal are cleared (in the manner of<a name="line.63"></a>
-<span class="sourceLineNo">064</span> * {@link org.jsimpledb.core.DeleteAction#UNREFERENCE}); use {@code oldValues} to access the previous field value(s) if needed.<a name="line.64"></a>
-<span class="sourceLineNo">065</span> * &lt;/p&gt;<a name="line.65"></a>
-<span class="sourceLineNo">066</span> */<a name="line.66"></a>
-<span class="sourceLineNo">067</span>@Retention(RetentionPolicy.RUNTIME)<a name="line.67"></a>
-<span class="sourceLineNo">068</span>@Target(ElementType.METHOD)<a name="line.68"></a>
-<span class="sourceLineNo">069</span>@Documented<a name="line.69"></a>
-<span class="sourceLineNo">070</span>public @interface OnVersionChange {<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * Required old schema version.<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     *<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * &lt;p&gt;<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * If this property is set to a positive value, only version changes<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * for which the previous schema version equals the specified version will result in notification,<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * and the annotated method must have the corresponding parameter omitted. Otherwise notifications<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     * are delivered for any previous schema version and the {@code oldVersion} method parameter is required.<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     * &lt;/p&gt;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     *<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * &lt;p&gt;<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * Negative values are not allowed.<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     * &lt;/p&gt;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     *<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     * @return old schema version, or zero for no restriction<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    int oldVersion() default 0;<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    /**<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     * Required new schema version.<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * &lt;p&gt;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * If this property is set to a positive value, only version changes<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * for which the new schema version equals the specified version will result in notification,<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * and the annotated method must have the corresponding parameter omitted. Otherwise notifications<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * are delivered for any new schema version and the {@code newVersion} method parameter is required.<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * &lt;/p&gt;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     *<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     * &lt;p&gt;<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * Negative values are not allowed.<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * &lt;/p&gt;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     *<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * @return new schema version, or zero for no restriction<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    int newVersion() default 0;<a name="line.106"></a>
-<span class="sourceLineNo">107</span>}<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">036</span> * &lt;p&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * JSimpleDB supports arbitrary Java model schema changes across schema versions, including adding and removing Java types.<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * As a result, it's possible for the previous version of an object to contain reference fields whose Java types no longer exist<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * in the current Java model. Specifically, this can happen in two ways:<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;ul&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;li&gt;A reference field refers to an object type that no longer exists; or&lt;/li&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * &lt;li&gt;An {@link Enum} field refers to an {@link Enum} type that no longer exists, or whose constants have changed&lt;/li&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;/ul&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * In these cases, the old field's value cannot be represented in {@code oldValues} using the original Java types.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * Instead, more generic types are used:<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;ul&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;li&gt;For a reference field whose type no longer exists, the referenced object will be an {@link org.jsimpledb.UntypedJObject}.<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *      Note that the fields in the {@link org.jsimpledb.UntypedJObject} may still be accessed by invoking the<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *      {@link org.jsimpledb.JTransaction} field access methods with {@code upgradeVersion} set to false (otherwise,<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *      a {@link org.jsimpledb.core.TypeNotInSchemaVersionException} is thrown).<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;li&gt;For {@link Enum} fields whose type no longer exists or has modified constants, the old value<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *      will be represented as an {@link org.jsimpledb.core.EnumValue} object.&lt;/li&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * &lt;/ul&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;p&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * In addition to Java types disappearing, it's also possible that the type of a reference field is narrower in the current<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * Java code than it was in the previous Java code. If an object held a reference in such a field to another object outside<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * the new, narrower type, then upgrading the object without change would represent a violation of Java type safety.<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * Therefore, when any object is upgraded, all references that would otherwise be illegal are cleared (in the manner of<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * {@link org.jsimpledb.core.DeleteAction#UNREFERENCE}); use {@code oldValues} to access the previous field value(s) if needed.<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * &lt;/p&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>@Retention(RetentionPolicy.RUNTIME)<a name="line.65"></a>
+<span class="sourceLineNo">066</span>@Target(ElementType.METHOD)<a name="line.66"></a>
+<span class="sourceLineNo">067</span>@Documented<a name="line.67"></a>
+<span class="sourceLineNo">068</span>public @interface OnVersionChange {<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * Required old schema version.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     *<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * &lt;p&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * If this property is set to a positive value, only version changes<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * for which the previous schema version equals the specified version will result in notification,<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * and the annotated method must have the corresponding parameter omitted. Otherwise notifications<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * are delivered for any previous schema version and the {@code oldVersion} method parameter is required.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * &lt;/p&gt;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * &lt;p&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * Negative values are not allowed.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * &lt;/p&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * @return old schema version, or zero for no restriction<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    int oldVersion() default 0;<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    /**<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * Required new schema version.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     *<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * &lt;p&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * If this property is set to a positive value, only version changes<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * for which the new schema version equals the specified version will result in notification,<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * and the annotated method must have the corresponding parameter omitted. Otherwise notifications<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * are delivered for any new schema version and the {@code newVersion} method parameter is required.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * &lt;/p&gt;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * &lt;p&gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * Negative values are not allowed.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * &lt;/p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @return new schema version, or zero for no restriction<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    int newVersion() default 0;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>}<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
 
 
 

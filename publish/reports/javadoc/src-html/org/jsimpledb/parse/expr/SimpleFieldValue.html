@@ -9,45 +9,43 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.parse.expr;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.parse.expr;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import org.jsimpledb.core.ObjId;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import org.jsimpledb.core.SimpleField;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.jsimpledb.parse.ParseSession;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>/**<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * {@link Value} that reflects a core API {@link SimpleField} in some database object.<a name="line.15"></a>
-<span class="sourceLineNo">016</span> */<a name="line.16"></a>
-<span class="sourceLineNo">017</span>public class SimpleFieldValue extends FieldValue implements LValue {<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>    /**<a name="line.19"></a>
-<span class="sourceLineNo">020</span>     * Constructor.<a name="line.20"></a>
-<span class="sourceLineNo">021</span>     *<a name="line.21"></a>
-<span class="sourceLineNo">022</span>     * @param id object ID<a name="line.22"></a>
-<span class="sourceLineNo">023</span>     * @param field database field<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     * @throws IllegalArgumentException if {@code id} is null<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     * @throws IllegalArgumentException if {@code field} is null<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     */<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    public SimpleFieldValue(ObjId id, SimpleField&lt;?&gt; field) {<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        super(id, field);<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    }<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    @Override<a name="line.31"></a>
-<span class="sourceLineNo">032</span>    public void set(ParseSession session, Value value) {<a name="line.32"></a>
-<span class="sourceLineNo">033</span>        final Object obj = value.get(session);<a name="line.33"></a>
-<span class="sourceLineNo">034</span>        try {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>            session.getTransaction().writeSimpleField(this.id, this.field.getStorageId(), obj, false);<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        } catch (IllegalArgumentException e) {<a name="line.36"></a>
-<span class="sourceLineNo">037</span>            throw new EvalException("invalid " + AbstractValue.describeType(obj) + " for " + this.field<a name="line.37"></a>
-<span class="sourceLineNo">038</span>              + (e.getMessage() != null ? ": " + e.getMessage() : ""), e);<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        }<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    }<a name="line.40"></a>
-<span class="sourceLineNo">041</span>}<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">008</span>import org.jsimpledb.core.ObjId;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import org.jsimpledb.core.SimpleField;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import org.jsimpledb.parse.ParseSession;<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>/**<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * {@link Value} that reflects a core API {@link SimpleField} in some database object.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> */<a name="line.14"></a>
+<span class="sourceLineNo">015</span>public class SimpleFieldValue extends FieldValue implements LValue {<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>    /**<a name="line.17"></a>
+<span class="sourceLineNo">018</span>     * Constructor.<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     *<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     * @param id object ID<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * @param field database field<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     * @throws IllegalArgumentException if {@code id} is null<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * @throws IllegalArgumentException if {@code field} is null<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    public SimpleFieldValue(ObjId id, SimpleField&lt;?&gt; field) {<a name="line.25"></a>
+<span class="sourceLineNo">026</span>        super(id, field);<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    }<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    @Override<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    public void set(ParseSession session, Value value) {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        final Object obj = value.get(session);<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        try {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>            session.getTransaction().writeSimpleField(this.id, this.field.getStorageId(), obj, false);<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        } catch (IllegalArgumentException e) {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>            throw new EvalException("invalid " + AbstractValue.describeType(obj) + " for " + this.field<a name="line.35"></a>
+<span class="sourceLineNo">036</span>              + (e.getMessage() != null ? ": " + e.getMessage() : ""), e);<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        }<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
+<span class="sourceLineNo">039</span>}<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
 
 
 

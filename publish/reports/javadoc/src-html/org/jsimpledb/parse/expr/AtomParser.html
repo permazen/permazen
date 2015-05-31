@@ -9,226 +9,224 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.parse.expr;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.parse.expr;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.TreeSet;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.regex.Matcher;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.regex.Pattern;<a name="line.12"></a>
-<span class="sourceLineNo">013</span><a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.dellroad.stuff.java.Primitive;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.dellroad.stuff.string.StringEncoder;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.JTransaction;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.core.FieldType;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.core.ObjId;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.parse.ObjIdParser;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jsimpledb.parse.ParseContext;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jsimpledb.parse.ParseException;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jsimpledb.parse.ParseSession;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.parse.ParseUtil;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.parse.Parser;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.parse.SpaceParser;<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * The lowest parse level. Parses parenthesized expressions, literals, and identifiers.<a name="line.28"></a>
-<span class="sourceLineNo">029</span> *<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * Includes these special extensions:<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * &lt;ul&gt;<a name="line.32"></a>
-<span class="sourceLineNo">033</span> *  &lt;li&gt;Variable references, e.g., {@code $foo}&lt;/li&gt;<a name="line.33"></a>
-<span class="sourceLineNo">034</span> *  &lt;li&gt;Object ID literals, e.g., &lt;code&gt;@fc21bf6d8930a215&lt;/code&gt;&lt;/li&gt;<a name="line.34"></a>
-<span class="sourceLineNo">035</span> *  &lt;li&gt;Any {@link FieldType} value in {@linkplain FieldType#fromParseableString parseable string form}<a name="line.35"></a>
-<span class="sourceLineNo">036</span> *      preceded by the {@link FieldType} name in curly braces, e.g., &lt;code&gt;{java.util.Date}2015-01-23T07:19:42&lt;/code&gt;&lt;/li&gt;<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * &lt;/ul&gt;<a name="line.37"></a>
-<span class="sourceLineNo">038</span> */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>public class AtomParser implements Parser&lt;Node&gt; {<a name="line.39"></a>
+<span class="sourceLineNo">008</span>import java.util.TreeSet;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.regex.Matcher;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.regex.Pattern;<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>import org.dellroad.stuff.java.Primitive;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.dellroad.stuff.string.StringEncoder;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.JTransaction;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.core.FieldType;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.core.ObjId;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.parse.ObjIdParser;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.parse.ParseContext;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.parse.ParseException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.parse.ParseSession;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.parse.ParseUtil;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.parse.Parser;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.parse.SpaceParser;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * The lowest parse level. Parses parenthesized expressions, literals, and identifiers.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;p&gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Includes these special extensions:<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;ul&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *  &lt;li&gt;Variable references, e.g., {@code $foo}&lt;/li&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *  &lt;li&gt;Object ID literals, e.g., &lt;code&gt;@fc21bf6d8930a215&lt;/code&gt;&lt;/li&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *  &lt;li&gt;Any {@link FieldType} value in {@linkplain FieldType#fromParseableString parseable string form}<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *      preceded by the {@link FieldType} name in curly braces, e.g., &lt;code&gt;{java.util.Date}2015-01-23T07:19:42&lt;/code&gt;&lt;/li&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;/ul&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>public class AtomParser implements Parser&lt;Node&gt; {<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    public static final AtomParser INSTANCE = new AtomParser();<a name="line.39"></a>
 <span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    public static final AtomParser INSTANCE = new AtomParser();<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    private final SpaceParser spaceParser = new SpaceParser();<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    private final TreeSet&lt;String&gt; identifierCompletions;<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>    public AtomParser() {<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        this(null);<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    }<a name="line.48"></a>
-<span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>    /**<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * Constructor.<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     *<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * @param identifierCompletions set of valid identifiers tab completions, or null to allow any identifiers<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     */<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    public AtomParser(Iterable&lt;String&gt; identifierCompletions) {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        if (identifierCompletions != null) {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>            this.identifierCompletions = new TreeSet&lt;String&gt;();<a name="line.57"></a>
-<span class="sourceLineNo">058</span>            for (String identifierCompletion : identifierCompletions)<a name="line.58"></a>
-<span class="sourceLineNo">059</span>                this.identifierCompletions.add(identifierCompletion);<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        } else<a name="line.60"></a>
-<span class="sourceLineNo">061</span>            this.identifierCompletions = null;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>    @Override<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    public Node parse(ParseSession session, ParseContext ctx, boolean complete) {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        final int mark = ctx.getIndex();<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>        // Check for parenthesized expression<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        if (ctx.tryLiteral("(")) {<a name="line.69"></a>
+<span class="sourceLineNo">041</span>    private final SpaceParser spaceParser = new SpaceParser();<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    private final TreeSet&lt;String&gt; identifierCompletions;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    public AtomParser() {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        this(null);<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * Constructor.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     *<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @param identifierCompletions set of valid identifiers tab completions, or null to allow any identifiers<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    public AtomParser(Iterable&lt;String&gt; identifierCompletions) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        if (identifierCompletions != null) {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            this.identifierCompletions = new TreeSet&lt;String&gt;();<a name="line.55"></a>
+<span class="sourceLineNo">056</span>            for (String identifierCompletion : identifierCompletions)<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                this.identifierCompletions.add(identifierCompletion);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        } else<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            this.identifierCompletions = null;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    @Override<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    public Node parse(ParseSession session, ParseContext ctx, boolean complete) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        final int mark = ctx.getIndex();<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>        // Check for parenthesized expression<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        if (ctx.tryLiteral("(")) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            this.spaceParser.parse(ctx, complete);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            final Node node = AssignmentExprParser.INSTANCE.parse(session, ctx, complete);<a name="line.69"></a>
 <span class="sourceLineNo">070</span>            this.spaceParser.parse(ctx, complete);<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            final Node node = AssignmentExprParser.INSTANCE.parse(session, ctx, complete);<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            this.spaceParser.parse(ctx, complete);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            if (!ctx.tryLiteral(")"))<a name="line.73"></a>
-<span class="sourceLineNo">074</span>                throw new ParseException(ctx).addCompletion(") ");<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            return node;<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        }<a name="line.76"></a>
-<span class="sourceLineNo">077</span><a name="line.77"></a>
-<span class="sourceLineNo">078</span>        // Try to match null<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        if (this.tryWord(ctx, "null") != null)<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            return new LiteralNode(null);<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>        // Try to match boolean<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        final String booleanMatch = this.tryWord(ctx, "false|true");<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        if (booleanMatch != null)<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            return new LiteralNode(Boolean.valueOf(booleanMatch));<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>        // Try to match double, float, int, or long literal<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        final int start = ctx.getIndex();<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        final String floatMatch = this.tryWord(ctx, Primitive.FLOAT.getParsePattern() + "[fF]");<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        if (floatMatch != null) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>            try {<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                return new LiteralNode(Primitive.FLOAT.parseValue(floatMatch.substring(0, floatMatch.length() - 1)));<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            } catch (IllegalArgumentException e) {<a name="line.93"></a>
-<span class="sourceLineNo">094</span>                ctx.setIndex(start);<a name="line.94"></a>
-<span class="sourceLineNo">095</span>            }<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        }<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        final String longMatch = this.tryWord(ctx, Primitive.LONG.getParsePattern() + "[Ll]");<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        if (longMatch != null) {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>            try {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>                return new LiteralNode(Primitive.LONG.parseValue(longMatch.substring(0, longMatch.length() - 1)));<a name="line.100"></a>
-<span class="sourceLineNo">101</span>            } catch (IllegalArgumentException e) {<a name="line.101"></a>
-<span class="sourceLineNo">102</span>                ctx.setIndex(start);<a name="line.102"></a>
-<span class="sourceLineNo">103</span>            }<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        }<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        final String intMatch = this.tryFollow(ctx, Primitive.INTEGER.getParsePattern(), "[^.\\p{javaJavaIdentifierPart}]");<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        if (intMatch != null) {<a name="line.106"></a>
-<span class="sourceLineNo">107</span>            try {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>                return new LiteralNode(Primitive.INTEGER.parseValue(intMatch));<a name="line.108"></a>
-<span class="sourceLineNo">109</span>            } catch (IllegalArgumentException e) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>                ctx.setIndex(start);<a name="line.110"></a>
-<span class="sourceLineNo">111</span>            }<a name="line.111"></a>
-<span class="sourceLineNo">112</span>        }<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        final String doubleMatch = this.tryFollow(ctx, Primitive.DOUBLE.getParsePattern(), "[^.\\p{javaJavaIdentifierPart}]");<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        if (doubleMatch != null) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>            try {<a name="line.115"></a>
-<span class="sourceLineNo">116</span>                return new LiteralNode(Primitive.DOUBLE.parseValue(doubleMatch));<a name="line.116"></a>
-<span class="sourceLineNo">117</span>            } catch (IllegalArgumentException e) {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>                ctx.setIndex(start);<a name="line.118"></a>
-<span class="sourceLineNo">119</span>            }<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        }<a name="line.120"></a>
-<span class="sourceLineNo">121</span><a name="line.121"></a>
-<span class="sourceLineNo">122</span>        // Try to match a char literal<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        String match = this.tryWord(ctx,<a name="line.123"></a>
-<span class="sourceLineNo">124</span>          StringEncoder.ENQUOTE_PATTERN.toString().replaceAll("\"", "'").replaceAll("\\*", ""));    // kludge<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        if (match != null) {<a name="line.125"></a>
-<span class="sourceLineNo">126</span>            match = match.substring(1, match.length() - 1);<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            if (match.length() &gt; 0 &amp;&amp; match.charAt(0) == '\'') {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>                ctx.setIndex(start);<a name="line.128"></a>
-<span class="sourceLineNo">129</span>                throw new ParseException(ctx, "invalid character: contains unescaped single quote");<a name="line.129"></a>
-<span class="sourceLineNo">130</span>            }<a name="line.130"></a>
-<span class="sourceLineNo">131</span>            match = StringEncoder.decode(match.replaceAll(Pattern.quote("\\'"), Matcher.quoteReplacement("'")));<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            if (match.length() != 1) {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>                ctx.setIndex(start);<a name="line.133"></a>
-<span class="sourceLineNo">134</span>                throw new ParseException(ctx, "invalid character: quotes must contain exactly one character");<a name="line.134"></a>
-<span class="sourceLineNo">135</span>            }<a name="line.135"></a>
-<span class="sourceLineNo">136</span>            return new LiteralNode(match.charAt(0));<a name="line.136"></a>
-<span class="sourceLineNo">137</span>        }<a name="line.137"></a>
-<span class="sourceLineNo">138</span><a name="line.138"></a>
-<span class="sourceLineNo">139</span>        // Try to match a string literal<a name="line.139"></a>
-<span class="sourceLineNo">140</span>        final Matcher stringMatch = ctx.tryPattern(StringEncoder.ENQUOTE_PATTERN);<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        if (stringMatch != null)<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            return new LiteralNode(new String(StringEncoder.dequote(stringMatch.group())));<a name="line.142"></a>
-<span class="sourceLineNo">143</span><a name="line.143"></a>
-<span class="sourceLineNo">144</span>        // Try to type from type registry within curly braces<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        int fieldTypeStart = ctx.getIndex();<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        final Matcher braceMatch = ctx.tryPattern("\\{(" + FieldType.NAME_PATTERN + ")\\}");<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        if (braceMatch != null) {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>            final String fieldTypeName = braceMatch.group(1);<a name="line.148"></a>
-<span class="sourceLineNo">149</span>            final FieldType&lt;?&gt; fieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(fieldTypeName);<a name="line.149"></a>
-<span class="sourceLineNo">150</span>            if (fieldType == null) {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>                ctx.setIndex(fieldTypeStart);<a name="line.151"></a>
-<span class="sourceLineNo">152</span>                throw new ParseException(ctx, "unknown simple field type `" + fieldTypeName + "'");<a name="line.152"></a>
-<span class="sourceLineNo">153</span>            }<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            fieldTypeStart = ctx.getIndex();<a name="line.154"></a>
-<span class="sourceLineNo">155</span>            try {<a name="line.155"></a>
-<span class="sourceLineNo">156</span>                return new LiteralNode(fieldType.fromParseableString(ctx));<a name="line.156"></a>
-<span class="sourceLineNo">157</span>            } catch (IllegalArgumentException e) {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>                ctx.setIndex(fieldTypeStart);<a name="line.158"></a>
-<span class="sourceLineNo">159</span>                throw new ParseException(ctx, "invalid value for type `" + fieldTypeName + "'");<a name="line.159"></a>
-<span class="sourceLineNo">160</span>            }<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        }<a name="line.161"></a>
-<span class="sourceLineNo">162</span><a name="line.162"></a>
-<span class="sourceLineNo">163</span>        // Try to match variable<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        if (ctx.tryLiteral("$")) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>            final Matcher varMatcher = ctx.tryPattern(AbstractNamed.NAME_PATTERN);<a name="line.165"></a>
-<span class="sourceLineNo">166</span>            if (varMatcher == null)<a name="line.166"></a>
-<span class="sourceLineNo">167</span>                throw new ParseException(ctx).addCompletions(session.getVars().keySet());<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            final String name = varMatcher.group();<a name="line.168"></a>
-<span class="sourceLineNo">169</span>            if (ctx.isEOF() &amp;&amp; complete)<a name="line.169"></a>
-<span class="sourceLineNo">170</span>                throw new ParseException(ctx).addCompletions(ParseUtil.complete(session.getVars().keySet(), name));<a name="line.170"></a>
-<span class="sourceLineNo">171</span>            return new VarNode(name);<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        }<a name="line.172"></a>
-<span class="sourceLineNo">173</span><a name="line.173"></a>
-<span class="sourceLineNo">174</span>        // Try to match object literal<a name="line.174"></a>
-<span class="sourceLineNo">175</span>        if (ctx.tryLiteral("@")) {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            final ObjId id = new ObjIdParser().parse(session, ctx, complete);<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            return !session.hasJSimpleDB() ? new LiteralNode(id) : new Node() {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>                @Override<a name="line.178"></a>
-<span class="sourceLineNo">179</span>                public Value evaluate(ParseSession session) {<a name="line.179"></a>
-<span class="sourceLineNo">180</span>                    return new ConstValue(JTransaction.getCurrent().getJObject(id));<a name="line.180"></a>
-<span class="sourceLineNo">181</span>                }<a name="line.181"></a>
-<span class="sourceLineNo">182</span>            };<a name="line.182"></a>
-<span class="sourceLineNo">183</span>        }<a name="line.183"></a>
-<span class="sourceLineNo">184</span><a name="line.184"></a>
-<span class="sourceLineNo">185</span>        // Try to match identifier; support tab-completion of configured identifiers, if any<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        final Matcher identMatcher = ctx.tryPattern(IdentNode.NAME_PATTERN);<a name="line.186"></a>
-<span class="sourceLineNo">187</span>        if (identMatcher != null) {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>            final String name = identMatcher.group();<a name="line.188"></a>
-<span class="sourceLineNo">189</span>            if (complete &amp;&amp; ctx.isEOF() &amp;&amp; this.identifierCompletions != null &amp;&amp; !name.equals("new"))<a name="line.189"></a>
-<span class="sourceLineNo">190</span>                throw new ParseException(ctx).addCompletions(ParseUtil.complete(this.identifierCompletions, name));<a name="line.190"></a>
-<span class="sourceLineNo">191</span>            return new IdentNode(name);<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        if (complete &amp;&amp; ctx.isEOF() &amp;&amp; this.identifierCompletions != null)<a name="line.193"></a>
-<span class="sourceLineNo">194</span>            throw new ParseException(ctx).addCompletions(this.identifierCompletions);<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>        // No match<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        throw new ParseException(ctx);<a name="line.197"></a>
-<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
+<span class="sourceLineNo">071</span>            if (!ctx.tryLiteral(")"))<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                throw new ParseException(ctx).addCompletion(") ");<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            return node;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        }<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>        // Try to match null<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        if (this.tryWord(ctx, "null") != null)<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            return new LiteralNode(null);<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>        // Try to match boolean<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        final String booleanMatch = this.tryWord(ctx, "false|true");<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        if (booleanMatch != null)<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            return new LiteralNode(Boolean.valueOf(booleanMatch));<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>        // Try to match double, float, int, or long literal<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        final int start = ctx.getIndex();<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        final String floatMatch = this.tryWord(ctx, Primitive.FLOAT.getParsePattern() + "[fF]");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        if (floatMatch != null) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            try {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                return new LiteralNode(Primitive.FLOAT.parseValue(floatMatch.substring(0, floatMatch.length() - 1)));<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            } catch (IllegalArgumentException e) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                ctx.setIndex(start);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        }<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        final String longMatch = this.tryWord(ctx, Primitive.LONG.getParsePattern() + "[Ll]");<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        if (longMatch != null) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            try {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                return new LiteralNode(Primitive.LONG.parseValue(longMatch.substring(0, longMatch.length() - 1)));<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            } catch (IllegalArgumentException e) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                ctx.setIndex(start);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        }<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        final String intMatch = this.tryFollow(ctx, Primitive.INTEGER.getParsePattern(), "[^.\\p{javaJavaIdentifierPart}]");<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        if (intMatch != null) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            try {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                return new LiteralNode(Primitive.INTEGER.parseValue(intMatch));<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            } catch (IllegalArgumentException e) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                ctx.setIndex(start);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            }<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        }<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        final String doubleMatch = this.tryFollow(ctx, Primitive.DOUBLE.getParsePattern(), "[^.\\p{javaJavaIdentifierPart}]");<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        if (doubleMatch != null) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            try {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                return new LiteralNode(Primitive.DOUBLE.parseValue(doubleMatch));<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            } catch (IllegalArgumentException e) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                ctx.setIndex(start);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>        // Try to match a char literal<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        String match = this.tryWord(ctx,<a name="line.121"></a>
+<span class="sourceLineNo">122</span>          StringEncoder.ENQUOTE_PATTERN.toString().replaceAll("\"", "'").replaceAll("\\*", ""));    // kludge<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        if (match != null) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            match = match.substring(1, match.length() - 1);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>            if (match.length() &gt; 0 &amp;&amp; match.charAt(0) == '\'') {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                ctx.setIndex(start);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                throw new ParseException(ctx, "invalid character: contains unescaped single quote");<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            match = StringEncoder.decode(match.replaceAll(Pattern.quote("\\'"), Matcher.quoteReplacement("'")));<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            if (match.length() != 1) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                ctx.setIndex(start);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                throw new ParseException(ctx, "invalid character: quotes must contain exactly one character");<a name="line.132"></a>
+<span class="sourceLineNo">133</span>            }<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            return new LiteralNode(match.charAt(0));<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        }<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>        // Try to match a string literal<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        final Matcher stringMatch = ctx.tryPattern(StringEncoder.ENQUOTE_PATTERN);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        if (stringMatch != null)<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            return new LiteralNode(new String(StringEncoder.dequote(stringMatch.group())));<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>        // Try to type from type registry within curly braces<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        int fieldTypeStart = ctx.getIndex();<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        final Matcher braceMatch = ctx.tryPattern("\\{(" + FieldType.NAME_PATTERN + ")\\}");<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        if (braceMatch != null) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            final String fieldTypeName = braceMatch.group(1);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            final FieldType&lt;?&gt; fieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(fieldTypeName);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            if (fieldType == null) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                ctx.setIndex(fieldTypeStart);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                throw new ParseException(ctx, "unknown simple field type `" + fieldTypeName + "'");<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            }<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            fieldTypeStart = ctx.getIndex();<a name="line.152"></a>
+<span class="sourceLineNo">153</span>            try {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                return new LiteralNode(fieldType.fromParseableString(ctx));<a name="line.154"></a>
+<span class="sourceLineNo">155</span>            } catch (IllegalArgumentException e) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                ctx.setIndex(fieldTypeStart);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                throw new ParseException(ctx, "invalid value for type `" + fieldTypeName + "'");<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            }<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>        // Try to match variable<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        if (ctx.tryLiteral("$")) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            final Matcher varMatcher = ctx.tryPattern(AbstractNamed.NAME_PATTERN);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            if (varMatcher == null)<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                throw new ParseException(ctx).addCompletions(session.getVars().keySet());<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            final String name = varMatcher.group();<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            if (ctx.isEOF() &amp;&amp; complete)<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                throw new ParseException(ctx).addCompletions(ParseUtil.complete(session.getVars().keySet(), name));<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            return new VarNode(name);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>        // Try to match object literal<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        if (ctx.tryLiteral("@")) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            final ObjId id = new ObjIdParser().parse(session, ctx, complete);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            return !session.hasJSimpleDB() ? new LiteralNode(id) : new Node() {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                @Override<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                public Value evaluate(ParseSession session) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                    return new ConstValue(JTransaction.getCurrent().getJObject(id));<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                }<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            };<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        }<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>        // Try to match identifier; support tab-completion of configured identifiers, if any<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        final Matcher identMatcher = ctx.tryPattern(IdentNode.NAME_PATTERN);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        if (identMatcher != null) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            final String name = identMatcher.group();<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            if (complete &amp;&amp; ctx.isEOF() &amp;&amp; this.identifierCompletions != null &amp;&amp; !name.equals("new"))<a name="line.187"></a>
+<span class="sourceLineNo">188</span>                throw new ParseException(ctx).addCompletions(ParseUtil.complete(this.identifierCompletions, name));<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            return new IdentNode(name);<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        }<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        if (complete &amp;&amp; ctx.isEOF() &amp;&amp; this.identifierCompletions != null)<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            throw new ParseException(ctx).addCompletions(this.identifierCompletions);<a name="line.192"></a>
+<span class="sourceLineNo">193</span><a name="line.193"></a>
+<span class="sourceLineNo">194</span>        // No match<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        throw new ParseException(ctx);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    }<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>// Match a pattern not followed by a identifier letter<a name="line.198"></a>
 <span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>// Match a pattern not followed by a identifier letter<a name="line.200"></a>
-<span class="sourceLineNo">201</span><a name="line.201"></a>
-<span class="sourceLineNo">202</span>    private String tryWord(ParseContext ctx, Pattern pattern) {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        return this.tryWord(ctx, pattern.toString());<a name="line.203"></a>
-<span class="sourceLineNo">204</span>    }<a name="line.204"></a>
-<span class="sourceLineNo">205</span><a name="line.205"></a>
-<span class="sourceLineNo">206</span>    private String tryWord(ParseContext ctx, String pattern) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>        return this.tryFollow(ctx, pattern, "[^\\p{javaJavaIdentifierPart}]");<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    }<a name="line.208"></a>
-<span class="sourceLineNo">209</span><a name="line.209"></a>
-<span class="sourceLineNo">210</span>    private String tryFollow(ParseContext ctx, Pattern pattern, String follow) {<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        return this.tryFollow(ctx, pattern.toString(), follow);<a name="line.211"></a>
-<span class="sourceLineNo">212</span>    }<a name="line.212"></a>
-<span class="sourceLineNo">213</span><a name="line.213"></a>
-<span class="sourceLineNo">214</span>    private String tryFollow(ParseContext ctx, String pattern, String follow) {<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        final Matcher matcher = Pattern.compile("(" + pattern + ")(" + follow + "(?s:.*))?").matcher(ctx.getInput());<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        if (!matcher.matches())<a name="line.216"></a>
-<span class="sourceLineNo">217</span>            return null;<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        final String match = matcher.group(1);<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        ctx.setIndex(ctx.getIndex() + match.length());<a name="line.219"></a>
-<span class="sourceLineNo">220</span>        return match;<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    }<a name="line.221"></a>
-<span class="sourceLineNo">222</span>}<a name="line.222"></a>
-<span class="sourceLineNo">223</span><a name="line.223"></a>
+<span class="sourceLineNo">200</span>    private String tryWord(ParseContext ctx, Pattern pattern) {<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        return this.tryWord(ctx, pattern.toString());<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    }<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>    private String tryWord(ParseContext ctx, String pattern) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        return this.tryFollow(ctx, pattern, "[^\\p{javaJavaIdentifierPart}]");<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    }<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>    private String tryFollow(ParseContext ctx, Pattern pattern, String follow) {<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        return this.tryFollow(ctx, pattern.toString(), follow);<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    }<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>    private String tryFollow(ParseContext ctx, String pattern, String follow) {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        final Matcher matcher = Pattern.compile("(" + pattern + ")(" + follow + "(?s:.*))?").matcher(ctx.getInput());<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        if (!matcher.matches())<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            return null;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        final String match = matcher.group(1);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        ctx.setIndex(ctx.getIndex() + match.length());<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        return match;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    }<a name="line.219"></a>
+<span class="sourceLineNo">220</span>}<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
 
 
 

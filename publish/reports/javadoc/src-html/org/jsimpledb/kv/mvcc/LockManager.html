@@ -9,418 +9,416 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.mvcc;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.mvcc;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.ArrayList;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.HashMap;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.util.HashSet;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.util.List;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.util.NavigableSet;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.TreeSet;<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.dellroad.stuff.java.Predicate;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.dellroad.stuff.java.TimedWait;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.util.ByteUtil;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>/**<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * Manager of read/write locks on {@code byte[]} key ranges that ensures isolation and serialization while allowing concurrent<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * access by multiple threads to a single underlying {@code byte[]} key/value store.<a name="line.23"></a>
-<span class="sourceLineNo">024</span> *<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * &lt;p&gt;<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * This implementation is straightforward: read locks can overlap, but write locks may not, and all locks owned<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * by the same owner remain in force until all are {@linkplain #release released} at the same time.<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * &lt;/p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span> *<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * Instances are configured with a monitor object which is used for all internal locking and inter-thread wait/notify<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * handshaking (by default, this instance). A user-supplied monitor object may be provided via the constructor.<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * &lt;/p&gt;<a name="line.33"></a>
-<span class="sourceLineNo">034</span> *<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * &lt;p&gt;<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * Two timeout values are supported:<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * &lt;ul&gt;<a name="line.37"></a>
-<span class="sourceLineNo">038</span> *  &lt;li&gt;The wait timeout (specified as a parameter to {@link #lock lock()}) limits how long a thread will wait<a name="line.38"></a>
-<span class="sourceLineNo">039</span> *      on a lock held by another thread before giving up&lt;/li&gt;<a name="line.39"></a>
-<span class="sourceLineNo">040</span> *  &lt;li&gt;The {@linkplain #getHoldTimeout hold timeout} limits how long a thread may hold<a name="line.40"></a>
-<span class="sourceLineNo">041</span> *      on to a contested lock before being forced to release all its locks; after that, the<a name="line.41"></a>
-<span class="sourceLineNo">042</span> *      next call to {@link #lock lock} or {@link #release release} will fail&lt;/li&gt;<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * &lt;/ul&gt;<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * &lt;p&gt;<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * Note that if the hold timeout is set to zero (unlimited), then an application bug that leaks locks will result<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * in those locks never being released.<a name="line.47"></a>
-<span class="sourceLineNo">048</span> * &lt;/p&gt;<a name="line.48"></a>
-<span class="sourceLineNo">049</span> */<a name="line.49"></a>
-<span class="sourceLineNo">050</span>public class LockManager {<a name="line.50"></a>
+<span class="sourceLineNo">008</span>import java.util.ArrayList;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.HashMap;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.HashSet;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.List;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.NavigableSet;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.TreeSet;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.dellroad.stuff.java.Predicate;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.dellroad.stuff.java.TimedWait;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.util.ByteUtil;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * Manager of read/write locks on {@code byte[]} key ranges that ensures isolation and serialization while allowing concurrent<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * access by multiple threads to a single underlying {@code byte[]} key/value store.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> *<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * This implementation is straightforward: read locks can overlap, but write locks may not, and all locks owned<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * by the same owner remain in force until all are {@linkplain #release released} at the same time.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * &lt;/p&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;p&gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Instances are configured with a monitor object which is used for all internal locking and inter-thread wait/notify<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * handshaking (by default, this instance). A user-supplied monitor object may be provided via the constructor.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;/p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * Two timeout values are supported:<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;ul&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *  &lt;li&gt;The wait timeout (specified as a parameter to {@link #lock lock()}) limits how long a thread will wait<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *      on a lock held by another thread before giving up&lt;/li&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *  &lt;li&gt;The {@linkplain #getHoldTimeout hold timeout} limits how long a thread may hold<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *      on to a contested lock before being forced to release all its locks; after that, the<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *      next call to {@link #lock lock} or {@link #release release} will fail&lt;/li&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;/ul&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * Note that if the hold timeout is set to zero (unlimited), then an application bug that leaks locks will result<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * in those locks never being released.<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * &lt;/p&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>public class LockManager {<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    private static final long TEN_YEARS_MILLIS = 10L * 365L * 24L * 60L * 60L * 1000L;<a name="line.50"></a>
 <span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>    private static final long TEN_YEARS_MILLIS = 10L * 365L * 24L * 60L * 60L * 1000L;<a name="line.52"></a>
+<span class="sourceLineNo">052</span>    private final Object lockObject;<a name="line.52"></a>
 <span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    private final Object lockObject;<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>    // Contains each owner's lock time, or null if hold timeout has expired.<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    // Invariant: if owner has any locks, then owner is a key in this map and value is not null.<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    // In the case owner's hold timeout expired and another owner forced it to release all of its locks, the expired<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    // owner will own no locks but still exist in this map (with a null value), until its next lock() or release().<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    private final HashMap&lt;LockOwner, Long&gt; lockTimes = new HashMap&lt;&gt;();<a name="line.60"></a>
-<span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>    private final TreeSet&lt;Lock&gt; locksByMin = new TreeSet&lt;&gt;(Lock.MIN_COMPARATOR);            // locks ordered by minimum<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    private final TreeSet&lt;Lock&gt; locksByMax = new TreeSet&lt;&gt;(Lock.MAX_COMPARATOR);            // locks ordered by maximum<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    private final long nanoBasis = System.nanoTime();<a name="line.64"></a>
+<span class="sourceLineNo">054</span>    // Contains each owner's lock time, or null if hold timeout has expired.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    // Invariant: if owner has any locks, then owner is a key in this map and value is not null.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    // In the case owner's hold timeout expired and another owner forced it to release all of its locks, the expired<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    // owner will own no locks but still exist in this map (with a null value), until its next lock() or release().<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    private final HashMap&lt;LockOwner, Long&gt; lockTimes = new HashMap&lt;&gt;();<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    private final TreeSet&lt;Lock&gt; locksByMin = new TreeSet&lt;&gt;(Lock.MIN_COMPARATOR);            // locks ordered by minimum<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    private final TreeSet&lt;Lock&gt; locksByMax = new TreeSet&lt;&gt;(Lock.MAX_COMPARATOR);            // locks ordered by maximum<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    private final long nanoBasis = System.nanoTime();<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    private long holdTimeout;<a name="line.64"></a>
 <span class="sourceLineNo">065</span><a name="line.65"></a>
-<span class="sourceLineNo">066</span>    private long holdTimeout;<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>    /**<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * Convenience constructor. Equivalent to &lt;code&gt;LockManager(null)&lt;/code&gt;.<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    public LockManager() {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        this(null);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * Primary constructor.<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     *<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * @param lockObject Java object used to synchronize field access and inter-thread wait/notify handshake,<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     *  or null to use this instance<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    public LockManager(Object lockObject) {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        this.lockObject = lockObject != null ? lockObject : this;<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>    /**<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     * Get the hold timeout configured for this instance.<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     *<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     * &lt;p&gt;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     * The hold timeout limits how long a thread may hold on to a contested lock before being forced to release<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     * all of its locks; after that, the next call to {@link #lock lock} or {@link #release release} will fail.<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     * &lt;/p&gt;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * @return hold timeout in milliseconds<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     */<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    public long getHoldTimeout() {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        synchronized (this.lockObject) {<a name="line.96"></a>
-<span class="sourceLineNo">097</span>            return this.holdTimeout;<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        }<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
-<span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>    /**<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * Set the hold timeout for this instance. Default is zero (unlimited).<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     *<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * @param holdTimeout how long a thread may hold a contestested lock before {@link LockResult#HOLD_TIMEOUT_EXPIRED}<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     *  will be returned by {@link #lock lock()} or {@link #release release()} in milliseconds, or zero for unlimited<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * @throws IllegalArgumentException if {@code holdTimeout} is negative<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    public void setHoldTimeout(long holdTimeout) {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>        synchronized (this.lockObject) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>            if (holdTimeout &lt; 0)<a name="line.110"></a>
-<span class="sourceLineNo">111</span>                throw new IllegalArgumentException("holdTimeout &lt; 0");<a name="line.111"></a>
-<span class="sourceLineNo">112</span>            this.holdTimeout = Math.min(holdTimeout, TEN_YEARS_MILLIS);             // limit to 10 years to avoid overflow<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        }<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>    /**<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     * Acquire a lock on behalf of the specified owner.<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     *<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     * &lt;p&gt;<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     * This method will block for up to {@code waitTimeout} milliseconds if the lock is held by<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     * another thread, after which point {@link LockResult#WAIT_TIMEOUT_EXPIRED} is returned.<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     * The configured locking object will be used for inter-thread wait/notify handshaking.<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     * &lt;/p&gt;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     *<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     * &lt;p&gt;<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     * If {@code owner} already holds one or more locks, but the {@linkplain #getHoldTimeout hold timeout} has expired,<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     * then {@link LockResult#HOLD_TIMEOUT_EXPIRED} is returned and all of the other locks are will have already been<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     * automatically released.<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     * &lt;/p&gt;<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     *<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     * &lt;p&gt;<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * Once a lock is successfully acquired, it stays acquired until all locks are released together via {@link #release release()}.<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * &lt;/p&gt;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     *<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * @param owner lock owner<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * @param minKey minimum key (inclusive); must not be null<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     * @param maxKey maximum key (exclusive), or null for no maximum<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     * @param write true for a write lock, false for a read lock<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * @param waitTimeout how long to wait before returning {@link LockResult#WAIT_TIMEOUT_EXPIRED}<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     *  in milliseconds, or zero for unlimited<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * @return a {@link LockResult}<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     * @throws InterruptedException if the current thread is interrupted while waiting for the lock<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * @throws IllegalArgumentException if {@code owner}, {@code minKey}, or {@code range} is null<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     * @throws IllegalArgumentException if {@code minKey &gt; maxKey}<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * @throws IllegalArgumentException if {@code waitTimeout} is negative<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    public LockResult lock(LockOwner owner, byte[] minKey, byte[] maxKey, boolean write, long waitTimeout)<a name="line.147"></a>
-<span class="sourceLineNo">148</span>      throws InterruptedException {<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        synchronized (this.lockObject) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>            // Sanity check<a name="line.151"></a>
-<span class="sourceLineNo">152</span>            if (owner == null)<a name="line.152"></a>
-<span class="sourceLineNo">153</span>                throw new IllegalArgumentException("null owner");<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            if (waitTimeout &lt; 0)<a name="line.154"></a>
-<span class="sourceLineNo">155</span>                throw new IllegalArgumentException("waitTimeout &lt; 0");<a name="line.155"></a>
-<span class="sourceLineNo">156</span>            waitTimeout = Math.min(waitTimeout, TEN_YEARS_MILLIS);                  // limit to 10 years to avoid overflow<a name="line.156"></a>
-<span class="sourceLineNo">157</span><a name="line.157"></a>
-<span class="sourceLineNo">158</span>            // Check hold timeout<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            final long lockerRemaining = this.checkHoldTimeout(owner);<a name="line.159"></a>
-<span class="sourceLineNo">160</span>            if (lockerRemaining == -1)<a name="line.160"></a>
-<span class="sourceLineNo">161</span>                return LockResult.HOLD_TIMEOUT_EXPIRED;<a name="line.161"></a>
-<span class="sourceLineNo">162</span><a name="line.162"></a>
-<span class="sourceLineNo">163</span>            // Create lock<a name="line.163"></a>
-<span class="sourceLineNo">164</span>            Lock lock = new Lock(owner, minKey, maxKey, write);<a name="line.164"></a>
-<span class="sourceLineNo">165</span><a name="line.165"></a>
-<span class="sourceLineNo">166</span>            // Wait for lockability, until the first one of:<a name="line.166"></a>
-<span class="sourceLineNo">167</span>            //  - Wait timeout<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            //  - Locker's hold timeout<a name="line.168"></a>
-<span class="sourceLineNo">169</span>            //  - Lock owner's hold timeout<a name="line.169"></a>
-<span class="sourceLineNo">170</span>            final LockChecker lockChecker = new LockChecker(lock);<a name="line.170"></a>
-<span class="sourceLineNo">171</span>            if (!lockChecker.test()) {<a name="line.171"></a>
-<span class="sourceLineNo">172</span>                long timeToWait = Math.min(waitTimeout, lockChecker.getTimeRemaining());<a name="line.172"></a>
-<span class="sourceLineNo">173</span>                if (lockerRemaining != 0)<a name="line.173"></a>
-<span class="sourceLineNo">174</span>                    timeToWait = Math.min(timeToWait, lockerRemaining);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>                if (!TimedWait.wait(this.lockObject, timeToWait, lockChecker))<a name="line.175"></a>
-<span class="sourceLineNo">176</span>                    return LockResult.WAIT_TIMEOUT_EXPIRED;<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            }<a name="line.177"></a>
-<span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>            // Check hold timeout again<a name="line.179"></a>
-<span class="sourceLineNo">180</span>            if (this.checkHoldTimeout(owner) == -1)<a name="line.180"></a>
-<span class="sourceLineNo">181</span>                return LockResult.HOLD_TIMEOUT_EXPIRED;<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>            // Merge the lock with other locks it can merge with, removing those locks in the process<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            for (Lock that : lockChecker.getMergers()) {<a name="line.184"></a>
-<span class="sourceLineNo">185</span>                final Lock mergedLock = lock.mergeWith(that);<a name="line.185"></a>
-<span class="sourceLineNo">186</span>                if (mergedLock != null) {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>                    this.locksByMin.remove(that);<a name="line.187"></a>
-<span class="sourceLineNo">188</span>                    this.locksByMax.remove(that);<a name="line.188"></a>
-<span class="sourceLineNo">189</span>                    owner.locks.remove(that);<a name="line.189"></a>
-<span class="sourceLineNo">190</span>                    lock = mergedLock;<a name="line.190"></a>
-<span class="sourceLineNo">191</span>                }<a name="line.191"></a>
-<span class="sourceLineNo">192</span>            }<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>            // Add lock<a name="line.194"></a>
-<span class="sourceLineNo">195</span>            this.locksByMin.add(lock);<a name="line.195"></a>
-<span class="sourceLineNo">196</span>            this.locksByMax.add(lock);<a name="line.196"></a>
-<span class="sourceLineNo">197</span>            owner.locks.add(lock);<a name="line.197"></a>
-<span class="sourceLineNo">198</span><a name="line.198"></a>
-<span class="sourceLineNo">199</span>            // Set hold timeout (if not already set)<a name="line.199"></a>
-<span class="sourceLineNo">200</span>            if (!this.lockTimes.containsKey(owner)) {<a name="line.200"></a>
-<span class="sourceLineNo">201</span>                final long currentTime = System.nanoTime() - this.nanoBasis;<a name="line.201"></a>
-<span class="sourceLineNo">202</span>                this.lockTimes.put(owner, currentTime);<a name="line.202"></a>
-<span class="sourceLineNo">203</span>            } else<a name="line.203"></a>
-<span class="sourceLineNo">204</span>                assert this.lockTimes.get(owner) != null;<a name="line.204"></a>
-<span class="sourceLineNo">205</span><a name="line.205"></a>
-<span class="sourceLineNo">206</span>            // Done<a name="line.206"></a>
-<span class="sourceLineNo">207</span>            return LockResult.SUCCESS;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        }<a name="line.208"></a>
-<span class="sourceLineNo">209</span>    }<a name="line.209"></a>
-<span class="sourceLineNo">210</span><a name="line.210"></a>
-<span class="sourceLineNo">211</span>    /**<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     * Release all locks held by the specified owner.<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     *<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     * &lt;p&gt;<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     * If the owner's {@linkplain #getHoldTimeout hold timeout} has already expired, then all locks will have<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     * already been released and false is returned.<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     * &lt;/p&gt;<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     *<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     * &lt;p&gt;<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     * Does nothing (and returns true) if {@code owner} does not own any locks.<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     * &lt;/p&gt;<a name="line.221"></a>
-<span class="sourceLineNo">222</span>     *<a name="line.222"></a>
-<span class="sourceLineNo">223</span>     * @param owner lock owner<a name="line.223"></a>
-<span class="sourceLineNo">224</span>     * @return true if successful, false if {@code owner}'s hold timeout expired<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     * @throws IllegalArgumentException if {@code owner} is null<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     */<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    public boolean release(LockOwner owner) {<a name="line.227"></a>
-<span class="sourceLineNo">228</span>        synchronized (this.lockObject) {<a name="line.228"></a>
-<span class="sourceLineNo">229</span><a name="line.229"></a>
-<span class="sourceLineNo">230</span>            // Sanity check<a name="line.230"></a>
-<span class="sourceLineNo">231</span>            if (owner == null)<a name="line.231"></a>
-<span class="sourceLineNo">232</span>                throw new IllegalArgumentException("null owner");<a name="line.232"></a>
-<span class="sourceLineNo">233</span><a name="line.233"></a>
-<span class="sourceLineNo">234</span>            // Check if hold timeout has alread expired; in any case, remove lock time<a name="line.234"></a>
-<span class="sourceLineNo">235</span>            if (this.lockTimes.containsKey(owner)) {<a name="line.235"></a>
-<span class="sourceLineNo">236</span>                final Long lockTime = this.lockTimes.remove(owner);<a name="line.236"></a>
-<span class="sourceLineNo">237</span>                if (lockTime == null)<a name="line.237"></a>
-<span class="sourceLineNo">238</span>                    return false;<a name="line.238"></a>
-<span class="sourceLineNo">239</span>            }<a name="line.239"></a>
-<span class="sourceLineNo">240</span><a name="line.240"></a>
-<span class="sourceLineNo">241</span>            // Release all locks<a name="line.241"></a>
-<span class="sourceLineNo">242</span>            this.doRelease(owner);<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>            // Done<a name="line.244"></a>
-<span class="sourceLineNo">245</span>            return true;<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        }<a name="line.246"></a>
-<span class="sourceLineNo">247</span>    }<a name="line.247"></a>
-<span class="sourceLineNo">248</span><a name="line.248"></a>
-<span class="sourceLineNo">249</span>    /**<a name="line.249"></a>
-<span class="sourceLineNo">250</span>     * Check whether the {@linkplain #getHoldTimeout hold timeout} has expired for the given lock owner<a name="line.250"></a>
-<span class="sourceLineNo">251</span>     * and if not return the amount of time remaining.<a name="line.251"></a>
-<span class="sourceLineNo">252</span>     *<a name="line.252"></a>
-<span class="sourceLineNo">253</span>     * &lt;p&gt;<a name="line.253"></a>
-<span class="sourceLineNo">254</span>     * If the owner's hold timeout has expired, then {@code -1} is returned and any locks previously held by {@code owner}<a name="line.254"></a>
-<span class="sourceLineNo">255</span>     * will have been automatically released.<a name="line.255"></a>
-<span class="sourceLineNo">256</span>     * &lt;/p&gt;<a name="line.256"></a>
-<span class="sourceLineNo">257</span>     *<a name="line.257"></a>
-<span class="sourceLineNo">258</span>     * @param owner lock owner<a name="line.258"></a>
-<span class="sourceLineNo">259</span>     * @return milliseconds until {@code owner}'s hold timeout expires, zero if {@code owner} has no hold timeout<a name="line.259"></a>
-<span class="sourceLineNo">260</span>     *  (e.g., nothing is locked or hold timeout disabled), or -1 if {@code owner}'s hold timeout has expired<a name="line.260"></a>
-<span class="sourceLineNo">261</span>     * @throws IllegalArgumentException if {@code owner} is null<a name="line.261"></a>
-<span class="sourceLineNo">262</span>     */<a name="line.262"></a>
-<span class="sourceLineNo">263</span>    public long checkHoldTimeout(LockOwner owner) {<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        synchronized (this.lockObject) {<a name="line.264"></a>
-<span class="sourceLineNo">265</span>            if (this.holdTimeout == 0)<a name="line.265"></a>
+<span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * Convenience constructor. Equivalent to &lt;code&gt;LockManager(null)&lt;/code&gt;.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public LockManager() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        this(null);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * Primary constructor.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     *<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * @param lockObject Java object used to synchronize field access and inter-thread wait/notify handshake,<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *  or null to use this instance<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    public LockManager(Object lockObject) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        this.lockObject = lockObject != null ? lockObject : this;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * Get the hold timeout configured for this instance.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     *<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * &lt;p&gt;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * The hold timeout limits how long a thread may hold on to a contested lock before being forced to release<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * all of its locks; after that, the next call to {@link #lock lock} or {@link #release release} will fail.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * &lt;/p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     *<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * @return hold timeout in milliseconds<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    public long getHoldTimeout() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        synchronized (this.lockObject) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            return this.holdTimeout;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        }<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * Set the hold timeout for this instance. Default is zero (unlimited).<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @param holdTimeout how long a thread may hold a contestested lock before {@link LockResult#HOLD_TIMEOUT_EXPIRED}<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     *  will be returned by {@link #lock lock()} or {@link #release release()} in milliseconds, or zero for unlimited<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @throws IllegalArgumentException if {@code holdTimeout} is negative<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    public void setHoldTimeout(long holdTimeout) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        synchronized (this.lockObject) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            if (holdTimeout &lt; 0)<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                throw new IllegalArgumentException("holdTimeout &lt; 0");<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            this.holdTimeout = Math.min(holdTimeout, TEN_YEARS_MILLIS);             // limit to 10 years to avoid overflow<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    /**<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * Acquire a lock on behalf of the specified owner.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     *<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * &lt;p&gt;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * This method will block for up to {@code waitTimeout} milliseconds if the lock is held by<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * another thread, after which point {@link LockResult#WAIT_TIMEOUT_EXPIRED} is returned.<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * The configured locking object will be used for inter-thread wait/notify handshaking.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * &lt;/p&gt;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     *<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * &lt;p&gt;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * If {@code owner} already holds one or more locks, but the {@linkplain #getHoldTimeout hold timeout} has expired,<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * then {@link LockResult#HOLD_TIMEOUT_EXPIRED} is returned and all of the other locks are will have already been<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * automatically released.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * &lt;/p&gt;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * &lt;p&gt;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * Once a lock is successfully acquired, it stays acquired until all locks are released together via {@link #release release()}.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * &lt;/p&gt;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     *<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * @param owner lock owner<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @param minKey minimum key (inclusive); must not be null<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * @param maxKey maximum key (exclusive), or null for no maximum<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * @param write true for a write lock, false for a read lock<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * @param waitTimeout how long to wait before returning {@link LockResult#WAIT_TIMEOUT_EXPIRED}<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     *  in milliseconds, or zero for unlimited<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * @return a {@link LockResult}<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * @throws InterruptedException if the current thread is interrupted while waiting for the lock<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @throws IllegalArgumentException if {@code owner}, {@code minKey}, or {@code range} is null<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * @throws IllegalArgumentException if {@code minKey &gt; maxKey}<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * @throws IllegalArgumentException if {@code waitTimeout} is negative<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    public LockResult lock(LockOwner owner, byte[] minKey, byte[] maxKey, boolean write, long waitTimeout)<a name="line.145"></a>
+<span class="sourceLineNo">146</span>      throws InterruptedException {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        synchronized (this.lockObject) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>            // Sanity check<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            if (owner == null)<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                throw new IllegalArgumentException("null owner");<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            if (waitTimeout &lt; 0)<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                throw new IllegalArgumentException("waitTimeout &lt; 0");<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            waitTimeout = Math.min(waitTimeout, TEN_YEARS_MILLIS);                  // limit to 10 years to avoid overflow<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>            // Check hold timeout<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            final long lockerRemaining = this.checkHoldTimeout(owner);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            if (lockerRemaining == -1)<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                return LockResult.HOLD_TIMEOUT_EXPIRED;<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>            // Create lock<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            Lock lock = new Lock(owner, minKey, maxKey, write);<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>            // Wait for lockability, until the first one of:<a name="line.164"></a>
+<span class="sourceLineNo">165</span>            //  - Wait timeout<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            //  - Locker's hold timeout<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            //  - Lock owner's hold timeout<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            final LockChecker lockChecker = new LockChecker(lock);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            if (!lockChecker.test()) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                long timeToWait = Math.min(waitTimeout, lockChecker.getTimeRemaining());<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                if (lockerRemaining != 0)<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                    timeToWait = Math.min(timeToWait, lockerRemaining);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                if (!TimedWait.wait(this.lockObject, timeToWait, lockChecker))<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                    return LockResult.WAIT_TIMEOUT_EXPIRED;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>            // Check hold timeout again<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            if (this.checkHoldTimeout(owner) == -1)<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                return LockResult.HOLD_TIMEOUT_EXPIRED;<a name="line.179"></a>
+<span class="sourceLineNo">180</span><a name="line.180"></a>
+<span class="sourceLineNo">181</span>            // Merge the lock with other locks it can merge with, removing those locks in the process<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            for (Lock that : lockChecker.getMergers()) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                final Lock mergedLock = lock.mergeWith(that);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                if (mergedLock != null) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                    this.locksByMin.remove(that);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>                    this.locksByMax.remove(that);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                    owner.locks.remove(that);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>                    lock = mergedLock;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            }<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>            // Add lock<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            this.locksByMin.add(lock);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            this.locksByMax.add(lock);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            owner.locks.add(lock);<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>            // Set hold timeout (if not already set)<a name="line.197"></a>
+<span class="sourceLineNo">198</span>            if (!this.lockTimes.containsKey(owner)) {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                final long currentTime = System.nanoTime() - this.nanoBasis;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                this.lockTimes.put(owner, currentTime);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>            } else<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                assert this.lockTimes.get(owner) != null;<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>            // Done<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            return LockResult.SUCCESS;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        }<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    }<a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>    /**<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * Release all locks held by the specified owner.<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     *<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * &lt;p&gt;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * If the owner's {@linkplain #getHoldTimeout hold timeout} has already expired, then all locks will have<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * already been released and false is returned.<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * &lt;/p&gt;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     *<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * &lt;p&gt;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * Does nothing (and returns true) if {@code owner} does not own any locks.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * &lt;/p&gt;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     *<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * @param owner lock owner<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * @return true if successful, false if {@code owner}'s hold timeout expired<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * @throws IllegalArgumentException if {@code owner} is null<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     */<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    public boolean release(LockOwner owner) {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        synchronized (this.lockObject) {<a name="line.226"></a>
+<span class="sourceLineNo">227</span><a name="line.227"></a>
+<span class="sourceLineNo">228</span>            // Sanity check<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            if (owner == null)<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                throw new IllegalArgumentException("null owner");<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>            // Check if hold timeout has alread expired; in any case, remove lock time<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            if (this.lockTimes.containsKey(owner)) {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                final Long lockTime = this.lockTimes.remove(owner);<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                if (lockTime == null)<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                    return false;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>            }<a name="line.237"></a>
+<span class="sourceLineNo">238</span><a name="line.238"></a>
+<span class="sourceLineNo">239</span>            // Release all locks<a name="line.239"></a>
+<span class="sourceLineNo">240</span>            this.doRelease(owner);<a name="line.240"></a>
+<span class="sourceLineNo">241</span><a name="line.241"></a>
+<span class="sourceLineNo">242</span>            // Done<a name="line.242"></a>
+<span class="sourceLineNo">243</span>            return true;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        }<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    }<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>    /**<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * Check whether the {@linkplain #getHoldTimeout hold timeout} has expired for the given lock owner<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     * and if not return the amount of time remaining.<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     *<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * &lt;p&gt;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * If the owner's hold timeout has expired, then {@code -1} is returned and any locks previously held by {@code owner}<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * will have been automatically released.<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     * &lt;/p&gt;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     *<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * @param owner lock owner<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * @return milliseconds until {@code owner}'s hold timeout expires, zero if {@code owner} has no hold timeout<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     *  (e.g., nothing is locked or hold timeout disabled), or -1 if {@code owner}'s hold timeout has expired<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * @throws IllegalArgumentException if {@code owner} is null<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     */<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    public long checkHoldTimeout(LockOwner owner) {<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        synchronized (this.lockObject) {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            if (this.holdTimeout == 0)<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                return 0;<a name="line.264"></a>
+<span class="sourceLineNo">265</span>            if (!this.lockTimes.containsKey(owner))<a name="line.265"></a>
 <span class="sourceLineNo">266</span>                return 0;<a name="line.266"></a>
-<span class="sourceLineNo">267</span>            if (!this.lockTimes.containsKey(owner))<a name="line.267"></a>
-<span class="sourceLineNo">268</span>                return 0;<a name="line.268"></a>
-<span class="sourceLineNo">269</span>            final Long lockTime = this.lockTimes.get(owner);<a name="line.269"></a>
-<span class="sourceLineNo">270</span>            if (lockTime == null)<a name="line.270"></a>
-<span class="sourceLineNo">271</span>                return -1;<a name="line.271"></a>
-<span class="sourceLineNo">272</span>            final long currentTime = System.nanoTime() - this.nanoBasis;<a name="line.272"></a>
-<span class="sourceLineNo">273</span>            final long holdDeadline = lockTime + this.holdTimeout * 1000000L;<a name="line.273"></a>
-<span class="sourceLineNo">274</span>            final long remaining = holdDeadline - currentTime;<a name="line.274"></a>
-<span class="sourceLineNo">275</span>            if (remaining &lt;= 0) {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>                this.lockTimes.put(owner, null);<a name="line.276"></a>
-<span class="sourceLineNo">277</span>                this.doRelease(owner);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>                return -1;<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            }<a name="line.279"></a>
-<span class="sourceLineNo">280</span>            return (remaining + 999999L) / 1000000L;<a name="line.280"></a>
-<span class="sourceLineNo">281</span>        }<a name="line.281"></a>
-<span class="sourceLineNo">282</span>    }<a name="line.282"></a>
-<span class="sourceLineNo">283</span><a name="line.283"></a>
-<span class="sourceLineNo">284</span>    // Release all locks held by owner. Assumes synchronized already on this.lockObject.<a name="line.284"></a>
-<span class="sourceLineNo">285</span>    private void doRelease(LockOwner owner) {<a name="line.285"></a>
-<span class="sourceLineNo">286</span>        for (Lock lock : owner.locks) {<a name="line.286"></a>
-<span class="sourceLineNo">287</span>            this.locksByMin.remove(lock);<a name="line.287"></a>
-<span class="sourceLineNo">288</span>            this.locksByMax.remove(lock);<a name="line.288"></a>
-<span class="sourceLineNo">289</span>        }<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        owner.locks.clear();<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        this.lockObject.notifyAll();<a name="line.291"></a>
-<span class="sourceLineNo">292</span>    }<a name="line.292"></a>
-<span class="sourceLineNo">293</span><a name="line.293"></a>
-<span class="sourceLineNo">294</span>    // Check whether we can lock, and fill the list of mergers and return zero if so. If not, return time remaining.<a name="line.294"></a>
-<span class="sourceLineNo">295</span>    // Assumes synchronized already on this.lockObject.<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    private long checkLock(Lock lock, List&lt;Lock&gt; mergers) {<a name="line.296"></a>
-<span class="sourceLineNo">297</span><a name="line.297"></a>
-<span class="sourceLineNo">298</span>        // Get lock's min &amp; max<a name="line.298"></a>
-<span class="sourceLineNo">299</span>        final byte[] lockMin = lock.getMin();<a name="line.299"></a>
-<span class="sourceLineNo">300</span>        final byte[] lockMax = lock.getMax();<a name="line.300"></a>
-<span class="sourceLineNo">301</span><a name="line.301"></a>
-<span class="sourceLineNo">302</span>    startOver:<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        while (true) {<a name="line.303"></a>
-<span class="sourceLineNo">304</span><a name="line.304"></a>
-<span class="sourceLineNo">305</span>            // Get locks whose min is &lt; lockMax<a name="line.305"></a>
-<span class="sourceLineNo">306</span>            final NavigableSet&lt;Lock&gt; lhs = lockMax == null ? this.locksByMin :<a name="line.306"></a>
-<span class="sourceLineNo">307</span>              this.locksByMin.headSet(Lock.getMinKey(lockMax, false), false);<a name="line.307"></a>
-<span class="sourceLineNo">308</span><a name="line.308"></a>
-<span class="sourceLineNo">309</span>            // Get locks whose max is &gt; lockMin<a name="line.309"></a>
-<span class="sourceLineNo">310</span>            final NavigableSet&lt;Lock&gt; rhs = lockMin == null ? this.locksByMax : this.locksByMax.tailSet(<a name="line.310"></a>
-<span class="sourceLineNo">311</span>              Lock.getMaxKey(ByteUtil.getNextKey(lockMin), false), true);<a name="line.311"></a>
-<span class="sourceLineNo">312</span><a name="line.312"></a>
-<span class="sourceLineNo">313</span>            // Find overlapping locks and check for conflicts<a name="line.313"></a>
-<span class="sourceLineNo">314</span>            final HashSet&lt;Lock&gt; overlaps = new HashSet&lt;&gt;();<a name="line.314"></a>
-<span class="sourceLineNo">315</span>            for (Lock other : lhs) {<a name="line.315"></a>
-<span class="sourceLineNo">316</span><a name="line.316"></a>
-<span class="sourceLineNo">317</span>                // Does this lock overlap?<a name="line.317"></a>
-<span class="sourceLineNo">318</span>                if (!rhs.contains(other))<a name="line.318"></a>
-<span class="sourceLineNo">319</span>                    continue;<a name="line.319"></a>
-<span class="sourceLineNo">320</span><a name="line.320"></a>
-<span class="sourceLineNo">321</span>                // Do this lock &amp; other lock conflict?<a name="line.321"></a>
-<span class="sourceLineNo">322</span>                if (lock.conflictsWith(other)) {<a name="line.322"></a>
-<span class="sourceLineNo">323</span><a name="line.323"></a>
-<span class="sourceLineNo">324</span>                    // See if other lock's owner's hold timeout has expired<a name="line.324"></a>
-<span class="sourceLineNo">325</span>                    assert this.lockTimes.containsKey(other.owner);<a name="line.325"></a>
-<span class="sourceLineNo">326</span>                    final long remaining = this.checkHoldTimeout(other.owner);<a name="line.326"></a>
-<span class="sourceLineNo">327</span>                    if (remaining == -1)<a name="line.327"></a>
-<span class="sourceLineNo">328</span>                        continue startOver;<a name="line.328"></a>
-<span class="sourceLineNo">329</span><a name="line.329"></a>
-<span class="sourceLineNo">330</span>                    // Return time remaining until conflicting owner's hold timeout<a name="line.330"></a>
-<span class="sourceLineNo">331</span>                    return Math.max(remaining, 1);<a name="line.331"></a>
-<span class="sourceLineNo">332</span>                }<a name="line.332"></a>
-<span class="sourceLineNo">333</span><a name="line.333"></a>
-<span class="sourceLineNo">334</span>                // Add overlap<a name="line.334"></a>
-<span class="sourceLineNo">335</span>                overlaps.add(other);<a name="line.335"></a>
-<span class="sourceLineNo">336</span>            }<a name="line.336"></a>
-<span class="sourceLineNo">337</span><a name="line.337"></a>
-<span class="sourceLineNo">338</span>            //System.out.println(Thread.currentThread().getName() + ": LockChecker: BEFORE: lock = " + lock + "\n"<a name="line.338"></a>
-<span class="sourceLineNo">339</span>            //+ "  lockByMin = " + this.locksByMin + "\n"<a name="line.339"></a>
-<span class="sourceLineNo">340</span>            //+ "  lockByMax = " + this.locksByMax + "\n"<a name="line.340"></a>
-<span class="sourceLineNo">341</span>            //+ "   overlaps = " + overlaps + "\n");<a name="line.341"></a>
-<span class="sourceLineNo">342</span><a name="line.342"></a>
-<span class="sourceLineNo">343</span>            // Find overlaps we can merge with<a name="line.343"></a>
-<span class="sourceLineNo">344</span>            for (Lock other : overlaps) {<a name="line.344"></a>
-<span class="sourceLineNo">345</span>                if (lock.mergeWith(other) != null)<a name="line.345"></a>
-<span class="sourceLineNo">346</span>                    mergers.add(other);<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            }<a name="line.347"></a>
-<span class="sourceLineNo">348</span><a name="line.348"></a>
-<span class="sourceLineNo">349</span>            //System.out.println(Thread.currentThread().getName() + ": LockChecker: AFTER: lock = " + lock + "\n"<a name="line.349"></a>
-<span class="sourceLineNo">350</span>            //+ "  lockByMin = " + this.locksByMin + "\n"<a name="line.350"></a>
-<span class="sourceLineNo">351</span>            //+ "  lockByMax = " + this.locksByMax + "\n"<a name="line.351"></a>
-<span class="sourceLineNo">352</span>            //+ "    mergers = " + mergers + "\n");<a name="line.352"></a>
-<span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>            // Done<a name="line.354"></a>
-<span class="sourceLineNo">355</span>            return 0;<a name="line.355"></a>
-<span class="sourceLineNo">356</span>        }<a name="line.356"></a>
-<span class="sourceLineNo">357</span>    }<a name="line.357"></a>
+<span class="sourceLineNo">267</span>            final Long lockTime = this.lockTimes.get(owner);<a name="line.267"></a>
+<span class="sourceLineNo">268</span>            if (lockTime == null)<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                return -1;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>            final long currentTime = System.nanoTime() - this.nanoBasis;<a name="line.270"></a>
+<span class="sourceLineNo">271</span>            final long holdDeadline = lockTime + this.holdTimeout * 1000000L;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>            final long remaining = holdDeadline - currentTime;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            if (remaining &lt;= 0) {<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                this.lockTimes.put(owner, null);<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                this.doRelease(owner);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                return -1;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            }<a name="line.277"></a>
+<span class="sourceLineNo">278</span>            return (remaining + 999999L) / 1000000L;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        }<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    }<a name="line.280"></a>
+<span class="sourceLineNo">281</span><a name="line.281"></a>
+<span class="sourceLineNo">282</span>    // Release all locks held by owner. Assumes synchronized already on this.lockObject.<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    private void doRelease(LockOwner owner) {<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        for (Lock lock : owner.locks) {<a name="line.284"></a>
+<span class="sourceLineNo">285</span>            this.locksByMin.remove(lock);<a name="line.285"></a>
+<span class="sourceLineNo">286</span>            this.locksByMax.remove(lock);<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        }<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        owner.locks.clear();<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        this.lockObject.notifyAll();<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    }<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>    // Check whether we can lock, and fill the list of mergers and return zero if so. If not, return time remaining.<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    // Assumes synchronized already on this.lockObject.<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    private long checkLock(Lock lock, List&lt;Lock&gt; mergers) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>        // Get lock's min &amp; max<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        final byte[] lockMin = lock.getMin();<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        final byte[] lockMax = lock.getMax();<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>    startOver:<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        while (true) {<a name="line.301"></a>
+<span class="sourceLineNo">302</span><a name="line.302"></a>
+<span class="sourceLineNo">303</span>            // Get locks whose min is &lt; lockMax<a name="line.303"></a>
+<span class="sourceLineNo">304</span>            final NavigableSet&lt;Lock&gt; lhs = lockMax == null ? this.locksByMin :<a name="line.304"></a>
+<span class="sourceLineNo">305</span>              this.locksByMin.headSet(Lock.getMinKey(lockMax, false), false);<a name="line.305"></a>
+<span class="sourceLineNo">306</span><a name="line.306"></a>
+<span class="sourceLineNo">307</span>            // Get locks whose max is &gt; lockMin<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            final NavigableSet&lt;Lock&gt; rhs = lockMin == null ? this.locksByMax : this.locksByMax.tailSet(<a name="line.308"></a>
+<span class="sourceLineNo">309</span>              Lock.getMaxKey(ByteUtil.getNextKey(lockMin), false), true);<a name="line.309"></a>
+<span class="sourceLineNo">310</span><a name="line.310"></a>
+<span class="sourceLineNo">311</span>            // Find overlapping locks and check for conflicts<a name="line.311"></a>
+<span class="sourceLineNo">312</span>            final HashSet&lt;Lock&gt; overlaps = new HashSet&lt;&gt;();<a name="line.312"></a>
+<span class="sourceLineNo">313</span>            for (Lock other : lhs) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>                // Does this lock overlap?<a name="line.315"></a>
+<span class="sourceLineNo">316</span>                if (!rhs.contains(other))<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                    continue;<a name="line.317"></a>
+<span class="sourceLineNo">318</span><a name="line.318"></a>
+<span class="sourceLineNo">319</span>                // Do this lock &amp; other lock conflict?<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                if (lock.conflictsWith(other)) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span><a name="line.321"></a>
+<span class="sourceLineNo">322</span>                    // See if other lock's owner's hold timeout has expired<a name="line.322"></a>
+<span class="sourceLineNo">323</span>                    assert this.lockTimes.containsKey(other.owner);<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                    final long remaining = this.checkHoldTimeout(other.owner);<a name="line.324"></a>
+<span class="sourceLineNo">325</span>                    if (remaining == -1)<a name="line.325"></a>
+<span class="sourceLineNo">326</span>                        continue startOver;<a name="line.326"></a>
+<span class="sourceLineNo">327</span><a name="line.327"></a>
+<span class="sourceLineNo">328</span>                    // Return time remaining until conflicting owner's hold timeout<a name="line.328"></a>
+<span class="sourceLineNo">329</span>                    return Math.max(remaining, 1);<a name="line.329"></a>
+<span class="sourceLineNo">330</span>                }<a name="line.330"></a>
+<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">332</span>                // Add overlap<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                overlaps.add(other);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            }<a name="line.334"></a>
+<span class="sourceLineNo">335</span><a name="line.335"></a>
+<span class="sourceLineNo">336</span>            //System.out.println(Thread.currentThread().getName() + ": LockChecker: BEFORE: lock = " + lock + "\n"<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            //+ "  lockByMin = " + this.locksByMin + "\n"<a name="line.337"></a>
+<span class="sourceLineNo">338</span>            //+ "  lockByMax = " + this.locksByMax + "\n"<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            //+ "   overlaps = " + overlaps + "\n");<a name="line.339"></a>
+<span class="sourceLineNo">340</span><a name="line.340"></a>
+<span class="sourceLineNo">341</span>            // Find overlaps we can merge with<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            for (Lock other : overlaps) {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                if (lock.mergeWith(other) != null)<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                    mergers.add(other);<a name="line.344"></a>
+<span class="sourceLineNo">345</span>            }<a name="line.345"></a>
+<span class="sourceLineNo">346</span><a name="line.346"></a>
+<span class="sourceLineNo">347</span>            //System.out.println(Thread.currentThread().getName() + ": LockChecker: AFTER: lock = " + lock + "\n"<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            //+ "  lockByMin = " + this.locksByMin + "\n"<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            //+ "  lockByMax = " + this.locksByMax + "\n"<a name="line.349"></a>
+<span class="sourceLineNo">350</span>            //+ "    mergers = " + mergers + "\n");<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>            // Done<a name="line.352"></a>
+<span class="sourceLineNo">353</span>            return 0;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        }<a name="line.354"></a>
+<span class="sourceLineNo">355</span>    }<a name="line.355"></a>
+<span class="sourceLineNo">356</span><a name="line.356"></a>
+<span class="sourceLineNo">357</span>// LockResult<a name="line.357"></a>
 <span class="sourceLineNo">358</span><a name="line.358"></a>
-<span class="sourceLineNo">359</span>// LockResult<a name="line.359"></a>
-<span class="sourceLineNo">360</span><a name="line.360"></a>
-<span class="sourceLineNo">361</span>    /**<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     * Possible return values from {@link LockManager#lock LockManager.lock()}.<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     */<a name="line.363"></a>
-<span class="sourceLineNo">364</span>    public enum LockResult {<a name="line.364"></a>
-<span class="sourceLineNo">365</span><a name="line.365"></a>
-<span class="sourceLineNo">366</span>        /**<a name="line.366"></a>
-<span class="sourceLineNo">367</span>         * The lock was successfully acquired.<a name="line.367"></a>
-<span class="sourceLineNo">368</span>         */<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        SUCCESS,<a name="line.369"></a>
-<span class="sourceLineNo">370</span><a name="line.370"></a>
-<span class="sourceLineNo">371</span>        /**<a name="line.371"></a>
-<span class="sourceLineNo">372</span>         * The timeout expired while waiting to acquire the lock.<a name="line.372"></a>
-<span class="sourceLineNo">373</span>         */<a name="line.373"></a>
-<span class="sourceLineNo">374</span>        WAIT_TIMEOUT_EXPIRED,<a name="line.374"></a>
-<span class="sourceLineNo">375</span><a name="line.375"></a>
-<span class="sourceLineNo">376</span>        /**<a name="line.376"></a>
-<span class="sourceLineNo">377</span>         * The owner's hold timeout expired.<a name="line.377"></a>
-<span class="sourceLineNo">378</span>         */<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        HOLD_TIMEOUT_EXPIRED;<a name="line.379"></a>
-<span class="sourceLineNo">380</span>    }<a name="line.380"></a>
+<span class="sourceLineNo">359</span>    /**<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * Possible return values from {@link LockManager#lock LockManager.lock()}.<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     */<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    public enum LockResult {<a name="line.362"></a>
+<span class="sourceLineNo">363</span><a name="line.363"></a>
+<span class="sourceLineNo">364</span>        /**<a name="line.364"></a>
+<span class="sourceLineNo">365</span>         * The lock was successfully acquired.<a name="line.365"></a>
+<span class="sourceLineNo">366</span>         */<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        SUCCESS,<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>        /**<a name="line.369"></a>
+<span class="sourceLineNo">370</span>         * The timeout expired while waiting to acquire the lock.<a name="line.370"></a>
+<span class="sourceLineNo">371</span>         */<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        WAIT_TIMEOUT_EXPIRED,<a name="line.372"></a>
+<span class="sourceLineNo">373</span><a name="line.373"></a>
+<span class="sourceLineNo">374</span>        /**<a name="line.374"></a>
+<span class="sourceLineNo">375</span>         * The owner's hold timeout expired.<a name="line.375"></a>
+<span class="sourceLineNo">376</span>         */<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        HOLD_TIMEOUT_EXPIRED;<a name="line.377"></a>
+<span class="sourceLineNo">378</span>    }<a name="line.378"></a>
+<span class="sourceLineNo">379</span><a name="line.379"></a>
+<span class="sourceLineNo">380</span>// LockChecker predicate<a name="line.380"></a>
 <span class="sourceLineNo">381</span><a name="line.381"></a>
-<span class="sourceLineNo">382</span>// LockChecker predicate<a name="line.382"></a>
+<span class="sourceLineNo">382</span>    private class LockChecker implements Predicate {<a name="line.382"></a>
 <span class="sourceLineNo">383</span><a name="line.383"></a>
-<span class="sourceLineNo">384</span>    private class LockChecker implements Predicate {<a name="line.384"></a>
-<span class="sourceLineNo">385</span><a name="line.385"></a>
-<span class="sourceLineNo">386</span>        private final Lock lock;<a name="line.386"></a>
-<span class="sourceLineNo">387</span>        private final ArrayList&lt;Lock&gt; mergers = new ArrayList&lt;&gt;();<a name="line.387"></a>
+<span class="sourceLineNo">384</span>        private final Lock lock;<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        private final ArrayList&lt;Lock&gt; mergers = new ArrayList&lt;&gt;();<a name="line.385"></a>
+<span class="sourceLineNo">386</span><a name="line.386"></a>
+<span class="sourceLineNo">387</span>        private long timeRemaining;<a name="line.387"></a>
 <span class="sourceLineNo">388</span><a name="line.388"></a>
-<span class="sourceLineNo">389</span>        private long timeRemaining;<a name="line.389"></a>
-<span class="sourceLineNo">390</span><a name="line.390"></a>
-<span class="sourceLineNo">391</span>        LockChecker(Lock lock) {<a name="line.391"></a>
-<span class="sourceLineNo">392</span>            this.lock = lock;<a name="line.392"></a>
-<span class="sourceLineNo">393</span>        }<a name="line.393"></a>
-<span class="sourceLineNo">394</span><a name="line.394"></a>
-<span class="sourceLineNo">395</span>        public List&lt;Lock&gt; getMergers() {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>            return this.mergers;<a name="line.396"></a>
-<span class="sourceLineNo">397</span>        }<a name="line.397"></a>
-<span class="sourceLineNo">398</span><a name="line.398"></a>
-<span class="sourceLineNo">399</span>        public long getTimeRemaining() {<a name="line.399"></a>
-<span class="sourceLineNo">400</span>            return this.timeRemaining;<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        }<a name="line.401"></a>
-<span class="sourceLineNo">402</span><a name="line.402"></a>
-<span class="sourceLineNo">403</span>        @Override<a name="line.403"></a>
-<span class="sourceLineNo">404</span>        public boolean test() {<a name="line.404"></a>
-<span class="sourceLineNo">405</span><a name="line.405"></a>
-<span class="sourceLineNo">406</span>            // Reset state<a name="line.406"></a>
-<span class="sourceLineNo">407</span>            this.mergers.clear();<a name="line.407"></a>
-<span class="sourceLineNo">408</span><a name="line.408"></a>
-<span class="sourceLineNo">409</span>            // See if we can lock<a name="line.409"></a>
-<span class="sourceLineNo">410</span>            this.timeRemaining = LockManager.this.checkLock(this.lock, this.mergers);<a name="line.410"></a>
-<span class="sourceLineNo">411</span>            return this.timeRemaining == 0;<a name="line.411"></a>
-<span class="sourceLineNo">412</span>        }<a name="line.412"></a>
-<span class="sourceLineNo">413</span>    }<a name="line.413"></a>
-<span class="sourceLineNo">414</span>}<a name="line.414"></a>
-<span class="sourceLineNo">415</span><a name="line.415"></a>
+<span class="sourceLineNo">389</span>        LockChecker(Lock lock) {<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            this.lock = lock;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        }<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>        public List&lt;Lock&gt; getMergers() {<a name="line.393"></a>
+<span class="sourceLineNo">394</span>            return this.mergers;<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        }<a name="line.395"></a>
+<span class="sourceLineNo">396</span><a name="line.396"></a>
+<span class="sourceLineNo">397</span>        public long getTimeRemaining() {<a name="line.397"></a>
+<span class="sourceLineNo">398</span>            return this.timeRemaining;<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        }<a name="line.399"></a>
+<span class="sourceLineNo">400</span><a name="line.400"></a>
+<span class="sourceLineNo">401</span>        @Override<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        public boolean test() {<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>            // Reset state<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            this.mergers.clear();<a name="line.405"></a>
+<span class="sourceLineNo">406</span><a name="line.406"></a>
+<span class="sourceLineNo">407</span>            // See if we can lock<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            this.timeRemaining = LockManager.this.checkLock(this.lock, this.mergers);<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            return this.timeRemaining == 0;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        }<a name="line.410"></a>
+<span class="sourceLineNo">411</span>    }<a name="line.411"></a>
+<span class="sourceLineNo">412</span>}<a name="line.412"></a>
+<span class="sourceLineNo">413</span><a name="line.413"></a>
 
 
 

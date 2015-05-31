@@ -9,270 +9,268 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.core;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.core;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.security.SecureRandom;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.regex.Pattern;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.kv.KeyRange;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.jsimpledb.util.ByteReader;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jsimpledb.util.ByteUtil;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.util.ByteWriter;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.util.UnsignedIntEncoder;<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * Object IDs. Instances identify individual {@link Database} objects.<a name="line.20"></a>
-<span class="sourceLineNo">021</span> */<a name="line.21"></a>
-<span class="sourceLineNo">022</span>public class ObjId implements Comparable&lt;ObjId&gt; {<a name="line.22"></a>
-<span class="sourceLineNo">023</span><a name="line.23"></a>
-<span class="sourceLineNo">024</span>    /**<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     * The number of bytes in the binary encoding of an {@link ObjId}.<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     */<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    public static final int NUM_BYTES = 8;<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>    /**<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     * Regular expression that matches the string encoding of an {@link ObjId}.<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     */<a name="line.31"></a>
-<span class="sourceLineNo">032</span>    public static final Pattern PATTERN = Pattern.compile("\\p{XDigit}{" + (NUM_BYTES * 2) + "}");<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>    private static final ThreadLocal&lt;SecureRandom&gt; RANDOM = new ThreadLocal&lt;SecureRandom&gt;() {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        @Override<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        protected SecureRandom initialValue() {<a name="line.36"></a>
-<span class="sourceLineNo">037</span>            return new SecureRandom();<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        }<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    };<a name="line.39"></a>
+<span class="sourceLineNo">008</span>import java.security.SecureRandom;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.regex.Pattern;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.jsimpledb.kv.KeyRange;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import org.jsimpledb.util.ByteReader;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.jsimpledb.util.ByteUtil;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.util.ByteWriter;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.util.UnsignedIntEncoder;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>/**<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * Object IDs. Instances identify individual {@link Database} objects.<a name="line.18"></a>
+<span class="sourceLineNo">019</span> */<a name="line.19"></a>
+<span class="sourceLineNo">020</span>public class ObjId implements Comparable&lt;ObjId&gt; {<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>    /**<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * The number of bytes in the binary encoding of an {@link ObjId}.<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    public static final int NUM_BYTES = 8;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>    /**<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     * Regular expression that matches the string encoding of an {@link ObjId}.<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     */<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    public static final Pattern PATTERN = Pattern.compile("\\p{XDigit}{" + (NUM_BYTES * 2) + "}");<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>    private static final ThreadLocal&lt;SecureRandom&gt; RANDOM = new ThreadLocal&lt;SecureRandom&gt;() {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        @Override<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        protected SecureRandom initialValue() {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>            return new SecureRandom();<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        }<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    };<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    private final long value;<a name="line.39"></a>
 <span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    private final long value;<a name="line.41"></a>
+<span class="sourceLineNo">041</span>// Constructors<a name="line.41"></a>
 <span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>// Constructors<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    /**<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     * Create a new, random instance with the given storage ID.<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     *<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     * @param storageId storage ID, must be greater than zero<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * @throws IllegalArgumentException if {@code storageId} is zero or negative<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    public ObjId(int storageId) {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        this(ObjId.buildRandom(storageId));<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
-<span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>    /**<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * Constructor that parses a string previously returned by {@link #toString}.<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     *<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @param string string encoding of an instance<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * @throws IllegalArgumentException if {@code string} is invalid<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    public ObjId(String string) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        this(ObjId.parseString(string));<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>    /**<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * Constructor that reads an encoded instance from the given {@link ByteReader}.<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     *<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * @param reader input for binary encoding of an instance<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * @throws IllegalArgumentException if {@code reader} contains invalid data<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    public ObjId(ByteReader reader) {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        if (reader == null)<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            throw new IllegalArgumentException("null reader");<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        this.value = ByteUtil.readLong(reader);<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        this.validateStorageId();<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
-<span class="sourceLineNo">077</span><a name="line.77"></a>
-<span class="sourceLineNo">078</span>    /**<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     * Constructor using a long value previously returned by {@link #asLong}.<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     *<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * @param value long encoding of an instance<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * @throws IllegalArgumentException if {@code value} is invalid<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    public ObjId(long value) {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        this.value = value;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        this.validateStorageId();<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    private void validateStorageId() {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        final int storageId;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        try {<a name="line.91"></a>
-<span class="sourceLineNo">092</span>            storageId = this.getStorageId();<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        } catch (IllegalArgumentException e) {<a name="line.93"></a>
-<span class="sourceLineNo">094</span>            throw new IllegalArgumentException("invalid object ID", e);<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        }<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        if (storageId &lt;= 0)<a name="line.96"></a>
-<span class="sourceLineNo">097</span>            throw new IllegalArgumentException("invalid object ID containing storage ID " + storageId);<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
+<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * Create a new, random instance with the given storage ID.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     *<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * @param storageId storage ID, must be greater than zero<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * @throws IllegalArgumentException if {@code storageId} is zero or negative<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    public ObjId(int storageId) {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        this(ObjId.buildRandom(storageId));<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * Constructor that parses a string previously returned by {@link #toString}.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @param string string encoding of an instance<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * @throws IllegalArgumentException if {@code string} is invalid<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    public ObjId(String string) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        this(ObjId.parseString(string));<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * Constructor that reads an encoded instance from the given {@link ByteReader}.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * @param reader input for binary encoding of an instance<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @throws IllegalArgumentException if {@code reader} contains invalid data<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public ObjId(ByteReader reader) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        if (reader == null)<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            throw new IllegalArgumentException("null reader");<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        this.value = ByteUtil.readLong(reader);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        this.validateStorageId();<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    /**<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * Constructor using a long value previously returned by {@link #asLong}.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     *<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @param value long encoding of an instance<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @throws IllegalArgumentException if {@code value} is invalid<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public ObjId(long value) {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        this.value = value;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        this.validateStorageId();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    private void validateStorageId() {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        final int storageId;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        try {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            storageId = this.getStorageId();<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        } catch (IllegalArgumentException e) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            throw new IllegalArgumentException("invalid object ID", e);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        if (storageId &lt;= 0)<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            throw new IllegalArgumentException("invalid object ID containing storage ID " + storageId);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>// Methods<a name="line.98"></a>
 <span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>// Methods<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * Get the storage ID associated with this instance. This is the storage ID of the associated object type.<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     *<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     * @return object type storage ID<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     */<a name="line.106"></a>
-<span class="sourceLineNo">107</span>    public int getStorageId() {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        return UnsignedIntEncoder.read(new ByteReader(this.getBytes()));<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
-<span class="sourceLineNo">111</span>    /**<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     * Get the binary encoding of this instance.<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     *<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     * @return binary encoding<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     */<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    public byte[] getBytes() {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        this.writeTo(writer);<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        return writer.getBytes();<a name="line.119"></a>
-<span class="sourceLineNo">120</span>    }<a name="line.120"></a>
-<span class="sourceLineNo">121</span><a name="line.121"></a>
-<span class="sourceLineNo">122</span>    /**<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     * Get this instance encoded as a {@code long} value.<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     *<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     * @return long encoding<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     */<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    public long asLong() {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        return this.value;<a name="line.128"></a>
-<span class="sourceLineNo">129</span>    }<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>    /**<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * Write the binary encoding of this instance to the given output.<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * @param writer destination<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     */<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    public void writeTo(ByteWriter writer) {<a name="line.136"></a>
-<span class="sourceLineNo">137</span>        ByteUtil.writeLong(writer, this.value);<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    }<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * Get the smallest (i.e., first) instance having the given storage ID.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     *<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * @param storageId storage ID, must be greater than zero<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     * @return smallest instance with storage ID {@code storageId} (inclusive)<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * @throws IllegalArgumentException if {@code storageId} is zero or negative<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    public static ObjId getMin(int storageId) {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>        return ObjId.getFill(storageId, 0x00);<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    }<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     * Get the largest (i.e., last) instance having the given storage ID.<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     *<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     * @param storageId storage ID, must be greater than zero<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     * @return largest instance with storage ID {@code storageId} (inclusive)<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     * @throws IllegalArgumentException if {@code storageId} is zero or negative<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     */<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    public static ObjId getMax(int storageId) {<a name="line.158"></a>
-<span class="sourceLineNo">159</span>        return ObjId.getFill(storageId, 0xff);<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>    /**<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     * Get the {@link KeyRange} containing all object IDs with the given storage ID.<a name="line.163"></a>
-<span class="sourceLineNo">164</span>     *<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     * @param storageId storage ID, must be greater than zero<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * @return {@link KeyRange} containing all object IDs having the specified type<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     * @throws IllegalArgumentException if {@code storageId} is zero or negative<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     */<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    public static KeyRange getKeyRange(int storageId) {<a name="line.169"></a>
-<span class="sourceLineNo">170</span>        if (storageId &lt;= 0)<a name="line.170"></a>
-<span class="sourceLineNo">171</span>            throw new IllegalArgumentException("invalid storageId " + storageId);<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        UnsignedIntEncoder.write(writer, storageId);<a name="line.173"></a>
-<span class="sourceLineNo">174</span>        return KeyRange.forPrefix(writer.getBytes());<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
-<span class="sourceLineNo">176</span><a name="line.176"></a>
-<span class="sourceLineNo">177</span>    private static ObjId getFill(int storageId, int value) {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        if (storageId &lt;= 0)<a name="line.178"></a>
-<span class="sourceLineNo">179</span>            throw new IllegalArgumentException("invalid storage ID " + storageId);<a name="line.179"></a>
-<span class="sourceLineNo">180</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.180"></a>
-<span class="sourceLineNo">181</span>        UnsignedIntEncoder.write(writer, storageId);<a name="line.181"></a>
-<span class="sourceLineNo">182</span>        for (int remain = NUM_BYTES - writer.getLength(); remain &gt; 0; remain--)<a name="line.182"></a>
-<span class="sourceLineNo">183</span>            writer.writeByte(value);<a name="line.183"></a>
-<span class="sourceLineNo">184</span>        return new ObjId(new ByteReader(writer));<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    }<a name="line.185"></a>
+<span class="sourceLineNo">100</span>    /**<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * Get the storage ID associated with this instance. This is the storage ID of the associated object type.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     *<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * @return object type storage ID<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    public int getStorageId() {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        return UnsignedIntEncoder.read(new ByteReader(this.getBytes()));<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>    /**<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * Get the binary encoding of this instance.<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     *<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * @return binary encoding<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    public byte[] getBytes() {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        this.writeTo(writer);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        return writer.getBytes();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>    /**<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * Get this instance encoded as a {@code long} value.<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     *<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * @return long encoding<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     */<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    public long asLong() {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        return this.value;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    }<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>    /**<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * Write the binary encoding of this instance to the given output.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     *<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * @param writer destination<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     */<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    public void writeTo(ByteWriter writer) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        ByteUtil.writeLong(writer, this.value);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>    /**<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * Get the smallest (i.e., first) instance having the given storage ID.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     *<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @param storageId storage ID, must be greater than zero<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * @return smallest instance with storage ID {@code storageId} (inclusive)<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * @throws IllegalArgumentException if {@code storageId} is zero or negative<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    public static ObjId getMin(int storageId) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        return ObjId.getFill(storageId, 0x00);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>    /**<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * Get the largest (i.e., last) instance having the given storage ID.<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     *<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * @param storageId storage ID, must be greater than zero<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * @return largest instance with storage ID {@code storageId} (inclusive)<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * @throws IllegalArgumentException if {@code storageId} is zero or negative<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     */<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    public static ObjId getMax(int storageId) {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        return ObjId.getFill(storageId, 0xff);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    }<a name="line.158"></a>
+<span class="sourceLineNo">159</span><a name="line.159"></a>
+<span class="sourceLineNo">160</span>    /**<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * Get the {@link KeyRange} containing all object IDs with the given storage ID.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     *<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @param storageId storage ID, must be greater than zero<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * @return {@link KeyRange} containing all object IDs having the specified type<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * @throws IllegalArgumentException if {@code storageId} is zero or negative<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     */<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    public static KeyRange getKeyRange(int storageId) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        if (storageId &lt;= 0)<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            throw new IllegalArgumentException("invalid storageId " + storageId);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        UnsignedIntEncoder.write(writer, storageId);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        return KeyRange.forPrefix(writer.getBytes());<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    }<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>    private static ObjId getFill(int storageId, int value) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        if (storageId &lt;= 0)<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            throw new IllegalArgumentException("invalid storage ID " + storageId);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        UnsignedIntEncoder.write(writer, storageId);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        for (int remain = NUM_BYTES - writer.getLength(); remain &gt; 0; remain--)<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            writer.writeByte(value);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        return new ObjId(new ByteReader(writer));<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    }<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>// Object<a name="line.185"></a>
 <span class="sourceLineNo">186</span><a name="line.186"></a>
-<span class="sourceLineNo">187</span>// Object<a name="line.187"></a>
-<span class="sourceLineNo">188</span><a name="line.188"></a>
-<span class="sourceLineNo">189</span>    /**<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     * Encode this instance as a string.<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     */<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    @Override<a name="line.192"></a>
-<span class="sourceLineNo">193</span>    public String toString() {<a name="line.193"></a>
-<span class="sourceLineNo">194</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        this.writeTo(writer);<a name="line.195"></a>
-<span class="sourceLineNo">196</span>        final byte[] buf = writer.getBytes();<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        final char[] result = new char[NUM_BYTES * 2];<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        int off = 0;<a name="line.198"></a>
-<span class="sourceLineNo">199</span>        for (int i = 0; i &lt; buf.length; i++) {<a name="line.199"></a>
-<span class="sourceLineNo">200</span>            int b = buf[i];<a name="line.200"></a>
-<span class="sourceLineNo">201</span>            result[off++] = Character.forDigit((b &gt;&gt; 4) &amp; 0x0f, 16);<a name="line.201"></a>
-<span class="sourceLineNo">202</span>            result[off++] = Character.forDigit(b &amp; 0x0f, 16);<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        return new String(result);<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    }<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>    @Override<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    public boolean equals(Object obj) {<a name="line.208"></a>
-<span class="sourceLineNo">209</span>        if (obj == this)<a name="line.209"></a>
-<span class="sourceLineNo">210</span>            return true;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        if (obj == null || obj.getClass() != this.getClass())<a name="line.211"></a>
-<span class="sourceLineNo">212</span>            return false;<a name="line.212"></a>
-<span class="sourceLineNo">213</span>        final ObjId that = (ObjId)obj;<a name="line.213"></a>
-<span class="sourceLineNo">214</span>        return this.value == that.value;<a name="line.214"></a>
-<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
-<span class="sourceLineNo">216</span><a name="line.216"></a>
-<span class="sourceLineNo">217</span>    /**<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     * Returns the hash code value for this instance.<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     *<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     * &lt;p&gt;<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     * The hash code of an {@link ObjId} is defined as the hash code of its {@link #asLong} value,<a name="line.221"></a>
-<span class="sourceLineNo">222</span>     * which is {@linkplain Long#hashCode defined} as the exclusive-or of the upper and lower 32 bits.<a name="line.222"></a>
-<span class="sourceLineNo">223</span>     * &lt;/p&gt;<a name="line.223"></a>
-<span class="sourceLineNo">224</span>     */<a name="line.224"></a>
-<span class="sourceLineNo">225</span>    @Override<a name="line.225"></a>
-<span class="sourceLineNo">226</span>    public int hashCode() {<a name="line.226"></a>
-<span class="sourceLineNo">227</span>        return (int)(this.value &gt;&gt; 32) ^ (int)this.value;<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    }<a name="line.228"></a>
+<span class="sourceLineNo">187</span>    /**<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * Encode this instance as a string.<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     */<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    @Override<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    public String toString() {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        this.writeTo(writer);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        final byte[] buf = writer.getBytes();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        final char[] result = new char[NUM_BYTES * 2];<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        int off = 0;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        for (int i = 0; i &lt; buf.length; i++) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>            int b = buf[i];<a name="line.198"></a>
+<span class="sourceLineNo">199</span>            result[off++] = Character.forDigit((b &gt;&gt; 4) &amp; 0x0f, 16);<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            result[off++] = Character.forDigit(b &amp; 0x0f, 16);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        }<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        return new String(result);<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>    @Override<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    public boolean equals(Object obj) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        if (obj == this)<a name="line.207"></a>
+<span class="sourceLineNo">208</span>            return true;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        if (obj == null || obj.getClass() != this.getClass())<a name="line.209"></a>
+<span class="sourceLineNo">210</span>            return false;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        final ObjId that = (ObjId)obj;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        return this.value == that.value;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    }<a name="line.213"></a>
+<span class="sourceLineNo">214</span><a name="line.214"></a>
+<span class="sourceLineNo">215</span>    /**<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     * Returns the hash code value for this instance.<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     *<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * &lt;p&gt;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * The hash code of an {@link ObjId} is defined as the hash code of its {@link #asLong} value,<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * which is {@linkplain Long#hashCode defined} as the exclusive-or of the upper and lower 32 bits.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * &lt;/p&gt;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     */<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    @Override<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    public int hashCode() {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        return (int)(this.value &gt;&gt; 32) ^ (int)this.value;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    }<a name="line.226"></a>
+<span class="sourceLineNo">227</span><a name="line.227"></a>
+<span class="sourceLineNo">228</span>// Comparable<a name="line.228"></a>
 <span class="sourceLineNo">229</span><a name="line.229"></a>
-<span class="sourceLineNo">230</span>// Comparable<a name="line.230"></a>
-<span class="sourceLineNo">231</span><a name="line.231"></a>
-<span class="sourceLineNo">232</span>    @Override<a name="line.232"></a>
-<span class="sourceLineNo">233</span>    public int compareTo(ObjId that) {<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        return ByteUtil.compare(this.getBytes(), that.getBytes());<a name="line.234"></a>
-<span class="sourceLineNo">235</span>    }<a name="line.235"></a>
+<span class="sourceLineNo">230</span>    @Override<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    public int compareTo(ObjId that) {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        return ByteUtil.compare(this.getBytes(), that.getBytes());<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    }<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>// Internal methods<a name="line.235"></a>
 <span class="sourceLineNo">236</span><a name="line.236"></a>
-<span class="sourceLineNo">237</span>// Internal methods<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>    private static ByteReader buildRandom(int storageId) {<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        if (storageId &lt;= 0)<a name="line.240"></a>
-<span class="sourceLineNo">241</span>            throw new IllegalArgumentException("invalid storage ID " + storageId);<a name="line.241"></a>
-<span class="sourceLineNo">242</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.242"></a>
-<span class="sourceLineNo">243</span>        UnsignedIntEncoder.write(writer, storageId);<a name="line.243"></a>
-<span class="sourceLineNo">244</span>        final byte[] randomPart = new byte[NUM_BYTES - writer.getLength()];<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        ObjId.RANDOM.get().nextBytes(randomPart);<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        writer.write(randomPart);<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        return new ByteReader(writer);<a name="line.247"></a>
-<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
-<span class="sourceLineNo">249</span><a name="line.249"></a>
-<span class="sourceLineNo">250</span>    private static ByteReader parseString(String string) {<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        if (string == null)<a name="line.251"></a>
-<span class="sourceLineNo">252</span>            throw new IllegalArgumentException("null string");<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        if (string.length() != NUM_BYTES * 2)<a name="line.253"></a>
-<span class="sourceLineNo">254</span>            throw new IllegalArgumentException("invalid object ID `" + string + "'");<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        final byte[] buf = new byte[NUM_BYTES];<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        int off = 0;<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        for (int i = 0; i &lt; buf.length; i++) {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>            final int digit1 = Character.digit(string.charAt(off++), 16);<a name="line.258"></a>
-<span class="sourceLineNo">259</span>            final int digit2 = Character.digit(string.charAt(off++), 16);<a name="line.259"></a>
-<span class="sourceLineNo">260</span>            if (digit1 == -1 || digit2 == -1)<a name="line.260"></a>
-<span class="sourceLineNo">261</span>                throw new IllegalArgumentException("invalid object ID `" + string + "'");<a name="line.261"></a>
-<span class="sourceLineNo">262</span>            buf[i] = (byte)((digit1 &lt;&lt; 4) | digit2);<a name="line.262"></a>
-<span class="sourceLineNo">263</span>        }<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        return new ByteReader(buf);<a name="line.264"></a>
-<span class="sourceLineNo">265</span>    }<a name="line.265"></a>
-<span class="sourceLineNo">266</span>}<a name="line.266"></a>
-<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">237</span>    private static ByteReader buildRandom(int storageId) {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        if (storageId &lt;= 0)<a name="line.238"></a>
+<span class="sourceLineNo">239</span>            throw new IllegalArgumentException("invalid storage ID " + storageId);<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        final ByteWriter writer = new ByteWriter(NUM_BYTES);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        UnsignedIntEncoder.write(writer, storageId);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        final byte[] randomPart = new byte[NUM_BYTES - writer.getLength()];<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        ObjId.RANDOM.get().nextBytes(randomPart);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        writer.write(randomPart);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        return new ByteReader(writer);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    }<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>    private static ByteReader parseString(String string) {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        if (string == null)<a name="line.249"></a>
+<span class="sourceLineNo">250</span>            throw new IllegalArgumentException("null string");<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        if (string.length() != NUM_BYTES * 2)<a name="line.251"></a>
+<span class="sourceLineNo">252</span>            throw new IllegalArgumentException("invalid object ID `" + string + "'");<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        final byte[] buf = new byte[NUM_BYTES];<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        int off = 0;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        for (int i = 0; i &lt; buf.length; i++) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>            final int digit1 = Character.digit(string.charAt(off++), 16);<a name="line.256"></a>
+<span class="sourceLineNo">257</span>            final int digit2 = Character.digit(string.charAt(off++), 16);<a name="line.257"></a>
+<span class="sourceLineNo">258</span>            if (digit1 == -1 || digit2 == -1)<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                throw new IllegalArgumentException("invalid object ID `" + string + "'");<a name="line.259"></a>
+<span class="sourceLineNo">260</span>            buf[i] = (byte)((digit1 &lt;&lt; 4) | digit2);<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        }<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        return new ByteReader(buf);<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    }<a name="line.263"></a>
+<span class="sourceLineNo">264</span>}<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
 
 
 

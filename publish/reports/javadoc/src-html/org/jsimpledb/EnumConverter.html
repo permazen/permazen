@@ -9,111 +9,109 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.base.Converter;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.google.common.base.Function;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import com.google.common.collect.EnumHashBiMap;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import com.google.common.collect.Maps;<a name="line.13"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Converter;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.google.common.base.Function;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import com.google.common.collect.EnumHashBiMap;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import com.google.common.collect.Maps;<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.EnumSet;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.EnumSet;<a name="line.15"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.core.EnumValue;<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.core.EnumValue;<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * Converts between core database {@link EnumValue} objects and the corresponding Java {@link Enum} model values.<a name="line.20"></a>
-<span class="sourceLineNo">021</span> */<a name="line.21"></a>
-<span class="sourceLineNo">022</span>public class EnumConverter&lt;T extends Enum&lt;T&gt;&gt; extends Converter&lt;T, EnumValue&gt; {<a name="line.22"></a>
-<span class="sourceLineNo">023</span><a name="line.23"></a>
-<span class="sourceLineNo">024</span>    private final Class&lt;T&gt; enumType;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>    private final EnumHashBiMap&lt;T, EnumValue&gt; valueMap;<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>    /**<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * Constructor.<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     *<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     * @param enumType {@link Enum} type<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @throws IllegalArgumentException if {@code enumType} is null<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     */<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    public EnumConverter(Class&lt;T&gt; enumType) {<a name="line.33"></a>
-<span class="sourceLineNo">034</span>        if (enumType == null)<a name="line.34"></a>
-<span class="sourceLineNo">035</span>            throw new IllegalArgumentException("null enumType");<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        enumType.asSubclass(Enum.class);                            // verify it's really an Enum<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        this.enumType = enumType;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        this.valueMap = EnumHashBiMap.&lt;T, EnumValue&gt;create(Maps.asMap(EnumSet.allOf(this.enumType), new Function&lt;T, EnumValue&gt;() {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>            @Override<a name="line.39"></a>
-<span class="sourceLineNo">040</span>            public EnumValue apply(T value) {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>                return new EnumValue(value);<a name="line.41"></a>
-<span class="sourceLineNo">042</span>            }<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        }));<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>    @Override<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    protected EnumValue doForward(T value) {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        if (value == null)<a name="line.48"></a>
-<span class="sourceLineNo">049</span>            return null;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        final EnumValue enumValue = this.valueMap.get(value);<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        if (enumValue == null)<a name="line.51"></a>
-<span class="sourceLineNo">052</span>            throw new IllegalArgumentException("invalid enum value " + value + " not an instance of " + this.enumType);<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        return enumValue;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>    @Override<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    protected T doBackward(EnumValue enumValue) {<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        if (enumValue == null)<a name="line.58"></a>
-<span class="sourceLineNo">059</span>            return null;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        final T value = this.valueMap.inverse().get(enumValue);<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        if (value == null)<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            throw new IllegalArgumentException("invalid value " + enumValue + " not found in " + this.enumType);<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        return value;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
-<span class="sourceLineNo">065</span><a name="line.65"></a>
-<span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * Get the {@link Enum} type associated with this instance.<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     *<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * @return associated {@link Enum} type<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    public Class&lt;T&gt; getEnumType() {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        return this.enumType;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * Convenience "constructor" allowing wildcard caller {@link Enum} types.<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     *<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * @param enumType type for the created converter<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     * @return new converter<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    @SuppressWarnings({ "unchecked", "rawtypes" })<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    public static EnumConverter&lt;?&gt; createEnumConverter(Class&lt;? extends Enum&lt;?&gt;&gt; enumType) {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>        return new EnumConverter(enumType);<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
+<span class="sourceLineNo">017</span>/**<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * Converts between core database {@link EnumValue} objects and the corresponding Java {@link Enum} model values.<a name="line.18"></a>
+<span class="sourceLineNo">019</span> */<a name="line.19"></a>
+<span class="sourceLineNo">020</span>public class EnumConverter&lt;T extends Enum&lt;T&gt;&gt; extends Converter&lt;T, EnumValue&gt; {<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>    private final Class&lt;T&gt; enumType;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>    private final EnumHashBiMap&lt;T, EnumValue&gt; valueMap;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>    /**<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * Constructor.<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     *<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     * @param enumType {@link Enum} type<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @throws IllegalArgumentException if {@code enumType} is null<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    public EnumConverter(Class&lt;T&gt; enumType) {<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        if (enumType == null)<a name="line.32"></a>
+<span class="sourceLineNo">033</span>            throw new IllegalArgumentException("null enumType");<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        enumType.asSubclass(Enum.class);                            // verify it's really an Enum<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        this.enumType = enumType;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        this.valueMap = EnumHashBiMap.&lt;T, EnumValue&gt;create(Maps.asMap(EnumSet.allOf(this.enumType), new Function&lt;T, EnumValue&gt;() {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>            @Override<a name="line.37"></a>
+<span class="sourceLineNo">038</span>            public EnumValue apply(T value) {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>                return new EnumValue(value);<a name="line.39"></a>
+<span class="sourceLineNo">040</span>            }<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        }));<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    }<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    @Override<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    protected EnumValue doForward(T value) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        if (value == null)<a name="line.46"></a>
+<span class="sourceLineNo">047</span>            return null;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        final EnumValue enumValue = this.valueMap.get(value);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        if (enumValue == null)<a name="line.49"></a>
+<span class="sourceLineNo">050</span>            throw new IllegalArgumentException("invalid enum value " + value + " not an instance of " + this.enumType);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        return enumValue;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    @Override<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    protected T doBackward(EnumValue enumValue) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        if (enumValue == null)<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            return null;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        final T value = this.valueMap.inverse().get(enumValue);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        if (value == null)<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            throw new IllegalArgumentException("invalid value " + enumValue + " not found in " + this.enumType);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        return value;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * Get the {@link Enum} type associated with this instance.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @return associated {@link Enum} type<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public Class&lt;T&gt; getEnumType() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        return this.enumType;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * Convenience "constructor" allowing wildcard caller {@link Enum} types.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     *<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * @param enumType type for the created converter<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * @return new converter<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    @SuppressWarnings({ "unchecked", "rawtypes" })<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    public static EnumConverter&lt;?&gt; createEnumConverter(Class&lt;? extends Enum&lt;?&gt;&gt; enumType) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        return new EnumConverter(enumType);<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>// Object<a name="line.84"></a>
 <span class="sourceLineNo">085</span><a name="line.85"></a>
-<span class="sourceLineNo">086</span>// Object<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    @Override<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    public boolean equals(Object obj) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        if (obj == this)<a name="line.90"></a>
-<span class="sourceLineNo">091</span>            return true;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        if (obj == null || obj.getClass() != this.getClass())<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            return false;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        final EnumConverter&lt;?&gt; that = (EnumConverter&lt;?&gt;)obj;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        return this.enumType == that.enumType;<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    @Override<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    public int hashCode() {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>        return this.enumType.hashCode();<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>    @Override<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    public String toString() {<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        return this.getClass().getSimpleName() + "[type=" + this.enumType.getName() + "]";<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
-<span class="sourceLineNo">107</span>}<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">086</span>    @Override<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    public boolean equals(Object obj) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        if (obj == this)<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            return true;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        if (obj == null || obj.getClass() != this.getClass())<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            return false;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        final EnumConverter&lt;?&gt; that = (EnumConverter&lt;?&gt;)obj;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        return this.enumType == that.enumType;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    @Override<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    public int hashCode() {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        return this.enumType.hashCode();<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    @Override<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public String toString() {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        return this.getClass().getSimpleName() + "[type=" + this.enumType.getName() + "]";<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span>}<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
 
 
 

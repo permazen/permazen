@@ -9,274 +9,272 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.simple;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.kv.simple;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.io.BufferedInputStream;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.io.File;<a name="line.11"></a>
-<span class="sourceLineNo">012</span>import java.io.FileInputStream;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.io.FileNotFoundException;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import java.io.IOException;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.io.InputStream;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.io.OutputStream;<a name="line.16"></a>
+<span class="sourceLineNo">008</span>import java.io.BufferedInputStream;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.io.File;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.FileInputStream;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.io.FileNotFoundException;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.io.IOException;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.io.InputStream;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import java.io.OutputStream;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>import javax.xml.stream.XMLStreamException;<a name="line.16"></a>
 <span class="sourceLineNo">017</span><a name="line.17"></a>
-<span class="sourceLineNo">018</span>import javax.xml.stream.XMLStreamException;<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.dellroad.stuff.io.FileStreamRepository;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.dellroad.stuff.io.StreamRepository;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jsimpledb.kv.KVDatabaseException;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jsimpledb.kv.RetryTransactionException;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.kv.util.XMLSerializer;<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * Simple persistent {@link org.jsimpledb.kv.KVDatabase} backed by an XML file stored in a {@link StreamRepository}.<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * The data is kept in memory, and the XML file is rewritten in its entirety after each successful commit.<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * In normal usage, the XML file is stored in a regular {@link File} using a {@link FileStreamRepository}, which<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * guarantees (via the use of {@link AtomicUpdateFileOutputStream}) that a partially written XML file can never exist.<a name="line.31"></a>
-<span class="sourceLineNo">032</span> *<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * If a {@link FileNotFoundException} is caught when trying to read the XML file, we assume that the underlying file has<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * not yet been created and the database will initially be empty. Alternately, you can configure a file containing<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * default initial content via {@link #setInitialContentFile setInitialContentFile()}, or override {@link #getInitialContent}<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * to create the initial content more dynamically.<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * &lt;/p&gt;<a name="line.38"></a>
-<span class="sourceLineNo">039</span> *<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * &lt;p&gt;<a name="line.40"></a>
-<span class="sourceLineNo">041</span> * When a {@link FileStreamRepository} is used, instances support "out-of-band" updates of the XML file. In that case,<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * each time a transaction is accessed the modification timestamp of the XML file is examined. If the XML file has been<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * updated by some external process since the time the transaction was created, the database will be reloaded from<a name="line.43"></a>
-<span class="sourceLineNo">044</span> * the XML file and the transaction will fail with a {@link RetryTransactionException}.<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * &lt;/p&gt;<a name="line.45"></a>
-<span class="sourceLineNo">046</span> *<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * &lt;p&gt;<a name="line.47"></a>
-<span class="sourceLineNo">048</span> * Note that two different processes modifying the XML file at the same time is not without race conditions: e.g., it's possible<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * for an external process to update the XML file just as a transaction associated with this instance is being committed<a name="line.49"></a>
-<span class="sourceLineNo">050</span> * and written to the file, which will result in overwriting the external process' changes.<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * &lt;/p&gt;<a name="line.51"></a>
-<span class="sourceLineNo">052</span> *<a name="line.52"></a>
-<span class="sourceLineNo">053</span> * @see XMLSerializer<a name="line.53"></a>
-<span class="sourceLineNo">054</span> * @see AtomicUpdateFileOutputStream<a name="line.54"></a>
-<span class="sourceLineNo">055</span> * @see org.jsimpledb.spring.SpringXMLKVDatabase<a name="line.55"></a>
-<span class="sourceLineNo">056</span> */<a name="line.56"></a>
-<span class="sourceLineNo">057</span>public class XMLKVDatabase extends SimpleKVDatabase {<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    private final StreamRepository repository;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    private final XMLSerializer serializer;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    private final File file;<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>    private int generation;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    private long timestamp;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    private File initialContentFile;<a name="line.65"></a>
+<span class="sourceLineNo">018</span>import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.dellroad.stuff.io.FileStreamRepository;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.dellroad.stuff.io.StreamRepository;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.kv.KVDatabaseException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.kv.RetryTransactionException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.kv.util.XMLSerializer;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * Simple persistent {@link org.jsimpledb.kv.KVDatabase} backed by an XML file stored in a {@link StreamRepository}.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * The data is kept in memory, and the XML file is rewritten in its entirety after each successful commit.<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * In normal usage, the XML file is stored in a regular {@link File} using a {@link FileStreamRepository}, which<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * guarantees (via the use of {@link AtomicUpdateFileOutputStream}) that a partially written XML file can never exist.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * If a {@link FileNotFoundException} is caught when trying to read the XML file, we assume that the underlying file has<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * not yet been created and the database will initially be empty. Alternately, you can configure a file containing<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * default initial content via {@link #setInitialContentFile setInitialContentFile()}, or override {@link #getInitialContent}<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * to create the initial content more dynamically.<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;/p&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;p&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * When a {@link FileStreamRepository} is used, instances support "out-of-band" updates of the XML file. In that case,<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * each time a transaction is accessed the modification timestamp of the XML file is examined. If the XML file has been<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * updated by some external process since the time the transaction was created, the database will be reloaded from<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * the XML file and the transaction will fail with a {@link RetryTransactionException}.<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;/p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * Note that two different processes modifying the XML file at the same time is not without race conditions: e.g., it's possible<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * for an external process to update the XML file just as a transaction associated with this instance is being committed<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * and written to the file, which will result in overwriting the external process' changes.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;/p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * @see XMLSerializer<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * @see AtomicUpdateFileOutputStream<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * @see org.jsimpledb.spring.SpringXMLKVDatabase<a name="line.53"></a>
+<span class="sourceLineNo">054</span> */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>public class XMLKVDatabase extends SimpleKVDatabase {<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>    private final StreamRepository repository;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    private final XMLSerializer serializer;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    private final File file;<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    private int generation;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    private long timestamp;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    private File initialContentFile;<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>// Constructors<a name="line.65"></a>
 <span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>// Constructors<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     * Normal constructor. Uses a {@link FileStreamRepository} backed by the specified file.<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     *<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     * @param file persistent XML file<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * @throws IllegalArgumentException if {@code file} is null<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    public XMLKVDatabase(File file) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        this(new FileStreamRepository(file));<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    }<a name="line.77"></a>
-<span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>    /**<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     * Constructor allowing storage in any user-supplied {@link StreamRepository}.<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     *<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * @param repository XML file storage<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     * @throws IllegalArgumentException if {@code file} is null<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    public XMLKVDatabase(StreamRepository repository) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        if (repository == null)<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            throw new IllegalArgumentException("null repository");<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        this.repository = repository;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        this.serializer = new XMLSerializer(this.kv);<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        this.file = repository instanceof FileStreamRepository ? ((FileStreamRepository)repository).getFile() : null;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        this.reload();<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * Get the initial content for an uninitialized database. This method is invoked when, on the first load,<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * the backing XML file is not found. It should return a stream that reads initial content for the database,<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * if any, otherwise null.<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     *<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * &lt;p&gt;<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     * The implementation in {@link XMLKVDatabase} opens and returns the {@link File} configured by<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * {@link #setInitialContentFile setInitialContentFile()}, if any, otherwise null.<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * &lt;/p&gt;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     *<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * @return default initial XML database content, or null for none<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     * @throws IOException if an error occurs accessing the initial content file<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     */<a name="line.106"></a>
-<span class="sourceLineNo">107</span>    protected InputStream getInitialContent() throws IOException {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        return this.initialContentFile != null ? new FileInputStream(this.initialContentFile) : null;<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
-<span class="sourceLineNo">111</span>    /**<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     * Configure the {@link File} containing default initial content for an uninitialized database. This method is invoked<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     * by {@link #getInitialContent} when, on the first load, the backing XML file is not found.<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     *<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     * @param initialContentFile file containing default initial XML database content, or null for none<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     */<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    public void setInitialContentFile(File initialContentFile) {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        this.initialContentFile = initialContentFile;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    }<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>    @Override<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    public synchronized XMLKVTransaction createTransaction() {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        this.checkForOutOfBandUpdate();<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        return new XMLKVTransaction(this, this.getWaitTimeout(), this.generation);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>    /**<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     * Forcibly reload this database by re-reading the XML file.<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     *<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * &lt;p&gt;<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     * Any transactions that are in-progress when this method is called immediately become unusable.<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * &lt;/p&gt;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     */<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    public synchronized void reload() {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        this.readXML();<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>    /**<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * Get the generation number associated with the XML file.<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     * The generation number is incremented every time the database is wholesale updated by reading the file into memory,<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * e.g., by invoking {@link #reload}.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     *<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * @return XML file generation number<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     * @see XMLKVTransaction#getGeneration<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     */<a name="line.145"></a>
-<span class="sourceLineNo">146</span>    public synchronized int getGeneration() {<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        return this.generation;<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    }<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>    /**<a name="line.150"></a>
-<span class="sourceLineNo">151</span>     * Check the XML file's timestamp and reload it if it has been modified since the most recent<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     * read or write by this instance.<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     *<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     * @return true if file was updated and re-read, otherwise false<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     */<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    public synchronized boolean checkForOutOfBandUpdate() {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        if (this.file == null)<a name="line.157"></a>
-<span class="sourceLineNo">158</span>            return false;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>        final long fileTime = this.file.lastModified();<a name="line.159"></a>
-<span class="sourceLineNo">160</span>        if (fileTime == 0)<a name="line.160"></a>
-<span class="sourceLineNo">161</span>            return false;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        if (this.timestamp != 0) {<a name="line.162"></a>
-<span class="sourceLineNo">163</span>            if (fileTime &lt;= this.timestamp)<a name="line.163"></a>
-<span class="sourceLineNo">164</span>                return false;<a name="line.164"></a>
-<span class="sourceLineNo">165</span>            this.log.info("detected out-of-band update of XMLKVDatabase file `" + this.file + "'; reloading");<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>        this.readXML();<a name="line.167"></a>
-<span class="sourceLineNo">168</span>        return true;<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>    @Override<a name="line.171"></a>
-<span class="sourceLineNo">172</span>    protected void checkState(SimpleKVTransaction tx) {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        this.checkForOutOfBandUpdate();<a name="line.173"></a>
-<span class="sourceLineNo">174</span>        final int txGeneration = ((XMLKVTransaction)tx).getGeneration();<a name="line.174"></a>
-<span class="sourceLineNo">175</span>        if (txGeneration != this.generation) {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            throw new RetryTransactionException(tx, "XML file changed since transaction started (generation number changed from "<a name="line.176"></a>
-<span class="sourceLineNo">177</span>              + txGeneration + " to " + this.generation + ")");<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        }<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    }<a name="line.179"></a>
-<span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>    @Override<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    protected void postCommit(SimpleKVTransaction tx, boolean successful) {<a name="line.182"></a>
-<span class="sourceLineNo">183</span><a name="line.183"></a>
-<span class="sourceLineNo">184</span>        // If something weird happened, reload from storage<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        if (!successful) {<a name="line.185"></a>
-<span class="sourceLineNo">186</span>            this.readXML();<a name="line.186"></a>
-<span class="sourceLineNo">187</span>            return;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        }<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>        // Persist data to file<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        this.writeXML();<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    }<a name="line.192"></a>
+<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * Normal constructor. Uses a {@link FileStreamRepository} backed by the specified file.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     *<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @param file persistent XML file<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * @throws IllegalArgumentException if {@code file} is null<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    public XMLKVDatabase(File file) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        this(new FileStreamRepository(file));<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    }<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * Constructor allowing storage in any user-supplied {@link StreamRepository}.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @param repository XML file storage<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @throws IllegalArgumentException if {@code file} is null<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    public XMLKVDatabase(StreamRepository repository) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        if (repository == null)<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            throw new IllegalArgumentException("null repository");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        this.repository = repository;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        this.serializer = new XMLSerializer(this.kv);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        this.file = repository instanceof FileStreamRepository ? ((FileStreamRepository)repository).getFile() : null;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        this.reload();<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * Get the initial content for an uninitialized database. This method is invoked when, on the first load,<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * the backing XML file is not found. It should return a stream that reads initial content for the database,<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * if any, otherwise null.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     *<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * &lt;p&gt;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * The implementation in {@link XMLKVDatabase} opens and returns the {@link File} configured by<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * {@link #setInitialContentFile setInitialContentFile()}, if any, otherwise null.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * &lt;/p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @return default initial XML database content, or null for none<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * @throws IOException if an error occurs accessing the initial content file<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    protected InputStream getInitialContent() throws IOException {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        return this.initialContentFile != null ? new FileInputStream(this.initialContentFile) : null;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>    /**<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * Configure the {@link File} containing default initial content for an uninitialized database. This method is invoked<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * by {@link #getInitialContent} when, on the first load, the backing XML file is not found.<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     *<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * @param initialContentFile file containing default initial XML database content, or null for none<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     */<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    public void setInitialContentFile(File initialContentFile) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        this.initialContentFile = initialContentFile;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    @Override<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    public synchronized XMLKVTransaction createTransaction() {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        this.checkForOutOfBandUpdate();<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        return new XMLKVTransaction(this, this.getWaitTimeout(), this.generation);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * Forcibly reload this database by re-reading the XML file.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * &lt;p&gt;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * Any transactions that are in-progress when this method is called immediately become unusable.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * &lt;/p&gt;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     */<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    public synchronized void reload() {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        this.readXML();<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * Get the generation number associated with the XML file.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * The generation number is incremented every time the database is wholesale updated by reading the file into memory,<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * e.g., by invoking {@link #reload}.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     *<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @return XML file generation number<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * @see XMLKVTransaction#getGeneration<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     */<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    public synchronized int getGeneration() {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        return this.generation;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    /**<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * Check the XML file's timestamp and reload it if it has been modified since the most recent<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * read or write by this instance.<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     *<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * @return true if file was updated and re-read, otherwise false<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    public synchronized boolean checkForOutOfBandUpdate() {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        if (this.file == null)<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            return false;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        final long fileTime = this.file.lastModified();<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        if (fileTime == 0)<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            return false;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        if (this.timestamp != 0) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            if (fileTime &lt;= this.timestamp)<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                return false;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            this.log.info("detected out-of-band update of XMLKVDatabase file `" + this.file + "'; reloading");<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        }<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        this.readXML();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        return true;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    @Override<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    protected void checkState(SimpleKVTransaction tx) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        this.checkForOutOfBandUpdate();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        final int txGeneration = ((XMLKVTransaction)tx).getGeneration();<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        if (txGeneration != this.generation) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            throw new RetryTransactionException(tx, "XML file changed since transaction started (generation number changed from "<a name="line.174"></a>
+<span class="sourceLineNo">175</span>              + txGeneration + " to " + this.generation + ")");<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        }<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>    @Override<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    protected void postCommit(SimpleKVTransaction tx, boolean successful) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>        // If something weird happened, reload from storage<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        if (!successful) {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            this.readXML();<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            return;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        }<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>        // Persist data to file<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        this.writeXML();<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    }<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>    protected synchronized void readXML() {<a name="line.192"></a>
 <span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>    protected synchronized void readXML() {<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>        // Clear all existing keys<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        this.kv.removeRange(null, null);<a name="line.197"></a>
-<span class="sourceLineNo">198</span><a name="line.198"></a>
-<span class="sourceLineNo">199</span>        // Snapshot file's current modification timestamp<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        final long newTimestamp = this.file != null ? this.file.lastModified() : 0;<a name="line.200"></a>
-<span class="sourceLineNo">201</span><a name="line.201"></a>
-<span class="sourceLineNo">202</span>        // Open file input<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        InputStream input;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        try {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            input = this.repository.getInputStream();<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        } catch (FileNotFoundException e) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span><a name="line.207"></a>
-<span class="sourceLineNo">208</span>            // If this is not the first load, file must have mysteriously disappeared<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            if (this.generation != 0)<a name="line.209"></a>
-<span class="sourceLineNo">210</span>                throw new KVDatabaseException(this, "error reading XML content: file not longer available", e);<a name="line.210"></a>
-<span class="sourceLineNo">211</span><a name="line.211"></a>
-<span class="sourceLineNo">212</span>            // Get default initial content instead, if any<a name="line.212"></a>
-<span class="sourceLineNo">213</span>            try {<a name="line.213"></a>
-<span class="sourceLineNo">214</span>                input = this.getInitialContent();<a name="line.214"></a>
-<span class="sourceLineNo">215</span>            } catch (IOException e2) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>                throw new KVDatabaseException(this, "error opening initial XML content", e2);<a name="line.216"></a>
-<span class="sourceLineNo">217</span>            }<a name="line.217"></a>
-<span class="sourceLineNo">218</span>            final String desc = this.file != null ? "file `" + this.file + "'" : "database file";<a name="line.218"></a>
-<span class="sourceLineNo">219</span>            if (input == null)<a name="line.219"></a>
-<span class="sourceLineNo">220</span>                this.log.info(desc + " not found and no initial content is configured; creating new, empty database");<a name="line.220"></a>
-<span class="sourceLineNo">221</span>            else<a name="line.221"></a>
-<span class="sourceLineNo">222</span>                this.log.info(desc + " not found; applying default initial content");<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        } catch (IOException e) {<a name="line.223"></a>
-<span class="sourceLineNo">224</span>            throw new KVDatabaseException(this, "error opening XML content", e);<a name="line.224"></a>
-<span class="sourceLineNo">225</span>        }<a name="line.225"></a>
-<span class="sourceLineNo">226</span><a name="line.226"></a>
-<span class="sourceLineNo">227</span>        // Read XML<a name="line.227"></a>
-<span class="sourceLineNo">228</span>        if (input != null) {<a name="line.228"></a>
-<span class="sourceLineNo">229</span>            try {<a name="line.229"></a>
-<span class="sourceLineNo">230</span>                this.serializer.read(new BufferedInputStream(input));<a name="line.230"></a>
-<span class="sourceLineNo">231</span>            } catch (XMLStreamException e) {<a name="line.231"></a>
-<span class="sourceLineNo">232</span>                throw new KVDatabaseException(this, "error reading XML content", e);<a name="line.232"></a>
-<span class="sourceLineNo">233</span>            } finally {<a name="line.233"></a>
-<span class="sourceLineNo">234</span>                try {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>                    input.close();<a name="line.235"></a>
-<span class="sourceLineNo">236</span>                } catch (IOException e) {<a name="line.236"></a>
-<span class="sourceLineNo">237</span>                    // ignore<a name="line.237"></a>
-<span class="sourceLineNo">238</span>                }<a name="line.238"></a>
-<span class="sourceLineNo">239</span>            }<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        }<a name="line.240"></a>
-<span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>        // Update timestamp and generation number<a name="line.242"></a>
-<span class="sourceLineNo">243</span>        if (newTimestamp != 0)<a name="line.243"></a>
-<span class="sourceLineNo">244</span>            this.timestamp = newTimestamp;<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        this.generation++;<a name="line.245"></a>
-<span class="sourceLineNo">246</span>    }<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
-<span class="sourceLineNo">248</span>    protected synchronized void writeXML() {<a name="line.248"></a>
-<span class="sourceLineNo">249</span>        boolean successful = false;<a name="line.249"></a>
-<span class="sourceLineNo">250</span>        try {<a name="line.250"></a>
-<span class="sourceLineNo">251</span>            final OutputStream output = this.repository.getOutputStream();<a name="line.251"></a>
-<span class="sourceLineNo">252</span>            try {<a name="line.252"></a>
-<span class="sourceLineNo">253</span>                this.serializer.write(output, true);<a name="line.253"></a>
-<span class="sourceLineNo">254</span>                if (output instanceof AtomicUpdateFileOutputStream)<a name="line.254"></a>
-<span class="sourceLineNo">255</span>                    ((AtomicUpdateFileOutputStream)output).getFD().sync();<a name="line.255"></a>
-<span class="sourceLineNo">256</span>                output.close();<a name="line.256"></a>
-<span class="sourceLineNo">257</span>                if (this.file != null)<a name="line.257"></a>
-<span class="sourceLineNo">258</span>                    this.timestamp = this.file.lastModified();<a name="line.258"></a>
-<span class="sourceLineNo">259</span>                successful = true;<a name="line.259"></a>
-<span class="sourceLineNo">260</span>            } finally {<a name="line.260"></a>
-<span class="sourceLineNo">261</span>                if (!successful &amp;&amp; output instanceof AtomicUpdateFileOutputStream)<a name="line.261"></a>
-<span class="sourceLineNo">262</span>                    ((AtomicUpdateFileOutputStream)output).cancel();<a name="line.262"></a>
-<span class="sourceLineNo">263</span>            }<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        } catch (IOException e) {<a name="line.264"></a>
+<span class="sourceLineNo">194</span>        // Clear all existing keys<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        this.kv.removeRange(null, null);<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>        // Snapshot file's current modification timestamp<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        final long newTimestamp = this.file != null ? this.file.lastModified() : 0;<a name="line.198"></a>
+<span class="sourceLineNo">199</span><a name="line.199"></a>
+<span class="sourceLineNo">200</span>        // Open file input<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        InputStream input;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        try {<a name="line.202"></a>
+<span class="sourceLineNo">203</span>            input = this.repository.getInputStream();<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        } catch (FileNotFoundException e) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>            // If this is not the first load, file must have mysteriously disappeared<a name="line.206"></a>
+<span class="sourceLineNo">207</span>            if (this.generation != 0)<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                throw new KVDatabaseException(this, "error reading XML content: file not longer available", e);<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>            // Get default initial content instead, if any<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            try {<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                input = this.getInitialContent();<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            } catch (IOException e2) {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                throw new KVDatabaseException(this, "error opening initial XML content", e2);<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            }<a name="line.215"></a>
+<span class="sourceLineNo">216</span>            final String desc = this.file != null ? "file `" + this.file + "'" : "database file";<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            if (input == null)<a name="line.217"></a>
+<span class="sourceLineNo">218</span>                this.log.info(desc + " not found and no initial content is configured; creating new, empty database");<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            else<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                this.log.info(desc + " not found; applying default initial content");<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        } catch (IOException e) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            throw new KVDatabaseException(this, "error opening XML content", e);<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>        // Read XML<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        if (input != null) {<a name="line.226"></a>
+<span class="sourceLineNo">227</span>            try {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                this.serializer.read(new BufferedInputStream(input));<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            } catch (XMLStreamException e) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                throw new KVDatabaseException(this, "error reading XML content", e);<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            } finally {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                try {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                    input.close();<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                } catch (IOException e) {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                    // ignore<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                }<a name="line.236"></a>
+<span class="sourceLineNo">237</span>            }<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        }<a name="line.238"></a>
+<span class="sourceLineNo">239</span><a name="line.239"></a>
+<span class="sourceLineNo">240</span>        // Update timestamp and generation number<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        if (newTimestamp != 0)<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            this.timestamp = newTimestamp;<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        this.generation++;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    }<a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
+<span class="sourceLineNo">246</span>    protected synchronized void writeXML() {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        boolean successful = false;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        try {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>            final OutputStream output = this.repository.getOutputStream();<a name="line.249"></a>
+<span class="sourceLineNo">250</span>            try {<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                this.serializer.write(output, true);<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                if (output instanceof AtomicUpdateFileOutputStream)<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                    ((AtomicUpdateFileOutputStream)output).getFD().sync();<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                output.close();<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                if (this.file != null)<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                    this.timestamp = this.file.lastModified();<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                successful = true;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>            } finally {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                if (!successful &amp;&amp; output instanceof AtomicUpdateFileOutputStream)<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                    ((AtomicUpdateFileOutputStream)output).cancel();<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            }<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        } catch (IOException e) {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            throw new KVDatabaseException(this, "error writing XML content", e);<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        } catch (XMLStreamException e) {<a name="line.264"></a>
 <span class="sourceLineNo">265</span>            throw new KVDatabaseException(this, "error writing XML content", e);<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        } catch (XMLStreamException e) {<a name="line.266"></a>
-<span class="sourceLineNo">267</span>            throw new KVDatabaseException(this, "error writing XML content", e);<a name="line.267"></a>
-<span class="sourceLineNo">268</span>        }<a name="line.268"></a>
-<span class="sourceLineNo">269</span>    }<a name="line.269"></a>
-<span class="sourceLineNo">270</span>}<a name="line.270"></a>
-<span class="sourceLineNo">271</span><a name="line.271"></a>
+<span class="sourceLineNo">266</span>        }<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    }<a name="line.267"></a>
+<span class="sourceLineNo">268</span>}<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
 
 
 

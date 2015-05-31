@@ -9,66 +9,64 @@
 <pre><span class="sourceLineNo">001</span><a name="line.1"></a>
 <span class="sourceLineNo">002</span>/*<a name="line.2"></a>
 <span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
-<span class="sourceLineNo">004</span> *<a name="line.4"></a>
-<span class="sourceLineNo">005</span> * $Id$<a name="line.5"></a>
-<span class="sourceLineNo">006</span> */<a name="line.6"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.parse;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>package org.jsimpledb.parse;<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import com.google.common.base.Function;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import com.google.common.collect.Lists;<a name="line.11"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Function;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import com.google.common.collect.Lists;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.regex.Matcher;<a name="line.11"></a>
 <span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import java.util.regex.Matcher;<a name="line.13"></a>
+<span class="sourceLineNo">013</span>import org.dellroad.stuff.java.EnumUtil;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.dellroad.stuff.java.EnumUtil;<a name="line.15"></a>
+<span class="sourceLineNo">015</span>public class EnumNameParser&lt;T extends Enum&lt;T&gt;&gt; implements Parser&lt;T&gt; {<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>public class EnumNameParser&lt;T extends Enum&lt;T&gt;&gt; implements Parser&lt;T&gt; {<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>    private final Class&lt;T&gt; type;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>    private final boolean lowerCase;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>    private final Function&lt;T, String&gt; nameFunction = new Function&lt;T, String&gt;() {<a name="line.21"></a>
-<span class="sourceLineNo">022</span>        @Override<a name="line.22"></a>
-<span class="sourceLineNo">023</span>        public String apply(T value) {<a name="line.23"></a>
-<span class="sourceLineNo">024</span>            String name = value.name();<a name="line.24"></a>
-<span class="sourceLineNo">025</span>            if (EnumNameParser.this.lowerCase)<a name="line.25"></a>
-<span class="sourceLineNo">026</span>                name = name.toLowerCase();<a name="line.26"></a>
-<span class="sourceLineNo">027</span>            return name;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        }<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    };<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    public EnumNameParser(Class&lt;T&gt; type) {<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        this(type, true);<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    }<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>    public EnumNameParser(Class&lt;T&gt; type, boolean lowerCase) {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        if (type == null)<a name="line.36"></a>
-<span class="sourceLineNo">037</span>            throw new IllegalArgumentException("null type");<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        this.type = type;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        this.lowerCase = lowerCase;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    }<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>    @Override<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    public T parse(ParseSession session, ParseContext ctx, boolean complete) {<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>        // Get name<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        final Matcher matcher = ctx.tryPattern("[^\\s;]*");<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        if (matcher == null &amp;&amp; ctx.isEOF())<a name="line.47"></a>
-<span class="sourceLineNo">048</span>            throw new ParseException(ctx).addCompletions(Lists.transform(EnumUtil.getValues(this.type), this.nameFunction));<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        final String name = matcher.group();<a name="line.49"></a>
-<span class="sourceLineNo">050</span><a name="line.50"></a>
-<span class="sourceLineNo">051</span>        // Match name<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        for (T value : EnumUtil.getValues(this.type)) {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>            final String valueName = this.nameFunction.apply(value);<a name="line.53"></a>
-<span class="sourceLineNo">054</span>            if (name.equals(valueName))<a name="line.54"></a>
-<span class="sourceLineNo">055</span>                return value;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        }<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>        // Not found<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        throw new ParseException(ctx, "unknown value `" + name + "'").addCompletions(<a name="line.59"></a>
-<span class="sourceLineNo">060</span>            ParseUtil.complete(Lists.transform(EnumUtil.getValues(this.type), this.nameFunction), name));<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
-<span class="sourceLineNo">062</span>}<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">017</span>    private final Class&lt;T&gt; type;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>    private final boolean lowerCase;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>    private final Function&lt;T, String&gt; nameFunction = new Function&lt;T, String&gt;() {<a name="line.19"></a>
+<span class="sourceLineNo">020</span>        @Override<a name="line.20"></a>
+<span class="sourceLineNo">021</span>        public String apply(T value) {<a name="line.21"></a>
+<span class="sourceLineNo">022</span>            String name = value.name();<a name="line.22"></a>
+<span class="sourceLineNo">023</span>            if (EnumNameParser.this.lowerCase)<a name="line.23"></a>
+<span class="sourceLineNo">024</span>                name = name.toLowerCase();<a name="line.24"></a>
+<span class="sourceLineNo">025</span>            return name;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>        }<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    };<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    public EnumNameParser(Class&lt;T&gt; type) {<a name="line.29"></a>
+<span class="sourceLineNo">030</span>        this(type, true);<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    }<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>    public EnumNameParser(Class&lt;T&gt; type, boolean lowerCase) {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        if (type == null)<a name="line.34"></a>
+<span class="sourceLineNo">035</span>            throw new IllegalArgumentException("null type");<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        this.type = type;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        this.lowerCase = lowerCase;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    @Override<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    public T parse(ParseSession session, ParseContext ctx, boolean complete) {<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>        // Get name<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        final Matcher matcher = ctx.tryPattern("[^\\s;]*");<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        if (matcher == null &amp;&amp; ctx.isEOF())<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            throw new ParseException(ctx).addCompletions(Lists.transform(EnumUtil.getValues(this.type), this.nameFunction));<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        final String name = matcher.group();<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>        // Match name<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        for (T value : EnumUtil.getValues(this.type)) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            final String valueName = this.nameFunction.apply(value);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            if (name.equals(valueName))<a name="line.52"></a>
+<span class="sourceLineNo">053</span>                return value;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>        // Not found<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        throw new ParseException(ctx, "unknown value `" + name + "'").addCompletions(<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            ParseUtil.complete(Lists.transform(EnumUtil.getValues(this.type), this.nameFunction), name));<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span>}<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
 
 
 
