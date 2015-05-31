@@ -99,49 +99,41 @@ import org.slf4j.LoggerFactory;
  * {@link RaftKVDatabase} turns this into a transactional key/value database with linearizable ACID semantics as follows:
  *  <ul>
  *  <li>The Raft state machine is the key/value store data.</li>
- *  <li>Unapplied log entries are stored on disk as serialized {@link Writes}, and also cached in memory.</li>
- *  <li>On leaders only, the {@link Writes} associated with some number of the most recently applied log entries
- *      are cached in memory for time <i>T<sub>max</sub></i> since creation, where <i>T<sub>max</sub></i> is the
- *      maximum supported transaction duration (see below for how these cached {@link Writes} are used).
- *      This caching is subject to <i>M<sub>max</sub></i>, which limits the total memory used by memory-cached
- *      {@link Writes}; if reached, these cached {@link Writes} are discarded early.</li>
+ *  <li>Unapplied log entries are stored on disk as serialized mutations, and also cached in memory.</li>
+ *  <li>On leaders only, committed log entries are not applied immediately; instead they kept around for time at least
+ *      <i>T<sub>max</sub></i> since creation, where <i>T<sub>max</sub></i> is the maximum supported transaction duration.
+ *      This caching is subject to <i>M<sub>max</sub></i>, which limits the total memory used; if reached, these log entries
+ *      are applied early.</li>
  *  <li>Concurrent transactions are supported through a simple optimistic locking MVCC scheme (same as used by
  *      {@link org.jsimpledb.kv.mvcc.SnapshotKVDatabase}):
  *      <ul>
  *      <li>Transactions execute locally until commit time, using a {@link MutableView} to collect mutations.
  *          The {@link MutableView} is based on the local node's most recent log entry (whether committed or not);
  *          this is called the <i>base term and index</i> for the transaction.</li>
- *      <li>On commit, the transaction's {@link Reads}, {@link Writes}, and base index and term are
+ *      <li>On commit, the transaction's {@link Reads}, {@link Writes}, base index and term, and any config change are
  *          {@linkplain CommitRequest sent} to the leader.</li>
- *      <li>The leader confirms that the log entry corresponding to the transaction's base index and term either:
- *          <ul>
- *          <li>Is still present in its own log and therefore not yet applied to the state machine; or</li>
- *          <li>Corresponds to an already applied log entry for whom the {@link Writes} of all subsequent
- *              log entries (if any) are either not yet applied or still cached in memory as described above.</li>
- *          </ul>
- *          If this is not the case, then the transaction's base log entry is too old (older than <i>T<sub>max</sub></i>,
- *          or was applied and discarded early due to memory pressure), and so the transaction is rejected with a
- *          {@link RetryTransactionException}. Otherwise, the {@link Writes} associated with all log entries
- *          after the transaction's base log entry are available.
- *      <li>The leader verifies that the term of the log entry in its log corresponding to the transaction's base index
- *          matches the transaction's base term; if not, the log entry on which the transaction was based has been overwritten,
+ *      <li>The leader confirms that the log entry corresponding to the transaction's base index is either not yet applied,
+ *          or was its most recently applied log entry. If this is not the case, then the transaction's base log entry
+ *          is too old (older than <i>T<sub>max</sub></i>, or was applied and discarded early due to memory pressure),
  *          and so the transaction is rejected with a {@link RetryTransactionException}.
- *      <li>The leader confirms that the {@link Writes} associated with log entries after the transaction's
- *          base log entry do not create linearizability violations when {@linkplain Reads#isConflict compared against}
- *          the transaction's {@link Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
+ *      <li>The leader verifies that the the log entry term matches the transaction's base term; if not, the base log entry
+ *          has been overwritten, and the transaction is rejected with a {@link RetryTransactionException}.
+ *      <li>The leader confirms that the {@link Writes} associated with log entries after the transaction's base log entry
+ *          do not create {@linkplain Reads#isConflict conflicts} when compared against the transaction's {@link Reads}.
+ *          If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
  *      <li>The leader adds a new log entry consisting of the transaction's {@link Writes} (and any config change) to its log.
  *          The associated term and index become the transaction's <i>commit term and index</i>; the leader then
  *          {@linkplain CommitResponse replies} to the follower with this information.</li>
  *      <li>If/when the follower sees a <i>committed</i> (in the Raft sense) log entry appear in its log matching the
- *          transaction's commit term and index, then the transaction is deemed committed.</li>
+ *          transaction's commit term and index, then the transaction is complete.</li>
  *      <li>As an optimization, when the leader sends a log entry to the same follower who committed the corresponding
  *          transaction in the first place, only the transaction ID is sent, because the follower already has the data.</li>
  *      </ul>
  *  </li>
  *  <li>For transactions occurring on a leader, the logic is similar except of course no network communication occurs.</li>
  *  <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
- *      term and index are set to the term and index of the last entry in the leader's log. The leader also calculates its
- *      current "leader lease timeout", which is the earliest time at which it is possible for another leader to be elected.
+ *      term and index are set to the base term and index, and the leader also calculates its current "leader lease timeout",
+ *      which is the earliest time at which it is possible for another leader to be elected.
  *      This is calculated as the time in the past at which the leader sent {@link AppendRequest}'s to a majority of followers
  *      who have since responded, plus the {@linkplain #setMinElectionTimeout minimum election timeout}, minus a small adjustment
  *      for possible clock drift (this assumes all nodes have the same minimum election timeout configured). If the current
@@ -151,9 +143,9 @@ import org.slf4j.LoggerFactory;
  *      any waiting read-only transactions. Leaders keep track of which followers are waiting on which leader lease
  *      timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
  *      is immediately notified.</li>
- *  <li>A weaker consistency guarantee for read-only transactions (serializable but not linearizable) is also possible; see
- *      {@link RaftKVTransaction#setReadOnlySnapshot RaftKVTransaction.setReadOnlySnapshot()}. Typically these transactions
- *      will generate no network traffic.</li>
+ *  <li>A weaker consistency guarantee for read-only transactions (stale reads) is also possible; see
+ *      {@link RaftKVTransaction#setReadOnlySnapshot RaftKVTransaction.setReadOnlySnapshot()}. Typically these
+ *      transactions will generate no network traffic.</li>
  *  </ul>
  *
  * <p><b>Limitations</b></p>
@@ -262,7 +254,7 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @see #setMaxTransactionDuration
      */
-    public static final int DEFAULT_MAX_TRANSACTION_DURATION = 10 * 1000;
+    public static final int DEFAULT_MAX_TRANSACTION_DURATION = 5 * 1000;
 
     /**
      * Default maximum supported applied log entry memory usage ({@value DEFAULT_MAX_APPLIED_LOG_MEMORY} bytes).
@@ -282,7 +274,7 @@ public class RaftKVDatabase implements KVDatabase {
     // Internal constants
     private static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
     private static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;
-    private static final int MAX_APPLIED_LOG_ENTRIES = 32;
+    private static final int MAX_UNAPPLIED_LOG_ENTRIES = 64;
     private static final int FOLLOWER_LINGER_HEARTBEATS = 3;                // how long to keep updating removed followers
     private static final float MAX_CLOCK_DRIFT = 0.01f;                     // max clock drift (ratio) in one min election timeout
 
@@ -2106,7 +2098,6 @@ public class RaftKVDatabase implements KVDatabase {
                 }
 
                 // Update in-memory state
-                final long prevLastAppliedTerm = this.raft.lastAppliedTerm;
                 this.raft.lastAppliedTerm = logEntry.getTerm();
                 assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;
                 this.raft.lastAppliedIndex = logEntry.getIndex();
@@ -2119,7 +2110,7 @@ public class RaftKVDatabase implements KVDatabase {
                     this.error("failed to delete log file " + logEntry.getFile());
 
                 // Subclass hook
-                this.logEntryApplied(prevLastAppliedTerm, logEntry);
+                this.logEntryApplied(logEntry);
             }
         }
 
@@ -2133,10 +2124,9 @@ public class RaftKVDatabase implements KVDatabase {
         /**
          * Subclass hook invoked after a log entry has been applied to the state machine.
          *
-         * @param prevLastAppliedTerm the term of the log entry prior to {@code logEntry}
          * @param logEntry the log entry just applied
          */
-        protected void logEntryApplied(long prevLastAppliedTerm, LogEntry logEntry) {
+        protected void logEntryApplied(LogEntry logEntry) {
         }
 
     // Transaction service classes
@@ -2254,11 +2244,7 @@ public class RaftKVDatabase implements KVDatabase {
                 throw new RetryTransactionException(tx, "committed log entry was missed");
             }
 
-            // Has the transaction's log entry been received yet?
-            if (commitIndex > this.raft.getLastLogIndex())
-                return;
-
-            // Has the transaction's log entry been committed yet?
+            // Has the transaction's log entry been received and committed yet?
             if (commitIndex > this.raft.commitIndex)
                 return;
 
@@ -2400,22 +2386,14 @@ public class RaftKVDatabase implements KVDatabase {
         // Our leadership "lease" timeout - i.e., the earliest time another leader could possibly be elected
         private Timestamp leaseTimeout = new Timestamp();
 
-        // Log entries that we have already applied but are keeping around in case there are any long running transactions
-        // out there that are using one of these log entries as their basis.
-        private final ArrayList<LogEntry> appliedLogEntries = new ArrayList<>();
-        private long appliedLogEntryPrevTerm;                               // term of the log entry just before appliedLogEntries
+        // Unapplied log entry memory usage
+        private long totalLogEntryMemoryUsed;
 
         // Service tasks
         private final Service updateLeaderCommitIndexService = new Service(this, "update leader commitIndex") {
             @Override
             public void run() {
                 LeaderRole.this.updateLeaderCommitIndex();
-            }
-        };
-        private final Service pruneAppliedLogEntriesService = new Service(this, "prune applied logs") {
-            @Override
-            public void run() {
-                LeaderRole.this.pruneAppliedLogEntries();
             }
         };
         private final Service updateLeaseTimeoutService = new Service(this, "update lease timeout") {
@@ -2447,6 +2425,10 @@ public class RaftKVDatabase implements KVDatabase {
             // Generate follower list
             this.updateKnownFollowers();
 
+            // Initialize log memory usage
+            for (LogEntry logEntry : this.raft.raftLog)
+                this.totalLogEntryMemoryUsed += logEntry.getFileSize();
+
             // Append a "dummy" log entry with my current term. This allows us to advance the commit index when the last
             // entry in our log is from a prior term. This is needed to avoid the problem where a transaction could end up
             // waiting indefinitely for its log entry with a prior term number to be committed.
@@ -2459,9 +2441,6 @@ public class RaftKVDatabase implements KVDatabase {
             }
             if (this.log.isDebugEnabled())
                 this.debug("added log entry " + logEntry + " to commit at the beginning of my new term");
-
-            // Initialize applied log entries previous term
-            this.appliedLogEntryPrevTerm = this.raft.lastAppliedTerm;
         }
 
         @Override
@@ -2487,26 +2466,31 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        protected void logEntryApplied(long prevLastAppliedTerm, LogEntry logEntry) {
-
-            // Save log entry in the applied log entry list
-            this.appliedLogEntries.add(logEntry);
-
-            // Prune applied log entries
-            this.raft.requestService(this.pruneAppliedLogEntriesService);
+        protected void logEntryApplied(LogEntry logEntry) {
+            this.totalLogEntryMemoryUsed -= logEntry.getFileSize();
         }
 
         @Override
         protected boolean mayApplyLogEntry(LogEntry logEntry) {
 
-            // Are we running out of memory? If so, go ahead.
-            final long memoryUsed = this.pruneAppliedLogEntries();
-            if (memoryUsed > this.raft.maxAppliedLogMemory) {
+            // Are we running out of memory, or keeping around too many log entries? If so, go ahead.
+            if (this.totalLogEntryMemoryUsed > this.raft.maxAppliedLogMemory
+              || this.raft.raftLog.size() > MAX_UNAPPLIED_LOG_ENTRIES) {
                 if (this.log.isTraceEnabled()) {
-                    this.trace("allowing log entry " + logEntry + " to be applied because memory usage is high: "
-                      + memoryUsed + " > " + this.raft.maxAppliedLogMemory);
+                    this.trace("allowing log entry " + logEntry + " to be applied because memory usage "
+                      + this.totalLogEntryMemoryUsed + " > " + this.raft.maxAppliedLogMemory + " and/or log length "
+                      + this.raft.raftLog.size() + " > " + MAX_UNAPPLIED_LOG_ENTRIES);
                 }
                 return true;
+            }
+
+            // Try to keep log entries around for a minimum amount of time to facilitate long-running transactions
+            if (logEntry.getAge() < this.raft.maxTransactionDuration) {
+                if (this.log.isTraceEnabled()) {
+                    this.trace("delaying application of " + logEntry + " because it has age "
+                      + logEntry.getAge() + "ms < " + this.raft.maxTransactionDuration + "ms");
+                }
+                return false;
             }
 
             // If any snapshots are in progress, we don't want to apply any log entries with index greater than the snapshot's
@@ -2514,8 +2498,9 @@ public class RaftKVDatabase implements KVDatabase {
             // to send a snapshot again. However, we impose a limit on how long we'll wait for a slow follower.
             for (Follower follower : this.followerMap.values()) {
                 final SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
-                if (snapshotTransmit != null
-                  && snapshotTransmit.getSnapshotIndex() < logEntry.getIndex()              // currently, this will always be true
+                if (snapshotTransmit == null)
+                    continue;
+                if (snapshotTransmit.getSnapshotIndex() < logEntry.getIndex()
                   && snapshotTransmit.getAge() < MAX_SNAPSHOT_TRANSMIT_AGE) {
                     if (this.log.isTraceEnabled()) {
                         this.trace("delaying application of " + logEntry + " because of in-progress snapshot install of "
@@ -2542,44 +2527,6 @@ public class RaftKVDatabase implements KVDatabase {
 
             // OK
             return true;
-        }
-
-        /**
-         * Check memory usage for both unapplied and applied log entries, and discard already-applied log entries as appropriate
-         * to stay under the memory limits.
-         *
-         * <p>
-         * This should be invoked:
-         * <ul>
-         *  <li>After a log entry has been added to the log</li>
-         *  <li>After a log entry has been applied to the state machine</li>
-         * </ul>
-         *
-         * @return total applied log entry memory used (approximate)
-         */
-        private long pruneAppliedLogEntries() {
-
-            // Calculate total memory usage
-            long totalLogEntryMemoryUsed = 0;
-            for (LogEntry logEntry : Iterables.concat(this.appliedLogEntries, this.raft.raftLog))
-                totalLogEntryMemoryUsed += logEntry.getFileSize();
-
-            // Delete applied log entries to stay under limits
-            long numAppliedLogEntries = this.appliedLogEntries.size();
-            for (Iterator<LogEntry> i = this.appliedLogEntries.iterator(); i.hasNext(); ) {
-                final LogEntry logEntry = i.next();
-                if (logEntry.getAge() >= this.raft.maxTransactionDuration
-                  || totalLogEntryMemoryUsed > this.raft.maxAppliedLogMemory
-                  || numAppliedLogEntries > MAX_APPLIED_LOG_ENTRIES) {
-                    i.remove();
-                    this.appliedLogEntryPrevTerm = logEntry.getTerm();
-                    totalLogEntryMemoryUsed -= logEntry.getFileSize();
-                    numAppliedLogEntries--;
-                }
-            }
-
-            // Done
-            return totalLogEntryMemoryUsed;
         }
 
         /**
@@ -2631,8 +2578,8 @@ public class RaftKVDatabase implements KVDatabase {
                 this.raft.requestService(this.checkWaitingTransactionsService);
                 this.raft.requestService(this.applyCommittedLogEntriesService);
 
-                // Notify all followers with the updated leaderCommit
-                this.updateAllFollowersNow();
+                // Notify all (up-to-date) followers with the updated leaderCommit
+                this.updateAllSynchronizedFollowersNow();
             }
 
             // If we are no longer a member of our cluster, step down as leader after the latest config change is committed
@@ -2922,9 +2869,11 @@ public class RaftKVDatabase implements KVDatabase {
                 follower.setLeaderCommit(msg.getLeaderCommit());
         }
 
-        private void updateAllFollowersNow() {
-            for (Follower follower : this.followerMap.values())
-                follower.updateNow();
+        private void updateAllSynchronizedFollowersNow() {
+            for (Follower follower : this.followerMap.values()) {
+                if (follower.isSynced())
+                    follower.updateNow();
+            }
         }
 
         private class UpdateFollowerService extends Service {
@@ -3070,7 +3019,7 @@ public class RaftKVDatabase implements KVDatabase {
                 follower.setMatchIndex(msg.getMatchIndex());
                 this.raft.requestService(this.updateLeaderCommitIndexService);
                 this.raft.requestService(this.applyCommittedLogEntriesService);
-                if (!this.raft.currentConfig.containsKey(follower.getIdentity()))
+                if (!this.raft.isClusterMember(follower.getIdentity()))
                     this.raft.requestService(this.updateKnownFollowersService);
             }
 
@@ -3144,13 +3093,14 @@ public class RaftKVDatabase implements KVDatabase {
                 // Get current time
                 final Timestamp minimumLeaseTimeout = new Timestamp();
 
-                // If no other leader could have been elected yet, the transaction may be committed immediately
+                // The follower may commit as soon as it sees the transaction's BASE log entry get committed.
+                // Note, we don't need to wait for any subsequent log entries to be committed, because if they
+                // are committed they are invisible to the transaction, and if they aren't ever committed then
+                // whatever log entries replace them will necessarily have been created sometime after now.
                 final CommitResponse response;
                 if (this.leaseTimeout.compareTo(minimumLeaseTimeout) > 0) {
 
-                    // Follower may commit as soon as it sees that the transaction's base log entry has been committed.
-                    // Note, we don't need to wait for subsequent log entries to be committed, because even if they
-                    // never are, whatever log entries replace them will necessarily get created sometime after now.
+                    // No other leader could have been elected yet as of right now, so the transaction can commit immediately
                     response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
                       this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex());
                 } else {
@@ -3158,17 +3108,21 @@ public class RaftKVDatabase implements KVDatabase {
                     // Remember that this follower is now going to be waiting for this particular leaseTimeout
                     follower.getCommitLeaseTimeouts().add(minimumLeaseTimeout);
 
-                    // Send immediate probes to all followers in an attempt to increase our leaseTimeout
-                    this.updateAllFollowersNow();
+                    // Send immediate probes to all (up-to-date) followers in an attempt to increase our leaseTimeout quickly
+                    this.updateAllSynchronizedFollowersNow();
 
                     // Build response
-                    response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(), this.raft.currentTerm,
-                      msg.getTxId(), this.raft.getLastLogTerm(), this.raft.getLastLogIndex(), minimumLeaseTimeout);
+                    response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
+                      this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex(), minimumLeaseTimeout);
                 }
 
                 // Send response
                 this.raft.sendMessage(response);
             } else {
+
+                // If the client is requesting a config change, we could check for an outstanding config change now and if so
+                // delay our response until it completes, but that's not worth the trouble. Instead, applyNewLogEntry() will
+                // throw an exception and the client will just just have to retry the transaction.
 
                 // Commit mutations as a new log entry
                 final LogEntry logEntry;
@@ -3188,7 +3142,7 @@ public class RaftKVDatabase implements KVDatabase {
 
                 // Send response
                 this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getTxId(), this.raft.getLastLogTerm(), this.raft.getLastLogIndex()));
+                  this.raft.currentTerm, msg.getTxId(), logEntry.getTerm(), logEntry.getIndex()));
             }
         }
 
@@ -3234,7 +3188,6 @@ public class RaftKVDatabase implements KVDatabase {
         @Override
         public String toString() {
             return this.toStringPrefix()
-              + ",appliedLogEntries=" + this.appliedLogEntries
               + ",followerMap=" + this.followerMap
               + "]";
         }
@@ -3251,11 +3204,6 @@ public class RaftKVDatabase implements KVDatabase {
                 assert follower.getLeaderCommit() <= this.raft.commitIndex;
                 assert follower.getUpdateTimer().isRunning() || follower.getSnapshotTransmit() != null;
             }
-            long index = this.raft.lastAppliedIndex - this.appliedLogEntries.size() + 1;
-            for (LogEntry logEntry : Iterables.concat(this.appliedLogEntries, this.raft.raftLog))
-                assert logEntry.getIndex() == index++;
-            if (this.appliedLogEntries.isEmpty())
-                assert this.appliedLogEntryPrevTerm == this.raft.lastAppliedTerm;
             return true;
         }
 
@@ -3313,15 +3261,15 @@ public class RaftKVDatabase implements KVDatabase {
             if (configChange != null)
                 this.raft.requestService(this.updateKnownFollowersService);
 
-            // Prune applied log entries (check memory limit)
-            this.raft.requestService(this.pruneAppliedLogEntriesService);
+            // Update memory usage
+            this.totalLogEntryMemoryUsed += logEntry.getFileSize();
 
             // Update commit index (this is only needed if config has changed, or in the single node case)
             if (configChange != null || this.followerMap.isEmpty())
                 this.raft.requestService(this.updateLeaderCommitIndexService);
 
             // Immediately update all up-to-date followers
-            this.updateAllFollowersNow();
+            this.updateAllSynchronizedFollowersNow();
 
             // Done
             return logEntry;
@@ -3340,24 +3288,23 @@ public class RaftKVDatabase implements KVDatabase {
         public String checkConflicts(long baseTerm, long baseIndex, Reads reads) {
 
             // Validate the index of the log entry on which the transaction is based
-            final long minIndex = this.raft.lastAppliedIndex - this.appliedLogEntries.size();
+            final long minIndex = this.raft.lastAppliedIndex;
             final long maxIndex = this.raft.getLastLogIndex();
             if (baseIndex < minIndex)
-                return "transaction is too old: snapshot index " + baseIndex + " < earliest saved index " + minIndex;
+                return "transaction is too old: snapshot index " + baseIndex + " < last applied log index " + minIndex;
             if (baseIndex > maxIndex)
                 return "transaction is too new: snapshot index " + baseIndex + " > most recent log index " + maxIndex;
 
-            // Validate the term of the log entry on which the transaction is based; look back into appliedLogEntries if needed
-            final long actualBaseTerm = baseIndex > minIndex ?
-              this.getLogEntryAtIndex(baseIndex).getTerm() : this.appliedLogEntryPrevTerm;
-            if (actualBaseTerm != baseTerm) {
+            // Validate the term of the log entry on which the transaction is based
+            final long actualBaseTerm = this.raft.getLogTermAtIndex(baseIndex);
+            if (baseTerm != actualBaseTerm) {
                 return "transaction is based on an overwritten log entry with index "
                   + baseIndex + " and term " + baseTerm + " != " + actualBaseTerm;
             }
 
             // Check for conflicts from intervening commits
             for (long index = baseIndex + 1; index <= maxIndex; index++) {
-                final LogEntry logEntry = this.getLogEntryAtIndex(index);
+                final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);
                 if (reads.isConflict(logEntry.getWrites())) {
                     return "writes of committed transaction at index " + index
                       + " conflict with transaction reads from transaction base index " + baseIndex;
@@ -3366,15 +3313,6 @@ public class RaftKVDatabase implements KVDatabase {
 
             // No conflict
             return null;
-        }
-
-        // Get the log entry at the specified index, looking back into our saved 'appliedLogEntries' list as necessary
-        private LogEntry getLogEntryAtIndex(long index) {
-            assert index >= this.raft.lastAppliedIndex - this.appliedLogEntries.size() + 1;
-            assert index <= this.raft.getLastLogIndex();
-            return index > this.raft.lastAppliedIndex ?
-              this.raft.getLogEntryAtIndex(index) :
-              this.appliedLogEntries.get((int)(index - this.raft.lastAppliedIndex + this.appliedLogEntries.size() - 1));
         }
 
         private Follower findFollower(Message msg) {
