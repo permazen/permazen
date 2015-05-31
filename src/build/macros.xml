@@ -968,6 +968,7 @@
                             <excludes/>
                         </packageset>
                         <links/>
+                        <arg value="-notimestamp"/>
                     </javadoc>
                 </sequential>
             </antcontrib:outofdate>
