@@ -615,7 +615,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.info("recovered Raft state:"
               + "\n  clusterId=" + (this.clusterId != 0 ? String.format("0x%08x", this.clusterId) : "none")
               + "\n  currentTerm=" + this.currentTerm
-              + "\n  lastApplied=" + this.lastAppliedTerm + "/" + this.lastAppliedIndex
+              + "\n  lastApplied=" + this.lastAppliedIndex + "t" + this.lastAppliedTerm
               + "\n  lastAppliedConfig=" + this.lastAppliedConfig
               + "\n  currentConfig=" + this.currentConfig
               + "\n  votedFor=" + (votedFor != null ? "\"" + votedFor + "\"" : "nobody")
@@ -1402,7 +1402,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Sanity check
         assert Thread.holdsLock(this);
         if (this.log.isTraceEnabled())
-            this.trace("updating state machine last applied to " + term + "/" + index + " with config " + config);
+            this.trace("updating state machine last applied to " + index + "t" + term + " with config " + config);
         if (config == null)
             config = new HashMap<String, String>(0);
 
@@ -1416,7 +1416,7 @@ public class RaftKVDatabase implements KVDatabase {
         try {
             this.kv.mutate(writes, true);
         } catch (Exception e) {
-            this.error("error updating key/value store term/index to " + term + "/" + index, e);
+            this.error("error updating key/value store term/index to " + index + "t" + term, e);
             return false;
         }
 
@@ -1673,7 +1673,7 @@ public class RaftKVDatabase implements KVDatabase {
           + ",logDir=" + this.logDir
           + ",term=" + this.currentTerm
           + ",commitIndex=" + this.commitIndex
-          + ",lastApplied=" + this.lastAppliedTerm + "/" + this.lastAppliedIndex
+          + ",lastApplied=" + this.lastAppliedIndex + "t" + this.lastAppliedTerm
           + ",raftLog=" + this.raftLog
           + ",role=" + this.role
           + (this.shuttingDown ? ",shuttingDown" : "")
@@ -2343,7 +2343,7 @@ public class RaftKVDatabase implements KVDatabase {
         protected String toStringPrefix() {
             return this.getClass().getSimpleName()
               + "[term=" + this.raft.currentTerm
-              + ",applied=" + this.raft.lastAppliedTerm + "/" + this.raft.lastAppliedIndex
+              + ",applied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm
               + ",commit=" + this.raft.commitIndex
               + ",log=" + this.raft.raftLog
               + "]";
@@ -2467,7 +2467,7 @@ public class RaftKVDatabase implements KVDatabase {
                   && snapshotTransmit.getAge() < MAX_SNAPSHOT_TRANSMIT_AGE) {
                     if (this.log.isTraceEnabled()) {
                         this.trace("delaying application of " + logEntry + " because of in-progress snapshot install of "
-                          + snapshotTransmit.getSnapshotTerm() + "/" + snapshotTransmit.getSnapshotIndex()
+                          + snapshotTransmit.getSnapshotIndex() + "t" + snapshotTransmit.getSnapshotTerm()
                           + " to " + follower);
                     }
                     return false;
@@ -2932,7 +2932,7 @@ public class RaftKVDatabase implements KVDatabase {
                 tx.setCommitTerm(this.raft.getLastLogTerm());
                 tx.setCommitIndex(this.raft.getLastLogIndex());
                 if (this.log.isDebugEnabled()) {
-                    this.debug("commit is " + tx.getCommitTerm() + "/" + tx.getCommitIndex()
+                    this.debug("commit is " + tx.getCommitIndex() + "t" + tx.getCommitTerm()
                       + " for local read-only transaction " + tx);
                 }
 
@@ -3808,7 +3808,7 @@ public class RaftKVDatabase implements KVDatabase {
                             } catch (NoSuchElementException e) {
                                 if (this.log.isDebugEnabled()) {
                                     this.debug("rec'd " + msg + " but no read-write transaction matching commit "
-                                      + logTerm + "/" + logIndex + " found; rejecting");
+                                      + logIndex + "t" + logTerm + " found; rejecting");
                                 }
                                 break;
                             }
@@ -3838,7 +3838,7 @@ public class RaftKVDatabase implements KVDatabase {
 
                             // Debug
                             if (this.log.isDebugEnabled()) {
-                                this.debug("now waiting for commit of " + tx.getCommitTerm() + "/" + tx.getCommitIndex()
+                                this.debug("now waiting for commit of " + tx.getCommitIndex() + "t" + tx.getCommitTerm()
                                   + " to commit " + tx);
                             }
                         } else {
@@ -3882,7 +3882,7 @@ public class RaftKVDatabase implements KVDatabase {
                   + "term=" + this.raft.currentTerm
                   + " commitIndex=" + this.raft.commitIndex
                   + " leaderLeaseTimeout=" + this.leaderLeaseTimeout
-                  + " lastApplied=" + this.raft.lastAppliedTerm + "/" + this.raft.lastAppliedIndex
+                  + " lastApplied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm
                   + " log=" + this.raft.raftLog);
             }
 
@@ -3978,7 +3978,7 @@ public class RaftKVDatabase implements KVDatabase {
                 this.snapshotReceive = new SnapshotReceive(
                   PrefixKVStore.create(this.raft.kv, STATE_MACHINE_PREFIX), term, index, msg.getSnapshotConfig());
                 this.info("starting new snapshot install from \"" + msg.getSenderId() + "\" of "
-                  + term + "/" + index + " with config " + msg.getSnapshotConfig());
+                  + index + "t" + term + " with config " + msg.getSnapshotConfig());
             }
             assert this.snapshotReceive.matches(msg);
 
@@ -3999,7 +3999,7 @@ public class RaftKVDatabase implements KVDatabase {
             // If that was the last chunk, finalize persistent state
             if (msg.isLastChunk()) {
                 final Map<String, String> snapshotConfig = this.snapshotReceive.getSnapshotConfig();
-                this.info("snapshot install from \"" + msg.getSenderId() + "\" of " + term + "/" + index
+                this.info("snapshot install from \"" + msg.getSenderId() + "\" of " + index + "t" + term
                   + " with config " + snapshotConfig + " complete");
                 this.snapshotReceive = null;
                 if (!this.raft.recordLastApplied(term, index, snapshotConfig))
@@ -4021,8 +4021,8 @@ public class RaftKVDatabase implements KVDatabase {
             // Verify that we are allowed to vote for this peer
             if (msg.getLastLogTerm() < this.raft.getLastLogTerm()
               || (msg.getLastLogTerm() == this.raft.getLastLogTerm() && msg.getLastLogIndex() < this.raft.getLastLogIndex())) {
-                this.info("rec'd " + msg + "; rejected because their log " + msg.getLastLogTerm() + "/"
-                  + msg.getLastLogIndex() + " loses to ours " + this.raft.getLastLogTerm() + "/" + this.raft.getLastLogIndex());
+                this.info("rec'd " + msg + "; rejected because their log " + msg.getLastLogIndex() + "t"
+                  + msg.getLastLogTerm() + " loses to ours " + this.raft.getLastLogIndex() + "t" + this.raft.getLastLogTerm());
                 return;
             }
 

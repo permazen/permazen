@@ -278,9 +278,9 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         return this.getClass().getSimpleName()
           + "[txId=" + this.txId
           + ",state=" + this.state
-          + ",base=" + this.baseTerm + "/" + this.baseIndex
+          + ",base=" + this.baseIndex + "t" + this.baseTerm
           + (this.configChange != null ? ",configChange=" + Arrays.<String>asList(this.configChange) : "")
-          + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitTerm + "/" + this.commitIndex : "")
+          + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")
           + (this.timeout != 0 ? ",timeout=" + this.timeout : "")
           + "]";
     }

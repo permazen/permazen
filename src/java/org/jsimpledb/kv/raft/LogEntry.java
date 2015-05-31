@@ -258,7 +258,7 @@ class LogEntry {
 
     @Override
     public String toString() {
-        return this.getTerm() + "/" + this.getIndex()
+        return this.getIndex() + "t" + this.getTerm()
         + (this.configChange != null ?
             (this.configChange[1] != null ?
               "+" + this.configChange[0] + "@" + this.configChange[1] :

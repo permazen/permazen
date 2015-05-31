@@ -154,7 +154,7 @@ public class CommitRequest extends Message {
           + ",clusterId=" + String.format("%08x", this.getClusterId())
           + ",term=" + this.getTerm()
           + ",txId=" + this.txId
-          + ",base=" + this.baseTerm + "/" + this.baseIndex
+          + ",base=" + this.baseIndex + "t" + this.baseTerm
           + ",readsData=" + this.describe(this.readsData)
           + (this.mutationData != null ?
             ",mutationData=" + this.describe(this.mutationData) : this.mutationDataInvalid ? ",mutationData=invalid" : "")

@@ -222,7 +222,7 @@ public class CommitResponse extends Message {
           + ",term=" + this.getTerm()
           + ",txId=" + this.txId
           + (success ?
-            ",commit=" + this.commitTerm + "/" + this.commitIndex
+            ",commit=" + this.commitIndex + "t" + this.commitTerm
              + (this.commitLeaderLeaseTimeout != null ? "@" + this.commitLeaderLeaseTimeout : "") :
             ",error=\"" + this.errorMessage + "\"")
           + "]";

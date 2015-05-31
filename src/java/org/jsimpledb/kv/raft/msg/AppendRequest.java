@@ -207,7 +207,7 @@ public class AppendRequest extends Message {
           + ",leaderTimestamp=" + this.leaderTimestamp
           + ",leaderLeaseTimeout=" + String.format("%+dms", this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp))
           + ",leaderCommit=" + this.leaderCommit
-          + ",prevLog=" + this.prevLogTerm + "/" + this.prevLogIndex
+          + ",prevLog=" + this.prevLogIndex + "t" + this.prevLogTerm
           + (this.logEntryTerm != 0 ? ",logEntryTerm=" + this.logEntryTerm : "")
           + (this.mutationData != null ?
             ",mutationData=" + this.describe(this.mutationData) : this.mutationDataInvalid ? ",mutationData=invalid" : "")
