@@ -901,7 +901,7 @@ public class RaftKVDatabase implements KVDatabase {
      * {@link RaftKVTransaction#configChange RaftKVTransaction.configChange()}.
      *
      * <p>
-     * If this system is unconfigured, an emtyp map is returned (and vice-versa).
+     * If this system is unconfigured, an empty map is returned (and vice-versa).
      *
      * @return current configuration mapping from node identity to network address, or empty if this node is unconfigured
      */
