@@ -113,7 +113,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * &lt;/p&gt;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;47</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;185905</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">public</span> <span class="keyword">class</span> LockManager {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;48</td>  <td class="nbHitsCovered">&nbsp;175414</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">public</span> <span class="keyword">class</span> LockManager {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;49</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;50</td>  <td class="nbHits">&nbsp;</td>
@@ -292,28 +292,28 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> LockResult lock(LockOwner owner, <span class="keyword">byte</span>[] minKey, <span class="keyword">byte</span>[] maxKey, <span class="keyword">boolean</span> write, <span class="keyword">long</span> waitTimeout)</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;146</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;      <span class="keyword">throws</span> InterruptedException {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;147</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">synchronized</span> (<span class="keyword">this</span>.lockObject) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;147</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">synchronized</span> (<span class="keyword">this</span>.lockObject) {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;148</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;149</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;150</td>  <td class="nbHitsUncovered"><a title="Line 150: Conditional coverage 50% (1/2).">&nbsp;185898</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 150: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (owner == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;150</td>  <td class="nbHitsUncovered"><a title="Line 150: Conditional coverage 50% (1/2).">&nbsp;175407</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 150: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (owner == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;151</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"null owner"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;152</td>  <td class="nbHitsUncovered"><a title="Line 152: Conditional coverage 50% (1/2).">&nbsp;185898</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 152: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (waitTimeout &lt; 0)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;152</td>  <td class="nbHitsUncovered"><a title="Line 152: Conditional coverage 50% (1/2).">&nbsp;175407</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 152: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (waitTimeout &lt; 0)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;153</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"waitTimeout &lt; 0"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;154</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;            waitTimeout = Math.min(waitTimeout, TEN_YEARS_MILLIS);                  <span class="comment">// limit to 10 years to avoid overflow</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;154</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;            waitTimeout = Math.min(waitTimeout, TEN_YEARS_MILLIS);                  <span class="comment">// limit to 10 years to avoid overflow</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;155</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;156</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Check hold timeout</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;157</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">long</span> lockerRemaining = <span class="keyword">this</span>.checkHoldTimeout(owner);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;158</td>  <td class="nbHitsUncovered"><a title="Line 158: Conditional coverage 50% (1/2).">&nbsp;185898</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 158: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (lockerRemaining == -1)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;157</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">long</span> lockerRemaining = <span class="keyword">this</span>.checkHoldTimeout(owner);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;158</td>  <td class="nbHitsUncovered"><a title="Line 158: Conditional coverage 50% (1/2).">&nbsp;175407</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 158: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (lockerRemaining == -1)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;159</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">return</span> LockResult.HOLD_TIMEOUT_EXPIRED;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;160</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;161</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Create lock</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;162</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;            Lock lock = <span class="keyword">new</span> Lock(owner, minKey, maxKey, write);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;162</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;            Lock lock = <span class="keyword">new</span> Lock(owner, minKey, maxKey, write);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;163</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;164</td>  <td class="nbHits">&nbsp;</td>
@@ -324,8 +324,8 @@
   <td class="src"><pre class="src">&nbsp;            <span class="comment">//  - Locker's hold timeout</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;167</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">//  - Lock owner's hold timeout</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;168</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> LockChecker lockChecker = <span class="keyword">new</span> LockChecker(lock);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;169</td>  <td class="nbHitsCovered"><a title="Line 169: Conditional coverage 100% (2/2).">&nbsp;185898</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 169: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!lockChecker.test()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;168</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> LockChecker lockChecker = <span class="keyword">new</span> LockChecker(lock);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;169</td>  <td class="nbHitsCovered"><a title="Line 169: Conditional coverage 100% (2/2).">&nbsp;175407</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 169: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!lockChecker.test()) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;170</td>  <td class="nbHitsCovered">&nbsp;3</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">long</span> timeToWait = Math.min(waitTimeout, lockChecker.getTimeRemaining());</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;171</td>  <td class="nbHitsUncovered"><a title="Line 171: Conditional coverage 50% (1/2).">&nbsp;3</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 171: Conditional coverage 50% (1/2).">                <span class="keyword">if</span> (lockerRemaining != 0)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;172</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                    timeToWait = Math.min(timeToWait, lockerRemaining);</span></pre></td></tr>
@@ -337,43 +337,43 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;177</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Check hold timeout again</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;178</td>  <td class="nbHitsUncovered"><a title="Line 178: Conditional coverage 50% (1/2).">&nbsp;185897</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 178: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (<span class="keyword">this</span>.checkHoldTimeout(owner) == -1)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;178</td>  <td class="nbHitsUncovered"><a title="Line 178: Conditional coverage 50% (1/2).">&nbsp;175406</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 178: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (<span class="keyword">this</span>.checkHoldTimeout(owner) == -1)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;179</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">return</span> LockResult.HOLD_TIMEOUT_EXPIRED;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;180</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;181</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Merge the lock with other locks it can merge with, removing those locks in the process</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;182</td>  <td class="nbHitsCovered"><a title="Line 182: Conditional coverage 100% (2/2).">&nbsp;185897</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 182: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Lock that : lockChecker.getMergers()) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;183</td>  <td class="nbHitsCovered">&nbsp;183722</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Lock mergedLock = lock.mergeWith(that);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;184</td>  <td class="nbHitsCovered"><a title="Line 184: Conditional coverage 100% (2/2).">&nbsp;183722</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 184: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (mergedLock != <span class="keyword">null</span>) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;185</td>  <td class="nbHitsCovered">&nbsp;182535</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">this</span>.locksByMin.remove(that);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;186</td>  <td class="nbHitsCovered">&nbsp;182535</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">this</span>.locksByMax.remove(that);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;187</td>  <td class="nbHitsCovered">&nbsp;182535</td>  <td class="src"><pre class="src">&nbsp;                    owner.locks.remove(that);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;188</td>  <td class="nbHitsCovered">&nbsp;182535</td>  <td class="src"><pre class="src">&nbsp;                    lock = mergedLock;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;182</td>  <td class="nbHitsCovered"><a title="Line 182: Conditional coverage 100% (2/2).">&nbsp;175406</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 182: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Lock that : lockChecker.getMergers()) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;183</td>  <td class="nbHitsCovered">&nbsp;173227</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Lock mergedLock = lock.mergeWith(that);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;184</td>  <td class="nbHitsCovered"><a title="Line 184: Conditional coverage 100% (2/2).">&nbsp;173227</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 184: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (mergedLock != <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;185</td>  <td class="nbHitsCovered">&nbsp;172040</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">this</span>.locksByMin.remove(that);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;186</td>  <td class="nbHitsCovered">&nbsp;172040</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">this</span>.locksByMax.remove(that);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;187</td>  <td class="nbHitsCovered">&nbsp;172040</td>  <td class="src"><pre class="src">&nbsp;                    owner.locks.remove(that);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;188</td>  <td class="nbHitsCovered">&nbsp;172040</td>  <td class="src"><pre class="src">&nbsp;                    lock = mergedLock;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;189</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;190</td>  <td class="nbHitsCovered">&nbsp;183722</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;190</td>  <td class="nbHitsCovered">&nbsp;173227</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;191</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;192</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Add lock</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;193</td>  <td class="nbHitsCovered">&nbsp;185897</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.locksByMin.add(lock);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;194</td>  <td class="nbHitsCovered">&nbsp;185897</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.locksByMax.add(lock);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;195</td>  <td class="nbHitsCovered">&nbsp;185897</td>  <td class="src"><pre class="src">&nbsp;            owner.locks.add(lock);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;193</td>  <td class="nbHitsCovered">&nbsp;175406</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.locksByMin.add(lock);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;194</td>  <td class="nbHitsCovered">&nbsp;175406</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.locksByMax.add(lock);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;195</td>  <td class="nbHitsCovered">&nbsp;175406</td>  <td class="src"><pre class="src">&nbsp;            owner.locks.add(lock);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;196</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;197</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Set hold timeout (if not already set)</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;198</td>  <td class="nbHitsCovered"><a title="Line 198: Conditional coverage 100% (2/2).">&nbsp;185897</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 198: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!<span class="keyword">this</span>.lockTimes.containsKey(owner)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;198</td>  <td class="nbHitsCovered"><a title="Line 198: Conditional coverage 100% (2/2).">&nbsp;175406</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 198: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!<span class="keyword">this</span>.lockTimes.containsKey(owner)) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;199</td>  <td class="nbHitsCovered">&nbsp;137</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> <span class="keyword">long</span> currentTime = System.nanoTime() - <span class="keyword">this</span>.nanoBasis;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;200</td>  <td class="nbHitsCovered">&nbsp;137</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.lockTimes.put(owner, currentTime);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;201</td>  <td class="nbHitsCovered">&nbsp;137</td>  <td class="src"><pre class="src">&nbsp;            } <span class="keyword">else</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;202</td>  <td class="nbHitsUncovered"><a title="Line 202: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;185760</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 202: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">                <span class="keyword">assert</span> <span class="keyword">this</span>.lockTimes.get(owner) != <span class="keyword">null</span>;</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;202</td>  <td class="nbHitsUncovered"><a title="Line 202: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;175269</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 202: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">                <span class="keyword">assert</span> <span class="keyword">this</span>.lockTimes.get(owner) != <span class="keyword">null</span>;</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;203</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;204</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Done</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;205</td>  <td class="nbHitsCovered">&nbsp;185897</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> LockResult.SUCCESS;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;205</td>  <td class="nbHitsCovered">&nbsp;175406</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> LockResult.SUCCESS;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;206</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        }</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;207</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
@@ -475,24 +475,24 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;261</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">long</span> checkHoldTimeout(LockOwner owner) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;262</td>  <td class="nbHitsCovered">&nbsp;640792</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">synchronized</span> (<span class="keyword">this</span>.lockObject) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;263</td>  <td class="nbHitsUncovered"><a title="Line 263: Conditional coverage 50% (1/2).">&nbsp;640792</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 263: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (<span class="keyword">this</span>.holdTimeout == 0)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;262</td>  <td class="nbHitsCovered">&nbsp;601046</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">synchronized</span> (<span class="keyword">this</span>.lockObject) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;263</td>  <td class="nbHitsUncovered"><a title="Line 263: Conditional coverage 50% (1/2).">&nbsp;601046</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 263: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (<span class="keyword">this</span>.holdTimeout == 0)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;264</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">return</span> 0;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;265</td>  <td class="nbHitsCovered"><a title="Line 265: Conditional coverage 100% (2/2).">&nbsp;640792</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 265: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!<span class="keyword">this</span>.lockTimes.containsKey(owner))</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;265</td>  <td class="nbHitsCovered"><a title="Line 265: Conditional coverage 100% (2/2).">&nbsp;601046</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 265: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (!<span class="keyword">this</span>.lockTimes.containsKey(owner))</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;266</td>  <td class="nbHitsCovered">&nbsp;413</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> 0;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;267</td>  <td class="nbHitsCovered">&nbsp;640379</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Long lockTime = <span class="keyword">this</span>.lockTimes.get(owner);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;268</td>  <td class="nbHitsUncovered"><a title="Line 268: Conditional coverage 50% (1/2).">&nbsp;640379</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 268: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (lockTime == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;267</td>  <td class="nbHitsCovered">&nbsp;600633</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Long lockTime = <span class="keyword">this</span>.lockTimes.get(owner);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;268</td>  <td class="nbHitsUncovered"><a title="Line 268: Conditional coverage 50% (1/2).">&nbsp;600633</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 268: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (lockTime == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;269</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">return</span> -1;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;270</td>  <td class="nbHitsCovered">&nbsp;640379</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">long</span> currentTime = System.nanoTime() - <span class="keyword">this</span>.nanoBasis;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;271</td>  <td class="nbHitsCovered">&nbsp;640379</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">long</span> holdDeadline = lockTime + <span class="keyword">this</span>.holdTimeout * 1000000L;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;272</td>  <td class="nbHitsCovered">&nbsp;640379</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">long</span> remaining = holdDeadline - currentTime;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;273</td>  <td class="nbHitsCovered"><a title="Line 273: Conditional coverage 100% (2/2).">&nbsp;640379</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 273: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (remaining &lt;= 0) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;270</td>  <td class="nbHitsCovered">&nbsp;600633</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">long</span> currentTime = System.nanoTime() - <span class="keyword">this</span>.nanoBasis;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;271</td>  <td class="nbHitsCovered">&nbsp;600633</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">long</span> holdDeadline = lockTime + <span class="keyword">this</span>.holdTimeout * 1000000L;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;272</td>  <td class="nbHitsCovered">&nbsp;600633</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">long</span> remaining = holdDeadline - currentTime;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;273</td>  <td class="nbHitsCovered"><a title="Line 273: Conditional coverage 100% (2/2).">&nbsp;600633</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 273: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (remaining &lt;= 0) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;274</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.lockTimes.put(owner, <span class="keyword">null</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;275</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.doRelease(owner);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;276</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> -1;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;277</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;278</td>  <td class="nbHitsCovered">&nbsp;640378</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> (remaining + 999999L) / 1000000L;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;278</td>  <td class="nbHitsCovered">&nbsp;600632</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> (remaining + 999999L) / 1000000L;</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;279</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        }</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;280</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
@@ -503,9 +503,9 @@
 <tr>  <td class="numLine">&nbsp;283</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">void</span> doRelease(LockOwner owner) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;284</td>  <td class="nbHitsCovered"><a title="Line 284: Conditional coverage 100% (2/2).">&nbsp;139</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 284: Conditional coverage 100% (2/2).">        <span class="keyword">for</span> (Lock lock : owner.locks) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;285</td>  <td class="nbHitsCovered">&nbsp;3362</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.locksByMin.remove(lock);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;286</td>  <td class="nbHitsCovered">&nbsp;3362</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.locksByMax.remove(lock);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;287</td>  <td class="nbHitsCovered">&nbsp;3362</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;285</td>  <td class="nbHitsCovered">&nbsp;3366</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.locksByMin.remove(lock);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;286</td>  <td class="nbHitsCovered">&nbsp;3366</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.locksByMax.remove(lock);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;287</td>  <td class="nbHitsCovered">&nbsp;3366</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;288</td>  <td class="nbHitsCovered">&nbsp;139</td>  <td class="src"><pre class="src">&nbsp;        owner.locks.clear();</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;289</td>  <td class="nbHitsCovered">&nbsp;139</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.lockObject.notifyAll();</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;290</td>  <td class="nbHitsCovered">&nbsp;139</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
@@ -521,8 +521,8 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;296</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Get lock's min &amp; max</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;297</td>  <td class="nbHitsCovered">&nbsp;185904</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] lockMin = lock.getMin();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;298</td>  <td class="nbHitsCovered">&nbsp;185904</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] lockMax = lock.getMax();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;297</td>  <td class="nbHitsCovered">&nbsp;175413</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] lockMin = lock.getMin();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;298</td>  <td class="nbHitsCovered">&nbsp;175413</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] lockMax = lock.getMax();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;299</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;300</td>  <td class="nbHits">&nbsp;</td>
@@ -533,33 +533,33 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;303</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Get locks whose min is &lt; lockMax</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;304</td>  <td class="nbHitsCovered"><a title="Line 304: Conditional coverage 100% (2/2).">&nbsp;185905</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 304: Conditional coverage 100% (2/2).">            <span class="keyword">final</span> NavigableSet&lt;Lock&gt; lhs = lockMax == <span class="keyword">null</span> ? <span class="keyword">this</span>.locksByMin :</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;304</td>  <td class="nbHitsCovered"><a title="Line 304: Conditional coverage 100% (2/2).">&nbsp;175414</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 304: Conditional coverage 100% (2/2).">            <span class="keyword">final</span> NavigableSet&lt;Lock&gt; lhs = lockMax == <span class="keyword">null</span> ? <span class="keyword">this</span>.locksByMin :</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;305</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;              <span class="keyword">this</span>.locksByMin.headSet(Lock.getMinKey(lockMax, <span class="keyword">false</span>), <span class="keyword">false</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;306</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;307</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Get locks whose max is &gt; lockMin</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;308</td>  <td class="nbHitsUncovered"><a title="Line 308: Conditional coverage 50% (1/2).">&nbsp;185905</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 308: Conditional coverage 50% (1/2).">            <span class="keyword">final</span> NavigableSet&lt;Lock&gt; rhs = lockMin == <span class="keyword">null</span> ? <span class="keyword">this</span>.locksByMax : <span class="keyword">this</span>.locksByMax.tailSet(</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;308</td>  <td class="nbHitsUncovered"><a title="Line 308: Conditional coverage 50% (1/2).">&nbsp;175414</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 308: Conditional coverage 50% (1/2).">            <span class="keyword">final</span> NavigableSet&lt;Lock&gt; rhs = lockMin == <span class="keyword">null</span> ? <span class="keyword">this</span>.locksByMax : <span class="keyword">this</span>.locksByMax.tailSet(</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;309</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;              Lock.getMaxKey(ByteUtil.getNextKey(lockMin), <span class="keyword">false</span>), <span class="keyword">true</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;310</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;311</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Find overlapping locks and check for conflicts</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;312</td>  <td class="nbHitsCovered">&nbsp;185905</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> HashSet&lt;Lock&gt; overlaps = <span class="keyword">new</span> HashSet&lt;&gt;();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;313</td>  <td class="nbHitsCovered"><a title="Line 313: Conditional coverage 100% (2/2).">&nbsp;185905</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 313: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Lock other : lhs) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;312</td>  <td class="nbHitsCovered">&nbsp;175414</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> HashSet&lt;Lock&gt; overlaps = <span class="keyword">new</span> HashSet&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;313</td>  <td class="nbHitsCovered"><a title="Line 313: Conditional coverage 100% (2/2).">&nbsp;175414</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 313: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Lock other : lhs) {</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;314</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;315</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                <span class="comment">// Does this lock overlap?</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;316</td>  <td class="nbHitsCovered"><a title="Line 316: Conditional coverage 100% (2/2).">&nbsp;12348193</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 316: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (!rhs.contains(other))</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;317</td>  <td class="nbHitsCovered">&nbsp;11981942</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">continue</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;316</td>  <td class="nbHitsCovered"><a title="Line 316: Conditional coverage 100% (2/2).">&nbsp;12009493</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 316: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (!rhs.contains(other))</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;317</td>  <td class="nbHitsCovered">&nbsp;11658510</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">continue</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;318</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;319</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                <span class="comment">// Do this lock &amp; other lock conflict?</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;320</td>  <td class="nbHitsCovered"><a title="Line 320: Conditional coverage 100% (2/2).">&nbsp;366251</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 320: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (lock.conflictsWith(other)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;320</td>  <td class="nbHitsCovered"><a title="Line 320: Conditional coverage 100% (2/2).">&nbsp;350983</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 320: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (lock.conflictsWith(other)) {</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;321</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;322</td>  <td class="nbHits">&nbsp;</td>
@@ -579,8 +579,8 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;332</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                <span class="comment">// Add overlap</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;333</td>  <td class="nbHitsCovered">&nbsp;366243</td>  <td class="src"><pre class="src">&nbsp;                overlaps.add(other);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;334</td>  <td class="nbHitsCovered">&nbsp;366243</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;333</td>  <td class="nbHitsCovered">&nbsp;350975</td>  <td class="src"><pre class="src">&nbsp;                overlaps.add(other);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;334</td>  <td class="nbHitsCovered">&nbsp;350975</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;335</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;336</td>  <td class="nbHits">&nbsp;</td>
@@ -595,10 +595,10 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;341</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Find overlaps we can merge with</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;342</td>  <td class="nbHitsCovered"><a title="Line 342: Conditional coverage 100% (2/2).">&nbsp;185897</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 342: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Lock other : overlaps) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;343</td>  <td class="nbHitsCovered"><a title="Line 343: Conditional coverage 100% (2/2).">&nbsp;366243</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 343: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (lock.mergeWith(other) != <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;344</td>  <td class="nbHitsCovered">&nbsp;183722</td>  <td class="src"><pre class="src">&nbsp;                    mergers.add(other);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;345</td>  <td class="nbHitsCovered">&nbsp;366243</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;342</td>  <td class="nbHitsCovered"><a title="Line 342: Conditional coverage 100% (2/2).">&nbsp;175406</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 342: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Lock other : overlaps) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;343</td>  <td class="nbHitsCovered"><a title="Line 343: Conditional coverage 100% (2/2).">&nbsp;350975</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 343: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (lock.mergeWith(other) != <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;344</td>  <td class="nbHitsCovered">&nbsp;173227</td>  <td class="src"><pre class="src">&nbsp;                    mergers.add(other);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;345</td>  <td class="nbHitsCovered">&nbsp;350975</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;346</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;347</td>  <td class="nbHits">&nbsp;</td>
@@ -613,7 +613,7 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;352</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Done</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;353</td>  <td class="nbHitsCovered">&nbsp;185897</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> 0;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;353</td>  <td class="nbHitsCovered">&nbsp;175406</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> 0;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;354</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;355</td>  <td class="nbHits">&nbsp;</td>
@@ -630,7 +630,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * Possible return values from {@link LockManager#lock LockManager.lock()}.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;361</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;362</td>  <td class="nbHitsCovered">&nbsp;5</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> enum LockResult {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;362</td>  <td class="nbHitsCovered">&nbsp;6</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> enum LockResult {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;363</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;364</td>  <td class="nbHits">&nbsp;</td>
@@ -672,21 +672,21 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;384</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">private</span> <span class="keyword">final</span> Lock lock;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;385</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;Lock&gt; mergers = <span class="keyword">new</span> ArrayList&lt;&gt;();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;385</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;Lock&gt; mergers = <span class="keyword">new</span> ArrayList&lt;&gt;();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;386</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;387</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">private</span> <span class="keyword">long</span> timeRemaining;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;388</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;389</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;        LockChecker(Lock lock) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;390</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.lock = lock;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;391</td>  <td class="nbHitsCovered">&nbsp;185898</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;389</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;        LockChecker(Lock lock) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;390</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.lock = lock;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;391</td>  <td class="nbHitsCovered">&nbsp;175407</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;392</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;393</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">public</span> List&lt;Lock&gt; getMergers() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;394</td>  <td class="nbHitsCovered">&nbsp;185897</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.mergers;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;394</td>  <td class="nbHitsCovered">&nbsp;175406</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">this</span>.mergers;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;395</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;396</td>  <td class="nbHits">&nbsp;</td>
@@ -706,13 +706,13 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;404</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Reset state</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;405</td>  <td class="nbHitsCovered">&nbsp;185904</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.mergers.clear();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;405</td>  <td class="nbHitsCovered">&nbsp;175413</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.mergers.clear();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;406</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;407</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// See if we can lock</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;408</td>  <td class="nbHitsCovered">&nbsp;185904</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.timeRemaining = LockManager.<span class="keyword">this</span>.checkLock(<span class="keyword">this</span>.lock, <span class="keyword">this</span>.mergers);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;409</td>  <td class="nbHitsCovered"><a title="Line 409: Conditional coverage 100% (2/2).">&nbsp;185904</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 409: Conditional coverage 100% (2/2).">            <span class="keyword">return</span> <span class="keyword">this</span>.timeRemaining == 0;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;408</td>  <td class="nbHitsCovered">&nbsp;175413</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.timeRemaining = LockManager.<span class="keyword">this</span>.checkLock(<span class="keyword">this</span>.lock, <span class="keyword">this</span>.mergers);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;409</td>  <td class="nbHitsCovered"><a title="Line 409: Conditional coverage 100% (2/2).">&nbsp;175413</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 409: Conditional coverage 100% (2/2).">            <span class="keyword">return</span> <span class="keyword">this</span>.timeRemaining == 0;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;410</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;411</td>  <td class="nbHits">&nbsp;</td>
@@ -723,6 +723,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/30/15 9:01 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/31/15 1:00 AM.</div>
 </body>
 </html>

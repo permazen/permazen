@@ -872,18 +872,18 @@
 <error line="194" column="93" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/RaftKVDatabase.java">
-<error line="555" column="5" severity="info" message="Executable statement count is 49 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="731" column="45" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="747" column="44" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="772" column="48" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="1685" column="101" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="2789" column="9" severity="info" message="Executable statement count is 47 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="3532" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
-<error line="3579" column="9" severity="info" message="Executable statement count is 60 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="3579" column="9" severity="info" message="Method length is 151 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
-<error line="3756" column="9" severity="info" message="Executable statement count is 79 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="3756" column="9" severity="info" message="Method length is 209 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
-<error line="4438" column="5" severity="info" message="Executable statement count is 31 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="547" column="5" severity="info" message="Executable statement count is 49 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="723" column="45" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="739" column="44" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="764" column="48" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="1677" column="101" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="2736" column="9" severity="info" message="Executable statement count is 47 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="3470" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
+<error line="3517" column="9" severity="info" message="Executable statement count is 60 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="3517" column="9" severity="info" message="Method length is 151 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
+<error line="3694" column="9" severity="info" message="Executable statement count is 79 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="3694" column="9" severity="info" message="Method length is 209 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
+<error line="4376" column="5" severity="info" message="Executable statement count is 31 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/RaftKVTransaction.java">
 </file>

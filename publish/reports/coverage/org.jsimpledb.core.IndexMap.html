@@ -68,15 +68,15 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * Support superclass for the various {@link NavigableMap} views of indexes.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;23</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;24</td>  <td class="nbHitsCovered">&nbsp;2349</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">abstract</span> <span class="keyword">class</span> IndexMap&lt;K, V&gt; <span class="keyword">extends</span> FieldTypeMap&lt;K, V&gt; {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;24</td>  <td class="nbHitsCovered">&nbsp;2412</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">abstract</span> <span class="keyword">class</span> IndexMap&lt;K, V&gt; <span class="keyword">extends</span> FieldTypeMap&lt;K, V&gt; {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;25</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;26</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="comment">// Primary constructor</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;27</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> IndexMap(Transaction tx, FieldType&lt;K&gt; keyType, <span class="keyword">byte</span>[] prefix) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered">&nbsp;1244</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, keyType, <span class="keyword">true</span>, prefix);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;1244</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered">&nbsp;1283</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, keyType, <span class="keyword">true</span>, prefix);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;1283</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;30</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;31</td>  <td class="nbHits">&nbsp;</td>
@@ -85,8 +85,8 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> IndexMap(Transaction tx, FieldType&lt;K&gt; keyType, <span class="keyword">boolean</span> reversed,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;33</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;      <span class="keyword">byte</span>[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds&lt;K&gt; bounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;34</td>  <td class="nbHitsCovered">&nbsp;1104</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, keyType, <span class="keyword">true</span>, reversed, prefix, keyRange, keyFilter, bounds);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;35</td>  <td class="nbHitsCovered">&nbsp;1104</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;34</td>  <td class="nbHitsCovered">&nbsp;1128</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">super</span>(tx, keyType, <span class="keyword">true</span>, reversed, prefix, keyRange, keyFilter, bounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;35</td>  <td class="nbHitsCovered">&nbsp;1128</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;36</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;37</td>  <td class="nbHits">&nbsp;</td>
@@ -118,7 +118,7 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;51</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> IndexMap&lt;K, V&gt; filterKeys(KeyFilter keyFilter) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;52</td>  <td class="nbHitsCovered">&nbsp;264</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (IndexMap&lt;K, V&gt;)<span class="keyword">super</span>.filterKeys(keyFilter);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;52</td>  <td class="nbHitsCovered">&nbsp;288</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> (IndexMap&lt;K, V&gt;)<span class="keyword">super</span>.filterKeys(keyFilter);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;53</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;54</td>  <td class="nbHits">&nbsp;</td>
@@ -127,11 +127,11 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;56</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> V decodeValue(KVPair pair) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered">&nbsp;5738</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteReader reader = <span class="keyword">new</span> ByteReader(pair.getKey());</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsUncovered"><a title="Line 58: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;5738</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 58: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">        <span class="keyword">assert</span> ByteUtil.isPrefixOf(<span class="keyword">this</span>.prefix, reader.getBytes());</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsCovered">&nbsp;5738</td>  <td class="src"><pre class="src">&nbsp;        reader.skip(<span class="keyword">this</span>.prefix.length);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;60</td>  <td class="nbHitsCovered">&nbsp;5738</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyFieldType.skip(reader);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;61</td>  <td class="nbHitsCovered">&nbsp;5738</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.decodeValue(reader.getBytes(0, reader.getOffset()));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;57</td>  <td class="nbHitsCovered">&nbsp;5756</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ByteReader reader = <span class="keyword">new</span> ByteReader(pair.getKey());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;58</td>  <td class="nbHitsUncovered"><a title="Line 58: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;5756</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 58: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">        <span class="keyword">assert</span> ByteUtil.isPrefixOf(<span class="keyword">this</span>.prefix, reader.getBytes());</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;59</td>  <td class="nbHitsCovered">&nbsp;5756</td>  <td class="src"><pre class="src">&nbsp;        reader.skip(<span class="keyword">this</span>.prefix.length);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;60</td>  <td class="nbHitsCovered">&nbsp;5756</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyFieldType.skip(reader);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;61</td>  <td class="nbHitsCovered">&nbsp;5756</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.decodeValue(reader.getBytes(0, reader.getOffset()));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;62</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;63</td>  <td class="nbHits">&nbsp;</td>
@@ -160,7 +160,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * Implements {@link NavigableMap} views of indexes where the map values are {@link NavigableSet}s of target values.</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;75</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;76</td>  <td class="nbHitsCovered">&nbsp;5720</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">static</span> <span class="keyword">class</span> OfValues&lt;V, E&gt; <span class="keyword">extends</span> IndexMap&lt;V, NavigableSet&lt;E&gt;&gt; {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;76</td>  <td class="nbHitsCovered">&nbsp;5738</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">static</span> <span class="keyword">class</span> OfValues&lt;V, E&gt; <span class="keyword">extends</span> IndexMap&lt;V, NavigableSet&lt;E&gt;&gt; {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;77</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;78</td>  <td class="nbHits">&nbsp;</td>
@@ -171,9 +171,9 @@
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Primary constructor</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;81</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        OfValues(Transaction tx, IndexView&lt;V, E&gt; indexView) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;82</td>  <td class="nbHitsCovered">&nbsp;1224</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">super</span>(tx, indexView.getValueType(), indexView.prefix);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;83</td>  <td class="nbHitsCovered">&nbsp;1224</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.indexView = indexView;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;84</td>  <td class="nbHitsCovered">&nbsp;1224</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;82</td>  <td class="nbHitsCovered">&nbsp;1263</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">super</span>(tx, indexView.getValueType(), indexView.prefix);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;83</td>  <td class="nbHitsCovered">&nbsp;1263</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.indexView = indexView;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;84</td>  <td class="nbHitsCovered">&nbsp;1263</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;85</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;86</td>  <td class="nbHits">&nbsp;</td>
@@ -182,9 +182,9 @@
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">private</span> OfValues(Transaction tx, IndexView&lt;V, E&gt; indexView,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;88</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          <span class="keyword">boolean</span> reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds&lt;V&gt; bounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;89</td>  <td class="nbHitsCovered">&nbsp;1103</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">super</span>(tx, indexView.getValueType(), reversed, indexView.prefix, keyRange, keyFilter, bounds);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;90</td>  <td class="nbHitsCovered">&nbsp;1103</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.indexView = indexView;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;91</td>  <td class="nbHitsCovered">&nbsp;1103</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;89</td>  <td class="nbHitsCovered">&nbsp;1127</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">super</span>(tx, indexView.getValueType(), reversed, indexView.prefix, keyRange, keyFilter, bounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;90</td>  <td class="nbHitsCovered">&nbsp;1127</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.indexView = indexView;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;91</td>  <td class="nbHitsCovered">&nbsp;1127</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;92</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;93</td>  <td class="nbHits">&nbsp;</td>
@@ -197,7 +197,7 @@
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">protected</span> NavigableMap&lt;V, NavigableSet&lt;E&gt;&gt; createSubMap(<span class="keyword">boolean</span> newReversed,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;97</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds&lt;V&gt; newBounds) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;98</td>  <td class="nbHitsCovered">&nbsp;1103</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">new</span> OfValues&lt;V, E&gt;(<span class="keyword">this</span>.tx, <span class="keyword">this</span>.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;98</td>  <td class="nbHitsCovered">&nbsp;1127</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> <span class="keyword">new</span> OfValues&lt;V, E&gt;(<span class="keyword">this</span>.tx, <span class="keyword">this</span>.indexView, newReversed, newKeyRange, newKeyFilter, newBounds);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;99</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;100</td>  <td class="nbHits">&nbsp;</td>
@@ -210,15 +210,15 @@
   <td class="src"><pre class="src">&nbsp;        @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;104</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">protected</span> NavigableSet&lt;E&gt; decodeValue(<span class="keyword">byte</span>[] keyPrefix) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;105</td>  <td class="nbHitsCovered">&nbsp;5720</td>  <td class="src"><pre class="src">&nbsp;            IndexSet&lt;E&gt; indexSet = <span class="keyword">new</span> IndexSet&lt;E&gt;(<span class="keyword">this</span>.tx, <span class="keyword">this</span>.indexView.getTargetType(), <span class="keyword">this</span>.indexView.prefixMode, keyPrefix);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;106</td>  <td class="nbHitsCovered">&nbsp;5720</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> KeyFilter targetFilter = <span class="keyword">this</span>.indexView.getFilter(1);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;107</td>  <td class="nbHitsCovered"><a title="Line 107: Conditional coverage 100% (2/2).">&nbsp;5720</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 107: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (targetFilter != <span class="keyword">null</span>) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;108</td>  <td class="nbHitsCovered">&nbsp;2302</td>  <td class="src"><pre class="src">&nbsp;                indexSet = indexSet.filterKeys(<span class="keyword">new</span> IndexKeyFilter(<span class="keyword">this</span>.tx, keyPrefix,</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;105</td>  <td class="nbHitsCovered">&nbsp;5738</td>  <td class="src"><pre class="src">&nbsp;            IndexSet&lt;E&gt; indexSet = <span class="keyword">new</span> IndexSet&lt;E&gt;(<span class="keyword">this</span>.tx, <span class="keyword">this</span>.indexView.getTargetType(), <span class="keyword">this</span>.indexView.prefixMode, keyPrefix);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;106</td>  <td class="nbHitsCovered">&nbsp;5738</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> KeyFilter targetFilter = <span class="keyword">this</span>.indexView.getFilter(1);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;107</td>  <td class="nbHitsCovered"><a title="Line 107: Conditional coverage 100% (2/2).">&nbsp;5738</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 107: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (targetFilter != <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;108</td>  <td class="nbHitsCovered">&nbsp;2303</td>  <td class="src"><pre class="src">&nbsp;                indexSet = indexSet.filterKeys(<span class="keyword">new</span> IndexKeyFilter(<span class="keyword">this</span>.tx, keyPrefix,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;109</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                  <span class="keyword">new</span> FieldType&lt;?&gt;[] { <span class="keyword">this</span>.indexView.getTargetType() }, <span class="keyword">new</span> KeyFilter[] { targetFilter }, 1));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;110</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;111</td>  <td class="nbHitsCovered">&nbsp;5720</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> indexSet;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;111</td>  <td class="nbHitsCovered">&nbsp;5738</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span> indexSet;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;112</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;113</td>  <td class="nbHits">&nbsp;</td>
@@ -430,6 +430,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/30/15 9:01 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/31/15 1:00 AM.</div>
 </body>
 </html>
