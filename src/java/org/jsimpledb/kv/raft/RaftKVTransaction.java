@@ -143,6 +143,8 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      *  <li>By this method being invoked with {@code identity} equal to this node's identity and a non-null {@code address},
      *      which creates a new cluster and adds this node to it.</li>
      * </ul>
+     *
+     * <p>
      * Therefore, this method must be used to intialize a new cluster.
      *
      * @param identity the identity of the node to add or remove

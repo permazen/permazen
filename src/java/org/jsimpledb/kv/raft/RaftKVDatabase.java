@@ -92,12 +92,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Raft defines a distributed consensus algorithm for maintaining a shared state machine.
  * Each Raft node maintains a complete copy of the state machine. Cluster nodes elect a
- * leader who manages updates to the state machine and provides for consistent readds.
+ * leader who collects and distributes updates and provides for consistent reads.
  * As long as as a node is part of a majority, the state machine is fully operational.
  *
  * <p>
- * {@link RaftKVDatabase} turns
- * this into a transactional key/value database with linearizable ACID semantics:
+ * {@link RaftKVDatabase} turns this into a transactional key/value database with linearizable ACID semantics as follows:
  *  <ul>
  *  <li>The Raft state machine is the key/value store data.</li>
  *  <li>Unapplied log entries are stored on disk as serialized {@link Writes}, and also cached in memory.</li>
@@ -116,27 +115,30 @@ import org.slf4j.LoggerFactory;
  *          {@linkplain CommitRequest sent} to the leader.</li>
  *      <li>The leader confirms that the log entry corresponding to the transaction's base index and term either:
  *          <ul>
- *          <li>Is still present in its own log and not yet applied to the state machine (in which case the
- *              {@link Writes} are available with the log entry); or</li>
- *          <li>Corresponds to an already applied log entry whose {@link Writes} are still cached in memory.</li>
+ *          <li>Is still present in its own log and therefore not yet applied to the state machine; or</li>
+ *          <li>Corresponds to an already applied log entry for whom the {@link Writes} of all subsequent
+ *              log entries (if any) are either not yet applied or still cached in memory as described above.</li>
  *          </ul>
  *          If this is not the case, then the transaction's base log entry is too old (older than <i>T<sub>max</sub></i>,
- *          or was committed early due to memory pressure), and so the transaction is rejected with a
+ *          or was applied and discarded early due to memory pressure), and so the transaction is rejected with a
  *          {@link RetryTransactionException}. Otherwise, the {@link Writes} associated with all log entries
  *          after the transaction's base log entry are available.
- *      <li>The leader confirms that the {@link Writes} associated with log entries created after the transaction's
+ *      <li>The leader verifies that the term of the log entry in its log corresponding to the transaction's base index
+ *          matches the transaction's base term; if not, the log entry on which the transaction was based has been overwritten,
+ *          and so the transaction is rejected with a {@link RetryTransactionException}.
+ *      <li>The leader confirms that the {@link Writes} associated with log entries after the transaction's
  *          base log entry do not create linearizability violations when {@linkplain Reads#isConflict compared against}
- *          the transaction's {@link Reads}. If so, the transaction is rejected with a retry.</li>
- *      <li>The leader adds a new log entry consisting of the transaction's {@link Writes} to its log.
- *          The associated term and index become the transaction's <i>commit term and index</i>; the leader
- *          then {@linkplain CommitResponse replies} to the follower with this information.</li>
- *      <li>When the follower sees a log entry appear in its log matching the transaction's commit term and index, and
- *          that log entry has been committed (in the Raft sense), the transaction is also committed.</li>
+ *          the transaction's {@link Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
+ *      <li>The leader adds a new log entry consisting of the transaction's {@link Writes} (and any config change) to its log.
+ *          The associated term and index become the transaction's <i>commit term and index</i>; the leader then
+ *          {@linkplain CommitResponse replies} to the follower with this information.</li>
+ *      <li>If/when the follower sees a <i>committed</i> (in the Raft sense) log entry appear in its log matching the
+ *          transaction's commit term and index, then the transaction is deemed committed.</li>
  *      <li>As an optimization, when the leader sends a log entry to the same follower who committed the corresponding
  *          transaction in the first place, only the transaction ID is sent, because the follower already has the data.</li>
  *      </ul>
  *  </li>
- *  <li>For transactions occurring on a leader, the logic is the same except of course no network communication occurs.</li>
+ *  <li>For transactions occurring on a leader, the logic is similar except of course no network communication occurs.</li>
  *  <li>For read-only transactions, the leader does not create a new log entry; instead, the transaction's commit
  *      term and index are set to the term and index of the last entry in the leader's log. The leader also calculates its
  *      current "leader lease timeout", which is the earliest time at which it is possible for another leader to be elected.
@@ -145,12 +147,13 @@ import org.slf4j.LoggerFactory;
  *      for possible clock drift (this assumes all nodes have the same minimum election timeout configured). If the current
  *      time is prior to the leader lease timeout, the transaction may be committed immediately; otherwise, the current time
  *      is returned to the follower as minimum required leader lease timeout before the transaction may be committed.</li>
- *  <li>Included with each {@link AppendRequest} is the leader's current timestamp and lease timeout, so followers can commit
+ *  <li>Every {@link AppendRequest} includes the leader's current timestamp and leader lease timeout, so followers can commit
  *      any waiting read-only transactions. Leaders keep track of which followers are waiting on which leader lease
  *      timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
- *      is notified with an immediate {@link AppendRequest} update.</li>
+ *      is immediately notified.</li>
  *  <li>A weaker consistency guarantee for read-only transactions (serializable but not linearizable) is also possible; see
- *      {@link RaftKVTransaction#setReadOnlySnapshot RaftKVTransaction.setReadOnlySnapshot()}.</li>
+ *      {@link RaftKVTransaction#setReadOnlySnapshot RaftKVTransaction.setReadOnlySnapshot()}. Typically these transactions
+ *      will generate no network traffic.</li>
  *  </ul>
  *
  * <p><b>Limitations</b></p>
@@ -159,45 +162,75 @@ import org.slf4j.LoggerFactory;
  *  <li>A transaction's mutations must fit in memory.</li>
  *  <li>An {@link AtomicKVStore} is required to store local persistent state;
  *      if none is configured, a {@link LevelDBKVStore} is used.</li>
- *  <li>All nodes must be configured with the same {@linkplain #setMinElectionTimeout minimum election timeout}.</li>
+ *  <li>All nodes must be configured with the same {@linkplain #setMinElectionTimeout minimum election timeout}.
+ *      This guarantees that the leader's lease timeout calculation is valid.</li>
  *  <li>Due to the optimistic locking approach used, this implementation will perform poorly when there is a high
  *      rate of conflicting transactions; the result will be many transaction retries.</li>
  *  <li>Performance will suffer when the amount of data associated with a typical transaction cannot be delivered
  *      quickly and reliably over the network.</li>
  * </ul>
  *
+ * <p>
+ * In general, the algorithm should function correctly under all non-Byzantine conditions. The level of difficultly
+ * the system is experiencing, due to contention, network errors, etc., can be measured in terms of:
+ * <ul>
+ *  <li>The average amount of time it takes to commit a transaction</li>
+ *  <li>The frequency of {@link RetryTransactionException}'s</li>
+ * </ul>
+ *
  * <p><b>Cluster Configuration</b></p>
  *
  * <p>
- * Instances support dynamic cluster configuration changes at runtime. Initially, all nodes are in an <i>unconfigured</i>
- * state, where nothing has been added to the Raft log yet and no cluster is defined. Unconfigured nodes are passive: they
- * stay in follower mode (i.e., they will not start elections), and they disallow local transactions that make any changes
- * (other than as described below to initialize a new cluster).
+ * Instances support dynamic cluster configuration changes at runtime.
  *
  * <p>
- * A node is configured if and only if it has a <i>configuration</i>. A cluster configuration consists of the identites of
- * the nodes in the cluster, and their corresponding network addresses. Once a node <i>configured</i>, a separate issue
- * is whether a node is <i>included</i> in its own configuration. A node that is not included in its own configuration
- * does not count its own vote for elections and log commits, but otherwise functions normally in the cluster.
+ * Initially, all nodes are in an <i>unconfigured</i> state, where nothing has been added to the Raft log yet and no
+ * cluster is defined. Unconfigured nodes are passive: they stay in follower mode (i.e., they will not start elections),
+ * and they disallow local transactions that make any changes other than as described below to initialize a new cluster.
  *
  * <p>
  * An unconfigured node becomes configured when either:
- * <ul>
- *  <li>An {@link AppendRequest} is received from a leader of some existing cluster, in which case the node
- *      joins the cluster and applies the received cluster configuration; or</li>
+ * <ol>
  *  <li>{@link RaftKVTransaction#configChange RaftKVTransaction.configChange()} is invoked and committed within
- *      a local transaction, which creates a new cluster and configures it to contain the local node</li>
+ *      a local transaction, which creates a new single node cluster and commits the first log entry; or</li>
+ *  <li>An {@link AppendRequest} is received from a leader of some existing cluster, in which case the node
+ *      records the cluster ID (see below) and applies the received cluster configuration</li>
+ * </ol>
+ *
+ * <p>
+ * A node is configured if and only if it has recorded one or more log entries. The very first log entry
+ * always contains the initial cluster configuration (containing only the node that created it), so any node that has a
+ * non-empty log is configured.
+ *
+ * <p>
+ * Newly created clusters are assigned a random 32-bit cluster ID (option #1 above). This ID is included in all messages sent
+ * over the network, and adopted by unconfigured nodes that join the cluster (via option #2 above). Nodes discard incoming
+ * messages containing a cluster ID different from one they have seen previously. This prevents data corruption that can occur
+ * if nodes from two different clusters are inadvertently "mixed" together.
+ *
+ * <p>
+ * Once a node joins a cluster with a specific cluster ID, it cannot be reassigned to a different cluster without first
+ * returning it to the unconfigured state; to do that, it must be shut it down and its persistent state deleted.
+ *
+ * <p><b>Configuration Changes</b></p>
+ *
+ * <p>
+ * Once a node configured, a separate issue is whether the node is <i>included</i> in its own configuration, i.e., whether
+ * the node is a member of its cluster. A node that is not a member of its cluster does not count its own vote to determine
+ * committed log entries (if a leader), and does not start elections (if a follower). However, it will accept and respond
+ * to incoming {@link AppendRequest}s and {@link RequestVote}s.
+ *
+ * <p>
+ * In addition, leaders follow these rules:
+ * <ul>
+ *  <li>If a leader is removed from a cluster, it remains the leader until the configuration change that
+ *      removed it is committed (not counting its own vote), and then steps down (reverts to follower).</li>
+ *  <li>If a follower is added to a cluster, the leader immediately starts sending that follower {@link AppendRequest}s.</li>
+ *  <li>If a follower is removed from a cluster, the leader continues to send that follower {@link AppendRequest}s
+ *      until the follower acknowledges receipt of the log entry containing the configuration change.</li>
+ *  <li>Configuration changes that remove the last node in a cluster are disallowed.</li>
+ *  <li>Only one configuration change may take place at a time.</li>
  * </ul>
- *
- * <p>
- * On the first commit, newly created clusters are assigned a random 32-bit cluster ID. This ID is included in all
- * messages sent over the network, and adopted by unconfigured nodes that join the cluster. Configured nodes will discard
- * incoming messages containing a different cluster ID. This prevents data corruption that can occur if nodes from two
- * different clusters are inadvertently "mixed" together.
- *
- * <p>
- * Once a node joins a cluster (identified by cluster ID), it cannot be reassigned to a different cluster without first
- * returning it to the unconfigured state; to do that, it must be shut it down and its persistent state directory deleted.
  *
  * @see <a href="https://raftconsensus.github.io/">The Raft Consensus Algorithm</a>
  */
@@ -1227,6 +1260,9 @@ public class RaftKVDatabase implements KVDatabase {
 
     /**
      * One shot timer that {@linkplain #requestService requests} a {@link Service} on expiration.
+     *
+     * <p>
+     * This implementation avoids any race conditions between scheduling, firing, and cancelling.
      */
     class Timer {
 
@@ -2070,6 +2106,7 @@ public class RaftKVDatabase implements KVDatabase {
                 }
 
                 // Update in-memory state
+                final long prevLastAppliedTerm = this.raft.lastAppliedTerm;
                 this.raft.lastAppliedTerm = logEntry.getTerm();
                 assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;
                 this.raft.lastAppliedIndex = logEntry.getIndex();
@@ -2082,7 +2119,7 @@ public class RaftKVDatabase implements KVDatabase {
                     this.error("failed to delete log file " + logEntry.getFile());
 
                 // Subclass hook
-                this.logEntryApplied(logEntry);
+                this.logEntryApplied(prevLastAppliedTerm, logEntry);
             }
         }
 
@@ -2095,8 +2132,11 @@ public class RaftKVDatabase implements KVDatabase {
 
         /**
          * Subclass hook invoked after a log entry has been applied to the state machine.
+         *
+         * @param prevLastAppliedTerm the term of the log entry prior to {@code logEntry}
+         * @param logEntry the log entry just applied
          */
-        protected void logEntryApplied(LogEntry logEntry) {
+        protected void logEntryApplied(long prevLastAppliedTerm, LogEntry logEntry) {
         }
 
     // Transaction service classes
@@ -2354,8 +2394,18 @@ public class RaftKVDatabase implements KVDatabase {
 
     private static class LeaderRole extends Role {
 
-        private final ArrayList<LogEntry> appliedLogEntries = new ArrayList<>(); // log entries already applied to key/value store
+        // Our followers
         private final HashMap<String, Follower> followerMap = new HashMap<>();
+
+        // Our leadership "lease" timeout - i.e., the earliest time another leader could possibly be elected
+        private Timestamp leaseTimeout = new Timestamp();
+
+        // Log entries that we have already applied but are keeping around in case there are any long running transactions
+        // out there that are using one of these log entries as their basis.
+        private final ArrayList<LogEntry> appliedLogEntries = new ArrayList<>();
+        private long appliedLogEntryPrevTerm;                               // term of the log entry just before appliedLogEntries
+
+        // Service tasks
         private final Service updateLeaderCommitIndexService = new Service(this, "update leader commitIndex") {
             @Override
             public void run() {
@@ -2380,7 +2430,6 @@ public class RaftKVDatabase implements KVDatabase {
                 LeaderRole.this.updateKnownFollowers();
             }
         };
-        private Timestamp leaseTimeout = new Timestamp();                   // tracks the earliest time we can be deposed
 
     // Constructors
 
@@ -2410,6 +2459,9 @@ public class RaftKVDatabase implements KVDatabase {
             }
             if (this.log.isDebugEnabled())
                 this.debug("added log entry " + logEntry + " to commit at the beginning of my new term");
+
+            // Initialize applied log entries previous term
+            this.appliedLogEntryPrevTerm = this.raft.lastAppliedTerm;
         }
 
         @Override
@@ -2435,7 +2487,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        protected void logEntryApplied(LogEntry logEntry) {
+        protected void logEntryApplied(long prevLastAppliedTerm, LogEntry logEntry) {
 
             // Save log entry in the applied log entry list
             this.appliedLogEntries.add(logEntry);
@@ -2520,6 +2572,7 @@ public class RaftKVDatabase implements KVDatabase {
                   || totalLogEntryMemoryUsed > this.raft.maxAppliedLogMemory
                   || numAppliedLogEntries > MAX_APPLIED_LOG_ENTRIES) {
                     i.remove();
+                    this.appliedLogEntryPrevTerm = logEntry.getTerm();
                     totalLogEntryMemoryUsed -= logEntry.getFileSize();
                     numAppliedLogEntries--;
                 }
@@ -3181,6 +3234,7 @@ public class RaftKVDatabase implements KVDatabase {
         @Override
         public String toString() {
             return this.toStringPrefix()
+              + ",appliedLogEntries=" + this.appliedLogEntries
               + ",followerMap=" + this.followerMap
               + "]";
         }
@@ -3200,6 +3254,8 @@ public class RaftKVDatabase implements KVDatabase {
             long index = this.raft.lastAppliedIndex - this.appliedLogEntries.size() + 1;
             for (LogEntry logEntry : Iterables.concat(this.appliedLogEntries, this.raft.raftLog))
                 assert logEntry.getIndex() == index++;
+            if (this.appliedLogEntries.isEmpty())
+                assert this.appliedLogEntryPrevTerm == this.raft.lastAppliedTerm;
             return true;
         }
 
@@ -3284,22 +3340,24 @@ public class RaftKVDatabase implements KVDatabase {
         public String checkConflicts(long baseTerm, long baseIndex, Reads reads) {
 
             // Validate the index of the log entry on which the transaction is based
-            final long minIndex = this.raft.lastAppliedIndex;
+            final long minIndex = this.raft.lastAppliedIndex - this.appliedLogEntries.size();
             final long maxIndex = this.raft.getLastLogIndex();
             if (baseIndex < minIndex)
-                return "transaction is too old: snapshot index " + baseIndex + " < current state machine index " + minIndex;
+                return "transaction is too old: snapshot index " + baseIndex + " < earliest saved index " + minIndex;
             if (baseIndex > maxIndex)
                 return "transaction is too new: snapshot index " + baseIndex + " > most recent log index " + maxIndex;
 
-            // Validate the term of the log entry on which the transaction is based
-            if (baseTerm != this.raft.getLogTermAtIndex(baseIndex)) {
+            // Validate the term of the log entry on which the transaction is based; look back into appliedLogEntries if needed
+            final long actualBaseTerm = baseIndex > minIndex ?
+              this.getLogEntryAtIndex(baseIndex).getTerm() : this.appliedLogEntryPrevTerm;
+            if (actualBaseTerm != baseTerm) {
                 return "transaction is based on an overwritten log entry with index "
-                  + baseIndex + " and term " + baseTerm + " != " + this.raft.getLogTermAtIndex(baseIndex);
+                  + baseIndex + " and term " + baseTerm + " != " + actualBaseTerm;
             }
 
             // Check for conflicts from intervening commits
             for (long index = baseIndex + 1; index <= maxIndex; index++) {
-                final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);
+                final LogEntry logEntry = this.getLogEntryAtIndex(index);
                 if (reads.isConflict(logEntry.getWrites())) {
                     return "writes of committed transaction at index " + index
                       + " conflict with transaction reads from transaction base index " + baseIndex;
@@ -3308,6 +3366,15 @@ public class RaftKVDatabase implements KVDatabase {
 
             // No conflict
             return null;
+        }
+
+        // Get the log entry at the specified index, looking back into our saved 'appliedLogEntries' list as necessary
+        private LogEntry getLogEntryAtIndex(long index) {
+            assert index >= this.raft.lastAppliedIndex - this.appliedLogEntries.size() + 1;
+            assert index <= this.raft.getLastLogIndex();
+            return index > this.raft.lastAppliedIndex ?
+              this.raft.getLogEntryAtIndex(index) :
+              this.appliedLogEntries.get((int)(index - this.raft.lastAppliedIndex + this.appliedLogEntries.size() - 1));
         }
 
         private Follower findFollower(Message msg) {
