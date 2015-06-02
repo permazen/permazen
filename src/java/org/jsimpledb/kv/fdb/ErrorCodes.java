@@ -88,7 +88,7 @@ public final class ErrorCodes {
     public static final int LARGE_ALLOC_FAILED = 1501;
 
     /**
-     * QueryPerformanceCounter doesn’t work.
+     * QueryPerformanceCounter doesn't work.
      */
     public static final int PERFORMANCE_COUNTER_ERROR = 1502;
 
