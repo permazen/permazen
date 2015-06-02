@@ -23,6 +23,7 @@ import org.jsimpledb.cli.cmd.LoadCommand;
 import org.jsimpledb.cli.cmd.QuitCommand;
 import org.jsimpledb.cli.cmd.RaftAddCommand;
 import org.jsimpledb.cli.cmd.RaftRemoveCommand;
+import org.jsimpledb.cli.cmd.RaftStatusCommand;
 import org.jsimpledb.cli.cmd.SaveCommand;
 import org.jsimpledb.cli.cmd.SetAllowNewSchemaCommand;
 import org.jsimpledb.cli.cmd.SetSchemaVersionCommand;
@@ -149,6 +150,7 @@ public class CliSession extends ParseSession {
         this.registerCommand(QuitCommand.class);
         this.registerCommand(RaftAddCommand.class);
         this.registerCommand(RaftRemoveCommand.class);
+        this.registerCommand(RaftStatusCommand.class);
         this.registerCommand(SaveCommand.class);
         this.registerCommand(SetAllowNewSchemaCommand.class);
         this.registerCommand(SetSchemaVersionCommand.class);

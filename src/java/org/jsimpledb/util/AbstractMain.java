@@ -244,19 +244,17 @@ public abstract class AbstractMain extends MainClass {
             } else if (option.equals("--raft-address")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.raftAddress = params.removeFirst();
+                final String address = params.removeFirst();
+                this.raftAddress = TCPNetwork.parseAddressPart(address);
+                this.raftPort = TCPNetwork.parsePortPart(address, this.raftPort);
             } else if (option.equals("--raft-new-cluster"))
                 this.raftNewCluster = true;
             else if (option.equals("--raft-port")) {
                 if (params.isEmpty())
                     this.usageError();
-                final String pstring = params.removeFirst();
-                try {
-                    this.raftPort = Integer.parseInt(pstring);
-                    if (this.raftPort < 1 || this.raftPort > 65535)
-                        throw new IllegalArgumentException("value out of range");
-                } catch (Exception e) {
-                    System.err.println(this.getName() + ": invalid Raft TCP port `" + pstring + "': " + e.getMessage());
+                final String portString = params.removeFirst();
+                if ((this.raftPort = TCPNetwork.parsePortPart("x:" + portString, -1)) == -1) {
+                    System.err.println(this.getName() + ": invalid TCP port `" + portString + "'");
                     return 1;
                 }
             } else if (option.equals("--"))

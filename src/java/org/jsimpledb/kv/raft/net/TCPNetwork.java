@@ -20,8 +20,6 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -318,6 +316,43 @@ public class TCPNetwork extends SelectorSupport implements Network {
         return connection.output(msg);
     }
 
+// Utility methods
+
+    /**
+     * Parse out the address part of an address that has an optional colon plus TCP port number suffix.
+     *
+     * @param address address of the form {@code ipaddr} or {@code ipaddr:port}
+     * @return the IP address part
+     */
+    public static String parseAddressPart(String address) {
+        return (String)TCPNetwork.parseAddress(address, 0)[0];
+    }
+
+    /**
+     * Parse out the port part of an address that has an optional colon plus TCP port number suffix.
+     *
+     * @param address address of the form {@code ipaddr} or {@code ipaddr:port}
+     * @param defaultPort default port if none specified in {@code address}
+     * @return the port part, or {@code defaultPort} if there is no explicit port
+     */
+    public static int parsePortPart(String address, int defaultPort) {
+        return (Integer)TCPNetwork.parseAddress(address, defaultPort)[1];
+    }
+
+    private static Object[] parseAddress(String string, int defaultPort) {
+        final int colon = string.lastIndexOf(':');
+        if (colon == -1)
+            return new Object[] { string, defaultPort };
+        try {
+            final int port = Integer.parseInt(string.substring(colon + 1), 10);
+            if (port < 1 || port > 65535)
+                return new Object[] { string, defaultPort };
+            return new Object[] { string.substring(0, colon), port };
+        } catch (Exception e) {
+            return new Object[] { string, defaultPort };
+        }
+    }
+
 // Subclass methods
 
     /**
@@ -470,6 +505,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
         if (this.log.isDebugEnabled())
             this.log.debug(this + " handling closed connection " + connection);
         this.connectionMap.remove(connection.getPeer());
+        this.handleOutputQueueEmpty(connection);
         this.wakeup();
     }
 
@@ -495,16 +531,13 @@ public class TCPNetwork extends SelectorSupport implements Network {
             this.log.debug(this + " looking up peer address `" + peer + "'");
 
         // Resolve peer name into a socket address
-        final Matcher matcher = Pattern.compile("(.+)(:([0-9]+))?").matcher(peer);
         InetSocketAddress socketAddress = null;
-        if (matcher.matches()) {
-            try {
-                socketAddress = new InetSocketAddress(matcher.group(1),
-                  matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : DEFAULT_TCP_PORT);
-            } catch (IllegalArgumentException e) {
-                if (this.log.isTraceEnabled())
-                    this.log.trace(this + " peer address `" + peer + "' is invalid", e);
-            }
+        try {
+            socketAddress = new InetSocketAddress(
+              TCPNetwork.parseAddressPart(peer), TCPNetwork.parsePortPart(peer, DEFAULT_TCP_PORT));
+        } catch (IllegalArgumentException e) {
+            if (this.log.isTraceEnabled())
+                this.log.trace(this + " peer address `" + peer + "' is invalid", e);
         }
         if (socketAddress == null || socketAddress.isUnresolved())
             throw new IOException("invalid or unresolvable peer address `" + peer + "'");

@@ -8,3 +8,7 @@ TODO
 
 - more memory-efficient Writes class
 
+- fix problem where TCP connections are established in both directions
+
+- apply more than one log entry at a time if appropriate
+

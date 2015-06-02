@@ -16,8 +16,8 @@ import org.jsimpledb.util.LongEncoder;
  * Sent from leaders to followers to probe the follower's log state and/or append an entry to their log.
  *
  * <p>
- * Instances also provide the {@linkplain #getLeaderLeaseTimeout leader's lease timeout} value, which is
- * used to commit read-only transactions, as well as a {@linkplain #getLeaderTimestamp leader timestamp}
+ * Instances also provide the {@linkplain #getLeaderLeaseTimeout leader's lease timeout} value (if any),
+ * which is used to commit read-only transactions, as well as a {@linkplain #getLeaderTimestamp leader timestamp}
  * which should be reflected back in the corresponding {@link AppendResponse}.
  */
 public class AppendRequest extends Message {
@@ -42,7 +42,7 @@ public class AppendRequest extends Message {
      * @param recipientId identity of recipient
      * @param term sender's current term
      * @param leaderTimestamp leader's timestamp for this request
-     * @param leaderLeaseTimeout earliest leader timestamp at which leader could be deposed
+     * @param leaderLeaseTimeout earliest leader timestamp at which leader could be deposed (or null)
      * @param leaderCommit current commit index for sender
      * @param prevLogTerm term of the log entry just prior to this one
      * @param prevLogIndex index of the log entry just prior to this one
@@ -61,7 +61,7 @@ public class AppendRequest extends Message {
      * @param recipientId identity of recipient
      * @param term sender's current term
      * @param leaderTimestamp leader's timestamp for this request
-     * @param leaderLeaseTimeout earliest leader timestamp at which leader could be deposed
+     * @param leaderLeaseTimeout earliest leader timestamp at which leader could be deposed (or null)
      * @param leaderCommit current commit index for sender
      * @param prevLogTerm term of the log entry just prior to this one
      * @param prevLogIndex index of the log entry just prior to this one
@@ -85,7 +85,7 @@ public class AppendRequest extends Message {
     AppendRequest(ByteBuffer buf) {
         super(Message.APPEND_REQUEST_TYPE, buf);
         this.leaderTimestamp = Message.getTimestamp(buf);
-        this.leaderLeaseTimeout = this.leaderTimestamp.offset((int)LongEncoder.read(buf));
+        this.leaderLeaseTimeout = Message.getBoolean(buf) ? this.leaderTimestamp.offset((int)LongEncoder.read(buf)) : null;
         this.leaderCommit = LongEncoder.read(buf);
         this.prevLogTerm = LongEncoder.read(buf);
         this.prevLogIndex = LongEncoder.read(buf);
@@ -98,7 +98,6 @@ public class AppendRequest extends Message {
     void checkArguments() {
         super.checkArguments();
         Preconditions.checkArgument(this.leaderTimestamp != null);
-        Preconditions.checkArgument(this.leaderLeaseTimeout != null);
         Preconditions.checkArgument(this.leaderCommit >= 0);
         Preconditions.checkArgument(this.prevLogTerm >= 0);
         Preconditions.checkArgument(this.prevLogIndex >= 0);
@@ -171,7 +170,9 @@ public class AppendRequest extends Message {
         Preconditions.checkState(!this.mutationDataInvalid);
         super.writeTo(dest);
         Message.putTimestamp(dest, this.leaderTimestamp);
-        LongEncoder.write(dest, this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp));
+        Message.putBoolean(dest, this.leaderLeaseTimeout != null);
+        if (this.leaderLeaseTimeout != null)
+            LongEncoder.write(dest, this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp));
         LongEncoder.write(dest, this.leaderCommit);
         LongEncoder.write(dest, this.prevLogTerm);
         LongEncoder.write(dest, this.prevLogIndex);
@@ -188,7 +189,9 @@ public class AppendRequest extends Message {
         Preconditions.checkState(!this.mutationDataInvalid);
         return super.calculateSize()
           + Message.calculateSize(this.leaderTimestamp)
-          + LongEncoder.encodeLength(this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp))
+          + 1
+          + (this.leaderLeaseTimeout != null ?
+            LongEncoder.encodeLength(this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp)) : 0)
           + LongEncoder.encodeLength(this.leaderCommit)
           + LongEncoder.encodeLength(this.prevLogTerm)
           + LongEncoder.encodeLength(this.prevLogIndex)
@@ -205,7 +208,8 @@ public class AppendRequest extends Message {
           + ",clusterId=" + String.format("%08x", this.getClusterId())
           + ",term=" + this.getTerm()
           + ",leaderTimestamp=" + this.leaderTimestamp
-          + ",leaderLeaseTimeout=" + String.format("%+dms", this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp))
+          + (this.leaderLeaseTimeout != null ?
+            ",leaderLeaseTimeout=" + String.format("%+dms", this.leaderLeaseTimeout.offsetFrom(this.leaderTimestamp)) : "")
           + ",leaderCommit=" + this.leaderCommit
           + ",prevLog=" + this.prevLogIndex + "t" + this.prevLogTerm
           + (this.logEntryTerm != 0 ? ",logEntryTerm=" + this.logEntryTerm : "")

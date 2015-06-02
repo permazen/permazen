@@ -24,14 +24,9 @@ import java.util.regex.Pattern;
 import org.jsimpledb.kv.mvcc.Writes;
 
 /**
- * Represents a Raft log entry.
+ * Represents one unapplied Raft log entry.
  */
-class LogEntry {
-
-    public static final String LOG_FILE_PREFIX = "log-";
-    public static final String LOG_FILE_SUFFIX = ".bin";
-    public static final Pattern LOG_FILE_PATTERN = Pattern.compile(
-      Pattern.quote(LOG_FILE_PREFIX) + "([0-9]{19})-([0-9]{19})" + Pattern.quote(LOG_FILE_SUFFIX));
+public class LogEntry {
 
     /**
      * Sorts instances by {@linkplain LogEntry#getIndex log index}.
@@ -42,6 +37,11 @@ class LogEntry {
             return Long.compare(logEntry1.getIndex(), logEntry2.getIndex());
         }
     };
+
+    static final String LOG_FILE_PREFIX = "log-";
+    static final String LOG_FILE_SUFFIX = ".bin";
+    static final Pattern LOG_FILE_PATTERN = Pattern.compile(
+      Pattern.quote(LOG_FILE_PREFIX) + "([0-9]{19})-([0-9]{19})" + Pattern.quote(LOG_FILE_SUFFIX));
 
     private final Timestamp createTime = new Timestamp();
     private final long term;
@@ -64,7 +64,7 @@ class LogEntry {
      * @param data log entry data
      * @param fileSize the size of the file
      */
-    public LogEntry(long term, long index, File logDir, Data data, long fileSize) {
+    LogEntry(long term, long index, File logDir, Data data, long fileSize) {
         Preconditions.checkArgument(term > 0, "bogus term");
         Preconditions.checkArgument(index > 0, "bogus index");
         Preconditions.checkArgument(logDir != null, "null logDir");
@@ -82,7 +82,7 @@ class LogEntry {
 // Properties
 
     /**
-     * Get the age of this instance since instantiation.
+     * Get the age of this log entry since instantiation.
      *
      * @return age in milliseconds
      */
@@ -91,7 +91,7 @@ class LogEntry {
     }
 
     /**
-     * Get the log term of this instance.
+     * Get the term of this instance.
      *
      * @return associated log entry term
      */
@@ -100,7 +100,7 @@ class LogEntry {
     }
 
     /**
-     * Get the log index of this instance.
+     * Get the index of this instance.
      *
      * @return associated log entry index
      */
@@ -113,17 +113,21 @@ class LogEntry {
      *
      * @return transaction writes
      */
-    public Writes getWrites() {
+    Writes getWrites() {
         return this.writes;
     }
 
     /**
      * Get the cluster config change associated with this log entry, if any.
      *
+     * <p>
+     * The returned array is a copy; changes have no effect on this instance.
+     *
      * @return cluster config change, or null if none
+     * @see RaftKVTransaction#configChange
      */
     public String[] getConfigChange() {
-        return this.configChange;
+        return this.configChange != null ? this.configChange.clone() : null;
     }
 
     /**
@@ -132,7 +136,7 @@ class LogEntry {
      * @param config configuration to modify
      * @return true if {@code config} was modified, otherwise false
      */
-    public boolean applyConfigChange(Map<String, String> config) {
+    boolean applyConfigChange(Map<String, String> config) {
         if (this.configChange == null)
             return false;
         return this.configChange[1] != null ?
@@ -163,7 +167,7 @@ class LogEntry {
     /**
      * Get the serialized contents of this log entry by reading the file.
      */
-    public ByteBuffer getContent() throws IOException {
+    ByteBuffer getContent() throws IOException {
         if (this.content == null)
             this.content = Util.readFile(this.getFile(), this.fileSize);
         return this.content.asReadOnlyBuffer();
@@ -177,7 +181,7 @@ class LogEntry {
      * @throws NullPointerException if {@code file} is null
      * @throws IOException if an I/O error occurs
      */
-    public static LogEntry fromFile(File file) throws IOException {
+    static LogEntry fromFile(File file) throws IOException {
 
         // Parse file name
         final Matcher matcher = LOG_FILE_PATTERN.matcher(file.getName());
@@ -206,7 +210,7 @@ class LogEntry {
      * @return log entry data
      * @throws IOException if an I/O error occurs
      */
-    public static Data readData(InputStream input) throws IOException {
+    static Data readData(InputStream input) throws IOException {
         Preconditions.checkArgument(input != null, "null input");
 
         // Get writes
@@ -238,7 +242,7 @@ class LogEntry {
      * @param data log entry data
      * @throws IOException if an I/O error occurs
      */
-    public static void writeData(OutputStream output, Data data) throws IOException {
+    static void writeData(OutputStream output, Data data) throws IOException {
         Preconditions.checkArgument(output != null, "null output");
         Preconditions.checkArgument(data != null, "null data");
         data.getWrites().serialize(output);
@@ -270,7 +274,7 @@ class LogEntry {
     /**
      * Data associated with a {@link LogEntry}.
      */
-    public static class Data {
+    static class Data {
 
         private final Writes writes;
         private final String[] configChange;

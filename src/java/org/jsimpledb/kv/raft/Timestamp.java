@@ -7,18 +7,38 @@ package org.jsimpledb.kv.raft;
 
 import com.google.common.base.Preconditions;
 
+import java.util.Comparator;
+
 /**
- * Represents a relative timestamp in milliseconds. Stored as an unsigned integer that cycles after 2<sup>32</sup>
- * milliseconds (about 48 days). Two values to be compared must have been generated within 24 days of each other
- * to be ordered correctly.
+ * Represents a relative timestamp in milliseconds.
+ *
+ * <p>
+ * Values are stored as an unsigned 32 bit integer, which therefore recycles after 2<sup>32</sup> milliseconds (about 48 days).
+ * Two values to be {@linkplain #compareTo compared} must have been generated within 24 days of each other to be ordered correctly.
  *
  * <p>
  * This class uses {@link System#nanoTime}, not {@link System#currentTimeMillis}, and so is immune to changes in the system clock.
+ * To facilitate debugging, the zero mark is set at class initialization time.
  *
  * <p>
  * Instances are immutable.
  */
 public class Timestamp implements Comparable<Timestamp> {
+
+    /**
+     * Sorts possibly null {@link Timestamp}s in chronological order, with null sorting first.
+     *
+     * <p>
+     * All non-null {@link Timestamp}s must be contained within a single 2<sup>31</sup>-1 range; otherwise results are undefined.
+     */
+    public static final Comparator<Timestamp> NULL_FIRST_SORT = new Comparator<Timestamp>() {
+        @Override
+        public int compare(Timestamp t1, Timestamp t2) {
+            return t1 == null ?
+              (t2 == null ? 0 : -1) :
+              (t2 == null ? 1 : t1.compareTo(t2));
+        }
+    };
 
     // Make timestamps start at zero to facilitate debugging
     private static final int TIME_BASE = Timestamp.milliTime();
@@ -53,6 +73,9 @@ public class Timestamp implements Comparable<Timestamp> {
     /**
      * Get the number of milliseconds this instance is offset from the current time.
      *
+     * <p>
+     * A positive offset means this instance is in the future.
+     *
      * @return relative millisecond offset
      */
     public int offsetFromNow() {
@@ -61,6 +84,9 @@ public class Timestamp implements Comparable<Timestamp> {
 
     /**
      * Get the number of milliseconds this instance is offset from the given instance.
+     *
+     * <p>
+     * A positive offset means this instance is after {@code base}.
      *
      * @param base base timestamp
      * @return relative millisecond offset
@@ -88,15 +114,6 @@ public class Timestamp implements Comparable<Timestamp> {
      */
     public boolean hasOccurred() {
         return Timestamp.now() - this.millis >= 0;
-    }
-
-    /**
-     * Get a {@link Timestamp} in the distant past. The actual returned value is about 12 days ago.
-     *
-     * @return timestamp value in the distant past
-     */
-    public static Timestamp distantPast() {
-        return new Timestamp(Timestamp.now() - 0x40000000);
     }
 
 // Internal methods
@@ -132,6 +149,16 @@ public class Timestamp implements Comparable<Timestamp> {
 
 // Comparable
 
+    /**
+     * Compare two instances, where "smaller" means earlier in time.
+     *
+     * <p>
+     * Note: because timestamps recycle every 48 days, this method does <b>not</b> totally order instances.
+     *
+     * @param that timestamp to compare with
+     * @throws IllegalArgumentException if this instance and {@code that} differ by exactly 2<sup>31</sup> milliseconds
+     * @throws NullPointerException if {@code that} is null
+     */
     @Override
     public int compareTo(Timestamp that) {
         Preconditions.checkArgument(this.millis != (that.millis ^ 0x80000000));

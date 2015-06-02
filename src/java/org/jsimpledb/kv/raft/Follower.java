@@ -5,15 +5,26 @@
 
 package org.jsimpledb.kv.raft;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * State maintained by leaders about followers during one term.
+ * Contains information maintained by leaders about followers.
  */
-class Follower {
+public class Follower {
+
+    /**
+     * Sorts instances by their {@linkplain Follower#getIdentity identities}.
+     */
+    public static final Comparator<Follower> SORT_BY_IDENTITY = new Comparator<Follower>() {
+        @Override
+        public int compare(Follower f1, Follower f2) {
+            return f1.getIdentity().compareTo(f1.getIdentity());
+        }
+    };
 
     private final String identity;                      // follower's unique identity
     private final String address;                       // follower's network address
@@ -35,94 +46,137 @@ class Follower {
 
 // Construtors
 
-    public Follower(String identity, String address, long lastLogIndex) {
+    Follower(String identity, String address, long lastLogIndex) {
         assert identity != null;
         assert address != null;
         assert lastLogIndex >= 0;
         this.identity = identity;
         this.address = address;
         this.nextIndex = lastLogIndex + 1;
-        this.leaderTimestamp = Timestamp.distantPast();
     }
 
-// Properties
+// Status
 
+    /**
+     * Get the identity of this follower.
+     *
+     * @return follower identity
+     */
     public String getIdentity() {
         return this.identity;
     }
 
+    /**
+     * Get the address of this follower.
+     *
+     * @return follower address
+     */
     public String getAddress() {
         return this.address;
     }
 
+    /**
+     * Get the index of the next log entry to send to this follower.
+     *
+     * @return follower next index
+     */
     public long getNextIndex() {
         return this.nextIndex;
     }
-    public void setNextIndex(long nextIndex) {
+    void setNextIndex(long nextIndex) {
         this.nextIndex = nextIndex;
     }
 
+    /**
+     * Get the index of the highest log entry in the follower's log known to match the leader's log.
+     *
+     * @return follower next index
+     */
     public long getMatchIndex() {
         return this.matchIndex;
     }
-    public void setMatchIndex(long matchIndex) {
+    void setMatchIndex(long matchIndex) {
         this.matchIndex = matchIndex;
     }
 
+    /**
+     * Get the most recent (leader's) request timestamp returned by this follower in a response, if any.
+     *
+     * @return follower leader timestamp, or null if no response has been received yet from this follower
+     */
     public Timestamp getLeaderTimestamp() {
         return this.leaderTimestamp;
     }
-    public void setLeaderTimestamp(Timestamp leaderTimestamp) {
+    void setLeaderTimestamp(Timestamp leaderTimestamp) {
         this.leaderTimestamp = leaderTimestamp;
     }
 
+    /**
+     * Get the leader commit index most recently sent to this follower.
+     *
+     * @return follower leader commit index
+     */
     public long getLeaderCommit() {
         return this.leaderCommit;
     }
-    public void setLeaderCommit(long leaderCommit) {
+    void setLeaderCommit(long leaderCommit) {
         this.leaderCommit = leaderCommit;
     }
 
     /**
-     * Determine whether we believe this follower is "synchronized". By "synchronized" we mean the most recently received
-     * {@link org.jsimpledb.kv.raft.msg.AppendResponse} indicated a successful match of the previous log entry.
+     * Determine whether we believe this follower is "synchronized".
+     *
+     * <p>
+     * By "synchronized" we mean the most recently received {@link org.jsimpledb.kv.raft.msg.AppendResponse}
+     * indicated a successful match of the previous log entry. We only send "probes" to unsynchronized followers.
      *
      * @return true if synchronized
      */
     public boolean isSynced() {
         return this.synced;
     }
-    public void setSynced(boolean synced) {
+    void setSynced(boolean synced) {
         this.synced = synced;
     }
 
-    public SnapshotTransmit getSnapshotTransmit() {
+    /**
+     * Determine whether this follower is currently being sent a whole database snapshot download.
+     *
+     * @return true if snapshot install is in progress
+     */
+    public boolean isReceivingSnapshot() {
+        return this.snapshotTransmit != null;
+    }
+
+// Package-access methods
+
+    SnapshotTransmit getSnapshotTransmit() {
         return this.snapshotTransmit;
     }
-    public void setSnapshotTransmit(SnapshotTransmit snapshotTransmit) {
+    void setSnapshotTransmit(SnapshotTransmit snapshotTransmit) {
         this.snapshotTransmit = snapshotTransmit;
     }
 
-    public Set<LogEntry> getSkipDataLogEntries() {
+    Set<LogEntry> getSkipDataLogEntries() {
         return this.skipDataLogEntries;
     }
 
-    public NavigableSet<Timestamp> getCommitLeaseTimeouts() {
+    NavigableSet<Timestamp> getCommitLeaseTimeouts() {
         return this.commitLeaseTimeouts;
     }
 
-    public RaftKVDatabase.Timer getUpdateTimer() {
+    RaftKVDatabase.Timer getUpdateTimer() {
         return this.updateTimer;
     }
-    public void setUpdateTimer(RaftKVDatabase.Timer updateTimer) {
+    void setUpdateTimer(RaftKVDatabase.Timer updateTimer) {
         this.updateTimer = updateTimer;
     }
 
-    public void updateNow() {
+    void updateNow() {
         this.updateTimer.timeoutNow();
     }
 
-    public void cancelSnapshotTransmit() {
+    void cancelSnapshotTransmit() {
         if (this.snapshotTransmit != null)  {
             this.matchIndex = Math.min(this.matchIndex, this.snapshotTransmit.getSnapshotIndex());
             this.snapshotTransmit.close();
@@ -133,7 +187,7 @@ class Follower {
 
 // Clean up this follower
 
-    public void cleanup() {
+    void cleanup() {
         this.cancelSnapshotTransmit();
         this.updateTimer.cancel();
     }
@@ -147,7 +201,8 @@ class Follower {
           + ",nextIndex=" + this.nextIndex
           + ",matchIndex=" + this.matchIndex
           + ",leaderCommit=" + this.leaderCommit
-          + ",leaderTimestamp=" + String.format("%+dms", this.leaderTimestamp.offsetFromNow())
+          + (this.leaderTimestamp != null ?
+            ",leaderTimestamp=" + String.format("%+dms", this.leaderTimestamp.offsetFromNow()) : "")
           + ",synced=" + this.synced
           + (!this.skipDataLogEntries.isEmpty() ? ",skipDataLogEntries=" + this.skipDataLogEntries : "")
           + (this.snapshotTransmit != null ? ",snapshotTransmit=" + this.snapshotTransmit : "")

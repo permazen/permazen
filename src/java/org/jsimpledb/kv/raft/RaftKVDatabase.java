@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -145,8 +146,8 @@ import org.slf4j.LoggerFactory;
  *      timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
  *      is immediately notified.</li>
  *  <li>A weaker consistency guarantee for read-only transactions (stale reads) is also possible; see
- *      {@link RaftKVTransaction#setReadOnlySnapshot RaftKVTransaction.setReadOnlySnapshot()}. Typically these
- *      transactions will generate no network traffic.</li>
+ *      {@link RaftKVTransaction#setStaleReadOnly RaftKVTransaction.setStaleReadOnly()}; these transactions generate
+ *      no additional network traffic.</li>
  *  </ul>
  *
  * <p><b>Limitations</b></p>
@@ -277,7 +278,7 @@ public class RaftKVDatabase implements KVDatabase {
     private static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;
     private static final int MAX_UNAPPLIED_LOG_ENTRIES = 64;
     private static final int FOLLOWER_LINGER_HEARTBEATS = 3;                // how long to keep updating removed followers
-    private static final float MAX_CLOCK_DRIFT = 0.01f;                     // max clock drift (ratio) in one min election timeout
+    private static final float MAX_CLOCK_DRIFT = 0.01f;                     // max clock drift as a percentage ratio
 
     // File prefixes and suffixes
     private static final String TX_FILE_PREFIX = "tx-";
@@ -368,6 +369,15 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     /**
+     * Get the directory in which uncommitted log entries are stored.
+     *
+     * @return configured log directory
+     */
+    public synchronized File getLogDirectory() {
+        return this.logDir;
+    }
+
+    /**
      * Configure the {@link Network} to use for inter-node communication.
      *
      * <p>
@@ -385,7 +395,7 @@ public class RaftKVDatabase implements KVDatabase {
      * Configure the Raft identity.
      *
      * <p>
-     * Required property unless this is a single-node cluster.
+     * Required property.
      *
      * @param identity unique Raft identity of this node in its cluster
      * @throws IllegalStateException if this instance is already started
@@ -428,6 +438,15 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     /**
+     * Get the configured minimum election timeout.
+     *
+     * @return minimum election timeout in milliseconds
+     */
+    public synchronized int getMinElectionTimeout() {
+        return this.minElectionTimeout;
+    }
+
+    /**
      * Configure the maximum election timeout.
      *
      * <p>
@@ -441,6 +460,15 @@ public class RaftKVDatabase implements KVDatabase {
         Preconditions.checkArgument(timeout > 0, "timeout <= 0");
         Preconditions.checkState(this.role == null, "already started");
         this.maxElectionTimeout = timeout;
+    }
+
+    /**
+     * Get the configured maximum election timeout.
+     *
+     * @return maximum election timeout in milliseconds
+     */
+    public synchronized int getMaxElectionTimeout() {
+        return this.maxElectionTimeout;
     }
 
     /**
@@ -460,6 +488,15 @@ public class RaftKVDatabase implements KVDatabase {
         Preconditions.checkArgument(timeout > 0, "timeout <= 0");
         Preconditions.checkState(this.role == null, "already started");
         this.heartbeatTimeout = timeout;
+    }
+
+    /**
+     * Get the configured heartbeat timeout.
+     *
+     * @return heartbeat timeout in milliseconds
+     */
+    public synchronized int getHeartbeatTimeout() {
+        return this.heartbeatTimeout;
     }
 
     /**
@@ -485,14 +522,23 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     /**
-     * Configure the maximum allowed memory used for caching log entries that have already been applied to the state machine.
+     * Get the configured maximum supported duration for outstanding transactions.
+     *
+     * @return maximum supported duration for outstanding transactions in milliseconds
+     */
+    public synchronized int getMaxTransactionDuration() {
+        return this.maxTransactionDuration;
+    }
+
+    /**
+     * Configure the maximum allowed memory used for unapplied log entries.
      *
      * <p>
      * This value is the <i>M<sub>max</sub></i> value from the {@linkplain RaftKVDatabase overview}.
      * A higher value means transactions may be larger and/or stay open longer without causing a {@link RetryTransactionException}.
      *
      * <p>
-     * This value is approximate, and only affects leaders; followers do not cache applied log entries.
+     * This value is approximate, and only affects leaders; followers always apply committed log entries immediately.
      *
      * <p>
      * This value may be changed while this instance is already running.
@@ -510,12 +556,21 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     /**
+     * Get the configured maximum allowed memory used for unapplied log entries.
+     *
+     * @return maximum allowed memory usage for cached applied log entries
+     */
+    public synchronized long getMaxAppliedLogMemory() {
+        return this.maxAppliedLogMemory;
+    }
+
+    /**
      * Configure the default transaction commit timeout.
      *
      * <p>
      * This value determines how transactions will wait once {@link RaftKVTransaction#commit commit()}
-     * is invoked for the commit to succeed. This can be overridden on a per-transaction basis via
-     * {@link RaftKVTransaction#setTimeout}.
+     * is invoked for the commit to succeed before failing with a {@link RetryTransactionException}.
+     * This can be overridden on a per-transaction basis via {@link RaftKVTransaction#setTimeout}.
      *
      * <p>
      * This value may be changed while this instance is already running.
@@ -530,6 +585,169 @@ public class RaftKVDatabase implements KVDatabase {
     public synchronized void setCommitTimeout(int timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.commitTimeout = commitTimeout;
+    }
+
+    /**
+     * Get the configured default transaction commit timeout.
+     *
+     * @return transaction commit timeout in milliseconds, or zero for unlimited
+     */
+    public synchronized int getCommitTimeout() {
+        return this.commitTimeout;
+    }
+
+// Status
+
+    /**
+     * Retrieve the unique 32-bit ID for this node's cluster.
+     *
+     * <p>
+     * A value of zero indicates an unconfigured system. Usually the reverse true, though an unconfigured system
+     * can have a non-zero cluster ID in the rare case where an error occurred persisting the initial log entry.
+     *
+     * @return the unique ID of this node's cluster, or zero if this node is unconfigured
+     */
+    public synchronized int getClusterId() {
+        return this.clusterId;
+    }
+
+    /**
+     * Retrieve the current cluster configuration as understood by this node.
+     *
+     * <p>
+     * Configuration changes are performed and committed in the context of a normal transaction; see
+     * {@link RaftKVTransaction#configChange RaftKVTransaction.configChange()}.
+     *
+     * <p>
+     * If this system is unconfigured, an empty map is returned (and vice-versa).
+     *
+     * <p>
+     * The returned map is a copy; changes have no effect on this instance.
+     *
+     * @return current configuration mapping from node identity to network address, or empty if this node is unconfigured
+     */
+    public synchronized Map<String, String> getCurrentConfig() {
+        return new TreeMap<>(this.currentConfig);
+    }
+
+    /**
+     * Determine whether this instance is configured.
+     *
+     * <p>
+     * A node is configured if and only if it has at least one log entry. The first log entry always
+     * includes a configuration change that adds the node that created it to the (previously empty) cluster.
+     *
+     * @return true if this instance is configured, otherwise false
+     */
+    public synchronized boolean isConfigured() {
+        return this.lastAppliedIndex > 0 || !this.raftLog.isEmpty();
+    }
+
+    /**
+     * Determine whether this node thinks that it is part of its cluster, as determined by its
+     * {@linkplain #getCurrentConfig current configuration}.
+     *
+     * @return true if this instance is part of the cluster, otherwise false
+     */
+    public synchronized boolean isClusterMember() {
+        return this.isClusterMember(this.identity);
+    }
+
+    /**
+     * Determine whether this node thinks that the specified node is part of the cluster, as determined by its
+     * {@linkplain #getCurrentConfig current configuration}.
+     *
+     * @param node node identity
+     * @return true if the specified node is part of the cluster, otherwise false
+     */
+    public synchronized boolean isClusterMember(String node) {
+        return this.currentConfig.containsKey(node);
+    }
+
+    /**
+     * Get this instance's current role: leadeer, follower, or candidate.
+     *
+     * @return current {@link Role}, or null if not running
+     */
+    public synchronized Role getRole() {
+        return this.role;
+    }
+
+    /**
+     * Get this instance's current term.
+     *
+     * @return current term
+     */
+    public synchronized long getCurrentTerm() {
+        return this.currentTerm;
+    }
+
+    /**
+     * Get this instance's current commit index..
+     *
+     * @return current commit index
+     */
+    public synchronized long getCommitIndex() {
+        return this.commitIndex;
+    }
+
+    /**
+     * Get this instance's last applied log entry term.
+     *
+     * @return last applied term
+     */
+    public synchronized long getLastAppliedTerm() {
+        return this.lastAppliedTerm;
+    }
+
+    /**
+     * Get this instance's last applied log entry index.
+     *
+     * @return last applied index
+     */
+    public synchronized long getLastAppliedIndex() {
+        return this.lastAppliedIndex;
+    }
+
+    /**
+     * Get the unapplied {@link LogEntry}s in this instance's Raft log.
+     *
+     * <p>
+     * The returned list is a copy; changes have no effect on this instance.
+     *
+     * @return unapplied log entries; or null if this instance is not running
+     */
+    public synchronized List<LogEntry> getUnappliedLog() {
+        return this.raftLog != null ? new ArrayList<>(this.raftLog) : null;
+    }
+
+    /**
+     * Get the estimated total memory used by unapplied log entries.
+     *
+     * @return unapplied log entry memory usage
+     */
+    public synchronized long getUnappliedLogMemoryUsage() {
+        long total = 0;
+        for (LogEntry logEntry : this.raftLog)
+            total += logEntry.getFileSize();
+        return total;
+    }
+
+    /**
+     * Get the set of open transactions associated with this database.
+     *
+     * <p>
+     * The returned set is a copy; changes have no effect on this instance.
+     *
+     * @return all open transactions
+     */
+    public synchronized List<RaftKVTransaction> getOpenTransactions() {
+        final ArrayList<RaftKVTransaction> list;
+        synchronized (this) {
+            list = new ArrayList<>(this.openTransactions.values());
+        }
+        Collections.sort(list, RaftKVTransaction.SORT_BY_ID);
+        return list;
     }
 
 // Lifecycle
@@ -561,7 +779,8 @@ public class RaftKVDatabase implements KVDatabase {
         Preconditions.checkState(this.identity != null, "no identity configured");
 
         // Log
-        this.info("starting " + this + " in directory " + this.logDir);
+        if (this.log.isDebugEnabled())
+            this.debug("starting " + this.getClass().getName() + " in directory " + this.logDir);
 
         // Start up local database
         boolean success = false;
@@ -626,7 +845,8 @@ public class RaftKVDatabase implements KVDatabase {
 
             // If we crashed part way through a snapshot install, recover by resetting state machine
             if (this.lastAppliedTerm < 0 || this.lastAppliedIndex < 0) {
-                this.info("detected partially applied snapshot, resetting state machine");
+                if (this.log.isDebugEnabled())
+                    this.debug("detected partially applied snapshot, resetting state machine");
                 if (!this.resetStateMachine(true))
                     throw new IOException("error resetting state machine");
             }
@@ -638,14 +858,16 @@ public class RaftKVDatabase implements KVDatabase {
             this.loadLog();
 
             // Show recovered state
-            this.info("recovered Raft state:"
-              + "\n  clusterId=" + (this.clusterId != 0 ? String.format("0x%08x", this.clusterId) : "none")
-              + "\n  currentTerm=" + this.currentTerm
-              + "\n  lastApplied=" + this.lastAppliedIndex + "t" + this.lastAppliedTerm
-              + "\n  lastAppliedConfig=" + this.lastAppliedConfig
-              + "\n  currentConfig=" + this.currentConfig
-              + "\n  votedFor=" + (votedFor != null ? "\"" + votedFor + "\"" : "nobody")
-              + "\n  log=" + this.raftLog);
+            if (this.log.isDebugEnabled()) {
+                this.debug("recovered Raft state:"
+                  + "\n  clusterId=" + (this.clusterId != 0 ? String.format("0x%08x", this.clusterId) : "none")
+                  + "\n  currentTerm=" + this.currentTerm
+                  + "\n  lastApplied=" + this.lastAppliedIndex + "t" + this.lastAppliedTerm
+                  + "\n  lastAppliedConfig=" + this.lastAppliedConfig
+                  + "\n  currentConfig=" + this.currentConfig
+                  + "\n  votedFor=" + (votedFor != null ? "\"" + votedFor + "\"" : "nobody")
+                  + "\n  log=" + this.raftLog);
+            }
 
             // Validate recovered state
             if (this.isConfigured()) {
@@ -657,7 +879,6 @@ public class RaftKVDatabase implements KVDatabase {
             } else {
                 Preconditions.checkArgument(this.lastAppliedTerm == 0);
                 Preconditions.checkArgument(this.lastAppliedIndex == 0);
-                Preconditions.checkArgument(this.currentTerm == 0);
                 Preconditions.checkArgument(this.getLastLogTerm() == 0);
                 Preconditions.checkArgument(this.getLastLogIndex() == 0);
                 Preconditions.checkArgument(this.currentConfig.isEmpty());
@@ -668,6 +889,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.changeRole(new FollowerRole(this, null, null, votedFor));
 
             // Done
+            this.info("successfully started " + this + " in directory " + this.logDir);
             success = true;
         } finally {
             if (!success)
@@ -801,6 +1023,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Sanity check
         assert Thread.holdsLock(this);
+        assert this.raftLog.isEmpty();
 
         // Scan for log entry files
         this.raftLog.clear();
@@ -808,14 +1031,17 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Is this a log entry file?
             if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches()) {
-                this.info("recovering log file " + file.getName());
-                this.raftLog.add(LogEntry.fromFile(file));
+                if (this.log.isDebugEnabled())
+                    this.debug("recovering log file " + file.getName());
+                final LogEntry logEntry = LogEntry.fromFile(file);
+                this.raftLog.add(logEntry);
                 continue;
             }
 
             // Is this a leftover temporary file?
             if (TEMP_FILE_PATTERN.matcher(file.getName()).matches()) {
-                this.info("deleting leftover temporary file " + file.getName());
+                if (this.log.isDebugEnabled())
+                    this.debug("deleting leftover temporary file " + file.getName());
                 if (!file.delete())
                     this.error("failed to delete leftover temporary file " + file);
                 continue;
@@ -852,7 +1078,10 @@ public class RaftKVDatabase implements KVDatabase {
                 lastTermSeen = logEntry.getTerm();
             }
         }
-        this.info("recovered " + this.raftLog.size() + " Raft log entries: " + this.raftLog);
+        if (this.log.isDebugEnabled()) {
+            this.debug("recovered " + this.raftLog.size() + " log entries: " + this.raftLog
+              + " (" + this.getUnappliedLogMemoryUsage() + " total bytes)");
+        }
 
         // Rebuild current configuration
         this.currentConfig = this.buildCurrentConfig();
@@ -869,69 +1098,6 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Done
         return config;
-    }
-
-// Configuration Stuff
-
-    /**
-     * Retrieve the unique 32-bit ID for this node's cluster.
-     *
-     * <p>
-     * A value of zero indicates an unconfigured system. Usually the reverse true, though an unconfigured system
-     * can have a non-zero cluster ID in the rare case where an error occurred persisting the initial log entry.
-     *
-     * @return unique cluster ID, or zero if this node is unconfigured
-     */
-    public synchronized int getClusterId() {
-        return this.clusterId;
-    }
-
-    /**
-     * Retrieve the current cluster configuration as understood by this node.
-     *
-     * <p>
-     * Configuration changes are performed and committed in the context of a normal transaction; see
-     * {@link RaftKVTransaction#configChange RaftKVTransaction.configChange()}.
-     *
-     * <p>
-     * If this system is unconfigured, an empty map is returned (and vice-versa).
-     *
-     * @return current configuration mapping from node identity to network address, or empty if this node is unconfigured
-     */
-    public synchronized Map<String, String> getCurrentConfig() {
-        return new HashMap<>(this.currentConfig);
-    }
-
-    /**
-     * Determine whether this instance is configured.
-     *
-     * <p>
-     * A node is configured iff it has added at least one Raft log entry (because the first log entry in any
-     * new cluster always includes a configuration change that adds the first node in the cluster).
-     *
-     * @return true if this instance is configured, otherwise false
-     */
-    public boolean isConfigured() {
-        return this.lastAppliedIndex > 0 || !this.raftLog.isEmpty();
-    }
-
-    /**
-     * Determine whether this node thinks that it is part of the cluster, as currently configured on this node.
-     *
-     * @return true if this instance is part of the cluster, otherwise false
-     */
-    public boolean isClusterMember() {
-        return this.isClusterMember(this.identity);
-    }
-
-    /**
-     * Determine whether this node thinks that the specified node is part of the cluster, as currently configured on this node.
-     *
-     * @param node node identity
-     * @return true if the specified node is part of the cluster, otherwise false
-     */
-    public boolean isClusterMember(String node) {
-        return this.currentConfig.containsKey(node);
     }
 
 // Transactions
@@ -956,7 +1122,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Create transaction
         final RaftKVTransaction tx = new RaftKVTransaction(this,
-          this.getLastLogTerm(), this.getLastLogIndex(), view.getSnapshot(), view.getView());
+          view.getTerm(), view.getIndex(), view.getSnapshot(), view.getView());
         if (this.log.isDebugEnabled())
             this.debug("created new transaction " + tx);
         this.openTransactions.put(tx.getTxId(), tx);
@@ -988,7 +1154,6 @@ public class RaftKVDatabase implements KVDatabase {
                     // Transition to COMMIT_READY state
                     if (this.log.isDebugEnabled())
                         this.debug("committing transaction " + tx);
-                    tx.closeSnapshot();
                     tx.setState(TxState.COMMIT_READY);
                     this.requestService(this.role.new CheckReadyTransactionService(tx));
 
@@ -1075,9 +1240,6 @@ public class RaftKVDatabase implements KVDatabase {
         if (this.role != null)
             this.role.cleanupForTransaction(tx);
 
-        // Close transaction's snapshot
-        tx.closeSnapshot();
-
         // Cancel commit timer
         final Timer commitTimer = tx.getCommitTimer();
         if (commitTimer != null)
@@ -1137,6 +1299,9 @@ public class RaftKVDatabase implements KVDatabase {
     private class MostRecentView {
 
         private final CloseableKVStore snapshot;
+        private final long term;
+        private final long index;
+        private final HashMap<String, String> config;
         private final MutableView view;
 
         public MostRecentView() {
@@ -1144,6 +1309,7 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Grab a snapshot of the key/value store
             this.snapshot = RaftKVDatabase.this.kv.snapshot();
+            this.config = new HashMap<>(RaftKVDatabase.this.lastAppliedConfig);
 
             // Create a view of just the state machine keys and values and successively layer unapplied log entries
             KVStore kview = PrefixKVStore.create(snapshot, STATE_MACHINE_PREFIX);
@@ -1151,10 +1317,25 @@ public class RaftKVDatabase implements KVDatabase {
                 final Writes writes = logEntry.getWrites();
                 if (!writes.isEmpty())
                     kview = new MutableView(kview, null, logEntry.getWrites());
+                logEntry.applyConfigChange(this.config);
             }
 
             // Finalize
             this.view = new MutableView(kview);
+            this.term = RaftKVDatabase.this.getLastLogTerm();
+            this.index = RaftKVDatabase.this.getLastLogIndex();
+        }
+
+        public long getTerm() {
+            return this.term;
+        }
+
+        public long getIndex() {
+            return this.index;
+        }
+
+        public Map<String, String> getConfig() {
+            return this.config;
         }
 
         public CloseableKVStore getSnapshot() {
@@ -1456,7 +1637,7 @@ public class RaftKVDatabase implements KVDatabase {
         this.commitIndex = this.lastAppliedIndex;
         this.currentConfig = this.buildCurrentConfig();
         if (term >= 0 && index >= 0)
-            this.info("new current configuration: " + this.currentConfig);
+            this.info("new cluster configuration: " + this.currentConfig);
         return true;
     }
 
@@ -1468,7 +1649,8 @@ public class RaftKVDatabase implements KVDatabase {
         // Sanity check
         assert Thread.holdsLock(this);
         assert newTerm > this.currentTerm;
-        this.info("advancing current term from " + this.currentTerm + " -> " + newTerm);
+        if (this.log.isDebugEnabled())
+            this.debug("advancing current term from " + this.currentTerm + " -> " + newTerm);
 
         // Update persistent store
         final Writes writes = new Writes();
@@ -1487,19 +1669,19 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     /**
-     * Join the specified cluster.
+     * Join the specified cluster and persist the specified cluster ID.
      *
-     * @param newClusterId cluster ID, or zero to have one randomly assigned
+     * @param newClusterId cluster ID; must not be zero
+     * @return true if successful, false if an error occurred
+     * @throws IllegalStateException if this node is already part of some cluster
+     * @throws IllegalArgumentException if {@code newClusterId} is zero
      */
     private boolean joinCluster(int newClusterId) {
 
         // Sanity check
         assert Thread.holdsLock(this);
+        Preconditions.checkArgument(newClusterId != 0);
         Preconditions.checkState(this.clusterId == 0);
-
-        // Pick a new, random cluster ID if needed
-        while (newClusterId == 0)
-            newClusterId = this.random.nextInt();
 
         // Persist it
         this.info("joining cluster with ID " + String.format("0x%08x", newClusterId));
@@ -1541,7 +1723,8 @@ public class RaftKVDatabase implements KVDatabase {
         // Setup new role
         this.role = role;
         this.role.setup();
-        this.info("changing role to " + role);
+        if (this.log.isDebugEnabled())
+            this.debug("changing role to " + role);
     }
 
     /**
@@ -1579,7 +1762,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Update current config
         if (logEntry.applyConfigChange(this.currentConfig))
-            this.info("new current configuration: " + this.currentConfig);
+            this.info("new cluster configuration: " + this.currentConfig);
 
         // Done
         return logEntry;
@@ -1815,8 +1998,10 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Is sender's term too low? Ignore it
         if (msg.getTerm() < this.currentTerm) {
-            this.info("rec'd " + msg + " with term " + msg.getTerm() + " < " + this.currentTerm + " from \""
-              + peer + "\" at " + address + ", ignoring");
+            if (this.log.isDebugEnabled()) {
+                this.debug("rec'd " + msg + " with term " + msg.getTerm() + " < " + this.currentTerm
+                  + " from \"" + peer + "\" at " + address + ", ignoring");
+            }
             return;
         }
 
@@ -1833,9 +2018,11 @@ public class RaftKVDatabase implements KVDatabase {
             }
 
             // Revert to follower
-            this.info("rec'd " + msg.getClass().getSimpleName() + " with term " + msg.getTerm() + " > " + this.currentTerm
-              + " from \"" + peer + "\", updating term and "
-              + (this.role instanceof FollowerRole ? "remaining a" : "reverting to") + " follower");
+            if (this.log.isDebugEnabled()) {
+                this.debug("rec'd " + msg.getClass().getSimpleName() + " with term " + msg.getTerm() + " > "
+                  + this.currentTerm + " from \"" + peer + "\", updating term and "
+                  + (this.role instanceof FollowerRole ? "remaining a" : "reverting to") + " follower");
+            }
             if (!this.advanceTerm(msg.getTerm()))
                 return;
             this.changeRole(msg.isLeaderMessage() ? new FollowerRole(this, peer, address) : new FollowerRole(this));
@@ -1848,7 +2035,36 @@ public class RaftKVDatabase implements KVDatabase {
         // Handle message
         this.returnAddress = address;
         try {
-            msg.visit(this.role);
+            msg.visit(new MessageSwitch() {
+                @Override
+                public void caseAppendRequest(AppendRequest msg) {
+                    RaftKVDatabase.this.role.caseAppendRequest(msg);
+                }
+                @Override
+                public void caseAppendResponse(AppendResponse msg) {
+                    RaftKVDatabase.this.role.caseAppendResponse(msg);
+                }
+                @Override
+                public void caseCommitRequest(CommitRequest msg) {
+                    RaftKVDatabase.this.role.caseCommitRequest(msg);
+                }
+                @Override
+                public void caseCommitResponse(CommitResponse msg) {
+                    RaftKVDatabase.this.role.caseCommitResponse(msg);
+                }
+                @Override
+                public void caseGrantVote(GrantVote msg) {
+                    RaftKVDatabase.this.role.caseGrantVote(msg);
+                }
+                @Override
+                public void caseInstallSnapshot(InstallSnapshot msg) {
+                    RaftKVDatabase.this.role.caseInstallSnapshot(msg);
+                }
+                @Override
+                public void caseRequestVote(RequestVote msg) {
+                    RaftKVDatabase.this.role.caseRequestVote(msg);
+                }
+            });
         } finally {
             this.returnAddress = null;
         }
@@ -1973,23 +2189,27 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Raft Roles
 
-    private abstract static class Role implements MessageSwitch {
+    /**
+     * Common superclass for the three roles played by a Raft node:
+     * {@linkplain LeaderRole leader}, {@linkplain FollowerRole follower}, and {@linkplain CandidateRole candidate}.
+     */
+    public abstract static class Role {
 
-        protected final Logger log = LoggerFactory.getLogger(this.getClass());
-        protected final RaftKVDatabase raft;
-        protected final Service checkReadyTransactionsService = new Service(this, "check ready transactions") {
+        final Logger log = LoggerFactory.getLogger(this.getClass());
+        final RaftKVDatabase raft;
+        final Service checkReadyTransactionsService = new Service(this, "check ready transactions") {
             @Override
             public void run() {
                 Role.this.checkReadyTransactions();
             }
         };
-        protected final Service checkWaitingTransactionsService = new Service(this, "check waiting transactions") {
+        final Service checkWaitingTransactionsService = new Service(this, "check waiting transactions") {
             @Override
             public void run() {
                 Role.this.checkWaitingTransactions();
             }
         };
-        protected final Service applyCommittedLogEntriesService = new Service(this, "apply committed logs") {
+        final Service applyCommittedLogEntriesService = new Service(this, "apply committed logs") {
             @Override
             public void run() {
                 Role.this.applyCommittedLogEntries();
@@ -1998,21 +2218,32 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Constructors
 
-        protected Role(RaftKVDatabase raft) {
+        Role(RaftKVDatabase raft) {
             this.raft = raft;
             assert Thread.holdsLock(this.raft);
         }
 
+    // Status
+
+        /**
+         * Get the {@link RaftKVDatabase} with which this instance is associated.
+         *
+         * @return associated database
+         */
+        public RaftKVDatabase getKVDatabase() {
+            return this.raft;
+        }
+
     // Lifecycle
 
-        public void setup() {
+        void setup() {
             assert Thread.holdsLock(this.raft);
             this.raft.requestService(this.checkReadyTransactionsService);
             this.raft.requestService(this.checkWaitingTransactionsService);
             this.raft.requestService(this.applyCommittedLogEntriesService);
         }
 
-        public void shutdown() {
+        void shutdown() {
             assert Thread.holdsLock(this.raft);
             for (RaftKVTransaction tx : this.raft.openTransactions.values())
                 this.cleanupForTransaction(tx);
@@ -2020,12 +2251,12 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Service
 
-        public abstract void outputQueueEmpty(String address);
+        abstract void outputQueueEmpty(String address);
 
         /**
          * Check transactions in the {@link TxState#COMMIT_READY} state to see if we can advance them.
          */
-        protected void checkReadyTransactions() {
+        void checkReadyTransactions() {
             for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
                 new CheckReadyTransactionService(tx).run();
         }
@@ -2034,7 +2265,7 @@ public class RaftKVDatabase implements KVDatabase {
          * Check transactions in the {@link TxState#COMMIT_WAITING} state to see if they are committed yet.
          * We invoke this service method whenever our {@code commitIndex} advances.
          */
-        protected void checkWaitingTransactions() {
+        void checkWaitingTransactions() {
             for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
                 new CheckWaitingTransactionService(tx).run();
         }
@@ -2043,7 +2274,7 @@ public class RaftKVDatabase implements KVDatabase {
          * Apply committed but unapplied log entries to the state machine.
          * We invoke this service method whenever log entries are added or our {@code commitIndex} advances.
          */
-        protected void applyCommittedLogEntries() {
+        void applyCommittedLogEntries() {
 
             // Apply committed log entries to the state machine
             while (this.raft.lastAppliedIndex < this.raft.commitIndex) {
@@ -2109,30 +2340,19 @@ public class RaftKVDatabase implements KVDatabase {
                 this.raft.raftLog.remove(0);
                 if (!logEntry.getFile().delete())
                     this.error("failed to delete log file " + logEntry.getFile());
-
-                // Subclass hook
-                this.logEntryApplied(logEntry);
             }
         }
 
         /**
          * Determine whether the given log entry may be applied to the state machine.
          */
-        protected boolean mayApplyLogEntry(LogEntry logEntry) {
+        boolean mayApplyLogEntry(LogEntry logEntry) {
             return true;
-        }
-
-        /**
-         * Subclass hook invoked after a log entry has been applied to the state machine.
-         *
-         * @param logEntry the log entry just applied
-         */
-        protected void logEntryApplied(LogEntry logEntry) {
         }
 
     // Transaction service classes
 
-        protected abstract class AbstractTransactionService extends Service {
+        abstract class AbstractTransactionService extends Service {
 
             protected final RaftKVTransaction tx;
 
@@ -2169,7 +2389,7 @@ public class RaftKVDatabase implements KVDatabase {
             }
         }
 
-        protected class CheckReadyTransactionService extends AbstractTransactionService {
+        class CheckReadyTransactionService extends AbstractTransactionService {
 
             CheckReadyTransactionService(RaftKVTransaction tx) {
                 super(tx, "check ready tx#" + tx.getTxId());
@@ -2182,7 +2402,7 @@ public class RaftKVDatabase implements KVDatabase {
             }
         }
 
-        protected class CheckWaitingTransactionService extends AbstractTransactionService {
+        class CheckWaitingTransactionService extends AbstractTransactionService {
 
             CheckWaitingTransactionService(RaftKVTransaction tx) {
                 super(tx, "check waiting tx#" + tx.getTxId());
@@ -2214,7 +2434,7 @@ public class RaftKVDatabase implements KVDatabase {
          * @param tx the transaction
          * @throws KVTransactionException if an error occurs
          */
-        public abstract void checkReadyTransaction(RaftKVTransaction tx);
+        abstract void checkReadyTransaction(RaftKVTransaction tx);
 
         /**
          * Check a transaction waiting for its log entry to be committed (in the {@link TxState#COMMIT_WAITING} state).
@@ -2264,7 +2484,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.raft.succeed(tx);
         }
 
-        protected boolean mayCommit(RaftKVTransaction tx) {
+        boolean mayCommit(RaftKVTransaction tx) {
             return true;
         }
 
@@ -2276,22 +2496,22 @@ public class RaftKVDatabase implements KVDatabase {
          *
          * @param tx the transaction
          */
-        public abstract void cleanupForTransaction(RaftKVTransaction tx);
+        abstract void cleanupForTransaction(RaftKVTransaction tx);
 
         /**
-         * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state) for snapshot isolation.
+         * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state) for stale read isolation.
          *
          * @param tx the transaction
          * @return true if snapshot isolation and moved to {@link TxState@COMMIT_WAITING}
          */
-        protected boolean checkReadyTransactionReadOnlySnapshot(RaftKVTransaction tx) {
+        boolean checkReadyTransactionStaleReadOnly(RaftKVTransaction tx) {
 
             // Sanity check
             assert Thread.holdsLock(this.raft);
             assert tx.getState().equals(TxState.COMMIT_READY);
 
             // Check isolation
-            if (!tx.isReadOnlySnapshot())
+            if (!tx.isStaleReadOnly())
                 return false;
 
             // For snapshot isolation, we only need to wait for the commit of the transaction's base log entry
@@ -2306,11 +2526,20 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Messages
 
-        public boolean mayAdvanceCurrentTerm(Message msg) {
+        // This is a package access version of "implements MessageSwitch"
+        abstract void caseAppendRequest(AppendRequest msg);
+        abstract void caseAppendResponse(AppendResponse msg);
+        abstract void caseCommitRequest(CommitRequest msg);
+        abstract void caseCommitResponse(CommitResponse msg);
+        abstract void caseGrantVote(GrantVote msg);
+        abstract void caseInstallSnapshot(InstallSnapshot msg);
+        abstract void caseRequestVote(RequestVote msg);
+
+        boolean mayAdvanceCurrentTerm(Message msg) {
             return true;
         }
 
-        protected void failUnexpectedMessage(Message msg) {
+        void failUnexpectedMessage(Message msg) {
             this.warn("rec'd unexpected message " + msg + " while in role " + this + "; ignoring");
         }
 
@@ -2322,43 +2551,43 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Logging
 
-        protected void trace(String msg, Throwable t) {
+        void trace(String msg, Throwable t) {
             this.raft.trace(msg, t);
         }
 
-        protected void trace(String msg) {
+        void trace(String msg) {
             this.raft.trace(msg);
         }
 
-        protected void debug(String msg, Throwable t) {
+        void debug(String msg, Throwable t) {
             this.raft.debug(msg, t);
         }
 
-        protected void debug(String msg) {
+        void debug(String msg) {
             this.raft.debug(msg);
         }
 
-        protected void info(String msg, Throwable t) {
+        void info(String msg, Throwable t) {
             this.raft.info(msg, t);
         }
 
-        protected void info(String msg) {
+        void info(String msg) {
             this.raft.info(msg);
         }
 
-        protected void warn(String msg, Throwable t) {
+        void warn(String msg, Throwable t) {
             this.raft.warn(msg, t);
         }
 
-        protected void warn(String msg) {
+        void warn(String msg) {
             this.raft.warn(msg);
         }
 
-        protected void error(String msg, Throwable t) {
+        void error(String msg, Throwable t) {
             this.raft.error(msg, t);
         }
 
-        protected void error(String msg) {
+        void error(String msg) {
             this.raft.error(msg);
         }
 
@@ -2367,7 +2596,7 @@ public class RaftKVDatabase implements KVDatabase {
         @Override
         public abstract String toString();
 
-        protected String toStringPrefix() {
+        String toStringPrefix() {
             return this.getClass().getSimpleName()
               + "[term=" + this.raft.currentTerm
               + ",applied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm
@@ -2379,16 +2608,16 @@ public class RaftKVDatabase implements KVDatabase {
 
 // LEADER role
 
-    private static class LeaderRole extends Role {
+    /**
+     * Raft leader role.
+     */
+    public static class LeaderRole extends Role {
 
         // Our followers
         private final HashMap<String, Follower> followerMap = new HashMap<>();
 
         // Our leadership "lease" timeout - i.e., the earliest time another leader could possibly be elected
-        private Timestamp leaseTimeout = new Timestamp();
-
-        // Unapplied log entry memory usage
-        private long totalLogEntryMemoryUsed;
+        private Timestamp leaseTimeout;
 
         // Service tasks
         private final Service updateLeaderCommitIndexService = new Service(this, "update leader commitIndex") {
@@ -2409,26 +2638,73 @@ public class RaftKVDatabase implements KVDatabase {
                 LeaderRole.this.updateKnownFollowers();
             }
         };
+        private final Timer checkApplyTimer = this.raft.new Timer("check apply entries", new Service(this, "check apply entries") {
+            @Override
+            public void run() {
+                LeaderRole.this.checkApplyEntries();
+            }
+        });
 
     // Constructors
 
-        public LeaderRole(RaftKVDatabase raft) {
+        LeaderRole(RaftKVDatabase raft) {
             super(raft);
+        }
+
+    // Status
+
+        /**
+         * Get this leader's known followers.
+         *
+         * <p>
+         * The returned list is a copy; changes have no effect on this instance.
+         *
+         * @return this leader's followers
+         */
+        public List<Follower> getFollowers() {
+            final ArrayList<Follower> list;
+            synchronized (this.raft) {
+                list = new ArrayList<>(this.followerMap.values());
+            }
+            Collections.sort(list, Follower.SORT_BY_IDENTITY);
+            return list;
+        }
+
+        /**
+         * Get this leader's "lease timeout".
+         *
+         * <p>
+         * This is the earliest possible time at which some other, new leader could be elected in a new term.
+         * Consequently, it is the earliest possible time at which any entry that this leader is unaware of
+         * could be appended to the Raft log.
+         *
+         * <p>
+         * Normally, if followers are responding to {@link AppendRequest}s properly, this should be a value
+         * in the (near) future. This allows the leader to make the assumption, up until that point in time,
+         * that its log is fully up-to-date.
+         *
+         * <p>
+         * Until it hears from a majority of followers, a leader will not have a lease timeout established yet.
+         * In that case this method returns null.
+         *
+         * @return this leader's lease timeout, or null if none is established yet
+         */
+        public Timestamp getLeaseTimeout() {
+            synchronized (this.raft) {
+                return this.leaseTimeout;
+            }
         }
 
     // Lifecycle
 
         @Override
-        public void setup() {
+        void setup() {
             super.setup();
-            this.info("entering leader role in term " + this.raft.currentTerm);
+            if (this.log.isDebugEnabled())
+                this.debug("entering leader role in term " + this.raft.currentTerm);
 
             // Generate follower list
             this.updateKnownFollowers();
-
-            // Initialize log memory usage
-            for (LogEntry logEntry : this.raft.raftLog)
-                this.totalLogEntryMemoryUsed += logEntry.getFileSize();
 
             // Append a "dummy" log entry with my current term. This allows us to advance the commit index when the last
             // entry in our log is from a prior term. This is needed to avoid the problem where a transaction could end up
@@ -2442,19 +2718,24 @@ public class RaftKVDatabase implements KVDatabase {
             }
             if (this.log.isDebugEnabled())
                 this.debug("added log entry " + logEntry + " to commit at the beginning of my new term");
+
+            // Start check apply timer
+            if (!this.raft.raftLog.isEmpty())
+                this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
         }
 
         @Override
-        public void shutdown() {
+        void shutdown() {
             super.shutdown();
             for (Follower follower : this.followerMap.values())
                 follower.cleanup();
+            this.checkApplyTimer.cancel();
         }
 
     // Service
 
         @Override
-        public void outputQueueEmpty(String address) {
+        void outputQueueEmpty(String address) {
 
             // Find matching follower(s) and update them if needed
             for (Follower follower : this.followerMap.values()) {
@@ -2467,25 +2748,30 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        protected void logEntryApplied(LogEntry logEntry) {
-            this.totalLogEntryMemoryUsed -= logEntry.getFileSize();
+        void applyCommittedLogEntries() {
+            super.applyCommittedLogEntries();
+
+            // Stop check apply timer if there are none left
+            if (this.raft.raftLog.isEmpty() && this.checkApplyTimer.isRunning())
+                this.checkApplyTimer.cancel();
         }
 
         @Override
-        protected boolean mayApplyLogEntry(LogEntry logEntry) {
+        boolean mayApplyLogEntry(LogEntry logEntry) {
 
             // Are we running out of memory, or keeping around too many log entries? If so, go ahead.
-            if (this.totalLogEntryMemoryUsed > this.raft.maxAppliedLogMemory
+            final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
+            if (logEntryMemoryUsage > this.raft.maxAppliedLogMemory
               || this.raft.raftLog.size() > MAX_UNAPPLIED_LOG_ENTRIES) {
                 if (this.log.isTraceEnabled()) {
                     this.trace("allowing log entry " + logEntry + " to be applied because memory usage "
-                      + this.totalLogEntryMemoryUsed + " > " + this.raft.maxAppliedLogMemory + " and/or log length "
+                      + logEntryMemoryUsage + " > " + this.raft.maxAppliedLogMemory + " and/or log length "
                       + this.raft.raftLog.size() + " > " + MAX_UNAPPLIED_LOG_ENTRIES);
                 }
                 return true;
             }
 
-            // Try to keep log entries around for a minimum amount of time to facilitate long-running transactions
+            // Try to keep log entries around for a minimum amount of time to facilitate long-running transactions on followers
             if (logEntry.getAge() < this.raft.maxTransactionDuration) {
                 if (this.log.isTraceEnabled()) {
                     this.trace("delaying application of " + logEntry + " because it has age "
@@ -2530,6 +2816,13 @@ public class RaftKVDatabase implements KVDatabase {
             return true;
         }
 
+        // We have to periodically check if we can apply log entries, because the condition is time-dependent
+        private void checkApplyEntries() {
+            this.raft.requestService(this.applyCommittedLogEntriesService);
+            if (!this.raft.raftLog.isEmpty())
+                this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
+        }
+
         /**
          * Update my {@code commitIndex} based on followers' {@code matchIndex}'s.
          *
@@ -2543,36 +2836,47 @@ public class RaftKVDatabase implements KVDatabase {
          */
         private void updateLeaderCommitIndex() {
 
-            // Update my commit index based on when a majority of cluster members have ack'd log entries
-            final long lastLogIndex = this.raft.getLastLogIndex();
-            while (this.raft.commitIndex < lastLogIndex) {
+            // Find highest index for which a majority of cluster members have ack'd the corresponding log entry from my term
+            final int totalCount = this.raft.currentConfig.size();                          // total possible nodes
+            final int requiredCount = totalCount / 2 + 1;                                   // require a majority
+            final int startingCount = this.raft.isClusterMember() ? 1 : 0;                  // count myself, if member
+            long maxCommitIndex = this.raft.commitIndex;
+            int commitCount = -1;
+            for (long index = this.raft.commitIndex + 1; index <= this.raft.getLastLogIndex(); index++) {
 
-                // Get the index in question
-                final long index = this.raft.commitIndex + 1;
-
-                // Count the number of nodes which have a copy of the log entry at index
-                int numVotes = this.raft.isClusterMember() ? 1 : 0;                         // count myself, if member
+                // Count the number of nodes (possibly including myself) that have a copy of the log entry at index
+                int count = startingCount;
                 for (Follower follower : this.followerMap.values()) {                       // count followers who are members
                     if (follower.getMatchIndex() >= index && this.raft.isClusterMember(follower.getIdentity()))
-                        numVotes++;
+                        count++;
                 }
 
-                // Do a majority of cluster nodes have a copy of this log entry?
-                final int majority = this.raft.currentConfig.size() / 2 + 1;
-                if (numVotes < majority)
-                    break;
+                // The log entry term must match my current term (exception: unless every node has it)
+                final long term = this.raft.getLogTermAtIndex(index);
+                if (count < totalCount && term != this.raft.currentTerm)
+                    continue;
 
-                // Log entry term must match my current term
-                final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);
-                if (logEntry.getTerm() != this.raft.currentTerm)
-                    break;
+                // Do a majority of cluster nodes have this log entry?
+                if (count < requiredCount) {
+                    if (term >= this.raft.currentTerm)                                      // there's no point in going further
+                        break;
+                    continue;                                                               // a later term log entry might work
+                }
 
-                // Update commit index
+                // We have a winner
+                maxCommitIndex = index;
+                commitCount = count;
+            }
+
+            // Update commit index if it advanced
+            if (maxCommitIndex > this.raft.commitIndex) {
+
+                // Update index
                 if (this.log.isDebugEnabled()) {
-                    this.debug("advancing commit index from " + this.raft.commitIndex + " -> " + index
-                      + " based on " + numVotes + "/" + this.raft.currentConfig.size() + " nodes having received " + logEntry);
+                    this.debug("advancing commit index from " + this.raft.commitIndex + " -> " + maxCommitIndex + " based on "
+                      + commitCount + "/" + totalCount + " nodes having received " + this.raft.getLogEntryAtIndex(maxCommitIndex));
                 }
-                this.raft.commitIndex = index;
+                this.raft.commitIndex = maxCommitIndex;
 
                 // Perform various service
                 this.raft.requestService(this.checkReadyTransactionsService);
@@ -2581,13 +2885,13 @@ public class RaftKVDatabase implements KVDatabase {
 
                 // Notify all (up-to-date) followers with the updated leaderCommit
                 this.updateAllSynchronizedFollowersNow();
-            }
 
-            // If we are no longer a member of our cluster, step down as leader after the latest config change is committed
-            if (!this.raft.isClusterMember()
-              && this.raft.commitIndex >= this.findMostRecentConfigChangeMatching(Predicates.<String[]>alwaysTrue())) {
-                this.log.info("stepping down as leader of cluster (no longer a member)");
-                this.raft.changeRole(new FollowerRole(this.raft));
+                // If we are no longer a member of the cluster, step down after the most recent config change is committed
+                if (!this.raft.isClusterMember() && this.raft.commitIndex >= this.findMostRecentConfigChange()) {
+                    if (this.log.isDebugEnabled())
+                        this.log.debug("stepping down as leader of cluster (no longer a member)");
+                    this.raft.changeRole(new FollowerRole(this.raft));
+                }
             }
         }
 
@@ -2612,13 +2916,12 @@ public class RaftKVDatabase implements KVDatabase {
             final Timestamp[] leaderTimestamps = new Timestamp[this.raft.currentConfig.size()];
             int index = 0;
             if (this.raft.isClusterMember())
-                leaderTimestamps[index++] = new Timestamp();                                // only matters in single node cluster
+                leaderTimestamps[index++] = new Timestamp();                        // this represents my own vote
             for (Follower follower : this.followerMap.values()) {
                 if (this.raft.isClusterMember(follower.getIdentity()))
-                    leaderTimestamps[index++] = follower.getLeaderTimestamp();
+                    leaderTimestamps[index++] = follower.getLeaderTimestamp();      // note follower timestamps could be null
             }
-            Preconditions.checkArgument(index == leaderTimestamps.length);                  // sanity check
-            Arrays.sort(leaderTimestamps);
+            Arrays.sort(leaderTimestamps, Timestamp.NULL_FIRST_SORT);
 
             //
             // Calculate highest leaderTimeout shared by a majority of cluster members, based on sorted array:
@@ -2632,10 +2935,9 @@ public class RaftKVDatabase implements KVDatabase {
             // We then add the minimum election timeout, then subtract a little for clock drift.
             //
             final Timestamp newLeaseTimeout = leaderTimestamps[(leaderTimestamps.length + 1) / 2]
-              .offset((int)(this.raft.minElectionTimeout * (1.0f - MAX_CLOCK_DRIFT)));
-
-            // Immediately notify any followers who are waiting on this updated timestamp (or any smaller timestamp)
-            if (newLeaseTimeout.compareTo(this.leaseTimeout) > 0) {
+              .offset((int)(this.raft.minElectionTimeout * (1.0f - MAX_CLOCK_DRIFT) - 1));
+            if (Timestamp.NULL_FIRST_SORT.compare(newLeaseTimeout, this.leaseTimeout) > 0) {
+                assert newLeaseTimeout != null;
 
                 // Update my leader lease timeout
                 if (this.log.isTraceEnabled())
@@ -2698,7 +3000,8 @@ public class RaftKVDatabase implements KVDatabase {
             for (String peer : adds) {
                 final String address = this.raft.currentConfig.get(peer);
                 final Follower follower = new Follower(peer, address, this.raft.getLastLogIndex());
-                this.debug("adding new follower \"" + peer + "\" at " + address);
+                if (this.log.isDebugEnabled())
+                    this.debug("adding new follower \"" + peer + "\" at " + address);
                 follower.setUpdateTimer(
                   this.raft.new Timer("update timer for \"" + peer + "\"", new UpdateFollowerService(follower)));
                 this.followerMap.put(peer, follower);
@@ -2708,7 +3011,8 @@ public class RaftKVDatabase implements KVDatabase {
             // Remove old followers
             for (String peer : dels) {
                 final Follower follower = this.followerMap.remove(peer);
-                this.debug("removing old follower \"" + peer + "\"");
+                if (this.log.isDebugEnabled())
+                    this.debug("removing old follower \"" + peer + "\"");
                 follower.cleanup();
             }
         }
@@ -2774,8 +3078,10 @@ public class RaftKVDatabase implements KVDatabase {
                     // Message failed -> snapshot is fatally wounded, so cancel it
                     synced = false;
                 }
-                if (synced)
-                    this.info("completed snapshot install for out-of-date " + follower);
+                if (synced) {
+                    if (this.log.isDebugEnabled())
+                        this.debug("completed snapshot install for out-of-date " + follower);
+                }
 
                 // Snapshot transmit is complete (or failed)
                 follower.cancelSnapshotTransmit();
@@ -2818,9 +3124,10 @@ public class RaftKVDatabase implements KVDatabase {
             // If follower is too far behind, we must do a snapshot install
             if (nextIndex <= this.raft.lastAppliedIndex) {
                 final MostRecentView view = this.raft.new MostRecentView();
-                follower.setSnapshotTransmit(new SnapshotTransmit(this.raft.getLastLogTerm(), this.raft.getLastLogIndex(),
-                  this.raft.lastAppliedConfig, view.getSnapshot(), view.getView()));
-                this.info("started snapshot install for out-of-date " + follower);
+                follower.setSnapshotTransmit(new SnapshotTransmit(view.getTerm(),
+                  view.getIndex(), view.getConfig(), view.getSnapshot(), view.getView()));
+                if (this.log.isDebugEnabled())
+                    this.debug("started snapshot install for out-of-date " + follower);
                 this.raft.requestService(new UpdateFollowerService(follower));
                 return;
             }
@@ -2909,14 +3216,14 @@ public class RaftKVDatabase implements KVDatabase {
     // Transactions
 
         @Override
-        public void checkReadyTransaction(final RaftKVTransaction tx) {
+        void checkReadyTransaction(final RaftKVTransaction tx) {
 
             // Sanity check
             assert Thread.holdsLock(this.raft);
             assert tx.getState().equals(TxState.COMMIT_READY);
 
             // Check snapshot isolation
-            if (this.checkReadyTransactionReadOnlySnapshot(tx))
+            if (this.checkReadyTransactionStaleReadOnly(tx))
                 return;
 
             // Check for conflict
@@ -2972,7 +3279,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void cleanupForTransaction(RaftKVTransaction tx) {
+        void cleanupForTransaction(RaftKVTransaction tx) {
             // nothing to do
         }
 
@@ -2987,12 +3294,12 @@ public class RaftKVDatabase implements KVDatabase {
     // Message
 
         @Override
-        public void caseAppendRequest(AppendRequest msg) {
+        void caseAppendRequest(AppendRequest msg) {
             this.failDuplicateLeader(msg);
         }
 
         @Override
-        public void caseAppendResponse(AppendResponse msg) {
+        void caseAppendResponse(AppendResponse msg) {
 
             // Find follower
             final Follower follower = this.findFollower(msg);
@@ -3000,7 +3307,7 @@ public class RaftKVDatabase implements KVDatabase {
                 return;
 
             // Update follower's last rec'd leader timestamp
-            if (msg.getLeaderTimestamp().compareTo(follower.getLeaderTimestamp()) > 0) {
+            if (follower.getLeaderTimestamp() == null || msg.getLeaderTimestamp().compareTo(follower.getLeaderTimestamp()) > 0) {
                 follower.setLeaderTimestamp(msg.getLeaderTimestamp());
                 this.raft.requestService(this.updateLeaseTimeoutService);
             }
@@ -3060,7 +3367,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void caseCommitRequest(CommitRequest msg) {
+        void caseCommitRequest(CommitRequest msg) {
 
             // Find follower
             final Follower follower = this.findFollower(msg);
@@ -3099,7 +3406,7 @@ public class RaftKVDatabase implements KVDatabase {
                 // are committed they are invisible to the transaction, and if they aren't ever committed then
                 // whatever log entries replace them will necessarily have been created sometime after now.
                 final CommitResponse response;
-                if (this.leaseTimeout.compareTo(minimumLeaseTimeout) > 0) {
+                if (this.leaseTimeout != null && this.leaseTimeout.compareTo(minimumLeaseTimeout) > 0) {
 
                     // No other leader could have been elected yet as of right now, so the transaction can commit immediately
                     response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
@@ -3148,17 +3455,17 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void caseCommitResponse(CommitResponse msg) {
+        void caseCommitResponse(CommitResponse msg) {
             this.failDuplicateLeader(msg);
         }
 
         @Override
-        public void caseInstallSnapshot(InstallSnapshot msg) {
+        void caseInstallSnapshot(InstallSnapshot msg) {
             this.failDuplicateLeader(msg);
         }
 
         @Override
-        public void caseRequestVote(RequestVote msg) {
+        void caseRequestVote(RequestVote msg) {
 
             // Too late dude, I already won the election
             if (this.log.isDebugEnabled())
@@ -3166,7 +3473,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void caseGrantVote(GrantVote msg) {
+        void caseGrantVote(GrantVote msg) {
 
             // Thanks and all, but I already won the election
             if (this.log.isDebugEnabled())
@@ -3199,6 +3506,7 @@ public class RaftKVDatabase implements KVDatabase {
         boolean checkState() {
             if (!super.checkState())
                 return false;
+            assert this.checkApplyTimer.isRunning() == !this.raft.raftLog.isEmpty();
             for (Follower follower : this.followerMap.values()) {
                 assert follower.getNextIndex() <= this.raft.getLastLogIndex() + 1;
                 assert follower.getMatchIndex() <= this.raft.getLastLogIndex() + 1;
@@ -3209,6 +3517,15 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
     // Internal methods
+
+        /**
+         * Find the index of the most recent unapplied log entry having an associated config change.
+         *
+         * @return most recent config change log entry, or zero if none found
+         */
+        private long findMostRecentConfigChange() {
+            return this.findMostRecentConfigChangeMatching(Predicates.<String[]>alwaysTrue());
+        }
 
         /**
          * Find the index of the most recent unapplied log entry having an associated config change matching the given predicate.
@@ -3262,15 +3579,16 @@ public class RaftKVDatabase implements KVDatabase {
             if (configChange != null)
                 this.raft.requestService(this.updateKnownFollowersService);
 
-            // Update memory usage
-            this.totalLogEntryMemoryUsed += logEntry.getFileSize();
-
             // Update commit index (this is only needed if config has changed, or in the single node case)
             if (configChange != null || this.followerMap.isEmpty())
                 this.raft.requestService(this.updateLeaderCommitIndexService);
 
             // Immediately update all up-to-date followers
             this.updateAllSynchronizedFollowersNow();
+
+            // Start check apply timer if not already running
+            if (!this.checkApplyTimer.isRunning())
+                this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
 
             // Done
             return logEntry;
@@ -3286,7 +3604,7 @@ public class RaftKVDatabase implements KVDatabase {
          * @param writes writes performed by the transaction
          * @return error message on failure, null for success
          */
-        public String checkConflicts(long baseTerm, long baseIndex, Reads reads) {
+        private String checkConflicts(long baseTerm, long baseIndex, Reads reads) {
 
             // Validate the index of the log entry on which the transaction is based
             final long minIndex = this.raft.lastAppliedIndex;
@@ -3325,11 +3643,12 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     /**
-     * Support superclass for {@link FollowerRole} and {@link CandidateRole}, which both have an election timer.
+     * Support superclass for the {@linkplain folllower FollowerRole} and {@linkplain candidate CandidateRole} roles,
+     * both of which have an election timer.
      */
-    private abstract static class NonLeaderRole extends Role {
+    public abstract static class NonLeaderRole extends Role {
 
-        protected final Timer electionTimer = this.raft.new Timer("election timer", new Service(this, "election timeout") {
+        final Timer electionTimer = this.raft.new Timer("election timer", new Service(this, "election timeout") {
             @Override
             public void run() {
                 NonLeaderRole.this.checkElectionTimeout();
@@ -3339,22 +3658,39 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Constructors
 
-        protected NonLeaderRole(RaftKVDatabase raft, boolean startElectionTimer) {
+        NonLeaderRole(RaftKVDatabase raft, boolean startElectionTimer) {
             super(raft);
             this.startElectionTimer = startElectionTimer;
+        }
+
+    // Status
+
+        /**
+         * Determine whether the election timer is running.
+         *
+         * <p>
+         * For a follower that is not a member of its cluster, this will return false.
+         * For all other cases, this will return true.
+         *
+         * @return true if election timer is running
+         */
+        public boolean isElectionTimerRunning() {
+            synchronized (this.raft) {
+                return this.electionTimer.isRunning();
+            }
         }
 
     // Lifecycle
 
         @Override
-        public void setup() {
+        void setup() {
             super.setup();
             if (this.startElectionTimer)
                 this.restartElectionTimer();
         }
 
         @Override
-        public void shutdown() {
+        void shutdown() {
             super.shutdown();
             this.electionTimer.cancel();
         }
@@ -3364,12 +3700,13 @@ public class RaftKVDatabase implements KVDatabase {
         // Check for an election timeout
         private void checkElectionTimeout() {
             if (this.electionTimer.pollForTimeout()) {
-                this.info("election timeout while in " + this);
+                if (this.log.isDebugEnabled())
+                    this.debug("election timeout while in " + this);
                 this.raft.changeRole(new CandidateRole(this.raft));
             }
         }
 
-        protected void restartElectionTimer() {
+        void restartElectionTimer() {
 
             // Sanity check
             assert Thread.holdsLock(this.raft);
@@ -3385,19 +3722,22 @@ public class RaftKVDatabase implements KVDatabase {
     // MessageSwitch
 
         @Override
-        public void caseAppendResponse(AppendResponse msg) {
+        void caseAppendResponse(AppendResponse msg) {
             this.failUnexpectedMessage(msg);
         }
 
         @Override
-        public void caseCommitRequest(CommitRequest msg) {
+        void caseCommitRequest(CommitRequest msg) {
             this.failUnexpectedMessage(msg);
         }
     }
 
 // FOLLOWER role
 
-    private static class FollowerRole extends NonLeaderRole {
+    /**
+     * Raft follower role.
+     */
+    public static class FollowerRole extends NonLeaderRole {
 
         private String leader;                                                          // our leader, if known
         private String leaderAddress;                                                   // our leader's network address
@@ -3412,15 +3752,15 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Constructors
 
-        public FollowerRole(RaftKVDatabase raft) {
+        FollowerRole(RaftKVDatabase raft) {
             this(raft, null, null, null);
         }
 
-        public FollowerRole(RaftKVDatabase raft, String leader, String leaderAddress) {
+        FollowerRole(RaftKVDatabase raft, String leader, String leaderAddress) {
             this(raft, leader, leaderAddress, leader);
         }
 
-        public FollowerRole(RaftKVDatabase raft, String leader, String leaderAddress, String votedFor) {
+        FollowerRole(RaftKVDatabase raft, String leader, String leaderAddress, String votedFor) {
             super(raft, raft.isClusterMember());
             this.leader = leader;
             this.leaderAddress = leaderAddress;
@@ -3428,18 +3768,66 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.leaderAddress != null || this.leader == null;
         }
 
+    // Status
+
+        /**
+         * Get the identity of my leader, if known.
+         *
+         * @return leader identity, or null if not known
+         */
+        public String getLeaderIdentity() {
+            synchronized (this.raft) {
+                return this.leader;
+            }
+        }
+
+        /**
+         * Get the address of my leader, if known.
+         *
+         * @return leader address, or null if not known
+         */
+        public String getLeaderAddress() {
+            synchronized (this.raft) {
+                return this.leaderAddress;
+            }
+        }
+
+        /**
+         * Get the identity of the node that this node voted for this term, if any.
+         *
+         * @return node voted for, or null if none
+         */
+        public String getVotedFor() {
+            synchronized (this.raft) {
+                return this.votedFor;
+            }
+        }
+
+        /**
+         * Determine whether this node is currently in the process of receiving a whole database snapshot download.
+         *
+         * @return true if snapshot install is in progress
+         */
+        public boolean isInstallingSnapshot() {
+            synchronized (this.raft) {
+                return this.snapshotReceive != null;
+            }
+        }
+
     // Lifecycle
 
         @Override
-        public void setup() {
+        void setup() {
             super.setup();
-            this.info("entering follower role in term " + this.raft.currentTerm
-              + (this.leader != null ? "; with leader \"" + this.leader + "\" at " + this.leaderAddress : "")
-              + (this.votedFor != null ? "; having voted for \"" + this.votedFor + "\"" : ""));
+            if (this.log.isDebugEnabled()) {
+                this.debug("entering follower role in term " + this.raft.currentTerm
+                  + (this.leader != null ? "; with leader \"" + this.leader + "\" at " + this.leaderAddress : "")
+                  + (this.votedFor != null ? "; having voted for \"" + this.votedFor + "\"" : ""));
+            }
         }
 
         @Override
-        public void shutdown() {
+        void shutdown() {
             super.shutdown();
 
             // Cancel any in-progress snapshot install
@@ -3466,14 +3854,14 @@ public class RaftKVDatabase implements KVDatabase {
     // Service
 
         @Override
-        public void outputQueueEmpty(String address) {
+        void outputQueueEmpty(String address) {
             if (address.equals(this.leaderAddress))
                 this.raft.requestService(this.checkReadyTransactionsService);       // TODO: track specific transactions
         }
 
         // Check whether the required minimum leader lease timeout has been seen, if any
         @Override
-        protected boolean mayCommit(RaftKVTransaction tx) {
+        boolean mayCommit(RaftKVTransaction tx) {
 
             // Is there a required minimum leader lease timeout associated with the transaction?
             final Timestamp commitLeaderLeaseTimeout = this.commitLeaderLeaseTimeoutMap.get(tx.getTxId());
@@ -3516,14 +3904,14 @@ public class RaftKVDatabase implements KVDatabase {
     // Transactions
 
         @Override
-        public void checkReadyTransaction(RaftKVTransaction tx) {
+        void checkReadyTransaction(RaftKVTransaction tx) {
 
             // Sanity check
             assert Thread.holdsLock(this.raft);
             assert tx.getState().equals(TxState.COMMIT_READY);
 
             // Check snapshot isolation
-            if (this.checkReadyTransactionReadOnlySnapshot(tx))
+            if (this.checkReadyTransactionStaleReadOnly(tx))
                 return;
 
             // Did we already send a CommitRequest for this transaction?
@@ -3562,8 +3950,16 @@ public class RaftKVDatabase implements KVDatabase {
 
                 // Create a new cluster if needed
                 if (this.raft.clusterId == 0) {
-                    this.info("creating new cluster");
-                    if (!this.raft.joinCluster(0))
+
+                    // Pick a new, random cluster ID
+                    int newClusterId;
+                    do
+                        newClusterId = this.raft.random.nextInt();
+                    while (newClusterId == 0);
+
+                    // Join new cluster
+                    this.info("creating new cluster with ID " + String.format("0x%08x", newClusterId));
+                    if (!this.raft.joinCluster(newClusterId))
                         throw new KVTransactionException(tx, "error persisting new cluster ID");
                 }
 
@@ -3595,7 +3991,8 @@ public class RaftKVDatabase implements KVDatabase {
 
                 // Immediately become the leader of our new single-node cluster
                 assert this.raft.isConfigured();
-                this.info("appointing myself leader in newly created cluster");
+                if (this.log.isDebugEnabled())
+                    this.debug("appointing myself leader in newly created cluster");
                 this.raft.changeRole(new LeaderRole(this.raft));
                 return;
             }
@@ -3669,7 +4066,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void cleanupForTransaction(RaftKVTransaction tx) {
+        void cleanupForTransaction(RaftKVTransaction tx) {
             this.pendingRequests.remove(tx.getTxId());
             final PendingWrite pendingWrite = this.pendingWrites.remove(tx.getTxId());
             if (pendingWrite != null)
@@ -3680,7 +4077,7 @@ public class RaftKVDatabase implements KVDatabase {
     // Messages
 
         @Override
-        public boolean mayAdvanceCurrentTerm(Message msg) {
+        boolean mayAdvanceCurrentTerm(Message msg) {
 
             // Deny vote if we have heard from our leader within the minimum election timeout (dissertation, section 4.2.3)
             if (msg instanceof RequestVote
@@ -3693,7 +4090,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void caseAppendRequest(AppendRequest msg) {
+        void caseAppendRequest(AppendRequest msg) {
 
             // Record new cluster ID if we haven't done so already
             if (this.raft.clusterId == 0)
@@ -3708,8 +4105,9 @@ public class RaftKVDatabase implements KVDatabase {
                 }
                 this.leader = msg.getSenderId();
                 this.leaderAddress = this.raft.returnAddress;
-                this.leaderLeaseTimeout = msg.getLeaderLeaseTimeout();
-                this.info("updated leader to \"" + this.leader + "\" at " + this.leaderAddress);
+                this.leaderLeaseTimeout = null;
+                if (this.log.isDebugEnabled())
+                    this.debug("updated leader to \"" + this.leader + "\" at " + this.leaderAddress);
                 this.raft.requestService(this.checkReadyTransactionsService);     // allows COMMIT_READY transactions to be sent
             }
 
@@ -3724,7 +4122,8 @@ public class RaftKVDatabase implements KVDatabase {
             this.lastLeaderMessageTime = new Timestamp();
 
             // Update leader's lease timeout
-            if (this.leaderLeaseTimeout == null || msg.getLeaderLeaseTimeout().compareTo(this.leaderLeaseTimeout) > 0) {
+            if (msg.getLeaderLeaseTimeout() != null
+              && (this.leaderLeaseTimeout == null || msg.getLeaderLeaseTimeout().compareTo(this.leaderLeaseTimeout) > 0)) {
                 if (this.log.isTraceEnabled())
                     this.trace("advancing leader lease timeout " + this.leaderLeaseTimeout + " -> " + msg.getLeaderLeaseTimeout());
                 this.leaderLeaseTimeout = msg.getLeaderLeaseTimeout();
@@ -3733,8 +4132,10 @@ public class RaftKVDatabase implements KVDatabase {
 
             // If a snapshot install is in progress, cancel it
             if (this.snapshotReceive != null) {
-                this.info("rec'd " + msg + " during in-progress " + this.snapshotReceive
-                  + "; aborting snapshot install and resetting state machine");
+                if (this.log.isDebugEnabled()) {
+                    this.debug("rec'd " + msg + " during in-progress " + this.snapshotReceive
+                      + "; aborting snapshot install and resetting state machine");
+                }
                 if (!this.raft.resetStateMachine(true))
                     return;
                 this.snapshotReceive = null;
@@ -3771,7 +4172,8 @@ public class RaftKVDatabase implements KVDatabase {
                     final int startListIndex = (int)(logIndex - this.raft.lastAppliedIndex - 1);
                     final List<LogEntry> conflictList = this.raft.raftLog.subList(startListIndex, this.raft.raftLog.size());
                     for (LogEntry logEntry : conflictList) {
-                        this.info("deleting log entry " + logEntry + " overrwritten by " + msg);
+                        if (this.log.isDebugEnabled())
+                            this.debug("deleting log entry " + logEntry + " overrwritten by " + msg);
                         if (!logEntry.getFile().delete())
                             this.error("failed to delete log file " + logEntry.getFile());
                     }
@@ -3904,7 +4306,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void caseCommitResponse(CommitResponse msg) {
+        void caseCommitResponse(CommitResponse msg) {
 
             // Find transaction
             final RaftKVTransaction tx = this.raft.openTransactions.get(msg.getTxId());
@@ -3938,7 +4340,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void caseInstallSnapshot(InstallSnapshot msg) {
+        void caseInstallSnapshot(InstallSnapshot msg) {
 
             // Restart election timer (if running)
             if (this.electionTimer.isRunning())
@@ -3959,14 +4361,18 @@ public class RaftKVDatabase implements KVDatabase {
                     }
 
                     // The message is the first one in a new install, so discard the existing install
-                    this.info("rec'd initial " + msg + " with in-progress " + this.snapshotReceive + "; aborting previous install");
+                    if (this.log.isDebugEnabled()) {
+                        this.debug("rec'd initial " + msg + " with in-progress " + this.snapshotReceive
+                          + "; aborting previous install");
+                    }
                     startNewInstall = true;
                 }
             } else {
 
                 // If the message is NOT the first one in a new install, ignore it
                 if (msg.getPairIndex() != 0) {
-                    this.info("rec'd non-initial " + msg + " with no in-progress snapshot install; ignoring");
+                    if (this.log.isDebugEnabled())
+                        this.debug("rec'd non-initial " + msg + " with no in-progress snapshot install; ignoring");
                     return;
                 }
             }
@@ -3983,8 +4389,10 @@ public class RaftKVDatabase implements KVDatabase {
                 this.updateElectionTimer();
                 this.snapshotReceive = new SnapshotReceive(
                   PrefixKVStore.create(this.raft.kv, STATE_MACHINE_PREFIX), term, index, msg.getSnapshotConfig());
-                this.info("starting new snapshot install from \"" + msg.getSenderId() + "\" of "
-                  + index + "t" + term + " with config " + msg.getSnapshotConfig());
+                if (this.log.isDebugEnabled()) {
+                    this.debug("starting new snapshot install from \"" + msg.getSenderId()
+                      + "\" of " + index + "t" + term + " with config " + msg.getSnapshotConfig());
+                }
             }
             assert this.snapshotReceive.matches(msg);
 
@@ -4005,8 +4413,10 @@ public class RaftKVDatabase implements KVDatabase {
             // If that was the last chunk, finalize persistent state
             if (msg.isLastChunk()) {
                 final Map<String, String> snapshotConfig = this.snapshotReceive.getSnapshotConfig();
-                this.info("snapshot install from \"" + msg.getSenderId() + "\" of " + index + "t" + term
-                  + " with config " + snapshotConfig + " complete");
+                if (this.log.isDebugEnabled()) {
+                    this.debug("snapshot install from \"" + msg.getSenderId() + "\" of "
+                      + index + "t" + term + " with config " + snapshotConfig + " complete");
+                }
                 this.snapshotReceive = null;
                 if (!this.raft.recordLastApplied(term, index, snapshotConfig))
                     this.raft.resetStateMachine(true);                          // if this fails we are really screwed
@@ -4015,37 +4425,47 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void caseRequestVote(RequestVote msg) {
+        void caseRequestVote(RequestVote msg) {
+
+            // Record new cluster ID if we haven't done so already
+            if (this.raft.clusterId == 0)
+                this.raft.joinCluster(msg.getClusterId());
 
             // Did we already vote for somebody else?
             final String peer = msg.getSenderId();
             if (this.votedFor != null && !this.votedFor.equals(peer)) {
-                this.info("rec'd " + msg + "; rejected because we already voted for \"" + this.votedFor + "\"");
+                if (this.log.isDebugEnabled())
+                    this.debug("rec'd " + msg + "; rejected because we already voted for \"" + this.votedFor + "\"");
                 return;
             }
 
             // Verify that we are allowed to vote for this peer
             if (msg.getLastLogTerm() < this.raft.getLastLogTerm()
               || (msg.getLastLogTerm() == this.raft.getLastLogTerm() && msg.getLastLogIndex() < this.raft.getLastLogIndex())) {
-                this.info("rec'd " + msg + "; rejected because their log " + msg.getLastLogIndex() + "t"
-                  + msg.getLastLogTerm() + " loses to ours " + this.raft.getLastLogIndex() + "t" + this.raft.getLastLogTerm());
+                if (this.log.isDebugEnabled()) {
+                    this.debug("rec'd " + msg + "; rejected because their log " + msg.getLastLogIndex() + "t"
+                      + msg.getLastLogTerm() + " loses to ours " + this.raft.getLastLogIndex() + "t" + this.raft.getLastLogTerm());
+                }
                 return;
             }
 
             // Persist our vote for this peer (if not already persisted)
             if (this.votedFor == null) {
-                this.info("granting vote to \"" + peer + "\" in term " + this.raft.currentTerm);
+                if (this.log.isDebugEnabled())
+                    this.debug("granting vote to \"" + peer + "\" in term " + this.raft.currentTerm);
                 if (!this.updateVotedFor(peer))
                     return;
-            } else
-                this.info("confirming existing vote for \"" + peer + "\" in term " + this.raft.currentTerm);
+            } else {
+                if (this.log.isDebugEnabled())
+                    this.debug("confirming existing vote for \"" + peer + "\" in term " + this.raft.currentTerm);
+            }
 
             // Send reply
             this.raft.sendMessage(new GrantVote(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm));
         }
 
         @Override
-        public void caseGrantVote(GrantVote msg) {
+        void caseGrantVote(GrantVote msg) {
 
             // Ignore - we already lost the election to the real leader
             if (this.log.isDebugEnabled())
@@ -4143,7 +4563,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Represents a read-write transaction in COMMIT_READY or COMMIT_WAITING for which the server's AppendRequest
         // will have null mutationData, because we will already have the data on hand waiting in a temporary file. This
         // is a simple optimization to avoid sending the same data from leader -> follower just sent from follower -> leader.
-        private class PendingWrite {
+        private static class PendingWrite {
 
             private final RaftKVTransaction tx;
             private final FileWriter fileWriter;
@@ -4170,20 +4590,53 @@ public class RaftKVDatabase implements KVDatabase {
 
 // CANDIDATE role
 
-    private static class CandidateRole extends NonLeaderRole {
+    /**
+     * Raft candidate role.
+     */
+    public static class CandidateRole extends NonLeaderRole {
 
         private final HashSet<String> votes = new HashSet<>();
+        private final Service checkElectionResultService = new Service(this, "check election result") {
+            @Override
+            public void run() {
+                CandidateRole.this.checkElectionResult();
+            }
+        };
 
     // Constructors
 
-        public CandidateRole(RaftKVDatabase raft) {
+        CandidateRole(RaftKVDatabase raft) {
             super(raft, true);
+        }
+
+    // Status
+
+        /**
+         * Get the number of votes required to win the election.
+         *
+         * @return required votes
+         */
+        public int getVotesRequired() {
+            synchronized (this.raft) {
+                return this.raft.currentConfig.size() / 2 + 1;
+            }
+        }
+
+        /**
+         * Get the number of votes received so far. Includes this node's vote.
+         *
+         * @return received votes
+         */
+        public int getVotesReceived() {
+            synchronized (this.raft) {
+                return this.votes.size() + (this.raft.isClusterMember() ? 1 : 0);
+            }
         }
 
     // Lifecycle
 
         @Override
-        public void setup() {
+        void setup() {
             super.setup();
 
             // Increment term
@@ -4193,46 +4646,68 @@ public class RaftKVDatabase implements KVDatabase {
             // Request votes from other peers
             final HashSet<String> voters = new HashSet<>(this.raft.currentConfig.keySet());
             voters.remove(this.raft.identity);
-            this.info("entering candidate role in term " + this.raft.currentTerm + "; requesting votes from " + voters);
+            if (this.log.isDebugEnabled())
+                this.debug("entering candidate role in term " + this.raft.currentTerm + "; requesting votes from " + voters);
             for (String voter : voters) {
                 this.raft.sendMessage(new RequestVote(this.raft.clusterId, this.raft.identity, voter,
                   this.raft.currentTerm, this.raft.getLastLogTerm(), this.raft.getLastLogIndex()));
             }
+
+            // Check election result - needed in case we are the only node in the cluster
+            this.raft.requestService(this.checkElectionResultService);
         }
 
     // Service
 
         @Override
-        public void outputQueueEmpty(String address) {
+        void outputQueueEmpty(String address) {
             // nothing to do
+        }
+
+        private void checkElectionResult() {
+
+            // Tally votes
+            final int allVotes = this.raft.currentConfig.size();
+            final int numVotes = this.getVotesReceived();
+            final int votesRequired = this.getVotesRequired();
+            if (this.log.isDebugEnabled())
+                this.debug("current election tally: " + numVotes + "/" + allVotes + " with " + votesRequired + " required to win");
+
+            // Did we win?
+            if (numVotes >= votesRequired) {
+                if (this.log.isDebugEnabled())
+                    this.debug("won the election for term " + this.raft.currentTerm + "; becoming leader");
+                this.raft.changeRole(new LeaderRole(this.raft));
+            }
         }
 
     // Transactions
 
         @Override
-        public void checkReadyTransaction(RaftKVTransaction tx) {
+        void checkReadyTransaction(RaftKVTransaction tx) {
 
             // Sanity check
             assert Thread.holdsLock(this.raft);
             assert tx.getState().equals(TxState.COMMIT_READY);
 
             // Check snapshot isolation
-            if (this.checkReadyTransactionReadOnlySnapshot(tx))
+            if (this.checkReadyTransactionStaleReadOnly(tx))
                 return;
 
             // We can't do anything with it until we have a leader
         }
 
         @Override
-        public void cleanupForTransaction(RaftKVTransaction tx) {
+        void cleanupForTransaction(RaftKVTransaction tx) {
             // nothing to do
         }
 
     // MessageSwitch
 
         @Override
-        public void caseAppendRequest(AppendRequest msg) {
-            this.info("rec'd " + msg + " in " + this + "; reverting to follower");
+        void caseAppendRequest(AppendRequest msg) {
+            if (this.log.isDebugEnabled())
+                this.debug("rec'd " + msg + " in " + this + "; reverting to follower");
             this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));
             this.raft.receiveMessage(this.raft.returnAddress, msg);
         }
@@ -4240,21 +4715,21 @@ public class RaftKVDatabase implements KVDatabase {
     // MessageSwitch
 
         @Override
-        public void caseCommitResponse(CommitResponse msg) {
+        void caseCommitResponse(CommitResponse msg) {
 
             // We could not have ever sent a CommitRequest in this term
             this.failUnexpectedMessage(msg);
         }
 
         @Override
-        public void caseInstallSnapshot(InstallSnapshot msg) {
+        void caseInstallSnapshot(InstallSnapshot msg) {
 
             // We could not have ever sent an AppendResponse in this term
             this.failUnexpectedMessage(msg);
         }
 
         @Override
-        public void caseRequestVote(RequestVote msg) {
+        void caseRequestVote(RequestVote msg) {
 
             // Ignore - we are also a candidate and have already voted for ourself
             if (this.log.isDebugEnabled())
@@ -4262,23 +4737,15 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         @Override
-        public void caseGrantVote(GrantVote msg) {
+        void caseGrantVote(GrantVote msg) {
 
             // Record vote
             this.votes.add(msg.getSenderId());
-            this.info("rec'd election vote from \"" + msg.getSenderId() + "\" in term " + this.raft.currentTerm);
+            if (this.log.isDebugEnabled())
+                this.debug("rec'd election vote from \"" + msg.getSenderId() + "\" in term " + this.raft.currentTerm);
 
-            // Tally votes
-            final int allVotes = this.raft.currentConfig.size();
-            final int numVotes = this.votes.size() + (this.raft.isClusterMember() ? 1 : 0);
-            final int minVotes = allVotes / 2 + 1;                              // require a majority
-
-            // Did we win?
-            if (numVotes >= minVotes) {
-                this.info("won the election for term " + this.raft.currentTerm + " with "
-                  + numVotes + "/" + allVotes + " votes; BECOMING LEADER IN TERM " + this.raft.currentTerm);
-                this.raft.changeRole(new LeaderRole(this.raft));
-            }
+            // Check election result
+            this.raft.requestService(this.checkElectionResultService);
         }
 
     // Object
