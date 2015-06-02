@@ -144,13 +144,27 @@ public class Writes implements Mutations, SizeEstimating {
      * @throws IllegalArgumentException if {@code target} is null
      */
     public void applyTo(KVStore target) {
-        if (target == null)
-            throw new IllegalArgumentException("null target");
-        for (KeyRange remove : this.removes.asList())
+        Writes.apply(this, target);
+    }
+
+    /**
+     * Apply all the given {@link Mutations} to the given {@link KVStore}.
+     *
+     * <p>
+     * Mutations are applied in this order: removes, puts, counter adjustments.
+     *
+     * @param mutations mutations to apply
+     * @param target target for mutations
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static void apply(Mutations mutations, KVStore target) {
+        Preconditions.checkArgument(mutations != null, "null mutations");
+        Preconditions.checkArgument(target != null, "null target");
+        for (KeyRange remove : mutations.getRemoveRanges())
             target.removeRange(remove.getMin(), remove.getMax());
-        for (Map.Entry<byte[], byte[]> entry : this.puts.entrySet())
+        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs())
             target.put(entry.getKey(), entry.getValue());
-        for (Map.Entry<byte[], Long> entry : this.adjusts.entrySet())
+        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
             target.adjustCounter(entry.getKey(), entry.getValue());
     }
 

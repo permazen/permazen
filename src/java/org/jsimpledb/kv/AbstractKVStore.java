@@ -33,6 +33,8 @@ import org.jsimpledb.util.ByteWriter;
  * <p>
  * Therefore, a read-only {@link KVStore} implementation is possible simply by implementing {@link #getRange}.
  * </p>
+ *
+ * @see KVPairIterator
  */
 public abstract class AbstractKVStore implements KVStore {
 
