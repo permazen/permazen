@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jsimpledb.cli.CliSession;
-import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.raft.Follower;
 import org.jsimpledb.kv.raft.LogEntry;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
@@ -19,7 +18,7 @@ import org.jsimpledb.kv.raft.TxState;
 import org.jsimpledb.parse.ParseContext;
 
 @Command
-public class RaftStatusCommand extends AbstractCommand {
+public class RaftStatusCommand extends AbstractRaftCommand {
 
     public RaftStatusCommand() {
         super("raft-status");
@@ -32,16 +31,10 @@ public class RaftStatusCommand extends AbstractCommand {
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        final String node = (String)params.get("node");
-        final String address = (String)params.get("address");
-        return new CliSession.Action() {
+        return new RaftAction() {
             @Override
-            public void run(CliSession session) throws Exception {
-                final KVTransaction kvt = session.getTransaction().getKVTransaction();
-                if (!(kvt instanceof RaftKVTransaction))
-                    throw new Exception("key/value store is not Raft");
-                final RaftKVTransaction raftTx = (RaftKVTransaction)kvt;
-                RaftStatusCommand.this.displayStatus(session.getWriter(), raftTx, raftTx.getKVDatabase());
+            protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
+                RaftStatusCommand.this.displayStatus(session.getWriter(), tx, tx.getKVDatabase());
             }
         };
     }
@@ -101,7 +94,7 @@ public class RaftStatusCommand extends AbstractCommand {
         writer.println(String.format("%-24s: %dt%d", "Last applied log entry", db.getLastAppliedIndex(), db.getLastAppliedTerm()));
         writer.println(String.format("%-24s: %d", "Commit Index", db.getCommitIndex()));
         writer.println(String.format("%-24s: %d", "Current term", db.getCurrentTerm()));
-        final RaftKVDatabase.Role role = db.getRole();
+        final RaftKVDatabase.Role role = db.getCurrentRole();
         writer.println(String.format("%-24s: %s", "Current Role",
           role instanceof RaftKVDatabase.LeaderRole ? "Leader" :
           role instanceof RaftKVDatabase.FollowerRole ? "Follower" :

@@ -669,7 +669,7 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @return current {@link Role}, or null if not running
      */
-    public synchronized Role getRole() {
+    public synchronized Role getCurrentRole() {
         return this.role;
     }
 
@@ -2651,7 +2651,7 @@ public class RaftKVDatabase implements KVDatabase {
             super(raft);
         }
 
-    // Status
+    // Status & Debugging
 
         /**
          * Get this leader's known followers.
@@ -2692,6 +2692,19 @@ public class RaftKVDatabase implements KVDatabase {
         public Timestamp getLeaseTimeout() {
             synchronized (this.raft) {
                 return this.leaseTimeout;
+            }
+        }
+
+        /**
+         * Force this leader to step down.
+         *
+         * @throws IllegalStateException if this role is no longer active or election timer is not running
+         */
+        public void stepDown() {
+            synchronized (this.raft) {
+                Preconditions.checkState(this.raft.role == this, "role is no longer active");
+                this.debug("stepping down as leader due to invocation of stepDown()");
+                this.raft.changeRole(new FollowerRole(this.raft));
             }
         }
 
@@ -2890,7 +2903,7 @@ public class RaftKVDatabase implements KVDatabase {
                 if (!this.raft.isClusterMember() && this.raft.commitIndex >= this.findMostRecentConfigChange()) {
                     if (this.log.isDebugEnabled())
                         this.log.debug("stepping down as leader of cluster (no longer a member)");
-                    this.raft.changeRole(new FollowerRole(this.raft));
+                    this.stepDown();
                 }
             }
         }
@@ -3643,7 +3656,7 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     /**
-     * Support superclass for the {@linkplain folllower FollowerRole} and {@linkplain candidate CandidateRole} roles,
+     * Support superclass for the {@linkplain FollowerRole follower} and {@linkplain CandidateRole candidate} roles,
      * both of which have an election timer.
      */
     public abstract static class NonLeaderRole extends Role {
@@ -3663,7 +3676,7 @@ public class RaftKVDatabase implements KVDatabase {
             this.startElectionTimer = startElectionTimer;
         }
 
-    // Status
+    // Status & Debugging
 
         /**
          * Determine whether the election timer is running.
@@ -3677,6 +3690,20 @@ public class RaftKVDatabase implements KVDatabase {
         public boolean isElectionTimerRunning() {
             synchronized (this.raft) {
                 return this.electionTimer.isRunning();
+            }
+        }
+
+        /**
+         * Force an immediate election timeout.
+         *
+         * @throws IllegalStateException if this role is no longer active or election timer is not running
+         */
+        public void startElection() {
+            synchronized (this.raft) {
+                Preconditions.checkState(this.raft.role == this, "role is no longer active");
+                Preconditions.checkState(this.electionTimer.isRunning(), "election timer is not running");
+                this.debug("triggering immediate election timeout due to invocation of startElection()");
+                this.electionTimer.timeoutNow();
             }
         }
 
