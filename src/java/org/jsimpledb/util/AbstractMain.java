@@ -32,7 +32,10 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
+import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
+import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
+import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.net.TCPNetwork;
@@ -49,23 +52,32 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
  */
 public abstract class AbstractMain extends MainClass {
 
-    protected static final int KV_MEM = 0;
-    protected static final int KV_FDB = 1;
-    protected static final int KV_XML = 2;
-    protected static final int KV_BDB = 3;
-    protected static final int KV_MYSQL = 4;
-    protected static final int KV_LEVELDB = 5;
-    protected static final int KV_RAFT = 6;
-
     private static final File DEMO_XML_FILE = new File("demo-database.xml");
     private static final File DEMO_SUBDIR = new File("demo-classes");
     private static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
 
-    protected int kvType = -1;
+    // These are like an Enum<DBType>
+    protected final MemoryDBType memoryDBType = new MemoryDBType();
+    protected final FoundationDBType foundationDBType = new FoundationDBType();
+    protected final BerkeleyDBType berkeleyDBType = new BerkeleyDBType();
+    protected final XMLDBType xmlDBType = new XMLDBType();
+    protected final LevelDBType levelDBType = new LevelDBType();
+    protected final MySQLDBType mySQLType = new MySQLDBType();
+    protected final RaftDBType raftDBType = new RaftDBType();
+
+    // FDB config
     protected String fdbClusterFile;
+    protected byte[] fdbKeyPrefix;
+
+    // BDB config
     protected File bdbDirectory;
     protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
+
+    // LevelDB config
     protected File leveldbDirectory;
+
+    // Raft config
+    protected AtomicKVStore raftKVStore;
     protected File raftDirectory;
     protected String raftIdentity;
     protected String raftAddress;
@@ -74,18 +86,27 @@ public abstract class AbstractMain extends MainClass {
     protected int raftMinElectionTimeout = -1;
     protected int raftMaxElectionTimeout = -1;
     protected int raftHeartbeatTimeout = -1;
+
+    // XML config
     protected File xmlFile;
+
+    // MySQL config
     protected String jdbcUrl;
-    protected byte[] keyPrefix;
+
+    // Schema
     protected int schemaVersion;
     protected HashSet<Class<?>> schemaClasses;
     protected HashSet<Class<? extends FieldType<?>>> fieldTypeClasses;
     protected boolean allowNewSchema;
-    protected boolean verbose;
-    protected boolean readOnly;
 
+    protected HashSet<DBType<?>> dbTypes = new HashSet<>();
+    protected DBType<?> dbType;
     protected KVDatabase kvdb;
     protected String databaseDescription;
+
+    // Misc
+    protected boolean verbose;
+    protected boolean readOnly;
     protected boolean allowAutoDemo = true;
 
     /**
@@ -143,22 +164,22 @@ public abstract class AbstractMain extends MainClass {
                 this.allowNewSchema = true;
                 this.allowAutoDemo = false;
             } else if (option.equals("--mem"))
-                this.kvType = KV_MEM;
-            else if (option.equals("--prefix")) {
+                this.dbTypes.add(this.memoryDBType);
+            else if (option.equals("--fdb-prefix")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String value = params.removeFirst();
                 try {
-                    this.keyPrefix = ByteUtil.parse(value);
+                    this.fdbKeyPrefix = ByteUtil.parse(value);
                 } catch (IllegalArgumentException e) {
-                    this.keyPrefix = value.getBytes(Charset.forName("UTF-8"));
+                    this.fdbKeyPrefix = value.getBytes(Charset.forName("UTF-8"));
                 }
-                if (this.keyPrefix.length > 0)
+                if (this.fdbKeyPrefix.length > 0)
                     this.allowAutoDemo = false;
             } else if (option.equals("--fdb")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.kvType = KV_FDB;
+                this.dbTypes.add(this.foundationDBType);
                 this.fdbClusterFile = params.removeFirst();
                 if (!new File(this.fdbClusterFile).exists()) {
                     System.err.println(this.getName() + ": file `" + this.fdbClusterFile + "' does not exist");
@@ -167,12 +188,12 @@ public abstract class AbstractMain extends MainClass {
             } else if (option.equals("--xml")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.kvType = KV_XML;
+                this.dbTypes.add(this.xmlDBType);
                 this.xmlFile = new File(params.removeFirst());
             } else if (option.equals("--bdb")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.kvType = KV_BDB;
+                this.dbTypes.add(this.berkeleyDBType);
                 this.bdbDirectory = new File(params.removeFirst());
                 if (!this.bdbDirectory.exists()) {
                     System.err.println(this.getName() + ": directory `" + this.bdbDirectory + "' does not exist");
@@ -190,11 +211,11 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 this.jdbcUrl = params.removeFirst();
-                this.kvType = KV_MYSQL;
+                this.dbTypes.add(this.mySQLType);
             } else if (option.equals("--leveldb")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.kvType = KV_LEVELDB;
+                this.dbTypes.add(this.levelDBType);
                 this.leveldbDirectory = new File(params.removeFirst());
                 if (!this.leveldbDirectory.exists()) {
                     System.err.println(this.getName() + ": directory `" + this.leveldbDirectory + "' does not exist");
@@ -207,7 +228,7 @@ public abstract class AbstractMain extends MainClass {
             } else if (option.equals("--raft-dir")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.kvType = KV_RAFT;
+                this.dbTypes.add(this.raftDBType);
                 this.raftDirectory = new File(params.removeFirst());
                 if (!this.raftDirectory.exists() && !this.raftDirectory.mkdirs()) {
                     System.err.println(this.getName() + ": could not create directory `" + this.raftDirectory + "'");
@@ -239,7 +260,7 @@ public abstract class AbstractMain extends MainClass {
             } else if (option.equals("--raft-identity")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.kvType = KV_RAFT;
+                this.dbTypes.add(this.raftDBType);
                 this.raftIdentity = params.removeFirst();
             } else if (option.equals("--raft-address")) {
                 if (params.isEmpty())
@@ -269,19 +290,32 @@ public abstract class AbstractMain extends MainClass {
         // Additional logic post-processing of options
         if (!modelPackages.isEmpty() || !typePackages.isEmpty())
             this.allowAutoDemo = false;
-        if (this.kvType != KV_FDB && this.keyPrefix != null) {
-            System.err.println(this.getName() + ": option `--prefix' is only valid in combination with `--fdb'");
-            this.usageError();
-            return 1;
-        }
-        if (this.kvType == -1) {
+
+        // Check database choice(s)
+        switch (this.dbTypes.size()) {
+        case 0:
             if (this.allowAutoDemo && DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists())
                 this.configureDemoMode();
             else {
-                System.err.println(this.getName() + ": no key/value store specified; use one of `--mem', `--fdb', etc.");
+                System.err.println(this.getName() + ": no key/value store specified; use one of `--mysql', etc.");
                 this.usageError();
                 return 1;
             }
+            break;
+        case 1:
+            if (this.dbTypes.contains(this.raftDBType)) {
+                System.err.println(this.getName() + ": Raft requires a local peristent store; use one of `--mysql', etc.");
+                this.usageError();
+                return 1;
+            }
+            break;
+        default:
+            if (this.dbTypes.size() > 2 || !this.dbTypes.contains(this.raftDBType)) {
+                System.err.println(this.getName() + ": multiple key/value stores configured; choose only one");
+                this.usageError();
+                return 1;
+            }
+            break;
         }
 
         // Scan for model and type classes
@@ -351,7 +385,7 @@ public abstract class AbstractMain extends MainClass {
 
         // Configure database
         System.err.println(this.getName() + ": auto-configuring use of demo database `" + DEMO_XML_FILE + "'");
-        this.kvType = KV_XML;
+        this.dbTypes.add(this.xmlDBType);
         this.xmlFile = DEMO_XML_FILE;
 
         // Add demo subdirectory to class path
@@ -452,130 +486,18 @@ public abstract class AbstractMain extends MainClass {
      */
     protected Database startupKVDatabase() {
 
-        // Construct KVDatabase
-        if (this.kvdb != null)
-            this.shutdownKVDatabase();
-        switch (this.kvType) {
-        case KV_MEM:
-            this.kvdb = new SimpleKVDatabase();
-            this.databaseDescription = "In-Memory Database";
-            break;
-        case KV_FDB:
-        {
-            final FoundationKVDatabase fdb = new FoundationKVDatabase();
-            fdb.setClusterFilePath(this.fdbClusterFile);
-            fdb.setKeyPrefix(this.keyPrefix);
-            fdb.start();
-            this.kvdb = fdb;
-            this.databaseDescription = "FoundationDB " + new File(this.fdbClusterFile).getName();
-            if (this.keyPrefix != null)
-                this.databaseDescription += " [0x" + ByteUtil.toString(this.keyPrefix) + "]";
-            break;
+        // Raft requires a separate AtomicKVStore to be configured first
+        final boolean raft = this.dbTypes.remove(this.raftDBType);
+        this.dbType = this.dbTypes.iterator().next();
+        if (raft) {
+            this.raftKVStore = dbType.createAtomicKVStore();
+            this.dbType = this.raftDBType;
         }
-        case KV_BDB:
-        {
-            final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();
-            bdb.setDirectory(this.bdbDirectory);
-            bdb.setDatabaseName(this.bdbDatabaseName);
-//            if (this.readOnly)
-//                bdb.setDatabaseConfig(bdb.getDatabaseConfig().setReadOnly(true));
-            bdb.start();
-            this.kvdb = bdb;
-            this.databaseDescription = "BerkeleyDB " + this.bdbDirectory.getName();
-            break;
-        }
-        case KV_XML:
-            this.kvdb = new XMLKVDatabase(this.xmlFile);
-            this.databaseDescription = "XML DB " + this.xmlFile.getName();
-            break;
-        case KV_MYSQL:
-        {
-            try {
-                Class.forName(MYSQL_DRIVER_CLASS_NAME);
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new RuntimeException("can't load MySQL driver class `" + MYSQL_DRIVER_CLASS_NAME + "'", e);
-            }
-            final MySQLKVDatabase mysql = new MySQLKVDatabase();
-            mysql.setDataSource(new DriverManagerDataSource(this.jdbcUrl));
-            this.kvdb = mysql;
-            this.databaseDescription = "MySQL";
-            break;
-        }
-        case KV_LEVELDB:
-        {
-            final LevelDBKVDatabase leveldb = new LevelDBKVDatabase();
-            leveldb.setDirectory(this.leveldbDirectory);
-            leveldb.start();
-            this.kvdb = leveldb;
-            this.databaseDescription = "LevelDB " + this.leveldbDirectory.getName();
-            break;
-        }
-        case KV_RAFT:
-        {
 
-            // Setup network
-            final TCPNetwork network = new TCPNetwork();
-            try {
-                network.setListenAddress(this.raftAddress != null ?
-                  new InetSocketAddress(InetAddress.getByName(this.raftAddress), this.raftPort) :
-                  new InetSocketAddress(this.raftPort));
-            } catch (UnknownHostException e) {
-                throw new RuntimeException("can't resolve address `" + this.raftAddress + "'", e);
-            }
-
-            // Set up Raft DB
-            if (this.raftNewCluster && this.raftAddress == null)
-                throw new RuntimeException("`--raft-new-cluster' requires specifying `--raft-address'");
-            final RaftKVDatabase raft = new RaftKVDatabase();
-            raft.setLogDirectory(this.raftDirectory);
-            raft.setNetwork(network);
-            raft.setIdentity(this.raftIdentity);
-            if (this.raftMinElectionTimeout != -1)
-                raft.setMinElectionTimeout(this.raftMinElectionTimeout);
-            if (this.raftMaxElectionTimeout != -1)
-                raft.setMaxElectionTimeout(this.raftMaxElectionTimeout);
-            if (this.raftHeartbeatTimeout != -1)
-                raft.setHeartbeatTimeout(this.raftHeartbeatTimeout);
-            try {
-                raft.start();
-            } catch (Exception e) {
-                throw new RuntimeException("error starting Raft database", e);
-            }
-
-            // Initialize new cluster
-            if (this.raftNewCluster) {
-                assert this.raftAddress != null;
-
-                // Set up local address
-                final String nodeAddress = this.raftAddress
-                  + (this.raftPort != TCPNetwork.DEFAULT_TCP_PORT ? ":" + this.raftPort : "");
-
-                // Add local node to new cluster
-                try {
-                    final RaftKVTransaction tx = raft.createTransaction();
-                    boolean success = false;
-                    try {
-                        tx.configChange(this.raftIdentity, nodeAddress);
-                        tx.commit();
-                        success = true;
-                    } finally {
-                        if (!success)
-                            tx.rollback();
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException("error initializing new Raft cluster", e);
-                }
-            }
-
-            this.kvdb = raft;
-            this.databaseDescription = "Raft " + this.raftDirectory.getName();
-            break;
-        }
-        default:
-            throw new RuntimeException("internal error");
-        }
+        // Create and start up database
+        this.kvdb = this.dbType.createKVDatabase();
+        this.databaseDescription = this.dbType.getDescription();
+        AbstractMain.startKVDatabase(this.dbType, this.kvdb);
         this.log.debug("using database: " + this.databaseDescription);
 
         // Construct core Database
@@ -587,6 +509,11 @@ public abstract class AbstractMain extends MainClass {
 
         // Done
         return db;
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private static <T extends KVDatabase> void startKVDatabase(DBType<T> dbType, KVDatabase kvdb) {
+        dbType.startKVDatabase(dbType.cast(kvdb));
     }
 
     /**
@@ -621,26 +548,16 @@ public abstract class AbstractMain extends MainClass {
         }
     }
 
+    /**
+     * Shutdown the {@link KVDatabase}.
+     */
     protected void shutdownKVDatabase() {
-        if (this.kvdb != null) {
-            switch (this.kvType) {
-            case KV_FDB:
-                ((FoundationKVDatabase)this.kvdb).stop();
-                break;
-            case KV_BDB:
-                ((BerkeleyKVDatabase)this.kvdb).stop();
-                break;
-            case KV_LEVELDB:
-                ((LevelDBKVDatabase)this.kvdb).stop();
-                break;
-            case KV_RAFT:
-                ((RaftKVDatabase)this.kvdb).stop();
-                break;
-            default:
-                break;
-            }
-            this.kvdb = null;
-        }
+        AbstractMain.stopKVDatabase(this.dbType, this.kvdb);
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private static <T extends KVDatabase> void stopKVDatabase(DBType<T> dbType, KVDatabase kvdb) {
+        dbType.stopKVDatabase(dbType.cast(kvdb));
     }
 
     protected abstract String getName();
@@ -654,13 +571,13 @@ public abstract class AbstractMain extends MainClass {
         final String[][] baseOpts = new String[][] {
             { "--classpath, -cp path",          "Append to the classpath (useful with `java -jar ...')" },
             { "--fdb file",                     "Use FoundationDB with specified cluster file" },
+            { "--fdb-prefix prefix",            "FoundationDB key prefix (hex or string)" },
             { "--bdb directory",                "Use Berkeley DB Java Edition in specified directory" },
             { "--bdb-database",                 "Specify Berkeley DB database name (default `"
                                                   + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
             { "--leveldb directory",            "Use LevelDB in specified directory" },
             { "--mem",                          "Use an empty in-memory database (default)" },
             { "--mysql URL",                    "Use MySQL with the given JDBC URL" },
-            { "--prefix prefix",                "FoundationDB key prefix (hex or string)" },
             { "--raft-dir directory",           "Raft local persistence directory" },
             { "--raft-min-election-timeout",    "Raft minimum election timeout in ms (default "
                                                   + RaftKVDatabase.DEFAULT_MIN_ELECTION_TIMEOUT + ")" },
@@ -697,6 +614,245 @@ public abstract class AbstractMain extends MainClass {
             width = Math.max(width, opt[0].length());
         for (String[] opt : combinedOpts)
             System.err.println(String.format("  %-" + width + "s  %s", opt[0], opt[1]));
+    }
+
+// DBType
+
+    protected abstract class DBType<T extends KVDatabase> {
+
+        private final Class<T> type;
+
+        protected DBType(Class<T> type) {
+            this.type = type;
+        }
+
+        public T cast(KVDatabase db) {
+            return this.type.cast(db);
+        }
+
+        public AtomicKVStore createAtomicKVStore() {
+            return new AtomicKVDatabase(this.createKVDatabase());
+        }
+
+        public abstract T createKVDatabase();
+
+        public void startKVDatabase(T db) {
+            db.start();
+        }
+
+        public void stopKVDatabase(T db) {
+            db.stop();
+        }
+
+        public abstract String getDescription();
+    }
+
+    protected final class MemoryDBType extends DBType<SimpleKVDatabase> {
+
+        private MemoryDBType() {
+            super(SimpleKVDatabase.class);
+        }
+
+        @Override
+        public SimpleKVDatabase createKVDatabase() {
+            return new SimpleKVDatabase();
+        }
+
+        @Override
+        public String getDescription() {
+            return "In-Memory Database";
+        }
+    }
+
+    protected final class FoundationDBType extends DBType<FoundationKVDatabase> {
+
+        private FoundationDBType() {
+            super(FoundationKVDatabase.class);
+        }
+
+        @Override
+        public FoundationKVDatabase createKVDatabase() {
+            final FoundationKVDatabase fdb = new FoundationKVDatabase();
+            fdb.setClusterFilePath(AbstractMain.this.fdbClusterFile);
+            fdb.setKeyPrefix(AbstractMain.this.fdbKeyPrefix);
+            return fdb;
+        }
+
+        @Override
+        public String getDescription() {
+            String desc = "FoundationDB " + new File(AbstractMain.this.fdbClusterFile).getName();
+            if (AbstractMain.this.fdbKeyPrefix != null)
+                desc += " [0x" + ByteUtil.toString(AbstractMain.this.fdbKeyPrefix) + "]";
+            return desc;
+        }
+    }
+
+    protected final class BerkeleyDBType extends DBType<BerkeleyKVDatabase> {
+
+        private BerkeleyDBType() {
+            super(BerkeleyKVDatabase.class);
+        }
+
+        @Override
+        public BerkeleyKVDatabase createKVDatabase() {
+            final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();
+            bdb.setDirectory(AbstractMain.this.bdbDirectory);
+            bdb.setDatabaseName(AbstractMain.this.bdbDatabaseName);
+//            if (AbstractMain.this.readOnly)
+//                bdb.setDatabaseConfig(bdb.getDatabaseConfig().setReadOnly(true));
+            return bdb;
+        }
+
+        @Override
+        public String getDescription() {
+            return "BerkeleyDB " + AbstractMain.this.bdbDirectory.getName();
+        }
+    }
+
+    protected final class XMLDBType extends DBType<XMLKVDatabase> {
+
+        private XMLDBType() {
+            super(XMLKVDatabase.class);
+        }
+
+        @Override
+        public XMLKVDatabase createKVDatabase() {
+            return new XMLKVDatabase(AbstractMain.this.xmlFile);
+        }
+
+        @Override
+        public String getDescription() {
+            return "XML DB " + AbstractMain.this.xmlFile.getName();
+        }
+    }
+
+    protected final class LevelDBType extends DBType<LevelDBKVDatabase> {
+
+        private LevelDBType() {
+            super(LevelDBKVDatabase.class);
+        }
+
+        @Override
+        public LevelDBKVDatabase createKVDatabase() {
+            final LevelDBKVDatabase leveldb = new LevelDBKVDatabase();
+            leveldb.setKVStore(this.createAtomicKVStore());
+            return leveldb;
+        }
+
+        @Override
+        public LevelDBAtomicKVStore createAtomicKVStore() {
+            final LevelDBAtomicKVStore kvstore = new LevelDBAtomicKVStore();
+            kvstore.setDirectory(AbstractMain.this.leveldbDirectory);
+            kvstore.setCreateIfMissing(true);
+            return kvstore;
+        }
+
+        @Override
+        public String getDescription() {
+            return "LevelDB " + AbstractMain.this.leveldbDirectory.getName();
+        }
+    }
+
+    protected final class MySQLDBType extends DBType<MySQLKVDatabase> {
+
+        private MySQLDBType() {
+            super(MySQLKVDatabase.class);
+        }
+
+        @Override
+        public MySQLKVDatabase createKVDatabase() {
+            try {
+                Class.forName(MYSQL_DRIVER_CLASS_NAME);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException("can't load MySQL driver class `" + MYSQL_DRIVER_CLASS_NAME + "'", e);
+            }
+            final MySQLKVDatabase mysql = new MySQLKVDatabase();
+            mysql.setDataSource(new DriverManagerDataSource(AbstractMain.this.jdbcUrl));
+            return mysql;
+        }
+
+        @Override
+        public String getDescription() {
+            return "MySQL";
+        }
+    }
+
+    protected final class RaftDBType extends DBType<RaftKVDatabase> {
+
+        private RaftDBType() {
+            super(RaftKVDatabase.class);
+        }
+
+        @Override
+        public RaftKVDatabase createKVDatabase() {
+
+            // Setup network
+            final TCPNetwork network = new TCPNetwork();
+            try {
+                network.setListenAddress(AbstractMain.this.raftAddress != null ?
+                  new InetSocketAddress(InetAddress.getByName(AbstractMain.this.raftAddress), AbstractMain.this.raftPort) :
+                  new InetSocketAddress(AbstractMain.this.raftPort));
+            } catch (UnknownHostException e) {
+                throw new RuntimeException("can't resolve address `" + AbstractMain.this.raftAddress + "'", e);
+            }
+
+            // Set up Raft DB
+            if (AbstractMain.this.raftNewCluster && AbstractMain.this.raftAddress == null)
+                throw new RuntimeException("`--raft-new-cluster' requires specifying `--raft-address'");
+            final RaftKVDatabase raft = new RaftKVDatabase();
+            raft.setLogDirectory(AbstractMain.this.raftDirectory);
+            raft.setKVStore(AbstractMain.this.raftKVStore);
+            raft.setNetwork(network);
+            raft.setIdentity(AbstractMain.this.raftIdentity);
+            if (AbstractMain.this.raftMinElectionTimeout != -1)
+                raft.setMinElectionTimeout(AbstractMain.this.raftMinElectionTimeout);
+            if (AbstractMain.this.raftMaxElectionTimeout != -1)
+                raft.setMaxElectionTimeout(AbstractMain.this.raftMaxElectionTimeout);
+            if (AbstractMain.this.raftHeartbeatTimeout != -1)
+                raft.setHeartbeatTimeout(AbstractMain.this.raftHeartbeatTimeout);
+
+            // Done
+            return raft;
+        }
+
+        @Override
+        public void startKVDatabase(RaftKVDatabase raft) {
+
+            // Start database
+            super.startKVDatabase(raft);
+
+            // Initialize new cluster, if so configured
+            if (AbstractMain.this.raftNewCluster) {
+                assert AbstractMain.this.raftAddress != null;
+
+                // Set up local address
+                final String nodeAddress = AbstractMain.this.raftAddress
+                  + (AbstractMain.this.raftPort != TCPNetwork.DEFAULT_TCP_PORT ? ":" + AbstractMain.this.raftPort : "");
+
+                // Add local node to new cluster
+                try {
+                    final RaftKVTransaction tx = raft.createTransaction();
+                    boolean success = false;
+                    try {
+                        tx.configChange(AbstractMain.this.raftIdentity, nodeAddress);
+                        tx.commit();
+                        success = true;
+                    } finally {
+                        if (!success)
+                            tx.rollback();
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("error initializing new Raft cluster", e);
+                }
+            }
+        }
+
+        @Override
+        public String getDescription() {
+            return "Raft " + AbstractMain.this.raftDirectory.getName();
+        }
     }
 }
 

@@ -272,12 +272,6 @@ public class BerkeleyKVDatabase implements KVDatabase {
 
 // KVDatabase
 
-    /**
-     * Create a new transaction.
-     *
-     * @throws IllegalStateException if this instance is not {@linkplain #start started}
-     * @throws KVDatabaseException if an unexpected error occurs
-     */
     @Override
     public synchronized BerkeleyKVTransaction createTransaction() {
 
@@ -316,17 +310,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
         this.openTransactions.remove(tx);
     }
 
-// Lifecycle
-
-    /**
-     * Start this instance. This method must be called prior to creating any transactions.
-     *
-     * <p>
-     * This method is idempotent.
-     * </p>
-     *
-     * @throws IllegalStateException if this instance is not properly configured
-     */
+    @Override
     @PostConstruct
     public synchronized void start() {
         if (this.environment != null) {
@@ -363,9 +347,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
         }
     }
 
-    /**
-     * Stop this instance. Does nothing if not {@linkplain #start started}.
-     */
+    @Override
     @PreDestroy
     public void stop() {
 

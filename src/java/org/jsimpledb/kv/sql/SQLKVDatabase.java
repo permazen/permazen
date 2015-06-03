@@ -183,6 +183,14 @@ public class SQLKVDatabase implements KVDatabase {
         this.isolationLevel = isolationLevel;
     }
 
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
     /**
      * Create a new transaction.
      *

@@ -14,7 +14,10 @@ import org.jsimpledb.kv.KVDatabase;
  * Instances use a fixed {@code byte[]} key prefix for all key access, thereby providing a nested {@link KVDatabase}
  * view of the corresponding sub-range of keys within the containing {@link KVDatabase}. This allows, for example, multiple
  * {@link KVDatabase}s to exist within a single containing {@link KVDatabase} under different key prefixes.
- * </p>
+ *
+ * <p>
+ * Instances ignore invocations to {@link #start} and {@link #stop}; instead, invoke these methods on the underlying
+ * {@link KVDatabase}.
  */
 public class PrefixKVDatabase implements KVDatabase {
 
@@ -53,6 +56,16 @@ public class PrefixKVDatabase implements KVDatabase {
      */
     public final byte[] getKeyPrefix() {
         return this.keyPrefix.clone();
+    }
+
+// KVDatabase
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
     }
 
     @Override

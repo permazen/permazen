@@ -54,8 +54,6 @@ import javax.annotation.PreDestroy;
 import org.dellroad.stuff.io.ByteBufferInputStream;
 import org.dellroad.stuff.io.ByteBufferOutputStream;
 import org.dellroad.stuff.java.TimedWait;
-import org.iq80.leveldb.Options;
-import org.iq80.leveldb.impl.Iq80DBFactory;
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVStore;
@@ -64,7 +62,6 @@ import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
-import org.jsimpledb.kv.leveldb.LevelDBKVStore;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.Mutations;
@@ -154,8 +151,8 @@ import org.slf4j.LoggerFactory;
  *
  * <ul>
  *  <li>A transaction's mutations must fit in memory.</li>
- *  <li>An {@link AtomicKVStore} is required to store local persistent state;
- *      if none is configured, a {@link LevelDBKVStore} is used.</li>
+ *  <li>An {@link AtomicKVStore} is required to store local persistent state (note: any {@link KVDatabase} can be converted
+ *      into an {@link AtomicKVStore} using the {@link org.jsimpledb.kv.mvcc.AtomicKVDatabase} utility class)</li>
  *  <li>All nodes must be configured with the same {@linkplain #setMinElectionTimeout minimum election timeout}.
  *      This guarantees that the leader's lease timeout calculation is valid.</li>
  *  <li>Due to the optimistic locking approach used, this implementation will perform poorly when there is a high
@@ -284,9 +281,7 @@ public class RaftKVDatabase implements KVDatabase {
     private static final String TX_FILE_PREFIX = "tx-";
     private static final String TEMP_FILE_PREFIX = "temp-";
     private static final String TEMP_FILE_SUFFIX = ".tmp";
-    private static final String KVSTORE_FILE_SUFFIX = ".kvstore";
     private static final Pattern TEMP_FILE_PATTERN = Pattern.compile(".*" + Pattern.quote(TEMP_FILE_SUFFIX));
-    private static final Pattern KVSTORE_FILE_PATTERN = Pattern.compile(".*" + Pattern.quote(KVSTORE_FILE_SUFFIX));
 
     // Keys for persistent Raft state
     private static final byte[] CLUSTER_ID_KEY = ByteUtil.parse("0001");
@@ -305,7 +300,6 @@ public class RaftKVDatabase implements KVDatabase {
     // Configuration state
     private Network network = new TCPNetwork();
     private String identity;
-    private AtomicKVStore kvstore;
     private int minElectionTimeout = DEFAULT_MIN_ELECTION_TIMEOUT;
     private int maxElectionTimeout = DEFAULT_MAX_ELECTION_TIMEOUT;
     private int heartbeatTimeout = DEFAULT_HEARTBEAT_TIMEOUT;
@@ -343,15 +337,14 @@ public class RaftKVDatabase implements KVDatabase {
      * Configure the {@link AtomicKVStore} in which local persistent state is stored.
      *
      * <p>
-     * If this property is left unconfigured, by default a {@link LevelDBKVStore} is created when
-     * {@link #start} is invoked and shutdown on {@link #stop}.
+     * Required property.
      *
      * @param kvstore local persistent data store
      * @throws IllegalStateException if this instance is already started
      */
     public synchronized void setKVStore(AtomicKVStore kvstore) {
         Preconditions.checkState(this.role == null, "already started");
-        this.kvstore = kvstore;
+        this.kv = kvstore;
     }
 
     /**
@@ -752,19 +745,9 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Lifecycle
 
-    /**
-     * Start this instance.
-     *
-     * <p>
-     * Does nothing if already started or in the process of shutting down.
-     * </p>
-     *
-     * @throws IllegalStateException if this instance is not properly configured
-     * @throws IllegalArgumentException if persistent data is corrupted
-     * @throws IOException if an I/O error occurs
-     */
+    @Override
     @PostConstruct
-    public synchronized void start() throws IOException {
+    public synchronized void start() {
 
         // Sanity check
         assert this.checkState();
@@ -772,8 +755,8 @@ public class RaftKVDatabase implements KVDatabase {
             return;
         Preconditions.checkState(!this.shuttingDown, "shutdown in progress");
         Preconditions.checkState(this.logDir != null, "no log directory configured");
+        Preconditions.checkState(this.kv != null, "no local persistence key/value store configured");
         Preconditions.checkState(this.network != null, "no network configured");
-        Preconditions.checkState(this.kv == null, "key/value store exists");
         Preconditions.checkState(this.minElectionTimeout <= this.maxElectionTimeout, "minElectionTimeout > maxElectionTimeout");
         Preconditions.checkState(this.heartbeatTimeout < this.minElectionTimeout, "heartbeatTimeout >= minElectionTimeout");
         Preconditions.checkState(this.identity != null, "no identity configured");
@@ -792,17 +775,8 @@ public class RaftKVDatabase implements KVDatabase {
             if (!this.logDir.isDirectory())
                 throw new IOException("file `" + this.logDir + "' is not a directory");
 
-            // By default use an atomic key/value store based on LevelDB if not explicitly specified
-            if (this.kvstore != null)
-                this.kv = this.kvstore;
-            else {
-                final File leveldbDir = new File(this.logDir, "levedb" + KVSTORE_FILE_SUFFIX);
-                if (!leveldbDir.exists() && !leveldbDir.mkdirs())
-                    throw new IOException("failed to create directory `" + leveldbDir + "'");
-                if (!leveldbDir.isDirectory())
-                    throw new IOException("file `" + leveldbDir + "' is not a directory");
-                this.kv = new LevelDBKVStore(new Iq80DBFactory().open(leveldbDir, new Options().createIfMissing(true)));
-            }
+            // Start k/v store
+            this.kv.start();
 
             // Open directory containing log entry files so we have a way to fsync() it
             assert this.logDirChannel == null;
@@ -891,6 +865,8 @@ public class RaftKVDatabase implements KVDatabase {
             // Done
             this.info("successfully started " + this + " in directory " + this.logDir);
             success = true;
+        } catch (IOException e) {
+            throw new RuntimeException("error starting up database", e);
         } finally {
             if (!success)
                 this.cleanup();
@@ -900,13 +876,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.checkState();
     }
 
-    /**
-     * Stop this instance.
-     *
-     * <p>
-     * Does nothing if not {@linkplain #start started} or in the process of shutting down.
-     * </p>
-     */
+    @Override
     @PreDestroy
     public void stop() {
 
@@ -990,14 +960,7 @@ public class RaftKVDatabase implements KVDatabase {
             }
             this.executor = null;
         }
-        if (this.kv != null) {
-            if (this.kvstore == null) {
-                final LevelDBKVStore ldb = (LevelDBKVStore)this.kv;
-                Util.closeIfPossible(ldb);
-                Util.closeIfPossible(ldb.getDB());
-            }
-            this.kv = null;
-        }
+        this.kv.stop();
         Util.closeIfPossible(this.logDirChannel);
         this.logDirChannel = null;
         this.raftLog.clear();
@@ -1029,6 +992,10 @@ public class RaftKVDatabase implements KVDatabase {
         this.raftLog.clear();
         for (File file : this.logDir.listFiles()) {
 
+            // Ignore sub-directories (typically owned by the underlying k/v store)
+            if (file.isDirectory())
+                continue;
+
             // Is this a log entry file?
             if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches()) {
                 if (this.log.isDebugEnabled())
@@ -1046,10 +1013,6 @@ public class RaftKVDatabase implements KVDatabase {
                     this.error("failed to delete leftover temporary file " + file);
                 continue;
             }
-
-            // Is this a KV store directory (expected)?
-            if (KVSTORE_FILE_PATTERN.matcher(file.getName()).matches())
-                continue;
 
             // Unknown
             this.warn("ignoring unrecognized file " + file.getName() + " in my log directory");
@@ -4873,7 +4836,6 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Handle stopped state
         if (this.role == null) {
-            assert this.kv == null;
             assert this.random == null;
             assert this.currentTerm == 0;
             assert this.commitIndex == 0;

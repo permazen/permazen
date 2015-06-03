@@ -162,6 +162,16 @@ public class SimpleKVDatabase implements KVDatabase {
         this.lockManager.setHoldTimeout(holdTimeout);
     }
 
+// KVDatabase
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
     @Override
     public synchronized SimpleKVTransaction createTransaction() {
         return new SimpleKVTransaction(this, this.waitTimeout);

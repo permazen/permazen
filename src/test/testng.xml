@@ -8,6 +8,7 @@
     <!-- These properties are used by KVDatabaseTest. Uncomment one or more to include time-consuming tests. -->
 <!--
     <parameter name="testSimpleKV" value="true"/>
+    <parameter name="xmlFilePrefix" value="xmldb"/>
     <parameter name="fdbClusterFile" value="/usr/local/etc/foundationdb/fdb.cluster"/>
     <parameter name="mysqlURL" value="jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger"/>
     <parameter name="berkeleyDirPrefix" value="BerkeleyDbJava"/>

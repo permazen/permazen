@@ -41,6 +41,7 @@ public class FoundationKVDatabase implements KVDatabase {
     private Executor executor;
 
     private Database database;
+    private boolean started;                                // FDB can only be started up once
 
     /**
      * Constructor.
@@ -133,42 +134,32 @@ public class FoundationKVDatabase implements KVDatabase {
         return this.database;
     }
 
-    /**
-     * Start this instance. This method must be called prior to creating any transactions.
-     *
-     * @throws IllegalStateException if this instance has already been {@linkplain #start started}
-     * @throws IllegalStateException if this instance has already been {@linkplain #stop stopped}
-     */
+// KVDatabase
+
+    @Override
     @PostConstruct
     public synchronized void start() {
         if (this.database != null)
-            throw new IllegalStateException("already started");
+            return;
+        if (this.started)
+            throw new UnsupportedOperationException("restarts not supported");
         this.database = this.fdb.open(this.clusterFilePath, this.databaseName);
         if (this.executor != null)
             this.fdb.startNetwork(this.executor);
         else
             this.fdb.startNetwork();
+        this.started = true;
     }
 
-    /**
-     * Stop this instance. Invokes {@link FDB#stopNetwork}. Does nothing if not {@linkplain #start started}.
-     *
-     * @throws FDBException if an error occurs
-     */
+    @Override
     @PreDestroy
     public synchronized void stop() {
         if (this.database == null)
             return;
         this.fdb.stopNetwork();
+        this.database = null;
     }
 
-    /**
-     * Create a new transaction.
-     *
-     * @throws IllegalStateException if this instance has not yet been {@linkplain #start started}
-     * @throws IllegalStateException if this instance has already been {@linkplain #stop stopped}
-     * @throws KVDatabaseException if an unexpected error occurs
-     */
     @Override
     public FoundationKVTransaction createTransaction() {
         if (this.database == null)

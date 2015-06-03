@@ -7,6 +7,9 @@ package org.jsimpledb.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVDatabase;
@@ -15,15 +18,19 @@ import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.jsimpledb.kv.util.UnmodifiableKVStore;
 import org.jsimpledb.util.ByteUtil;
+import org.slf4j.LoggerFactory;
 
 /**
- * Wrapper class that presents an {@link AtomicKVStore} view of any {@link KVDatabase}, using
- * individual transactions for each operation.
+ * Wrapper class that presents an {@link AtomicKVStore} view of any {@link KVDatabase},
+ * using individual transactions for each operation.
+ *
+ * @see SnapshotKVDatabase
  */
-public abstract class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
+public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {
 
     protected final KVDatabase kvdb;
 
@@ -142,14 +149,34 @@ public abstract class AtomicKVDatabase extends AbstractKVStore implements Atomic
 // AtomicKVStore
 
     @Override
+    @PostConstruct
+    public void start() {
+        this.kvdb.start();
+    }
+
+    @Override
+    @PreDestroy
+    public void stop() {
+        this.kvdb.stop();
+    }
+
+    @Override
     public CloseableKVStore snapshot() {
         final KVTransaction kvtx = this.kvdb.createTransaction();
+        boolean success = false;
         try {
-            kvtx.setTimeout(Integer.MAX_VALUE);
-        } catch (UnsupportedOperationException e) {
-            // ignore
+            try {
+                kvtx.setTimeout(Integer.MAX_VALUE);
+            } catch (UnsupportedOperationException e) {
+                // ignore
+            }
+            final SnapshotKVStore kvstore = new SnapshotKVStore(kvtx);
+            success = true;
+            return kvstore;
+        } finally {
+            if (!success)
+                kvtx.rollback();
         }
-        return new SnapshotKVStore(kvtx);
     }
 
     @Override
@@ -164,20 +191,38 @@ public abstract class AtomicKVDatabase extends AbstractKVStore implements Atomic
         });
     }
 
+// Object
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[kvdb=" + this.kvdb + "]";
+    }
+
 // Internal methods
 
     private <R> R doInTransaction(Action<R> action) {
-        final KVTransaction kvtx = this.kvdb.createTransaction();
-        boolean success = false;
-        try {
-            final R result = action.apply(kvtx);
-            success = true;
-            return result;
-        } finally {
-            if (success)
-                kvtx.commit();
-            else
-                kvtx.rollback();
+        int count = 0;
+        while (true) {
+            try {
+                final KVTransaction kvtx = this.kvdb.createTransaction();
+                boolean success = false;
+                try {
+                    final R result = action.apply(kvtx);
+                    success = true;
+                    return result;
+                } finally {
+                    if (success)
+                        kvtx.commit();
+                    else
+                        kvtx.rollback();
+                }
+            } catch (RetryTransactionException e) {
+                if (count++ < 3) {
+                    Thread.yield();
+                    continue;
+                }
+                throw e;
+            }
         }
     }
 
@@ -194,6 +239,8 @@ public abstract class AtomicKVDatabase extends AbstractKVStore implements Atomic
         private final KVTransaction kvtx;
         private final UnmodifiableKVStore delegate;
 
+        private volatile boolean closed;
+
         SnapshotKVStore(KVTransaction kvtx) {
             this.kvtx = kvtx;
             this.delegate = new UnmodifiableKVStore(this.kvtx);
@@ -204,10 +251,24 @@ public abstract class AtomicKVDatabase extends AbstractKVStore implements Atomic
             return this.delegate;
         }
 
+    // Object
+
+        @Override
+        protected void finalize() throws Throwable {
+            try {
+                if (!this.closed)
+                    LoggerFactory.getLogger(this.getClass()).warn(this + " leaked without invoking close()");
+                this.close();
+            } finally {
+                super.finalize();
+            }
+        }
+
     // Closeable
 
         @Override
         public void close() {
+            this.closed = true;
             this.kvtx.rollback();
         }
     }

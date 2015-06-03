@@ -5,10 +5,15 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVStore;
@@ -19,12 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Multi-version conccurrency control (MVCC) database using snapshot views of an underlying {@link AtomicKVStore}.
- *
- * <p>
- * This class provides a {@link KVDatabase} view of an underlying {@link AtomicKVStore},
- * supporting concurrent transactions via MVCC and linearizable ACID semantics.
- * </p>
+ * {@link KVDatabase} implementation based on an underlying {@link AtomicKVStore} that uses
+ * {@linkplain AtomicKVStore#snapshot snapshot} views and optimistic locking to provide concurrent
+ * transactions and linearizable ACID consistency.
  *
  * <p>
  * Instances implement a simple optimistic locking scheme for MVCC using {@link AtomicKVStore#snapshot}. Concurrent transactions
@@ -36,11 +38,13 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * Each outstanding transaction's mutations are batched up in memory using a {@link Writes} instance. Therefore, the
- * transaction load supported by this class is limited to what can fit in memory.
+ * Each outstanding transaction's mutations are batched up in memory using a {@link Writes} instance. Therefore,
+ * the transaction load supported by this class is limited to what can fit in memory.
  * </p>
+ *
+ * @see AtomicKVDatabase
  */
-public class SnapshotKVDatabase implements KVDatabase {
+public abstract class SnapshotKVDatabase implements KVDatabase {
 
 // Locking order: (1) SnapshotKVTransaction, (2) SnapshotKVDatabase
 
@@ -50,6 +54,8 @@ public class SnapshotKVDatabase implements KVDatabase {
 
     private AtomicKVStore kvstore;
     private long currentVersion;
+    private boolean started;
+    private boolean stopping;
 
 // Constructors
 
@@ -57,7 +63,7 @@ public class SnapshotKVDatabase implements KVDatabase {
      * Default constructor.
      *
      * <p>
-     * The underlying key/value store must still be configured before creating any transactions.
+     * The underlying key/value store must still be configured before starting this instance.
      */
     public SnapshotKVDatabase() {
     }
@@ -86,30 +92,63 @@ public class SnapshotKVDatabase implements KVDatabase {
      * Configure the underlying {@link AtomicKVStore}.
      *
      * <p>
-     * Required property; must be configured before creating any transactions.
+     * Required property; must be configured before {@link #start}ing.
      *
      * @param kvstore underlying key/value store
-     * @throws IllegalStateException if there are any transactions open
+     * @throws IllegalStateException if this instance is already started
      */
     protected synchronized void setKVStore(AtomicKVStore kvstore) {
-        if (!this.versionInfoMap.isEmpty())
-            throw new IllegalStateException("transactions exist");
+        Preconditions.checkState(!this.started, "already started");
         this.kvstore = kvstore;
     }
 
 // KVDatabase
 
+    @Override
+    @PostConstruct
+    public synchronized void start() {
+        if (this.started)
+            return;
+        Preconditions.checkState(this.kvstore != null, "no KVStore configured");
+        this.kvstore.start();
+        this.started = true;
+    }
+
+    @Override
+    @PreDestroy
+    public void stop() {
+
+        // Set stopping flag to prevent new transactions from being created
+        synchronized (this) {
+            if (!this.started || this.stopping)
+                return;
+            this.log.info("stopping " + this);
+            this.stopping = true;
+        }
+
+        // Close any remaining open transactions, while not holding lock
+        this.closeTransactions();
+
+        // Finish up
+        synchronized (this) {
+            assert this.started;
+            this.kvstore.stop();
+            this.stopping = false;
+            this.started = false;
+        }
+    }
+
     /**
      * Create a new transaction.
      *
-     * @throws IllegalStateException if no {@link AtomicKVStore} is configured
+     * @throws IllegalStateException if not {@link #start}ed or {@link #stop}ing
      */
     @Override
     public synchronized KVTransaction createTransaction() {
 
         // Sanity check
-        if (this.kvstore == null)
-            throw new IllegalStateException("no KVSTore configured");
+        Preconditions.checkState(this.started, "not started");
+        Preconditions.checkState(!this.stopping, "stopping");
 
         // Get info for the current version
         final SnapshotVersion versionInfo = this.getCurrentSnapshotVersion();
@@ -124,6 +163,17 @@ public class SnapshotKVDatabase implements KVDatabase {
 
         // Done
         return tx;
+    }
+
+// Object
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()
+          + "[kvstore=" + this.kvstore
+          + ",started=" + this.started
+          + ",currentVersion=" + this.currentVersion
+          + "]";
     }
 
 // Subclass methods

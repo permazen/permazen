@@ -32,11 +32,15 @@ import java.util.concurrent.Future;
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
+import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
+import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
+import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.net.TestNetwork;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
+import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.kv.sql.IsolationLevel;
 import org.jsimpledb.kv.sql.MySQLKVDatabase;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
@@ -66,6 +70,7 @@ public class KVDatabaseTest extends TestSupport {
     private ExecutorService executor;
 
     private SimpleKVDatabase simpleKV;
+    private XMLKVDatabase xmlKV;
     private MySQLKVDatabase mysqlKV;
     private FoundationKVDatabase fdbKV;
     private BerkeleyKVDatabase bdbKV;
@@ -79,8 +84,22 @@ public class KVDatabaseTest extends TestSupport {
     @BeforeClass
     @Parameters("testSimpleKV")
     public void setTestSimpleKV(@Optional String testSimpleKV) {
-        if (testSimpleKV != null && Boolean.valueOf(testSimpleKV))
+        if (testSimpleKV != null && Boolean.valueOf(testSimpleKV)) {
             this.simpleKV = new SimpleKVDatabase(new NavigableMapKVStore(), 250, 500);
+            this.simpleKV.start();
+        }
+    }
+
+    @BeforeClass
+    @Parameters("xmlFilePrefix")
+    public void setTestXMLKV(@Optional String xmlFilePrefix) throws IOException {
+        if (xmlFilePrefix != null) {
+            final File xmlFile = File.createTempFile(xmlFilePrefix, ".xml");
+            xmlFile.delete();                           // we need the file to not exist at first
+            xmlFile.deleteOnExit();
+            this.xmlKV = new XMLKVDatabase(xmlFile);
+            this.xmlKV.start();
+        }
     }
 
     @BeforeClass
@@ -127,8 +146,11 @@ public class KVDatabaseTest extends TestSupport {
             Assert.assertTrue(dir.delete());
             Assert.assertTrue(dir.mkdirs());
             dir.deleteOnExit();
+            final LevelDBAtomicKVStore kvstore = new LevelDBAtomicKVStore();
+            kvstore.setDirectory(dir);
+            kvstore.setCreateIfMissing(true);
             this.leveldbKV = new LevelDBKVDatabase();
-            this.leveldbKV.setDirectory(dir);
+            this.leveldbKV.setKVStore(kvstore);
             this.leveldbKV.start();
         }
     }
@@ -161,6 +183,12 @@ public class KVDatabaseTest extends TestSupport {
             dir.mkdirs();
             this.raftNetworks[i] = new TestNetwork(name, networkDelayMillis, networkDropRatio);
             this.rafts[i] = new RaftKVDatabase();
+            final File kvdir = new File(dir, "kvstore");
+            kvdir.mkdirs();
+            final LevelDBAtomicKVStore levelkv = new LevelDBAtomicKVStore();
+            levelkv.setDirectory(kvdir);
+            levelkv.setCreateIfMissing(true);
+            this.rafts[i].setKVStore(levelkv);
             this.rafts[i].setLogDirectory(dir);
             this.rafts[i].setNetwork(this.raftNetworks[i]);
             this.rafts[i].setIdentity(name);
@@ -194,6 +222,10 @@ public class KVDatabaseTest extends TestSupport {
     @AfterClass
     public void teardown() throws Exception {
         this.executor.shutdown();
+        if (this.simpleKV != null)
+            this.simpleKV.stop();
+        if (this.xmlKV != null)
+            this.xmlKV.stop();
         if (this.fdbKV != null)
             this.fdbKV.stop();
         if (this.bdbKV != null)
@@ -224,6 +256,7 @@ public class KVDatabaseTest extends TestSupport {
     private Object[][] getDBs() throws Exception {
         final ArrayList<Object[]> list = new ArrayList<>();
         list.add(new Object[] { this.simpleKV });
+        list.add(new Object[] { this.xmlKV });
         list.add(new Object[] { this.mysqlKV });
         list.add(new Object[] { this.fdbKV });
         list.add(new Object[] { this.bdbKV });

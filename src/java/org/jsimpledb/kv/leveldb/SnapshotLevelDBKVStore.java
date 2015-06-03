@@ -13,9 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Read-only {@link LevelDBKVStore} based on a LevelDB {@link Snapshot}.
+ * Read-only {@link org.jsimpledb.kv.KVStore} view of a LevelDB {@link Snapshot}.
  *
  * <p>
+ * Instances must be {@link #close}'d when no longer needed to avoid leaking resources associated with iterators.
  * This class ensures that the configured {@link Snapshot} is closed when this instance is closed.
  *
  * <p>
@@ -44,7 +45,6 @@ public class SnapshotLevelDBKVStore extends LevelDBKVStore implements CloseableK
 
     @Override
     public synchronized void close() {
-        super.close();
         if (this.closed)
             return;
         this.closed = true;
@@ -53,6 +53,7 @@ public class SnapshotLevelDBKVStore extends LevelDBKVStore implements CloseableK
         } catch (Throwable e) {
             this.log.error("caught exception closing LevelDB snapshot (ignoring)", e);
         }
+        super.close();
     }
 
 // KVStore

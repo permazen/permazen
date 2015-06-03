@@ -117,6 +117,14 @@ public class XMLKVDatabase extends SimpleKVDatabase {
     }
 
     @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
     public synchronized XMLKVTransaction createTransaction() {
         this.checkForOutOfBandUpdate();
         return new XMLKVTransaction(this, this.getWaitTimeout(), this.generation);

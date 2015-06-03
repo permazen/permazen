@@ -17,6 +17,31 @@ import org.jsimpledb.kv.KVStore;
  */
 public interface AtomicKVStore extends KVStore {
 
+// Lifecycle
+
+    /**
+     * Start this instance. This method must be called prior to creating any transactions.
+     *
+     * <p>
+     * This method is idempotent: if this instance is already started, nothing happens.
+     *
+     * <p>
+     * Whether an instance that has been started and stopped can be restarted is implementation-dependent.
+     *
+     * @throws IllegalStateException if this instance is not properly configured
+     */
+    void start();
+
+    /**
+     * Stop this instance.
+     *
+     * <p>
+     * This method is idempotent: if this instance has not been started, or is already stopped, nothing happens.
+     */
+    void stop();
+
+// Access
+
     /**
      * Acquire a read-only, snapshot view of this instance based on the current state.
      *
@@ -29,6 +54,7 @@ public interface AtomicKVStore extends KVStore {
      * @return read-only, snapshot view of this instance
      * @throws org.jsimpledb.kv.StaleTransactionException if an underlying transaction is no longer usable
      * @throws org.jsimpledb.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable
+     * @throws IllegalStateException if this instance is not {@link #start}ed
      */
     CloseableKVStore snapshot();
 
@@ -54,6 +80,7 @@ public interface AtomicKVStore extends KVStore {
      * @throws org.jsimpledb.kv.RetryTransactionException if an underlying transaction must be retried and is no longer usable
      * @throws UnsupportedOperationException if {@code sync} is true and this implementation cannot guarantee durability
      * @throws IllegalArgumentException if {@code mutations} is null
+     * @throws IllegalStateException if this instance is not {@link #start}ed
      */
     void mutate(Mutations mutations, boolean sync);
 }
