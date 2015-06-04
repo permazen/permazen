@@ -34,8 +34,6 @@ import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
-import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
-import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.net.TestNetwork;
