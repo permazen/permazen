@@ -1,5 +1,7 @@
-Version Next
+Version 1.2.0
 
+    - Added RaftKVDatabase based on Raft consensus algorithm
+    - Added key/value store mode option to CLI
     - Added PrefixKVDatabase
 
 Version 1.1.838 Released March 7, 2015
