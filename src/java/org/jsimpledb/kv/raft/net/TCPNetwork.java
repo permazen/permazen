@@ -9,14 +9,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -90,9 +87,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
     private Network.Handler handler;
     private ServerSocketChannel serverSocketChannel;
     private SelectionKey selectionKey;
-    private ServiceThread serviceThread;
     private ExecutorService executor;
-    private Selector selector;
 
 // Public API
 
@@ -190,24 +185,19 @@ public class TCPNetwork extends SelectorSupport implements Network {
 
 // Lifecycle
 
-    /**
-     * Start this instance. Does nothing if already started.
-     *
-     * @throws IOException if server socket cannot be created
-     */
+    @Override
     public synchronized void start(Handler handler) throws IOException {
-        if (this.serviceThread != null)
-            return;
-        if (this.log.isDebugEnabled())
-            this.log.debug("starting " + this + " listening on " + this.listenAddress);
+        super.start();
         boolean successful = false;
         try {
-            this.selector = Selector.open();
+            if (this.handler != null)
+                return;
+            if (this.log.isDebugEnabled())
+                this.log.debug("starting " + this + " listening on " + this.listenAddress);
             this.serverSocketChannel = ServerSocketChannel.open();
             this.configureServerSocketChannel(this.serverSocketChannel);
-            this.serverSocketChannel.configureBlocking(false);
             this.serverSocketChannel.bind(this.listenAddress);
-            this.selectionKey = this.createSelectionKey(this.selector, this.serverSocketChannel, new IOHandler() {
+            this.selectionKey = this.createSelectionKey(this.serverSocketChannel, new IOHandler() {
                 @Override
                 public void serviceIO(SelectionKey key) throws IOException {
                     if (key.isAcceptable())
@@ -220,8 +210,6 @@ public class TCPNetwork extends SelectorSupport implements Network {
                 }
             });
             this.selectForAccept(true);
-            this.serviceThread = new ServiceThread();
-            this.serviceThread.start();
             this.executor = Executors.newSingleThreadExecutor();
             this.handler = handler;
             successful = true;
@@ -231,39 +219,21 @@ public class TCPNetwork extends SelectorSupport implements Network {
         }
     }
 
-    /**
-     * Stop this instance.
-     *
-     * <p>
-     * Does nothing if already stopped.
-     * </p>
-     */
+    @Override
     public void stop() {
-        Thread waitForThread = null;
+        super.stop();
         synchronized (this) {
-            if (this.serviceThread != null && this.log.isDebugEnabled())
+            if (this.handler == null)
+                return;
+            if (this.log.isDebugEnabled())
                 this.log.debug("stopping " + this);
             if (this.serverSocketChannel != null) {
                 try {
                     this.serverSocketChannel.close();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     // ignore
                 }
                 this.serverSocketChannel = null;
-            }
-            if (this.selector != null) {
-                try {
-                    this.selector.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-                this.selector = null;
-            }
-            if (this.serviceThread != null) {
-                this.serviceThread.interrupt();
-                if (!this.serviceThread.equals(Thread.currentThread()))
-                    waitForThread = this.serviceThread;
-                this.serviceThread = null;
             }
             if (this.executor != null) {
                 this.executor.shutdownNow();
@@ -276,14 +246,6 @@ public class TCPNetwork extends SelectorSupport implements Network {
             }
             this.selectionKey = null;
             this.handler = null;
-        }
-        if (waitForThread != null) {
-            try {
-                waitForThread.join();
-            } catch (InterruptedException e) {
-                this.log.debug("interrupted while stopping " + this + ", giving up");
-                Thread.currentThread().interrupt();
-            }
         }
     }
 
@@ -393,7 +355,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
     private void handleAccept() throws IOException {
 
         // Sanity check
-        assert TCPNetwork.isServiceThread();
+        assert this.isServiceThread();
 
         // Check connection size limit
         if (this.connectionMap.size() >= this.maxConnections) {
@@ -408,7 +370,6 @@ public class TCPNetwork extends SelectorSupport implements Network {
         if (socketChannel == null)
             return;
         this.log.info("accepted incoming connection from " + socketChannel.getRemoteAddress());
-        socketChannel.configureBlocking(false);
 
         // Create peer
         final InetSocketAddress remote = (InetSocketAddress)socketChannel.socket().getRemoteSocketAddress();
@@ -443,7 +404,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
 
         // Create connection from new socket if needed
         if (connection == null && socketChannel != null) {
-            connection = new Connection(this, this.selector, peer, socketChannel);
+            connection = new Connection(this, peer, socketChannel);
             this.connectionMap.put(peer, connection);
             this.handleOutputQueueEmpty(connection);
         }
@@ -469,7 +430,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
     // Invoked when a message arrives on a connection
     void handleMessage(final Connection connection, final ByteBuffer msg) {
         assert Thread.holdsLock(this);
-        assert TCPNetwork.isServiceThread();
+        assert this.isServiceThread();
         this.executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -485,7 +446,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
     // Invoked a connection's output queue goes empty
     void handleOutputQueueEmpty(final Connection connection) {
         assert Thread.holdsLock(this);
-        assert TCPNetwork.isServiceThread();
+        assert this.isServiceThread();
         this.executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -501,21 +462,12 @@ public class TCPNetwork extends SelectorSupport implements Network {
     // Invoked when a connection closes
     void handleConnectionClosed(Connection connection) {
         assert Thread.holdsLock(this);
-        assert TCPNetwork.isServiceThread();
+        assert this.isServiceThread();
         if (this.log.isDebugEnabled())
             this.log.debug(this + " handling closed connection " + connection);
         this.connectionMap.remove(connection.getPeer());
         this.handleOutputQueueEmpty(connection);
         this.wakeup();
-    }
-
-    // Wakeup service thread
-    void wakeup() {
-        assert Thread.holdsLock(this);
-        if (this.log.isTraceEnabled())
-            this.log.trace("wakeup service thread");
-        if (this.selector != null)
-            this.selector.wakeup();
     }
 
 // Internal API
@@ -550,109 +502,40 @@ public class TCPNetwork extends SelectorSupport implements Network {
         socketChannel.connect(socketAddress);
 
         // Create new connection
-        return new Connection(this, this.selector, peer, socketChannel);
+        return new Connection(this, peer, socketChannel);
     }
 
-// Service loop
+// SelectorSupport
 
-    private void service() throws IOException {
-        assert TCPNetwork.isServiceThread();
-        while (true) {
+    @Override
+    protected void serviceHousekeeping() {
 
-            // Check if we're still open
-            final Selector currentSelector;
-            synchronized (this) {
-                currentSelector = this.selector;
-            }
-            if (currentSelector == null)
-                break;
-
-            // Wait for I/O readiness, timeout, or shutdown
+        // Perform connection housekeeping
+        for (Connection connection : new ArrayList<Connection>(this.connectionMap.values())) {
             try {
-                if (this.log.isTraceEnabled())
-                    this.log.trace("[SVC THREAD]: sleeping: keys=" + dbg(currentSelector.keys()));
-                currentSelector.select(1000L);
-            } catch (ClosedSelectorException e) {               // close() was invoked
-                break;
-            }
-            if (Thread.interrupted())
-                break;
-
-            // Figure out what has happened
-            synchronized (this) {
-
-                // Are we shutting down?
-                if (this.selector == null) {
-                    for (Connection connection : new ArrayList<Connection>(this.connectionMap.values()))
-                        connection.close(null);
-                    break;
-                }
-
-                // Handle any ready I/O
-                if (this.log.isTraceEnabled())
-                    this.log.trace("[SVC THREAD]: awake: selectedKeys=" + dbg(currentSelector.selectedKeys()));
-                for (Iterator<SelectionKey> i = selector.selectedKeys().iterator(); i.hasNext(); ) {
-                    final SelectionKey key = i.next();
-                    i.remove();
-                    final IOHandler ioHandler = (IOHandler)key.attachment();
-                    if (this.log.isTraceEnabled())
-                        this.log.trace("[SVC THREAD]: I/O ready: key=" + dbg(key) + " handler=" + ioHandler);
-                    try {
-                        ioHandler.serviceIO(key);
-                    } catch (IOException e) {
-                        if (this.log.isDebugEnabled())
-                            this.log.debug("I/O error from " + ioHandler, e);
-                        ioHandler.close(e);
-                    } catch (Exception e) {
-                        this.log.error("service error from " + ioHandler, e);
-                        ioHandler.close(e);
-                    }
-                }
-
-                // Perform connection housekeeping
-                for (Connection connection : new ArrayList<Connection>(this.connectionMap.values())) {
-                    try {
-                        connection.performHousekeeping();
-                    } catch (IOException e) {
-                        if (this.log.isDebugEnabled())
-                            this.log.debug("I/O error from " + connection, e);
-                        connection.close(e);
-                    } catch (Exception e) {
-                        this.log.error("error performing housekeeping for " + connection, e);
-                        connection.close(e);
-                    }
-                }
-
-                // Perform my own housekeeping
-                this.selectForAccept(this.connectionMap.size() < this.maxConnections);
-            }
-        }
-    }
-
-// Service thread
-
-    private class ServiceThread extends Thread {
-
-        public ServiceThread() {
-            super("Service Thread for " + TCPNetwork.this);
-        }
-
-        @Override
-        public void run() {
-            try {
-                TCPNetwork.this.service();
-            } catch (ThreadDeath t) {
-                throw t;
+                connection.performHousekeeping();
+            } catch (IOException e) {
+                if (this.log.isDebugEnabled())
+                    this.log.debug("I/O error from " + connection, e);
+                connection.close(e);
             } catch (Throwable t) {
-                TCPNetwork.this.log.error("unexpected error in service thread", t);
+                this.log.error("error performing housekeeping for " + connection, t);
+                connection.close(t);
             }
-            if (TCPNetwork.this.log.isDebugEnabled())
-                TCPNetwork.this.log.debug(this + " exiting");
+        }
+
+        // Perform my own housekeeping
+        try {
+            this.selectForAccept(this.connectionMap.size() < this.maxConnections);
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected exception", e);
         }
     }
 
-    static boolean isServiceThread() {
-        return Thread.currentThread() instanceof ServiceThread;
+    @Override
+    protected void serviceCleanup() {
+        for (Connection connection : new ArrayList<Connection>(this.connectionMap.values()))
+            connection.close(null);
     }
 }
 

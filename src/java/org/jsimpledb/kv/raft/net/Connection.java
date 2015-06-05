@@ -5,11 +5,12 @@
 
 package org.jsimpledb.kv.raft.net;
 
+import com.google.common.base.Preconditions;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * All access to this class must be with the associated {@link TCPNetwork} instance locked.
  */
-class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
+class Connection implements SelectorSupport.IOHandler {
 
     /**
      * Minimum buffer size to use a direct buffer.
@@ -46,17 +47,12 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
 
 // Constructors
 
-    public Connection(TCPNetwork network, Selector selector, String peer, SocketChannel socketChannel) throws IOException {
+    public Connection(TCPNetwork network, String peer, SocketChannel socketChannel) throws IOException {
 
         // Sanity check
-        if (network == null)
-            throw new IllegalArgumentException("null network");
-        if (selector == null)
-            throw new IllegalArgumentException("null selector");
-        if (socketChannel == null)
-            throw new IllegalArgumentException("null socketChannel");
-        if (peer == null)
-            throw new IllegalArgumentException("null peer");
+        Preconditions.checkArgument(network != null, "null network");
+        Preconditions.checkArgument(peer != null, "null peer");
+        Preconditions.checkArgument(socketChannel != null, "null socketChannel");
 
         // Initialize
         this.network = network;
@@ -65,12 +61,11 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
         this.lastActiveTime = System.nanoTime();
 
         // Set up initial selection
-        this.selectionKey = this.createSelectionKey(selector, this.socketChannel, this);
+        this.selectionKey = this.network.createSelectionKey(this.socketChannel, this);
         if (this.socketChannel.isConnectionPending())
-            this.selectFor(this.selectionKey, SelectionKey.OP_CONNECT, true);
+            this.network.selectFor(this.selectionKey, SelectionKey.OP_CONNECT, true);
         else
-            this.selectFor(this.selectionKey, SelectionKey.OP_READ, true);
-        this.network.wakeup();
+            this.network.selectFor(this.selectionKey, SelectionKey.OP_READ, true);
 
         // Initialize input state
         this.inbuf = ByteBuffer.allocate(4);
@@ -127,8 +122,7 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
 
         // Notify us when socket is writable (unless still waiting on connection)
         if (this.socketChannel.isConnected())
-            this.selectFor(this.selectionKey, SelectionKey.OP_WRITE, true);
-        this.network.wakeup();
+            this.network.selectFor(this.selectionKey, SelectionKey.OP_WRITE, true);
 
         // Done
         this.lastActiveTime = System.nanoTime();
@@ -146,7 +140,7 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
 
     @Override
     public void serviceIO(SelectionKey key) throws IOException {
-        assert TCPNetwork.isServiceThread();
+        assert this.network.isServiceThread();
         assert Thread.holdsLock(this.network);
         if (key.isConnectable())
             this.handleConnectable();
@@ -178,16 +172,15 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
     private void handleConnectable() throws IOException {
 
         // Leave connecting state
-        this.selectFor(this.selectionKey, SelectionKey.OP_CONNECT, false);
+        this.network.selectFor(this.selectionKey, SelectionKey.OP_CONNECT, false);
         if (!this.socketChannel.finishConnect())                    // this should never occur
             throw new IOException("connection failed");
         if (this.log.isDebugEnabled())
             this.log.debug(this + ": connection succeeded");
 
         // Notify us when readable/writeable
-        this.selectFor(this.selectionKey, SelectionKey.OP_READ, true);
-        this.selectFor(this.selectionKey, SelectionKey.OP_WRITE, !this.output.isEmpty());
-        this.network.wakeup();
+        this.network.selectFor(this.selectionKey, SelectionKey.OP_READ, true);
+        this.network.selectFor(this.selectionKey, SelectionKey.OP_WRITE, !this.output.isEmpty());
 
         // Update timestamp
         this.lastActiveTime = System.nanoTime();
@@ -260,8 +253,7 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
         }
 
         // Notify when writeable - only if queue still not empty
-        this.selectFor(this.selectionKey, SelectionKey.OP_WRITE, !this.output.isEmpty());
-        // this.network.wakeup();                                       // not needed, we were already selecting for writes
+        this.network.selectFor(this.selectionKey, SelectionKey.OP_WRITE, !this.output.isEmpty());
 
         // Update timestamp
         this.lastActiveTime = System.nanoTime();
@@ -276,7 +268,7 @@ class Connection extends SelectorSupport implements SelectorSupport.IOHandler {
     // Check timeouts
     void performHousekeeping() throws IOException {
         assert Thread.holdsLock(this.network);
-        assert TCPNetwork.isServiceThread();
+        assert this.network.isServiceThread();
         if (this.socketChannel.isConnectionPending()) {
             if (this.getIdleTime() >= this.network.getConnectTimeout())
                 throw new IOException("connection unsuccessful after " + this.getIdleTime() + "ms");
