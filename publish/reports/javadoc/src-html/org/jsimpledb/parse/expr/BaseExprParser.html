@@ -432,7 +432,7 @@
 <span class="sourceLineNo">424</span>        final Class&lt;?&gt; cl = target.getClass();<a name="line.424"></a>
 <span class="sourceLineNo">425</span><a name="line.425"></a>
 <span class="sourceLineNo">426</span>        // Handle properties of database objects (i.e., database fields)<a name="line.426"></a>
-<span class="sourceLineNo">427</span>        if (session.hasJSimpleDB() &amp;&amp; target instanceof JObject) {<a name="line.427"></a>
+<span class="sourceLineNo">427</span>        if (session.getMode().hasJSimpleDB() &amp;&amp; target instanceof JObject) {<a name="line.427"></a>
 <span class="sourceLineNo">428</span><a name="line.428"></a>
 <span class="sourceLineNo">429</span>            // Get object and ID<a name="line.429"></a>
 <span class="sourceLineNo">430</span>            final JObject jobj = (JObject)target;<a name="line.430"></a>
@@ -452,7 +452,7 @@
 <span class="sourceLineNo">444</span>                return new JSimpleFieldValue(jobj, (JSimpleField)jfield);<a name="line.444"></a>
 <span class="sourceLineNo">445</span>            else if (jfield != null)<a name="line.445"></a>
 <span class="sourceLineNo">446</span>                return new JFieldValue(jobj, jfield);<a name="line.446"></a>
-<span class="sourceLineNo">447</span>        } else if (!session.hasJSimpleDB() &amp;&amp; target instanceof ObjId) {<a name="line.447"></a>
+<span class="sourceLineNo">447</span>        } else if (session.getMode().hasCoreAPI() &amp;&amp; target instanceof ObjId) {<a name="line.447"></a>
 <span class="sourceLineNo">448</span>            final ObjId id = (ObjId)target;<a name="line.448"></a>
 <span class="sourceLineNo">449</span><a name="line.449"></a>
 <span class="sourceLineNo">450</span>            // Resolve field<a name="line.450"></a>

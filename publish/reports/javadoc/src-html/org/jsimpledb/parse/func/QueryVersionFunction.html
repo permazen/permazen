@@ -35,7 +35,7 @@
 <span class="sourceLineNo">027</span><a name="line.27"></a>
 <span class="sourceLineNo">028</span>    @Override<a name="line.28"></a>
 <span class="sourceLineNo">029</span>    public String getHelpSummary() {<a name="line.29"></a>
-<span class="sourceLineNo">030</span>        return "queries the object version index";<a name="line.30"></a>
+<span class="sourceLineNo">030</span>        return "Queries the database object version index";<a name="line.30"></a>
 <span class="sourceLineNo">031</span>    }<a name="line.31"></a>
 <span class="sourceLineNo">032</span><a name="line.32"></a>
 <span class="sourceLineNo">033</span>    @Override<a name="line.33"></a>
@@ -79,7 +79,7 @@
 <span class="sourceLineNo">071</span>        return new AbstractValue() {<a name="line.71"></a>
 <span class="sourceLineNo">072</span>            @Override<a name="line.72"></a>
 <span class="sourceLineNo">073</span>            public Object get(ParseSession session) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>                if (session.hasJSimpleDB()) {<a name="line.74"></a>
+<span class="sourceLineNo">074</span>                if (session.getMode().hasJSimpleDB()) {<a name="line.74"></a>
 <span class="sourceLineNo">075</span>                    final Class&lt;?&gt; type =<a name="line.75"></a>
 <span class="sourceLineNo">076</span>                      param instanceof ObjType ?<a name="line.76"></a>
 <span class="sourceLineNo">077</span>                        session.getJSimpleDB().getJClass(((ObjType)param).getStorageId()).getType() :<a name="line.77"></a>

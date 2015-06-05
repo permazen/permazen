@@ -33,7 +33,7 @@
 <span class="sourceLineNo">025</span><a name="line.25"></a>
 <span class="sourceLineNo">026</span>    @Override<a name="line.26"></a>
 <span class="sourceLineNo">027</span>    public String getHelpSummary() {<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        return "create a new object instance";<a name="line.28"></a>
+<span class="sourceLineNo">028</span>        return "Creates a new database object instance";<a name="line.28"></a>
 <span class="sourceLineNo">029</span>    }<a name="line.29"></a>
 <span class="sourceLineNo">030</span><a name="line.30"></a>
 <span class="sourceLineNo">031</span>    @Override<a name="line.31"></a>
@@ -80,7 +80,7 @@
 <span class="sourceLineNo">072</span>        final Transaction tx = session.getTransaction();<a name="line.72"></a>
 <span class="sourceLineNo">073</span>        final ObjId id = version != null ?<a name="line.73"></a>
 <span class="sourceLineNo">074</span>          tx.create(storageId, version.evaluate(session).checkIntegral(session, "create()")) : tx.create(storageId);<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        return new ConstValue(session.hasJSimpleDB() ? JTransaction.getCurrent().getJObject(id) : id);<a name="line.75"></a>
+<span class="sourceLineNo">075</span>        return new ConstValue(session.getMode().hasJSimpleDB() ? JTransaction.getCurrent().getJObject(id) : id);<a name="line.75"></a>
 <span class="sourceLineNo">076</span>    }<a name="line.76"></a>
 <span class="sourceLineNo">077</span><a name="line.77"></a>
 <span class="sourceLineNo">078</span>// ParamInfo<a name="line.78"></a>

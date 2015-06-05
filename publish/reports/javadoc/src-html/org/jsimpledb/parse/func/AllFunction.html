@@ -36,7 +36,7 @@
 <span class="sourceLineNo">028</span><a name="line.28"></a>
 <span class="sourceLineNo">029</span>    @Override<a name="line.29"></a>
 <span class="sourceLineNo">030</span>    public String getHelpSummary() {<a name="line.30"></a>
-<span class="sourceLineNo">031</span>        return "get all objects of a specified type";<a name="line.31"></a>
+<span class="sourceLineNo">031</span>        return "Get all database objects of a specified type";<a name="line.31"></a>
 <span class="sourceLineNo">032</span>    }<a name="line.32"></a>
 <span class="sourceLineNo">033</span><a name="line.33"></a>
 <span class="sourceLineNo">034</span>    @Override<a name="line.34"></a>
@@ -93,7 +93,7 @@
 <span class="sourceLineNo">085</span>            return new AbstractValue() {<a name="line.85"></a>
 <span class="sourceLineNo">086</span>                @Override<a name="line.86"></a>
 <span class="sourceLineNo">087</span>                public Object get(ParseSession session) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                    return session.hasJSimpleDB() ?<a name="line.88"></a>
+<span class="sourceLineNo">088</span>                    return session.getMode().hasJSimpleDB() ?<a name="line.88"></a>
 <span class="sourceLineNo">089</span>                      JTransaction.getCurrent().getAll(Object.class) : session.getTransaction().getAll();<a name="line.89"></a>
 <span class="sourceLineNo">090</span>                }<a name="line.90"></a>
 <span class="sourceLineNo">091</span>            };<a name="line.91"></a>
@@ -108,7 +108,7 @@
 <span class="sourceLineNo">100</span>            final Object obj = ((Node)param).evaluate(session).checkNotNull(session, "all()");<a name="line.100"></a>
 <span class="sourceLineNo">101</span>            if (obj instanceof Number)<a name="line.101"></a>
 <span class="sourceLineNo">102</span>                return this.getAll(session, ((Number)obj).intValue());<a name="line.102"></a>
-<span class="sourceLineNo">103</span>            if (obj instanceof Class &amp;&amp; session.hasJSimpleDB()) {<a name="line.103"></a>
+<span class="sourceLineNo">103</span>            if (obj instanceof Class &amp;&amp; session.getMode().hasJSimpleDB()) {<a name="line.103"></a>
 <span class="sourceLineNo">104</span>                return new AbstractValue() {<a name="line.104"></a>
 <span class="sourceLineNo">105</span>                    @Override<a name="line.105"></a>
 <span class="sourceLineNo">106</span>                    public Object get(ParseSession session) {<a name="line.106"></a>
@@ -126,7 +126,7 @@
 <span class="sourceLineNo">118</span>    private Value getAll(ParseSession session, final int storageId) {<a name="line.118"></a>
 <span class="sourceLineNo">119</span><a name="line.119"></a>
 <span class="sourceLineNo">120</span>        // Handle core-only case<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        if (!session.hasJSimpleDB()) {<a name="line.121"></a>
+<span class="sourceLineNo">121</span>        if (!session.getMode().hasJSimpleDB()) {<a name="line.121"></a>
 <span class="sourceLineNo">122</span>            return new AbstractValue() {<a name="line.122"></a>
 <span class="sourceLineNo">123</span>                @Override<a name="line.123"></a>
 <span class="sourceLineNo">124</span>                public Object get(ParseSession session) {<a name="line.124"></a>

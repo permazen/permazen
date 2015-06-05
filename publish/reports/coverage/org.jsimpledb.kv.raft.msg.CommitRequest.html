@@ -12,7 +12,7 @@
 <div class="separator">&nbsp;</div>
 <table class="report">
 <thead><tr>  <td class="heading">Classes in this File</td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Line Coverage</a></td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Branch Coverage</a></td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Complexity</a></td></tr></thead>
-  <tr><td><a href="org.jsimpledb.kv.raft.msg.CommitRequest.html">CommitRequest</a></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">74%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:74px"><span class="text">35/47</span></div></div></td></tr></table></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">39%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:39px"><span class="text">11/28</span></div></div></td></tr></table></td><td class="value"><span class="hidden">1.3846153846153846;</span>1.385</td></tr>
+  <tr><td><a href="org.jsimpledb.kv.raft.msg.CommitRequest.html">CommitRequest</a></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">78%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:78px"><span class="text">45/57</span></div></div></td></tr></table></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">39%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:39px"><span class="text">11/28</span></div></div></td></tr></table></td><td class="value"><span class="hidden">1.3846153846153846;</span>1.385</td></tr>
 
 </table>
 <div class="separator">&nbsp;</div>
@@ -248,19 +248,14 @@
 <tr>  <td class="numLine">&nbsp;137</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">int</span> calculateSize() {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;138</td>  <td class="nbHitsUncovered"><a title="Line 138: Conditional coverage 50% (1/2).">&nbsp;2</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 138: Conditional coverage 50% (1/2).">        Preconditions.checkState(!<span class="keyword">this</span>.mutationDataInvalid);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;139</td>  <td class="nbHitsUncovered"><a title="Line 139: Conditional coverage 50% (1/2).">&nbsp;2</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 139: Conditional coverage 50% (1/2).">        <span class="keyword">return</span> <span class="keyword">super</span>.calculateSize()</a></span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;140</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + LongEncoder.encodeLength(<span class="keyword">this</span>.txId)</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;141</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + LongEncoder.encodeLength(<span class="keyword">this</span>.baseTerm)</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;142</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + LongEncoder.encodeLength(<span class="keyword">this</span>.baseIndex)</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;143</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + Message.calculateSize(<span class="keyword">this</span>.readsData)</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;139</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">super</span>.calculateSize()</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;140</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;          + LongEncoder.encodeLength(<span class="keyword">this</span>.txId)</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;141</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;          + LongEncoder.encodeLength(<span class="keyword">this</span>.baseTerm)</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;142</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;          + LongEncoder.encodeLength(<span class="keyword">this</span>.baseIndex)</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;143</td>  <td class="nbHitsUncovered"><a title="Line 143: Conditional coverage 50% (1/2).">&nbsp;2</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 143: Conditional coverage 50% (1/2).">          + Message.calculateSize(<span class="keyword">this</span>.readsData)</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;144</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + 1</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;145</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + (<span class="keyword">this</span>.mutationData != <span class="keyword">null</span> ? Message.calculateSize(<span class="keyword">this</span>.mutationData) : 0);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;145</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;          + (<span class="keyword">this</span>.mutationData != <span class="keyword">null</span> ? Message.calculateSize(<span class="keyword">this</span>.mutationData) : 0);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;146</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;147</td>  <td class="nbHits">&nbsp;</td>
@@ -273,23 +268,18 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;151</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> String toString() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;152</td>  <td class="nbHitsUncovered"><a title="Line 152: Conditional coverage 25% (1/4) [each condition: 50%, 0%].">&nbsp;9</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 152: Conditional coverage 25% (1/4) [each condition: 50%, 0%].">        <span class="keyword">return</span> <span class="keyword">this</span>.getClass().getSimpleName()</a></span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;153</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + <span class="string">"[\""</span> + <span class="keyword">this</span>.getSenderId() + <span class="string">"\"-&gt;\""</span> + <span class="keyword">this</span>.getRecipientId() + <span class="string">"\""</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;154</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + <span class="string">",clusterId="</span> + String.format(<span class="string">"%08x"</span>, <span class="keyword">this</span>.getClusterId())</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;155</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + <span class="string">",term="</span> + <span class="keyword">this</span>.getTerm()</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;152</td>  <td class="nbHitsCovered">&nbsp;9</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.getClass().getSimpleName()</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;153</td>  <td class="nbHitsCovered">&nbsp;9</td>  <td class="src"><pre class="src">&nbsp;          + <span class="string">"[\""</span> + <span class="keyword">this</span>.getSenderId() + <span class="string">"\"-&gt;\""</span> + <span class="keyword">this</span>.getRecipientId() + <span class="string">"\""</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;154</td>  <td class="nbHitsCovered">&nbsp;9</td>  <td class="src"><pre class="src">&nbsp;          + <span class="string">",clusterId="</span> + String.format(<span class="string">"%08x"</span>, <span class="keyword">this</span>.getClusterId())</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;155</td>  <td class="nbHitsCovered">&nbsp;9</td>  <td class="src"><pre class="src">&nbsp;          + <span class="string">",term="</span> + <span class="keyword">this</span>.getTerm()</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;156</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + <span class="string">",txId="</span> + <span class="keyword">this</span>.txId</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;157</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + <span class="string">",base="</span> + <span class="keyword">this</span>.baseIndex + <span class="string">"t"</span> + <span class="keyword">this</span>.baseTerm</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;158</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + <span class="string">",readsData="</span> + <span class="keyword">this</span>.describe(<span class="keyword">this</span>.readsData)</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;158</td>  <td class="nbHitsUncovered"><a title="Line 158: Conditional coverage 50% (1/2).">&nbsp;9</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 158: Conditional coverage 50% (1/2).">          + <span class="string">",readsData="</span> + <span class="keyword">this</span>.describe(<span class="keyword">this</span>.readsData)</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;159</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + (<span class="keyword">this</span>.mutationData != <span class="keyword">null</span> ?</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;160</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;            <span class="string">",mutationData="</span> + <span class="keyword">this</span>.describe(<span class="keyword">this</span>.mutationData) : <span class="keyword">this</span>.mutationDataInvalid ? <span class="string">",mutationData=invalid"</span> : <span class="string">""</span>)</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;160</td>  <td class="nbHitsUncovered"><a title="Line 160: Conditional coverage 0% (0/2).">&nbsp;9</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 160: Conditional coverage 0% (0/2).">            <span class="string">",mutationData="</span> + <span class="keyword">this</span>.describe(<span class="keyword">this</span>.mutationData) : <span class="keyword">this</span>.mutationDataInvalid ? <span class="string">",mutationData=invalid"</span> : <span class="string">""</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;161</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + <span class="string">"]"</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;162</td>  <td class="nbHits">&nbsp;</td>
@@ -300,6 +290,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/31/15 1:00 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 6/5/15 5:12 PM.</div>
 </body>
 </html>

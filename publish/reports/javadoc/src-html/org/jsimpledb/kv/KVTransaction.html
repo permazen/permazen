@@ -17,38 +17,38 @@
 <span class="sourceLineNo">009</span> * {@link KVDatabase} transaction API.<a name="line.9"></a>
 <span class="sourceLineNo">010</span> *<a name="line.10"></a>
 <span class="sourceLineNo">011</span> * &lt;p&gt;<a name="line.11"></a>
-<span class="sourceLineNo">012</span> * Provides a transactional view into a {@link KVStore}.<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * &lt;/p&gt;<a name="line.13"></a>
-<span class="sourceLineNo">014</span> *<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * &lt;p&gt;<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * Instances may throw {@link KVTransactionException} during any operation if the transaction cannot be continued.<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * In particular, {@link StaleTransactionException} is thrown by a transaction that is no longer open, and<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * {@link RetryTransactionException} is thrown when the transaction should be retried due to a transient<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * problem (such as a write conflict with another transaction). When {@link RetryTransactionException} is thrown by<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * {@link #commit}, the transaction may have actually been committed. Therefore, transactions should be written to be idempotent.<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * When any {@link KVTransactionException} is thrown, the transaction must still support invoking {@link #rollback},<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * but all other operations may throw {@link StaleTransactionException}.<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * &lt;/p&gt;<a name="line.23"></a>
-<span class="sourceLineNo">024</span> *<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * &lt;p&gt;<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * If an instance throws a {@link KVTransactionException}, the transaction should be implicitly rolled back.<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * &lt;/p&gt;<a name="line.27"></a>
-<span class="sourceLineNo">028</span> *<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * Implementations must throw {@link StaleTransactionException} if {@link #commit} or {@link #rollback} has already<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * been invoked, or if the {@link KVTransaction} instance is no longer usable for some other reason. In particular,<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * implementations should throw {@link TransactionTimeoutException} if an operation is attempted on a transaction<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * that has been held open past some maximum allowed time limit.<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * &lt;/p&gt;<a name="line.34"></a>
-<span class="sourceLineNo">035</span> *<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * &lt;p&gt;<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * Implementations are responsible for ensuring modifications to {@code byte[]} arrays after method<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * invocations do no harm. This usually means {@code byte[]} array parameters and return values must be copied.<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * &lt;/p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">012</span> * Provides a transactional view of a {@link KVStore}.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> *<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * &lt;p&gt;<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * Instances may throw {@link KVTransactionException} during any operation if the transaction cannot be continued.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * In particular, {@link StaleTransactionException} is thrown by a transaction that is no longer open, and<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * {@link RetryTransactionException} is thrown when the transaction should be retried due to a transient<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * problem (such as a write conflict with another transaction).<a name="line.18"></a>
+<span class="sourceLineNo">019</span> *<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * &lt;p&gt;<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * When {@link RetryTransactionException} is thrown by {@link #commit}, the transaction may have actually been committed.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * Therefore, transactions should be written to be idempotent.<a name="line.22"></a>
+<span class="sourceLineNo">023</span> *<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * &lt;p&gt;<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * No matter what state it is in, instances must support invoking {@link #rollback} at any time.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * If an instance throws a {@link KVTransactionException}, the transaction should be implicitly rolled back.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Any subsequent operation other than {@link #rollback} should throw {@link StaleTransactionException}.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * Implementations must throw {@link StaleTransactionException} if {@link #commit} or {@link #rollback} has already<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * been invoked, or if the {@link KVTransaction} instance is no longer usable for some other reason. In particular,<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * implementations should throw {@link TransactionTimeoutException} if an operation is attempted on a transaction<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * that has been held open past some maximum allowed time limit.<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;p&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * Implementations are responsible for ensuring modifications to {@code byte[]} arrays after method<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * invocations do no harm. This usually means {@code byte[]} array parameters and return values must be copied.<a name="line.39"></a>
 <span class="sourceLineNo">040</span> *<a name="line.40"></a>
 <span class="sourceLineNo">041</span> * &lt;p&gt;<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * Accessing keys that start with {@code 0xff} is not supported and will result in {@link IllegalArgumentException}.<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * &lt;/p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">042</span> * Implementations are not required to support accessing keys that start with {@code 0xff},<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * and if not may throw {@link IllegalArgumentException} if such keys are accessed.<a name="line.43"></a>
 <span class="sourceLineNo">044</span> */<a name="line.44"></a>
 <span class="sourceLineNo">045</span>public interface KVTransaction extends KVStore {<a name="line.45"></a>
 <span class="sourceLineNo">046</span><a name="line.46"></a>

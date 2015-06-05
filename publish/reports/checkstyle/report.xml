@@ -155,6 +155,8 @@
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/Session.java">
 </file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/SessionMode.java">
+</file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/SnapshotJTransaction.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/StorageIdGenerator.java">
@@ -257,17 +259,18 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/change/package-info.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/CliSession.java">
-<error line="49" column="29" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="55" column="29" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/CommandListParser.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/CommandParser.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/Console.java">
-<error line="138" column="5" severity="info" message="Executable statement count is 33 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="98" column="12" severity="info" message="More than 7 parameters (found 8)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck"/>
+<error line="152" column="5" severity="info" message="Executable statement count is 33 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/Main.java">
-<error line="75" column="5" severity="info" message="Executable statement count is 49 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="78" column="5" severity="info" message="Executable statement count is 56 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/ParamParser.java">
 <error line="149" column="5" severity="info" message="Executable statement count is 38 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
@@ -275,9 +278,12 @@
 <error line="291" column="43" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/TelnetConsole.java">
-<error line="237" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
+<error line="42" column="13" severity="info" message="More than 7 parameters (found 8)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck"/>
+<error line="251" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/AbstractCommand.java">
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/AbstractRaftCommand.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/Command.java">
 </file>
@@ -288,11 +294,19 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/EvalCommand.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/HelpCommand.java">
-<error line="57" column="16" severity="info" message="Anonymous inner class length is 27 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="58" column="16" severity="info" message="Anonymous inner class length is 27 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/ImportCommand.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/InfoCommand.java">
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/KVDumpCommand.java">
+<error line="58" column="48" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="60" column="33" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="62" column="25" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="62" column="30" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="66" column="33" severity="info" message="&apos;32&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="68" column="59" severity="info" message="&apos;0x20&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/LoadCommand.java">
 </file>
@@ -301,6 +315,25 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/RaftAddCommand.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/RaftRemoveCommand.java">
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/RaftStartElectionCommand.java">
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/RaftStatusCommand.java">
+<error line="43" column="5" severity="info" message="Executable statement count is 85 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="55" column="40" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="55" column="75" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="57" column="40" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="57" column="75" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="59" column="38" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="59" column="71" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="61" column="35" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="61" column="65" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="63" column="44" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="63" column="83" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="113" column="83" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="113" column="106" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/RaftStepDownCommand.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/cli/cmd/SaveCommand.java">
 <error line="70" column="16" severity="info" message="Anonymous inner class length is 34 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
@@ -773,7 +806,7 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/index/package-info.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/AbstractKVStore.java">
-<error line="100" column="29" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="102" column="29" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/CloseableKVStore.java">
 </file>
@@ -821,17 +854,24 @@
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/fdb/package-info.java">
 </file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.java">
+<error line="368" column="17" severity="info" message="Anonymous inner class length is 22 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="377" column="46" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/leveldb/LevelDBKVDatabase.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/leveldb/LevelDBKVStore.java">
-<error line="174" column="17" severity="info" message="Anonymous inner class length is 21 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
-<error line="183" column="46" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/leveldb/LevelDBKVTransaction.java">
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/leveldb/LevelDBUtil.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/leveldb/package-info.java">
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/mvcc/AtomicKVDatabase.java">
+<error line="220" column="31" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/mvcc/AtomicKVStore.java">
 </file>
@@ -869,21 +909,21 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/Follower.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/LogEntry.java">
-<error line="194" column="93" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="198" column="93" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/RaftKVDatabase.java">
-<error line="547" column="5" severity="info" message="Executable statement count is 49 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="723" column="45" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="739" column="44" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="764" column="48" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="1677" column="101" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="2736" column="9" severity="info" message="Executable statement count is 47 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="3470" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
-<error line="3517" column="9" severity="info" message="Executable statement count is 60 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="3517" column="9" severity="info" message="Method length is 151 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
-<error line="3694" column="9" severity="info" message="Executable statement count is 79 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="3694" column="9" severity="info" message="Method length is 209 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
-<error line="4376" column="5" severity="info" message="Executable statement count is 31 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="748" column="5" severity="info" message="Executable statement count is 47 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="916" column="45" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="932" column="44" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="957" column="48" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="1824" column="101" severity="info" message="&apos;4096&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="2001" column="23" severity="info" message="Anonymous inner class length is 30 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="3017" column="9" severity="info" message="Executable statement count is 47 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="3849" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
+<error line="3896" column="9" severity="info" message="Executable statement count is 60 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="3896" column="9" severity="info" message="Method length is 160 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
+<error line="4082" column="9" severity="info" message="Executable statement count is 77 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="4082" column="9" severity="info" message="Method length is 214 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/RaftKVTransaction.java">
 </file>
@@ -892,11 +932,10 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/SnapshotTransmit.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/Timestamp.java">
-<error line="99" column="48" severity="info" message="&apos;0x40000000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="109" column="42" severity="info" message="&apos;1000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="130" column="51" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="130" column="65" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="137" column="67" severity="info" message="&apos;0x80000000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="126" column="42" severity="info" message="&apos;1000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="147" column="51" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="147" column="65" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="164" column="67" severity="info" message="&apos;0x80000000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/TxState.java">
 </file>
@@ -968,22 +1007,20 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/msg/package-info.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/net/Connection.java">
-<error line="76" column="42" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="98" column="60" severity="info" message="&apos;1000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="119" column="40" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="124" column="57" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="221" column="50" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="236" column="46" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="71" column="42" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="93" column="60" severity="info" message="&apos;1000000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="114" column="40" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="119" column="57" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="214" column="50" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="229" column="46" severity="info" message="&apos;4&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/net/Network.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/net/SelectorSupport.java">
+<error line="362" column="40" severity="info" message="&apos;1000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/net/TCPNetwork.java">
-<error line="273" column="52" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="503" column="33" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="503" column="77" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="541" column="40" severity="info" message="&apos;1000L&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="241" column="52" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/net/package-info.java">
 </file>
@@ -1216,7 +1253,7 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/parse/func/CreateFunction.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/parse/func/FilterFunction.java">
-<error line="48" column="16" severity="info" message="Anonymous inner class length is 34 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="49" column="16" severity="info" message="Anonymous inner class length is 34 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/parse/func/ForEachFunction.java">
 </file>
@@ -1245,7 +1282,7 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/parse/func/SimpleFunction.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/parse/func/TransformFunction.java">
-<error line="43" column="16" severity="info" message="Anonymous inner class length is 23 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="44" column="16" severity="info" message="Anonymous inner class length is 23 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/parse/func/UpgradeFunction.java">
 </file>
@@ -1390,9 +1427,8 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/util/AbstractIterationSet.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/util/AbstractMain.java">
-<error line="97" column="5" severity="info" message="Executable statement count is 105 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="97" column="5" severity="info" message="Method length is 220 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
-<error line="455" column="5" severity="info" message="Executable statement count is 61 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="118" column="5" severity="info" message="Executable statement count is 92 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="118" column="5" severity="info" message="Method length is 210 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/util/AbstractMultiNavigableSet.java">
 </file>
@@ -3667,47 +3703,48 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/core/package-info.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/kv/KVDatabaseTest.java">
-<error line="83" column="77" severity="info" message="&apos;250&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="83" column="82" severity="info" message="&apos;500&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="146" column="17" severity="info" message="More than 7 parameters (found 8)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck"/>
-<error line="191" column="54" severity="info" message="&apos;33&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="333" column="5" severity="info" message="Executable statement count is 38 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="426" column="49" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="436" column="96" severity="info" message="&apos;128&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="473" column="37" severity="info" message="&apos;25&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="474" column="55" severity="info" message="&apos;25&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="513" column="29" severity="info" message="&apos;50&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="523" column="5" severity="info" message="Executable statement count is 36 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="528" column="55" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="528" column="60" severity="info" message="&apos;400&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="529" column="61" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="540" column="38" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="540" column="43" severity="info" message="&apos;400&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="541" column="48" severity="info" message="&apos;300&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="552" column="38" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="552" column="43" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="553" column="48" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="560" column="38" severity="info" message="&apos;400&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="560" column="43" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="561" column="48" severity="info" message="&apos;300&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="573" column="37" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="584" column="30" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="584" column="44" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="731" column="9" severity="info" message="Executable statement count is 90 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="731" column="9" severity="info" message="Method length is 193 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
-<error line="767" column="41" severity="info" message="&apos;55&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="769" column="34" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="781" column="41" severity="info" message="&apos;20&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="788" column="41" severity="info" message="&apos;30&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="800" column="41" severity="info" message="&apos;40&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="812" column="41" severity="info" message="&apos;50&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="814" column="36" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="820" column="41" severity="info" message="&apos;52&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="821" column="43" severity="info" message="&apos;20&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="823" column="47" severity="info" message="&apos;30&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="849" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
-<error line="859" column="49" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="859" column="55" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="86" column="77" severity="info" message="&apos;250&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="86" column="82" severity="info" message="&apos;500&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="156" column="5" severity="info" message="Executable statement count is 31 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="166" column="17" severity="info" message="More than 7 parameters (found 8)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck"/>
+<error line="217" column="54" severity="info" message="&apos;33&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="364" column="5" severity="info" message="Executable statement count is 38 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="457" column="49" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="467" column="96" severity="info" message="&apos;128&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="504" column="37" severity="info" message="&apos;25&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="505" column="55" severity="info" message="&apos;25&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="544" column="29" severity="info" message="&apos;50&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="554" column="5" severity="info" message="Executable statement count is 36 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="559" column="55" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="559" column="60" severity="info" message="&apos;400&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="560" column="61" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="571" column="38" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="571" column="43" severity="info" message="&apos;400&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="572" column="48" severity="info" message="&apos;300&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="583" column="38" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="583" column="43" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="584" column="48" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="591" column="38" severity="info" message="&apos;400&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="591" column="43" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="592" column="48" severity="info" message="&apos;300&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="604" column="37" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="615" column="30" severity="info" message="&apos;100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="615" column="44" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="762" column="9" severity="info" message="Executable statement count is 90 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="762" column="9" severity="info" message="Method length is 193 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
+<error line="798" column="41" severity="info" message="&apos;55&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="800" column="34" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="812" column="41" severity="info" message="&apos;20&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="819" column="41" severity="info" message="&apos;30&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="831" column="41" severity="info" message="&apos;40&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="843" column="41" severity="info" message="&apos;50&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="845" column="36" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="851" column="41" severity="info" message="&apos;52&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="852" column="43" severity="info" message="&apos;20&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="854" column="47" severity="info" message="&apos;30&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="880" severity="info" message="Comment matches to-do format &apos;(XXX|TODO|FIXME)&apos;." source="com.puppycrawl.tools.checkstyle.checks.TodoCommentCheck"/>
+<error line="890" column="49" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="890" column="55" severity="info" message="&apos;3&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/kv/KVPairIteratorTest.java">
 <error line="110" column="5" severity="info" message="Executable statement count is 45 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
@@ -3727,21 +3764,21 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/kv/KeyRangesTest.java">
 <error line="185" column="29" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
-<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/kv/leveldb/LevelDBKVStoreTest.java">
-<error line="67" column="37" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="75" column="26" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="81" column="26" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="87" column="26" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="93" column="26" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="99" column="29" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="115" column="29" severity="info" message="&apos;9&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="116" column="37" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="122" column="54" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="122" column="118" severity="info" message="&apos;0x100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="123" column="54" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="123" column="111" severity="info" message="&apos;0x100&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-</file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/kv/leveldb/package-info.java">
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/kv/mvcc/AtomicKVStoreTest.java">
+<error line="70" column="87" severity="info" message="&apos;250&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="70" column="92" severity="info" message="&apos;500&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="104" column="37" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="112" column="26" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="118" column="26" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="124" column="26" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="130" column="26" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="139" column="29" severity="info" message="&apos;16&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="155" column="29" severity="info" message="&apos;9&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="156" column="37" severity="info" message="&apos;5&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="162" column="54" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="163" column="54" severity="info" message="&apos;10&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/kv/mvcc/MutableViewTest.java">
 <error line="59" column="54" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>

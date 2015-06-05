@@ -12,7 +12,7 @@
 <div class="separator">&nbsp;</div>
 <table class="report">
 <thead><tr>  <td class="heading">Classes in this File</td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Line Coverage</a></td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Branch Coverage</a></td>  <td class="heading"><a class="dfn" href="help.html" onclick="popupwindow('help.html'); return false;">Complexity</a></td></tr></thead>
-  <tr><td><a href="org.jsimpledb.util.SizeEstimator.html">SizeEstimator</a></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">0%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:0px"><span class="text">0/84</span></div></div></td></tr></table></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">0%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:0px"><span class="text">0/30</span></div></div></td></tr></table></td><td class="value"><span class="hidden">1.435897435897436;</span>1.436</td></tr>
+  <tr><td><a href="org.jsimpledb.util.SizeEstimator.html">SizeEstimator</a></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">0%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:0px"><span class="text">0/95</span></div></div></td></tr></table></td><td><table cellpadding="0px" cellspacing="0px" class="percentgraph"><tr class="percentgraph"><td align="right" class="percentgraph" width="40">0%</td><td class="percentgraph"><div class="percentgraph"><div class="greenbar" style="width:0px"><span class="text">0/30</span></div></div></td></tr></table></td><td class="value"><span class="hidden">1.435897435897436;</span>1.436</td></tr>
 
 </table>
 <div class="separator">&nbsp;</div>
@@ -388,8 +388,7 @@
 <tr>  <td class="numLineCover">&nbsp;199</td>  <td class="nbHitsUncovered"><a title="Line 199: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 199: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (length &lt; 0)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;200</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"length &lt; 0"</span>);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;201</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">this</span>.total +=</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;202</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.getObjectOverhead()                                <span class="comment">// for the array object</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;202</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">this</span>.getObjectOverhead()                                <span class="comment">// for the array object</span></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;203</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + INT_SIZE                                                <span class="comment">// for the array object's implicit length field</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;204</td>  <td class="nbHits">&nbsp;</td>
@@ -932,14 +931,10 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> SizeEstimator addArrayListField(ArrayList&lt;?&gt; list) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;494</td>  <td class="nbHitsUncovered"><a title="Line 494: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 494: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (list != <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;495</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">this</span>.addObjectOverhead()                                    <span class="comment">// ArrayList object</span></span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;496</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;              .addReferenceField()                                      <span class="comment">// elementData field</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;497</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;              .addArray(<span class="keyword">this</span>.getReferenceSize(), list.size())           <span class="comment">// elementData array</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;498</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;              .addIntField()                                            <span class="comment">// modCount field</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;499</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;              .addIntField();                                           <span class="comment">// size field</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;496</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;              .addReferenceField()                                      <span class="comment">// elementData field</span></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;497</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;              .addArray(<span class="keyword">this</span>.getReferenceSize(), list.size())           <span class="comment">// elementData array</span></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;498</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;              .addIntField()                                            <span class="comment">// modCount field</span></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;499</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;              .addIntField();                                           <span class="comment">// size field</span></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;500</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;501</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.addReferenceField();</span></pre></td></tr>
@@ -1008,12 +1003,9 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> SizeEstimator addTreeSetField(TreeSet&lt;?&gt; set) {</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;535</td>  <td class="nbHitsUncovered"><a title="Line 535: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 535: Conditional coverage 0% (0/2).">        <span class="keyword">if</span> (set != <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;536</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">this</span>.total +=</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;537</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getObjectOverhead()</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;538</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;              + <span class="keyword">this</span>.getReferenceSize()                             <span class="comment">// for the TreeSet.m field</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;539</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;              + <span class="keyword">this</span>.getTreeMapSize(set.size());                    <span class="comment">// for the TreeMap</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;537</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                <span class="keyword">this</span>.getObjectOverhead()</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;538</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;              + <span class="keyword">this</span>.getReferenceSize()                             <span class="comment">// for the TreeSet.m field</span></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;539</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;              + <span class="keyword">this</span>.getTreeMapSize(set.size());                    <span class="comment">// for the TreeMap</span></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;540</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;541</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.addReferenceField();</span></pre></td></tr>
@@ -1028,10 +1020,8 @@
 <tr>  <td class="numLine">&nbsp;546</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Get the size of one Entry object</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;547</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">final</span> <span class="keyword">int</span> entrySize =</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;548</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.getObjectOverhead()</pre></td></tr>
-<tr>  <td class="numLine">&nbsp;549</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + <span class="keyword">this</span>.getReferenceSize() * 5                             <span class="comment">// parent, left, right, key, value</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;548</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">this</span>.getObjectOverhead()</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;549</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          + <span class="keyword">this</span>.getReferenceSize() * 5                             <span class="comment">// parent, left, right, key, value</span></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;550</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + BOOLEAN_SIZE;                                           <span class="comment">// color</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;551</td>  <td class="nbHits">&nbsp;</td>
@@ -1039,8 +1029,7 @@
 <tr>  <td class="numLine">&nbsp;552</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Add the size of the TreeMap itself, plus all Entry's</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;553</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.getObjectOverhead()</span></pre></td></tr>
-<tr>  <td class="numLine">&nbsp;554</td>  <td class="nbHits">&nbsp;</td>
-  <td class="src"><pre class="src">&nbsp;          + <span class="keyword">this</span>.getReferenceSize() * 7                             <span class="comment">// various reference fields</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;554</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;          + <span class="keyword">this</span>.getReferenceSize() * 7                             <span class="comment">// various reference fields</span></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;555</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          + INT_SIZE * 2                                            <span class="comment">// size, modCount</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;556</td>  <td class="nbHits">&nbsp;</td>
@@ -1053,6 +1042,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.0.3 on 5/31/15 1:00 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 6/5/15 5:12 PM.</div>
 </body>
 </html>

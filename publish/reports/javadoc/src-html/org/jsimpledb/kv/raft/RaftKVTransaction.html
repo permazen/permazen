@@ -15,8 +15,8 @@
 <span class="sourceLineNo">007</span><a name="line.7"></a>
 <span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.io.Closeable;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.Arrays;<a name="line.11"></a>
+<span class="sourceLineNo">010</span>import java.util.Arrays;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Comparator;<a name="line.11"></a>
 <span class="sourceLineNo">012</span>import java.util.concurrent.Callable;<a name="line.12"></a>
 <span class="sourceLineNo">013</span>import java.util.concurrent.FutureTask;<a name="line.13"></a>
 <span class="sourceLineNo">014</span>import java.util.concurrent.atomic.AtomicLong;<a name="line.14"></a>
@@ -33,354 +33,406 @@
 <span class="sourceLineNo">025</span>/**<a name="line.25"></a>
 <span class="sourceLineNo">026</span> * {@link RaftKVDatabase} transaction.<a name="line.26"></a>
 <span class="sourceLineNo">027</span> */<a name="line.27"></a>
-<span class="sourceLineNo">028</span>public class RaftKVTransaction extends ForwardingKVStore implements KVTransaction, Closeable {<a name="line.28"></a>
+<span class="sourceLineNo">028</span>public class RaftKVTransaction extends ForwardingKVStore implements KVTransaction {<a name="line.28"></a>
 <span class="sourceLineNo">029</span><a name="line.29"></a>
-<span class="sourceLineNo">030</span>    private static final AtomicLong COUNTER = new AtomicLong();                 // provides unique transaction ID numbers<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>    private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>    // Transaction info<a name="line.34"></a>
-<span class="sourceLineNo">035</span>    private final long txId = COUNTER.incrementAndGet();<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    private final CommitFuture commitFuture = new CommitFuture();<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    private final RaftKVDatabase kvdb;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    private CloseableKVStore snapshot;                  // snapshot of the committed key/value store<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    private final MutableView view;                     // transaction's view of key/value store (restricted to prefix)<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    private final long baseTerm;                        // term of the log entry on which this transaction is based<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    private final long baseIndex;                       // index of the log entry on which this transaction is based<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    private volatile TxState state = TxState.EXECUTING;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    private volatile boolean readOnlySnapshot;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    private volatile int timeout;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    private volatile String[] configChange;             // cluster config change associated with this transaction<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    private RaftKVDatabase.Timer commitTimer;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    private long commitTerm;                            // term of the log entry representing this transaction's commit<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    private long commitIndex;                           // index of the log entry representing this transaction's commit<a name="line.49"></a>
-<span class="sourceLineNo">050</span><a name="line.50"></a>
-<span class="sourceLineNo">051</span>    /**<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * Constructor.<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     *<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * @param kvdb associated database<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * @param baseTerm term of the Raft log entry on which this transaction is based<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * @param baseIndex index of the Raft log entry on which this transaction is based<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @param snapshot underlying state machine snapshot; will be closed with this instance<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @param view this transaction's view of the (prefixed) key/value store<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    RaftKVTransaction(RaftKVDatabase kvdb, long baseTerm, long baseIndex, CloseableKVStore snapshot, MutableView view) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        this.kvdb = kvdb;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        this.baseTerm = baseTerm;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        this.baseIndex = baseIndex;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        this.snapshot = snapshot;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        this.view = view;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>// Properties<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * Get the term of the log entry on which this transaction is based.<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     *<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     * @return associated base log term<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    public long getBaseTerm() {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        return this.baseTerm;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    }<a name="line.77"></a>
-<span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>    /**<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     * Get the index of the log entry on which this transaction is based.<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     *<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     * @return associated base log index<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    public long getBaseIndex() {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        return this.baseIndex;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    /**<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     * Configure whether to reduce the isolation guarantees for this transaction from linearizable consistency<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     * to read-only, "stale snapshot" consistency (technically, serializable consistency).<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * &lt;p&gt;<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * If so configured, this transaction guarantees a consistent, read-only view of the database as it existed<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * at some point in the "recent past". The view is not guaranteed to be up-to-date; it's only guaranteed<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * to be as up-to-date as is known to this node when the transaction was opened. For example, it will be<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * at least as up to date as the most recently committed normal (linearizable) transaction on this node.<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * However, in general (for example, if stuck in a network partition minority), the snapshot could be arbitrarily<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * far in the past.<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     *<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     * &lt;p&gt;<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * This setting may be modified freely during a transaction; it only determines behavior at {@link #commit} time.<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * If set:<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     *  &lt;ul&gt;<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     *  &lt;li&gt;The transaction will be read-only: modifications will be allowed (and reflected in subsequent reads),<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     *      but they will be discarded on {@link #commit}.&lt;/li&gt;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     *  &lt;li&gt;The {@link #commit} operation will be faster, and possibly not require any network traffic at all.&lt;/li&gt;<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     *  &lt;/ul&gt;<a name="line.107"></a>
+<span class="sourceLineNo">030</span>    static final Comparator&lt;RaftKVTransaction&gt; SORT_BY_ID = new Comparator&lt;RaftKVTransaction&gt;() {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        @Override<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        public int compare(RaftKVTransaction tx1, RaftKVTransaction tx2) {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>            return Long.compare(tx1.getTxId(), tx2.getTxId());<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        }<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    };<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>    private static final AtomicLong COUNTER = new AtomicLong();                 // provides unique transaction ID numbers<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    private final Logger log = LoggerFactory.getLogger(this.getClass());<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    // Transaction info<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    private final long txId = COUNTER.incrementAndGet();<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    private final CommitFuture commitFuture = new CommitFuture();<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private final RaftKVDatabase kvdb;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private final CloseableKVStore snapshot;            // snapshot of the committed key/value store<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private final MutableView view;                     // transaction's view of key/value store (restricted to prefix)<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    private final long baseTerm;                        // term of the log entry on which this transaction is based<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private final long baseIndex;                       // index of the log entry on which this transaction is based<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    private TxState state = TxState.EXECUTING;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    private volatile boolean staleReadOnly;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    private volatile int timeout;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    private volatile String[] configChange;             // cluster config change associated with this transaction<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    private RaftKVDatabase.Timer commitTimer;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    private long commitTerm;                            // term of the log entry representing this transaction's commit<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    private long commitIndex;                           // index of the log entry representing this transaction's commit<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * Constructor.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     *<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * @param kvdb associated database<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * @param baseTerm term of the Raft log entry on which this transaction is based<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @param baseIndex index of the Raft log entry on which this transaction is based<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @param snapshot underlying state machine snapshot; will be closed with this instance<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @param view this transaction's view of the (prefixed) key/value store<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    RaftKVTransaction(RaftKVDatabase kvdb, long baseTerm, long baseIndex, CloseableKVStore snapshot, MutableView view) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        this.kvdb = kvdb;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        this.baseTerm = baseTerm;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        this.baseIndex = baseIndex;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        this.snapshot = snapshot;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        this.view = view;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>// Properties<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * Get the locally unique ID of this transaction.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @return transaction ID<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public long getTxId() {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        return this.txId;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    /**<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * Get the state of this transaction.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @return transaction state<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    public TxState getState() {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        synchronized (this.kvdb) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            return this.state;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        }<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    void setState(TxState state) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        assert state != null;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        synchronized (this.kvdb) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            assert state.compareTo(this.state) &gt;= 0;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            if (this.state.equals(TxState.EXECUTING) &amp;&amp; !this.state.equals(state))<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                this.snapshot.close();<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            this.state = state;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        }<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    /**<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * Get the term of the log entry on which this transaction is based.<a name="line.107"></a>
 <span class="sourceLineNo">108</span>     *<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * @param readOnlySnapshot true for snapshot isolation, false for normal linearizable ACID semantics<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * @see &lt;a href="https://aphyr.com/posts/313-strong-consistency-models"&gt;Strong consistency models&lt;/a&gt;<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     */<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    public void setReadOnlySnapshot(boolean readOnlySnapshot) {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        this.readOnlySnapshot = readOnlySnapshot;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>    /**<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     * Determine whether this instance is configured for read-only, snapshot isolation.<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     *<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     * @return true if this instance is configured for snapshot isolation<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     * @see #setReadOnlySnapshot<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    public boolean isReadOnlySnapshot() {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        return this.readOnlySnapshot;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
-<span class="sourceLineNo">125</span><a name="line.125"></a>
-<span class="sourceLineNo">126</span>// Configuration Stuff<a name="line.126"></a>
-<span class="sourceLineNo">127</span><a name="line.127"></a>
-<span class="sourceLineNo">128</span>    /**<a name="line.128"></a>
-<span class="sourceLineNo">129</span>     * Include a cluster configuration change when this transaction is committed.<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     *<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     * &lt;p&gt;<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * The change will have been applied once this transaction is successfully committed.<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * &lt;p&gt;<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * Raft supports configuration changes that add or remove one node at a time to/from the cluster.<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * If this method is invoked more than once in a single transaction, all but the last invocation are ignored.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     *<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     * &lt;p&gt;<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * Initially, nodes are &lt;i&gt;unconfigured&lt;/i&gt;. An unconfigured node becomes configured in one of two ways:<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     * &lt;ul&gt;<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     *  &lt;li&gt;By receiving a message from a leader of some existing cluster, in which case the node joins that cluster<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     *      based on the provided configuration; or&lt;/li&gt;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     *  &lt;li&gt;By this method being invoked with {@code identity} equal to this node's identity and a non-null {@code address},<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     *      which creates a new cluster and adds this node to it.&lt;/li&gt;<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * &lt;/ul&gt;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     *<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     * &lt;p&gt;<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     * Therefore, this method must be used to intialize a new cluster.<a name="line.148"></a>
-<span class="sourceLineNo">149</span>     *<a name="line.149"></a>
-<span class="sourceLineNo">150</span>     * @param identity the identity of the node to add or remove<a name="line.150"></a>
-<span class="sourceLineNo">151</span>     * @param address the network address of the node if adding, or null if removing<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     * @throws IllegalArgumentException if {@code identity} is null<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     */<a name="line.153"></a>
-<span class="sourceLineNo">154</span>    public void configChange(String identity, String address) {<a name="line.154"></a>
-<span class="sourceLineNo">155</span><a name="line.155"></a>
-<span class="sourceLineNo">156</span>        // Sanity check<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        Preconditions.checkArgument(identity != null, "null identity");<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        if (!this.state.equals(TxState.EXECUTING))<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            throw new StaleTransactionException(this);<a name="line.159"></a>
-<span class="sourceLineNo">160</span><a name="line.160"></a>
-<span class="sourceLineNo">161</span>        // Set config change<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        this.configChange = new String[] { identity, address };<a name="line.162"></a>
-<span class="sourceLineNo">163</span>    }<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>// ForwardingKVStore<a name="line.165"></a>
-<span class="sourceLineNo">166</span><a name="line.166"></a>
-<span class="sourceLineNo">167</span>    @Override<a name="line.167"></a>
-<span class="sourceLineNo">168</span>    protected KVStore delegate() {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>        if (!this.state.equals(TxState.EXECUTING))<a name="line.169"></a>
-<span class="sourceLineNo">170</span>            throw new StaleTransactionException(this);<a name="line.170"></a>
-<span class="sourceLineNo">171</span>        return this.view;<a name="line.171"></a>
-<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
-<span class="sourceLineNo">173</span><a name="line.173"></a>
-<span class="sourceLineNo">174</span>// KVTransaction<a name="line.174"></a>
-<span class="sourceLineNo">175</span><a name="line.175"></a>
-<span class="sourceLineNo">176</span>    @Override<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    public RaftKVDatabase getKVDatabase() {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        return this.kvdb;<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    }<a name="line.179"></a>
-<span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>    /**<a name="line.181"></a>
-<span class="sourceLineNo">182</span>     * Set the commit timeout for this instance.<a name="line.182"></a>
-<span class="sourceLineNo">183</span>     *<a name="line.183"></a>
-<span class="sourceLineNo">184</span>     * &lt;p&gt;<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     * {@link RaftKVTransaction}s do not block while the transaction is open; the configured value is used<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     * as a timeout for the {@link #commit} operation only. If {@link #commit} takes longer than {@code timeout}<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * milliseconds, a {@link org.jsimpledb.kv.RetryTransactionException} is thrown.<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     *<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     * &lt;p&gt;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     * The default value for all transactions is configured by {@link RaftKVDatabase#setCommitTimeout}.<a name="line.190"></a>
+<span class="sourceLineNo">109</span>     * @return associated base log term<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    public long getBaseTerm() {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        return this.baseTerm;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    }<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>    /**<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * Get the index of the log entry on which this transaction is based.<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     *<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * @return associated base log index<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     */<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    public long getBaseIndex() {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        return this.baseIndex;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * Get the index of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * before it can complete.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * @return associated commit log entry index, or zero if this transaction has not yet gotten to {@link TxState#COMMIT_WAITING}<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    public long getCommitTerm() {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        synchronized (this.kvdb) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>            return this.commitTerm;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        }<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    void setCommitTerm(long commitTerm) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        synchronized (this.kvdb) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            this.commitTerm = commitTerm;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    }<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    /**<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * Get the term of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * before it can complete.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     *<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * @return associated commit log entry term, or zero if this transaction has not yet gotten to {@link TxState#COMMIT_WAITING}<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    public long getCommitIndex() {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        synchronized (this.kvdb) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            return this.commitIndex;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    void setCommitIndex(long commitIndex) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        synchronized (this.kvdb) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            this.commitIndex = commitIndex;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        }<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>    /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * Configure whether to reduce the consistency guarantees for this transaction from linearizable consistency<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * to stale read consistency.<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     *<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * &lt;p&gt;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * If so configured, this transaction guarantees a consistent, read-only view of the database as it existed<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * at some point in the "recent past". The view is not guaranteed to be up-to-date; it's only guaranteed<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * to be as up-to-date as is known to this node when the transaction was opened. For example, it will be<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * at least as up to date as the most recently committed normal (linearizable) transaction on this node.<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * However, in general (for example, if stuck in a network partition minority), the snapshot could be arbitrarily<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * far in the past.<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     *<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * &lt;p&gt;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * This setting may be modified freely during a transaction; it only determines behavior at {@link #commit} time.<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * If set:<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * &lt;ul&gt;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     *  &lt;li&gt;The transaction will be read-only: modifications will be allowed (and reflected in subsequent reads),<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *      but they will be discarded on {@link #commit}.&lt;/li&gt;<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     *  &lt;li&gt;The {@link #commit} operation may be faster, and will not generate any additional network traffic.&lt;/li&gt;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     *  &lt;li&gt;The {@link #commit} operation will still wait for the transaction's base log entry to be committed,<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     *      which eliminates the possibility of reading uncommitted data. If the possibility of reading uncommitted data<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     *      is tolerable, then any {@link #commit} wait can be avoided simply by invoking {@link #rollback} instead.&lt;/li&gt;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * &lt;/ul&gt;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     *<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * @param staleReadOnly true to configure stale reads, false for normal linearizable ACID semantics<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * @see &lt;a href="https://aphyr.com/posts/313-strong-consistency-models"&gt;Strong consistency models&lt;/a&gt;<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     */<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    public void setStaleReadOnly(boolean staleReadOnly) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        this.staleReadOnly = staleReadOnly;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    }<a name="line.187"></a>
+<span class="sourceLineNo">188</span><a name="line.188"></a>
+<span class="sourceLineNo">189</span>    /**<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * Determine whether this instance is configured for read-only, stale read consistency.<a name="line.190"></a>
 <span class="sourceLineNo">191</span>     *<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     * @param timeout transaction commit timeout in milliseconds, or zero for unlimited<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     * @throws IllegalArgumentException if {@code timeout} is negative<a name="line.193"></a>
+<span class="sourceLineNo">192</span>     * @return true if this instance is configured for read-only, stale read consistency<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * @see #setStaleReadOnly<a name="line.193"></a>
 <span class="sourceLineNo">194</span>     */<a name="line.194"></a>
-<span class="sourceLineNo">195</span>    @Override<a name="line.195"></a>
-<span class="sourceLineNo">196</span>    public void setTimeout(long timeout) {<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        if (timeout &lt; 0)<a name="line.197"></a>
-<span class="sourceLineNo">198</span>            throw new IllegalArgumentException("timeout &lt; 0");<a name="line.198"></a>
-<span class="sourceLineNo">199</span>        this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);<a name="line.199"></a>
-<span class="sourceLineNo">200</span>    }<a name="line.200"></a>
-<span class="sourceLineNo">201</span><a name="line.201"></a>
-<span class="sourceLineNo">202</span>    @Override<a name="line.202"></a>
-<span class="sourceLineNo">203</span>    public void commit() {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        this.kvdb.commit(this);<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    }<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>    @Override<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    public void rollback() {<a name="line.208"></a>
-<span class="sourceLineNo">209</span>        this.kvdb.rollback(this);<a name="line.209"></a>
-<span class="sourceLineNo">210</span>    }<a name="line.210"></a>
-<span class="sourceLineNo">211</span><a name="line.211"></a>
-<span class="sourceLineNo">212</span>// Package-access methods<a name="line.212"></a>
-<span class="sourceLineNo">213</span><a name="line.213"></a>
-<span class="sourceLineNo">214</span>    long getTxId() {<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        return this.txId;<a name="line.215"></a>
-<span class="sourceLineNo">216</span>    }<a name="line.216"></a>
-<span class="sourceLineNo">217</span><a name="line.217"></a>
-<span class="sourceLineNo">218</span>    int getTimeout() {<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        return this.timeout;<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    }<a name="line.220"></a>
-<span class="sourceLineNo">221</span><a name="line.221"></a>
-<span class="sourceLineNo">222</span>    String[] getConfigChange() {<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        return this.configChange;<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span><a name="line.225"></a>
-<span class="sourceLineNo">226</span>    CommitFuture getCommitFuture() {<a name="line.226"></a>
-<span class="sourceLineNo">227</span>        return this.commitFuture;<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    }<a name="line.228"></a>
-<span class="sourceLineNo">229</span><a name="line.229"></a>
-<span class="sourceLineNo">230</span>    MutableView getMutableView() {<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        return this.view;<a name="line.231"></a>
-<span class="sourceLineNo">232</span>    }<a name="line.232"></a>
-<span class="sourceLineNo">233</span><a name="line.233"></a>
-<span class="sourceLineNo">234</span>    TxState getState() {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>        return this.state;<a name="line.235"></a>
+<span class="sourceLineNo">195</span>    public boolean isStaleReadOnly() {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        return this.staleReadOnly;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>// Configuration Stuff<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    /**<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * Include a cluster configuration change when this transaction is committed.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     *<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * &lt;p&gt;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * The change will have been applied once this transaction is successfully committed.<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     *<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     * &lt;p&gt;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * Raft supports configuration changes that add or remove one node at a time to/from the cluster.<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * If this method is invoked more than once in a single transaction, all but the last invocation are ignored.<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     *<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * &lt;p&gt;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * Initially, nodes are &lt;i&gt;unconfigured&lt;/i&gt;. An unconfigured node becomes configured in one of two ways:<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * &lt;ul&gt;<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     *  &lt;li&gt;By receiving a message from a leader of some existing cluster, in which case the node joins that cluster<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     *      based on the provided configuration; or&lt;/li&gt;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     *  &lt;li&gt;By this method being invoked with {@code identity} equal to this node's identity and a non-null {@code address},<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     *      which creates a new cluster and adds this node to it.&lt;/li&gt;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * &lt;/ul&gt;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     *<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * &lt;p&gt;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * Therefore, this method must be used to intialize a new cluster.<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     *<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * @param identity the identity of the node to add or remove<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * @param address the network address of the node if adding, or null if removing<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * @throws IllegalStateException if this method has been invoked previously on this instance<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * @throws IllegalArgumentException if {@code identity} is null<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     */<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    public void configChange(String identity, String address) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        Preconditions.checkArgument(identity != null, "null identity");<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        synchronized (this.kvdb) {<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            Preconditions.checkState(this.configChange == null, "duplicate config chagne; only one is supported per transaction");<a name="line.231"></a>
+<span class="sourceLineNo">232</span>            if (!this.state.equals(TxState.EXECUTING))<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                throw new StaleTransactionException(this);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            this.configChange = new String[] { identity, address };<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        }<a name="line.235"></a>
 <span class="sourceLineNo">236</span>    }<a name="line.236"></a>
-<span class="sourceLineNo">237</span>    void setState(TxState state) {<a name="line.237"></a>
-<span class="sourceLineNo">238</span>        this.state = state;<a name="line.238"></a>
-<span class="sourceLineNo">239</span>    }<a name="line.239"></a>
-<span class="sourceLineNo">240</span><a name="line.240"></a>
-<span class="sourceLineNo">241</span>    RaftKVDatabase.Timer getCommitTimer() {<a name="line.241"></a>
-<span class="sourceLineNo">242</span>        return this.commitTimer;<a name="line.242"></a>
-<span class="sourceLineNo">243</span>    }<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    void setCommitTimer(RaftKVDatabase.Timer commitTimer) {<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        this.commitTimer = commitTimer;<a name="line.245"></a>
-<span class="sourceLineNo">246</span>    }<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
-<span class="sourceLineNo">248</span>    long getCommitTerm() {<a name="line.248"></a>
-<span class="sourceLineNo">249</span>        return this.commitTerm;<a name="line.249"></a>
-<span class="sourceLineNo">250</span>    }<a name="line.250"></a>
-<span class="sourceLineNo">251</span>    void setCommitTerm(long commitTerm) {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>        this.commitTerm = commitTerm;<a name="line.252"></a>
-<span class="sourceLineNo">253</span>    }<a name="line.253"></a>
-<span class="sourceLineNo">254</span><a name="line.254"></a>
-<span class="sourceLineNo">255</span>    long getCommitIndex() {<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        return this.commitIndex;<a name="line.256"></a>
-<span class="sourceLineNo">257</span>    }<a name="line.257"></a>
-<span class="sourceLineNo">258</span>    void setCommitIndex(long commitIndex) {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        this.commitIndex = commitIndex;<a name="line.259"></a>
-<span class="sourceLineNo">260</span>    }<a name="line.260"></a>
-<span class="sourceLineNo">261</span><a name="line.261"></a>
-<span class="sourceLineNo">262</span>    void closeSnapshot() {<a name="line.262"></a>
-<span class="sourceLineNo">263</span>        if (this.snapshot != null) {<a name="line.263"></a>
-<span class="sourceLineNo">264</span>            this.snapshot.close();<a name="line.264"></a>
-<span class="sourceLineNo">265</span>            this.snapshot = null;<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        }<a name="line.266"></a>
-<span class="sourceLineNo">267</span>    }<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>// Closeable<a name="line.269"></a>
-<span class="sourceLineNo">270</span><a name="line.270"></a>
-<span class="sourceLineNo">271</span>    @Override<a name="line.271"></a>
-<span class="sourceLineNo">272</span>    public void close() {<a name="line.272"></a>
-<span class="sourceLineNo">273</span>        this.rollback();<a name="line.273"></a>
-<span class="sourceLineNo">274</span>    }<a name="line.274"></a>
-<span class="sourceLineNo">275</span><a name="line.275"></a>
-<span class="sourceLineNo">276</span>// Object<a name="line.276"></a>
-<span class="sourceLineNo">277</span><a name="line.277"></a>
-<span class="sourceLineNo">278</span>    @Override<a name="line.278"></a>
-<span class="sourceLineNo">279</span>    public String toString() {<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        return this.getClass().getSimpleName()<a name="line.280"></a>
-<span class="sourceLineNo">281</span>          + "[txId=" + this.txId<a name="line.281"></a>
-<span class="sourceLineNo">282</span>          + ",state=" + this.state<a name="line.282"></a>
-<span class="sourceLineNo">283</span>          + ",base=" + this.baseIndex + "t" + this.baseTerm<a name="line.283"></a>
-<span class="sourceLineNo">284</span>          + (this.configChange != null ? ",configChange=" + Arrays.&lt;String&gt;asList(this.configChange) : "")<a name="line.284"></a>
-<span class="sourceLineNo">285</span>          + (this.state.compareTo(TxState.COMMIT_WAITING) &gt;= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")<a name="line.285"></a>
-<span class="sourceLineNo">286</span>          + (this.timeout != 0 ? ",timeout=" + this.timeout : "")<a name="line.286"></a>
-<span class="sourceLineNo">287</span>          + "]";<a name="line.287"></a>
-<span class="sourceLineNo">288</span>    }<a name="line.288"></a>
-<span class="sourceLineNo">289</span><a name="line.289"></a>
-<span class="sourceLineNo">290</span>    @Override<a name="line.290"></a>
-<span class="sourceLineNo">291</span>    protected void finalize() throws Throwable {<a name="line.291"></a>
-<span class="sourceLineNo">292</span>        try {<a name="line.292"></a>
-<span class="sourceLineNo">293</span>            if (!TxState.CLOSED.equals(this.state))<a name="line.293"></a>
-<span class="sourceLineNo">294</span>               this.log.warn(this + " leaked without commit() or rollback()");<a name="line.294"></a>
-<span class="sourceLineNo">295</span>            this.close();<a name="line.295"></a>
-<span class="sourceLineNo">296</span>        } finally {<a name="line.296"></a>
-<span class="sourceLineNo">297</span>            super.finalize();<a name="line.297"></a>
-<span class="sourceLineNo">298</span>        }<a name="line.298"></a>
-<span class="sourceLineNo">299</span>    }<a name="line.299"></a>
-<span class="sourceLineNo">300</span><a name="line.300"></a>
-<span class="sourceLineNo">301</span>// CommitFuture<a name="line.301"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>    /**<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * Get the cluster configuration change associated with this transaction, if any.<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     *<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * &lt;p&gt;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * The returned array has length two and contains the {@code identity} and {@code address}<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     * parameters passed to {@link #configChange configChange()}.<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     *<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * &lt;p&gt;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * The returned array is a copy; changes have no effect on this instance.<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     *<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * @return cluster config change, or null if there is none<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     */<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    public String[] getConfigChange() {<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        synchronized (this.kvdb) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>            return this.configChange != null ? this.configChange.clone() : null;<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        }<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    }<a name="line.254"></a>
+<span class="sourceLineNo">255</span><a name="line.255"></a>
+<span class="sourceLineNo">256</span>// ForwardingKVStore<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>    @Override<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    protected KVStore delegate() {<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        if (!this.state.equals(TxState.EXECUTING))<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            throw new StaleTransactionException(this);<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        return this.view;<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    }<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>// KVTransaction<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>    @Override<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    public RaftKVDatabase getKVDatabase() {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        return this.kvdb;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    }<a name="line.270"></a>
+<span class="sourceLineNo">271</span><a name="line.271"></a>
+<span class="sourceLineNo">272</span>    /**<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * Set the commit timeout for this instance.<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     *<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * &lt;p&gt;<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * {@link RaftKVTransaction}s do not block while the transaction is open; the configured value is used<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * as a timeout for the {@link #commit} operation only. If {@link #commit} takes longer than {@code timeout}<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * milliseconds, a {@link org.jsimpledb.kv.RetryTransactionException} is thrown.<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     *<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * &lt;p&gt;<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * The default value for all transactions is configured by {@link RaftKVDatabase#setCommitTimeout}.<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     *<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @param timeout transaction commit timeout in milliseconds, or zero for unlimited<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * @throws IllegalArgumentException if {@code timeout} is negative<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     */<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    @Override<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    public void setTimeout(long timeout) {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        if (timeout &lt; 0)<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            throw new IllegalArgumentException("timeout &lt; 0");<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    }<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>    @Override<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    public void commit() {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        this.kvdb.commit(this);<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    }<a name="line.296"></a>
+<span class="sourceLineNo">297</span><a name="line.297"></a>
+<span class="sourceLineNo">298</span>    @Override<a name="line.298"></a>
+<span class="sourceLineNo">299</span>    public void rollback() {<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        this.kvdb.rollback(this);<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    }<a name="line.301"></a>
 <span class="sourceLineNo">302</span><a name="line.302"></a>
-<span class="sourceLineNo">303</span>    static class CommitFuture extends FutureTask&lt;Void&gt; {<a name="line.303"></a>
+<span class="sourceLineNo">303</span>// Package-access methods<a name="line.303"></a>
 <span class="sourceLineNo">304</span><a name="line.304"></a>
-<span class="sourceLineNo">305</span>        private final ExceptionCallable callable;<a name="line.305"></a>
-<span class="sourceLineNo">306</span><a name="line.306"></a>
-<span class="sourceLineNo">307</span>        public CommitFuture() {<a name="line.307"></a>
-<span class="sourceLineNo">308</span>            this(new ExceptionCallable());<a name="line.308"></a>
-<span class="sourceLineNo">309</span>        }<a name="line.309"></a>
-<span class="sourceLineNo">310</span><a name="line.310"></a>
-<span class="sourceLineNo">311</span>        CommitFuture(ExceptionCallable callable) {<a name="line.311"></a>
-<span class="sourceLineNo">312</span>            super(callable);<a name="line.312"></a>
-<span class="sourceLineNo">313</span>            this.callable = callable;<a name="line.313"></a>
-<span class="sourceLineNo">314</span>        }<a name="line.314"></a>
-<span class="sourceLineNo">315</span><a name="line.315"></a>
-<span class="sourceLineNo">316</span>        public void succeed() {<a name="line.316"></a>
-<span class="sourceLineNo">317</span>            Preconditions.checkState(!this.isDone(), "already done");<a name="line.317"></a>
-<span class="sourceLineNo">318</span>            this.run();<a name="line.318"></a>
-<span class="sourceLineNo">319</span>        }<a name="line.319"></a>
-<span class="sourceLineNo">320</span><a name="line.320"></a>
-<span class="sourceLineNo">321</span>        public void fail(Exception e) {<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            Preconditions.checkState(!this.isDone(), "already done");<a name="line.322"></a>
-<span class="sourceLineNo">323</span>            this.callable.setException(e);<a name="line.323"></a>
-<span class="sourceLineNo">324</span>            this.run();<a name="line.324"></a>
-<span class="sourceLineNo">325</span>        }<a name="line.325"></a>
-<span class="sourceLineNo">326</span>    }<a name="line.326"></a>
-<span class="sourceLineNo">327</span><a name="line.327"></a>
-<span class="sourceLineNo">328</span>    private static class ExceptionCallable implements Callable&lt;Void&gt; {<a name="line.328"></a>
-<span class="sourceLineNo">329</span><a name="line.329"></a>
-<span class="sourceLineNo">330</span>        private volatile Exception e;<a name="line.330"></a>
-<span class="sourceLineNo">331</span><a name="line.331"></a>
-<span class="sourceLineNo">332</span>        public void setException(Exception e) {<a name="line.332"></a>
-<span class="sourceLineNo">333</span>            this.e = e;<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        }<a name="line.334"></a>
-<span class="sourceLineNo">335</span><a name="line.335"></a>
-<span class="sourceLineNo">336</span>        @Override<a name="line.336"></a>
-<span class="sourceLineNo">337</span>        public Void call() throws Exception {<a name="line.337"></a>
-<span class="sourceLineNo">338</span>            if (this.e != null)<a name="line.338"></a>
-<span class="sourceLineNo">339</span>                throw this.e;<a name="line.339"></a>
-<span class="sourceLineNo">340</span>            return null;<a name="line.340"></a>
-<span class="sourceLineNo">341</span>        }<a name="line.341"></a>
-<span class="sourceLineNo">342</span>    }<a name="line.342"></a>
-<span class="sourceLineNo">343</span><a name="line.343"></a>
-<span class="sourceLineNo">344</span>// Debug/Sanity Checking<a name="line.344"></a>
-<span class="sourceLineNo">345</span><a name="line.345"></a>
-<span class="sourceLineNo">346</span>    void checkStateOpen(long currentTerm, long lastIndex, long raftCommitIndex) {<a name="line.346"></a>
-<span class="sourceLineNo">347</span>        assert !this.commitFuture.isCancelled();<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        assert this.commitFuture.isDone() == this.state.compareTo(TxState.COMPLETED) &gt;= 0;<a name="line.348"></a>
-<span class="sourceLineNo">349</span>        assert this.baseTerm &lt;= currentTerm;<a name="line.349"></a>
-<span class="sourceLineNo">350</span>        switch (this.state) {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        case EXECUTING:<a name="line.351"></a>
-<span class="sourceLineNo">352</span>        case COMMIT_READY:<a name="line.352"></a>
-<span class="sourceLineNo">353</span>            assert this.commitTerm == 0;<a name="line.353"></a>
-<span class="sourceLineNo">354</span>            assert this.commitIndex == 0;<a name="line.354"></a>
-<span class="sourceLineNo">355</span>            break;<a name="line.355"></a>
-<span class="sourceLineNo">356</span>        case COMMIT_WAITING:<a name="line.356"></a>
-<span class="sourceLineNo">357</span>            assert this.commitTerm &gt;= this.baseTerm;<a name="line.357"></a>
-<span class="sourceLineNo">358</span>            assert this.commitTerm &lt;= currentTerm;<a name="line.358"></a>
-<span class="sourceLineNo">359</span>            assert this.commitIndex &gt;= this.baseIndex;                                      // equal implies a read-only tx<a name="line.359"></a>
-<span class="sourceLineNo">360</span>            assert this.commitIndex &gt; this.baseIndex || this.view.getWrites().isEmpty();<a name="line.360"></a>
-<span class="sourceLineNo">361</span>            break;<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        case COMPLETED:<a name="line.362"></a>
-<span class="sourceLineNo">363</span>            assert this.commitFuture.isDone();<a name="line.363"></a>
-<span class="sourceLineNo">364</span>            assert this.commitTerm == 0 || this.commitTerm &gt;= this.baseTerm;<a name="line.364"></a>
-<span class="sourceLineNo">365</span>            assert this.commitIndex == 0 || this.commitIndex &gt;= this.baseIndex;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>            assert this.commitTerm &lt;= currentTerm;<a name="line.366"></a>
-<span class="sourceLineNo">367</span>            break;<a name="line.367"></a>
-<span class="sourceLineNo">368</span>        case CLOSED:<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        default:<a name="line.369"></a>
-<span class="sourceLineNo">370</span>            assert false;<a name="line.370"></a>
-<span class="sourceLineNo">371</span>            break;<a name="line.371"></a>
-<span class="sourceLineNo">372</span>        }<a name="line.372"></a>
-<span class="sourceLineNo">373</span>    }<a name="line.373"></a>
-<span class="sourceLineNo">374</span>}<a name="line.374"></a>
-<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">305</span>    int getTimeout() {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        return this.timeout;<a name="line.306"></a>
+<span class="sourceLineNo">307</span>    }<a name="line.307"></a>
+<span class="sourceLineNo">308</span><a name="line.308"></a>
+<span class="sourceLineNo">309</span>    CommitFuture getCommitFuture() {<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        return this.commitFuture;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>    }<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>    MutableView getMutableView() {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        return this.view;<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    }<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>    RaftKVDatabase.Timer getCommitTimer() {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        return this.commitTimer;<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    }<a name="line.319"></a>
+<span class="sourceLineNo">320</span>    void setCommitTimer(RaftKVDatabase.Timer commitTimer) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        this.commitTimer = commitTimer;<a name="line.321"></a>
+<span class="sourceLineNo">322</span>    }<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>// Object<a name="line.324"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>    @Override<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    public String toString() {<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        return this.getClass().getSimpleName()<a name="line.328"></a>
+<span class="sourceLineNo">329</span>          + "[txId=" + this.txId<a name="line.329"></a>
+<span class="sourceLineNo">330</span>          + ",state=" + this.state<a name="line.330"></a>
+<span class="sourceLineNo">331</span>          + ",base=" + this.baseIndex + "t" + this.baseTerm<a name="line.331"></a>
+<span class="sourceLineNo">332</span>          + (this.staleReadOnly ? ",staleReadOnly" : "")<a name="line.332"></a>
+<span class="sourceLineNo">333</span>          + (this.configChange != null ? ",configChange=" + Arrays.&lt;String&gt;asList(this.configChange) : "")<a name="line.333"></a>
+<span class="sourceLineNo">334</span>          + (this.state.compareTo(TxState.COMMIT_WAITING) &gt;= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")<a name="line.334"></a>
+<span class="sourceLineNo">335</span>          + (this.timeout != 0 ? ",timeout=" + this.timeout : "")<a name="line.335"></a>
+<span class="sourceLineNo">336</span>          + "]";<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    }<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>    @Override<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    protected void finalize() throws Throwable {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        try {<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            synchronized (this.kvdb) {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                if (!TxState.CLOSED.equals(this.state)) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                    this.log.warn(this + " leaked without commit() or rollback()");<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                    this.rollback();<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                }<a name="line.346"></a>
+<span class="sourceLineNo">347</span>            }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        } finally {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            super.finalize();<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        }<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    }<a name="line.351"></a>
+<span class="sourceLineNo">352</span><a name="line.352"></a>
+<span class="sourceLineNo">353</span>// CommitFuture<a name="line.353"></a>
+<span class="sourceLineNo">354</span><a name="line.354"></a>
+<span class="sourceLineNo">355</span>    static class CommitFuture extends FutureTask&lt;Void&gt; {<a name="line.355"></a>
+<span class="sourceLineNo">356</span><a name="line.356"></a>
+<span class="sourceLineNo">357</span>        private final ExceptionCallable callable;<a name="line.357"></a>
+<span class="sourceLineNo">358</span><a name="line.358"></a>
+<span class="sourceLineNo">359</span>        public CommitFuture() {<a name="line.359"></a>
+<span class="sourceLineNo">360</span>            this(new ExceptionCallable());<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        }<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>        CommitFuture(ExceptionCallable callable) {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            super(callable);<a name="line.364"></a>
+<span class="sourceLineNo">365</span>            this.callable = callable;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        }<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>        public void succeed() {<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            Preconditions.checkState(!this.isDone(), "already done");<a name="line.369"></a>
+<span class="sourceLineNo">370</span>            this.run();<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        }<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>        public void fail(Exception e) {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            Preconditions.checkState(!this.isDone(), "already done");<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            this.callable.setException(e);<a name="line.375"></a>
+<span class="sourceLineNo">376</span>            this.run();<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        }<a name="line.377"></a>
+<span class="sourceLineNo">378</span>    }<a name="line.378"></a>
+<span class="sourceLineNo">379</span><a name="line.379"></a>
+<span class="sourceLineNo">380</span>    private static class ExceptionCallable implements Callable&lt;Void&gt; {<a name="line.380"></a>
+<span class="sourceLineNo">381</span><a name="line.381"></a>
+<span class="sourceLineNo">382</span>        private volatile Exception e;<a name="line.382"></a>
+<span class="sourceLineNo">383</span><a name="line.383"></a>
+<span class="sourceLineNo">384</span>        public void setException(Exception e) {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            this.e = e;<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        }<a name="line.386"></a>
+<span class="sourceLineNo">387</span><a name="line.387"></a>
+<span class="sourceLineNo">388</span>        @Override<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        public Void call() throws Exception {<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            if (this.e != null)<a name="line.390"></a>
+<span class="sourceLineNo">391</span>                throw this.e;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>            return null;<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        }<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    }<a name="line.394"></a>
+<span class="sourceLineNo">395</span><a name="line.395"></a>
+<span class="sourceLineNo">396</span>// Debug/Sanity Checking<a name="line.396"></a>
+<span class="sourceLineNo">397</span><a name="line.397"></a>
+<span class="sourceLineNo">398</span>    void checkStateOpen(long currentTerm, long lastIndex, long raftCommitIndex) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        assert !this.commitFuture.isCancelled();<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        assert this.commitFuture.isDone() == this.state.compareTo(TxState.COMPLETED) &gt;= 0;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        assert this.baseTerm &lt;= currentTerm;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        switch (this.state) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        case EXECUTING:<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        case COMMIT_READY:<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            assert this.commitTerm == 0;<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            assert this.commitIndex == 0;<a name="line.406"></a>
+<span class="sourceLineNo">407</span>            break;<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        case COMMIT_WAITING:<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            assert this.commitTerm &gt;= this.baseTerm;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>            assert this.commitTerm &lt;= currentTerm;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>            assert this.commitIndex &gt;= this.baseIndex;                                      // equal implies a read-only tx<a name="line.411"></a>
+<span class="sourceLineNo">412</span>            assert this.commitIndex &gt; this.baseIndex || this.view.getWrites().isEmpty();<a name="line.412"></a>
+<span class="sourceLineNo">413</span>            break;<a name="line.413"></a>
+<span class="sourceLineNo">414</span>        case COMPLETED:<a name="line.414"></a>
+<span class="sourceLineNo">415</span>            assert this.commitFuture.isDone();<a name="line.415"></a>
+<span class="sourceLineNo">416</span>            assert this.commitTerm == 0 || this.commitTerm &gt;= this.baseTerm;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>            assert this.commitIndex == 0 || this.commitIndex &gt;= this.baseIndex;<a name="line.417"></a>
+<span class="sourceLineNo">418</span>            assert this.commitTerm &lt;= currentTerm;<a name="line.418"></a>
+<span class="sourceLineNo">419</span>            break;<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        case CLOSED:<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        default:<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            assert false;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>            break;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        }<a name="line.424"></a>
+<span class="sourceLineNo">425</span>    }<a name="line.425"></a>
+<span class="sourceLineNo">426</span>}<a name="line.426"></a>
+<span class="sourceLineNo">427</span><a name="line.427"></a>
 
 
 
