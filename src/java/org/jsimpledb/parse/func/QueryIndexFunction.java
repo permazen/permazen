@@ -21,7 +21,7 @@ public class QueryIndexFunction extends AbstractQueryFunction {
 
     @Override
     public String getHelpSummary() {
-        return "queries the index associated with an indexed field";
+        return "Queries the index associated with an indexed field";
     }
 
     @Override

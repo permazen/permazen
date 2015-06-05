@@ -9,13 +9,14 @@ import com.google.common.collect.Iterables;
 
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function
+@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class TransformFunction extends ApplyExprFunction {
 
     public TransformFunction() {
@@ -24,7 +25,7 @@ public class TransformFunction extends ApplyExprFunction {
 
     @Override
     public String getHelpSummary() {
-        return "transforms a collection";
+        return "Transforms a collection";
     }
 
     @Override

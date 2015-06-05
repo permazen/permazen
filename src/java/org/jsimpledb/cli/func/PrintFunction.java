@@ -5,11 +5,12 @@
 
 package org.jsimpledb.cli.func;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.func.Function;
 
-@Function
+@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class PrintFunction extends SimpleCliFunction {
 
     public PrintFunction() {
@@ -18,7 +19,7 @@ public class PrintFunction extends SimpleCliFunction {
 
     @Override
     public String getHelpSummary() {
-        return "prints a value followed by newline";
+        return "Prints a value followed by newline";
     }
 
     @Override

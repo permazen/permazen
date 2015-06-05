@@ -5,6 +5,7 @@
 
 package org.jsimpledb.cli;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.io.File;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.util.AddPrefixFunction;
@@ -44,7 +46,19 @@ public class Console {
     private FileHistory history;
 
     /**
-     * Simplified constructor for core API CLI mode.
+     * Simplified constructor for {@link org.jsimpledb.SessionMode#KEY_VALUE} mode.
+     *
+     * @param kvdb key/value {@link KVDatabase}
+     * @param input console input
+     * @param output console output
+     * @throws IOException if an I/O error occurs
+     */
+    public Console(KVDatabase kvdb, InputStream input, OutputStream output) throws IOException {
+        this(kvdb, null, null, input, output, null, null, null);
+    }
+
+    /**
+     * Simplified constructor for {@link org.jsimpledb.SessionMode#CORE_API} mode.
      *
      * @param db core API {@link Database}
      * @param input console input
@@ -52,11 +66,11 @@ public class Console {
      * @throws IOException if an I/O error occurs
      */
     public Console(Database db, InputStream input, OutputStream output) throws IOException {
-        this(db, null, input, output, null, null, null);
+        this(null, db, null, input, output, null, null, null);
     }
 
     /**
-     * Simplified constructor for {@link JSimpleDB} API CLI mode.
+     * Simplified constructor for {@link org.jsimpledb.SessionMode#JSIMPLEDB} mode.
      *
      * @param jdb {@link JSimpleDB} database
      * @param input console input
@@ -64,36 +78,36 @@ public class Console {
      * @throws IOException if an I/O error occurs
      */
     public Console(JSimpleDB jdb, InputStream input, OutputStream output) throws IOException {
-        this(null, jdb, input, output, null, null, null);
+        this(null, null, jdb, input, output, null, null, null);
     }
 
     /**
      * Generic constructor.
      *
-     * @param db core API {@link Database}; must be null if and only if {@code jdb} is not null
-     * @param jdb {@link JSimpleDB} database; must be null if and only if {@code db} is not null
+     * @param kvdb {@link KVDatabase} for {@link org.jsimpledb.SessionMode#KEY_VALUE} (otherwise must be null)
+     * @param db {@link Database} for {@link org.jsimpledb.SessionMode#CORE_API} (otherwise must be null)
+     * @param jdb {@link JSimpleDB} for {@link org.jsimpledb.SessionMode#JSIMPLEDB} (otherwise must be null)
      * @param input console input
      * @param output console output
      * @param terminal JLine terminal interface, or null for default
      * @param encoding character encoding for {@code terminal}, or null for default
      * @param appName JLine application name, or null for none
      * @throws IOException if an I/O error occurs
-     * @throws IllegalArgumentException if {@code db} and {@code jdb} are both null or both not null
+     * @throws IllegalArgumentException if not exactly one of {@code kvdb}, {@code db} or {@code jdb} is not null
      */
-    public Console(Database db, JSimpleDB jdb, InputStream input, OutputStream output,
+    public Console(KVDatabase kvdb, Database db, JSimpleDB jdb, InputStream input, OutputStream output,
       Terminal terminal, String encoding, String appName) throws IOException {
-        if (!((jdb == null) ^ (db == null)))
-            throw new IllegalArgumentException("exactly one of db or jdb must be null");
-        if (input == null)
-            throw new IllegalArgumentException("null input");
-        if (output == null)
-            throw new IllegalArgumentException("null output");
+        Preconditions.checkArgument((kvdb != null ? 1 : 0) + (db != null ? 1 : 0) + (jdb != null ? 1 : 0) == 1,
+          "exactly one of kvdb, db or jdb must be not null");
+        Preconditions.checkArgument(input != null, "null input");
+        Preconditions.checkArgument(output != null, "null output");
         this.console = new ConsoleReader(appName, input, output, terminal, encoding);
         this.console.setBellEnabled(true);
         this.console.setHistoryEnabled(true);
         this.console.setHandleUserInterrupt(true);
         final PrintWriter writer = new PrintWriter(console.getOutput(), true);
-        this.session = jdb != null ? new CliSession(jdb, writer) : new CliSession(db, writer);
+        this.session = jdb != null ? new CliSession(jdb, writer) :
+          db != null ? new CliSession(db, writer) : new CliSession(kvdb, writer);
     }
 
     /**
@@ -146,8 +160,7 @@ public class Console {
         // Main command loop
         try {
 
-            this.console.println("Welcome to JSimpleDB. You are in "
-              + (this.session.hasJSimpleDB() ? "JSimpleDB" : "Core API") + " CLI Mode. Type `help' for help.");
+            this.console.println("Welcome to JSimpleDB. You are in " + this.session.getMode() + " mode. Type `help' for help.");
             this.console.println();
             while (!session.isDone()) {
 

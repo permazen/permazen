@@ -35,7 +35,13 @@ public class LoadCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "Imports objects from an XML file created previously via `save'";
+        return "Load objects from an XML file";
+    }
+
+    @Override
+    public String getHelpDetail() {
+        return "Imports objects from an XML file created previously via `save'. Does not remove any objects already"
+        + " in the database.";
     }
 
     @Override

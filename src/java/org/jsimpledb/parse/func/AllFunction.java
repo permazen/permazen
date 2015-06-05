@@ -28,7 +28,7 @@ public class AllFunction extends AbstractFunction {
 
     @Override
     public String getHelpSummary() {
-        return "get all objects of a specified type";
+        return "Get all database objects of a specified type";
     }
 
     @Override
@@ -85,7 +85,7 @@ public class AllFunction extends AbstractFunction {
             return new AbstractValue() {
                 @Override
                 public Object get(ParseSession session) {
-                    return session.hasJSimpleDB() ?
+                    return session.getMode().hasJSimpleDB() ?
                       JTransaction.getCurrent().getAll(Object.class) : session.getTransaction().getAll();
                 }
             };
@@ -100,7 +100,7 @@ public class AllFunction extends AbstractFunction {
             final Object obj = ((Node)param).evaluate(session).checkNotNull(session, "all()");
             if (obj instanceof Number)
                 return this.getAll(session, ((Number)obj).intValue());
-            if (obj instanceof Class && session.hasJSimpleDB()) {
+            if (obj instanceof Class && session.getMode().hasJSimpleDB()) {
                 return new AbstractValue() {
                     @Override
                     public Object get(ParseSession session) {
@@ -118,7 +118,7 @@ public class AllFunction extends AbstractFunction {
     private Value getAll(ParseSession session, final int storageId) {
 
         // Handle core-only case
-        if (!session.hasJSimpleDB()) {
+        if (!session.getMode().hasJSimpleDB()) {
             return new AbstractValue() {
                 @Override
                 public Object get(ParseSession session) {

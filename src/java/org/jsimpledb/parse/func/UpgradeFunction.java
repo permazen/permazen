@@ -28,7 +28,7 @@ public class UpgradeFunction extends SimpleFunction {
 
     @Override
     public String getHelpSummary() {
-        return "updates an object's schema version if necessary, returning true if an update occurred";
+        return "Updates a database object's schema version if necessary, returning true if an update occurred";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class UpgradeFunction extends SimpleFunction {
 
         // Upgrade object
         try {
-            return new ConstValue(session.hasJSimpleDB() ?
+            return new ConstValue(session.getMode().hasJSimpleDB() ?
               JTransaction.getCurrent().getJObject(id).upgrade() : session.getTransaction().updateSchemaVersion(id));
         } catch (DeletedObjectException e) {
             throw new EvalException("invalid upgrade() operation on non-existent object " + id);

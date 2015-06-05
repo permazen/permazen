@@ -8,13 +8,14 @@ package org.jsimpledb.cli.cmd;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 
-@Command
+@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class EvalCommand extends AbstractCommand {
 
     public EvalCommand() {
@@ -23,7 +24,7 @@ public class EvalCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "evaluates the specified Java expression";
+        return "Evaluates the specified Java expression";
     }
 
     @Override
@@ -45,7 +46,7 @@ public class EvalCommand extends AbstractCommand {
                 try {
                     result = (value = expr.evaluate(session)).get(session);
                 } catch (EvalException e) {
-                    if (!force)
+                    if (!force && session.getMode().hasCoreAPI())
                         session.getTransaction().setRollbackOnly();
                     writer.println("Error: " + e.getMessage());
                     if (session.isVerbose())

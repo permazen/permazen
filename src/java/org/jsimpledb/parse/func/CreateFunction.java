@@ -25,7 +25,7 @@ public class CreateFunction extends AbstractFunction {
 
     @Override
     public String getHelpSummary() {
-        return "create a new object instance";
+        return "Creates a new database object instance";
     }
 
     @Override
@@ -72,7 +72,7 @@ public class CreateFunction extends AbstractFunction {
         final Transaction tx = session.getTransaction();
         final ObjId id = version != null ?
           tx.create(storageId, version.evaluate(session).checkIntegral(session, "create()")) : tx.create(storageId);
-        return new ConstValue(session.hasJSimpleDB() ? JTransaction.getCurrent().getJObject(id) : id);
+        return new ConstValue(session.getMode().hasJSimpleDB() ? JTransaction.getCurrent().getJObject(id) : id);
     }
 
 // ParamInfo

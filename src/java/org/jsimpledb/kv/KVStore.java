@@ -11,7 +11,8 @@ import java.util.Iterator;
  * General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.
  *
  * <p>
- * Implementations are not required to support accessing keys that start with {@code 0xff}.
+ * Implementations are not required to support accessing keys that start with {@code 0xff},
+ * and if not may throw {@link IllegalArgumentException} if such keys are accessed.
  * </p>
  *
  * <p><b>Lock-free Counters</b></p>

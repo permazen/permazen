@@ -424,7 +424,7 @@ public class BaseExprParser implements Parser<Node> {
         final Class<?> cl = target.getClass();
 
         // Handle properties of database objects (i.e., database fields)
-        if (session.hasJSimpleDB() && target instanceof JObject) {
+        if (session.getMode().hasJSimpleDB() && target instanceof JObject) {
 
             // Get object and ID
             final JObject jobj = (JObject)target;
@@ -444,7 +444,7 @@ public class BaseExprParser implements Parser<Node> {
                 return new JSimpleFieldValue(jobj, (JSimpleField)jfield);
             else if (jfield != null)
                 return new JFieldValue(jobj, jfield);
-        } else if (!session.hasJSimpleDB() && target instanceof ObjId) {
+        } else if (session.getMode().hasCoreAPI() && target instanceof ObjId) {
             final ObjId id = (ObjId)target;
 
             // Resolve field

@@ -11,6 +11,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jsimpledb.SessionMode;
+
 /**
  * Java annotation for classes that define custom {@link org.jsimpledb.cli.CliSession} commands.
  *
@@ -27,12 +29,10 @@ import java.lang.annotation.Target;
 public @interface Command {
 
     /**
-     * Determine whether the annotated {@link org.jsimpledb.cli.cmd.AbstractCommand} works properly in Core API mode,
-     * i.e., when the there are no {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated Java model
-     * classes defined and the core {@link org.jsimpledb.core.Database} API is used.
+     * Get the {@link SessionMode}s supported by the annotated {@link org.jsimpledb.cli.cmd.AbstractCommand}.
      *
-     * @return true if the command works in core API mode
+     * @return supported {@link SessionMode}s
      */
-    boolean worksInCoreAPIMode() default true;
+    SessionMode[] modes() default { SessionMode.CORE_API, SessionMode.JSIMPLEDB };
 }
 

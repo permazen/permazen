@@ -27,7 +27,7 @@ public class QueryVersionFunction extends AbstractFunction {
 
     @Override
     public String getHelpSummary() {
-        return "queries the object version index";
+        return "Queries the database object version index";
     }
 
     @Override
@@ -71,7 +71,7 @@ public class QueryVersionFunction extends AbstractFunction {
         return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
-                if (session.hasJSimpleDB()) {
+                if (session.getMode().hasJSimpleDB()) {
                     final Class<?> type =
                       param instanceof ObjType ?
                         session.getJSimpleDB().getJClass(((ObjType)param).getStorageId()).getType() :

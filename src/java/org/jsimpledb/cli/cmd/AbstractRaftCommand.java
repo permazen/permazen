@@ -19,7 +19,7 @@ public abstract class AbstractRaftCommand extends AbstractCommand {
 
         @Override
         public final void run(CliSession session) throws Exception {
-            final KVTransaction kvt = session.getTransaction().getKVTransaction();
+            final KVTransaction kvt = session.getKVTransaction();
             if (!(kvt instanceof RaftKVTransaction))
                 throw new Exception("key/value store is not Raft");
             this.run(session, (RaftKVTransaction)kvt);

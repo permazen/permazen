@@ -24,7 +24,7 @@ public class QueryCompositeIndexFunction extends AbstractQueryFunction {
 
     @Override
     public String getHelpSummary() {
-        return "queries a composite index";
+        return "Queries a composite index";
     }
 
     @Override

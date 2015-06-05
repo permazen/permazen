@@ -5,9 +5,13 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.Schema;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
 import org.slf4j.Logger;
@@ -17,23 +21,24 @@ import org.slf4j.LoggerFactory;
  * Utility class for programmatic {@link JSimpleDB} database access.
  *
  * <p>
- * Instances operate in one of two modes, either <b>JSimpleDB</b> mode or <b>core API</b> mode.
- * In the latter mode, no Java model classes are required and only the core API may be used.
- * Of course the core API can also be used in JSimpleDB mode.
+ * Instances operate in one of three modes; see {@link SessionMode}.
  * </p>
  *
  * <p>
  * This class is not thread safe.
  * </p>
+ *
+ * @see SessionMode
  */
 public class Session {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    private final KVDatabase kvdb;
     private final JSimpleDB jdb;
     private final Database db;
+    private SessionMode mode;
 
-    private Transaction tx;
     private SchemaModel schemaModel;
     private ValidationMode validationMode;
     private NameIndex nameIndex;
@@ -42,82 +47,141 @@ public class Session {
     private boolean allowNewSchema;
     private boolean readOnly;
 
+    private KVTransaction kvt;
+    private Transaction tx;
+
 // Constructors
 
     /**
-     * Constructor for core API level access.
+     * Constructor for {@link SessionMode#KEY_VALUE}.
+     *
+     * @param kvdb key/value database
+     * @throws IllegalArgumentException if {@code kvdb} is null
+     */
+    public Session(KVDatabase kvdb) {
+        this(null, null, kvdb);
+    }
+
+    /**
+     * Constructor for {@link SessionMode#CORE_API}.
      *
      * @param db core database
      * @throws IllegalArgumentException if {@code db} is null
      */
     public Session(Database db) {
-        this(null, db);
+        this(null, db, db != null ? db.getKVDatabase() : null);
     }
 
     /**
-     * Constructor for {@link JSimpleDB} level access.
+     * Constructor for {@link SessionMode#JSIMPLEDB}.
      *
      * @param jdb database
      * @throws IllegalArgumentException if {@code jdb} is null
      */
     public Session(JSimpleDB jdb) {
-        this(jdb, jdb.getDatabase());
+        this(jdb, jdb != null ? jdb.getDatabase() : null, jdb != null ? jdb.getDatabase().getKVDatabase() : null);
     }
 
-    private Session(JSimpleDB jdb, Database db) {
-        if (db == null)
-            throw new IllegalArgumentException("null db");
+    private Session(JSimpleDB jdb, Database db, KVDatabase kvdb) {
+        Preconditions.checkArgument(kvdb != null, "null kvdb");
+        if (jdb != null) {
+            Preconditions.checkArgument(db != null, "null db");
+            this.mode = SessionMode.JSIMPLEDB;
+        } else if (db != null)
+            this.mode = SessionMode.CORE_API;
+        else
+            this.mode = SessionMode.KEY_VALUE;
         this.jdb = jdb;
         this.db = db;
+        this.kvdb = kvdb;
     }
 
 // Accessors
 
     /**
-     * Get the associated {@link JSimpleDB}, if any.
+     * Get this instance's {@link SessionMode}.
      *
-     * @return the associated {@link JSimpleDB} or null if this instance is in core API mode.
+     * @return this instance's {@link SessionMode}.
      */
-    public JSimpleDB getJSimpleDB() {
-        return this.jdb;
+    public SessionMode getMode() {
+        return this.mode;
     }
 
     /**
-     * Determine if this instance has an associated {@link JSimpleDB}.
-     * If so it is in JSimpleDB mode, otherwise it's in core API mode.
+     * Get the associated {@link KVDatabase}.
      *
-     * @return true if this session is in JSimpleDB mode, false if in core API mode
+     * @return the associated {@link KVDatabase}
      */
-    public boolean hasJSimpleDB() {
-        return this.jdb != null;
+    public KVDatabase getKVDatabase() {
+        return this.kvdb;
     }
 
     /**
-     * Get the associated {@link Database}.
+     * Get the associated {@link Database}, if any.
      *
-     * @return the associated {@link Database}
+     * @return the associated {@link Database} or null if this instance is not in {@link SessionMode#JSIMPLEDB}
+     *  or {@link SessionMode#CORE_API}
      */
     public Database getDatabase() {
         return this.db;
     }
 
     /**
-     * Get the {@link Transaction} currently associated with this instance.
-     * This will be null unless {@link #perform perform()} is currently being invoked.
+     * Get the associated {@link JSimpleDB}, if any.
      *
-     * @return the associated {@link Database}
+     * @return the associated {@link JSimpleDB} or null if this instance is not in {@link SessionMode#JSIMPLEDB}
+     */
+    public JSimpleDB getJSimpleDB() {
+        return this.jdb;
+    }
+
+    /**
+     * Get the open {@link KVTransaction} currently associated with this instance.
+     *
+     * @return the open {@link KVTransaction} in which to do work
+     * @throws IllegalStateException if {@link #perform perform()} is not currently being invoked
+     */
+    public KVTransaction getKVTransaction() {
+        Preconditions.checkState(this.kvt != null, "no transaction is currently associated with this session");
+        return this.kvt;
+    }
+
+    /**
+     * Get the open {@link Transaction} currently associated with this instance.
+     *
+     * @return the open {@link Transaction} in which to do work
+     * @throws IllegalStateException if {@link #perform perform()} is not currently being invoked
+     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#CORE_API} or {@link SessionMode#JSIMPLEDB}
      */
     public Transaction getTransaction() {
-        if (this.tx == null)
-            throw new IllegalStateException("no transaction associated with session");
+        Preconditions.checkState(this.mode.hasCoreAPI(), "core API not available in " + this.mode);
+        Preconditions.checkState(this.tx != null, "no transaction is currently associated with this session");
         return this.tx;
+    }
+
+    /**
+     * Get the open {@link JTransaction} currently associated with this instance.
+     *
+     * <p>
+     * This method just invokes {@link JTransaction#getCurrent} and returns the result.
+     *
+     * @return the open {@link JTransaction} in which to do work
+     * @throws IllegalStateException if {@link #perform perform()} is not currently being invoked
+     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
+     */
+    public JTransaction getJTransaction() {
+        Preconditions.checkState(this.mode.hasJSimpleDB(), "JSimpleDB not available in " + this.mode);
+        return JTransaction.getCurrent();
     }
 
     /**
      * Get the {@link SchemaModel} configured for this instance.
      * If this is left unconfigured, after the first transaction it will be updated with the schema model actually used.
      *
-     * @return the schema model used by this session
+     * <p>
+     * In {@link SessionMode#KEY_VALUE}, this always returns null.
+     *
+     * @return the schema model used by this session if available, otherwise null
      */
     public SchemaModel getSchemaModel() {
         return this.schemaModel;
@@ -153,7 +217,10 @@ public class Session {
      * If this is left unconfigured, the highest numbered schema version will be
      * used and after the first transaction this property will be updated accordingly.
      *
-     * @return the schema version used by this session
+     * <p>
+     * In {@link SessionMode#KEY_VALUE}, this always returns zero.
+     *
+     * @return the schema version used by this session if known, otherwise zero
      */
     public int getSchemaVersion() {
         return this.schemaVersion;
@@ -164,8 +231,10 @@ public class Session {
 
     /**
      * Get the {@link ValidationMode} associated with this instance.
-     * This property is only relevant in {@link JSimpleDB} mode.
      * If this is left unconfigured, {@link ValidationMode#AUTOMATIC} is used for new transactions.
+     *
+     * <p>
+     * This property is only relevant in {@link SessionMode#JSIMPLEDB}.
      *
      * @return the validation mode used by this session
      */
@@ -179,6 +248,9 @@ public class Session {
     /**
      * Get whether the recording of new schema versions should be allowed.
      * Default value is false.
+     *
+     * <p>
+     * In {@link SessionMode#KEY_VALUE}, this setting is ignored.
      *
      * @return whether this session allows recording a new schema version
      */
@@ -221,159 +293,145 @@ public class Session {
 // Transactions
 
     /**
-     * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}
-     *
-     * @param action action to perform
-     * @return true if {@code action} completed successfully, false if the transaction could not be created
-     *  or {@code action} threw an exception
-     * @throws IllegalArgumentException if {@code action} is null
-     */
-    public boolean perform(Action action) {
-        return this.perform(null, action);
-    }
-
-    /**
-     * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.
-     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise, if there is already
-     * an open transaction associated with this instance, or else the current thread, it will be used and left open when
-     * this method returns; otherwise, a new transaction is created for the duration of {@code action} and then committed.
-     *
-     * <p>
-     * If {@code tx} is not null and there is already an open transaction associated with this instance and they
-     * are not the same transaction, an {@link IllegalStateException} is thrown.
-     * </p>
+     * Perform the given action within a new transaction associated with this instance.
      *
      * <p>
      * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
      * and then false returned.
-     * </p>
      *
-     * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if the transaction could not be created
      *  or {@code action} threw an exception
-     * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
      * @throws IllegalArgumentException if {@code action} is null
+     * @throws IllegalStateException if there is already an open transaction associated with this instance
      */
-    public boolean perform(Transaction tx, final Action action) {
+    public boolean perform(Action action) {
 
         // Sanity check
-        if (action == null)
-            throw new IllegalArgumentException("null action");
-        if (tx != null && this.tx != null && tx != this.tx)
-            throw new IllegalStateException("a transaction is already open in this session");
+        Preconditions.checkArgument(action != null, "null action");
+        Preconditions.checkState(this.tx == null || this.kvt != null, "a transaction is already open in this session");
 
-        // Perform action within (possibly new) transaction
-        final Transaction previousTransaction = this.tx;
+        // Perform action within new transaction
         try {
-            final boolean newTransaction;
-            if (tx != null || this.tx != null)
-                newTransaction = false;
-            else if (this.jdb == null)
-                newTransaction = true;
-            else {
-                final JTransaction jtx = this.getCurrentJTransaction();
-                if (jtx == null)
-                    newTransaction = true;
-                else {
-                    tx = jtx.getTransaction();
-                    newTransaction = false;
-                }
-            }
-            if (newTransaction) {
-                if (!this.openTransaction())
-                    return false;
-            } else if (this.tx == null)
-                this.tx = tx;
+            if (!this.openTransaction())
+                return false;
             boolean success = false;
             try {
                 action.run(this);
                 success = true;
             } finally {
-                if (newTransaction && this.tx != null) {
-                    if (success)
-                        success = this.commitTransaction();
-                    else
-                        this.rollbackTransaction();
-                }
+                success &= this.closeTransaction(success);
             }
             return success;
         } catch (Exception e) {
             this.reportException(e);
             return false;
         } finally {
-            this.tx = previousTransaction;
+            this.tx = null;
         }
     }
 
     private boolean openTransaction() {
         try {
-            if (this.tx != null)
-                throw new IllegalStateException("a transaction is already open in this session");
-            if (this.jdb != null) {
-                if (this.getCurrentJTransaction() != null)
-                    throw new IllegalStateException("a JSimpleDB transaction is already open in the current thread");
+
+            // Sanity check
+            Preconditions.checkState(this.tx == null || this.kvt != null, "a transaction is already open in this session");
+
+            // Open transaction at the appropriate level
+            switch (this.mode) {
+            case KEY_VALUE:
+                this.kvt = this.kvdb.createTransaction();
+                break;
+            case CORE_API:
+                this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema);
+                this.kvt = this.tx.getKVTransaction();
+                break;
+            case JSIMPLEDB:
+                Preconditions.checkState(!Session.isCurrentJTransaction(),
+                  "a JSimpleDB transaction is already open in the current thread");
                 final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,
                   validationMode != null ? validationMode : ValidationMode.AUTOMATIC);
                 JTransaction.setCurrent(jtx);
                 this.tx = jtx.getTransaction();
-            } else
-                this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema);
-            final Schema schema = this.tx.getSchema();
-            this.setSchemaModel(schema.getSchemaModel());
-            this.setSchemaVersion(schema.getVersionNumber());
-            this.tx.setReadOnly(this.readOnly);
+                this.kvt = this.tx.getKVTransaction();
+                break;
+            default:
+                assert false;
+                break;
+            }
+
+            // Update schema model and version (if appropriate)
+            if (this.tx != null) {
+                final Schema schema = this.tx.getSchema();
+                this.setSchemaModel(schema.getSchemaModel());
+                this.setSchemaVersion(schema.getVersionNumber());
+                this.tx.setReadOnly(this.readOnly);
+            }
+
+            // Done
             return true;
         } catch (Exception e) {
             this.tx = null;
+            this.kvt = null;
             this.reportException(e);
             return false;
         }
     }
 
-    private boolean commitTransaction() {
+    @SuppressWarnings("fallthrough")
+    private boolean closeTransaction(boolean commit) {
         try {
-            if (this.tx == null)
-                throw new IllegalStateException("no transaction");
-            if (this.jdb != null)
-                JTransaction.getCurrent().commit();
-            else
-                this.tx.commit();
+            Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");
+            switch (this.mode) {
+            case JSIMPLEDB:
+                if (commit)
+                    JTransaction.getCurrent().commit();
+                else
+                    JTransaction.getCurrent().rollback();
+                break;
+            case CORE_API:
+                if (commit)
+                    this.tx.commit();
+                else
+                    this.tx.rollback();
+                break;
+            case KEY_VALUE:
+                if (commit)
+                    this.kvt.commit();
+                else
+                    this.kvt.rollback();
+                break;
+            default:
+                assert false;
+                break;
+            }
             return true;
         } catch (Exception e) {
             this.reportException(e);
             return false;
         } finally {
-            this.tx = null;
-            if (this.jdb != null)
+            switch (this.mode) {
+            case JSIMPLEDB:
                 JTransaction.setCurrent(null);
+                // FALLTHROUGH
+            case CORE_API:
+                this.tx = null;
+                // FALLTHROUGH
+            case KEY_VALUE:
+                this.kvt = null;
+                // FALLTHROUGH
+            default:
+                break;
+            }
         }
     }
 
-    private boolean rollbackTransaction() {
+    private static boolean isCurrentJTransaction() {
         try {
-            if (this.tx == null)
-                throw new IllegalStateException("no transaction");
-            if (this.jdb != null)
-                JTransaction.getCurrent().rollback();
-            else
-                this.tx.rollback();
+            JTransaction.getCurrent();
             return true;
-        } catch (Exception e) {
-            this.reportException(e);
-            return false;
-        } finally {
-            this.tx = null;
-            if (this.jdb != null)
-                JTransaction.setCurrent(null);
-        }
-    }
-
-    private JTransaction getCurrentJTransaction() {
-        try {
-            return JTransaction.getCurrent();
         } catch (IllegalStateException e) {
-            return null;
+            return false;
         }
     }
 

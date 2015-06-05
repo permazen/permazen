@@ -170,9 +170,9 @@ public class AtomParser implements Parser<Node> {
         }
 
         // Try to match object literal
-        if (ctx.tryLiteral("@")) {
+        if ((session.getMode().hasCoreAPI() || session.getMode().hasJSimpleDB()) && ctx.tryLiteral("@")) {
             final ObjId id = new ObjIdParser().parse(session, ctx, complete);
-            return !session.hasJSimpleDB() ? new LiteralNode(id) : new Node() {
+            return !session.getMode().hasJSimpleDB() ? new LiteralNode(id) : new Node() {
                 @Override
                 public Value evaluate(ParseSession session) {
                     return new ConstValue(JTransaction.getCurrent().getJObject(id));

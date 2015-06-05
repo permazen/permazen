@@ -44,7 +44,7 @@ public class SaveCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "exports objects to an XML file";
+        return "Exports objects to an XML file";
     }
 
     @Override

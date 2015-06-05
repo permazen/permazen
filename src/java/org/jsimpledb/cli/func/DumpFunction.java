@@ -39,7 +39,7 @@ public class DumpFunction extends SimpleCliFunction {
 
     @Override
     public String getHelpSummary() {
-        return "prints all fields of the given object to the console";
+        return "Prints all fields of the given database object to the console";
     }
 
     @Override

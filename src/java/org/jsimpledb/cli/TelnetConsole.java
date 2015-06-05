@@ -12,6 +12,7 @@ import java.net.Socket;
 
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.kv.KVDatabase;
 
 import jline.TerminalFactory;
 
@@ -38,13 +39,25 @@ public final class TelnetConsole extends Console {
     /**
      * Internal constructor.
      */
-    private TelnetConsole(Database db, JSimpleDB jdb, InputStream input, OutputStream output,
+    private TelnetConsole(KVDatabase kvdb, Database db, JSimpleDB jdb, InputStream input, OutputStream output,
       jline.Terminal terminal, String encoding, String appName) throws IOException {
-        super(db, jdb, input, output, terminal, encoding, appName);
+        super(kvdb, db, jdb, input, output, terminal, encoding, appName);
     }
 
     /**
-     * Simplified factory method for core API CLI mode.
+     * Simplified factory method for {@link org.jsimpledb.SessionMode#KEY_VALUE} mode.
+     *
+     * @param kvdb key/value {@link KVDatabase}
+     * @param socket socket connected to telnet client
+     * @return new telnet console instance
+     * @throws IOException if an I/O error occurs
+     */
+    public static TelnetConsole create(KVDatabase kvdb, Socket socket) throws IOException {
+        return TelnetConsole.create(kvdb, null, null, socket.getInputStream(), socket.getOutputStream(), null, null);
+    }
+
+    /**
+     * Simplified factory method for {@link org.jsimpledb.SessionMode#CORE_API} mode.
      *
      * @param db core API {@link Database}
      * @param socket socket connected to telnet client
@@ -52,11 +65,11 @@ public final class TelnetConsole extends Console {
      * @throws IOException if an I/O error occurs
      */
     public static TelnetConsole create(Database db, Socket socket) throws IOException {
-        return TelnetConsole.create(db, null, socket.getInputStream(), socket.getOutputStream(), null, null);
+        return TelnetConsole.create(null, db, null, socket.getInputStream(), socket.getOutputStream(), null, null);
     }
 
     /**
-     * Simplified factory method for {@link JSimpleDB} API CLI mode.
+     * Simplified factory method for {@link org.jsimpledb.SessionMode#JSIMPLEDB} mode.
      *
      * @param jdb {@link JSimpleDB} database
      * @param socket socket connected to telnet client
@@ -64,23 +77,24 @@ public final class TelnetConsole extends Console {
      * @throws IOException if an I/O error occurs
      */
     public static TelnetConsole create(JSimpleDB jdb, Socket socket) throws IOException {
-        return TelnetConsole.create(null, jdb, socket.getInputStream(), socket.getOutputStream(), null, null);
+        return TelnetConsole.create(null, null, jdb, socket.getInputStream(), socket.getOutputStream(), null, null);
     }
 
     /**
      * Generic factory method.
      *
-     * @param db core API {@link Database}; must be null if and only if {@code jdb} is not null
-     * @param jdb {@link JSimpleDB} database; must be null if and only if {@code db} is not null
+     * @param kvdb {@link KVDatabase} for {@link org.jsimpledb.SessionMode#KEY_VALUE} (otherwise must be null)
+     * @param db {@link Database} for {@link org.jsimpledb.SessionMode#CORE_API} (otherwise must be null)
+     * @param jdb {@link JSimpleDB} for {@link org.jsimpledb.SessionMode#JSIMPLEDB} (otherwise must be null)
      * @param input console input
      * @param output console output
      * @param encoding character encoding for {@code terminal}, or null for default
      * @param appName JLine application name, or null for none
      * @return new telnet console instance
      * @throws IOException if an I/O error occurs
-     * @throws IllegalArgumentException if {@code db} and {@code jdb} are both null or both not null
+     * @throws IllegalArgumentException if not exactly one of {@code kvdb}, {@code db} or {@code jdb} is not null
      */
-    public static TelnetConsole create(Database db, JSimpleDB jdb, InputStream input, OutputStream output,
+    public static TelnetConsole create(KVDatabase kvdb, Database db, JSimpleDB jdb, InputStream input, OutputStream output,
       String encoding, String appName) throws IOException {
 
         // Set up nvt4j; ignore the initial clear & reposition
@@ -121,7 +135,7 @@ public final class TelnetConsole extends Console {
         };
 
         // Build console
-        return new TelnetConsole(db, jdb, jlineInput, jlineOutput,
+        return new TelnetConsole(kvdb, db, jdb, jlineInput, jlineOutput,
           new TelnetTerminal(TerminalFactory.get(), nvt4jTerminal), encoding, appName);
     }
 

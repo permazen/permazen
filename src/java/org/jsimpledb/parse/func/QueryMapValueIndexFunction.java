@@ -28,7 +28,7 @@ public class QueryMapValueIndexFunction extends AbstractQueryFunction {
 
     @Override
     public String getHelpSummary() {
-        return "queries the composite index on a map value field that includes the map keys";
+        return "Queries the composite index on a map value field that includes the map keys";
     }
 
     @Override

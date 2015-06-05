@@ -7,12 +7,13 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
 
-@Command
+@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class RaftStepDownCommand extends AbstractRaftCommand {
 
     public RaftStepDownCommand() {
@@ -21,7 +22,14 @@ public class RaftStepDownCommand extends AbstractRaftCommand {
 
     @Override
     public String getHelpSummary() {
-        return "step down as the leader of a Raft cluster (leaders only)";
+        return "Step down as the Raft cluster leader";
+    }
+
+    @Override
+    public String getHelpDetail() {
+        return "This command forces the local node, which must be the cluster leader, to step down, which (very likely)"
+          + " results in another node being elected leader for the new term. If the cluster only contains the local node,"
+          + " then the local node will just immediately become leader again.";
     }
 
     @Override

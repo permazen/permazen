@@ -7,6 +7,7 @@ package org.jsimpledb.parse;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedMap;
@@ -15,7 +16,7 @@ import java.util.TreeMap;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
 import org.jsimpledb.core.Database;
-import org.jsimpledb.core.Transaction;
+import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.func.AbstractFunction;
 import org.jsimpledb.parse.func.AllFunction;
@@ -24,6 +25,7 @@ import org.jsimpledb.parse.func.CountFunction;
 import org.jsimpledb.parse.func.CreateFunction;
 import org.jsimpledb.parse.func.FilterFunction;
 import org.jsimpledb.parse.func.ForEachFunction;
+import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.parse.func.InvertFunction;
 import org.jsimpledb.parse.func.LimitFunction;
 import org.jsimpledb.parse.func.ListFunction;
@@ -48,7 +50,18 @@ public class ParseSession extends Session {
 // Constructors
 
     /**
-     * Constructor for core API level access.
+     * Constructor for {@link org.jsimpledb.SessionMode#KEY_VALUE} mode.
+     *
+     * @param kvdb key/value database
+     * @throws IllegalArgumentException if {@code kvdb} is null
+     */
+    public ParseSession(KVDatabase kvdb) {
+        super(kvdb);
+        this.imports.add("java.lang.*");
+    }
+
+    /**
+     * Constructor for {@link org.jsimpledb.SessionMode#CORE_API} mode.
      *
      * @param db core database
      * @throws IllegalArgumentException if {@code db} is null
@@ -59,7 +72,7 @@ public class ParseSession extends Session {
     }
 
     /**
-     * Constructor for {@link JSimpleDB} level access.
+     * Constructor for {@link org.jsimpledb.SessionMode#JSIMPLEDB} mode.
      *
      * @param jdb database
      * @throws IllegalArgumentException if {@code jdb} is null
@@ -110,24 +123,30 @@ public class ParseSession extends Session {
     public void registerStandardFunctions() {
 
         // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
-        this.registerFunction(AllFunction.class);
-        this.registerFunction(ConcatFunction.class);
-        this.registerFunction(CountFunction.class);
-        this.registerFunction(CreateFunction.class);
-        this.registerFunction(FilterFunction.class);
-        this.registerFunction(ForEachFunction.class);
-        if (this.hasJSimpleDB())
-            this.registerFunction(InvertFunction.class);
-        this.registerFunction(LimitFunction.class);
-        this.registerFunction(ListFunction.class);
-        this.registerFunction(QueryCompositeIndexFunction.class);
-        this.registerFunction(QueryIndexFunction.class);
-        this.registerFunction(QueryListElementIndexFunction.class);
-        this.registerFunction(QueryMapValueIndexFunction.class);
-        this.registerFunction(QueryVersionFunction.class);
-        this.registerFunction(TransformFunction.class);
-        this.registerFunction(UpgradeFunction.class);
-        this.registerFunction(VersionFunction.class);
+        final Class<?>[] functionClasses = new Class<?>[] {
+            AllFunction.class,
+            ConcatFunction.class,
+            CountFunction.class,
+            CreateFunction.class,
+            FilterFunction.class,
+            ForEachFunction.class,
+            InvertFunction.class,
+            LimitFunction.class,
+            ListFunction.class,
+            QueryCompositeIndexFunction.class,
+            QueryIndexFunction.class,
+            QueryListElementIndexFunction.class,
+            QueryMapValueIndexFunction.class,
+            QueryVersionFunction.class,
+            TransformFunction.class,
+            UpgradeFunction.class,
+            VersionFunction.class,
+        };
+        for (Class<?> cl : functionClasses) {
+            final Function annotation = cl.getAnnotation(Function.class);
+            if (annotation != null && Arrays.asList(annotation.modes()).contains(this.getMode()))
+                this.registerFunction(cl);
+        }
     }
 
     /**
@@ -240,37 +259,20 @@ public class ParseSession extends Session {
 // Action
 
     /**
-     * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}
-     *
-     * @param action action to perform
-     * @return true if {@code action} completed successfully, false if the transaction could not be created
-     *  or {@code action} threw an exception
-     * @throws IllegalArgumentException if {@code action} is null
-     */
-    public boolean perform(Action action) {
-        return this.perform(null, action);
-    }
-
-    /**
-     * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.
-     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise,
-     * if there is already an open transaction associated with this instance, it will be used;
-     * otherwise, a new transaction is created for the duration of {@code action} and then committed.
+     * Perform the given action within a new transaction associated with this instance.
      *
      * <p>
-     * If {@code tx} is not null and there is already an open transaction associated with this instance and they
-     * are not the same transaction, an {@link IllegalStateException} is thrown.
-     * </p>
+     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
+     * and then false returned.
      *
-     * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if the transaction could not be created
      *  or {@code action} threw an exception
-     * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
      * @throws IllegalArgumentException if {@code action} is null
+     * @throws IllegalStateException if there is already an open transaction associated with this instance
      */
-    public boolean perform(Transaction tx, final Action action) {
-        return this.perform(tx, new Session.Action() {
+    public boolean perform(final Action action) {
+        return this.perform(new Session.Action() {
             @Override
             public void run(Session session) throws Exception {
                 action.run((ParseSession)session);

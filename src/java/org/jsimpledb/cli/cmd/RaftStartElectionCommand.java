@@ -7,12 +7,13 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
 
-@Command
+@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class RaftStartElectionCommand extends AbstractRaftCommand {
 
     public RaftStartElectionCommand() {
@@ -21,7 +22,13 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
 
     @Override
     public String getHelpSummary() {
-        return "force an early Raft election (followers only)";
+        return "Forces a immediate Raft election";
+    }
+
+    @Override
+    public String getHelpDetail() {
+        return "This command forces an immediate election timeout on the local node, which must be a follower (or a candidate)."
+          + " This node will then (be very likely to) be elected for a new term, deposing the current leader.";
     }
 
     @Override

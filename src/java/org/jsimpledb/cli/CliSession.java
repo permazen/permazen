@@ -7,18 +7,21 @@ package org.jsimpledb.cli;
 
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
 import org.jsimpledb.cli.cmd.AbstractCommand;
+import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.cli.cmd.CompareSchemasCommand;
 import org.jsimpledb.cli.cmd.DeleteSchemaVersionCommand;
 import org.jsimpledb.cli.cmd.EvalCommand;
 import org.jsimpledb.cli.cmd.HelpCommand;
 import org.jsimpledb.cli.cmd.ImportCommand;
 import org.jsimpledb.cli.cmd.InfoCommand;
+import org.jsimpledb.cli.cmd.KVDumpCommand;
 import org.jsimpledb.cli.cmd.LoadCommand;
 import org.jsimpledb.cli.cmd.QuitCommand;
 import org.jsimpledb.cli.cmd.RaftAddCommand;
@@ -35,7 +38,7 @@ import org.jsimpledb.cli.cmd.ShowSchemaCommand;
 import org.jsimpledb.cli.func.DumpFunction;
 import org.jsimpledb.cli.func.PrintFunction;
 import org.jsimpledb.core.Database;
-import org.jsimpledb.core.Transaction;
+import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 
@@ -54,7 +57,21 @@ public class CliSession extends ParseSession {
 // Constructors
 
     /**
-     * Constructor for core level access only.
+     * Constructor for {@link org.jsimpledb.SessionMode#KEY_VALUE} mode.
+     *
+     * @param kvdb key/value database
+     * @param writer console output
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public CliSession(KVDatabase kvdb, PrintWriter writer) {
+        super(kvdb);
+        if (writer == null)
+            throw new IllegalArgumentException("null writer");
+        this.writer = writer;
+    }
+
+    /**
+     * Constructor for {@link org.jsimpledb.SessionMode#CORE_API} mode.
      *
      * @param db core database
      * @param writer console output
@@ -68,7 +85,7 @@ public class CliSession extends ParseSession {
     }
 
     /**
-     * Constructor for {@link JSimpleDB} level access.
+     * Constructor for {@link org.jsimpledb.SessionMode#JSIMPLEDB} mode.
      *
      * @param jdb database
      * @param writer console output
@@ -142,25 +159,33 @@ public class CliSession extends ParseSession {
     public void registerStandardCommands() {
 
         // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
-        this.registerCommand(CompareSchemasCommand.class);
-        this.registerCommand(DeleteSchemaVersionCommand.class);
-        this.registerCommand(EvalCommand.class);
-        this.registerCommand(HelpCommand.class);
-        this.registerCommand(ImportCommand.class);
-        this.registerCommand(InfoCommand.class);
-        this.registerCommand(LoadCommand.class);
-        this.registerCommand(QuitCommand.class);
-        this.registerCommand(RaftAddCommand.class);
-        this.registerCommand(RaftRemoveCommand.class);
-        this.registerCommand(RaftStartElectionCommand.class);
-        this.registerCommand(RaftStatusCommand.class);
-        this.registerCommand(RaftStepDownCommand.class);
-        this.registerCommand(SaveCommand.class);
-        this.registerCommand(SetAllowNewSchemaCommand.class);
-        this.registerCommand(SetSchemaVersionCommand.class);
-        this.registerCommand(SetValidationModeCommand.class);
-        this.registerCommand(ShowAllSchemasCommand.class);
-        this.registerCommand(ShowSchemaCommand.class);
+        final Class<?>[] commandClasses = new Class<?>[] {
+            CompareSchemasCommand.class,
+            DeleteSchemaVersionCommand.class,
+            EvalCommand.class,
+            HelpCommand.class,
+            ImportCommand.class,
+            InfoCommand.class,
+            KVDumpCommand.class,
+            LoadCommand.class,
+            QuitCommand.class,
+            RaftAddCommand.class,
+            RaftRemoveCommand.class,
+            RaftStartElectionCommand.class,
+            RaftStatusCommand.class,
+            RaftStepDownCommand.class,
+            SaveCommand.class,
+            SetAllowNewSchemaCommand.class,
+            SetSchemaVersionCommand.class,
+            SetValidationModeCommand.class,
+            ShowAllSchemasCommand.class,
+            ShowSchemaCommand.class,
+        };
+        for (Class<?> cl : commandClasses) {
+            final Command annotation = cl.getAnnotation(Command.class);
+            if (annotation != null && Arrays.asList(annotation.modes()).contains(this.getMode()))
+                this.registerCommand(cl);
+        }
     }
 
     /**
@@ -220,37 +245,20 @@ public class CliSession extends ParseSession {
 // Action
 
     /**
-     * Perform the given action. This is a convenience method, equivalent to: {@code perform(null, action)}
-     *
-     * @param action action to perform
-     * @return true if {@code action} completed successfully, false if the transaction could not be created
-     *  or {@code action} threw an exception
-     * @throws IllegalArgumentException if {@code action} is null
-     */
-    public boolean perform(Action action) {
-        return this.perform(null, action);
-    }
-
-    /**
-     * Perform the given action within the given existing transaction, if any, otherwise within a new transaction.
-     * If {@code tx} is not null, it will used and left open when this method returns. Otherwise,
-     * if there is already an open transaction associated with this instance, it will be used;
-     * otherwise, a new transaction is created for the duration of {@code action} and then committed.
+     * Perform the given action within a new transaction associated with this instance.
      *
      * <p>
-     * If {@code tx} is not null and there is already an open transaction associated with this instance and they
-     * are not the same transaction, an {@link IllegalStateException} is thrown.
-     * </p>
+     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
+     * and then false returned.
      *
-     * @param tx transaction in which to perform the action, or null to create a new one (if necessary)
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if the transaction could not be created
      *  or {@code action} threw an exception
-     * @throws IllegalStateException if {@code tx} conflict with the already an open transaction associated with this instance
      * @throws IllegalArgumentException if {@code action} is null
+     * @throws IllegalStateException if there is already an open transaction associated with this instance
      */
-    public boolean perform(Transaction tx, final Action action) {
-        return this.perform(tx, new Session.Action() {
+    public boolean perform(final Action action) {
+        return this.perform(new Session.Action() {
             @Override
             public void run(Session session) throws Exception {
                 action.run((CliSession)session);

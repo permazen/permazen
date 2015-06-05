@@ -7,11 +7,12 @@ package org.jsimpledb.cli.cmd;
 
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 
-@Command
+@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class ImportCommand extends AbstractCommand {
 
     public ImportCommand() {
@@ -20,7 +21,7 @@ public class ImportCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "adds a package name to the search path for unqualified Java class names";
+        return "Adds a package name to the search path for unqualified Java class names";
     }
 
     @Override

@@ -7,12 +7,13 @@ package org.jsimpledb.parse.func;
 
 import com.google.common.collect.Iterables;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function
+@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class ConcatFunction extends SimpleFunction {
 
     public ConcatFunction() {
@@ -21,7 +22,7 @@ public class ConcatFunction extends SimpleFunction {
 
     @Override
     public String getHelpSummary() {
-        return "concatenates the Iterables within an Iterable";
+        return "Concatenates the Iterables within an Iterable";
     }
 
     @Override

@@ -9,38 +9,38 @@ package org.jsimpledb.kv;
  * {@link KVDatabase} transaction API.
  *
  * <p>
- * Provides a transactional view into a {@link KVStore}.
- * </p>
+ * Provides a transactional view of a {@link KVStore}.
  *
  * <p>
  * Instances may throw {@link KVTransactionException} during any operation if the transaction cannot be continued.
  * In particular, {@link StaleTransactionException} is thrown by a transaction that is no longer open, and
  * {@link RetryTransactionException} is thrown when the transaction should be retried due to a transient
- * problem (such as a write conflict with another transaction). When {@link RetryTransactionException} is thrown by
- * {@link #commit}, the transaction may have actually been committed. Therefore, transactions should be written to be idempotent.
- * When any {@link KVTransactionException} is thrown, the transaction must still support invoking {@link #rollback},
- * but all other operations may throw {@link StaleTransactionException}.
- * </p>
+ * problem (such as a write conflict with another transaction).
+ *
+ * <p>
+ * When {@link RetryTransactionException} is thrown by {@link #commit}, the transaction may have actually been committed.
+ * Therefore, transactions should be written to be idempotent.
+ *
+ * <p>
+ * No matter what state it is in, instances must support invoking {@link #rollback} at any time.
  *
  * <p>
  * If an instance throws a {@link KVTransactionException}, the transaction should be implicitly rolled back.
- * </p>
+ * Any subsequent operation other than {@link #rollback} should throw {@link StaleTransactionException}.
  *
  * <p>
  * Implementations must throw {@link StaleTransactionException} if {@link #commit} or {@link #rollback} has already
  * been invoked, or if the {@link KVTransaction} instance is no longer usable for some other reason. In particular,
  * implementations should throw {@link TransactionTimeoutException} if an operation is attempted on a transaction
  * that has been held open past some maximum allowed time limit.
- * </p>
  *
  * <p>
  * Implementations are responsible for ensuring modifications to {@code byte[]} arrays after method
  * invocations do no harm. This usually means {@code byte[]} array parameters and return values must be copied.
- * </p>
  *
  * <p>
- * Accessing keys that start with {@code 0xff} is not supported and will result in {@link IllegalArgumentException}.
- * </p>
+ * Implementations are not required to support accessing keys that start with {@code 0xff},
+ * and if not may throw {@link IllegalArgumentException} if such keys are accessed.
  */
 public interface KVTransaction extends KVStore {
 

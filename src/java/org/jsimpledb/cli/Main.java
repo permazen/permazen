@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.parse.func.Function;
@@ -31,7 +32,7 @@ public class Main extends AbstractMain {
     public static final String HISTORY_FILE = ".jsimpledb_history";
 
     private File schemaFile;
-    private boolean coreMode;
+    private SessionMode mode = SessionMode.JSIMPLEDB;
     private final LinkedHashSet<Class<?>> commandClasses = new LinkedHashSet<>();
     private final LinkedHashSet<Class<?>> functionClasses = new LinkedHashSet<>();
     private final ArrayList<String> oneShotCommands = new ArrayList<>();
@@ -48,7 +49,9 @@ public class Main extends AbstractMain {
                 this.usageError();
             this.oneShotCommands.add(params.removeFirst());
         } else if (option.equals("--core-mode"))
-            this.coreMode = true;
+            this.mode = SessionMode.CORE_API;
+        else if (option.equals("--kv-mode"))
+            this.mode = SessionMode.KEY_VALUE;
         else if (option.equals("--cmd-pkg")) {
             if (params.isEmpty())
                 this.usageError();
@@ -125,25 +128,44 @@ public class Main extends AbstractMain {
                 schemaModel = jdb.getSchemaModel();
         }
 
-        // Core API mode or JSimpleDB mode?
-        this.coreMode |= jdb == null;
+        // Downgrade to Core API mode from JSimpleDB mode if no Java model classes provided
+        if (jdb == null && this.mode.equals(SessionMode.JSIMPLEDB)) {
+            System.err.println(this.getName() + ": entering core API mode because no Java model classes were specified");
+            this.mode = SessionMode.CORE_API;
+        }
 
         // Perform test transaction
-        try {
-            if (this.coreMode)
-                this.performTestTransaction(db, schemaModel);
-            else
-                this.performTestTransaction(jdb);
-        } catch (Exception e) {
-            System.err.println(this.getName() + ": warning: test transaction failed: " + e.getMessage());
-            if (this.verbose)
-                e.printStackTrace(System.err);
+        switch (this.mode) {
+        case KEY_VALUE:
+            break;
+        case CORE_API:
+            this.performTestTransaction(db, schemaModel);
+            break;
+        case JSIMPLEDB:
+            this.performTestTransaction(jdb);
+            break;
+        default:
+            assert false;
+            break;
         }
 
         // Set up console
-        final Console console = this.coreMode ?
-          new Console(db, new FileInputStream(FileDescriptor.in), System.out) :
-          new Console(jdb, new FileInputStream(FileDescriptor.in), System.out);
+        final Console console;
+        switch (this.mode) {
+        case KEY_VALUE:
+            console = new Console(db.getKVDatabase(), new FileInputStream(FileDescriptor.in), System.out);
+            break;
+        case CORE_API:
+            console = new Console(db, new FileInputStream(FileDescriptor.in), System.out);
+            break;
+        case JSIMPLEDB:
+            console = new Console(jdb, new FileInputStream(FileDescriptor.in), System.out);
+            break;
+        default:
+            console = null;
+            assert false;
+            break;
+        }
         console.setHistoryFile(new File(new File(System.getProperty("user.home")), HISTORY_FILE));
 
         // Set up CLI session
@@ -159,12 +181,12 @@ public class Main extends AbstractMain {
         try {
             for (Class<?> cl : this.commandClasses) {
                 final Command annotation = cl.getAnnotation(Command.class);
-                if (!this.coreMode || annotation.worksInCoreAPIMode())
+                if (annotation != null && Arrays.asList(annotation.modes()).contains(session.getMode()))
                     session.registerCommand(cl);
             }
             for (Class<?> cl : this.functionClasses) {
                 final Function annotation = cl.getAnnotation(Function.class);
-                if (!this.coreMode || annotation.worksInCoreAPIMode())
+                if (annotation != null && Arrays.asList(annotation.modes()).contains(session.getMode()))
                     session.registerFunction(cl);
             }
         } catch (IllegalArgumentException e) {
@@ -209,7 +231,8 @@ public class Main extends AbstractMain {
           { "--schema-file file",       "Load core database schema from XML file" },
           { "--cmd-pkg package",        "Register @Command-annotated classes found under the specified Java package" },
           { "--func-pkg package",       "Register @Function-annotated classes found under the specified Java package" },
-          { "--core-mode",              "Force core API mode even though Java model classes are provided" },
+          { "--core-mode",              "Force core API mode (default if neither Java model classes nor schema are provided)" },
+          { "--kv-mode",                "Force key/value mode" },
           { "--command, -c command",    "Execute the given command and then exit (may be repeated)" },
         });
     }

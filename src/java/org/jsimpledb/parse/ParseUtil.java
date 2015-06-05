@@ -65,6 +65,7 @@ public final class ParseUtil {
      * @throws IllegalArgumentException if object's type does not exist in schema
      * @throws IllegalArgumentException if field is not found
      * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if {@code state} is not in {@link org.jsimpledb.SessionMode#JSIMPLEDB}
      */
     public static JField resolveJField(ParseSession session, ObjId id, String name) {
 
@@ -75,8 +76,8 @@ public final class ParseUtil {
             throw new IllegalArgumentException("null id");
         if (name == null)
             throw new IllegalArgumentException("null name");
-        if (!session.hasJSimpleDB())
-            throw new IllegalArgumentException("this session has no JSimpleDB");
+        if (!session.getMode().hasJSimpleDB())
+            throw new IllegalArgumentException("session mode " + session.getMode() + " has no JSimpleDB");
 
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);

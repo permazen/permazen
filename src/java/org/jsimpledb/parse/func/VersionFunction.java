@@ -27,7 +27,7 @@ public class VersionFunction extends SimpleFunction {
 
     @Override
     public String getHelpSummary() {
-        return "returns the schema version of an object";
+        return "Returns the schema version of a database object";
     }
 
     @Override

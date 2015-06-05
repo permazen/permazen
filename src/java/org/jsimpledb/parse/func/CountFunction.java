@@ -9,12 +9,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function
+@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class CountFunction extends SimpleFunction {
 
     public CountFunction() {
@@ -23,7 +24,7 @@ public class CountFunction extends SimpleFunction {
 
     @Override
     public String getHelpSummary() {
-        return "counts the number of elements in the provided iteration or collection";
+        return "Counts the number of elements in the provided iteration or collection";
     }
 
     @Override

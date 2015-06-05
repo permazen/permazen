@@ -9,13 +9,14 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.WordParser;
 import org.jsimpledb.parse.func.AbstractFunction;
 
-@Command
+@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class HelpCommand extends AbstractCommand {
 
     private final CliSession session;
@@ -27,7 +28,7 @@ public class HelpCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "display help information";
+        return "Display help information";
     }
 
     @Override

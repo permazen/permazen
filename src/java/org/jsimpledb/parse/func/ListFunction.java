@@ -9,11 +9,12 @@ import com.google.common.collect.Lists;
 
 import java.util.Arrays;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.Value;
 
-@Function
+@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class ListFunction extends SimpleFunction {
 
     public ListFunction() {
@@ -22,7 +23,7 @@ public class ListFunction extends SimpleFunction {
 
     @Override
     public String getHelpSummary() {
-        return "creates a list of items from explicitly provided values";
+        return "Creates a list of items from explicitly provided values";
     }
 
     @Override

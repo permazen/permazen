@@ -67,7 +67,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
 
         // Attempt to parse first form with type name (JSimpleDB mode only)
         Node param1 = null;
-        if (session.hasJSimpleDB()) {
+        if (session.getMode().hasJSimpleDB()) {
             try {
                 final ObjType objType = new ObjTypeParser().parse(session, ctx, complete);
                 final int mark = ctx.getIndex();
@@ -91,7 +91,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
             return param1;
 
         // Multi-parameter form requires JSimpleDB mode
-        if (!session.hasJSimpleDB())
+        if (!session.getMode().hasJSimpleDB())
             throw new ParseException(ctx, "expected `)' (JSimpleDB mode required for multiple params)").addCompletion(") ");
         if (!ctx.tryLiteral(","))
             throw new ParseException(ctx, "expected `,' between " + this.getName() + "() function parameters").addCompletion(", ");
@@ -151,7 +151,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
         return new AbstractValue() {
             @Override
             public Object get(ParseSession session) {
-                if (session.hasJSimpleDB())
+                if (session.getMode().hasJSimpleDB())
                     return JTransaction.getCurrent().queryIndex(storageId);
                 else
                     return session.getTransaction().queryIndex(storageId);

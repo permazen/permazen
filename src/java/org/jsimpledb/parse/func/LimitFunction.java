@@ -10,12 +10,13 @@ import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function
+@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class LimitFunction extends SimpleFunction {
 
     public LimitFunction() {
@@ -29,7 +30,7 @@ public class LimitFunction extends SimpleFunction {
 
     @Override
     public String getHelpSummary() {
-        return "discards items past a maximum count";
+        return "Discards items past a maximum count";
     }
 
     @Override

@@ -13,13 +13,14 @@ import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function
+@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class FilterFunction extends ApplyExprFunction {
 
     public FilterFunction() {
@@ -28,7 +29,7 @@ public class FilterFunction extends ApplyExprFunction {
 
     @Override
     public String getHelpSummary() {
-        return "filters a collection";
+        return "Filters a collection";
     }
 
     @Override

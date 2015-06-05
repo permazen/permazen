@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
@@ -24,7 +25,7 @@ import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.util.ParseCastFunction;
 
-@Function(worksInCoreAPIMode = false)
+@Function(modes = SessionMode.JSIMPLEDB)
 public class InvertFunction extends AbstractFunction {
 
     public InvertFunction() {
@@ -33,7 +34,7 @@ public class InvertFunction extends AbstractFunction {
 
     @Override
     public String getHelpSummary() {
-        return "invert a path of references";
+        return "Inverts a path of references";
     }
 
     @Override
@@ -51,10 +52,6 @@ public class InvertFunction extends AbstractFunction {
 
     @Override
     public InvertInfo parseParams(final ParseSession session, final ParseContext ctx, final boolean complete) {
-
-        // Sanity check
-        if (!session.hasJSimpleDB())
-            throw new ParseException(ctx, "invert() does not work in core API mode");
 
         // Parse entire reference path
         final int mark = ctx.getIndex();

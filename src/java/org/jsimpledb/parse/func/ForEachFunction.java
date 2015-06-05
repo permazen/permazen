@@ -7,12 +7,13 @@ package org.jsimpledb.parse.func;
 
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function
+@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class ForEachFunction extends ApplyExprFunction {
 
     public ForEachFunction() {
@@ -21,7 +22,7 @@ public class ForEachFunction extends ApplyExprFunction {
 
     @Override
     public String getHelpSummary() {
-        return "evaluates an expression for each item in a collection";
+        return "Evaluates an expression for each item in a collection";
     }
 
     @Override

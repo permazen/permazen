@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.raft.Follower;
 import org.jsimpledb.kv.raft.LogEntry;
@@ -17,7 +18,7 @@ import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.TxState;
 import org.jsimpledb.parse.ParseContext;
 
-@Command
+@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class RaftStatusCommand extends AbstractRaftCommand {
 
     public RaftStatusCommand() {
@@ -26,7 +27,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
 
     @Override
     public String getHelpSummary() {
-        return "displays information about a Raft clustered database";
+        return "Displays the Raft cluster state of the local node";
     }
 
     @Override

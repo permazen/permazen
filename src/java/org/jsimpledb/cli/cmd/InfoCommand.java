@@ -8,11 +8,12 @@ package org.jsimpledb.cli.cmd;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.ValidationMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.ParseContext;
 
-@Command
+@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class InfoCommand extends AbstractCommand implements CliSession.Action {
 
     public InfoCommand() {
@@ -34,11 +35,11 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
     @Override
     public void run(CliSession session) throws Exception {
         final PrintWriter writer = session.getWriter();
-        writer.println("  CLI Mode: " + (session.hasJSimpleDB() ? "JSimpleDB" : "Core API"));
+        writer.println("  CLI Mode: " + session.getMode());
         writer.println("  Database: " + session.getDatabaseDescription());
         writer.println("  Schema Model: " + (session.getSchemaModel() != null ? "defined" : "undefined"));
         writer.println("  Schema Version: " + (session.getSchemaVersion() != 0 ? session.getSchemaVersion() : "undefined"));
-        if (session.hasJSimpleDB()) {
+        if (session.getMode().hasJSimpleDB()) {
             writer.println("  Validation Mode: " + (session.getValidationMode() != null ?
               session.getValidationMode() : ValidationMode.AUTOMATIC));
         }
