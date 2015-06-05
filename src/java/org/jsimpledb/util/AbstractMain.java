@@ -194,15 +194,8 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 this.dbTypes.add(this.berkeleyDBType);
-                this.bdbDirectory = new File(params.removeFirst());
-                if (!this.bdbDirectory.exists()) {
-                    System.err.println(this.getName() + ": directory `" + this.bdbDirectory + "' does not exist");
+                if (!this.createDirectory(this.bdbDirectory = new File(params.removeFirst())))
                     return 1;
-                }
-                if (!this.bdbDirectory.isDirectory()) {
-                    System.err.println(this.getName() + ": file `" + this.bdbDirectory + "' is not a directory");
-                    return 1;
-                }
             } else if (option.equals("--bdb-database")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -216,28 +209,14 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 this.dbTypes.add(this.levelDBType);
-                this.leveldbDirectory = new File(params.removeFirst());
-                if (!this.leveldbDirectory.exists()) {
-                    System.err.println(this.getName() + ": directory `" + this.leveldbDirectory + "' does not exist");
+                if (!this.createDirectory(this.leveldbDirectory = new File(params.removeFirst())))
                     return 1;
-                }
-                if (!this.leveldbDirectory.isDirectory()) {
-                    System.err.println(this.getName() + ": file `" + this.leveldbDirectory + "' is not a directory");
-                    return 1;
-                }
             } else if (option.equals("--raft-dir")) {
                 if (params.isEmpty())
                     this.usageError();
                 this.dbTypes.add(this.raftDBType);
-                this.raftDirectory = new File(params.removeFirst());
-                if (!this.raftDirectory.exists() && !this.raftDirectory.mkdirs()) {
-                    System.err.println(this.getName() + ": could not create directory `" + this.raftDirectory + "'");
+                if (!this.createDirectory(this.raftDirectory = new File(params.removeFirst())))
                     return 1;
-                }
-                if (!this.raftDirectory.isDirectory()) {
-                    System.err.println(this.getName() + ": file `" + this.raftDirectory + "' is not a directory");
-                    return 1;
-                }
             } else if (option.matches("--raft-((min|max)-election|heartbeat)-timeout")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -462,6 +441,18 @@ public abstract class AbstractMain extends MainClass {
             count++;
         }
         return count;
+    }
+
+    private boolean createDirectory(File dir) {
+        if (!dir.exists() && !dir.mkdirs()) {
+            System.err.println(this.getName() + ": could not create directory `" + dir + "'");
+            return false;
+        }
+        if (!dir.isDirectory()) {
+            System.err.println(this.getName() + ": file `" + dir + "' is not a directory");
+            return false;
+        }
+        return true;
     }
 
     /**
