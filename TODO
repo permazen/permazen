@@ -2,9 +2,13 @@
 SHORT TERM
 ==========
 
-- Spring transaction manager for key/value layer
-    - Need a setRollbackOnly() method
-        - Invoke in EvalCommand.getAction()
+- key/value layer transaction improvements
+    - Add Spring transaction manager
+    - Add setReadOnly()
+        - Invoke from Transaction.setReadOnly()
+    - Add setRollbackOnly()
+        - Invoke from EvalCommand.getAction()
+        - Invoke from Transaction.setRollbackOnly()
 
 - Vaadin GUI editor generator
     - Implement editors for collection fields
@@ -24,11 +28,8 @@ MEDIUM TERM
 ===========
 
 - Add KVStore support for:
-    - Google Cloud Datastore
+    - Google Cloud Datastore ?
         - https://cloud.google.com/datastore/docs/concepts/overview
-    - LevelDB (Java port)
-        - https://github.com/fusesource/leveldbjni
-        - Requires manual transaction locking for > snapshot isolation
 
 LONG TERM
 =========
