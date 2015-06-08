@@ -6,14 +6,11 @@
 package org.jsimpledb.cli.cmd;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -24,16 +21,11 @@ import org.jsimpledb.JObject;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ParseContext;
-import org.jsimpledb.parse.ParseException;
-import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.util.ParseCastFunction;
-import org.jsimpledb.parse.util.StripPrefixFunction;
 import org.jsimpledb.util.XMLObjectSerializer;
-
-import jline.console.completer.FileNameCompleter;
 
 @Command
 public class SaveCommand extends AbstractCommand {
@@ -55,7 +47,7 @@ public class SaveCommand extends AbstractCommand {
 
     @Override
     protected Parser<?> getParser(String typeName) {
-        return "file".equals(typeName) ? new FileParser() : super.getParser(typeName);
+        return "file".equals(typeName) ? new OutputFileParser() : super.getParser(typeName);
     }
 
     @Override
@@ -101,34 +93,6 @@ public class SaveCommand extends AbstractCommand {
                 session.getWriter().println("Wrote " + count + " objects to `" + file + "'");
             }
         };
-    }
-
-// FileParser
-
-    private class FileParser implements Parser<File> {
-
-        @Override
-        public File parse(ParseSession session, ParseContext ctx, boolean complete) {
-
-            // Get filename
-            final Matcher matcher = ctx.tryPattern("[^\\s;]*");
-            if (matcher == null)
-                throw new ParseException(ctx);
-            final String path = matcher.group();
-
-            // Check file
-            final File file = new File(path);
-            if (file.isDirectory() || (!file.exists() && complete)) {
-                final ArrayList<CharSequence> list = new ArrayList<>();
-                final int index = new FileNameCompleter().complete(path, path.length(), list);
-                throw new ParseException(ctx, "can't write to file `" + path + "'").addCompletions(
-                  Lists.transform(Lists.transform(list, new ParseCastFunction<String>(String.class)),
-                    new StripPrefixFunction(path.substring(index))));
-            }
-
-            // Done
-            return file;
-        }
     }
 }
 

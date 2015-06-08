@@ -72,13 +72,14 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * </p>
      *
      * @param input XML input
+     * @return the number of key/value pairs read
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code input} is null
      */
-    public void read(InputStream input) throws XMLStreamException {
+    public int read(InputStream input) throws XMLStreamException {
         if (input == null)
             throw new IllegalArgumentException("null input");
-        this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
+        return this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
     }
 
     /**
@@ -88,14 +89,16 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * Therefore, this tag could be part of a larger XML document.
      *
      * @param reader XML reader
+     * @return the number of key/value pairs read
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code reader} is null
      */
-    public void read(XMLStreamReader reader) throws XMLStreamException {
+    public int read(XMLStreamReader reader) throws XMLStreamException {
         if (reader == null)
             throw new IllegalArgumentException("null reader");
         this.expect(reader, false, ENTRIES_TAG);
-        while (this.expect(reader, true, ENTRY_TAG)) {
+        int count;
+        for (count = 0; this.expect(reader, true, ENTRY_TAG); count++) {
             this.expect(reader, false, KEY_TAG);
             byte[] key;
             try {
@@ -116,6 +119,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
             this.kv.put(key, value);
             this.expectClose(reader);               // read closing </entry> tag
         }
+        return count;
     }
 
     /**
@@ -127,17 +131,18 @@ public class XMLSerializer extends AbstractXMLStreaming {
      *
      * @param output XML output; will not be closed by this method
      * @param indent true to indent output, false for all on one line
+     * @return the number of key/value pairs written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code output} is null
      */
-    public void write(OutputStream output, boolean indent) throws XMLStreamException {
+    public int write(OutputStream output, boolean indent) throws XMLStreamException {
         if (output == null)
             throw new IllegalArgumentException("null output");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
         if (indent)
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
         xmlWriter.writeStartDocument("UTF-8", "1.0");
-        this.write(xmlWriter, null, null);
+        return this.write(xmlWriter, null, null);
     }
 
     /**
@@ -149,17 +154,18 @@ public class XMLSerializer extends AbstractXMLStreaming {
      *
      * @param writer XML output; will not be closed by this method
      * @param indent true to indent output, false for all on one line
+     * @return the number of key/value pairs written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    public void write(Writer writer, boolean indent) throws XMLStreamException {
+    public int write(Writer writer, boolean indent) throws XMLStreamException {
         if (writer == null)
             throw new IllegalArgumentException("null writer");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         if (indent)
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
         xmlWriter.writeStartDocument("1.0");
-        this.write(xmlWriter, null, null);
+        return this.write(xmlWriter, null, null);
     }
 
     /**
@@ -178,15 +184,17 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @param writer XML writer; will not be closed by this method
      * @param minKey minimum key (inclusive), or null for none
      * @param maxKey maximum key (exclusive), or null for none
+     * @return the number of key/value pairs written
      * @throws XMLStreamException if an error occurs
      * @throws IllegalArgumentException if {@code writer} is null
      */
-    public void write(XMLStreamWriter writer, byte[] minKey, byte[] maxKey) throws XMLStreamException {
+    public int write(XMLStreamWriter writer, byte[] minKey, byte[] maxKey) throws XMLStreamException {
         if (writer == null)
             throw new IllegalArgumentException("null writer");
         writer.setDefaultNamespace(ENTRIES_TAG.getNamespaceURI());
         writer.writeStartElement(ENTRIES_TAG.getNamespaceURI(), ENTRIES_TAG.getLocalPart());
-        for (Iterator<KVPair> i = this.kv.getRange(minKey, maxKey, false); i.hasNext(); ) {
+        int count = 0;
+        for (Iterator<KVPair> i = this.kv.getRange(minKey, maxKey, false); i.hasNext(); count++) {
             writer.writeStartElement(ENTRY_TAG.getNamespaceURI(), ENTRY_TAG.getLocalPart());
             final KVPair pair = i.next();
             this.writeElement(writer, KEY_TAG, pair.getKey());
@@ -197,6 +205,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
         }
         writer.writeEndElement();
         writer.flush();
+        return count;
     }
 
 // Internal methods

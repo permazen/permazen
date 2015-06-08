@@ -21,7 +21,11 @@ import org.jsimpledb.cli.cmd.EvalCommand;
 import org.jsimpledb.cli.cmd.HelpCommand;
 import org.jsimpledb.cli.cmd.ImportCommand;
 import org.jsimpledb.cli.cmd.InfoCommand;
-import org.jsimpledb.cli.cmd.KVDumpCommand;
+import org.jsimpledb.cli.cmd.KVGetCommand;
+import org.jsimpledb.cli.cmd.KVLoadCommand;
+import org.jsimpledb.cli.cmd.KVPutCommand;
+import org.jsimpledb.cli.cmd.KVRemoveCommand;
+import org.jsimpledb.cli.cmd.KVSaveCommand;
 import org.jsimpledb.cli.cmd.LoadCommand;
 import org.jsimpledb.cli.cmd.QuitCommand;
 import org.jsimpledb.cli.cmd.RaftAddCommand;
@@ -166,7 +170,11 @@ public class CliSession extends ParseSession {
             HelpCommand.class,
             ImportCommand.class,
             InfoCommand.class,
-            KVDumpCommand.class,
+            KVGetCommand.class,
+            KVLoadCommand.class,
+            KVPutCommand.class,
+            KVRemoveCommand.class,
+            KVSaveCommand.class,
             LoadCommand.class,
             QuitCommand.class,
             RaftAddCommand.class,
