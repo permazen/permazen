@@ -384,13 +384,13 @@ public class Session {
             Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");
             switch (this.mode) {
             case JSIMPLEDB:
-                if (commit)
+                if (commit && !this.tx.isRollbackOnly())
                     JTransaction.getCurrent().commit();
                 else
                     JTransaction.getCurrent().rollback();
                 break;
             case CORE_API:
-                if (commit)
+                if (commit && !this.tx.isRollbackOnly())
                     this.tx.commit();
                 else
                     this.tx.rollback();

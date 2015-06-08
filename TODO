@@ -2,6 +2,10 @@
 SHORT TERM
 ==========
 
+- Spring transaction manager for key/value layer
+    - Need a setRollbackOnly() method
+        - Invoke in EvalCommand.getAction()
+
 - Vaadin GUI editor generator
     - Implement editors for collection fields
     - Add range support - if query result is Navigable{Set,Map}
