@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
@@ -370,6 +371,10 @@ public class TCPNetwork extends SelectorSupport implements Network {
         if (socketChannel == null)
             return;
         this.log.info("accepted incoming connection from " + socketChannel.getRemoteAddress());
+        socketChannel
+          .setOption(StandardSocketOptions.SO_KEEPALIVE, true)
+          .setOption(StandardSocketOptions.TCP_NODELAY, true);
+        this.configureSocketChannel(socketChannel);
 
         // Create peer
         final InetSocketAddress remote = (InetSocketAddress)socketChannel.socket().getRemoteSocketAddress();
@@ -476,7 +481,9 @@ public class TCPNetwork extends SelectorSupport implements Network {
     private synchronized Connection createConnection(String peer) throws IOException {
 
         // Create new one
-        final SocketChannel socketChannel = SocketChannel.open();
+        final SocketChannel socketChannel = SocketChannel.open()
+          .setOption(StandardSocketOptions.SO_KEEPALIVE, true)
+          .setOption(StandardSocketOptions.TCP_NODELAY, true);
         this.configureSocketChannel(socketChannel);
         socketChannel.configureBlocking(false);
         if (this.log.isDebugEnabled())
