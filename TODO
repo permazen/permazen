@@ -2,6 +2,11 @@
 SHORT TERM
 ==========
 
+- KVDatabase change notification/listener support
+    - Forward up the stack for Raft @OnChange notifications
+
+- Amazon DynamoDB KVDatabase
+
 - key/value layer transaction improvements
     - Add Spring transaction manager
     - Add setReadOnly()

@@ -14,6 +14,9 @@ LevelDB as the local persistent store.
 Let A, B, C, ... represent the nodes in the cluster. In this example
 the identity of A is "nodeA" and the IP address of A is "A.A.A.A".
 
+If the nodes are running on the same host, you can specify different
+TCP ports, e.g., 127.0.0.1:1001, 127.0.0.1:1002, etc.
+
  1. Choose a directory for the Raft persistent state on each machine.
     In this example we'll use ~/.raftX for machine X.
 
@@ -25,38 +28,70 @@ the identity of A is "nodeA" and the IP address of A is "A.A.A.A".
             --raft-dir ~/.raftX                     # Raft persistent state dir
             --raft-identity nodeX                   # Raft node identity
             --raft-address X.X.X.X                  # Raft node IP address
-            --leveldb ~/.raftX/leveldb              # Raft's local persistent store
+            --leveldb ~/.raftX/kvstore              # Raft's local persistent store
 
-    Running this command on each machine should show an unconfigured node:
+    Enter the "raft-status" command into the CLI running on each machine.
+    It should show that the Raft cluster is in the unconfigured state:
 
-        JSimpleDB> raft-status
+        KeyValue> raft-status
+        ...
+        Cluster configuration   : Unconfigured
 
     If it shows a configured node, rm -rf ~/.raftX and start over.
 
- 3. Pick one machine (A) to be the first node in the new cluster.
-    On this machine, create a new cluster and add it as the first node:
+ 3. Pick one machine (A) to be the first node in the new cluster. On this
+    machine, create the new cluster and make it add itself as the first node:
 
-        JSimpleDB> raft-add nodeA A.A.A.A
+        KeyValue> raft-add nodeA A.A.A.A
 
     Now running the status command should show a single node cluster:
 
-        JSimpleDB> raft-status
+        KeyValue> raft-status
+        ...
+        Cluster configuration:
 
- 4. Add each other node to the cluster one at a time:
+          Identity         Address
+          --------         -------
+        * "nodeA"          A.A.A.A
 
-        JSimpleDB> raft-add nodeB B.B.B.B
-        JSimpleDB> raft-add nodeC C.C.C.C
+ 4. Add each other node to the cluster one at a time, by entering
+    these commands into nodeA (or any other already-added node):
+
+        KeyValue> raft-add nodeB B.B.B.B
+        KeyValue> raft-add nodeC C.C.C.C
         ...
 
-    After adding each node, "raft-status" should include it.
+    After adding each node, "raft-status" should show it as a
+    member of the cluster.
 
-    If an error occurs, double check your IP addresses.
+    If an error occurs, double check your IP addresses and/or TCP ports.
 
   5. Check updated Raft status on any node at any time:
 
-        JSimpleDB> raft-status
+        KeyValue> raft-status
 
   6. Use "help" to learn about other Raft CLI commands, e.g.:
 
-        JSimpleDB> help raft-step-down
+        KeyValue> help raft-step-down
+
+  7. Commit a change to the key/value database and see it appear
+     on every other node in the cluster:
+
+     On node #1:
+
+        KeyValue> kvput 1234 5678
+
+     On node #2:
+
+        KeyValue> kvget 1234
+        5678
+        KeyValue> kvremove 1234
+
+     On node #1:
+
+        KeyValue> kvget 1234
+        null
+
+  8. Disconnect any minority of nodes and verify that the remaining majority
+     is still fully functiona, can commit transactions, etc.
 
