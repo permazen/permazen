@@ -1,8 +1,11 @@
-Version 1.2.0
+Version 1.2.0 Released June 9, 2015
 
     - Added RaftKVDatabase based on Raft consensus algorithm
-    - Added key/value store mode option to CLI
-    - Added PrefixKVDatabase
+    - Added LevelDBKVDatabase based on LevelDB Java port
+    - Added AtomicKVStore, MutableView, mvcc sub-package
+    - Added various KVStore utility classes
+    - Added key/value store session mode
+    - Move project to GitHub
 
 Version 1.1.838 Released March 7, 2015
 
