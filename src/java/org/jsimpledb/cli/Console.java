@@ -156,6 +156,22 @@ public class Console {
         // Set up tab completion
         console.addCompleter(new ConsoleCompleter(lineBuffer));
 
+        // Get prompt
+        final String prompt;
+        switch (this.session.getMode()) {
+        case KEY_VALUE:
+            prompt = "KeyValue> ";
+            break;
+        case CORE_API:
+            prompt = "CoreAPI> ";
+            break;
+        case JSIMPLEDB:
+            prompt = "JSimpleDB> ";
+            break;
+        default:
+            throw new RuntimeException("internal error");
+        }
+
         // Main command loop
         try {
 
@@ -166,7 +182,8 @@ public class Console {
                 // Read command line
                 String line;
                 try {
-                    line = this.console.readLine(lineBuffer.length() == 0 ? "JSimpleDB> " : "        -> ");
+                    line = this.console.readLine(lineBuffer.length() == 0 ?
+                      prompt : String.format("%" + (prompt.length() - 3) + "s-> ", ""));
                 } catch (UserInterruptException e) {
                     this.console.print("^C");
                     line = null;
