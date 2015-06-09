@@ -83,7 +83,7 @@ public class KVDatabaseTest extends TestSupport {
     @Parameters("testSimpleKV")
     public void setTestSimpleKV(@Optional String testSimpleKV) {
         if (testSimpleKV != null && Boolean.valueOf(testSimpleKV)) {
-            this.simpleKV = new SimpleKVDatabase(new NavigableMapKVStore(), 250, 500);
+            this.simpleKV = new SimpleKVDatabase(new NavigableMapKVStore(), 250, 5000);
             this.simpleKV.start();
         }
     }
@@ -95,7 +95,7 @@ public class KVDatabaseTest extends TestSupport {
             final File xmlFile = File.createTempFile(xmlFilePrefix, ".xml");
             xmlFile.delete();                           // we need the file to not exist at first
             xmlFile.deleteOnExit();
-            this.xmlKV = new XMLKVDatabase(xmlFile);
+            this.xmlKV = new XMLKVDatabase(xmlFile, 250, 5000);
             this.xmlKV.start();
         }
     }
