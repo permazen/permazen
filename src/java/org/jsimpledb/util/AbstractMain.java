@@ -37,7 +37,6 @@ import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
 import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
-import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.net.TCPNetwork;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
@@ -82,7 +81,6 @@ public abstract class AbstractMain extends MainClass {
     protected String raftIdentity;
     protected String raftAddress;
     protected int raftPort = TCPNetwork.DEFAULT_TCP_PORT;
-    protected boolean raftNewCluster;
     protected int raftMinElectionTimeout = -1;
     protected int raftMaxElectionTimeout = -1;
     protected int raftHeartbeatTimeout = -1;
@@ -247,9 +245,7 @@ public abstract class AbstractMain extends MainClass {
                 final String address = params.removeFirst();
                 this.raftAddress = TCPNetwork.parseAddressPart(address);
                 this.raftPort = TCPNetwork.parsePortPart(address, this.raftPort);
-            } else if (option.equals("--raft-new-cluster"))
-                this.raftNewCluster = true;
-            else if (option.equals("--raft-port")) {
+            } else if (option.equals("--raft-port")) {
                 if (params.isEmpty())
                     this.usageError();
                 final String portString = params.removeFirst();
@@ -580,7 +576,6 @@ public abstract class AbstractMain extends MainClass {
             { "--raft-address address",         "Specify local Raft node's IP address" },
             { "--raft-port",                    "Specify local Raft node's TCP port (default "
                                                   + TCPNetwork.DEFAULT_TCP_PORT + ")" },
-            { "--raft-new-cluster",             "Create a new Raft cluster (requires `--raft-address')" },
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
             { "--xml file",                     "Use the specified XML flat file database" },
@@ -790,8 +785,6 @@ public abstract class AbstractMain extends MainClass {
             }
 
             // Set up Raft DB
-            if (AbstractMain.this.raftNewCluster && AbstractMain.this.raftAddress == null)
-                throw new RuntimeException("`--raft-new-cluster' requires specifying `--raft-address'");
             final RaftKVDatabase raft = new RaftKVDatabase();
             raft.setLogDirectory(AbstractMain.this.raftDirectory);
             raft.setKVStore(AbstractMain.this.raftKVStore);
@@ -806,38 +799,6 @@ public abstract class AbstractMain extends MainClass {
 
             // Done
             return raft;
-        }
-
-        @Override
-        public void startKVDatabase(RaftKVDatabase raft) {
-
-            // Start database
-            super.startKVDatabase(raft);
-
-            // Initialize new cluster, if so configured
-            if (AbstractMain.this.raftNewCluster) {
-                assert AbstractMain.this.raftAddress != null;
-
-                // Set up local address
-                final String nodeAddress = AbstractMain.this.raftAddress
-                  + (AbstractMain.this.raftPort != TCPNetwork.DEFAULT_TCP_PORT ? ":" + AbstractMain.this.raftPort : "");
-
-                // Add local node to new cluster
-                try {
-                    final RaftKVTransaction tx = raft.createTransaction();
-                    boolean success = false;
-                    try {
-                        tx.configChange(AbstractMain.this.raftIdentity, nodeAddress);
-                        tx.commit();
-                        success = true;
-                    } finally {
-                        if (!success)
-                            tx.rollback();
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException("error initializing new Raft cluster", e);
-                }
-            }
         }
 
         @Override
