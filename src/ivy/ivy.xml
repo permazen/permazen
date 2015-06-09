@@ -4,7 +4,7 @@
 
     <info organisation="org.jsimpledb" module="jsimpledb">
         <license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0"/>
-        <description homepage="http://jsimpledb.googlecode.com/"/>
+        <description homepage="https://github.com/archiecobbs/jsimpledb/"/>
     </info>
 
     <configurations>
