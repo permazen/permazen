@@ -15,6 +15,8 @@ import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.dellroad.stuff.java.Predicate;
+import org.dellroad.stuff.java.TimedWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +77,7 @@ public abstract class SelectorSupport {
 
     private volatile Selector selector;
     private ServiceThread serviceThread;
-    private int housekeepingInterval = DEFAULT_HOUSEKEEPING_INTERVAL;
+    private volatile int housekeepingInterval = DEFAULT_HOUSEKEEPING_INTERVAL;
 
 // Configuration
 
@@ -85,7 +87,7 @@ public abstract class SelectorSupport {
      * @param housekeepingInterval housekeeping interval in milliseconds, or zero for none
      * @throws IllegalArgumentException if {@code housekeepingInterval} is negative
      */
-    public synchronized void setHousekeepingInterval(int housekeepingInterval) {
+    public void setHousekeepingInterval(int housekeepingInterval) {
         Preconditions.checkArgument(housekeepingInterval >= 0, "housekeepingInterval < 0");
         this.housekeepingInterval = housekeepingInterval;
     }
@@ -121,36 +123,46 @@ public abstract class SelectorSupport {
      * <p>
      * Does nothing if already stopped.
      */
-    public void stop() {
+    public synchronized void stop() {
 
-        // Shutdown
-        final Thread waitForThread;
-        synchronized (this) {
-            if (this.selector == null)
-                return;
-            assert this.serviceThread != null;
-            if (this.log.isDebugEnabled())
-                this.log.debug("stopping " + this);
-            if (this.selector != null) {
-                try {
-                    this.selector.close();
-                } catch (Exception e) {
-                    // ignore
-                }
-                this.selector = null;
+        // Already stopped?
+        if (this.selector == null)
+            return;
+        assert this.serviceThread != null;
+
+        // Stop service thread
+        if (this.log.isDebugEnabled())
+            this.log.debug("stopping " + this);
+        if (this.selector != null) {
+            try {
+                this.selector.close();
+            } catch (Exception e) {
+                // ignore
             }
-            this.serviceThread.interrupt();
-            waitForThread = !this.isServiceThread() ? this.serviceThread : null;
+            this.selector = null;
         }
+        this.serviceThread.interrupt();
 
         // Wait for service thread to exit
-        if (waitForThread != null) {
-            try {
-                waitForThread.join();
-            } catch (InterruptedException e) {
-                this.log.debug("interrupted while stopping " + this + ", giving up");
-                Thread.currentThread().interrupt();
-            }
+        if (this.isServiceThread())
+            return;
+        final Thread currentServiceThread = this.serviceThread;
+        String failure = null;
+        try {
+            if (!TimedWait.wait(this, 1000L, new Predicate() {
+                @Override
+                public boolean test() {
+                    return SelectorSupport.this.serviceThread != currentServiceThread;
+                }
+            }))
+                failure = "timed out";
+        } catch (InterruptedException e) {
+            failure = "interrupted";
+            Thread.currentThread().interrupt();
+        }
+        if (failure != null) {
+            this.log.warn(failure + " waiting for service thread " + currentServiceThread
+              + " while stopping " + this + ", giving up");
         }
     }
 
@@ -348,10 +360,7 @@ public abstract class SelectorSupport {
         while (true) {
 
             // Check if we're still open
-            final Selector currentSelector;
-            synchronized (this) {
-                currentSelector = this.selector;
-            }
+            final Selector currentSelector = this.selector;
             if (currentSelector == null)
                 break;
 
@@ -359,11 +368,11 @@ public abstract class SelectorSupport {
             try {
                 if (this.log.isTraceEnabled())
                     this.log.trace("[SVC THREAD]: sleeping: keys=" + SelectorSupport.dbg(currentSelector.keys()));
-                currentSelector.select(1000L);
+                currentSelector.select(this.housekeepingInterval);
             } catch (ClosedSelectorException e) {               // close() was invoked
                 break;
             }
-            if (Thread.interrupted())
+            if (Thread.interrupted() || this.selector == null)
                 break;
 
             // Figure out what has happened
@@ -412,6 +421,9 @@ public abstract class SelectorSupport {
             } catch (Throwable t) {
                 this.log.error("exception during cleanup", t);
             }
+            if (this.serviceThread == Thread.currentThread())
+                this.serviceThread = null;
+            this.notifyAll();
         }
     }
 
