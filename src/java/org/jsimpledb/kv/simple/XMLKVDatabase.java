@@ -67,27 +67,49 @@ public class XMLKVDatabase extends SimpleKVDatabase {
 // Constructors
 
     /**
-     * Normal constructor. Uses a {@link FileStreamRepository} backed by the specified file.
+     * Normal constructor. Uses a {@link FileStreamRepository} backed by the specified file, with timeouts set to
+     * {@link SimpleKVDatabase#DEFAULT_WAIT_TIMEOUT} and {@link SimpleKVDatabase#DEFAULT_HOLD_TIMEOUT}.
      *
      * @param file persistent XML file
+     * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
      * @throws IllegalArgumentException if {@code file} is null
      */
     public XMLKVDatabase(File file) {
-        this(new FileStreamRepository(file));
+        this(new FileStreamRepository(file), SimpleKVDatabase.DEFAULT_WAIT_TIMEOUT, SimpleKVDatabase.DEFAULT_HOLD_TIMEOUT);
+    }
+
+    /**
+     * Normal constructor. Uses a {@link FileStreamRepository} backed by the specified file.
+     *
+     * @param file persistent XML file
+     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
+     *  in milliseconds, or zero for unlimited
+     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
+     *  in milliseconds, or zero for unlimited
+     * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
+     * @throws IllegalArgumentException if {@code file} is null
+     */
+    public XMLKVDatabase(File file, long waitTimeout, long holdTimeout) {
+        this(new FileStreamRepository(file), waitTimeout, holdTimeout);
     }
 
     /**
      * Constructor allowing storage in any user-supplied {@link StreamRepository}.
      *
      * @param repository XML file storage
+     * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
+     *  in milliseconds, or zero for unlimited
+     * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
+     *  in milliseconds, or zero for unlimited
+     * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative
      * @throws IllegalArgumentException if {@code file} is null
      */
-    public XMLKVDatabase(StreamRepository repository) {
+    public XMLKVDatabase(StreamRepository repository, long waitTimeout, long holdTimeout) {
+        super(waitTimeout, holdTimeout);
         Preconditions.checkArgument(repository != null, "null repository");
         this.repository = repository;
         this.serializer = new XMLSerializer(this.kv);
         this.file = repository instanceof FileStreamRepository ? ((FileStreamRepository)repository).getFile() : null;
-        this.reload();
     }
 
     /**
@@ -119,10 +141,8 @@ public class XMLKVDatabase extends SimpleKVDatabase {
 
     @Override
     public void start() {
-    }
-
-    @Override
-    public void stop() {
+        super.start();
+        this.reload();
     }
 
     @Override
