@@ -13,37 +13,37 @@
 <span class="sourceLineNo">005</span><a name="line.5"></a>
 <span class="sourceLineNo">006</span>package org.jsimpledb.kv.util;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>import org.jsimpledb.kv.KVDatabase;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
-<span class="sourceLineNo">011</span> * Prefix {@link KVDatabase} implementation.<a name="line.11"></a>
-<span class="sourceLineNo">012</span> *<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * &lt;p&gt;<a name="line.13"></a>
-<span class="sourceLineNo">014</span> * Instances use a fixed {@code byte[]} key prefix for all key access, thereby providing a nested {@link KVDatabase}<a name="line.14"></a>
-<span class="sourceLineNo">015</span> * view of the corresponding sub-range of keys within the containing {@link KVDatabase}. This allows, for example, multiple<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * {@link KVDatabase}s to exist within a single containing {@link KVDatabase} under different key prefixes.<a name="line.16"></a>
-<span class="sourceLineNo">017</span> *<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * &lt;p&gt;<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * Instances ignore invocations to {@link #start} and {@link #stop}; instead, invoke these methods on the underlying<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * {@link KVDatabase}.<a name="line.20"></a>
-<span class="sourceLineNo">021</span> */<a name="line.21"></a>
-<span class="sourceLineNo">022</span>public class PrefixKVDatabase implements KVDatabase {<a name="line.22"></a>
-<span class="sourceLineNo">023</span><a name="line.23"></a>
-<span class="sourceLineNo">024</span>    private final KVDatabase db;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>    private final byte[] keyPrefix;<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>    /**<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     * Constructor.<a name="line.28"></a>
-<span class="sourceLineNo">029</span>     *<a name="line.29"></a>
-<span class="sourceLineNo">030</span>     * @param db the containing {@link KVDatabase}<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * @param keyPrefix prefix for all keys<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * @throws IllegalArgumentException if {@code db} or {@code keyPrefix} is null<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     */<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    public PrefixKVDatabase(KVDatabase db, byte[] keyPrefix) {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        if (db == null)<a name="line.35"></a>
-<span class="sourceLineNo">036</span>            throw new IllegalStateException("null db");<a name="line.36"></a>
-<span class="sourceLineNo">037</span>        if (keyPrefix == null)<a name="line.37"></a>
-<span class="sourceLineNo">038</span>            throw new IllegalStateException("null keyPrefix");<a name="line.38"></a>
+<span class="sourceLineNo">010</span>import org.jsimpledb.kv.KVDatabase;<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>/**<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * Prefix {@link KVDatabase} implementation.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> *<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * &lt;p&gt;<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * Instances use a fixed {@code byte[]} key prefix for all key access, thereby providing a nested {@link KVDatabase}<a name="line.16"></a>
+<span class="sourceLineNo">017</span> * view of the corresponding sub-range of keys within the containing {@link KVDatabase}. This allows, for example, multiple<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * {@link KVDatabase}s to exist within a single containing {@link KVDatabase} under different key prefixes.<a name="line.18"></a>
+<span class="sourceLineNo">019</span> *<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * &lt;p&gt;<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * Instances ignore invocations to {@link #start} and {@link #stop}; instead, invoke these methods on the underlying<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * {@link KVDatabase}.<a name="line.22"></a>
+<span class="sourceLineNo">023</span> */<a name="line.23"></a>
+<span class="sourceLineNo">024</span>public class PrefixKVDatabase implements KVDatabase {<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>    private final KVDatabase db;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    private final byte[] keyPrefix;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    /**<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * Constructor.<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     *<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * @param db the containing {@link KVDatabase}<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * @param keyPrefix prefix for all keys<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * @throws IllegalArgumentException if {@code db} or {@code keyPrefix} is null<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    public PrefixKVDatabase(KVDatabase db, byte[] keyPrefix) {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        Preconditions.checkArgument(db != null, "null db");<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        Preconditions.checkArgument(keyPrefix != null, "null keyPrefix");<a name="line.38"></a>
 <span class="sourceLineNo">039</span>        this.db = db;<a name="line.39"></a>
 <span class="sourceLineNo">040</span>        this.keyPrefix = keyPrefix.clone();<a name="line.40"></a>
 <span class="sourceLineNo">041</span>    }<a name="line.41"></a>

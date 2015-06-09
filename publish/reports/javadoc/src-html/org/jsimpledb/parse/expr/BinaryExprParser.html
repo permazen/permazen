@@ -13,40 +13,40 @@
 <span class="sourceLineNo">005</span><a name="line.5"></a>
 <span class="sourceLineNo">006</span>package org.jsimpledb.parse.expr;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>import java.util.ArrayList;<a name="line.8"></a>
-<span class="sourceLineNo">009</span>import java.util.Arrays;<a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.List;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.jsimpledb.parse.ParseContext;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.parse.ParseException;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.jsimpledb.parse.ParseSession;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jsimpledb.parse.Parser;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.parse.SpaceParser;<a name="line.16"></a>
-<span class="sourceLineNo">017</span><a name="line.17"></a>
-<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * Support superclass for tail-recursive binary expression parsers for expressions of the form {@code ARG1 OP ARG2}.<a name="line.19"></a>
-<span class="sourceLineNo">020</span> *<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * @see &lt;a href="http://en.wikipedia.org/wiki/Tail_recursive_parser"&gt;Tail Recursive Parser&lt;/a&gt;<a name="line.21"></a>
-<span class="sourceLineNo">022</span> */<a name="line.22"></a>
-<span class="sourceLineNo">023</span>public abstract class BinaryExprParser implements Parser&lt;Node&gt; {<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>    private final SpaceParser spaceParser = new SpaceParser();<a name="line.25"></a>
-<span class="sourceLineNo">026</span>    private final Parser&lt;? extends Node&gt; lowerLevel;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    private final boolean leftAssociative;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>    private final List&lt;Op&gt; ops;<a name="line.28"></a>
-<span class="sourceLineNo">029</span><a name="line.29"></a>
-<span class="sourceLineNo">030</span>    /**<a name="line.30"></a>
-<span class="sourceLineNo">031</span>     * Primary constructor.<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     *<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     * @param lowerLevel next lower parse level<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     * @param leftAssociative true for left-to-right association, false for right-to-left<a name="line.34"></a>
-<span class="sourceLineNo">035</span>     * @param ops operations, with operations that have other operations as prefixes listed first<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     */<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    protected BinaryExprParser(Parser&lt;? extends Node&gt; lowerLevel, boolean leftAssociative, Op... ops) {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>        if (lowerLevel == null)<a name="line.38"></a>
-<span class="sourceLineNo">039</span>            throw new IllegalArgumentException("null lowerLevel");<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        if (ops == null || ops.length == 0)<a name="line.40"></a>
-<span class="sourceLineNo">041</span>            throw new IllegalArgumentException("null/empty ops");<a name="line.41"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.ArrayList;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Arrays;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.List;<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.parse.ParseContext;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.parse.ParseException;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.parse.ParseSession;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.parse.Parser;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.parse.SpaceParser;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>/**<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * Support superclass for tail-recursive binary expression parsers for expressions of the form {@code ARG1 OP ARG2}.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> *<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * @see &lt;a href="http://en.wikipedia.org/wiki/Tail_recursive_parser"&gt;Tail Recursive Parser&lt;/a&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>public abstract class BinaryExprParser implements Parser&lt;Node&gt; {<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>    private final SpaceParser spaceParser = new SpaceParser();<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    private final Parser&lt;? extends Node&gt; lowerLevel;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>    private final boolean leftAssociative;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    private final List&lt;Op&gt; ops;<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>    /**<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * Primary constructor.<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     *<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * @param lowerLevel next lower parse level<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * @param leftAssociative true for left-to-right association, false for right-to-left<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * @param ops operations, with operations that have other operations as prefixes listed first<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    protected BinaryExprParser(Parser&lt;? extends Node&gt; lowerLevel, boolean leftAssociative, Op... ops) {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        Preconditions.checkArgument(lowerLevel != null, "null lowerLevel");<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        Preconditions.checkArgument(ops != null &amp;&amp; ops.length &gt; 0, "null/empty ops");<a name="line.41"></a>
 <span class="sourceLineNo">042</span>        this.lowerLevel = lowerLevel;<a name="line.42"></a>
 <span class="sourceLineNo">043</span>        this.leftAssociative = leftAssociative;<a name="line.43"></a>
 <span class="sourceLineNo">044</span>        this.ops = Arrays.asList(ops);<a name="line.44"></a>

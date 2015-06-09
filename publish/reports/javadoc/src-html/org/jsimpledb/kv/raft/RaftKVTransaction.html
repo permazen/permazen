@@ -293,146 +293,145 @@
 <span class="sourceLineNo">285</span>     */<a name="line.285"></a>
 <span class="sourceLineNo">286</span>    @Override<a name="line.286"></a>
 <span class="sourceLineNo">287</span>    public void setTimeout(long timeout) {<a name="line.287"></a>
-<span class="sourceLineNo">288</span>        if (timeout &lt; 0)<a name="line.288"></a>
-<span class="sourceLineNo">289</span>            throw new IllegalArgumentException("timeout &lt; 0");<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);<a name="line.290"></a>
-<span class="sourceLineNo">291</span>    }<a name="line.291"></a>
-<span class="sourceLineNo">292</span><a name="line.292"></a>
-<span class="sourceLineNo">293</span>    @Override<a name="line.293"></a>
-<span class="sourceLineNo">294</span>    public void commit() {<a name="line.294"></a>
-<span class="sourceLineNo">295</span>        this.kvdb.commit(this);<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    }<a name="line.296"></a>
-<span class="sourceLineNo">297</span><a name="line.297"></a>
-<span class="sourceLineNo">298</span>    @Override<a name="line.298"></a>
-<span class="sourceLineNo">299</span>    public void rollback() {<a name="line.299"></a>
-<span class="sourceLineNo">300</span>        this.kvdb.rollback(this);<a name="line.300"></a>
-<span class="sourceLineNo">301</span>    }<a name="line.301"></a>
-<span class="sourceLineNo">302</span><a name="line.302"></a>
-<span class="sourceLineNo">303</span>// Package-access methods<a name="line.303"></a>
-<span class="sourceLineNo">304</span><a name="line.304"></a>
-<span class="sourceLineNo">305</span>    int getTimeout() {<a name="line.305"></a>
-<span class="sourceLineNo">306</span>        return this.timeout;<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    }<a name="line.307"></a>
-<span class="sourceLineNo">308</span><a name="line.308"></a>
-<span class="sourceLineNo">309</span>    CommitFuture getCommitFuture() {<a name="line.309"></a>
-<span class="sourceLineNo">310</span>        return this.commitFuture;<a name="line.310"></a>
-<span class="sourceLineNo">311</span>    }<a name="line.311"></a>
-<span class="sourceLineNo">312</span><a name="line.312"></a>
-<span class="sourceLineNo">313</span>    MutableView getMutableView() {<a name="line.313"></a>
-<span class="sourceLineNo">314</span>        return this.view;<a name="line.314"></a>
-<span class="sourceLineNo">315</span>    }<a name="line.315"></a>
-<span class="sourceLineNo">316</span><a name="line.316"></a>
-<span class="sourceLineNo">317</span>    RaftKVDatabase.Timer getCommitTimer() {<a name="line.317"></a>
-<span class="sourceLineNo">318</span>        return this.commitTimer;<a name="line.318"></a>
-<span class="sourceLineNo">319</span>    }<a name="line.319"></a>
-<span class="sourceLineNo">320</span>    void setCommitTimer(RaftKVDatabase.Timer commitTimer) {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        this.commitTimer = commitTimer;<a name="line.321"></a>
-<span class="sourceLineNo">322</span>    }<a name="line.322"></a>
-<span class="sourceLineNo">323</span><a name="line.323"></a>
-<span class="sourceLineNo">324</span>// Object<a name="line.324"></a>
-<span class="sourceLineNo">325</span><a name="line.325"></a>
-<span class="sourceLineNo">326</span>    @Override<a name="line.326"></a>
-<span class="sourceLineNo">327</span>    public String toString() {<a name="line.327"></a>
-<span class="sourceLineNo">328</span>        return this.getClass().getSimpleName()<a name="line.328"></a>
-<span class="sourceLineNo">329</span>          + "[txId=" + this.txId<a name="line.329"></a>
-<span class="sourceLineNo">330</span>          + ",state=" + this.state<a name="line.330"></a>
-<span class="sourceLineNo">331</span>          + ",base=" + this.baseIndex + "t" + this.baseTerm<a name="line.331"></a>
-<span class="sourceLineNo">332</span>          + (this.staleReadOnly ? ",staleReadOnly" : "")<a name="line.332"></a>
-<span class="sourceLineNo">333</span>          + (this.configChange != null ? ",configChange=" + Arrays.&lt;String&gt;asList(this.configChange) : "")<a name="line.333"></a>
-<span class="sourceLineNo">334</span>          + (this.state.compareTo(TxState.COMMIT_WAITING) &gt;= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")<a name="line.334"></a>
-<span class="sourceLineNo">335</span>          + (this.timeout != 0 ? ",timeout=" + this.timeout : "")<a name="line.335"></a>
-<span class="sourceLineNo">336</span>          + "]";<a name="line.336"></a>
-<span class="sourceLineNo">337</span>    }<a name="line.337"></a>
-<span class="sourceLineNo">338</span><a name="line.338"></a>
-<span class="sourceLineNo">339</span>    @Override<a name="line.339"></a>
-<span class="sourceLineNo">340</span>    protected void finalize() throws Throwable {<a name="line.340"></a>
-<span class="sourceLineNo">341</span>        try {<a name="line.341"></a>
-<span class="sourceLineNo">342</span>            synchronized (this.kvdb) {<a name="line.342"></a>
-<span class="sourceLineNo">343</span>                if (!TxState.CLOSED.equals(this.state)) {<a name="line.343"></a>
-<span class="sourceLineNo">344</span>                    this.log.warn(this + " leaked without commit() or rollback()");<a name="line.344"></a>
-<span class="sourceLineNo">345</span>                    this.rollback();<a name="line.345"></a>
-<span class="sourceLineNo">346</span>                }<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            }<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        } finally {<a name="line.348"></a>
-<span class="sourceLineNo">349</span>            super.finalize();<a name="line.349"></a>
-<span class="sourceLineNo">350</span>        }<a name="line.350"></a>
-<span class="sourceLineNo">351</span>    }<a name="line.351"></a>
-<span class="sourceLineNo">352</span><a name="line.352"></a>
-<span class="sourceLineNo">353</span>// CommitFuture<a name="line.353"></a>
-<span class="sourceLineNo">354</span><a name="line.354"></a>
-<span class="sourceLineNo">355</span>    static class CommitFuture extends FutureTask&lt;Void&gt; {<a name="line.355"></a>
-<span class="sourceLineNo">356</span><a name="line.356"></a>
-<span class="sourceLineNo">357</span>        private final ExceptionCallable callable;<a name="line.357"></a>
-<span class="sourceLineNo">358</span><a name="line.358"></a>
-<span class="sourceLineNo">359</span>        public CommitFuture() {<a name="line.359"></a>
-<span class="sourceLineNo">360</span>            this(new ExceptionCallable());<a name="line.360"></a>
-<span class="sourceLineNo">361</span>        }<a name="line.361"></a>
-<span class="sourceLineNo">362</span><a name="line.362"></a>
-<span class="sourceLineNo">363</span>        CommitFuture(ExceptionCallable callable) {<a name="line.363"></a>
-<span class="sourceLineNo">364</span>            super(callable);<a name="line.364"></a>
-<span class="sourceLineNo">365</span>            this.callable = callable;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>        }<a name="line.366"></a>
-<span class="sourceLineNo">367</span><a name="line.367"></a>
-<span class="sourceLineNo">368</span>        public void succeed() {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>            Preconditions.checkState(!this.isDone(), "already done");<a name="line.369"></a>
-<span class="sourceLineNo">370</span>            this.run();<a name="line.370"></a>
-<span class="sourceLineNo">371</span>        }<a name="line.371"></a>
-<span class="sourceLineNo">372</span><a name="line.372"></a>
-<span class="sourceLineNo">373</span>        public void fail(Exception e) {<a name="line.373"></a>
-<span class="sourceLineNo">374</span>            Preconditions.checkState(!this.isDone(), "already done");<a name="line.374"></a>
-<span class="sourceLineNo">375</span>            this.callable.setException(e);<a name="line.375"></a>
-<span class="sourceLineNo">376</span>            this.run();<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        }<a name="line.377"></a>
-<span class="sourceLineNo">378</span>    }<a name="line.378"></a>
-<span class="sourceLineNo">379</span><a name="line.379"></a>
-<span class="sourceLineNo">380</span>    private static class ExceptionCallable implements Callable&lt;Void&gt; {<a name="line.380"></a>
-<span class="sourceLineNo">381</span><a name="line.381"></a>
-<span class="sourceLineNo">382</span>        private volatile Exception e;<a name="line.382"></a>
-<span class="sourceLineNo">383</span><a name="line.383"></a>
-<span class="sourceLineNo">384</span>        public void setException(Exception e) {<a name="line.384"></a>
-<span class="sourceLineNo">385</span>            this.e = e;<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        }<a name="line.386"></a>
-<span class="sourceLineNo">387</span><a name="line.387"></a>
-<span class="sourceLineNo">388</span>        @Override<a name="line.388"></a>
-<span class="sourceLineNo">389</span>        public Void call() throws Exception {<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            if (this.e != null)<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                throw this.e;<a name="line.391"></a>
-<span class="sourceLineNo">392</span>            return null;<a name="line.392"></a>
-<span class="sourceLineNo">393</span>        }<a name="line.393"></a>
-<span class="sourceLineNo">394</span>    }<a name="line.394"></a>
-<span class="sourceLineNo">395</span><a name="line.395"></a>
-<span class="sourceLineNo">396</span>// Debug/Sanity Checking<a name="line.396"></a>
-<span class="sourceLineNo">397</span><a name="line.397"></a>
-<span class="sourceLineNo">398</span>    void checkStateOpen(long currentTerm, long lastIndex, long raftCommitIndex) {<a name="line.398"></a>
-<span class="sourceLineNo">399</span>        assert !this.commitFuture.isCancelled();<a name="line.399"></a>
-<span class="sourceLineNo">400</span>        assert this.commitFuture.isDone() == this.state.compareTo(TxState.COMPLETED) &gt;= 0;<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        assert this.baseTerm &lt;= currentTerm;<a name="line.401"></a>
-<span class="sourceLineNo">402</span>        switch (this.state) {<a name="line.402"></a>
-<span class="sourceLineNo">403</span>        case EXECUTING:<a name="line.403"></a>
-<span class="sourceLineNo">404</span>        case COMMIT_READY:<a name="line.404"></a>
-<span class="sourceLineNo">405</span>            assert this.commitTerm == 0;<a name="line.405"></a>
-<span class="sourceLineNo">406</span>            assert this.commitIndex == 0;<a name="line.406"></a>
-<span class="sourceLineNo">407</span>            break;<a name="line.407"></a>
-<span class="sourceLineNo">408</span>        case COMMIT_WAITING:<a name="line.408"></a>
-<span class="sourceLineNo">409</span>            assert this.commitTerm &gt;= this.baseTerm;<a name="line.409"></a>
-<span class="sourceLineNo">410</span>            assert this.commitTerm &lt;= currentTerm;<a name="line.410"></a>
-<span class="sourceLineNo">411</span>            assert this.commitIndex &gt;= this.baseIndex;                                      // equal implies a read-only tx<a name="line.411"></a>
-<span class="sourceLineNo">412</span>            assert this.commitIndex &gt; this.baseIndex || this.view.getWrites().isEmpty();<a name="line.412"></a>
-<span class="sourceLineNo">413</span>            break;<a name="line.413"></a>
-<span class="sourceLineNo">414</span>        case COMPLETED:<a name="line.414"></a>
-<span class="sourceLineNo">415</span>            assert this.commitFuture.isDone();<a name="line.415"></a>
-<span class="sourceLineNo">416</span>            assert this.commitTerm == 0 || this.commitTerm &gt;= this.baseTerm;<a name="line.416"></a>
-<span class="sourceLineNo">417</span>            assert this.commitIndex == 0 || this.commitIndex &gt;= this.baseIndex;<a name="line.417"></a>
-<span class="sourceLineNo">418</span>            assert this.commitTerm &lt;= currentTerm;<a name="line.418"></a>
-<span class="sourceLineNo">419</span>            break;<a name="line.419"></a>
-<span class="sourceLineNo">420</span>        case CLOSED:<a name="line.420"></a>
-<span class="sourceLineNo">421</span>        default:<a name="line.421"></a>
-<span class="sourceLineNo">422</span>            assert false;<a name="line.422"></a>
-<span class="sourceLineNo">423</span>            break;<a name="line.423"></a>
-<span class="sourceLineNo">424</span>        }<a name="line.424"></a>
-<span class="sourceLineNo">425</span>    }<a name="line.425"></a>
-<span class="sourceLineNo">426</span>}<a name="line.426"></a>
-<span class="sourceLineNo">427</span><a name="line.427"></a>
+<span class="sourceLineNo">288</span>        Preconditions.checkArgument(timeout &gt;= 0, "timeout &lt; 0");<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    }<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>    @Override<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    public void commit() {<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        this.kvdb.commit(this);<a name="line.294"></a>
+<span class="sourceLineNo">295</span>    }<a name="line.295"></a>
+<span class="sourceLineNo">296</span><a name="line.296"></a>
+<span class="sourceLineNo">297</span>    @Override<a name="line.297"></a>
+<span class="sourceLineNo">298</span>    public void rollback() {<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        this.kvdb.rollback(this);<a name="line.299"></a>
+<span class="sourceLineNo">300</span>    }<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>// Package-access methods<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>    int getTimeout() {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        return this.timeout;<a name="line.305"></a>
+<span class="sourceLineNo">306</span>    }<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>    CommitFuture getCommitFuture() {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        return this.commitFuture;<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    }<a name="line.310"></a>
+<span class="sourceLineNo">311</span><a name="line.311"></a>
+<span class="sourceLineNo">312</span>    MutableView getMutableView() {<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        return this.view;<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    }<a name="line.314"></a>
+<span class="sourceLineNo">315</span><a name="line.315"></a>
+<span class="sourceLineNo">316</span>    RaftKVDatabase.Timer getCommitTimer() {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        return this.commitTimer;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    }<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    void setCommitTimer(RaftKVDatabase.Timer commitTimer) {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        this.commitTimer = commitTimer;<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    }<a name="line.321"></a>
+<span class="sourceLineNo">322</span><a name="line.322"></a>
+<span class="sourceLineNo">323</span>// Object<a name="line.323"></a>
+<span class="sourceLineNo">324</span><a name="line.324"></a>
+<span class="sourceLineNo">325</span>    @Override<a name="line.325"></a>
+<span class="sourceLineNo">326</span>    public String toString() {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        return this.getClass().getSimpleName()<a name="line.327"></a>
+<span class="sourceLineNo">328</span>          + "[txId=" + this.txId<a name="line.328"></a>
+<span class="sourceLineNo">329</span>          + ",state=" + this.state<a name="line.329"></a>
+<span class="sourceLineNo">330</span>          + ",base=" + this.baseIndex + "t" + this.baseTerm<a name="line.330"></a>
+<span class="sourceLineNo">331</span>          + (this.staleReadOnly ? ",staleReadOnly" : "")<a name="line.331"></a>
+<span class="sourceLineNo">332</span>          + (this.configChange != null ? ",configChange=" + Arrays.&lt;String&gt;asList(this.configChange) : "")<a name="line.332"></a>
+<span class="sourceLineNo">333</span>          + (this.state.compareTo(TxState.COMMIT_WAITING) &gt;= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")<a name="line.333"></a>
+<span class="sourceLineNo">334</span>          + (this.timeout != 0 ? ",timeout=" + this.timeout : "")<a name="line.334"></a>
+<span class="sourceLineNo">335</span>          + "]";<a name="line.335"></a>
+<span class="sourceLineNo">336</span>    }<a name="line.336"></a>
+<span class="sourceLineNo">337</span><a name="line.337"></a>
+<span class="sourceLineNo">338</span>    @Override<a name="line.338"></a>
+<span class="sourceLineNo">339</span>    protected void finalize() throws Throwable {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        try {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            synchronized (this.kvdb) {<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                if (!TxState.CLOSED.equals(this.state)) {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                    this.log.warn(this + " leaked without commit() or rollback()");<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                    this.rollback();<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                }<a name="line.345"></a>
+<span class="sourceLineNo">346</span>            }<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        } finally {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            super.finalize();<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        }<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    }<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>// CommitFuture<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>    static class CommitFuture extends FutureTask&lt;Void&gt; {<a name="line.354"></a>
+<span class="sourceLineNo">355</span><a name="line.355"></a>
+<span class="sourceLineNo">356</span>        private final ExceptionCallable callable;<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>        public CommitFuture() {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>            this(new ExceptionCallable());<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        }<a name="line.360"></a>
+<span class="sourceLineNo">361</span><a name="line.361"></a>
+<span class="sourceLineNo">362</span>        CommitFuture(ExceptionCallable callable) {<a name="line.362"></a>
+<span class="sourceLineNo">363</span>            super(callable);<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            this.callable = callable;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        }<a name="line.365"></a>
+<span class="sourceLineNo">366</span><a name="line.366"></a>
+<span class="sourceLineNo">367</span>        public void succeed() {<a name="line.367"></a>
+<span class="sourceLineNo">368</span>            Preconditions.checkState(!this.isDone(), "already done");<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            this.run();<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        }<a name="line.370"></a>
+<span class="sourceLineNo">371</span><a name="line.371"></a>
+<span class="sourceLineNo">372</span>        public void fail(Exception e) {<a name="line.372"></a>
+<span class="sourceLineNo">373</span>            Preconditions.checkState(!this.isDone(), "already done");<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            this.callable.setException(e);<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            this.run();<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        }<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    }<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>    private static class ExceptionCallable implements Callable&lt;Void&gt; {<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>        private volatile Exception e;<a name="line.381"></a>
+<span class="sourceLineNo">382</span><a name="line.382"></a>
+<span class="sourceLineNo">383</span>        public void setException(Exception e) {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>            this.e = e;<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        }<a name="line.385"></a>
+<span class="sourceLineNo">386</span><a name="line.386"></a>
+<span class="sourceLineNo">387</span>        @Override<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        public Void call() throws Exception {<a name="line.388"></a>
+<span class="sourceLineNo">389</span>            if (this.e != null)<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                throw this.e;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            return null;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        }<a name="line.392"></a>
+<span class="sourceLineNo">393</span>    }<a name="line.393"></a>
+<span class="sourceLineNo">394</span><a name="line.394"></a>
+<span class="sourceLineNo">395</span>// Debug/Sanity Checking<a name="line.395"></a>
+<span class="sourceLineNo">396</span><a name="line.396"></a>
+<span class="sourceLineNo">397</span>    void checkStateOpen(long currentTerm, long lastIndex, long raftCommitIndex) {<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        assert !this.commitFuture.isCancelled();<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        assert this.commitFuture.isDone() == this.state.compareTo(TxState.COMPLETED) &gt;= 0;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        assert this.baseTerm &lt;= currentTerm;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        switch (this.state) {<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        case EXECUTING:<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        case COMMIT_READY:<a name="line.403"></a>
+<span class="sourceLineNo">404</span>            assert this.commitTerm == 0;<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            assert this.commitIndex == 0;<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            break;<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        case COMMIT_WAITING:<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            assert this.commitTerm &gt;= this.baseTerm;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            assert this.commitTerm &lt;= currentTerm;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>            assert this.commitIndex &gt;= this.baseIndex;                                      // equal implies a read-only tx<a name="line.410"></a>
+<span class="sourceLineNo">411</span>            assert this.commitIndex &gt; this.baseIndex || this.view.getWrites().isEmpty();<a name="line.411"></a>
+<span class="sourceLineNo">412</span>            break;<a name="line.412"></a>
+<span class="sourceLineNo">413</span>        case COMPLETED:<a name="line.413"></a>
+<span class="sourceLineNo">414</span>            assert this.commitFuture.isDone();<a name="line.414"></a>
+<span class="sourceLineNo">415</span>            assert this.commitTerm == 0 || this.commitTerm &gt;= this.baseTerm;<a name="line.415"></a>
+<span class="sourceLineNo">416</span>            assert this.commitIndex == 0 || this.commitIndex &gt;= this.baseIndex;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>            assert this.commitTerm &lt;= currentTerm;<a name="line.417"></a>
+<span class="sourceLineNo">418</span>            break;<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        case CLOSED:<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        default:<a name="line.420"></a>
+<span class="sourceLineNo">421</span>            assert false;<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            break;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        }<a name="line.423"></a>
+<span class="sourceLineNo">424</span>    }<a name="line.424"></a>
+<span class="sourceLineNo">425</span>}<a name="line.425"></a>
+<span class="sourceLineNo">426</span><a name="line.426"></a>
 
 
 

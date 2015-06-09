@@ -13,61 +13,61 @@
 <span class="sourceLineNo">005</span><a name="line.5"></a>
 <span class="sourceLineNo">006</span>package org.jsimpledb.kv.simple;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>import java.util.Arrays;<a name="line.8"></a>
-<span class="sourceLineNo">009</span>import java.util.Iterator;<a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.util.SortedSet;<a name="line.10"></a>
-<span class="sourceLineNo">011</span>import java.util.TreeSet;<a name="line.11"></a>
-<span class="sourceLineNo">012</span><a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.kv.AbstractKVStore;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.jsimpledb.kv.KVPair;<a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jsimpledb.kv.KVPairIterator;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jsimpledb.kv.KVTransaction;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jsimpledb.kv.KeyRange;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jsimpledb.kv.mvcc.LockOwner;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jsimpledb.util.ByteUtil;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.slf4j.LoggerFactory;<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * {@link KVTransaction} implementation for {@link SimpleKVDatabase}.<a name="line.23"></a>
-<span class="sourceLineNo">024</span> *<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * &lt;p&gt;<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * Locking note: all fields in this class are protected by the Java monitor of the associated {@link SimpleKVDatabase},<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * not the Java monitor of this instance.<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * &lt;/p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span> */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>public class SimpleKVTransaction extends AbstractKVStore implements KVTransaction {<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>    final SimpleKVDatabase kvdb;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    final TreeSet&lt;Mutation&gt; mutations = new TreeSet&lt;&gt;(KeyRange.SORT_BY_MIN);<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    final LockOwner lockOwner = new LockOwner();<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    boolean stale;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    long waitTimeout;<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>    /**<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * Constructor.<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     *<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * @param kvdb associated database<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     * @param waitTimeout wait timeout for this transaction<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * @throws IllegalArgumentException if {@code kvdb} is null<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     * @throws IllegalArgumentException if {@code waitTimeout} is negative<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     */<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    protected SimpleKVTransaction(SimpleKVDatabase kvdb, long waitTimeout) {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        if (kvdb == null)<a name="line.48"></a>
-<span class="sourceLineNo">049</span>            throw new IllegalArgumentException("null kvdb");<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        this.kvdb = kvdb;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        this.setTimeout(waitTimeout);<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    @Override<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    public SimpleKVDatabase getKVDatabase() {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        return this.kvdb;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    @Override<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public void setTimeout(long timeout) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        if (timeout &lt; 0)<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            throw new IllegalArgumentException("timeout &lt; 0");<a name="line.62"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.util.Arrays;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.Iterator;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.SortedSet;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.TreeSet;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.kv.AbstractKVStore;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.kv.KVPair;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.kv.KVPairIterator;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.kv.KVTransaction;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.kv.KeyRange;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.kv.mvcc.LockOwner;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.util.ByteUtil;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.slf4j.LoggerFactory;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>/**<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * {@link KVTransaction} implementation for {@link SimpleKVDatabase}.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Locking note: all fields in this class are protected by the Java monitor of the associated {@link SimpleKVDatabase},<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * not the Java monitor of this instance.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;/p&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>public class SimpleKVTransaction extends AbstractKVStore implements KVTransaction {<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>    final SimpleKVDatabase kvdb;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    final TreeSet&lt;Mutation&gt; mutations = new TreeSet&lt;&gt;(KeyRange.SORT_BY_MIN);<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    final LockOwner lockOwner = new LockOwner();<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    boolean stale;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    long waitTimeout;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    /**<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * Constructor.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @param kvdb associated database<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * @param waitTimeout wait timeout for this transaction<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * @throws IllegalArgumentException if {@code kvdb} is null<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * @throws IllegalArgumentException if {@code waitTimeout} is negative<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    protected SimpleKVTransaction(SimpleKVDatabase kvdb, long waitTimeout) {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        Preconditions.checkArgument(kvdb != null, "null kvdb");<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        this.kvdb = kvdb;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        this.setTimeout(waitTimeout);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    @Override<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    public SimpleKVDatabase getKVDatabase() {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        return this.kvdb;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    }<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    @Override<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    public void setTimeout(long timeout) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        Preconditions.checkArgument(timeout &gt;= 0, "timeout &lt; 0");<a name="line.62"></a>
 <span class="sourceLineNo">063</span>        this.waitTimeout = timeout;<a name="line.63"></a>
 <span class="sourceLineNo">064</span>    }<a name="line.64"></a>
 <span class="sourceLineNo">065</span><a name="line.65"></a>

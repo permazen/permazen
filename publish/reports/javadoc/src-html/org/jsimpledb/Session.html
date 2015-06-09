@@ -392,13 +392,13 @@
 <span class="sourceLineNo">384</span>            Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");<a name="line.384"></a>
 <span class="sourceLineNo">385</span>            switch (this.mode) {<a name="line.385"></a>
 <span class="sourceLineNo">386</span>            case JSIMPLEDB:<a name="line.386"></a>
-<span class="sourceLineNo">387</span>                if (commit)<a name="line.387"></a>
+<span class="sourceLineNo">387</span>                if (commit &amp;&amp; !this.tx.isRollbackOnly())<a name="line.387"></a>
 <span class="sourceLineNo">388</span>                    JTransaction.getCurrent().commit();<a name="line.388"></a>
 <span class="sourceLineNo">389</span>                else<a name="line.389"></a>
 <span class="sourceLineNo">390</span>                    JTransaction.getCurrent().rollback();<a name="line.390"></a>
 <span class="sourceLineNo">391</span>                break;<a name="line.391"></a>
 <span class="sourceLineNo">392</span>            case CORE_API:<a name="line.392"></a>
-<span class="sourceLineNo">393</span>                if (commit)<a name="line.393"></a>
+<span class="sourceLineNo">393</span>                if (commit &amp;&amp; !this.tx.isRollbackOnly())<a name="line.393"></a>
 <span class="sourceLineNo">394</span>                    this.tx.commit();<a name="line.394"></a>
 <span class="sourceLineNo">395</span>                else<a name="line.395"></a>
 <span class="sourceLineNo">396</span>                    this.tx.rollback();<a name="line.396"></a>
