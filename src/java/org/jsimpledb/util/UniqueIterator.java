@@ -5,6 +5,7 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 
@@ -38,8 +39,7 @@ public class UniqueIterator<E> implements Iterator<E> {
      * @throws IllegalArgumentException if {@code comparator} is null
      */
     public UniqueIterator(Iterator<? extends E> iterator, Comparator<? super E> comparator) {
-        if (comparator == null)
-            throw new IllegalArgumentException("null comparator");
+        Preconditions.checkArgument(comparator != null, "null comparator");
         this.iterator = Iterators.peekingIterator(iterator);
         this.comparator = comparator;
     }

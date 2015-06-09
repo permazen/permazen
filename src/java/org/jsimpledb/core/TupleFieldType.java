@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Arrays;
@@ -108,8 +109,7 @@ abstract class TupleFieldType<T extends Tuple> extends NonNullFieldType<T> {
     protected abstract T createTuple(Object[] values);
 
     private List<Object> asList(Tuple tuple) {
-        if (tuple == null)
-            throw new IllegalArgumentException("invalid null tuple");
+        Preconditions.checkArgument(tuple != null, "null tuple");
         final List<Object> list = tuple.asList();
         if (list.size() != this.size)
             throw new IllegalArgumentException("tuple has the wrong cardinality " + list.size() + " != " + this.size);

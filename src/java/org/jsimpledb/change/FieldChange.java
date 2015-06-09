@@ -5,6 +5,8 @@
 
 package org.jsimpledb.change;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Notification object that gets passed to {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated methods
  * when a field changes.
@@ -35,10 +37,8 @@ public abstract class FieldChange<T> extends Change<T> {
      */
     protected FieldChange(T jobj, int storageId, String fieldName) {
         super(jobj);
-        if (storageId <= 0)
-            throw new IllegalArgumentException("storageId <= 0");
-        if (fieldName == null)
-            throw new IllegalArgumentException("null fieldName");
+        Preconditions.checkArgument(storageId > 0, "storageId <= 0");
+        Preconditions.checkArgument(fieldName != null, "null fieldName");
         this.storageId = storageId;
         this.fieldName = fieldName;
     }

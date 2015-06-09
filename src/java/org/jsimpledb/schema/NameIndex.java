@@ -5,6 +5,8 @@
 
 package org.jsimpledb.schema;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -28,8 +30,7 @@ public class NameIndex {
     public NameIndex(SchemaModel schemaModel) {
 
         // Initialize
-        if (schemaModel == null)
-            throw new IllegalArgumentException("null schemaModel");
+        Preconditions.checkArgument(schemaModel != null, "null schemaModel");
         this.schemaModel = schemaModel;
 
         // Index type names
@@ -74,8 +75,7 @@ public class NameIndex {
      * @return the unique {@link SchemaObjectType} with name {@code name}, or null if not found
      */
     public SchemaObjectType getSchemaObjectType(String name) {
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(name != null, "null name");
         return this.typeMap.get(name);
     }
 
@@ -98,10 +98,8 @@ public class NameIndex {
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
     public SchemaField getSchemaField(SchemaObjectType type, String name) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(type != null, "null type");
+        Preconditions.checkArgument(name != null, "null name");
         final TreeMap<String, SchemaField> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
@@ -116,8 +114,7 @@ public class NameIndex {
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
     public SortedSet<String> getSchemaFieldNames(SchemaObjectType type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         final TreeMap<String, SchemaField> fieldMap = this.typeFieldMap.get(type.getStorageId());
         if (fieldMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
@@ -134,10 +131,8 @@ public class NameIndex {
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
     public SchemaCompositeIndex getSchemaCompositeIndex(SchemaObjectType type, String name) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(type != null, "null type");
+        Preconditions.checkArgument(name != null, "null name");
         final TreeMap<String, SchemaCompositeIndex> indexMap = this.typeCompositeIndexMap.get(type.getStorageId());
         if (indexMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());
@@ -152,8 +147,7 @@ public class NameIndex {
      * @throws IllegalArgumentException if {@code type} is not indexed by this instance
      */
     public SortedSet<String> getSchemaCompositeIndexNames(SchemaObjectType type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         final TreeMap<String, SchemaCompositeIndex> indexMap = this.typeCompositeIndexMap.get(type.getStorageId());
         if (indexMap == null)
             throw new IllegalArgumentException("unknown type `" + type.getName() + "' with storage ID " + type.getStorageId());

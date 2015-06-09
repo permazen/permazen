@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Comparator;
 
 /**
@@ -24,8 +26,7 @@ abstract class StorageInfo {
     final int storageId;
 
     StorageInfo(int storageId) {
-        if (storageId <= 0)
-            throw new IllegalArgumentException("invalid storageId " + storageId);
+        Preconditions.checkArgument(storageId > 0, "invalid non-positive storageId");
         this.storageId = storageId;
     }
 

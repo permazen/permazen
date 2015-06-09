@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.kv.KVDatabase;
 
 /**
@@ -32,10 +34,8 @@ public class PrefixKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code db} or {@code keyPrefix} is null
      */
     public PrefixKVDatabase(KVDatabase db, byte[] keyPrefix) {
-        if (db == null)
-            throw new IllegalStateException("null db");
-        if (keyPrefix == null)
-            throw new IllegalStateException("null keyPrefix");
+        Preconditions.checkArgument(db != null, "null db");
+        Preconditions.checkArgument(keyPrefix != null, "null keyPrefix");
         this.db = db;
         this.keyPrefix = keyPrefix.clone();
     }

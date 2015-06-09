@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.util.Collections;
@@ -33,10 +34,8 @@ public class CompositeIndex extends SchemaItem {
      */
     CompositeIndex(String name, int storageId, Schema schema, ObjType objType, Iterable<? extends SimpleField<?>> fields) {
         super(name, storageId, schema);
-        if (objType == null)
-            throw new IllegalArgumentException("null objType");
-        if (fields == null)
-            throw new IllegalArgumentException("null fields");
+        Preconditions.checkArgument(objType != null, "null objType");
+        Preconditions.checkArgument(fields != null, "null fields");
         this.objType = objType;
         this.fields = Collections.unmodifiableList(Lists.newArrayList(fields));
     }

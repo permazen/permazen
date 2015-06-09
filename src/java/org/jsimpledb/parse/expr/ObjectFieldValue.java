@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -28,10 +30,8 @@ public class ObjectFieldValue extends AbstractFieldValue {
      */
     public ObjectFieldValue(Object object, Field field) {
         super(field);
-        if (object == null)
-            throw new IllegalArgumentException("null object");
-        if ((field.getModifiers() & Modifier.STATIC) != 0)
-            throw new IllegalArgumentException("field is static");
+        Preconditions.checkArgument(object != null, "null object");
+        Preconditions.checkArgument((field.getModifiers() & Modifier.STATIC) == 0, "field is static");
         this.object = object;
     }
 

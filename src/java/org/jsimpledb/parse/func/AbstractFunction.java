@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.func;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 
 import org.jsimpledb.parse.ParseContext;
@@ -36,8 +38,7 @@ public abstract class AbstractFunction {
      * @param name function name
      */
     protected AbstractFunction(String name) {
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(name != null, "null name");
         this.name = name;
     }
 

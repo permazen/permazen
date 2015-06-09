@@ -5,6 +5,7 @@
 
 package org.jsimpledb.tuple;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.util.Arrays;
@@ -26,8 +27,7 @@ public final class Tuples {
      * @throws UnsupportedOperationException if {@code values} has more elements than exist concrete {@link Tuple} classes
      */
     public static Tuple createTuple(Iterable<?> values) {
-        if (values == null)
-            throw new IllegalArgumentException("null values");
+        Preconditions.checkArgument(values != null, "null values");
         return Tuples.createTuple(Lists.newArrayList(values).toArray());
     }
 
@@ -40,8 +40,7 @@ public final class Tuples {
      * @throws UnsupportedOperationException if {@code values} has more elements than exist concrete {@link Tuple} classes
      */
     public static Tuple createTuple(Object... values) {
-        if (values == null)
-            throw new IllegalArgumentException("null values");
+        Preconditions.checkArgument(values != null, "null values");
         final Class<? extends Tuple> tupleClass = Tuples.tupleClassForSize(values.length);
         final Class<?>[] parameterTypes = new Class<?>[values.length];
         Arrays.fill(parameterTypes, Object.class);
@@ -61,8 +60,7 @@ public final class Tuples {
      * @throws UnsupportedOperationException if {@code size} is more than exist concrete {@link Tuple} classes
      */
     public static Class<? extends Tuple> tupleClassForSize(int size) {
-        if (size < 1)
-            throw new IllegalArgumentException("invalid size " + size);
+        Preconditions.checkArgument(size >= 1, "invalid non-positive size");
         final String name = Tuple.class.getName() + size;
         try {
             return Class.forName(name, false, Tuple.class.getClassLoader()).asSubclass(Tuple.class);

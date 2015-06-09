@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -245,8 +247,7 @@ public class ParseSession extends Session {
      * @throws IllegalArgumentException if {@code klass} is null
      */
     public String relativizeClassName(Class<?> klass) {
-        if (klass == null)
-            throw new IllegalArgumentException("null klass");
+        Preconditions.checkArgument(klass != null, "null klass");
         final String name = klass.getName();
         for (int pos = name.lastIndexOf('.'); pos > 0; pos = name.lastIndexOf('.', pos - 1)) {
             final String shortName = name.substring(pos + 1);

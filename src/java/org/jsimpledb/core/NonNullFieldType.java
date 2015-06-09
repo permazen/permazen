@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 /**
@@ -34,8 +35,7 @@ abstract class NonNullFieldType<T> extends FieldType<T> {
 
     @Override
     public T validate(Object obj) {
-        if (obj == null)
-            throw new IllegalArgumentException("invalid null value");
+        Preconditions.checkArgument(obj != null, "invalid null value");
         return super.validate(obj);
     }
 }

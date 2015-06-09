@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Iterator;
 import java.util.NavigableSet;
 
@@ -36,8 +38,7 @@ class JSSet<E> extends FieldTypeSet<E> {
     private JSSet(Transaction tx, SetField<E> field, ObjId id,
       boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
         super(tx, field.elementField.fieldType, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
-        if (keyRange == null)
-            throw new IllegalArgumentException("null keyRange");
+        Preconditions.checkArgument(keyRange != null, "null keyRange");
         this.id = id;
         this.field = field;
     }

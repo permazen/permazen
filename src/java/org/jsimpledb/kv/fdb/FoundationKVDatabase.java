@@ -9,6 +9,7 @@ import com.foundationdb.Database;
 import com.foundationdb.FDB;
 import com.foundationdb.FDBException;
 import com.foundationdb.NetworkOptions;
+import com.google.common.base.Preconditions;
 
 import java.util.concurrent.Executor;
 
@@ -115,10 +116,9 @@ public class FoundationKVDatabase implements KVDatabase {
      * @throws IllegalStateException if this instance has already been {@linkplain #start started}
      */
     public void setKeyPrefix(byte[] keyPrefix) {
-        if (this.database != null)
-            throw new IllegalStateException("already started");
-        if (keyPrefix != null && keyPrefix.length > 0 && keyPrefix[0] == (byte)0xff)
-            throw new IllegalArgumentException("prefix starts with 0xff");
+        Preconditions.checkState(this.database == null, "already started");
+        Preconditions.checkArgument(keyPrefix == null || keyPrefix.length == 0 || keyPrefix[0] != (byte)0xff,
+          "prefix starts with 0xff");
         this.keyPrefix = keyPrefix != null && keyPrefix.length > 0 ? keyPrefix.clone() : null;
     }
 
@@ -129,8 +129,7 @@ public class FoundationKVDatabase implements KVDatabase {
      * @throws IllegalStateException if this instance has not yet been {@linkplain #start started}
      */
     public Database getDatabase() {
-        if (this.database == null)
-            throw new IllegalStateException("not started");
+        Preconditions.checkState(this.database != null, "not started");
         return this.database;
     }
 
@@ -162,8 +161,7 @@ public class FoundationKVDatabase implements KVDatabase {
 
     @Override
     public FoundationKVTransaction createTransaction() {
-        if (this.database == null)
-            throw new IllegalStateException("not started");
+        Preconditions.checkState(this.database != null, "not started");
         try {
             return new FoundationKVTransaction(this, this.keyPrefix);
         } catch (FDBException e) {

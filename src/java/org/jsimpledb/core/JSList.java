@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,12 +35,9 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 // Constructors
 
     JSList(Transaction tx, ListField<E> field, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        if (field == null)
-            throw new IllegalArgumentException("null field");
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(field != null, "null field");
+        Preconditions.checkArgument(id != null, "null id");
         this.tx = tx;
         this.field = field;
         this.id = id;

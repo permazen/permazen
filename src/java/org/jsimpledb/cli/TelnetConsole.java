@@ -5,6 +5,8 @@
 
 package org.jsimpledb.cli;
 
+import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -149,8 +151,7 @@ public final class TelnetConsole extends Console {
         protected final jline.Terminal terminal;
 
         public ForwardingTerminal(jline.Terminal terminal) {
-            if (terminal == null)
-                throw new IllegalArgumentException("null terminal");
+            Preconditions.checkArgument(terminal != null, "null terminal");
             this.terminal = terminal;
         }
 
@@ -231,8 +232,7 @@ public final class TelnetConsole extends Console {
 
         public TelnetTerminal(jline.Terminal terminal, nvt4j.impl.Terminal nvt) {
             super(terminal);
-            if (nvt == null)
-                throw new IllegalArgumentException("null nvt");
+            Preconditions.checkArgument(nvt != null, "null nvt");
             this.nvt = nvt;
         }
 

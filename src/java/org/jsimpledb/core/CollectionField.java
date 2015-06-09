@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Collection;
@@ -38,8 +39,7 @@ public abstract class CollectionField<C extends Collection<E>, E> extends Comple
      */
     CollectionField(String name, int storageId, Schema schema, TypeToken<C> typeToken, SimpleField<E> elementField) {
         super(name, storageId, schema, typeToken);
-        if (elementField == null)
-            throw new IllegalArgumentException("null elementField");
+        Preconditions.checkArgument(elementField != null, "null elementField");
         this.elementField = elementField;
         assert this.elementField.parent == null;
         this.elementField.parent = this;

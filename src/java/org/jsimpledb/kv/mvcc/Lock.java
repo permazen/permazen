@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Comparator;
 
 import org.jsimpledb.kv.KeyRange;
@@ -69,8 +71,7 @@ class Lock extends KeyRange {
      */
     public Lock(LockOwner owner, byte[] min, byte[] max, boolean write) {
         super(min, max);
-        if (owner == null)
-            throw new IllegalArgumentException("null owner");
+        Preconditions.checkArgument(owner != null, "null owner");
         this.owner = owner;
         this.write = write;
     }
@@ -175,8 +176,7 @@ class Lock extends KeyRange {
      * Get a search key for use with instances sorted via {@link #MIN_COMPARATOR}.
      */
     public static Lock getMinKey(byte[] min, boolean write) {
-        if (min == null)
-            throw new IllegalArgumentException("null min");
+        Preconditions.checkArgument(min != null, "null min");
         return new Lock(DUMMY_OWNER, min, min, write);
     }
 
@@ -184,8 +184,7 @@ class Lock extends KeyRange {
      * Get a search key for use with instances sorted via {@link #MAX_COMPARATOR}.
      */
     public static Lock getMaxKey(byte[] max, boolean write) {
-        if (max == null)
-            throw new IllegalArgumentException("null max");
+        Preconditions.checkArgument(max != null, "null max");
         return new Lock(DUMMY_OWNER, max, max, write);
     }
 }

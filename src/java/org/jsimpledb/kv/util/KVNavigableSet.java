@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.NavigableSet;
@@ -112,8 +114,7 @@ public class KVNavigableSet extends AbstractKVNavigableSet<byte[]> {
 
     @Override
     protected void encode(ByteWriter writer, Object obj) {
-        if (!(obj instanceof byte[]))
-            throw new IllegalArgumentException("value is not a byte[]");
+        Preconditions.checkArgument(obj instanceof byte[], "value is not a byte[]");
         writer.write((byte[])obj);
     }
 

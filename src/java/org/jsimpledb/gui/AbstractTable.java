@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.data.Container;
 import com.vaadin.ui.Table;
 
@@ -36,10 +37,8 @@ public abstract class AbstractTable<C extends Container & Connectable> extends T
     }
 
     protected void addColumn(String property, String name, int width, Table.Align alignment) {
-        if (property == null)
-            throw new IllegalArgumentException("null property");
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(property != null, "null property");
+        Preconditions.checkArgument(name != null, "null name");
         this.setColumnHeader(property, name);
         this.setColumnWidth(property, width);
         if (alignment != null)

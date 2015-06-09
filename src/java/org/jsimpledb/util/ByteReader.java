@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Reads bytes from a buffer.
  */
@@ -133,8 +135,7 @@ public class ByteReader {
      * @throws IllegalArgumentException if {@code len} is negative
      */
     public byte[] readBytes(int len) {
-        if (len < 0)
-            throw new IllegalArgumentException("len < 0");
+        Preconditions.checkArgument(len >= 0, "len < 0");
         if (this.off + len > this.max)
             throw new IndexOutOfBoundsException();
         final byte[] result = new byte[len];

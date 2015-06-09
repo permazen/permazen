@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.HashMap;
 
 import org.jsimpledb.core.ObjId;
@@ -41,10 +43,8 @@ public class GeneratedIdCache {
      * @throws IllegalArgumentException if {@code tx} or {@code string} is null
      */
     public synchronized ObjId getGeneratedId(Transaction tx, int storageId, String string) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        if (string == null)
-            throw new IllegalArgumentException("null string");
+        Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(string != null, "null string");
         final String key = "" + storageId + ":" + string;
         ObjId id = this.map.get(key);
         if (id == null) {

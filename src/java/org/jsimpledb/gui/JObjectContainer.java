@@ -6,6 +6,7 @@
 package org.jsimpledb.gui;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -215,8 +216,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * @throws IllegalArgumentException if {@code jdb} is null
      */
     protected JObjectContainer(JSimpleDB jdb, Class<?> type) {
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
+        Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
         this.setType(type);
         this.setPropertyExtractor(this);
@@ -315,8 +315,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     public <T> void handleChange(Change<T> change) {
 
         // Sanity check
-        if (change == null)
-            throw new IllegalArgumentException("null change");
+        Preconditions.checkArgument(change != null, "null change");
 
         // Determine whether the change concerns us
         if (this.type != null && !this.type.isInstance(change.getObject()))

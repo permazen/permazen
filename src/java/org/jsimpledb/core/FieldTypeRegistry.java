@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -239,8 +240,7 @@ public class FieldTypeRegistry {
      * @throws RuntimeException if instantiation of a class fails
      */
     public void addNamedClasses(Iterable<String> classNames) {
-        if (classNames == null)
-            throw new IllegalArgumentException("null classNames");
+        Preconditions.checkArgument(classNames != null, "null classNames");
         this.addClasses(Iterables.transform(classNames, new Function<String, Class<? extends FieldType<?>>>() {
             @Override
             @SuppressWarnings("unchecked")
@@ -271,8 +271,7 @@ public class FieldTypeRegistry {
      * @throws IllegalArgumentException if {@code classes} contains an invalid {@link FieldType} class
      */
     public void addClasses(Iterable<? extends Class<? extends FieldType<?>>> classes) {
-        if (classes == null)
-            throw new IllegalArgumentException("null classes");
+        Preconditions.checkArgument(classes != null, "null classes");
         for (Class<? extends FieldType<?>> type : classes)
             this.addClass(type);
     }
@@ -289,8 +288,7 @@ public class FieldTypeRegistry {
     public void addClass(Class<? extends FieldType<?>> typeClass) {
 
         // Sanity check
-        if (typeClass == null)
-            throw new IllegalArgumentException("null typeClass");
+        Preconditions.checkArgument(typeClass != null, "null typeClass");
 
         // Instantiate class
         final FieldType<?> fieldType;
@@ -314,10 +312,8 @@ public class FieldTypeRegistry {
      * @throws IllegalArgumentException if {@code type} has a name that ends with {@code []} (array name)
      */
     public synchronized boolean add(FieldType<?> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
-        if (type.name.endsWith(ArrayType.ARRAY_SUFFIX))
-            throw new IllegalArgumentException("illegal array type name `" + type.name + "'");
+        Preconditions.checkArgument(type != null, "null type");
+        Preconditions.checkArgument(!type.name.endsWith(ArrayType.ARRAY_SUFFIX), "illegal array type name `" + type.name + "'");
         final FieldType<?> other = this.typesByName.get(type.name);
         if (other != null) {
             if (other.equals(type))
@@ -343,8 +339,7 @@ public class FieldTypeRegistry {
     public synchronized FieldType<?> getFieldType(final String name) {
 
         // Sanity check
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(name != null, "null name");
 
         // Handle array types
         if (name.endsWith(ArrayType.ARRAY_SUFFIX)) {
@@ -369,8 +364,7 @@ public class FieldTypeRegistry {
     public <E> FieldType<E[]> getArrayType(final FieldType<E> elementType) {
 
         // Sanity check
-        if (elementType == null)
-            throw new IllegalArgumentException("null elementType");
+        Preconditions.checkArgument(elementType != null, "null elementType");
 
         // Create array type
         final Primitive<?> primitive = Primitive.get(elementType.typeToken.getRawType());
@@ -429,8 +423,7 @@ public class FieldTypeRegistry {
     public synchronized <T> List<FieldType<T>> getFieldTypes(TypeToken<T> typeToken) {
 
         // Sanity check
-        if (typeToken == null)
-            throw new IllegalArgumentException("null typeToken");
+        Preconditions.checkArgument(typeToken != null, "null typeToken");
 
         // Handle array types
         final TypeToken<?> elementTypeToken = typeToken.getComponentType();

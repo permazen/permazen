@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.Map;
 
@@ -82,23 +84,20 @@ public class SimpleField<T> extends Field<T> {
      * @throws IllegalArgumentException if {@code tx} or {@code id} is null
      */
     public void setValue(Transaction tx, ObjId id, T value) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         tx.writeSimpleField(id, this.storageId, value, false);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public T getValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         return (T)tx.readSimpleField(id, this.storageId, false);
     }
 
     @Override
     public boolean hasDefaultValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         return tx.hasDefaultValue(id, this);
     }
 

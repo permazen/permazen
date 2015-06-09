@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.JField;
 import org.jsimpledb.JObject;
 import org.jsimpledb.parse.ParseSession;
@@ -28,10 +30,8 @@ public class JFieldValue extends AbstractValue {
      * @throws IllegalArgumentException if {@code jfield} is null
      */
     public JFieldValue(JObject jobj, JField jfield) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
-        if (jfield == null)
-            throw new IllegalArgumentException("null jfield");
+        Preconditions.checkArgument(jobj != null, "null jobj");
+        Preconditions.checkArgument(jfield != null, "null jfield");
         this.jobj = jobj;
         this.jfield = jfield;
     }

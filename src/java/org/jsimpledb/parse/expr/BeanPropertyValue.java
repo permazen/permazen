@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -32,12 +34,9 @@ public class BeanPropertyValue extends AbstractValue {
      * @throws IllegalArgumentException if any parameter is null
      */
     public BeanPropertyValue(Object bean, String name, Method getter) {
-        if (bean == null)
-            throw new IllegalArgumentException("null bean");
-        if (name == null)
-            throw new IllegalArgumentException("null name");
-        if (getter == null)
-            throw new IllegalArgumentException("null getter");
+        Preconditions.checkArgument(bean != null, "null bean");
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(getter != null, "null getter");
         this.bean = bean;
         this.name = name;
         this.getter = getter;

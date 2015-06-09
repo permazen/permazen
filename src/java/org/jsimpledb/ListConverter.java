@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import java.util.List;
 
@@ -22,8 +23,7 @@ class ListConverter<E, W> extends Converter<List<E>, List<W>> {
     private final Converter<E, W> elementConverter;
 
     ListConverter(Converter<E, W> elementConverter) {
-        if (elementConverter == null)
-            throw new IllegalArgumentException("null elementConverter");
+        Preconditions.checkArgument(elementConverter != null, "null elementConverter");
         this.elementConverter = elementConverter;
     }
 

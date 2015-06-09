@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -54,8 +56,7 @@ public class Diffs extends LinkedHashMap<String, Diffs> {
      * @throws IllegalArgumentException if {@code description} is null
      */
     public void add(String description, Diffs diffs) {
-        if (description == null)
-            throw new IllegalArgumentException("null description");
+        Preconditions.checkArgument(description != null, "null description");
         this.put(description, diffs);
     }
 

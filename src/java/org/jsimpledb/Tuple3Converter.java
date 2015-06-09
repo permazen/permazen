@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import org.jsimpledb.tuple.Tuple3;
 
@@ -27,12 +28,9 @@ class Tuple3Converter<V1, V2, V3, W1, W2, W3> extends Converter<Tuple3<V1, V2, V
 
     public Tuple3Converter(Converter<V1, W1> value1Converter,
       Converter<V2, W2> value2Converter, Converter<V3, W3> value3Converter) {
-        if (value1Converter == null)
-            throw new IllegalArgumentException("null value1Converter");
-        if (value2Converter == null)
-            throw new IllegalArgumentException("null value2Converter");
-        if (value3Converter == null)
-            throw new IllegalArgumentException("null value3Converter");
+        Preconditions.checkArgument(value1Converter != null, "null value1Converter");
+        Preconditions.checkArgument(value2Converter != null, "null value2Converter");
+        Preconditions.checkArgument(value3Converter != null, "null value3Converter");
         this.value1Converter = value1Converter;
         this.value2Converter = value2Converter;
         this.value3Converter = value3Converter;

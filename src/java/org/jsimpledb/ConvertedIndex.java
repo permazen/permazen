@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -30,12 +31,9 @@ class ConvertedIndex<V, T, WV, WT> implements Index<V, T> {
     private final Converter<T, WT> targetConverter;
 
     public ConvertedIndex(Index<WV, WT> index, Converter<V, WV> valueConverter, Converter<T, WT> targetConverter) {
-        if (index == null)
-            throw new IllegalArgumentException("null index");
-        if (valueConverter == null)
-            throw new IllegalArgumentException("null valueConverter");
-        if (targetConverter == null)
-            throw new IllegalArgumentException("null targetConverter");
+        Preconditions.checkArgument(index != null, "null index");
+        Preconditions.checkArgument(valueConverter != null, "null valueConverter");
+        Preconditions.checkArgument(targetConverter != null, "null targetConverter");
         this.index = index;
         this.valueConverter = valueConverter;
         this.targetConverter = targetConverter;

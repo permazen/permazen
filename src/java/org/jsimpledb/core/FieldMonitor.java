@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -41,10 +43,8 @@ class FieldMonitor {
      * @param listener listener to notify
      */
     FieldMonitor(int fieldStorageId, int[] path, Iterable<Integer> types, Object listener) {
-        if (path == null)
-            throw new IllegalArgumentException("null path");
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(path != null, "null path");
+        Preconditions.checkArgument(listener != null, "null listener");
         this.storageId = fieldStorageId;
         if (types != null) {
             final ArrayList<KeyRange> keyRanges = new ArrayList<>();

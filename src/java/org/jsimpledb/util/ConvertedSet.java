@@ -6,6 +6,7 @@
 package org.jsimpledb.util;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
@@ -30,10 +31,8 @@ public class ConvertedSet<E, W> extends AbstractIterationSet<E> {
      * @throws IllegalArgumentException if any parameter is null
      */
     ConvertedSet(Set<W> set, Converter<E, W> converter) {
-        if (set == null)
-            throw new IllegalArgumentException("null set");
-        if (converter == null)
-            throw new IllegalArgumentException("null converter");
+        Preconditions.checkArgument(set != null, "null set");
+        Preconditions.checkArgument(converter != null, "null converter");
         this.set = set;
         this.converter = converter;
     }

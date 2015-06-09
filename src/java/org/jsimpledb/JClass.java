@@ -5,6 +5,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
@@ -69,8 +70,7 @@ public class JClass<T> extends JSchemaObject {
      */
     JClass(JSimpleDB jdb, String name, int storageId, Class<T> type) {
         super(jdb, name, storageId, "object type `" + name + "' (" + type + ")");
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(name != null, "null name");
         this.type = type;
         this.classGenerator = new ClassGenerator<T>(this);
     }
@@ -120,8 +120,7 @@ public class JClass<T> extends JSchemaObject {
      * @throws UnknownFieldException if the field is not an instance of of {@code type}
      */
     public <T extends JField> T getJField(int storageId, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         final JField jfield = this.jfields.get(storageId);
         if (jfield == null)
             throw new UnknownFieldException(storageId, "object type `" + this.name + "' has no field with storage ID " + storageId);

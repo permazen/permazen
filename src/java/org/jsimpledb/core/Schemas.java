@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
 import java.util.Arrays;
@@ -40,15 +41,13 @@ public class Schemas {
     private void initialize(SortedMap<Integer, Schema> versions) {
 
         // Sanity check
-        if (versions == null)
-            throw new IllegalArgumentException("null versions");
+        Preconditions.checkArgument(versions != null, "null versions");
 
         // Verify Versions have the right version numbers
         for (Map.Entry<Integer, Schema> entry : versions.entrySet()) {
             final int versionNumber = entry.getKey();
             final Schema schema = entry.getValue();
-            if (schema == null)
-                throw new IllegalArgumentException("null schema");
+            Preconditions.checkArgument(schema != null, "null schema");
             if (schema.versionNumber != versionNumber) {
                 throw new InvalidSchemaException("schema version at index "
                   + versionNumber + " has version " + schema.versionNumber);

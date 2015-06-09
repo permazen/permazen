@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -200,8 +202,7 @@ public final class UnsignedIntEncoder {
      */
     public static int decodeLength(int first) {
         first &= 0xff;
-        if (first == 0xff)
-            throw new IllegalArgumentException("invalid unsigned int encoding starting with 0xff");
+        Preconditions.checkArgument(first != 0xff, "invalid unsigned int encoding starting with 0xff");
         return first < MIN_MULTI_BYTE_VALUE ? 1 : first - MIN_MULTI_BYTE_VALUE + 2;
     }
 
@@ -213,8 +214,7 @@ public final class UnsignedIntEncoder {
      * @throws IllegalArgumentException if {@code value} is negative
      */
     public static int encodeLength(int value) {
-        if (value < 0)
-            throw new IllegalArgumentException("value < 0");
+        Preconditions.checkArgument(value >= 0, "value < 0");
         value -= MIN_MULTI_BYTE_VALUE;
         if (value < 0)
             return 1;
@@ -235,8 +235,7 @@ public final class UnsignedIntEncoder {
      * @throws ArrayIndexOutOfBoundsException if {@code off} is negative or the encoded value exceeds the given buffer
      */
     private static int encode(int value, byte[] buf, int off) {
-        if (value < 0)
-            throw new IllegalArgumentException("value < 0");
+        Preconditions.checkArgument(value >= 0, "value < 0");
         if (value < MIN_MULTI_BYTE_VALUE) {
             buf[off] = (byte)value;
             return 1;

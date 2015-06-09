@@ -7,6 +7,7 @@ package org.jsimpledb;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -217,12 +218,9 @@ public class JTransaction {
     JTransaction(JSimpleDB jdb, Transaction tx, ValidationMode validationMode) {
 
         // Initialization
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        if (validationMode == null)
-            throw new IllegalArgumentException("null validationMode");
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(validationMode != null, "null validationMode");
         this.jdb = jdb;
         this.tx = tx;
         this.validationMode = validationMode;
@@ -326,8 +324,7 @@ public class JTransaction {
      */
     @SuppressWarnings("unchecked")
     public <T> NavigableSet<T> getAll(Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         NavigableSet<ObjId> ids = this.tx.getAll();
         final KeyRanges keyRanges = this.jdb.keyRangesFor(type);
         if (!keyRanges.isFull())
@@ -345,8 +342,7 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> NavigableMap<Integer, NavigableSet<T>> queryVersion(Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         CoreIndex<Integer, ObjId> index = this.tx.queryVersion();
         final KeyRanges keyRanges = this.jdb.keyRangesFor(type);
         if (!keyRanges.isFull())
@@ -370,8 +366,7 @@ public class JTransaction {
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public byte[] getKey(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         return this.tx.getKey(jobj.getObjId());
     }
 
@@ -394,8 +389,7 @@ public class JTransaction {
      * @throws IllegalArgumentException if either parameter is null
      */
     public byte[] getKey(JObject jobj, String fieldName) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         final Class<?> type = this.jdb.getJClass(jobj.getObjId()).type;
         final ReferencePath refPath = this.jdb.parseReferencePath(type, fieldName, false);
         if (refPath.getReferenceFields().length > 0)
@@ -484,14 +478,10 @@ public class JTransaction {
     public JObject copyTo(JTransaction dest, JObject srcObj, ObjId dstId, CopyState copyState, String... refPaths) {
 
         // Sanity check
-        if (dest == null)
-            throw new IllegalArgumentException("null destination transaction");
-        if (srcObj == null)
-            throw new IllegalArgumentException("null srcObj");
-        if (copyState == null)
-            throw new IllegalArgumentException("null copyState");
-        if (refPaths == null)
-            throw new IllegalArgumentException("null refPaths");
+        Preconditions.checkArgument(dest != null, "null dest");
+        Preconditions.checkArgument(srcObj != null, "null srcObj");
+        Preconditions.checkArgument(copyState != null, "null copyState");
+        Preconditions.checkArgument(refPaths != null, "null refPaths");
 
         // Handle possible re-entrant object cache load
         srcObj.getTransaction().getJObjectCache().registerJObject(srcObj);
@@ -511,8 +501,7 @@ public class JTransaction {
         for (String refPath : refPaths) {
 
             // Parse reference path
-            if (refPath == null)
-                throw new IllegalArgumentException("null refPath");
+            Preconditions.checkArgument(refPath != null, "null refPath");
             final ReferencePath path = this.jdb.parseReferencePath(startType, refPath, null);
 
             // Verify target field is a reference field; convert a complex target field into its reference sub-field(s)
@@ -602,12 +591,9 @@ public class JTransaction {
     public void copyTo(JTransaction dest, CopyState copyState, Iterable<? extends JObject> jobjs) {
 
         // Sanity check
-        if (dest == null)
-            throw new IllegalArgumentException("null dest");
-        if (copyState == null)
-            throw new IllegalArgumentException("null copyState");
-        if (jobjs == null)
-            throw new IllegalArgumentException("null jobjs");
+        Preconditions.checkArgument(dest != null, "null dest");
+        Preconditions.checkArgument(copyState != null, "null copyState");
+        Preconditions.checkArgument(jobjs != null, "null jobjs");
 
         // Check trivial case
         if (this.tx == dest.tx)
@@ -708,8 +694,7 @@ public class JTransaction {
      * @see #getJObject(JObject)
      */
     public <T> T getJObject(ObjId id, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         return type.cast(this.getJObject(id));
     }
 
@@ -1093,8 +1078,7 @@ public class JTransaction {
      * @throws IllegalArgumentException if any parameter is null
      */
     public <T> NavigableSet<T> invertReferencePath(Class<T> startType, String path, Iterable<? extends JObject> targetObjects) {
-        if (targetObjects == null)
-            throw new IllegalArgumentException("null targetObjects");
+        Preconditions.checkArgument(targetObjects != null, "null targetObjects");
         final ReferencePath refPath = this.jdb.parseReferencePath(startType, path, true);
         final int targetField = refPath.getTargetField();
         try {
@@ -1541,8 +1525,7 @@ public class JTransaction {
      * @throws IllegalArgumentException if {@code action} is null
      */
     public void performAction(Runnable action) {
-        if (action == null)
-            throw new IllegalArgumentException("null action");
+        Preconditions.checkArgument(action != null, "null action");
         final JTransaction previous = CURRENT.get();
         CURRENT.set(this);
         try {

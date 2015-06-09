@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ConcurrentModificationException;
@@ -76,8 +78,7 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
 
     // Internal constructor
     ObjIdMap(int capacity, boolean withValues) {
-        if (capacity < 0)
-            throw new IllegalArgumentException("capacity < 0");
+        Preconditions.checkArgument(capacity >= 0, "capacity < 0");
         capacity &= 0x3fffffff;                                                 // avoid integer overflow from large values
         capacity = (int)(capacity / EXPAND_THRESHOLD);                          // increase to account for overhead
         capacity = Math.max(1, capacity);                                       // avoid zero, on which the next line fails
@@ -135,8 +136,7 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
 
     @Override
     public V put(ObjId id, V value) {
-        if (id == null)
-            throw new IllegalArgumentException("illegal null key");
+        Preconditions.checkArgument(id != null, "null id");
         final long key = id.asLong();
         assert key != 0;
         return this.insert(key, value);

@@ -6,6 +6,7 @@
 package org.jsimpledb.parse.expr;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 
 import org.jsimpledb.parse.ParseSession;
 
@@ -264,8 +265,7 @@ public interface Value {
         private final ParseSession session;
 
         public GetFunction(ParseSession session) {
-            if (session == null)
-                throw new IllegalArgumentException("null session");
+            Preconditions.checkArgument(session != null, "null session");
             this.session = session;
         }
 

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -47,8 +49,7 @@ public class VarValue extends AbstractLValue {
 
     @Override
     public void set(ParseSession session, Value value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         session.getVars().put(this.name, value);
     }
 }

@@ -5,6 +5,7 @@
 
 package org.jsimpledb.kv.bdb;
 
+import com.google.common.base.Preconditions;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseException;
@@ -136,12 +137,13 @@ public class BerkeleyKVDatabase implements KVDatabase {
      * </p>
      *
      * @param config environment config
-     * @throws IllegalArgumentException if {@code config} does not configured to be
+     * @throws IllegalArgumentException if {@code config} is not configured to be
      *  {@linkplain EnvironmentConfig#getTransactional transactional}
+     * @throws IllegalArgumentException if {@code config} is null
      */
     public synchronized void setEnvironmentConfig(EnvironmentConfig config) {
-        if (!config.getTransactional())
-            throw new IllegalArgumentException("environment config must be transactional");
+        Preconditions.checkArgument(config != null, "null config");
+        Preconditions.checkArgument(config.getTransactional(), "environment config must be transactional");
         this.environmentConfig = config;
     }
 
@@ -175,8 +177,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
      * @see #setNextTransactionConfig setNextTransactionConfig()
      */
     public synchronized void setTransactionConfig(TransactionConfig config) {
-        if (config == null)
-            throw new IllegalArgumentException("null config");
+        Preconditions.checkArgument(config != null, "null config");
         this.defaultTransactionConfig = config;
     }
 
@@ -191,8 +192,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
      * @see #setTransactionConfig setTransactionConfig()
      */
     public void setNextTransactionConfig(TransactionConfig config) {
-        if (config == null)
-            throw new IllegalArgumentException("null config");
+        Preconditions.checkArgument(config != null, "null config");
         NEXT_TX_CONFIG.set(config);
     }
 
@@ -251,8 +251,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
      * @throws IllegalStateException if this instance is not {@linkplain #start started}
      */
     public synchronized Environment getEnvironment() {
-        if (this.environment == null)
-            throw new IllegalStateException("not started");
+        Preconditions.checkState(this.environment != null, "not started");
         assert this.database != null;
         return this.environment;
     }
@@ -264,8 +263,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
      * @throws IllegalStateException if this instance is not {@linkplain #start started}
      */
     public synchronized Database getDatabase() {
-        if (this.environment == null)
-            throw new IllegalStateException("not started");
+        Preconditions.checkState(this.environment != null, "not started");
         assert this.database != null;
         return this.database;
     }
@@ -276,8 +274,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
     public synchronized BerkeleyKVTransaction createTransaction() {
 
         // Check open
-        if (this.environment == null)
-            throw new IllegalStateException("not started");
+        Preconditions.checkState(this.environment != null, "not started");
         assert this.database != null;
 
         // Get the config for this transaction
@@ -318,10 +315,8 @@ public class BerkeleyKVDatabase implements KVDatabase {
             return;
         }
         assert this.openTransactions.isEmpty();
-        if (this.directory == null)
-            throw new IllegalStateException("no directory configured");
-        if (this.databaseName == null)
-            throw new IllegalStateException("no database name configured");
+        Preconditions.checkState(this.directory != null, "no directory configured");
+        Preconditions.checkState(this.databaseName != null, "no database name configured");
         boolean success = false;
         try {
             this.environment = new Environment(this.directory, this.environmentConfig);

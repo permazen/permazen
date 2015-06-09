@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.data.Property;
 import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.combobox.FilteringMode;
@@ -69,10 +70,8 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
      * @param showFields true to show all object fields, false for just reference label
      */
     public JObjectChooser(JSimpleDB jdb, ParseSession session, Class<?> type, boolean showFields) {
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
-        if (session == null)
-            throw new IllegalArgumentException("null session");
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(session != null, "null session");
         this.jdb = jdb;
         this.session = session;
         this.showFields = showFields;
@@ -212,8 +211,7 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
 
     @Override
     public void addValueChangeListener(Property.ValueChangeListener listener) {
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(listener != null, "null listener");
         this.listeners.add(listener);
         if (this.objectTable != null)
             this.objectTable.addValueChangeListener(listener);

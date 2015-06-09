@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
@@ -54,8 +56,7 @@ public class NullSafeType<T> extends FieldType<T> {
      */
     public NullSafeType(String name, FieldType<T> inner) {
         super(name, inner.getTypeToken().wrap(), inner.getEncodingSignature());
-        if (inner instanceof NullSafeType)
-            throw new IllegalArgumentException("inner type is already null-safe");
+        Preconditions.checkArgument(!(inner instanceof NullSafeType), "inner type is already null-safe");
         this.inner = inner;
         this.inline = !inner.hasPrefix0xff();
     }
@@ -139,8 +140,7 @@ public class NullSafeType<T> extends FieldType<T> {
 
     @Override
     public String toString(T value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         return this.inner.toString(value);
     }
 

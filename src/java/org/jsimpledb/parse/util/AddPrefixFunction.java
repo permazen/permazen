@@ -6,6 +6,7 @@
 package org.jsimpledb.parse.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 
 /**
  * Adds a prefix.
@@ -15,15 +16,13 @@ public class AddPrefixFunction implements Function<String, String> {
     private final String prefix;
 
     public AddPrefixFunction(String prefix) {
-        if (prefix == null)
-            throw new IllegalArgumentException("null prefix");
+        Preconditions.checkArgument(prefix != null, "null prefix");
         this.prefix = prefix;
     }
 
     @Override
     public String apply(String string) {
-        if (string == null)
-            throw new IllegalArgumentException("null string");
+        Preconditions.checkArgument(string != null, "null string");
         return this.prefix + string;
     }
 }

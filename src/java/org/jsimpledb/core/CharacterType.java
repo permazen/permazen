@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.string.StringEncoder;
 import org.jsimpledb.parse.ParseContext;
@@ -49,8 +51,7 @@ class CharacterType extends PrimitiveType<Character> {
 
     @Override
     public String toString(Character value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         return StringEncoder.encode(String.valueOf(value), true);
     }
 

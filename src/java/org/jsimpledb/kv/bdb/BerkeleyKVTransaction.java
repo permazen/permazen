@@ -5,6 +5,7 @@
 
 package org.jsimpledb.kv.bdb;
 
+import com.google.common.base.Preconditions;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.DatabaseEntry;
@@ -75,8 +76,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
 
     @Override
     public void setTimeout(long timeout) {
-        if (timeout < 0)
-            throw new IllegalArgumentException("timeout < 0");
+        Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.tx.setLockTimeout(timeout, TimeUnit.MILLISECONDS);
     }
 
@@ -87,8 +87,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         if (this.closed)
             throw new StaleTransactionException(this);
         this.cursorTracker.poll();
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         final DatabaseEntry value = new DatabaseEntry();
         try {
             final OperationStatus status = this.store.getDatabase().get(this.tx, new DatabaseEntry(key), value, null);
@@ -138,8 +137,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         if (this.closed)
             throw new StaleTransactionException(this);
         this.cursorTracker.poll();
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         try {
             this.store.getDatabase().put(this.tx, new DatabaseEntry(key), new DatabaseEntry(value));
         } catch (DatabaseException e) {
@@ -152,8 +150,7 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         if (this.closed)
             throw new StaleTransactionException(this);
         this.cursorTracker.poll();
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         try {
             this.store.getDatabase().delete(this.tx, new DatabaseEntry(key));
         } catch (DatabaseException e) {
@@ -269,8 +266,8 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         CursorIterator(Cursor cursor, byte[] minKey, byte[] maxKey, boolean reverse) {
             assert Thread.holdsLock(BerkeleyKVTransaction.this);
             assert cursor != null;
-            if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
-                throw new IllegalArgumentException("minKey > maxKey");
+            Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0,
+              "minKey > maxKey");
             this.cursor = cursor;
             this.minKey = minKey != null ? ByteUtil.min(minKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MIN_KEY;
             this.maxKey = maxKey != null ? ByteUtil.min(maxKey, BerkeleyKVTransaction.MAX_KEY) : BerkeleyKVTransaction.MAX_KEY;

@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -44,8 +45,7 @@ public class ObjType extends SchemaItem {
         super(schemaObjectType.getName(), schemaObjectType.getStorageId(), schema);
 
         // Sanity check
-        if (fieldTypeRegistry == null)
-            throw new IllegalArgumentException("null fieldTypeRegistry");
+        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
         this.fieldTypeRegistry = fieldTypeRegistry;
 
         // Build fields

@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -52,8 +53,7 @@ abstract class IntegralArrayType<T, E extends Number> extends ArrayType<T, E> {
 
     @Override
     public void write(ByteWriter writer, T array) {
-        if (array == null)
-            throw new IllegalArgumentException("null array");
+        Preconditions.checkArgument(array != null, "null array");
         final int length = this.getArrayLength(array);
         for (int i = 0; i < length; i++)
             LongEncoder.write(writer, this.integralType.upCast(this.getArrayElement(array, i)));

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.sql;
 
+import com.google.common.base.Preconditions;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
@@ -103,8 +105,7 @@ public class SQLKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code table} is null
      */
     public void setTableName(String tableName) {
-        if (tableName == null)
-            throw new IllegalArgumentException("null tableName");
+        Preconditions.checkArgument(tableName != null, "null tableName");
         this.tableName = tableName;
     }
 
@@ -128,8 +129,7 @@ public class SQLKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code keyColumnName} is null
      */
     public void setKeyColumnName(String keyColumnName) {
-        if (keyColumnName == null)
-            throw new IllegalArgumentException("null keyColumn");
+        Preconditions.checkArgument(keyColumnName != null, "null keyColumnName");
         this.keyColumnName = keyColumnName;
     }
 
@@ -153,8 +153,7 @@ public class SQLKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code valueColumnName} is null
      */
     public void setValueColumnName(String valueColumnName) {
-        if (valueColumnName == null)
-            throw new IllegalArgumentException("null valueColumn");
+        Preconditions.checkArgument(valueColumnName != null, "null valueColumnName");
         this.valueColumnName = valueColumnName;
     }
 
@@ -178,8 +177,7 @@ public class SQLKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code isolationLevel} is null
      */
     public void setIsolationLevel(IsolationLevel isolationLevel) {
-        if (isolationLevel == null)
-            throw new IllegalArgumentException("null isolationLevel");
+        Preconditions.checkArgument(isolationLevel != null, "null isolationLevel");
         this.isolationLevel = isolationLevel;
     }
 
@@ -210,8 +208,7 @@ public class SQLKVDatabase implements KVDatabase {
      */
     @Override
     public SQLKVTransaction createTransaction() {
-        if (this.dataSource == null)
-            throw new IllegalStateException("no DataSource configured");
+        Preconditions.checkState(this.dataSource != null, "no DataSource configured");
         try {
             final Connection connection = this.createTransactionConnection();
             this.preBeginTransaction(connection);

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.NavigableMap;
@@ -87,8 +89,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
 
     @Override
     public byte[] put(byte[] key, byte[] value) {
-        if (!this.isVisible(key))
-            throw new IllegalArgumentException("key is out of range or filtered out");
+        Preconditions.checkArgument(this.isVisible(key), "key is out of range or filtered out");
         final byte[] previousValue = this.kv.get(key);
         this.kv.put(key, value);
         return previousValue;
@@ -124,8 +125,7 @@ public class KVNavigableMap extends AbstractKVNavigableMap<byte[], byte[]> {
 
     @Override
     protected void encodeKey(ByteWriter writer, Object obj) {
-        if (!(obj instanceof byte[]))
-            throw new IllegalArgumentException("key is not a byte[]");
+        Preconditions.checkArgument(obj instanceof byte[], "key is not a byte[]");
         writer.write((byte[])obj);
     }
 

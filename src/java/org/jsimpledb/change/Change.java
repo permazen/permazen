@@ -5,6 +5,8 @@
 
 package org.jsimpledb.change;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
 
@@ -24,8 +26,7 @@ public abstract class Change<T> {
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     protected Change(T jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         this.jobj = jobj;
     }
 
@@ -95,8 +96,7 @@ public abstract class Change<T> {
      * @throws IllegalArgumentException if {@code jtx} is null
      */
     public void apply(JTransaction jtx) {
-        if (jtx == null)
-            throw new IllegalArgumentException("null jtx");
+        Preconditions.checkArgument(jtx != null, "null jtx");
         this.apply(jtx, this.getJObject());
     }
 
@@ -129,8 +129,7 @@ public abstract class Change<T> {
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public void apply(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         this.apply(jobj.getTransaction(), jobj);
     }
 

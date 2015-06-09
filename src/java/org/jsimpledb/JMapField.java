@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -25,10 +27,8 @@ public class JMapField extends JComplexField {
     JMapField(JSimpleDB jdb, String name, int storageId,
       JSimpleField keyField, JSimpleField valueField, String description, Method getter) {
         super(jdb, name, storageId, description, getter);
-        if (keyField == null)
-            throw new IllegalArgumentException("null keyField");
-        if (valueField == null)
-            throw new IllegalArgumentException("null valueField");
+        Preconditions.checkArgument(keyField != null, "null keyField");
+        Preconditions.checkArgument(valueField != null, "null valueField");
         this.keyField = keyField;
         this.valueField = valueField;
     }
@@ -53,8 +53,7 @@ public class JMapField extends JComplexField {
 
     @Override
     public NavigableMap<?, ?> getValue(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         return jobj.getTransaction().readMapField(jobj, this.storageId, false);
     }
 

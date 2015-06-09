@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import java.util.NavigableSet;
 
@@ -22,8 +23,7 @@ class NavigableSetConverter<E, W> extends Converter<NavigableSet<E>, NavigableSe
     private final Converter<E, W> elementConverter;
 
     NavigableSetConverter(Converter<E, W> elementConverter) {
-        if (elementConverter == null)
-            throw new IllegalArgumentException("null elementConverter");
+        Preconditions.checkArgument(elementConverter != null, "null elementConverter");
         this.elementConverter = elementConverter;
     }
 

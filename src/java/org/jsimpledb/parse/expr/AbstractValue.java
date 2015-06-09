@@ -6,6 +6,7 @@
 package org.jsimpledb.parse.expr;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -59,8 +60,7 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public <T> T checkType(ParseSession session, String operation, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         final Object value = this.checkNotNull(session, operation);
         if (!type.isInstance(value)) {
             throw new EvalException("invalid " + operation + " operation on "

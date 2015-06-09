@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -58,8 +59,7 @@ final class ReferenceMethodInfoCache {
 
     @SuppressWarnings("unchecked")
     private <T> PropertyInfo<T> findReferenceLablePropertyInfo(Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         final ProvidesPropertyScanner<T> scanner = new ProvidesPropertyScanner<T>(type);
         final PropertyDef<?> propertyDef = Iterables.find(scanner.getPropertyDefs(), new Predicate<PropertyDef<?>>() {
             @Override

@@ -66,8 +66,7 @@ public class Writes implements Mutations, SizeEstimating {
      * @throws IllegalArgumentException if {@code removes} is null
      */
     public void setRemoves(KeyRanges removes) {
-        if (removes == null)
-            throw new IllegalArgumentException("null removes");
+        Preconditions.checkArgument(removes != null, "null removes");
         this.removes = removes;
     }
 

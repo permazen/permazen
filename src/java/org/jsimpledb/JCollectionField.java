@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,8 +24,7 @@ public abstract class JCollectionField extends JComplexField {
 
     JCollectionField(JSimpleDB jdb, String name, int storageId, JSimpleField elementField, String description, Method getter) {
         super(jdb, name, storageId, description, getter);
-        if (elementField == null)
-            throw new IllegalArgumentException("null elementField");
+        Preconditions.checkArgument(elementField != null, "null elementField");
         this.elementField = elementField;
     }
 

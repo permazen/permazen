@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
 import java.io.ByteArrayInputStream;
@@ -156,8 +157,7 @@ public class Database {
      * @throws IllegalArgumentException if {@code kvdb} is null
      */
     public Database(KVDatabase kvdb) {
-        if (kvdb == null)
-            throw new IllegalArgumentException("null kvdb");
+        Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
     }
 
@@ -294,8 +294,7 @@ public class Database {
     public Transaction createTransaction(final SchemaModel schemaModel, int version, final boolean allowNewSchema) {
 
         // Sanity check
-        if (version < 0)
-            throw new IllegalArgumentException("invalid schema version: " + version);
+        Preconditions.checkArgument(version >= 0, "invalid schema version: " + version);
 
         // Validate schema
         if (schemaModel != null)
@@ -518,8 +517,7 @@ public class Database {
     public void validateSchema(SchemaModel schemaModel) {
 
         // Sanity check
-        if (schemaModel == null)
-            throw new IllegalArgumentException("null schemaModel");
+        Preconditions.checkArgument(schemaModel != null, "null schemaModel");
 
         // Validate
         schemaModel.validate();

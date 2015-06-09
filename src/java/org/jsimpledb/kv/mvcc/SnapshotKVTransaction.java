@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.base.Preconditions;
+
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -105,8 +107,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      */
     @Override
     public synchronized void setTimeout(long timeout) {
-        if (timeout < 0)
-            throw new IllegalArgumentException("timeout < 0");
+        Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.timeout = timeout;
     }
 

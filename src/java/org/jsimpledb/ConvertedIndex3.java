@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -41,16 +42,11 @@ class ConvertedIndex3<V1, V2, V3, T, WV1, WV2, WV3, WT> implements Index3<V1, V2
 
     public ConvertedIndex3(Index3<WV1, WV2, WV3, WT> index, Converter<V1, WV1> value1Converter,
       Converter<V2, WV2> value2Converter, Converter<V3, WV3> value3Converter, Converter<T, WT> targetConverter) {
-        if (index == null)
-            throw new IllegalArgumentException("null index");
-        if (value1Converter == null)
-            throw new IllegalArgumentException("null value1Converter");
-        if (value2Converter == null)
-            throw new IllegalArgumentException("null value2Converter");
-        if (value3Converter == null)
-            throw new IllegalArgumentException("null value3Converter");
-        if (targetConverter == null)
-            throw new IllegalArgumentException("null targetConverter");
+        Preconditions.checkArgument(index != null, "null index");
+        Preconditions.checkArgument(value1Converter != null, "null value1Converter");
+        Preconditions.checkArgument(value2Converter != null, "null value2Converter");
+        Preconditions.checkArgument(value3Converter != null, "null value3Converter");
+        Preconditions.checkArgument(targetConverter != null, "null targetConverter");
         this.index = index;
         this.value1Converter = value1Converter;
         this.value2Converter = value2Converter;

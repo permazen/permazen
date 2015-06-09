@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.sql;
 
+import com.google.common.base.Preconditions;
+
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,10 +47,8 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
      * @throws SQLException if an SQL error occurs
      */
     public SQLKVTransaction(SQLKVDatabase database, Connection connection) throws SQLException {
-        if (database == null)
-            throw new IllegalArgumentException("null database");
-        if (connection == null)
-            throw new IllegalArgumentException("null connection");
+        Preconditions.checkArgument(database != null, "null database");
+        Preconditions.checkArgument(connection != null, "null connection");
         this.database = database;
         this.connection = connection;
     }
@@ -60,8 +60,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
     @Override
     public void setTimeout(long timeout) {
-        if (timeout < 0)
-            throw new IllegalArgumentException("negative timeout");
+        Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.timeout = timeout;
     }
 
@@ -69,8 +68,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     public synchronized byte[] get(byte[] key) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
         return this.queryBytes(StmtType.GET, key);
     }
 
@@ -106,10 +104,8 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
     @Override
     public synchronized void put(byte[] key, byte[] value) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(key != null, "null key");
+        Preconditions.checkArgument(value != null, "null value");
         if (this.stale)
             throw new StaleTransactionException(this);
         this.update(StmtType.PUT, key, value, value);
@@ -117,8 +113,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
     @Override
     public synchronized void remove(byte[] key) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
         if (this.stale)
             throw new StaleTransactionException(this);
         this.update(StmtType.REMOVE, key);
@@ -300,8 +295,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
         private byte[] removeKey;
 
         ResultSetIterator(ResultSet resultSet) {
-            if (resultSet == null)
-                throw new IllegalArgumentException("null database");
+            Preconditions.checkArgument(resultSet != null, "null resultSet");
             this.resultSet = resultSet;
             synchronized (this) { }
         }

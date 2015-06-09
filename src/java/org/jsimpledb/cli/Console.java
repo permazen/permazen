@@ -134,8 +134,7 @@ public class Console {
      * @param historyFile file for storing command history
      */
     public void setHistoryFile(File historyFile) {
-        if (this.history != null)
-            throw new IllegalStateException("history file already configured");
+        Preconditions.checkState(this.history == null, "history file already configured");
         try {
             this.history = new FileHistory(historyFile);
         } catch (IOException e) {
@@ -249,8 +248,7 @@ public class Console {
      * @throws IllegalArgumentException if {@code text} is null
      */
     public List<CliSession.Action> parseCommand(String text) {
-        if (text == null)
-            throw new IllegalArgumentException("null text");
+        Preconditions.checkArgument(text != null, "null text");
         final ParseContext ctx = new ParseContext(text);
         final ArrayList<CliSession.Action> actions = new ArrayList<>();
         return this.session.perform(new CliSession.Action() {

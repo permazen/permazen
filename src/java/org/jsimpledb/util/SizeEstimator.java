@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -194,10 +196,8 @@ public class SizeEstimator {
      * @throws IllegalArgumentException if {@code elementSize} is non-positive or {@code length} is negative
      */
     public SizeEstimator addArray(int elementSize, int length) {
-        if (elementSize <= 0)
-            throw new IllegalArgumentException("elementSize <= 0");
-        if (length < 0)
-            throw new IllegalArgumentException("length < 0");
+        Preconditions.checkArgument(elementSize > 0, "elementSize <= 0");
+        Preconditions.checkArgument(length >= 0, "length < 0");
         this.total +=
             this.getObjectOverhead()                                // for the array object
           + INT_SIZE                                                // for the array object's implicit length field

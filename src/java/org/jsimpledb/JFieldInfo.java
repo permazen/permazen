@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.HashSet;
@@ -31,8 +32,7 @@ abstract class JFieldInfo {
     private boolean requiresValidation;
 
     JFieldInfo(JField jfield) {
-        if (jfield == null)
-            throw new IllegalArgumentException("null jfield");
+        Preconditions.checkArgument(jfield != null, "null jfield");
         this.jdb = jfield.jdb;
         this.storageId = jfield.storageId;
     }

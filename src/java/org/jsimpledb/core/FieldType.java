@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Comparator;
@@ -90,12 +91,9 @@ public abstract class FieldType<T> implements Comparator<T> {
      * @throws IllegalArgumentException if {@code name} is invalid
      */
     protected FieldType(String name, TypeToken<T> typeToken, long signature) {
-        if (name == null)
-            throw new IllegalArgumentException("null name");
-        if (!name.matches(FieldType.NAME_PATTERN))
-            throw new IllegalArgumentException("invalid type name `" + name + "'");
-        if (typeToken == null)
-            throw new IllegalArgumentException("null typeToken");
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(name.matches(FieldType.NAME_PATTERN), "invalid type name `" + name + "'");
+        Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.name = name;
         this.typeToken = typeToken;
         this.signature = signature;
@@ -209,8 +207,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
      */
     public String toString(T value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         return this.toParseableString(value);
     }
 

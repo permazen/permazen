@@ -5,6 +5,8 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
+
 import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
@@ -58,10 +60,8 @@ public class ChangePublisher {
         private final DataChangeEvent event;
 
         PublishChangeCallback(ApplicationEventMulticaster eventMulticaster, DataChangeEvent event) {
-            if (eventMulticaster == null)
-                throw new IllegalArgumentException("null eventMulticaster");
-            if (event == null)
-                throw new IllegalArgumentException("null event");
+            Preconditions.checkArgument(eventMulticaster != null, "null eventMulticaster");
+            Preconditions.checkArgument(event != null, "null event");
             this.eventMulticaster = eventMulticaster;
             this.event = event;
         }

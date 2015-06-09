@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -17,8 +19,7 @@ public abstract class JComplexField extends JField {
 
     JComplexField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
         super(jdb, name, storageId, description, getter);
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(name != null, "null name");
     }
 
     @Override

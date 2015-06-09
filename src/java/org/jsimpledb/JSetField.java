@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Method;
 import java.util.NavigableSet;
 
@@ -22,8 +24,7 @@ public class JSetField extends JCollectionField {
 
     @Override
     public NavigableSet<?> getValue(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         return jobj.getTransaction().readSetField(jobj, this.storageId, false);
     }
 

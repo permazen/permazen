@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.simple;
 
+import com.google.common.base.Preconditions;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,8 +83,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      * @throws IllegalArgumentException if {@code file} is null
      */
     public XMLKVDatabase(StreamRepository repository) {
-        if (repository == null)
-            throw new IllegalArgumentException("null repository");
+        Preconditions.checkArgument(repository != null, "null repository");
         this.repository = repository;
         this.serializer = new XMLSerializer(this.kv);
         this.file = repository instanceof FileStreamRepository ? ((FileStreamRepository)repository).getFile() : null;

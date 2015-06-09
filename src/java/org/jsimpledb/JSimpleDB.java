@@ -5,6 +5,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
 import java.lang.annotation.Annotation;
@@ -155,12 +156,9 @@ public class JSimpleDB {
     JSimpleDB(Database database, int version, StorageIdGenerator storageIdGenerator, Iterable<? extends Class<?>> classes) {
 
         // Initialize
-        if (database == null)
-            throw new IllegalArgumentException("null database");
-        if (version < 0)
-            throw new IllegalArgumentException("invalid schema version: " + version);
-        if (classes == null)
-            throw new IllegalArgumentException("null classes");
+        Preconditions.checkArgument(database != null, "null database");
+        Preconditions.checkArgument(version >= 0, "invalid negative schema version");
+        Preconditions.checkArgument(classes != null, "null classes");
         this.db = database;
         this.configuredVersion = version;
         this.storageIdGenerator = storageIdGenerator;
@@ -170,8 +168,7 @@ public class JSimpleDB {
         for (Class<?> type : classes) {
 
             // Sanity check
-            if (type == null)
-                throw new IllegalArgumentException("null class found in classes");
+            Preconditions.checkArgument(type != null, "null class found in classes");
 
             // Add type and all @JSimpleClass-annotated superclasses
             do {
@@ -404,8 +401,7 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public static Class<?> getModelClass(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         for (Class<?> type = jobj.getClass(); type != null; type = type.getSuperclass()) {
             if (type.getName().indexOf(ClassGenerator.CLASSNAME_SUFFIX) == -1)
                 return type;
@@ -441,8 +437,7 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code validationMode} is null
      */
     public JTransaction createTransaction(boolean allowNewSchema, ValidationMode validationMode) {
-        if (validationMode == null)
-            throw new IllegalArgumentException("null validationMode");
+        Preconditions.checkArgument(validationMode != null, "null validationMode");
         final Transaction tx = this.db.createTransaction(this.getSchemaModel(), this.configuredVersion, allowNewSchema);
         tx.addCallback(new CleanupCurrentCallback());
         this.actualVersion = tx.getSchemas().getVersions().lastKey();
@@ -525,8 +520,7 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public JClass<?> getJClass(ObjId id) {
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         final JClass<?> jclass = this.jclasses.get(id.getStorageId());
         if (jclass == null)
             throw new TypeNotInSchemaVersionException(id, this.actualVersion);
@@ -622,8 +616,7 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code type} is null
      */
     public <T> T getJObject(ObjId id, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         return type.cast(this.getJObject(id));
     }
 
@@ -664,8 +657,7 @@ public class JSimpleDB {
     public Iterable<JObject> getReferencedObjects(final JObject jobj) {
 
         // Sanity check
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         final ObjId id = jobj.getObjId();
 
         // Visit fields
@@ -724,8 +716,7 @@ public class JSimpleDB {
      * @throws UnknownFieldException if {@code storageId} does not represent a field
      */
     <T extends JFieldInfo> T getJFieldInfo(int storageId, Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         final JFieldInfo jfieldInfo = this.jfieldInfos.get(storageId);
         if (jfieldInfo == null) {
             throw new UnknownFieldException(storageId, "no JSimpleDB field exists with storage ID "

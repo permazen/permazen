@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.io.Closeable;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -195,10 +197,8 @@ public class CloseableTracker implements Closeable {
 
         HolderRef(Object holder, Closeable item, ReferenceQueue<Object> queue) {
             super(holder, queue);
-            if (holder == null)
-                throw new IllegalArgumentException("null holder");
-            if (item == null)
-                throw new IllegalArgumentException("null item");
+            Preconditions.checkArgument(holder != null, "null holder");
+            Preconditions.checkArgument(item != null, "null item");
             this.item = item;
         }
 

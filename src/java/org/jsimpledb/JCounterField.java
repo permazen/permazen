@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Method;
 
 import org.jsimpledb.schema.CounterSchemaField;
@@ -23,8 +25,7 @@ public class JCounterField extends JField {
 
     @Override
     public Counter getValue(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         return jobj.getTransaction().readCounterField(jobj, this.storageId, false);
     }
 

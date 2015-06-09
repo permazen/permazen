@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 import com.google.common.reflect.TypeToken;
 
@@ -49,8 +50,7 @@ class DoubleArrayType extends ArrayType<double[], Double> {
 
     @Override
     public void write(ByteWriter writer, double[] array) {
-        if (array == null)
-            throw new IllegalArgumentException("null array");
+        Preconditions.checkArgument(array != null, "null array");
         final int length = this.getArrayLength(array);
         for (int i = 0; i < length; i++)
             this.doubleType.write(writer, array[i]);

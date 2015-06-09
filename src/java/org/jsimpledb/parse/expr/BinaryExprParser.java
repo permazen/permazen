@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,10 +37,8 @@ public abstract class BinaryExprParser implements Parser<Node> {
      * @param ops operations, with operations that have other operations as prefixes listed first
      */
     protected BinaryExprParser(Parser<? extends Node> lowerLevel, boolean leftAssociative, Op... ops) {
-        if (lowerLevel == null)
-            throw new IllegalArgumentException("null lowerLevel");
-        if (ops == null || ops.length == 0)
-            throw new IllegalArgumentException("null/empty ops");
+        Preconditions.checkArgument(lowerLevel != null, "null lowerLevel");
+        Preconditions.checkArgument(ops != null && ops.length > 0, "null/empty ops");
         this.lowerLevel = lowerLevel;
         this.leftAssociative = leftAssociative;
         this.ops = Arrays.asList(ops);

@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -43,12 +44,9 @@ public class JSimpleField extends JField {
     JSimpleField(JSimpleDB jdb, String name, int storageId, TypeToken<?> typeToken, FieldType<?> fieldType, boolean indexed,
       org.jsimpledb.annotation.JField annotation, String description, Method getter, Method setter) {
         super(jdb, name, storageId, description, getter);
-        if (typeToken == null)
-            throw new IllegalArgumentException("null typeToken");
-        if (fieldType == null)
-            throw new IllegalArgumentException("null fieldType");
-        if (annotation == null)
-            throw new IllegalArgumentException("null annotation");
+        Preconditions.checkArgument(typeToken != null, "null typeToken");
+        Preconditions.checkArgument(fieldType != null, "null fieldType");
+        Preconditions.checkArgument(annotation != null, "null annotation");
         this.typeToken = typeToken;
         this.fieldType = fieldType;
         this.indexed = indexed;
@@ -126,8 +124,7 @@ public class JSimpleField extends JField {
 
     @Override
     public Object getValue(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         return jobj.getTransaction().readSimpleField(jobj, this.storageId, false);
     }
 
@@ -160,8 +157,7 @@ public class JSimpleField extends JField {
      * @throws IllegalArgumentException if {@code jobj} is null
      */
     public void setValue(JObject jobj, Object value) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         jobj.getTransaction().writeSimpleField(jobj, this.storageId, value, false);
     }
 

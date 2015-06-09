@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,10 +35,8 @@ public class Schema {
     Schema(int versionNumber, byte[] encodedXML, SchemaModel schemaModel, FieldTypeRegistry fieldTypeRegistry) {
 
         // Sanity check
-        if (versionNumber <= 0)
-            throw new IllegalArgumentException("versionNumber <= 0");
-        if (schemaModel == null)
-            throw new IllegalArgumentException("null schemaModel");
+        Preconditions.checkArgument(versionNumber > 0, "non-positive versionNumber");
+        Preconditions.checkArgument(schemaModel != null, "null schemaModel");
         this.versionNumber = versionNumber;
         this.encodedXML = encodedXML;
         this.schemaModel = schemaModel.clone();

@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.java.Primitive;
@@ -29,8 +30,7 @@ class UnsignedIntType extends NonNullFieldType<Integer> {
 
     @Override
     public void write(ByteWriter writer, Integer value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         UnsignedIntEncoder.write(writer, value);
     }
 
@@ -46,8 +46,7 @@ class UnsignedIntType extends NonNullFieldType<Integer> {
 
     @Override
     public String toParseableString(Integer value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         return String.valueOf(value);
     }
 

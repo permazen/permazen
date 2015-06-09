@@ -6,6 +6,7 @@
 package org.jsimpledb.util;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import java.util.Map;
 
@@ -32,10 +33,8 @@ class ConvertedEntrySet<K, V, WK, WV> extends ConvertedSet<Map.Entry<K, V>, Map.
      */
     ConvertedEntrySet(Map<WK, WV> map, Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
         super(map.entrySet(), new MapEntryConverter<K, V, WK, WV>(keyConverter, valueConverter));
-        if (keyConverter == null)
-            throw new IllegalArgumentException("null keyConverter");
-        if (valueConverter == null)
-            throw new IllegalArgumentException("null valueConverter");
+        Preconditions.checkArgument(keyConverter != null, "null keyConverter");
+        Preconditions.checkArgument(valueConverter != null, "null valueConverter");
         this.map = map;
         this.keyConverter = keyConverter;
         this.valueConverter = valueConverter;

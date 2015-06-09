@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 
 import org.jsimpledb.kv.KeyFilter;
@@ -32,10 +34,8 @@ abstract class AbstractIndexView {
      * @throws IllegalArgumentException if {@code filter} is null or empty
      */
     protected AbstractIndexView(byte[] prefix, boolean prefixMode, FieldType<?>... fieldTypes) {
-        if (prefix == null || prefix.length == 0)
-            throw new IllegalArgumentException("null/empty prefix");
-        if (fieldTypes == null)
-            throw new IllegalArgumentException("null fieldTypes");
+        Preconditions.checkArgument(prefix != null && prefix.length > 0, "null/empty prefix");
+        Preconditions.checkArgument(fieldTypes != null, "null fieldTypes");
         this.prefix = prefix;
         this.prefixMode = prefixMode;
         this.fieldTypes = fieldTypes;

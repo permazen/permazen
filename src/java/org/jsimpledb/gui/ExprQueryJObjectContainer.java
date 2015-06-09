@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
 import java.util.Collections;
@@ -60,8 +61,7 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
      */
     public ExprQueryJObjectContainer(JSimpleDB jdb, Class<?> type, ParseSession session) {
         super(jdb, type);
-        if (session == null)
-            throw new IllegalArgumentException("null session");
+        Preconditions.checkArgument(session != null, "null session");
         this.session = session;
     }
 

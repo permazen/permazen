@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -22,8 +24,7 @@ public class JListField extends JCollectionField {
 
     @Override
     public List<?> getValue(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         return jobj.getTransaction().readListField(jobj, this.storageId, false);
     }
 

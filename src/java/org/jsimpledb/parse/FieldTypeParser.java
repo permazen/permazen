@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.core.FieldType;
 
 /**
@@ -22,13 +24,10 @@ public class FieldTypeParser<T> implements Parser<T> {
      */
     public FieldTypeParser(FieldType<?> fieldType) {
         this(fieldType, null);
-        if (fieldType == null)
-            throw new IllegalArgumentException("null fieldType");
     }
 
     private FieldTypeParser(FieldType<?> fieldType, String typeName) {
-        if (fieldType == null)
-            throw new IllegalArgumentException("null fieldType");
+        Preconditions.checkArgument(fieldType != null, "null fieldType");
         this.fieldType = fieldType;
         this.typeName = typeName;
     }
@@ -58,8 +57,7 @@ public class FieldTypeParser<T> implements Parser<T> {
      * @return parser for the named type
      */
     public static FieldTypeParser<?> getFieldTypeParser(String typeName) {
-        if (typeName == null)
-            throw new IllegalArgumentException("null typeName");
+        Preconditions.checkArgument(typeName != null, "null typeName");
         return new FieldTypeParser<Object>(null, typeName);
     }
 }

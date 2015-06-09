@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import org.jsimpledb.tuple.Tuple5;
 
@@ -34,16 +35,11 @@ class Tuple5Converter<V1, V2, V3, V4, V5, W1, W2, W3, W4, W5>
 
     public Tuple5Converter(Converter<V1, W1> value1Converter, Converter<V2, W2> value2Converter,
       Converter<V3, W3> value3Converter, Converter<V4, W4> value4Converter, Converter<V5, W5> value5Converter) {
-        if (value1Converter == null)
-            throw new IllegalArgumentException("null value1Converter");
-        if (value2Converter == null)
-            throw new IllegalArgumentException("null value2Converter");
-        if (value3Converter == null)
-            throw new IllegalArgumentException("null value3Converter");
-        if (value4Converter == null)
-            throw new IllegalArgumentException("null value4Converter");
-        if (value5Converter == null)
-            throw new IllegalArgumentException("null value5Converter");
+        Preconditions.checkArgument(value1Converter != null, "null value1Converter");
+        Preconditions.checkArgument(value2Converter != null, "null value2Converter");
+        Preconditions.checkArgument(value3Converter != null, "null value3Converter");
+        Preconditions.checkArgument(value4Converter != null, "null value4Converter");
+        Preconditions.checkArgument(value5Converter != null, "null value5Converter");
         this.value1Converter = value1Converter;
         this.value2Converter = value2Converter;
         this.value3Converter = value3Converter;

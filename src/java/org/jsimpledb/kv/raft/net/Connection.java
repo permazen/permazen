@@ -103,8 +103,7 @@ class Connection implements SelectorSupport.IOHandler {
 
         // Sanity check
         assert Thread.holdsLock(this.network);
-        if (buf == null)
-            throw new IllegalArgumentException("null buf");
+        Preconditions.checkArgument(buf != null, "null buf");
 
         // Avoid anyone else mucking with my buffer position, etc.
         buf = buf.asReadOnlyBuffer();

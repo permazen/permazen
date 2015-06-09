@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import org.dellroad.stuff.string.StringEncoder;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.util.ByteReader;
@@ -92,8 +94,7 @@ class StringType extends NonNullFieldType<String> {
 
     @Override
     public String toString(String value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         return StringEncoder.encode(value, false);
     }
 

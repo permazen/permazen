@@ -5,6 +5,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
 import java.util.Arrays;
@@ -39,8 +40,7 @@ public class CopyState implements Cloneable {
      * @throws IllegalArgumentException if {@code copied} is null
      */
     public CopyState(ObjIdSet copied) {
-        if (copied == null)
-            throw new IllegalArgumentException("null copied");
+        Preconditions.checkArgument(copied != null, "null copied");
         this.copied = copied.clone();
         synchronized (this) { }
     }
@@ -53,8 +53,7 @@ public class CopyState implements Cloneable {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public boolean markCopied(ObjId id) {
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         return this.copied.add(id);
     }
 
@@ -70,12 +69,9 @@ public class CopyState implements Cloneable {
     public boolean markTraversed(ObjId id, int[] fields) {
 
         // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
-        if (fields == null)
-            throw new IllegalArgumentException("null fields");
-        if (fields.length == 0)
-            throw new IllegalArgumentException("empty fields");
+        Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(fields != null, "null fields");
+        Preconditions.checkArgument(fields.length > 0, "empty fields");
 
         // Mark the path, and all prefixes of the path, as having been traversed
         boolean fullPath = true;

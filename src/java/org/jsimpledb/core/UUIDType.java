@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.UUID;
 
 import org.jsimpledb.parse.ParseContext;
@@ -33,8 +35,7 @@ class UUIDType extends NonNullFieldType<UUID> {
 
     @Override
     public void write(ByteWriter writer, UUID uuid) {
-        if (uuid == null)
-            throw new IllegalArgumentException("null uuid");
+        Preconditions.checkArgument(uuid != null, "null uuid");
         ByteUtil.writeLong(writer, uuid.getMostSignificantBits() ^ MASK);
         ByteUtil.writeLong(writer, uuid.getLeastSignificantBits() ^ MASK);
     }

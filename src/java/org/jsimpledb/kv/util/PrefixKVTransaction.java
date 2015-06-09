@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.kv.KVTransaction;
 
 /**
@@ -47,8 +49,7 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
 
     private PrefixKVTransaction(KVTransaction tx, byte[] keyPrefix, PrefixKVDatabase db) {
         super(keyPrefix);
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         this.tx = tx;
         this.db = db;
     }

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.simple;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
@@ -132,8 +134,7 @@ public class SimpleKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code waitTimeout} is negative
      */
     public synchronized void setWaitTimeout(long waitTimeout) {
-        if (waitTimeout < 0)
-            throw new IllegalArgumentException("waitTimeout < 0");
+        Preconditions.checkArgument(waitTimeout >= 0, "waitTimeout < 0");
         this.waitTimeout = waitTimeout;
     }
 
@@ -258,8 +259,7 @@ public class SimpleKVDatabase implements KVDatabase {
     synchronized byte[] get(SimpleKVTransaction tx, byte[] key) {
 
         // Sanity check
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         this.checkUsable(tx);
         this.checkState(tx);
 
@@ -387,8 +387,7 @@ public class SimpleKVDatabase implements KVDatabase {
         // Sanity check
         if (value == null)
             throw new NullPointerException();
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         this.checkUsable(tx);
         this.checkState(tx);
         final byte[] keyNext = ByteUtil.getNextKey(key);
@@ -424,8 +423,7 @@ public class SimpleKVDatabase implements KVDatabase {
     synchronized void remove(SimpleKVTransaction tx, byte[] key) {
 
         // Sanity check
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         this.checkUsable(tx);
         this.checkState(tx);
         final byte[] keyNext = ByteUtil.getNextKey(key);
@@ -454,8 +452,7 @@ public class SimpleKVDatabase implements KVDatabase {
 
         // Sanity check
         int diff = KeyRange.compare(minKey, maxKey);
-        if (diff > 0)
-            throw new IllegalArgumentException("minKey > maxKey");
+        Preconditions.checkArgument(diff <= 0, "minKey > maxKey");
         this.checkUsable(tx);
         this.checkState(tx);
         if (diff == 0)                                                          // range is empty

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.cli.cmd;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,8 +42,7 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * @param spec {@link ParamParser} spec string, possibly containing custom type names (see {@link #getParser getParser()})
      */
     protected AbstractCommand(String spec) {
-        if (spec == null)
-            throw new IllegalArgumentException("null spec");
+        Preconditions.checkArgument(spec != null, "null spec");
         final Matcher matcher = Pattern.compile("([^\\s]+)(\\s+(.*))?").matcher(spec);
         if (!matcher.matches())
             throw new IllegalArgumentException("invalid command specification `" + spec + "'");
@@ -148,8 +149,7 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * @return parser for parameters of the specified type
      */
     protected Parser<?> getParser(String typeName) {
-        if (typeName == null)
-            throw new IllegalArgumentException("null typeName");
+        Preconditions.checkArgument(typeName != null, "null typeName");
         if (typeName.equals("type"))
             return new ObjTypeParser();
         if (typeName.equals("objid"))

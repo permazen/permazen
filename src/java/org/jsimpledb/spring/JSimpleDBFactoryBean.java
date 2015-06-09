@@ -5,6 +5,8 @@
 
 package org.jsimpledb.spring;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.DefaultStorageIdGenerator;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleDBFactory;
@@ -52,12 +54,9 @@ class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
     @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
-        if (this.kvstore == null)
-            throw new IllegalStateException("no kvstore configured");
-        if (this.schemaVersion == -1)
-            throw new IllegalStateException("no schemaVersion configured");
-        if (this.modelClasses == null)
-            throw new IllegalStateException("no modelClasses configured");
+        Preconditions.checkState(this.kvstore != null, "no kvstore configured");
+        Preconditions.checkState(this.schemaVersion != -1, "no schemaVersion configured");
+        Preconditions.checkState(this.modelClasses != null, "no modelClasss configured");
     }
 
 // AbstractFactoryBean

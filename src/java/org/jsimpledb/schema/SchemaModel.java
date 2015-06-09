@@ -6,6 +6,7 @@
 package org.jsimpledb.schema;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 
@@ -193,8 +194,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * @throws IllegalArgumentException if {@code that} is null
      */
     public boolean isCompatibleWith(SchemaModel that) {
-        if (that == null)
-            throw new IllegalArgumentException("null that");
+        Preconditions.checkArgument(that != null, "null that");
         if (!this.schemaObjectTypes.keySet().equals(that.schemaObjectTypes.keySet()))
             return false;
         for (int storageId : this.schemaObjectTypes.keySet()) {
@@ -210,8 +210,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
 
     @Override
     public Diffs differencesFrom(SchemaModel that) {
-        if (that == null)
-            throw new IllegalArgumentException("null that");
+        Preconditions.checkArgument(that != null, "null that");
         final Diffs diffs = new Diffs();
         final NavigableSet<Integer> allObjectTypeIds = NavigableSets.union(
           this.schemaObjectTypes.navigableKeySet(), that.schemaObjectTypes.navigableKeySet());

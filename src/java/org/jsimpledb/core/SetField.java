@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
@@ -44,8 +45,7 @@ public class SetField<E> extends CollectionField<NavigableSet<E>, E> {
     @Override
     @SuppressWarnings("unchecked")
     public NavigableSet<E> getValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         return (NavigableSet<E>)tx.readSetField(id, this.storageId, false);
     }
 

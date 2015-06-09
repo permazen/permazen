@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -51,8 +52,7 @@ abstract class ArrayType<T, E> extends NonNullFieldType<T> {
         super(elementType.name + "[]", typeToken, elementType.getEncodingSignature());
         this.elementType = elementType;
         this.dimensions = elementType instanceof ArrayType ? ((ArrayType)elementType).dimensions + 1 : 1;
-        if (this.dimensions > MAX_DIMENSIONS)
-            throw new IllegalArgumentException("too many array dimensions");
+        Preconditions.checkArgument(this.dimensions <= MAX_DIMENSIONS, "too many array dimensions");
     }
 
     /**

@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
@@ -90,8 +91,7 @@ public class MapField<K, V> extends ComplexField<NavigableMap<K, V>> {
     @Override
     @SuppressWarnings("unchecked")
     public NavigableMap<K, V> getValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         return (NavigableMap<K, V>)tx.readMapField(id, this.storageId, false);
     }
 

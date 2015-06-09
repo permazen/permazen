@@ -5,6 +5,8 @@
 
 package org.jsimpledb.cli;
 
+import com.google.common.base.Preconditions;
+
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -69,8 +71,7 @@ public class CliSession extends ParseSession {
      */
     public CliSession(KVDatabase kvdb, PrintWriter writer) {
         super(kvdb);
-        if (writer == null)
-            throw new IllegalArgumentException("null writer");
+        Preconditions.checkArgument(writer != null, "null writer");
         this.writer = writer;
     }
 
@@ -83,8 +84,7 @@ public class CliSession extends ParseSession {
      */
     public CliSession(Database db, PrintWriter writer) {
         super(db);
-        if (writer == null)
-            throw new IllegalArgumentException("null writer");
+        Preconditions.checkArgument(writer != null, "null writer");
         this.writer = writer;
     }
 
@@ -97,8 +97,7 @@ public class CliSession extends ParseSession {
      */
     public CliSession(JSimpleDB jdb, PrintWriter writer) {
         super(jdb);
-        if (writer == null)
-            throw new IllegalArgumentException("null writer");
+        Preconditions.checkArgument(writer != null, "null writer");
         this.writer = writer;
     }
 

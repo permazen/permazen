@@ -13,6 +13,7 @@ import com.foundationdb.ReadTransaction;
 import com.foundationdb.Transaction;
 import com.foundationdb.async.AsyncIterator;
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
 
@@ -47,8 +48,7 @@ public class FoundationKVTransaction implements KVTransaction {
      * Constructor.
      */
     FoundationKVTransaction(FoundationKVDatabase store, byte[] keyPrefix) {
-        if (store == null)
-            throw new IllegalArgumentException("null store");
+        Preconditions.checkArgument(store != null, "null store");
         this.store = store;
         this.tx = this.store.getDatabase().createTransaction();
         this.keyPrefix = keyPrefix;
@@ -72,8 +72,7 @@ public class FoundationKVTransaction implements KVTransaction {
 
     @Override
     public void setTimeout(long timeout) {
-        if (timeout < 0)
-            throw new IllegalArgumentException("timeout < 0");
+        Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.tx.options().setTimeout(timeout);
     }
 
@@ -81,8 +80,7 @@ public class FoundationKVTransaction implements KVTransaction {
     public byte[] get(byte[] key) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         try {
             return this.tx.get(this.addPrefix(key)).get();
         } catch (FDBException e) {
@@ -116,8 +114,7 @@ public class FoundationKVTransaction implements KVTransaction {
             minKey = MAX_KEY;
         if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
             maxKey = null;
-        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
-            throw new IllegalArgumentException("minKey > maxKey");
+        Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
         try {
             return Iterators.transform(this.tx.getRange(this.addPrefix(minKey, maxKey),
               ReadTransaction.ROW_LIMIT_UNLIMITED, reverse).iterator(), new Function<KeyValue, KVPair>() {
@@ -148,8 +145,7 @@ public class FoundationKVTransaction implements KVTransaction {
     public void put(byte[] key, byte[] value) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         try {
             this.tx.set(this.addPrefix(key), value);
         } catch (FDBException e) {
@@ -161,8 +157,7 @@ public class FoundationKVTransaction implements KVTransaction {
     public void remove(byte[] key) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (key.length > 0 && key[0] == (byte)0xff)
-            throw new IllegalArgumentException("key starts with 0xff");
+        Preconditions.checkArgument(key.length == 0 || key[0] != (byte)0xff, "key starts with 0xff");
         try {
             this.tx.clear(this.addPrefix(key));
         } catch (FDBException e) {
@@ -178,8 +173,7 @@ public class FoundationKVTransaction implements KVTransaction {
             return;
         if (maxKey != null && maxKey.length > 0 && maxKey[0] == (byte)0xff)
             maxKey = null;
-        if (minKey != null && maxKey != null && ByteUtil.compare(minKey, maxKey) > 0)
-            throw new IllegalArgumentException("minKey > maxKey");
+        Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0, "minKey > maxKey");
         try {
             this.tx.clear(this.addPrefix(minKey, maxKey));
         } catch (FDBException e) {
@@ -233,8 +227,7 @@ public class FoundationKVTransaction implements KVTransaction {
     public long decodeCounter(byte[] bytes) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (bytes.length != 8)
-            throw new IllegalArgumentException("invalid encoded counter value: length = " + bytes.length + " != 8");
+        Preconditions.checkArgument(bytes.length == 8, "invalid encoded counter value length != 8");
         bytes = bytes.clone();
         this.reverse(bytes);
         return ByteUtil.readLong(new ByteReader(bytes));

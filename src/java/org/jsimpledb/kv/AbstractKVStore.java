@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -99,8 +101,7 @@ public abstract class AbstractKVStore implements KVStore {
 
     @Override
     public long decodeCounter(byte[] value) {
-        if (value.length != 8)
-            throw new IllegalArgumentException("invalid encoded counter value: length = " + value.length + " != 8");
+        Preconditions.checkArgument(value.length == 8, "invalid encoded counter value length != 8");
         return ByteUtil.readLong(new ByteReader(value));
     }
 

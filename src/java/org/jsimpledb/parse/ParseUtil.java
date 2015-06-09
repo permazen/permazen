@@ -5,6 +5,7 @@
 
 package org.jsimpledb.parse;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -36,8 +37,7 @@ public final class ParseUtil {
      * @return truncated string
      */
     public static String truncate(String string, int len) {
-        if (len < 4)
-            throw new IllegalArgumentException("len = " + len + " < 4");
+        Preconditions.checkArgument(len >= 4, "len < 4");
         if (string.length() <= len)
             return string;
         return string.substring(0, len - 3) + "...";
@@ -70,14 +70,10 @@ public final class ParseUtil {
     public static JField resolveJField(ParseSession session, ObjId id, String name) {
 
         // Sanity check
-        if (session == null)
-            throw new IllegalArgumentException("null session");
-        if (id == null)
-            throw new IllegalArgumentException("null id");
-        if (name == null)
-            throw new IllegalArgumentException("null name");
-        if (!session.getMode().hasJSimpleDB())
-            throw new IllegalArgumentException("session mode " + session.getMode() + " has no JSimpleDB");
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(session.getMode().hasJSimpleDB(), "session mode has no JSimpleDB");
 
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);
@@ -114,12 +110,9 @@ public final class ParseUtil {
     public static Field<?> resolveField(ParseSession session, ObjId id, String name) {
 
         // Sanity check
-        if (session == null)
-            throw new IllegalArgumentException("null session");
-        if (id == null)
-            throw new IllegalArgumentException("null id");
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(name != null, "null name");
 
         // Get object type
         final ObjInfo info = ObjInfo.getObjInfo(session, id);

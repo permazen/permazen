@@ -5,6 +5,8 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.change.Change;
 import org.jsimpledb.change.ChangeCopier;
 import org.springframework.context.ApplicationEvent;
@@ -25,8 +27,7 @@ public class DataChangeEvent extends ApplicationEvent {
      */
     public DataChangeEvent(Object source, Change<?> change) {
         super(source);
-        if (change == null)
-            throw new IllegalArgumentException("null change");
+        Preconditions.checkArgument(change != null, "null change");
         this.change = change.visit(new ChangeCopier());
     }
 

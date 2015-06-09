@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.data.util.converter.Converter;
 
 import java.util.Locale;
@@ -23,8 +24,7 @@ public class SimpleFieldConverter<T> implements Converter<String, T> {
     private final FieldType<T> fieldType;
 
     public SimpleFieldConverter(FieldType<T> fieldType) {
-        if (fieldType == null)
-            throw new IllegalArgumentException("null fieldType");
+        Preconditions.checkArgument(fieldType != null, "null fieldType");
         this.fieldType = fieldType;
     }
 

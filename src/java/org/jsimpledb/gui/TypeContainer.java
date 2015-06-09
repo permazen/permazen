@@ -6,6 +6,7 @@
 package org.jsimpledb.gui;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.vaadin.data.Container;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -58,8 +59,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
      */
     public TypeContainer(JSimpleDB jdb, Class<?> type) {
         super(Node.class);
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
+        Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
 
         // Get the types of all JClasses assignable to the given type, and use lowest common ancestor as the "top type"
@@ -173,8 +173,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
         }
 
         private Node(Class<?> type, JClass<?> jclass) {
-            if (type == null)
-                throw new IllegalArgumentException("null type");
+            Preconditions.checkArgument(type != null, "null type");
             this.type = type;
             this.jclass = jclass;
         }

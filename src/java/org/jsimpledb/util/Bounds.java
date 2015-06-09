@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Comparator;
 
 /**
@@ -59,10 +61,8 @@ public class Bounds<T> {
      * @throws IllegalArgumentException if {@code lowerBoundType} or {@code upperBoundType} is null
      */
     public Bounds(T lowerBound, BoundType lowerBoundType, T upperBound, BoundType upperBoundType) {
-        if (lowerBoundType == null)
-            throw new IllegalArgumentException("null lowerBoundType");
-        if (upperBoundType == null)
-            throw new IllegalArgumentException("null upperBoundType");
+        Preconditions.checkArgument(lowerBoundType != null, "null lowerBoundType");
+        Preconditions.checkArgument(upperBoundType != null, "null upperBoundType");
         this.lowerBound = lowerBoundType != BoundType.NONE ? lowerBound : null;
         this.upperBound = upperBoundType != BoundType.NONE ? upperBound : null;
         this.lowerBoundType = lowerBoundType;
@@ -207,8 +207,7 @@ public class Bounds<T> {
      * @throws IllegalArgumentException if {@code newBounds} is null
      */
     public boolean isWithinBounds(Comparator<? super T> comparator, Bounds<? extends T> newBounds) {
-        if (newBounds == null)
-            throw new IllegalArgumentException("null newBounds");
+        Preconditions.checkArgument(newBounds != null, "null newBounds");
         if (newBounds.lowerBoundType != BoundType.NONE
           && !this.isWithinBound(comparator, newBounds.lowerBound, newBounds.lowerBoundType.isInclusive(), false))
             return false;

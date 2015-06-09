@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse;
 
+import com.google.common.base.Preconditions;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +34,7 @@ public class ParseContext implements Cloneable {
      * @throws IllegalArgumentException if {@code input} is null
      */
     public ParseContext(String input) {
-        if (input == null)
-            throw new IllegalArgumentException("null input");
+        Preconditions.checkArgument(input != null, "null input");
         this.input = input;
     }
 
@@ -196,8 +197,7 @@ public class ParseContext implements Cloneable {
      * @throws IllegalStateException if the beginning of the original string has been reached
      */
     public void unread() {
-        if (this.index == 0)
-            throw new IllegalStateException();
+        Preconditions.checkState(this.index > 0);
         this.index--;
     }
 

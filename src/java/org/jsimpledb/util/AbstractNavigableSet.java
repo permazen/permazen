@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NavigableSet;
@@ -51,8 +53,7 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      * @throws IllegalArgumentException if {@code bounds} is null
      */
     protected AbstractNavigableSet(Bounds<E> bounds) {
-        if (bounds == null)
-            throw new IllegalArgumentException("null bounds");
+        Preconditions.checkArgument(bounds != null, "null bounds");
         this.bounds = bounds;
     }
 

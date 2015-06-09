@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -245,10 +246,8 @@ public class Transaction {
     public synchronized boolean deleteSchemaVersion(int version) {
 
         // Sanity check
-        if (version <= 0)
-            throw new IllegalArgumentException("invalid schema version " + version);
-        if (version == this.schema.getVersionNumber())
-            throw new InvalidSchemaException("version " + version + " is this transaction's version");
+        Preconditions.checkArgument(version > 0, "invalid non-positive schema version");
+        Preconditions.checkArgument(version != this.schema.getVersionNumber(), "version is this transaction's version");
         if (this.stale)
             throw new StaleTransactionException(this);
         if (this.queryVersion().asMap().containsKey(version))
@@ -470,8 +469,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized void addCallback(Callback callback) {
-        if (callback == null)
-            throw new IllegalArgumentException("nullcallback ");
+        Preconditions.checkArgument(callback != null, "null callback");
         if (this.stale)
             throw new StaleTransactionException(this);
         this.callbacks.add(callback);
@@ -533,8 +531,7 @@ public class Transaction {
     public synchronized boolean create(ObjId id, int versionNumber) {
 
         // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
 
@@ -708,8 +705,7 @@ public class Transaction {
     public synchronized boolean delete(ObjId id) {
 
         // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
         if (this.readOnly)
@@ -901,12 +897,9 @@ public class Transaction {
     public synchronized boolean copy(ObjId source, final ObjId target, final Transaction dest, final boolean updateVersion) {
 
         // Sanity check
-        if (source == null)
-            throw new IllegalArgumentException("null source");
-        if (target == null)
-            throw new IllegalArgumentException("null target");
-        if (dest == null)
-            throw new IllegalArgumentException("null dest");
+        Preconditions.checkArgument(source != null, "null source");
+        Preconditions.checkArgument(target != null, "null target");
+        Preconditions.checkArgument(dest != null, "null dest");
         if (this.stale)
             throw new StaleTransactionException(this);
 
@@ -1042,8 +1035,7 @@ public class Transaction {
     public synchronized void addCreateListener(CreateListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(listener != null, "null listener");
         this.createListeners.add(listener);
     }
 
@@ -1057,8 +1049,7 @@ public class Transaction {
     public synchronized void removeCreateListener(CreateListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(listener != null, "null listener");
         this.createListeners.remove(listener);
     }
 
@@ -1072,8 +1063,7 @@ public class Transaction {
     public synchronized void addDeleteListener(DeleteListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(listener != null, "null listener");
         this.deleteListeners.add(listener);
     }
 
@@ -1087,8 +1077,7 @@ public class Transaction {
     public synchronized void removeDeleteListener(DeleteListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(listener != null, "null listener");
         this.deleteListeners.remove(listener);
     }
 
@@ -1109,8 +1098,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
 
         // Get object version
         return this.getObjectInfo(id, false).getVersion();
@@ -1139,8 +1127,7 @@ public class Transaction {
     public synchronized boolean updateSchemaVersion(ObjId id) {
 
         // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
         if (this.readOnly)
@@ -1177,8 +1164,7 @@ public class Transaction {
 
         // Sanity check
         assert this.schemas.getVersion(targetVersion.versionNumber) == targetVersion;
-        if (newVersion == oldVersion)
-            throw new IllegalArgumentException("object already at version " + newVersion);
+        Preconditions.checkArgument(newVersion != oldVersion, "object already at version");
         if (this.readOnly)
             throw new ReadOnlyTransactionException(this);
 
@@ -1435,8 +1421,7 @@ public class Transaction {
     public synchronized void addVersionChangeListener(VersionChangeListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(listener != null, "null listener");
         this.versionChangeListeners.add(listener);
     }
 
@@ -1450,8 +1435,7 @@ public class Transaction {
     public synchronized void removeVersionChangeListener(VersionChangeListener listener) {
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(listener != null, "null listener");
         this.versionChangeListeners.remove(listener);
     }
 
@@ -1535,8 +1519,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
@@ -1722,8 +1705,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
@@ -1767,8 +1749,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         if (this.readOnly)
             throw new ReadOnlyTransactionException(this);
 
@@ -1809,8 +1790,7 @@ public class Transaction {
     public synchronized void adjustCounterField(ObjId id, int storageId, long offset, boolean updateVersion) {
 
         // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
         if (this.readOnly)
@@ -1920,8 +1900,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public byte[] getKey(ObjId id) {
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         return id.getBytes();
     }
 
@@ -1948,10 +1927,8 @@ public class Transaction {
     public byte[] getKey(ObjId id, int storageId) {
 
         // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
-        if (storageId <= 0)
-            throw new IllegalArgumentException("storageId <= 0");
+        Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(storageId > 0, "non-positive storageId");
         final FieldStorageInfo info = this.schemas.verifyStorageInfo(storageId, FieldStorageInfo.class);
         if (info.isSubField())
             throw new IllegalArgumentException("field is a sub-field of a complex field");
@@ -1968,8 +1945,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
 
         // Get object info to verify object exists
         final ObjInfo info = this.getObjectInfo(id, false);
@@ -1984,8 +1960,7 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
@@ -2242,10 +2217,8 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (path == null)
-            throw new IllegalArgumentException("null path");
-        if (listener == null)
-            throw new IllegalArgumentException("null listener");
+        Preconditions.checkArgument(path != null, "null path");
+        Preconditions.checkArgument(listener != null, "null listener");
 
         // Get target field info
         final FieldStorageInfo fieldInfo = this.schemas.verifyStorageInfo(storageId, SchemaItem.infoTypeFor(expectedFieldType));
@@ -2325,8 +2298,7 @@ public class Transaction {
     synchronized <V> V mutateAndNotify(ObjId id, Mutation<V> mutation) {
 
         // Verify object exists
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
         if (this.kvt.get(id.getBytes()) == null)
@@ -2438,12 +2410,8 @@ public class Transaction {
     public NavigableSet<ObjId> invertReferencePath(int[] path, Iterable<ObjId> targetObjects) {
 
         // Sanity check
-        if (targetObjects == null)
-            throw new IllegalArgumentException("null targetObjects");
-        if (path == null)
-            throw new IllegalArgumentException("null path");
-        if (path.length == 0)
-            throw new IllegalArgumentException("empty path");
+        Preconditions.checkArgument(targetObjects != null, "null targetObjects");
+        Preconditions.checkArgument(path != null && path.length > 0, "null/empty path");
 
         // Verify all fields in the path are reference fields
         for (int storageId : path)

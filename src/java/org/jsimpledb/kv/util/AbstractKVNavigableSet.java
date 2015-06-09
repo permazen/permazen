@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Iterator;
 import java.util.NavigableSet;
 
@@ -166,8 +168,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
     protected AbstractKVNavigableSet(KVStore kv, boolean prefixMode, boolean reversed,
       KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
         super(bounds);
-        if (kv == null)
-            throw new IllegalArgumentException("null kv");
+        Preconditions.checkArgument(kv != null, "null kv");
         this.kv = kv;
         this.prefixMode = prefixMode;
         this.reversed = reversed;
@@ -223,8 +224,7 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
     public NavigableSet<E> filterKeys(KeyFilter keyFilter) {
-        if (keyFilter == null)
-            throw new IllegalArgumentException("null keyFilter");
+        Preconditions.checkArgument(keyFilter != null, "null keyFilter");
         if (this.keyFilter != null)
             keyFilter = KeyFilterUtil.intersection(keyFilter, this.keyFilter);
         return this.createSubSet(this.reversed, this.keyRange, keyFilter, this.bounds);

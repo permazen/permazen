@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -59,8 +61,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code kv} is null
      */
     public XMLSerializer(KVStore kv) {
-        if (kv == null)
-            throw new IllegalArgumentException("null kv");
+        Preconditions.checkArgument(kv != null, "null kv");
         this.kv = kv;
     }
 
@@ -77,8 +78,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code input} is null
      */
     public int read(InputStream input) throws XMLStreamException {
-        if (input == null)
-            throw new IllegalArgumentException("null input");
+        Preconditions.checkArgument(input != null, "null input");
         return this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
     }
 
@@ -94,8 +94,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code reader} is null
      */
     public int read(XMLStreamReader reader) throws XMLStreamException {
-        if (reader == null)
-            throw new IllegalArgumentException("null reader");
+        Preconditions.checkArgument(reader != null, "null reader");
         this.expect(reader, false, ENTRIES_TAG);
         int count;
         for (count = 0; this.expect(reader, true, ENTRY_TAG); count++) {
@@ -136,8 +135,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code output} is null
      */
     public int write(OutputStream output, boolean indent) throws XMLStreamException {
-        if (output == null)
-            throw new IllegalArgumentException("null output");
+        Preconditions.checkArgument(output != null, "null output");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
         if (indent)
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
@@ -159,8 +157,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code writer} is null
      */
     public int write(Writer writer, boolean indent) throws XMLStreamException {
-        if (writer == null)
-            throw new IllegalArgumentException("null writer");
+        Preconditions.checkArgument(writer != null, "null writer");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         if (indent)
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
@@ -189,8 +186,7 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code writer} is null
      */
     public int write(XMLStreamWriter writer, byte[] minKey, byte[] maxKey) throws XMLStreamException {
-        if (writer == null)
-            throw new IllegalArgumentException("null writer");
+        Preconditions.checkArgument(writer != null, "null writer");
         writer.setDefaultNamespace(ENTRIES_TAG.getNamespaceURI());
         writer.writeStartElement(ENTRIES_TAG.getNamespaceURI(), ENTRIES_TAG.getLocalPart());
         int count = 0;

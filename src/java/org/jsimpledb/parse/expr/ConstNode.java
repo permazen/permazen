@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -15,8 +17,7 @@ public class ConstNode implements Node {
     private final Value value;
 
     public ConstNode(Value value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         this.value = value;
     }
 

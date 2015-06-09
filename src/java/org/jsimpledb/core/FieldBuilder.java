@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.schema.CounterSchemaField;
 import org.jsimpledb.schema.EnumSchemaField;
 import org.jsimpledb.schema.ListSchemaField;
@@ -23,10 +25,8 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     final FieldTypeRegistry fieldTypeRegistry;
 
     FieldBuilder(Schema schema, FieldTypeRegistry fieldTypeRegistry) {
-        if (schema == null)
-            throw new IllegalArgumentException("null schema");
-        if (fieldTypeRegistry == null)
-            throw new IllegalArgumentException("null fieldTypeRegistry");
+        Preconditions.checkArgument(schema != null, "null schema");
+        Preconditions.checkArgument(fieldTypeRegistry != null, "null fieldTypeRegistry");
         this.schema = schema;
         this.fieldTypeRegistry = fieldTypeRegistry;
     }
@@ -62,16 +62,14 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
 
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
-        if (field.getEncodingSignature() != 0)
-            throw new IllegalArgumentException("encoding signature must be zero for " + field);
+        Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
         return new ReferenceField(field.getName(), field.getStorageId(),
           this.schema, field.getOnDelete(), field.isCascadeDelete(), field.getObjectTypes());
     }
 
     @Override
     public EnumField caseEnumSchemaField(EnumSchemaField field) {
-        if (field.getEncodingSignature() != 0)
-            throw new IllegalArgumentException("encoding signature must be zero for " + field);
+        Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
         return new EnumField(field.getName(), field.getStorageId(), this.schema,
           field.isIndexed(), field.getType(), field.getIdentifiers());
     }

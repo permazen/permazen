@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.simple;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.SortedSet;
@@ -45,8 +47,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
      * @throws IllegalArgumentException if {@code waitTimeout} is negative
      */
     protected SimpleKVTransaction(SimpleKVDatabase kvdb, long waitTimeout) {
-        if (kvdb == null)
-            throw new IllegalArgumentException("null kvdb");
+        Preconditions.checkArgument(kvdb != null, "null kvdb");
         this.kvdb = kvdb;
         this.setTimeout(waitTimeout);
     }
@@ -58,8 +59,7 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
 
     @Override
     public void setTimeout(long timeout) {
-        if (timeout < 0)
-            throw new IllegalArgumentException("timeout < 0");
+        Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.waitTimeout = timeout;
     }
 

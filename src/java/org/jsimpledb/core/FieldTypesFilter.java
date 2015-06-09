@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
 import java.util.Arrays;
@@ -56,14 +57,11 @@ class FieldTypesFilter implements KeyFilter {
      * @throws IllegalArgumentException if {@code fieldTypes} is null
      */
     public FieldTypesFilter(byte[] prefix, FieldType<?>... fieldTypes) {
-        if (fieldTypes == null)
-            throw new IllegalArgumentException("null fieldTypes");
+        Preconditions.checkArgument(fieldTypes != null, "null fieldTypes");
         this.prefix = prefix != null ? prefix.clone() : ByteUtil.EMPTY;
         this.fieldTypes = fieldTypes;
-        for (FieldType<?> fieldType : this.fieldTypes) {
-            if (fieldType == null)
-                throw new IllegalArgumentException("null fieldType");
-        }
+        for (FieldType<?> fieldType : this.fieldTypes)
+            Preconditions.checkArgument(fieldType != null, "null fieldType");
         this.filters = new KeyFilter[this.fieldTypes.length];
     }
 
@@ -71,8 +69,7 @@ class FieldTypesFilter implements KeyFilter {
 
     FieldTypesFilter(byte[] prefix, FieldType<?>[] fieldTypes, KeyFilter[] filters, int start, int end) {
         this(prefix, Arrays.copyOfRange(fieldTypes, start, end));
-        if (filters == null || filters.length != fieldTypes.length)
-            throw new IllegalArgumentException("bogus filters");
+        Preconditions.checkArgument(filters != null && filters.length == fieldTypes.length, "bogus filters");
         for (int i = 0; i < this.fieldTypes.length; i++)
             this.filters[i] = filters[start + i];
     }
@@ -131,8 +128,7 @@ class FieldTypesFilter implements KeyFilter {
      * @throws IndexOutOfBoundsException if {@code index} is out of range
      */
     public FieldTypesFilter filter(int index, KeyFilter keyFilter) {
-        if (keyFilter == null)
-            throw new IllegalArgumentException("null keyFilter");
+        Preconditions.checkArgument(keyFilter != null, "null keyFilter");
         if (keyFilter instanceof KeyRanges && ((KeyRanges)keyFilter).isFull())
             return this;
         if (this.filters[index] != null)
@@ -163,8 +159,7 @@ class FieldTypesFilter implements KeyFilter {
     public byte[] seekHigher(byte[] key) {
 
         // Sanity check
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
 
         // Check prefix
         if (!ByteUtil.isPrefixOf(this.prefix, key)) {
@@ -208,8 +203,7 @@ class FieldTypesFilter implements KeyFilter {
     public byte[] seekLower(byte[] key) {
 
         // Sanity check
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
 
         // Check prefix and handle max upper bound
         boolean fromTheTop = key.length == 0;

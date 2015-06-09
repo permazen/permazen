@@ -5,6 +5,7 @@
 
 package org.jsimpledb.parse.util;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 
 /**
@@ -15,8 +16,7 @@ public class InstancePredicate implements Predicate<Object> {
     private final Class<?> type;
 
     public InstancePredicate(Class<?> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         this.type = type;
     }
 

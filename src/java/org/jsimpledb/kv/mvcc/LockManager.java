@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -104,9 +106,8 @@ public class LockManager {
      * @throws IllegalArgumentException if {@code holdTimeout} is negative
      */
     public void setHoldTimeout(long holdTimeout) {
+        Preconditions.checkArgument(holdTimeout >= 0, "holdTimeout < 0");
         synchronized (this.lockObject) {
-            if (holdTimeout < 0)
-                throw new IllegalArgumentException("holdTimeout < 0");
             this.holdTimeout = Math.min(holdTimeout, TEN_YEARS_MILLIS);             // limit to 10 years to avoid overflow
         }
     }
@@ -147,10 +148,8 @@ public class LockManager {
         synchronized (this.lockObject) {
 
             // Sanity check
-            if (owner == null)
-                throw new IllegalArgumentException("null owner");
-            if (waitTimeout < 0)
-                throw new IllegalArgumentException("waitTimeout < 0");
+            Preconditions.checkArgument(owner != null, "null owner");
+            Preconditions.checkArgument(waitTimeout >= 0, "waitTimeout < 0");
             waitTimeout = Math.min(waitTimeout, TEN_YEARS_MILLIS);                  // limit to 10 years to avoid overflow
 
             // Check hold timeout
@@ -223,11 +222,8 @@ public class LockManager {
      * @throws IllegalArgumentException if {@code owner} is null
      */
     public boolean release(LockOwner owner) {
+        Preconditions.checkArgument(owner != null, "null owner");
         synchronized (this.lockObject) {
-
-            // Sanity check
-            if (owner == null)
-                throw new IllegalArgumentException("null owner");
 
             // Check if hold timeout has alread expired; in any case, remove lock time
             if (this.lockTimes.containsKey(owner)) {

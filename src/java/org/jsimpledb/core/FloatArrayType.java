@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Floats;
 import com.google.common.reflect.TypeToken;
 
@@ -49,8 +50,7 @@ class FloatArrayType extends ArrayType<float[], Float> {
 
     @Override
     public void write(ByteWriter writer, float[] array) {
-        if (array == null)
-            throw new IllegalArgumentException("null array");
+        Preconditions.checkArgument(array != null, "null array");
         final int length = this.getArrayLength(array);
         for (int i = 0; i < length; i++)
             this.floatType.write(writer, array[i]);

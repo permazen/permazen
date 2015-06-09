@@ -5,6 +5,8 @@
 
 package org.jsimpledb.cli;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +25,7 @@ public class CommandListParser implements Parser<List<CliSession.Action>> {
      * @param commandParser single command parser
      */
     public CommandListParser(Parser<CliSession.Action> commandParser) {
-        if (commandParser == null)
-            throw new IllegalArgumentException("null commandParser");
+        Preconditions.checkArgument(commandParser != null, "null commandParser");
         this.commandParser = commandParser;
     }
 

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Superclass for the {@link ObjType} and {@link Field} classes which make up a {@link Schema} version.
  *
@@ -27,14 +29,10 @@ public abstract class SchemaItem {
     final Schema schema;
 
     SchemaItem(String name, int storageId, Schema schema) {
-        if (name == null)
-            throw new IllegalArgumentException("invalid null name");
-        if (!name.matches(NAME_PATTERN))
-            throw new IllegalArgumentException("invalid name `" + name + "'");
-        if (storageId <= 0)
-            throw new IllegalArgumentException("invalid storageId " + storageId);
-        if (schema == null)
-            throw new IllegalArgumentException("null schema");
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(name.matches(NAME_PATTERN), "invalid name `" + name + "'");
+        Preconditions.checkArgument(storageId > 0, "invalid non-positive storageId");
+        Preconditions.checkArgument(schema != null, "null schema");
         this.name = name;
         this.storageId = storageId;
         this.schema = schema;

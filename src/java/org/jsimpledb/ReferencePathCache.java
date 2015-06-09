@@ -5,6 +5,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -27,8 +28,7 @@ class ReferencePathCache {
      * @throws IllegalArgumentException if {@code jdb} is null
      */
     ReferencePathCache(JSimpleDB jdb) {
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
+        Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
         this.cache = CacheBuilder.newBuilder().softValues().build(new CacheLoader<Key, ReferencePath>() {
             public ReferencePath load(Key key) {

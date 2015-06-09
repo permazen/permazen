@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Superclass of exceptions associated with a specific {@link Transaction}.
  */
@@ -22,8 +24,7 @@ public class TransactionException extends DatabaseException {
      */
     public TransactionException(Transaction tx, String message) {
         super(message);
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         this.tx = tx;
     }
 

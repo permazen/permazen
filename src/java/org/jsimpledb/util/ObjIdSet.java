@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.AbstractSet;
 import java.util.Iterator;
 
@@ -50,8 +52,7 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
      */
     public ObjIdSet(Iterable<? extends ObjId> ids) {
         this(0);
-        if (ids == null)
-            throw new IllegalArgumentException("null ids");
+        Preconditions.checkArgument(ids != null, "null ids");
         for (ObjId id : ids)
             this.add(id);
     }

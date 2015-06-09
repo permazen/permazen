@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.data.util.converter.Converter;
 
 import java.util.Locale;
@@ -22,8 +23,7 @@ public class ReferenceFieldConverter implements Converter<ObjId, JObject> {
     private final JSimpleDB jdb;
 
     public ReferenceFieldConverter(JSimpleDB jdb) {
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
+        Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
     }
 

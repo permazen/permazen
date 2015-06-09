@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 
 import org.jsimpledb.kv.KVPairIterator;
@@ -56,16 +58,11 @@ class IndexKeyFilter implements KeyFilter {
      * @throws IllegalArgumentException if {@code filters} is not the same length as {@code fieldTypes}
      */
     public IndexKeyFilter(Transaction tx, byte[] prefix, FieldType<?>[] fieldTypes, KeyFilter[] filters, int prefixLen) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        if (prefix == null || prefix.length == 0)
-            throw new IllegalArgumentException("null/empty prefix");
-        if (fieldTypes == null || fieldTypes.length == 0)
-            throw new IllegalArgumentException("null/empty fieldTypes");
-        if (filters == null || filters.length != fieldTypes.length)
-            throw new IllegalArgumentException("bogus filters");
-        if (prefixLen < 0 || prefixLen > fieldTypes.length)
-            throw new IllegalArgumentException("invalid prefixLen");
+        Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(prefix != null && prefix.length > 0, "null/empty prefix");
+        Preconditions.checkArgument(fieldTypes != null && fieldTypes.length > 0, "null/empty fieldTypes");
+        Preconditions.checkArgument(filters != null && filters.length == fieldTypes.length, "bogus filters");
+        Preconditions.checkArgument(prefixLen >= 0 && prefixLen <= fieldTypes.length, "invalid prefixLen");
         this.tx = tx;
         this.prefix = prefix;
         this.fieldTypes = fieldTypes;
@@ -147,8 +144,7 @@ class IndexKeyFilter implements KeyFilter {
     public byte[] seekLower(byte[] key) {
 
         // Sanity check
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
 
         // Check prefix fields
         final byte[] next = this.prefixFilter.seekLower(key);

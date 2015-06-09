@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.kv.KVStore;
 
 /**
@@ -25,8 +27,7 @@ public class UnmodifiableKVStore extends ForwardingKVStore {
      * @throws IllegalArgumentException if {@code kvstore} is null
      */
     public UnmodifiableKVStore(KVStore kvstore) {
-        if (kvstore == null)
-            throw new IllegalArgumentException("null kvstore");
+        Preconditions.checkArgument(kvstore != null, "null kvstore");
         this.kvstore = kvstore;
     }
 

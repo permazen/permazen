@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.Iterator;
@@ -173,8 +174,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param subField sub-field of this field
      */
     void addIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField) {
-        if (!subField.indexed)
-            throw new IllegalArgumentException(this + " is not indexed");
+        Preconditions.checkArgument(subField.indexed, "not indexed");
         final byte[] prefix = this.buildKey(id);
         final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);
         for (Iterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd, false); i.hasNext(); ) {
@@ -216,8 +216,7 @@ public abstract class ComplexField<T> extends Field<T> {
      * @param subField sub-field of this field
      */
     void removeIndexEntries(Transaction tx, ObjId id, SimpleField<?> subField, byte[] minKey, byte[] maxKey) {
-        if (!subField.indexed)
-            throw new IllegalArgumentException(this + " is not indexed");
+        Preconditions.checkArgument(subField.indexed, "not indexed");
         for (Iterator<KVPair> i = tx.kvt.getRange(minKey, maxKey, false); i.hasNext(); ) {
             final KVPair pair = i.next();
             this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());

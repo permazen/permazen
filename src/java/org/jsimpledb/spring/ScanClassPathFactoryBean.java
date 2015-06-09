@@ -5,6 +5,8 @@
 
 package org.jsimpledb.spring;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,12 +62,9 @@ abstract class ScanClassPathFactoryBean extends AbstractFactoryBean<List<Class<?
     @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
-        if (this.basePackages == null)
-            throw new IllegalStateException("no basePackages configured");
-        if (this.environment == null)
-            throw new IllegalStateException("no environment configured");
-        if (this.resourceLoader == null)
-            throw new IllegalStateException("no resourceLoader configured");
+        Preconditions.checkState(this.basePackages != null, "no basePackages configured");
+        Preconditions.checkState(this.environment != null, "no environment configured");
+        Preconditions.checkState(this.resourceLoader != null, "no resourceLoader configured");
     }
 
     @Override

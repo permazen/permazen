@@ -6,6 +6,7 @@
 package org.jsimpledb.parse;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.util.regex.Matcher;
@@ -31,8 +32,7 @@ public class EnumNameParser<T extends Enum<T>> implements Parser<T> {
     }
 
     public EnumNameParser(Class<T> type, boolean lowerCase) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         this.type = type;
         this.lowerCase = lowerCase;
     }

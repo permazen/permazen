@@ -6,6 +6,7 @@
 package org.jsimpledb.parse.expr;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.InvocationTargetException;
@@ -35,8 +36,7 @@ public class MethodInvokeNode implements Node {
      */
     public MethodInvokeNode(Class<?> klass, String name, List<Node> paramNodes) {
         this(name, paramNodes, klass, null);
-        if (klass == null)
-            throw new IllegalArgumentException("null klass");
+        Preconditions.checkArgument(klass != null, "null klass");
     }
 
     /**
@@ -48,19 +48,14 @@ public class MethodInvokeNode implements Node {
      */
     public MethodInvokeNode(Node node, String name, List<Node> paramNodes) {
         this(name, paramNodes, null, node);
-        if (node == null)
-            throw new IllegalArgumentException("null node");
+        Preconditions.checkArgument(node != null, "null node");
     }
 
     private MethodInvokeNode(String name, List<Node> paramNodes, Class<?> klass, Node node) {
-        if (name == null)
-            throw new IllegalArgumentException("null target");
-        if (paramNodes == null)
-            throw new IllegalArgumentException("null paramNodes");
-        for (Node paramNode : paramNodes) {
-            if (paramNode == null)
-                throw new IllegalArgumentException("null paramNode in list");
-        }
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(paramNodes != null, "null paramNodes");
+        for (Node paramNode : paramNodes)
+            Preconditions.checkArgument(paramNode != null, "null paramNode in list");
         this.klass = klass;
         this.node = node;
         this.name = name;

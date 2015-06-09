@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -26,10 +28,8 @@ public class WordParser implements Parser<String> {
      * @throws IllegalArgumentException if {@code description} is null
      */
     public WordParser(Collection<String> words, String description) {
-        if (words == null)
-            throw new IllegalArgumentException("null words");
-        if (description == null)
-            throw new IllegalArgumentException("null description");
+        Preconditions.checkArgument(words != null, "null words");
+        Preconditions.checkArgument(description != null, "null description");
         this.words = new TreeSet<>(words);
         this.description = description;
     }
@@ -42,8 +42,7 @@ public class WordParser implements Parser<String> {
      * @throws IllegalArgumentException if {@code description} is null
      */
     public WordParser(String description) {
-        if (description == null)
-            throw new IllegalArgumentException("null description");
+        Preconditions.checkArgument(description != null, "null description");
         this.words = null;
         this.description = description;
     }

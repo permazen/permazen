@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Date;
 
 import org.dellroad.stuff.string.DateEncoder;
@@ -31,8 +33,7 @@ class DateType extends NonNullFieldType<Date> {
 
     @Override
     public void write(ByteWriter writer, Date date) {
-        if (date == null)
-            throw new IllegalArgumentException("null date");
+        Preconditions.checkArgument(date != null, "null date");
         LongEncoder.write(writer, date.getTime());
     }
 

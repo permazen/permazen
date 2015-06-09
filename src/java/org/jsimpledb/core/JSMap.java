@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,8 +43,7 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
     private JSMap(Transaction tx, MapField<K, V> field, ObjId id,
       boolean reversed, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
         super(tx, field.keyField.fieldType, false, reversed, field.buildKey(id), keyRange, keyFilter, bounds);
-        if (keyRange == null)
-            throw new IllegalArgumentException("null keyRange");
+        Preconditions.checkArgument(keyRange != null, "null keyRange");
         this.id = id;
         this.field = field;
     }

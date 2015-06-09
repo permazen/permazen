@@ -6,6 +6,7 @@
 package org.jsimpledb.util;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 import java.util.AbstractList;
@@ -33,10 +34,8 @@ public class ConvertedList<E, W> extends AbstractList<E> {
      * @throws IllegalArgumentException if either parameter is null
      */
     public ConvertedList(List<W> list, Converter<E, W> converter) {
-        if (list == null)
-            throw new IllegalArgumentException("null list");
-        if (converter == null)
-            throw new IllegalArgumentException("null converter");
+        Preconditions.checkArgument(list != null, "null list");
+        Preconditions.checkArgument(converter != null, "null converter");
         this.list = list;
         this.converter = converter;
     }

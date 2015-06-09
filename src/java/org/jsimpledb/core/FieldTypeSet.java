@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -65,12 +67,9 @@ abstract class FieldTypeSet<E> extends AbstractKVNavigableSet<E> {
     FieldTypeSet(Transaction tx, FieldType<E> fieldType, boolean prefixMode, boolean reversed,
       byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<E> bounds) {
         super(tx.kvt, prefixMode, reversed, keyRange, keyFilter, bounds);
-        if (fieldType == null)
-            throw new IllegalArgumentException("null fieldType");
-        if (prefix == null)
-            throw new IllegalArgumentException("null prefix");
-        if (prefix.length > 0 && keyRange == null)
-            throw new IllegalArgumentException("null keyRange");
+        Preconditions.checkArgument(fieldType != null, "null fieldType");
+        Preconditions.checkArgument(prefix != null, "null prefix");
+        Preconditions.checkArgument(prefix.length == 0 || keyRange != null, "null keyRange");
         if (keyRange != null && !KeyRange.forPrefix(prefix).contains(keyRange))
             throw new IllegalArgumentException(keyRange + " does not restrict to prefix " + ByteUtil.toString(prefix));
         this.tx = tx;

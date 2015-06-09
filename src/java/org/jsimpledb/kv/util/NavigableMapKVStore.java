@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
@@ -57,8 +58,7 @@ public class NavigableMapKVStore extends AbstractKVStore {
      * @see org.jsimpledb.util.ByteUtil#COMPARATOR
      */
     public NavigableMapKVStore(NavigableMap<byte[], byte[]> map) {
-        if (map == null)
-            throw new IllegalArgumentException("null map");
+        Preconditions.checkArgument(map != null, "null map");
         this.map = map;
     }
 

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Iterator;
 
 import org.jsimpledb.kv.KVPair;
@@ -127,8 +129,7 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * @throws IllegalArgumentException if {@code kv} is null
      */
     protected AbstractKVIterator(KVStore kv, boolean prefixMode, boolean reversed, KeyRange keyRange, KeyFilter keyFilter) {
-        if (kv == null)
-            throw new IllegalArgumentException("null kv");
+        Preconditions.checkArgument(kv != null, "null kv");
         this.kv = kv;
         this.prefixMode = prefixMode;
         this.reversed = reversed;

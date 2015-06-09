@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.func;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.Node;
@@ -29,8 +31,7 @@ public abstract class SimpleFunction extends AbstractFunction {
      */
     protected SimpleFunction(String name, int minArgs, int maxArgs) {
         super(name);
-        if (minArgs < 0 || minArgs > maxArgs)
-            throw new IllegalArgumentException("invalid minArgs = " + minArgs + ", maxArgs = " + maxArgs);
+        Preconditions.checkArgument(minArgs >= 0 && minArgs <= maxArgs, "invalid minArgs/maxArgs");
         this.minArgs = minArgs;
         this.maxArgs = maxArgs;
     }

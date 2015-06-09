@@ -6,6 +6,7 @@
 package org.jsimpledb.cli;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -111,8 +112,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
      * @throws IllegalArgumentException if {@code typeName} is unknown
      */
     protected Parser<?> getParser(String typeName) {
-        if (typeName == null)
-            throw new IllegalArgumentException("null typeName");
+        Preconditions.checkArgument(typeName != null, "null typeName");
         if (typeName.equals("word"))
             return new WordParser("parameter");
         for (Primitive<?> prim : Primitive.values()) {
@@ -276,8 +276,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
         public Param(String spec) {
 
             // Sanity check
-            if (spec == null)
-                throw new IllegalArgumentException("null spec");
+            Preconditions.checkArgument(spec != null, "null spec");
 
             // Apply pattern
             final Pattern pattern = Pattern.compile("((-[^\\s:]+):)?([^-][^\\s:?+*]*)(:([^\\s?+*]+))?([?+*])?");

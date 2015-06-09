@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Field;
 
 import org.jsimpledb.core.ObjId;
@@ -29,10 +31,8 @@ public class FieldValue extends AbstractValue {
      * @throws IllegalArgumentException if {@code field} is null
      */
     public FieldValue(ObjId id, org.jsimpledb.core.Field<?> field) {
-        if (id == null)
-            throw new IllegalArgumentException("null id");
-        if (field == null)
-            throw new IllegalArgumentException("null field");
+        Preconditions.checkArgument(id != null, "null id");
+        Preconditions.checkArgument(field != null, "null field");
         this.id = id;
         this.field = field;
     }

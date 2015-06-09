@@ -285,8 +285,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      */
     @Override
     public void setTimeout(long timeout) {
-        if (timeout < 0)
-            throw new IllegalArgumentException("timeout < 0");
+        Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);
     }
 

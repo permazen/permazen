@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -113,8 +115,7 @@ public class KVPairIterator implements Iterator<KVPair> {
      * @throws IllegalArgumentException if {@code kv} is null
      */
     public KVPairIterator(KVStore kv, KeyRange keyRange, KeyFilter keyFilter, boolean reverse) {
-        if (kv == null)
-            throw new IllegalArgumentException("null kv");
+        Preconditions.checkArgument(kv != null, "null kv");
         this.kv = kv;
         this.keyRange = keyRange;
         this.keyFilter = keyFilter;
@@ -169,8 +170,7 @@ public class KVPairIterator implements Iterator<KVPair> {
      * @throws IllegalArgumentException if {@code key} is null
      */
     public boolean isVisible(byte[] key) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(kv != null, "null kv");
         return (this.keyRange == null || this.keyRange.contains(key))
           && (this.keyFilter == null || this.keyFilter.contains(key));
     }

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -40,8 +42,7 @@ public class ReferenceField extends SimpleField<ObjId> {
     ReferenceField(String name, int storageId, Schema schema,
       DeleteAction onDelete, boolean cascadeDelete, Set<Integer> objectTypes) {
         super(name, storageId, schema, new ReferenceFieldType(objectTypes), true);
-        if (onDelete == null)
-            throw new IllegalArgumentException("null onDelete");
+        Preconditions.checkArgument(onDelete != null, "null onDelete");
         this.onDelete = onDelete;
         this.cascadeDelete = cascadeDelete;
     }

@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,10 +33,8 @@ public class JCompositeIndex extends JSchemaObject {
      */
     JCompositeIndex(JSimpleDB jdb, String name, int storageId, JSimpleField... jfields) {
         super(jdb, name, storageId, "composite index `" + name + "' on fields " + Arrays.asList(jfields));
-        if (name == null)
-            throw new IllegalArgumentException("null name");
-        if (jfields.length < 2 || jfields.length > Database.MAX_INDEXED_FIELDS)
-            throw new IllegalArgumentException("invalid number of fields");
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(jfields.length >= 2 && jfields.length <= Database.MAX_INDEXED_FIELDS, "invalid field count");
         this.jfields = Collections.unmodifiableList(Arrays.asList(jfields));
     }
 

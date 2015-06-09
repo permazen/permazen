@@ -6,6 +6,7 @@
 package org.jsimpledb.parse.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 
 /**
  * Adds a suffix.
@@ -15,15 +16,13 @@ public class AddSuffixFunction implements Function<String, String> {
     private final String suffix;
 
     public AddSuffixFunction(String suffix) {
-        if (suffix == null)
-            throw new IllegalArgumentException("null suffix");
+        Preconditions.checkArgument(suffix != null, "null suffix");
         this.suffix = suffix;
     }
 
     @Override
     public String apply(String string) {
-        if (string == null)
-            throw new IllegalArgumentException("null string");
+        Preconditions.checkArgument(string != null, "null string");
         return string + this.suffix;
     }
 }

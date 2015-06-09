@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.string.StringEncoder;
@@ -40,10 +41,9 @@ class StringConvertedType<T> extends NonNullFieldType<T> {
      */
     protected StringConvertedType(String name, TypeToken<T> type, long signature, Converter<T, String> converter) {
         super(name, type, signature);
-        if (converter == null)
-            throw new IllegalArgumentException("null converter");
-        if (converter.convert(null) != null || converter.reverse().convert(null) != null)
-            throw new IllegalArgumentException("invalid converter: does not convert null <-> null");
+        Preconditions.checkArgument(converter != null, "null converter");
+        Preconditions.checkArgument(converter.convert(null) == null && converter.reverse().convert(null) == null,
+          "invalid converter: does not convert null <-> null");
         this.converter = converter;
     }
 

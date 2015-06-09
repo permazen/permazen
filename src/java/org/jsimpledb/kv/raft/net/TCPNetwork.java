@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.raft.net;
 
+import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -116,8 +118,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
      * @throws IllegalArgumentException if {@code address} is null
      */
     public synchronized void setListenAddress(InetSocketAddress address) {
-        if (address == null)
-            throw new IllegalArgumentException();
+        Preconditions.checkArgument(address != null, "null address");
         this.listenAddress = address;
     }
 
@@ -255,8 +256,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
     public synchronized boolean send(String peer, ByteBuffer msg) {
 
         // Sanity check
-        if (peer == null)
-            throw new IllegalArgumentException("null peer");
+        Preconditions.checkArgument(peer != null, "null peer");
 
         // Get/create connection
         Connection connection = this.connectionMap.get(peer);

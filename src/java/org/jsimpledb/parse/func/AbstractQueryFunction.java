@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.func;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.ObjType;
 import org.jsimpledb.parse.ObjTypeParser;
@@ -32,8 +34,7 @@ abstract class AbstractQueryFunction extends AbstractFunction {
 
     protected AbstractQueryFunction(String name, int minValueTypes, int maxValueTypes) {
         super(name);
-        if (minValueTypes < 1 || maxValueTypes < minValueTypes)
-            throw new IllegalArgumentException("invalid min/max");
+        Preconditions.checkArgument(minValueTypes >= 1 && maxValueTypes >= minValueTypes, "invalid min/max");
         this.minValueTypes = minValueTypes;
         this.maxValueTypes = maxValueTypes;
     }

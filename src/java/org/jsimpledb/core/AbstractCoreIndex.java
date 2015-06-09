@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,10 +23,8 @@ abstract class AbstractCoreIndex {
 // Constructors
 
     protected AbstractCoreIndex(Transaction tx, int size, AbstractIndexView indexView) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        if (indexView == null)
-            throw new IllegalArgumentException("null indexView");
+        Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(indexView != null, "null indexView");
         this.tx = tx;
         this.indexView = indexView;
         if (this.indexView.fieldTypes.length != size)

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Field;
 
 /**
@@ -15,8 +17,7 @@ abstract class AbstractFieldValue extends AbstractValue implements LValue {
     protected final Field field;
 
     protected AbstractFieldValue(Field field) {
-        if (field == null)
-            throw new IllegalArgumentException("null field");
+        Preconditions.checkArgument(field != null, "null field");
         this.field = field;
     }
 }

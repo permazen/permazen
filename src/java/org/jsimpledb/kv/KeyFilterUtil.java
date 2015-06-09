@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -29,8 +31,7 @@ public final class KeyFilterUtil {
      * @throws IllegalArgumentException if {@code keyFilters} or any element in {@code keyFilters} is null
      */
     public static KeyFilter union(KeyFilter... keyFilters) {
-        if (keyFilters == null)
-            throw new IllegalArgumentException("null keyFilters");
+        Preconditions.checkArgument(keyFilters != null, "null keyFilters");
         switch (keyFilters.length) {
         case 0:
             throw new IllegalArgumentException("empty keyFilters");
@@ -43,8 +44,7 @@ public final class KeyFilterUtil {
         // Optimize when all are KeyRanges instances
         boolean allKeyRanges = true;
         for (KeyFilter keyFilter : keyFilters) {
-            if (keyFilter == null)
-                throw new IllegalArgumentException("null keyFilter");
+            Preconditions.checkArgument(keyFilter != null, "null keyFilter");
             if (!(keyFilter instanceof KeyRanges))
                 allKeyRanges = false;
         }
@@ -68,8 +68,7 @@ public final class KeyFilterUtil {
      * @throws IllegalArgumentException if {@code keyFilters} or any element in {@code keyFilters} is null
      */
     public static KeyFilter intersection(KeyFilter... keyFilters) {
-        if (keyFilters == null)
-            throw new IllegalArgumentException("null keyFilters");
+        Preconditions.checkArgument(keyFilters != null, "null keyFilters");
         switch (keyFilters.length) {
         case 0:
             throw new IllegalArgumentException("empty keyFilters");
@@ -82,8 +81,7 @@ public final class KeyFilterUtil {
         // Optimize when all are KeyRanges instances
         boolean allKeyRanges = true;
         for (KeyFilter keyFilter : keyFilters) {
-            if (keyFilter == null)
-                throw new IllegalArgumentException("null keyFilter");
+            Preconditions.checkArgument(keyFilter != null, "null keyFilter");
             if (!(keyFilter instanceof KeyRanges))
                 allKeyRanges = false;
         }
@@ -106,14 +104,12 @@ public final class KeyFilterUtil {
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
     public static boolean isEmpty(KeyFilter keyFilter) {
-        if (keyFilter == null)
-            throw new IllegalArgumentException("null keyFilter");
+        Preconditions.checkArgument(keyFilter != null, "null keyFilter");
         return keyFilter.seekHigher(ByteUtil.EMPTY) == null;
     }
 
     private static byte[] seek(KeyFilter[] keyFilters, byte[] key, boolean seekHigher, boolean preferHigher) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
         assert keyFilters.length > 0;
         final boolean preferNull = seekHigher == preferHigher;
         byte[] best = null;

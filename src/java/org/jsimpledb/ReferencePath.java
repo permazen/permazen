@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
@@ -120,12 +121,9 @@ public class ReferencePath {
     ReferencePath(JSimpleDB jdb, Class<?> startType, String path, Boolean lastIsSubField) {
 
         // Sanity check
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
-        if (startType == null)
-            throw new IllegalArgumentException("null startType");
-        if (path == null)
-            throw new IllegalArgumentException("null path");
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(startType != null, "null startType");
+        Preconditions.checkArgument(path != null, "null path");
         final String errorPrefix = "invalid path `" + path + "': ";
         if (path.length() == 0)
             throw new IllegalArgumentException(errorPrefix + "path is empty");

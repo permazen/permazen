@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
@@ -47,8 +48,7 @@ public class ListField<E> extends CollectionField<List<E>, E> {
     @Override
     @SuppressWarnings("unchecked")
     public List<E> getValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         return (List<E>)tx.readListField(id, this.storageId, false);
     }
 

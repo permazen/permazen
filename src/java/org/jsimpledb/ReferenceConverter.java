@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import org.jsimpledb.core.ObjId;
 
@@ -18,10 +19,8 @@ class ReferenceConverter<T> extends Converter<T, ObjId> {
     private final Class<T> type;
 
     ReferenceConverter(JTransaction jtx, Class<T> type) {
-        if (jtx == null)
-            throw new IllegalArgumentException("null jtx");
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        Preconditions.checkArgument(type != null, "null type");
         this.jtx = jtx;
         this.type = type;
     }

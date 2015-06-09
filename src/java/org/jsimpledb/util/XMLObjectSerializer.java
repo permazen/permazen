@@ -5,6 +5,7 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
 import java.io.InputStream;
@@ -141,8 +142,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code tx} is null
      */
     public XMLObjectSerializer(Transaction tx) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         this.tx = tx;
 
         // Build name index for each schema version
@@ -166,8 +166,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code generatedIdCache} is null
      */
     public void setGeneratedIdCache(GeneratedIdCache generatedIdCache) {
-        if (generatedIdCache == null)
-            throw new IllegalArgumentException("null generatedIdCache");
+        Preconditions.checkArgument(generatedIdCache != null, "null generatedIdCache");
         this.generatedIdCache = generatedIdCache;
     }
 
@@ -184,8 +183,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code input} is null
      */
     public int read(InputStream input) throws XMLStreamException {
-        if (input == null)
-            throw new IllegalArgumentException("null input");
+        Preconditions.checkArgument(input != null, "null input");
         return this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
     }
 
@@ -206,8 +204,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      */
     @SuppressWarnings("unchecked")
     public int read(XMLStreamReader reader) throws XMLStreamException {
-        if (reader == null)
-            throw new IllegalArgumentException("null reader");
+        Preconditions.checkArgument(reader != null, "null reader");
         this.expect(reader, false, OBJECTS_TAG);
 
         // Create a snapshot transaction so we can replace objects without triggering DeleteAction's
@@ -423,8 +420,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code output} is null
      */
     public int write(OutputStream output, boolean nameFormat, boolean indent) throws XMLStreamException {
-        if (output == null)
-            throw new IllegalArgumentException("null output");
+        Preconditions.checkArgument(output != null, "null output");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
         if (indent)
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
@@ -443,8 +439,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code writer} is null
      */
     public int write(Writer writer, boolean nameFormat, boolean indent) throws XMLStreamException {
-        if (writer == null)
-            throw new IllegalArgumentException("null writer");
+        Preconditions.checkArgument(writer != null, "null writer");
         XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         if (indent)
             xmlWriter = new IndentXMLStreamWriter(xmlWriter);
@@ -485,10 +480,8 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code writer} is null
      */
     public int write(XMLStreamWriter writer, boolean nameFormat, Iterable<? extends ObjId> objIds) throws XMLStreamException {
-        if (writer == null)
-            throw new IllegalArgumentException("null writer");
-        if (objIds == null)
-            throw new IllegalArgumentException("null objIds");
+        Preconditions.checkArgument(writer != null, "null writer");
+        Preconditions.checkArgument(objIds != null, "null objIds");
         final NameComparator nameComparator = new NameComparator();
         writer.setDefaultNamespace(OBJECTS_TAG.getNamespaceURI());
         writer.writeStartElement(OBJECTS_TAG.getNamespaceURI(), OBJECTS_TAG.getLocalPart());

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.simple;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.kv.KVStore;
 
 /**
@@ -20,8 +22,7 @@ class Put extends Mutation {
 
     public Put(byte[] key, byte[] value) {
         super(key);
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         this.value = value.clone();
     }
 

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.simple;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 
 import org.jsimpledb.kv.KVStore;
@@ -17,8 +19,7 @@ abstract class Mutation extends KeyRange {
 
     protected Mutation(byte[] min, byte[] max) {
         super(min, max);
-        if (max != null && Arrays.equals(min, max))
-            throw new IllegalArgumentException("empty range");
+        Preconditions.checkArgument(max == null || !Arrays.equals(min, max), "empty range");
     }
 
     protected Mutation(byte[] value) {

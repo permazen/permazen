@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 /**
@@ -45,8 +46,7 @@ public class CounterField extends Field<Long> {
 
     @Override
     public Long getValue(Transaction tx, ObjId id) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
+        Preconditions.checkArgument(tx != null, "null tx");
         return tx.readCounterField(id, this.storageId, false);
     }
 

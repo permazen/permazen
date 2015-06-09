@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.data.Property;
 import com.vaadin.server.Sizeable;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -58,12 +59,9 @@ public class ReferenceFieldField extends CustomField<JObject> {
     public ReferenceFieldField(JTransaction dest, ParseSession session, String name, Class<?> type) {
 
         // Initialize
-        if (dest == null)
-            throw new IllegalArgumentException("null dest");
-        if (session == null)
-            throw new IllegalArgumentException("null session");
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(dest != null, "null dest");
+        Preconditions.checkArgument(session != null, "null session");
+        Preconditions.checkArgument(name != null, "null name");
         this.dest = dest;
         this.session = session;
         this.name = name;

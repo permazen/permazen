@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Field;
@@ -40,12 +41,9 @@ public class SimpleFieldFieldBuilder {
      * @param allowNull whether null values are allowed
      */
     public SimpleFieldFieldBuilder(JTransaction jtx, JSimpleField jfield, ParseSession session, boolean allowNull) {
-        if (jtx == null)
-            throw new IllegalArgumentException("null jtx");
-        if (jfield == null)
-            throw new IllegalArgumentException("null jfield");
-        if (session == null)
-            throw new IllegalArgumentException("null session");
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        Preconditions.checkArgument(jfield != null, "null jfield");
+        Preconditions.checkArgument(session != null, "null session");
         this.jtx = jtx;
         this.jfield = jfield;
         this.session = session;

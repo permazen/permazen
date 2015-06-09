@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -28,8 +30,7 @@ public class MutableBeanPropertyValue extends BeanPropertyValue implements LValu
      */
     public MutableBeanPropertyValue(Object bean, String name, Method getter, Method setter) {
         super(bean, name, getter);
-        if (setter == null)
-            throw new IllegalArgumentException("null setter");
+        Preconditions.checkArgument(setter != null, "null setter");
         this.setter = setter;
     }
 

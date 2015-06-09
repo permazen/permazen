@@ -5,6 +5,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -29,8 +30,7 @@ abstract class JObjectCache {
     });
 
     JObjectCache(JSimpleDB jdb) {
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
+        Preconditions.checkArgument(jdb != null, "null jdb");
         this.jdb = jdb;
     }
 
@@ -44,8 +44,7 @@ abstract class JObjectCache {
     public JObject getJObject(ObjId id) {
 
         // Sanity check
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(id != null, "null id");
 
         // Check current instantiations to avoid "recursive load" exception
         final HashMap<ObjId, JObject> currentInvocations = this.instantiating.get();

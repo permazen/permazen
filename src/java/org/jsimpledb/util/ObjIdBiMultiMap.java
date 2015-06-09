@@ -5,6 +5,8 @@
 
 package org.jsimpledb.util;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.core.ObjId;
 
 /**
@@ -126,8 +128,7 @@ public class ObjIdBiMultiMap {
      * @throws IllegalArgumentException if {@code target} is null
      */
     public ObjIdSet getSources(ObjId target) {
-        if (target == null)
-            throw new IllegalArgumentException("null target");
+        Preconditions.checkArgument(target != null, "null target");
         synchronized (this.lock) {
             final ObjIdSet sources = this.reverse.get(target);
             return sources != null ? sources.clone() : null;
@@ -146,8 +147,7 @@ public class ObjIdBiMultiMap {
      * @throws IllegalArgumentException if {@code source} is null
      */
     public ObjIdSet getTargets(ObjId source) {
-        if (source == null)
-            throw new IllegalArgumentException("null source");
+        Preconditions.checkArgument(source != null, "null source");
         synchronized (this.lock) {
             final ObjIdSet targets = this.forward.get(source);
             return targets != null ? targets.clone() : null;
@@ -162,8 +162,7 @@ public class ObjIdBiMultiMap {
      * @throws IllegalArgumentException if {@code source} is null
      */
     public boolean containsSource(ObjId source) {
-        if (source == null)
-            throw new IllegalArgumentException("null source");
+        Preconditions.checkArgument(source != null, "null source");
         synchronized (this.lock) {
             return this.forward.containsKey(source);
         }
@@ -177,8 +176,7 @@ public class ObjIdBiMultiMap {
      * @throws IllegalArgumentException if {@code target} is null
      */
     public boolean containsTarget(ObjId target) {
-        if (target == null)
-            throw new IllegalArgumentException("null target");
+        Preconditions.checkArgument(target != null, "null target");
         synchronized (this.lock) {
             return this.reverse.containsKey(target);
         }
@@ -193,10 +191,8 @@ public class ObjIdBiMultiMap {
      * @throws IllegalArgumentException if {@code source} or {@code target} is null
      */
     public boolean add(ObjId source, ObjId target) {
-        if (source == null)
-            throw new IllegalArgumentException("null source");
-        if (target == null)
-            throw new IllegalArgumentException("null target");
+        Preconditions.checkArgument(source != null, "null source");
+        Preconditions.checkArgument(target != null, "null target");
         synchronized (this.lock) {
             if (!ObjIdBiMultiMap.add(this.forward, source, target))
                 return false;
@@ -216,10 +212,8 @@ public class ObjIdBiMultiMap {
     public boolean addAll(ObjId source, Iterable<? extends ObjId> targets) {
 
         // Sanity check
-        if (source == null)
-            throw new IllegalArgumentException("null source");
-        if (targets == null)
-            throw new IllegalArgumentException("null targets");
+        Preconditions.checkArgument(source != null, "null source");
+        Preconditions.checkArgument(targets != null, "null targets");
 
         // Gather targets
         final ObjIdSet addedTargets = ObjIdBiMultiMap.gather(targets);
@@ -260,10 +254,8 @@ public class ObjIdBiMultiMap {
      * @throws IllegalArgumentException if {@code source} or {@code target} is null
      */
     public boolean remove(ObjId source, ObjId target) {
-        if (source == null)
-            throw new IllegalArgumentException("null source");
-        if (target == null)
-            throw new IllegalArgumentException("null target");
+        Preconditions.checkArgument(source != null, "null source");
+        Preconditions.checkArgument(target != null, "null target");
         synchronized (this.lock) {
             if (!ObjIdBiMultiMap.remove(this.forward, source, target))
                 return false;
@@ -283,10 +275,8 @@ public class ObjIdBiMultiMap {
     public boolean removeAll(ObjId source, Iterable<? extends ObjId> targets) {
 
         // Sanity check
-        if (source == null)
-            throw new IllegalArgumentException("null source");
-        if (targets == null)
-            throw new IllegalArgumentException("null targets");
+        Preconditions.checkArgument(source != null, "null source");
+        Preconditions.checkArgument(targets != null, "null targets");
 
         // Gather targets
         final ObjIdSet removedTargets = ObjIdBiMultiMap.gather(targets);
@@ -323,8 +313,7 @@ public class ObjIdBiMultiMap {
      * @throws IllegalArgumentException if {@code source} is null
      */
     public boolean removeSource(ObjId source) {
-        if (source == null)
-            throw new IllegalArgumentException("null source");
+        Preconditions.checkArgument(source != null, "null source");
         synchronized (this.lock) {
             final ObjIdSet targets = this.forward.remove(source);
             if (targets == null)
@@ -448,8 +437,7 @@ public class ObjIdBiMultiMap {
     private static ObjIdSet gather(Iterable<? extends ObjId> ids) {
         final ObjIdSet set = new ObjIdSet();
         for (ObjId id : ids) {
-            if (id == null)
-                throw new IllegalArgumentException("encountered null ObjId in iteration");
+            Preconditions.checkArgument(id != null, "encountered null ObjId in iteration");
             set.add(id);
         }
         return set;

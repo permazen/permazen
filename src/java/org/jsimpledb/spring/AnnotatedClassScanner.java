@@ -5,6 +5,8 @@
 
 package org.jsimpledb.spring;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 
@@ -52,8 +54,7 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
     }
 
     private static boolean initHack(boolean rtn, Class<?>... annotationTypes) {
-        if (annotationTypes == null || annotationTypes.length == 0)
-            throw new IllegalArgumentException("null/empty annotationTypes");
+        Preconditions.checkArgument(annotationTypes != null && annotationTypes.length > 0, "null/empty annotationTypes");
         final ArrayList<Class<? extends Annotation>> list = new ArrayList<>();
         for (Class<?> cl : annotationTypes) {
             try {
@@ -74,8 +75,7 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
      * @throws IllegalArgumentException if {@code basePackages} is empty
      */
     public ArrayList<String> scanForClasses(String... basePackages) {
-        if (basePackages == null || basePackages.length == 0)
-            throw new IllegalArgumentException("at least one base package name is required");
+        Preconditions.checkArgument(basePackages != null && basePackages.length > 0, "at least one base package name is required");
         final ArrayList<String> nameList = new ArrayList<>();
         for (String basePackage : basePackages) {
             for (BeanDefinition candidate : this.findCandidateComponents(basePackage))

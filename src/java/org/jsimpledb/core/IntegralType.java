@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
@@ -28,8 +30,7 @@ abstract class IntegralType<T extends Number> extends PrimitiveType<T> {
 
     @Override
     public void write(ByteWriter writer, T value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         LongEncoder.write(writer, this.upCast(value));
     }
 

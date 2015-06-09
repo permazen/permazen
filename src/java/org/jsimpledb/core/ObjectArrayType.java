@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
 
@@ -30,8 +31,7 @@ class ObjectArrayType<E> extends ArrayType<E[], E> {
     @SuppressWarnings("serial")
     ObjectArrayType(FieldType<E> elementType) {
         super(elementType, new TypeToken<E[]>() { }.where(new TypeParameter<E>() { }, elementType.typeToken));
-        if (elementType.typeToken.isPrimitive())
-            throw new IllegalArgumentException("illegal primitive element type " + elementType);
+        Preconditions.checkArgument(!elementType.typeToken.isPrimitive(), "illegal primitive element type");
         this.inline = !elementType.hasPrefix0x00();
     }
 

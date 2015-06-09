@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import java.util.regex.Pattern;
 
 /**
@@ -24,8 +26,7 @@ public abstract class AbstractNamed {
      * @throws IllegalArgumentException if name is not a valid Java identifier
      */
     protected AbstractNamed(String name) {
-        if (name == null)
-            throw new IllegalArgumentException("null name");
+        Preconditions.checkArgument(name != null, "null name");
         if (!NAME_PATTERN.matcher(name).matches())
             throw new IllegalArgumentException("invalid identifier `" + name + "'");
         this.name = name;

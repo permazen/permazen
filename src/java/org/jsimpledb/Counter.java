@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 
@@ -30,10 +32,8 @@ public class Counter {
     private final boolean updateVersion;
 
     Counter(Transaction tx, ObjId id, int storageId, boolean updateVersion) {
-        if (tx == null)
-            throw new IllegalArgumentException("null tx");
-        if (id == null)
-            throw new IllegalArgumentException("null id");
+        Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(id != null, "null id");
         this.tx = tx;
         this.id = id;
         this.storageId = storageId;

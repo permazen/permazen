@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.util.Collection;
@@ -146,16 +147,14 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * @throws IllegalArgumentException if any identifier in {@code idents} is null, duplicate, or not a valid Java identifier
      */
     public static Map<String, EnumValue> validateIdentifiers(List<String> idents) {
-        if (idents == null)
-            throw new IllegalArgumentException("null idents");
+        Preconditions.checkArgument(idents != null, "null idents");
         final LinkedHashMap<String, EnumValue> identifierMap = idents instanceof Collection ?
           new LinkedHashMap<String, EnumValue>(((Collection<?>)idents).size()) : new LinkedHashMap<String, EnumValue>();
         for (String ident : idents) {
             final int index = identifierMap.size();
-            if (ident == null)
-                throw new IllegalArgumentException("invalid null enum identifier at index " + index);
-            if (ident.equals("null") || !ident.matches(IDENT_PATTERN))
-                throw new IllegalArgumentException("invalid enum identifier `" + ident + "' at index " + index);
+            Preconditions.checkArgument(ident != null, "invalid null enum identifier at index " + index);
+            Preconditions.checkArgument(!ident.equals("null") && ident.matches(IDENT_PATTERN),
+              "invalid enum identifier `" + ident + "' at index " + index);
             final EnumValue otherValue = identifierMap.put(ident, new EnumValue(ident, index));
             if (otherValue != null) {
                 throw new IllegalArgumentException("invalid duplicate enum identifier `" + ident

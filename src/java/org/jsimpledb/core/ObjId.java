@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
@@ -67,8 +69,7 @@ public class ObjId implements Comparable<ObjId> {
      * @throws IllegalArgumentException if {@code reader} contains invalid data
      */
     public ObjId(ByteReader reader) {
-        if (reader == null)
-            throw new IllegalArgumentException("null reader");
+        Preconditions.checkArgument(reader != null, "null reader");
         this.value = ByteUtil.readLong(reader);
         this.validateStorageId();
     }
@@ -91,8 +92,7 @@ public class ObjId implements Comparable<ObjId> {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("invalid object ID", e);
         }
-        if (storageId <= 0)
-            throw new IllegalArgumentException("invalid object ID containing storage ID " + storageId);
+        Preconditions.checkArgument(storageId > 0, "invalid object ID containing non-positive storage ID");
     }
 
 // Methods
@@ -165,16 +165,14 @@ public class ObjId implements Comparable<ObjId> {
      * @throws IllegalArgumentException if {@code storageId} is zero or negative
      */
     public static KeyRange getKeyRange(int storageId) {
-        if (storageId <= 0)
-            throw new IllegalArgumentException("invalid storageId " + storageId);
+        Preconditions.checkArgument(storageId > 0, "invalid non-positive storage ID");
         final ByteWriter writer = new ByteWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
         return KeyRange.forPrefix(writer.getBytes());
     }
 
     private static ObjId getFill(int storageId, int value) {
-        if (storageId <= 0)
-            throw new IllegalArgumentException("invalid storage ID " + storageId);
+        Preconditions.checkArgument(storageId > 0, "invalid non-positive storage ID");
         final ByteWriter writer = new ByteWriter(NUM_BYTES);
         UnsignedIntEncoder.write(writer, storageId);
         for (int remain = NUM_BYTES - writer.getLength(); remain > 0; remain--)

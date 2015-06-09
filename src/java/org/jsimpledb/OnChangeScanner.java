@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
@@ -203,10 +204,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         private final Class<?>[] genericTypes;
 
         ChangeMethodListener(JTransaction jtx, Method method) {
-            if (jtx == null)
-                throw new IllegalArgumentException("null jtx");
-            if (method == null)
-                throw new IllegalArgumentException("null method");
+            Preconditions.checkArgument(jtx != null, "null jtx");
+            Preconditions.checkArgument(method != null, "null method");
             this.jtx = jtx;
             this.method = method;
 

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
@@ -35,8 +37,7 @@ class BooleanType extends PrimitiveType<Boolean> {
 
     @Override
     public void write(ByteWriter writer, Boolean value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         writer.writeByte(value ? TRUE_VALUE : FALSE_VALUE);
     }
 

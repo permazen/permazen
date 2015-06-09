@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -66,12 +68,9 @@ abstract class FieldTypeMap<K, V> extends AbstractKVNavigableMap<K, V> {
     FieldTypeMap(Transaction tx, FieldType<K> keyFieldType, boolean prefixMode, boolean reversed,
       byte[] prefix, KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
         super(tx.kvt, prefixMode, reversed, keyRange, keyFilter, bounds);
-        if (keyFieldType == null)
-            throw new IllegalArgumentException("null keyFieldType");
-        if (prefix == null)
-            throw new IllegalArgumentException("null prefix");
-        if (keyRange == null)
-            throw new IllegalArgumentException("null keyRange");
+        Preconditions.checkArgument(keyFieldType != null, "null keyFieldType");
+        Preconditions.checkArgument(prefix != null, "null prefix");
+        Preconditions.checkArgument(keyRange != null, "null keyRange");
         if (!KeyRange.forPrefix(prefix).contains(keyRange))
             throw new IllegalArgumentException(keyRange + " does not restrict to prefix " + ByteUtil.toString(prefix));
         this.tx = tx;

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Holds a non-null {@link Enum} value without actually referencing any Java {@link Enum} type.
  * Instead, instances hold a name and ordinal value.
@@ -30,10 +32,8 @@ public class EnumValue {
      * @throws IllegalArgumentException if {@code name} is null
      */
     public EnumValue(String name, int ordinal) {
-        if (name == null)
-            throw new IllegalArgumentException("null name");
-        if (ordinal < 0)
-            throw new IllegalArgumentException("invalid negative ordinal " + ordinal);
+        Preconditions.checkArgument(name != null, "null name");
+        Preconditions.checkArgument(ordinal >= 0, "invalid negative ordinal");
         this.name = name;
         this.ordinal = ordinal;
     }
@@ -45,8 +45,7 @@ public class EnumValue {
      * @throws IllegalArgumentException if {@code value} is null
      */
     public EnumValue(Enum<?> value) {
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(value != null, "null value");
         this.name = value.name();
         this.ordinal = value.ordinal();
     }
@@ -82,8 +81,7 @@ public class EnumValue {
      * @throws IllegalArgumentException if {@code type} is null
      */
     public <T extends Enum<T>> T find(Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         final T value;
         try {
             value = Enum.valueOf(type, this.name);

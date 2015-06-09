@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.Map;
 
@@ -29,10 +31,8 @@ public class KVPair {
      * @throws IllegalArgumentException if {@code key} or {@code value} is null
      */
     public KVPair(byte[] key, byte[] value) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
-        if (value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(key != null, "null key");
+        Preconditions.checkArgument(value != null, "null value");
         this.key = key;
         this.value = value;
     }
@@ -44,14 +44,11 @@ public class KVPair {
      * @throws IllegalArgumentException if {@code entry} or its key or value is null
      */
     public KVPair(Map.Entry<byte[], byte[]> entry) {
-        if (entry == null)
-            throw new IllegalArgumentException("null entry");
+        Preconditions.checkArgument(entry != null, "null entry");
         this.key = entry.getKey();
         this.value = entry.getValue();
-        if (this.key == null)
-            throw new IllegalArgumentException("null key");
-        if (this.value == null)
-            throw new IllegalArgumentException("null value");
+        Preconditions.checkArgument(this.key != null, "null key");
+        Preconditions.checkArgument(this.value != null, "null value");
     }
 
     /**

@@ -66,8 +66,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
      */
     public KeyRanges(Iterable<? extends KeyRange> ranges) {
-        if (ranges == null)
-            throw new IllegalArgumentException("null ranges");
+        Preconditions.checkArgument(ranges != null, "null ranges");
         this.ranges = KeyRanges.minimize(Lists.<KeyRange>newArrayList(ranges));
     }
 
@@ -242,8 +241,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code ranges} is null
      */
     public boolean contains(KeyRanges ranges) {
-        if (ranges == null)
-            throw new IllegalArgumentException("null ranges");
+        Preconditions.checkArgument(ranges != null, "null ranges");
         return ranges.equals(this.intersection(ranges));
     }
 
@@ -256,8 +254,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code range} is null
      */
     public boolean contains(KeyRange range) {
-        if (range == null)
-            throw new IllegalArgumentException("null range");
+        Preconditions.checkArgument(range != null, "null range");
         final KeyRange[] pair = this.findKey(range.getMin());
         if (pair[0] != pair[1])
             return false;
@@ -286,8 +283,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
     public KeyRange[] findKey(byte[] key) {
 
         // Sanity check
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
 
         // Optimization: assume previous success is likely to repeat
         final KeyRange temp = this.lastContainingKeyRange;
@@ -327,8 +323,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code range} is null
      */
     public KeyRanges add(KeyRange range) {
-        if (range == null)
-            throw new IllegalArgumentException("null range");
+        Preconditions.checkArgument(range != null, "null range");
         if (range.isEmpty())
             return this;
         final ArrayList<KeyRange> list = new ArrayList<>(this.ranges.size() + 1);
@@ -345,8 +340,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code range} is null
      */
     public KeyRanges remove(KeyRange range) {
-        if (range == null)
-            throw new IllegalArgumentException("null range");
+        Preconditions.checkArgument(range != null, "null range");
         if (range.isEmpty())
             return this;
         return this.intersection(new KeyRanges(range).inverse());
@@ -360,15 +354,13 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code others} or any element in {@code others} is null
      */
     public KeyRanges union(KeyRanges... others) {
-        if (others == null)
-            throw new IllegalArgumentException("null others");
+        Preconditions.checkArgument(others != null, "null others");
         if (others.length == 0)
             return this;
         final ArrayList<KeyRange> list = new ArrayList<>(this.ranges.size() + others.length);
         list.addAll(this.ranges);
         for (KeyRanges other : others) {
-            if (other == null)
-                throw new IllegalArgumentException("null other");
+            Preconditions.checkArgument(other != null, "null other");
             list.addAll(other.ranges);
         }
         return new KeyRanges(list);
@@ -382,15 +374,13 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code others} or any element in {@code others} is null
      */
     public KeyRanges intersection(KeyRanges... others) {
-        if (others == null)
-            throw new IllegalArgumentException("null others");
+        Preconditions.checkArgument(others != null, "null others");
         if (others.length == 0)
             return this;
         final ArrayList<KeyRange> list = new ArrayList<>(this.ranges.size() + others.length);
         list.addAll(this.inverse().ranges);
         for (KeyRanges other : others) {
-            if (other == null)
-                throw new IllegalArgumentException("null other");
+            Preconditions.checkArgument(other != null, "null other");
             list.addAll(other.inverse().ranges);
         }
         return new KeyRanges(list).inverse();
@@ -465,8 +455,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code input} is null
      */
     public static KeyRanges deserialize(InputStream input) throws IOException {
-        if (input == null)
-            throw new IllegalArgumentException("null input");
+        Preconditions.checkArgument(input != null, "null input");
         final int count = UnsignedIntEncoder.read(input);
         final ArrayList<KeyRange> rangeList = new ArrayList<>(count);
         byte[] prev = null;
@@ -553,8 +542,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
 
     @Override
     public byte[] seekLower(byte[] key) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
         if (key.length == 0) {
             if (this.ranges.isEmpty())
                 return null;
@@ -626,8 +614,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         for (KeyRange range : sortedRanges) {
 
             // Sanity check range
-            if (range == null)
-                throw new IllegalArgumentException("null range");
+            Preconditions.checkArgument(range != null, "null range");
 
             // Handle first in list
             if (prev == null) {

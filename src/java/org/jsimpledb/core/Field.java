@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import org.jsimpledb.util.ByteWriter;
@@ -32,8 +33,7 @@ public abstract class Field<T> extends SchemaItem {
      */
     Field(String name, int storageId, Schema schema, TypeToken<T> typeToken) {
         super(name, storageId, schema);
-        if (typeToken == null)
-            throw new IllegalArgumentException("null typeToken");
+        Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.typeToken = typeToken;
     }
 

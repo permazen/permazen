@@ -5,6 +5,7 @@
 
 package org.jsimpledb.gui;
 
+import com.google.common.base.Preconditions;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Table;
 
@@ -27,12 +28,9 @@ public class JObjectTable extends AbstractTable<JObjectContainer> {
     }
 
     public JObjectTable(JSimpleDB jdb, JObjectContainer container, Session session, boolean showFields) {
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
-        if (container == null)
-            throw new IllegalArgumentException("null container");
-        if (session == null)
-            throw new IllegalArgumentException("null session");
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(container != null, "null container");
+        Preconditions.checkArgument(session != null, "null session");
         this.jdb = jdb;
         this.container = container;
         this.session = session;

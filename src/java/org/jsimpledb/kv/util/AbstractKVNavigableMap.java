@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.util;
 
+import com.google.common.base.Preconditions;
+
 import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -188,8 +190,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
     protected AbstractKVNavigableMap(KVStore kv, boolean prefixMode, boolean reversed,
       KeyRange keyRange, KeyFilter keyFilter, Bounds<K> bounds) {
         super(bounds);
-        if (kv == null)
-            throw new IllegalArgumentException("null kv");
+        Preconditions.checkArgument(kv != null, "null kv");
         this.kv = kv;
         this.prefixMode = prefixMode;
         this.reversed = reversed;
@@ -246,8 +247,7 @@ public abstract class AbstractKVNavigableMap<K, V> extends AbstractNavigableMap<
      * @throws IllegalArgumentException if {@code keyFilter} is null
      */
     public NavigableMap<K, V> filterKeys(KeyFilter keyFilter) {
-        if (keyFilter == null)
-            throw new IllegalArgumentException("null keyFilter");
+        Preconditions.checkArgument(keyFilter != null, "null keyFilter");
         if (this.keyFilter != null)
             keyFilter = KeyFilterUtil.intersection(keyFilter, this.keyFilter);
         return this.createSubMap(this.reversed, this.keyRange, keyFilter, this.bounds);

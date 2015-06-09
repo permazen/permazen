@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import java.util.NavigableMap;
 
@@ -25,10 +26,8 @@ class NavigableMapConverter<K, V, WK, WV> extends Converter<NavigableMap<K, V>, 
     private final Converter<V, WV> valueConverter;
 
     NavigableMapConverter(Converter<K, WK> keyConverter, Converter<V, WV> valueConverter) {
-        if (keyConverter == null)
-            throw new IllegalArgumentException("null keyConverter");
-        if (valueConverter == null)
-            throw new IllegalArgumentException("null valueConverter");
+        Preconditions.checkArgument(keyConverter != null, "null keyConverter");
+        Preconditions.checkArgument(valueConverter != null, "null valueConverter");
         this.keyConverter = keyConverter;
         this.valueConverter = valueConverter;
     }

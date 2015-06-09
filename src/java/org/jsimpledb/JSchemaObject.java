@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.schema.AbstractSchemaItem;
 
 /**
@@ -19,12 +21,9 @@ public abstract class JSchemaObject {
     final String description;
 
     JSchemaObject(JSimpleDB jdb, String name, int storageId, String description) {
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
-        if (storageId <= 0)
-            throw new IllegalArgumentException("invalid storageId " + storageId);
-        if (description == null)
-            throw new IllegalArgumentException("null description");
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(storageId > 0, "invalid non-positive storageId");
+        Preconditions.checkArgument(description != null, "null description");
         this.jdb = jdb;
         this.name = name;
         this.storageId = storageId;

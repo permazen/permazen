@@ -5,6 +5,7 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -43,19 +44,14 @@ class IndexInfo {
     IndexInfo(JSimpleDB jdb, Class<?> startType, String fieldName, Class<?> valueType, Class<?> keyType) {
 
         // Sanity check
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
-        if (fieldName == null)
-            throw new IllegalArgumentException("null fieldName");
-        if (startType == null)
-            throw new IllegalArgumentException("null startType");
-        if (valueType == null)
-            throw new IllegalArgumentException("null valueType");
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(fieldName != null, "null fieldName");
+        Preconditions.checkArgument(startType != null, "null startType");
+        Preconditions.checkArgument(valueType != null, "null valueType");
         this.indexInfo = null;
 
         // Get start type
-        if (startType.isPrimitive() || startType.isArray())
-            throw new IllegalArgumentException("invalid startType " + startType);
+        Preconditions.checkArgument(!startType.isPrimitive() && !startType.isArray(), "invalid startType " + startType);
         this.startType = startType;
 
         // Parse reference path
@@ -99,18 +95,14 @@ class IndexInfo {
     IndexInfo(JSimpleDB jdb, Class<?> startType, String indexName, Class<?>... valueTypes) {
 
         // Sanity check
-        if (jdb == null)
-            throw new IllegalArgumentException("null jdb");
-        if (indexName == null)
-            throw new IllegalArgumentException("null indexName");
-        if (valueTypes == null)
-            throw new IllegalArgumentException("null valueTypes");
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        Preconditions.checkArgument(indexName != null, "null indexName");
+        Preconditions.checkArgument(valueTypes != null, "null valueTypes");
         this.fieldInfo = null;
         this.superFieldInfo = null;
 
         // Get start type
-        if (startType.isPrimitive() || startType.isArray())
-            throw new IllegalArgumentException("invalid startType " + startType);
+        Preconditions.checkArgument(!startType.isPrimitive() && !startType.isArray(), "invalid startType " + startType);
         this.startType = startType;
 
         // Find index

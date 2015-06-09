@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import org.jsimpledb.index.Index2;
 
@@ -26,12 +27,9 @@ class Index2Converter<V1, V2, T, WV1, WV2, WT> extends Converter<Index2<V1, V2, 
     private final Converter<T, WT> targetConverter;
 
     Index2Converter(Converter<V1, WV1> value1Converter, Converter<V2, WV2> value2Converter, Converter<T, WT> targetConverter) {
-        if (value1Converter == null)
-            throw new IllegalArgumentException("null value1Converter");
-        if (value2Converter == null)
-            throw new IllegalArgumentException("null value2Converter");
-        if (targetConverter == null)
-            throw new IllegalArgumentException("null targetConverter");
+        Preconditions.checkArgument(value1Converter != null, "null value1Converter");
+        Preconditions.checkArgument(value2Converter != null, "null value2Converter");
+        Preconditions.checkArgument(targetConverter != null, "null targetConverter");
         this.value1Converter = value1Converter;
         this.value2Converter = value2Converter;
         this.targetConverter = targetConverter;

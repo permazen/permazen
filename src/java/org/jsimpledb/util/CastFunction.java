@@ -6,6 +6,7 @@
 package org.jsimpledb.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 
 /**
  * A {@link Function} that casts objects to some type.
@@ -21,8 +22,7 @@ public class CastFunction<T> implements Function<Object, T> {
      * @throws IllegalArgumentException if {@code type} is null
      */
      public CastFunction(Class<T> type) {
-        if (type == null)
-            throw new IllegalArgumentException("null type");
+        Preconditions.checkArgument(type != null, "null type");
         this.type = type;
     }
 

@@ -5,6 +5,8 @@
 
 package org.jsimpledb.schema;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Comparator;
 import java.util.Map;
 
@@ -71,8 +73,7 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      * @throws IllegalArgumentException if {@code that} is null
      */
     public final boolean isCompatibleWith(AbstractSchemaItem that) {
-        if (that == null)
-            throw new IllegalArgumentException("null that");
+        Preconditions.checkArgument(that != null, "null that");
         if (this.storageId != that.storageId)
             return false;
         if (this.getClass() != that.getClass())
@@ -85,8 +86,7 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 // DiffGenerating
 
     protected Diffs differencesFrom(AbstractSchemaItem that) {
-        if (that == null)
-            throw new IllegalArgumentException("null that");
+        Preconditions.checkArgument(that != null, "null that");
         final Diffs diffs = new Diffs();
         if (!(this.name != null ? this.name.equals(that.name) : that.name == null)) {
             diffs.add("changed name from " + (that.name != null ? "`" + that.name + "'" : null)

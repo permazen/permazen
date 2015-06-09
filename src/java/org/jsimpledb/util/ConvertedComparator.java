@@ -6,6 +6,7 @@
 package org.jsimpledb.util;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
 
 import java.util.Comparator;
 
@@ -18,8 +19,7 @@ class ConvertedComparator<E, W> implements Comparator<E> {
     private final Converter<E, W> converter;
 
     ConvertedComparator(Comparator<? super W> comparator, Converter<E, W> converter) {
-        if (converter == null)
-            throw new IllegalArgumentException("null converter");
+        Preconditions.checkArgument(converter != null, "null converter");
         this.comparator = comparator;
         this.converter = converter;
     }

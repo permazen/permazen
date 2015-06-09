@@ -5,6 +5,7 @@
 
 package org.jsimpledb.kv;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 
 import java.util.Arrays;
@@ -84,8 +85,7 @@ public class KeyRange implements SizeEstimating {
      * @throws IllegalArgumentException if {@code min > max}
      */
     public KeyRange(byte[] min, byte[] max) {
-        if (min == null)
-            throw new IllegalArgumentException("null min");
+        Preconditions.checkArgument(min != null, "null min");
         if (KeyRange.compare(min, max) > 0)
             throw new IllegalArgumentException("min = " + ByteUtil.toString(min) + " > max = " + ByteUtil.toString(max));
         this.min = min.clone();
@@ -99,8 +99,7 @@ public class KeyRange implements SizeEstimating {
      * @throws IllegalArgumentException if {@code key} is null
      */
     public KeyRange(byte[] key) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
         this.min = key.clone();
         this.max = ByteUtil.getNextKey(this.min);
     }
@@ -113,8 +112,7 @@ public class KeyRange implements SizeEstimating {
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     public static KeyRange forPrefix(byte[] prefix) {
-        if (prefix == null)
-            throw new IllegalArgumentException("null prefix");
+        Preconditions.checkArgument(prefix != null, "null prefix");
         if (prefix.length == 0)
             return KeyRange.FULL;
         /*final*/ byte[] maxKey;
@@ -154,8 +152,7 @@ public class KeyRange implements SizeEstimating {
      * @throws IllegalArgumentException if {@code range} is null
      */
     public boolean overlaps(KeyRange range) {
-        if (range == null)
-            throw new IllegalArgumentException("null range");
+        Preconditions.checkArgument(range != null, "null range");
         return KeyRange.compare(this.min, range.max) < 0 && KeyRange.compare(range.min, this.max) < 0;
     }
 
@@ -167,8 +164,7 @@ public class KeyRange implements SizeEstimating {
      * @throws IllegalArgumentException if {@code range} is null
      */
     public boolean contains(KeyRange range) {
-        if (range == null)
-            throw new IllegalArgumentException("null range");
+        Preconditions.checkArgument(range != null, "null range");
         return KeyRange.compare(this.min, range.min) <= 0 && KeyRange.compare(this.max, range.max) >= 0;
     }
 
@@ -223,8 +219,7 @@ public class KeyRange implements SizeEstimating {
      * @throws IllegalArgumentException if {@code prefix} is null
      */
     public KeyRange prefixedBy(byte[] prefix) {
-        if (prefix == null)
-            throw new IllegalArgumentException("null prefix");
+        Preconditions.checkArgument(prefix != null, "null prefix");
         final byte[] prefixedMin = Bytes.concat(prefix, this.min);
         /*final*/ byte[] prefixedMax;
         if (this.max != null)
@@ -248,8 +243,7 @@ public class KeyRange implements SizeEstimating {
      * @throws IllegalArgumentException if {@code key} is null
      */
     public int compareTo(byte[] key) {
-        if (key == null)
-            throw new IllegalArgumentException("null key");
+        Preconditions.checkArgument(key != null, "null key");
         if (KeyRange.compare(this.min, key) > 0)
             return 1;
         if (KeyRange.compare(this.max, key) <= 0)

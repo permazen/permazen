@@ -5,6 +5,8 @@
 
 package org.jsimpledb.change;
 
+import com.google.common.base.Preconditions;
+
 import org.jsimpledb.CopyState;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
@@ -30,8 +32,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * @throws IllegalArgumentException if {@code dest} is null
      */
     public ChangeCopier(JTransaction dest) {
-        if (dest == null)
-            throw new IllegalArgumentException("null dest");
+        Preconditions.checkArgument(dest != null, "null dest");
         this.dest = dest;
     }
 
@@ -171,8 +172,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      */
     @SuppressWarnings("unchecked")
     protected JObject copy(JObject jobj) {
-        if (jobj == null)
-            throw new IllegalArgumentException("null jobj");
+        Preconditions.checkArgument(jobj != null, "null jobj");
         return !jobj.exists() ? this.dest.getJObject(jobj) : jobj.copyTo(this.dest, null, this.getCopyState());
     }
 }

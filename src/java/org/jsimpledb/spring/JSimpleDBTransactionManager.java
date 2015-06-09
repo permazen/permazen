@@ -5,6 +5,8 @@
 
 package org.jsimpledb.spring;
 
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 
 import org.jsimpledb.JSimpleDB;
@@ -402,8 +404,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
          * @throws IllegalArgumentException if {@code synchronization} is null
          */
         public TransactionSynchronizationCallback(TransactionSynchronization synchronization) {
-            if (synchronization == null)
-                throw new IllegalArgumentException("null synchronization");
+            Preconditions.checkArgument(synchronization != null, "null synchronization");
             this.synchronization = synchronization;
         }
 
