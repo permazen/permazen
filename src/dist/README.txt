@@ -25,7 +25,7 @@ JSimpleDB also adds important new features that traditional databases don't prov
     * Extensible command line interface (CLI) supporting arbitrary Java queries
     * Built-in Java-aware graphical user interface (GUI) based on Vaadin 
 
-Homepage: https://code.google.com/p/jsimpledb/
+Homepage: https://github.com/archiecobbs/jsimpledb/
 
 Running the Demo
 ================

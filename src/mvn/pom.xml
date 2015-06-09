@@ -13,7 +13,7 @@
 JSimpleDB's goal is to make scalable Java persistence as simple as possible, exposing complexity to the developer only when there is inherent underlying complexity in the problem space, and even then doing so in the most straightforward manner, all the while remaining strictly type safe.
 
 JSimpleDB does this by relegating the database to the simplest role possible - storing data as key/value pairs - and reimplementing the usual database supporting features, such as indexes and notifications, in a simpler, type-safe, Java-centric way. JSimpleDB also adds important new features that traditional databases don't provide.</description>
-  <url>http://code.google.com/p/jsimpledb/</url>
+  <url>https://github.com/archiecobbs/jsimpledb/</url>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -22,8 +22,8 @@ JSimpleDB does this by relegating the database to the simplest role possible - s
     </license>
   </licenses>
   <issueManagement>
-    <system>Google Code</system>
-    <url>http://code.google.com/p/jsimpledb/issues</url>
+    <system>GitHub Issues</system>
+    <url>https://github.com/archiecobbs/jsimpledb/issues</url>
   </issueManagement>
   <scm>
     <url>https://github.com/archiecobbs/jsimpledb/</url>
