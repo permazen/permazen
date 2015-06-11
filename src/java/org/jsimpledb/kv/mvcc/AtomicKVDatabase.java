@@ -25,8 +25,13 @@ import org.jsimpledb.util.ByteUtil;
 import org.slf4j.LoggerFactory;
 
 /**
- * Wrapper class that presents an {@link AtomicKVStore} view of any {@link KVDatabase},
+ * Wrapper class that presents an {@link AtomicKVStore} view of a {@link KVDatabase},
  * using individual transactions for each operation.
+ *
+ * <p>
+ * Warning: this class is only appropriate for use with {@link KVDatabase}s that implement some form of MVCC;
+ * {@link KVDatabase}s that use locking will likely generate conflicts if {@link #snapshot} is used concurrently
+ * with other methods.
  *
  * @see SnapshotKVDatabase
  */

@@ -36,7 +36,7 @@ public enum TxState {
      * The transaction is waiting for the corresponding Raft log entry to be committed.
      *
      * <p>
-     * The transaction has been assigned a {@linkplain RaftKVTransaction#getCommitTerm commit} term and
+     * The transaction has been assigned a {@linkplain RaftKVTransaction#getCommitTerm commit term} and
      * {@linkplain RaftKVTransaction#getCommitIndex index} by the leader.
      * We are waiting for the corresponding Raft log entry to be committed to the Raft log.
      */
