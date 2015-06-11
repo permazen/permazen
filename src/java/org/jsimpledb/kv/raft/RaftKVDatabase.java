@@ -3321,10 +3321,7 @@ public class RaftKVDatabase implements KVDatabase {
                 updateFollowerAgain = true;
             }
 
-            // Use follower's match index as a lower bound on follower's next index. This is needed because in this implementation,
-            // the application of leader log entries (to the state machine) may occur later than the application of follower log
-            // entries, so it's possible a follower's state machine's index can advance past the leader's. In that case we want
-            // to avoid the leader sending log entries that are prior to the follower's last committed index.
+            // Use follower's match index as a lower bound on follower's next index.
             follower.setNextIndex(Math.max(follower.getNextIndex(), follower.getMatchIndex() + 1));
 
             // Use follower's last log index as an upper bound on follower's next index.
@@ -4141,9 +4138,9 @@ public class RaftKVDatabase implements KVDatabase {
             long lastLogIndex = this.raft.getLastLogIndex();
 
             // Check whether our previous log entry term matches that of leader; if not, or it doesn't exist, request fails
-            if (leaderPrevIndex < this.raft.lastAppliedIndex
-              || leaderPrevIndex > lastLogIndex
-              || leaderPrevTerm != this.raft.getLogTermAtIndex(leaderPrevIndex)) {
+            // Note: if log entry index is prior to my last applied log entry index, Raft guarantees that term must match
+            if (leaderPrevIndex >= this.raft.lastAppliedIndex
+              && (leaderPrevIndex > lastLogIndex || leaderPrevTerm != this.raft.getLogTermAtIndex(leaderPrevIndex))) {
                 if (this.log.isDebugEnabled())
                     this.debug("rejecting " + msg + " because previous log entry doesn't match");
                 this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
@@ -4151,9 +4148,9 @@ public class RaftKVDatabase implements KVDatabase {
                 return;
             }
 
-            // Check whether the message actually contains a log entry; if so, append it
+            // Check whether the message actually contains a log entry we can append; if so, append it
             boolean success = true;
-            if (!msg.isProbe()) {
+            if (leaderPrevIndex >= this.raft.lastAppliedIndex && !msg.isProbe()) {
 
                 // Check for a conflicting (i.e., never committed, then overwritten) log entry that we need to clear away first
                 if (logIndex <= lastLogIndex && this.raft.getLogTermAtIndex(logIndex) != msg.getLogEntryTerm()) {
