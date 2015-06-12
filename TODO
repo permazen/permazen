@@ -5,7 +5,12 @@ SHORT TERM
 - KVDatabase change notification/listener support
     - Forward up the stack for Raft @OnChange notifications
 
-- Amazon DynamoDB KVDatabase
+- New KVDatabase implementations
+    - CockroachDB
+        - Definitely; needs Java API
+    - Amazon DynamoDB ?
+    - Google Cloud Datastore ?
+        - https://cloud.google.com/datastore/docs/concepts/overview
 
 - key/value layer transaction improvements
     - Add Spring transaction manager
@@ -31,10 +36,6 @@ SHORT TERM
 
 MEDIUM TERM
 ===========
-
-- Add KVStore support for:
-    - Google Cloud Datastore ?
-        - https://cloud.google.com/datastore/docs/concepts/overview
 
 LONG TERM
 =========
