@@ -1268,6 +1268,10 @@ public class RaftKVDatabase implements KVDatabase {
         private final MutableView view;
 
         public MostRecentView() {
+            this(false);
+        }
+
+        public MostRecentView(boolean committed) {
             assert Thread.holdsLock(RaftKVDatabase.this);
 
             // Grab a snapshot of the key/value store
@@ -1275,18 +1279,25 @@ public class RaftKVDatabase implements KVDatabase {
             this.config = new HashMap<>(RaftKVDatabase.this.lastAppliedConfig);
 
             // Create a view of just the state machine keys and values and successively layer unapplied log entries
+            // If we require a committed view, then stop when we get to the first uncomitted log entry
             KVStore kview = PrefixKVStore.create(snapshot, STATE_MACHINE_PREFIX);
+            long viewIndex = RaftKVDatabase.this.getLastLogIndex();
+            long viewTerm = RaftKVDatabase.this.getLastLogTerm();
             for (LogEntry logEntry : RaftKVDatabase.this.raftLog) {
+                if (committed && logEntry.getIndex() > RaftKVDatabase.this.commitIndex)
+                    break;
                 final Writes writes = logEntry.getWrites();
                 if (!writes.isEmpty())
                     kview = new MutableView(kview, null, logEntry.getWrites());
                 logEntry.applyConfigChange(this.config);
+                viewIndex = logEntry.getIndex();
+                viewTerm = logEntry.getTerm();
             }
 
             // Finalize
             this.view = new MutableView(kview);
-            this.term = RaftKVDatabase.this.getLastLogTerm();
-            this.index = RaftKVDatabase.this.getLastLogIndex();
+            this.term = viewTerm;
+            this.index = viewIndex;
         }
 
         public long getTerm() {
@@ -3099,7 +3110,7 @@ public class RaftKVDatabase implements KVDatabase {
 
             // If follower is too far behind, we must do a snapshot install
             if (nextIndex <= this.raft.lastAppliedIndex) {
-                final MostRecentView view = this.raft.new MostRecentView();
+                final MostRecentView view = this.raft.new MostRecentView(true);
                 follower.setSnapshotTransmit(new SnapshotTransmit(view.getTerm(),
                   view.getIndex(), view.getConfig(), view.getSnapshot(), view.getView()));
                 if (this.log.isDebugEnabled())
