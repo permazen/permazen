@@ -133,6 +133,26 @@ public final class ByteUtil {
     }
 
     /**
+     * Determine whether {@code key2} is the next key after {@code key1}.
+     *
+     * @param key1 first key
+     * @param key2 second key
+     * @return true if {@code key2} immediately follows {@code key1}
+     * @throws NullPointerException if either parameter is null
+     */
+    public static boolean isConsecutive(byte[] key1, byte[] key2) {
+        if (key2.length != key1.length + 1)
+            return false;
+        if (key2[key1.length] != 0)
+            return false;
+        for (int i = 0; i < key1.length; i++) {
+            if (key1[i] != key2[i])
+                return false;
+        }
+        return true;
+    }
+
+    /**
      * Get the first key that would be greater than the given key in unsigned lexicographic
      * ordering <i>and</i> that does not have the given key as a prefix.
      *

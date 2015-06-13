@@ -33,6 +33,7 @@ public class SnapshotLevelDBKVStore extends LevelDBKVStore implements CloseableK
      *
      * @param db LevelDB database to snapshot
      * @param verifyChecksums whether to verify checksums on reads
+     * @throws NullPointerException if {@code db} is null
      */
     public SnapshotLevelDBKVStore(DB db, boolean verifyChecksums) {
         this(db, db.getSnapshot(), verifyChecksums);

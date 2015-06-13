@@ -87,9 +87,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
     @Override
     public synchronized java.util.Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
-        Preconditions.checkState(!this.closed, "closed");
-        this.cursorTracker.poll();
-        return new Iterator(this.db.iterator(this.readOptions), minKey, maxKey, reverse);
+        return this.createIterator(this.readOptions, minKey, maxKey, reverse);
     }
 
     @Override
@@ -161,7 +159,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
 // Iterator
 
-    synchronized Iterator createIteator(ReadOptions readOptions, byte[] minKey, byte[] maxKey, boolean reverse) {
+    synchronized Iterator createIterator(ReadOptions readOptions, byte[] minKey, byte[] maxKey, boolean reverse) {
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
         return new Iterator(this.db.iterator(readOptions), minKey, maxKey, reverse);
@@ -213,8 +211,6 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
                     this.cursor.seek(minKey);
                 }
             }
-
-            // Debug
         }
 
     // Iterator

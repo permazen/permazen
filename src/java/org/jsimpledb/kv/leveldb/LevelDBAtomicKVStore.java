@@ -349,10 +349,10 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
             for (KeyRange range : mutations.getRemoveRanges()) {
                 final byte[] min = range.getMin();
                 final byte[] max = range.getMax();
-                if (min != null && max != null && ByteUtil.compare(max, ByteUtil.getNextKey(min)) == 0)
+                if (min != null && max != null && ByteUtil.isConsecutive(min, max))
                     batch.delete(min);
                 else {
-                    try (LevelDBKVStore.Iterator i = this.kv.createIteator(iteratorOptions, min, max, false)) {
+                    try (LevelDBKVStore.Iterator i = this.kv.createIterator(iteratorOptions, min, max, false)) {
                         while (i.hasNext())
                             batch.delete(i.next().getKey());
                     }
