@@ -1,3 +1,7 @@
+Version Next
+
+    - Added RocksDBKVDatabase based on RocksDB JNI adapter
+
 Version 1.2.0 Released June 9, 2015
 
     - Added RaftKVDatabase based on Raft consensus algorithm

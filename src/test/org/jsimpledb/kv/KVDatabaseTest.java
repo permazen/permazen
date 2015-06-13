@@ -37,6 +37,8 @@ import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.kv.raft.net.TestNetwork;
+import org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore;
+import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.kv.sql.IsolationLevel;
@@ -73,6 +75,7 @@ public class KVDatabaseTest extends TestSupport {
     private FoundationKVDatabase fdbKV;
     private BerkeleyKVDatabase bdbKV;
     private LevelDBKVDatabase leveldbKV;
+    private RocksDBKVDatabase rocksdbKV;
     private RaftKVDatabase[] rafts;
     private TestNetwork[] raftNetworks;
     private File topRaftDir;
@@ -154,6 +157,22 @@ public class KVDatabaseTest extends TestSupport {
     }
 
     @BeforeClass
+    @Parameters("rocksDbDirPrefix")
+    public void setRocksDBDirPrefix(@Optional String rocksDBDirPrefix) throws IOException {
+        if (rocksDBDirPrefix != null) {
+            final File dir = File.createTempFile(rocksDBDirPrefix, null);
+            Assert.assertTrue(dir.delete());
+            Assert.assertTrue(dir.mkdirs());
+            dir.deleteOnExit();
+            final RocksDBAtomicKVStore kvstore = new RocksDBAtomicKVStore();
+            kvstore.setDirectory(dir);
+            this.rocksdbKV = new RocksDBKVDatabase();
+            this.rocksdbKV.setKVStore(kvstore);
+            this.rocksdbKV.start();
+        }
+    }
+
+    @BeforeClass
     @Parameters({
         "raftDirPrefix",
         "raftNumNodes",
@@ -183,10 +202,18 @@ public class KVDatabaseTest extends TestSupport {
             this.rafts[i] = new RaftKVDatabase();
             final File kvdir = new File(dir, "kvstore");
             kvdir.mkdirs();
-            final LevelDBAtomicKVStore levelkv = new LevelDBAtomicKVStore();
-            levelkv.setDirectory(kvdir);
-            levelkv.setCreateIfMissing(true);
-            this.rafts[i].setKVStore(levelkv);
+            if (this.random.nextBoolean()) {
+                this.log.info("using LevelDB as key/value store for Raft test");
+                final LevelDBAtomicKVStore levelkv = new LevelDBAtomicKVStore();
+                levelkv.setDirectory(kvdir);
+                levelkv.setCreateIfMissing(true);
+                this.rafts[i].setKVStore(levelkv);
+            } else {
+                this.log.info("using RocksDB as key/value store for Raft test");
+                final RocksDBAtomicKVStore rockskv = new RocksDBAtomicKVStore();
+                rockskv.setDirectory(kvdir);
+                this.rafts[i].setKVStore(rockskv);
+            }
             this.rafts[i].setLogDirectory(dir);
             this.rafts[i].setNetwork(this.raftNetworks[i]);
             this.rafts[i].setIdentity(name);
@@ -230,6 +257,8 @@ public class KVDatabaseTest extends TestSupport {
             this.bdbKV.stop();
         if (this.leveldbKV != null)
             this.leveldbKV.stop();
+        if (this.rocksdbKV != null)
+            this.rocksdbKV.stop();
         if (this.rafts != null) {
             for (RaftKVDatabase raft : this.rafts)
                 raft.stop();
@@ -259,6 +288,7 @@ public class KVDatabaseTest extends TestSupport {
         list.add(new Object[] { this.fdbKV });
         list.add(new Object[] { this.bdbKV });
         list.add(new Object[] { this.leveldbKV });
+        list.add(new Object[] { this.rocksdbKV });
         if (this.rafts != null)
             list.add(new Object[] { this.rafts[0] });
         for (Iterator<Object[]> i = list.iterator(); i.hasNext(); ) {

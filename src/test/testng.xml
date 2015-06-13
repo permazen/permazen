@@ -13,6 +13,7 @@
     <parameter name="mysqlURL" value="jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger"/>
     <parameter name="berkeleyDirPrefix" value="BerkeleyDbJava"/>
     <parameter name="levelDbDirPrefix" value="LevelDbJava"/>
+    <parameter name="rocksDbDirPrefix" value="RocksDbJava"/>
     <parameter name="raftDirPrefix" value="RaftDB"/>
     <parameter name="raftNumNodes" value="3"/>
     <parameter name="raftCommitTimeout" value="2500"/>

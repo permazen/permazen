@@ -39,6 +39,7 @@
         <dependency force="true" org="org.dellroad" name="leveldb" rev="0.8.1" conf="base->default"/>
         <dependency force="true" org="org.objectweb.asm" name="asm" rev="5.+" conf="javac,build,gui->default; jarjars->core,util"/>
         <dependency force="true" org="org.slf4j" name="slf4j" rev="1.7+" conf="base->default; build,test,runtime->log4j"/>
+        <dependency force="true" org="org.rocksdb" name="rocksdbjni" rev="3.10+" conf="base->default"/>
         <dependency force="true" org="org.sonatype.jline" name="jline" rev="2.12" conf="javac,cli->default"/>
         <dependency force="true" org="org.springframework" name="spring" rev="4.1+"
           conf="javac,cli,gui->aop,aspects,beans,context,jdbc,tx,web"/>

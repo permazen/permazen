@@ -38,6 +38,8 @@ import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.net.TCPNetwork;
+import org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore;
+import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.kv.sql.MySQLKVDatabase;
@@ -61,6 +63,7 @@ public abstract class AbstractMain extends MainClass {
     protected final BerkeleyDBType berkeleyDBType = new BerkeleyDBType();
     protected final XMLDBType xmlDBType = new XMLDBType();
     protected final LevelDBType levelDBType = new LevelDBType();
+    protected final RocksDBType rocksDBType = new RocksDBType();
     protected final MySQLDBType mySQLType = new MySQLDBType();
     protected final RaftDBType raftDBType = new RaftDBType();
 
@@ -74,6 +77,9 @@ public abstract class AbstractMain extends MainClass {
 
     // LevelDB config
     protected File leveldbDirectory;
+
+    // RocksDB config
+    protected File rocksdbDirectory;
 
     // Raft config
     protected AtomicKVStore raftKVStore;
@@ -208,6 +214,12 @@ public abstract class AbstractMain extends MainClass {
                     this.usageError();
                 this.dbTypes.add(this.levelDBType);
                 if (!this.createDirectory(this.leveldbDirectory = new File(params.removeFirst())))
+                    return 1;
+            } else if (option.equals("--rocksdb")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.dbTypes.add(this.rocksDBType);
+                if (!this.createDirectory(this.rocksdbDirectory = new File(params.removeFirst())))
                     return 1;
             } else if (option.equals("--raft-dir")) {
                 if (params.isEmpty())
@@ -577,6 +589,7 @@ public abstract class AbstractMain extends MainClass {
             { "--raft-port",                    "Specify local Raft node's TCP port (default "
                                                   + TCPNetwork.DEFAULT_TCP_PORT + ")" },
             { "--read-only, -ro",               "Disallow database modifications" },
+            { "--rocksdb directory",            "Use RocksDB in specified directory" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
             { "--xml file",                     "Use the specified XML flat file database" },
             { "--schema-version, -v num",       "Specify database schema version (default highest recorded)" },
@@ -736,6 +749,32 @@ public abstract class AbstractMain extends MainClass {
         @Override
         public String getDescription() {
             return "LevelDB " + AbstractMain.this.leveldbDirectory.getName();
+        }
+    }
+
+    protected final class RocksDBType extends DBType<RocksDBKVDatabase> {
+
+        private RocksDBType() {
+            super(RocksDBKVDatabase.class);
+        }
+
+        @Override
+        public RocksDBKVDatabase createKVDatabase() {
+            final RocksDBKVDatabase rocksdb = new RocksDBKVDatabase();
+            rocksdb.setKVStore(this.createAtomicKVStore());
+            return rocksdb;
+        }
+
+        @Override
+        public RocksDBAtomicKVStore createAtomicKVStore() {
+            final RocksDBAtomicKVStore kvstore = new RocksDBAtomicKVStore();
+            kvstore.setDirectory(AbstractMain.this.rocksdbDirectory);
+            return kvstore;
+        }
+
+        @Override
+        public String getDescription() {
+            return "RocksDB " + AbstractMain.this.rocksdbDirectory.getName();
         }
     }
 
