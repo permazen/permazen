@@ -348,7 +348,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
             // Read cursor
             assert this.cursor.isValid();
-            this.next = new KVPair(this.cursor.key().clone(), this.cursor.value().clone());
+            this.next = new KVPair(this.cursor.key(), this.cursor.value());
 
             // Advance cursor
             if (this.reverse) {
