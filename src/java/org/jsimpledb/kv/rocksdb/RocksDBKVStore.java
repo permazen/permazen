@@ -276,6 +276,8 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
             this.reverse = reverse;
             if (RocksDBKVStore.this.log.isTraceEnabled())
                 RocksDBKVStore.this.log.trace("created " + this);
+
+            // Set initial cursor position
             if (reverse) {
                 if (maxKey != null) {
                     if (RocksDBKVStore.this.log.isTraceEnabled())
@@ -306,7 +308,13 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
                     this.cursor.seekToFirst();
                 }
             }
-            this.finished = !this.cursor.isValid();
+            if (RocksDBKVStore.this.log.isTraceEnabled()) {
+                RocksDBKVStore.this.log.trace("starting position is "
+                  + (this.cursor.isValid() ? new KVPair(this.cursor.key(), this.cursor.value()) : "INVALID"));
+            }
+
+            // Update from cursor
+            this.updateFromCursor();
         }
 
     // Iterator
@@ -346,16 +354,12 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
             if (this.finished)
                 return false;
 
-            // Read cursor
-            assert this.cursor.isValid();
-            this.next = new KVPair(this.cursor.key(), this.cursor.value());
-
             // Advance cursor
             if (this.reverse) {
                 this.cursor.prev();
                 if (RocksDBKVStore.this.log.isTraceEnabled()) {
                     RocksDBKVStore.this.log.trace("seek previous -> "
-                      + (this.cursor.isValid() ? new KVPair(this.cursor.key(), this.cursor.value()) : "END"));
+                      + (this.cursor.isValid() ? new KVPair(this.cursor.key(), this.cursor.value()) : "START"));
                 }
             } else {
                 this.cursor.next();
@@ -365,15 +369,34 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
                 }
             }
 
-            // Check off the end and/or limit bound
-            this.finished = !this.cursor.isValid()
-              || (this.reverse ?
-                (this.minKey != null && ByteUtil.compare(this.next.getKey(), this.minKey) < 0) :
-                (this.maxKey != null && ByteUtil.compare(this.next.getKey(), this.maxKey) >= 0));
-            if (this.finished && RocksDBKVStore.this.log.isTraceEnabled() && this.cursor.isValid())
-                RocksDBKVStore.this.log.trace("stopping at bound " + ByteUtil.toString(this.reverse ? this.minKey : this.maxKey));
+            // Update from cursor
+            return this.updateFromCursor();
+        }
 
-            // Done
+        private boolean updateFromCursor() {
+
+            // Have we run off the end?
+            if (!this.cursor.isValid()) {
+                this.finished = true;
+                return false;
+            }
+
+            // Read cursor
+            final byte[] key = this.cursor.key();
+            final byte[] value = this.cursor.value();
+
+            // Have we reached our bound?
+            if (this.reverse ?
+              (this.minKey != null && ByteUtil.compare(key, this.minKey) < 0) :
+              (this.maxKey != null && ByteUtil.compare(key, this.maxKey) >= 0)) {
+                if (RocksDBKVStore.this.log.isTraceEnabled())
+                    RocksDBKVStore.this.log.trace("stop at bound " + ByteUtil.toString(this.reverse ? this.minKey : this.maxKey));
+                this.finished = true;
+                return false;
+            }
+
+            // Next key/value pair is valid
+            this.next = new KVPair(key, value);
             return true;
         }
 
