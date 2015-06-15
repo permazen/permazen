@@ -1,6 +1,9 @@
 TODO
 ====
 
+- add new HermitRole to minimize disruption when node(s) get disconnected
+    See https://groups.google.com/d/msg/raft-dev/5Lxxr2UwzQc/VmXlbo74lNwJ
+
 - separate Loggers for:
     - transactions
     - messages (recv & xmit)
@@ -8,7 +11,7 @@ TODO
 
 - more memory-efficient Writes class
 
-- fix problem where TCP connections are established in both directions
+- fix issue where TCP connections are established in both directions ?
 
-- apply more than one log entry at a time if appropriate
+- apply more than one log entry at a time in a single atomic write if appropriate
 
