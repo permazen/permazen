@@ -55,7 +55,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
      * Constructor.
      *
      * <p>
-     * The caller is responsible for invoking {@link RocksDBObject#dispose} on any supplied
+     * The caller is responsible for invoking {@link org.rocksdb.RocksObject#dispose dispose()} on any supplied
      * {@code readOptions} and/or {@code writeBatch}, after this instance is {@link #close}'d of course.
      *
      * @param db database
@@ -81,7 +81,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
 // Accessors
 
     /**
-     * Get the {@link DB} underlying this instance.
+     * Get the {@link RocksDB} underlying this instance.
      *
      * @return underlying database
      */
@@ -224,7 +224,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
      *
      * <p>
      * This closes any unclosed iterators returned from {@link #getRange getRange()}.
-     * This does not close the underlying {@link DB} or any associated {@link WriteBatch}.
+     * This does not close the underlying {@link RocksDB} or any associated {@link WriteBatch}.
      */
     @Override
     public synchronized void close() {
