@@ -127,38 +127,25 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
         assert this.check();
 
         // Check puts
-        final byte[] putValue = this.writes.getPuts().get(key);
-        if (putValue != null)
-            return putValue;
+        byte[] value = this.writes.getPuts().get(key);
+        if (value != null) {
+            assert !this.writes.getRemoves().contains(key);
+            return this.applyCounterAdjustment(key, value);
+        }
 
         // Check removes
         if (this.writes.getRemoves().contains(key))
             return null;
 
-        // Read from k/v store
-        byte[] value = this.kv.get(key);
+        // Read from underlying k/v store
+        value = this.kv.get(key);
 
         // Record the read
         this.recordReads(key, ByteUtil.getNextKey(key));
 
-        // Check counter adjustments
-        if (value == null)                      // we can ignore adjustments of missing values
-            return null;
-        final Long adjust = this.writes.getAdjusts().get(key);
-        if (adjust != null) {
-
-            // Decode value we just read as a counter
-            final long counterValue;
-            try {
-                counterValue = this.kv.decodeCounter(value);
-            } catch (IllegalArgumentException e) {
-                this.writes.getAdjusts().remove(key);       // previous adjustment was bogus because value was not decodable
-                return value;
-            }
-
-            // Adjust counter value by adjustment and re-encode
-            value = this.kv.encodeCounter(counterValue + adjust);
-        }
+        // Apply counter adjustments
+        if (value != null)                                          // we can ignore adjustments of missing values
+            value = this.applyCounterAdjustment(key, value);
 
         // Done
         return value;
@@ -308,6 +295,28 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
 // Internal methods
 
+    // Apply accumulated counter adjustments to the value, if any
+    private byte[] applyCounterAdjustment(byte[] key, byte[] value) {
+
+        // Is there an adjustment of this key?
+        assert key != null;
+        final Long adjust = this.writes.getAdjusts().get(key);
+        if (adjust == null)
+            return value;
+
+        // Decode value we just read as a counter
+        final long counterValue;
+        try {
+            counterValue = this.kv.decodeCounter(value);
+        } catch (IllegalArgumentException e) {
+            this.writes.getAdjusts().remove(key);       // previous adjustment was bogus because value was not decodable
+            return value;
+        }
+
+        // Adjust counter value by accumulated adjustment value and re-encode
+        return this.kv.encodeCounter(counterValue + adjust);
+    }
+
     // Record that keys were read in the range [minKey, maxKey)
     private synchronized void recordReads(byte[] minKey, byte[] maxKey) {
 
@@ -450,7 +459,7 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
                 final KVPair putPair = putEntry != null ? new KVPair(putEntry) : null;
 
                 // Figure out which pair wins (read or put)
-                final KVPair pair;
+                KVPair pair;
                 int diff = 0;
                 if (readPair == null && putPair == null)
                     pair = null;
@@ -483,6 +492,11 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
                     this.finished = true;
                     return false;
                 }
+
+                // Apply any counter to the retrieved value, if appropriate
+                final byte[] adjustedValue = MutableView.this.applyCounterAdjustment(pair.getKey(), pair.getValue());
+                if (adjustedValue != pair.getValue())
+                    pair = new KVPair(pair.getKey(), adjustedValue);
 
                 // Update state
                 this.next = pair;

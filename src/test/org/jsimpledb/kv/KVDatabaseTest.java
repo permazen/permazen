@@ -825,7 +825,7 @@ public class KVDatabaseTest extends TestSupport {
                     byte[] min;
                     byte[] max;
                     KVPair pair;
-                    int option = this.r(55);
+                    int option = this.r(62);
                     boolean knownValuesChanged = false;
                     if (option < 10) {                                              // get
                         key = this.rb(2, false);
@@ -834,7 +834,7 @@ public class KVDatabaseTest extends TestSupport {
                         if (val == null)
                             Assert.assertTrue(!knownValues.containsKey(key));
                         else if (knownValues.containsKey(key))
-                            Assert.assertEquals(knownValues.get(key), val);
+                            Assert.assertEquals(s(knownValues.get(key)), s(val));
                         else {
                             knownValues.put(key, val);
                             knownValuesChanged = true;
@@ -853,7 +853,7 @@ public class KVDatabaseTest extends TestSupport {
                         if (pair == null)
                             Assert.assertTrue(knownValues.tailMap(min).isEmpty());
                         else if (knownValues.containsKey(pair.getKey()))
-                            Assert.assertEquals(knownValues.get(pair.getKey()), pair.getValue());
+                            Assert.assertEquals(s(knownValues.get(pair.getKey())), s(pair.getValue()));
                         else {
                             knownValues.put(pair.getKey(), pair.getValue());
                             knownValuesChanged = true;
@@ -865,7 +865,7 @@ public class KVDatabaseTest extends TestSupport {
                         if (pair == null)
                             Assert.assertTrue(knownValues.headMap(max).isEmpty());
                         else if (knownValues.containsKey(pair.getKey()))
-                            Assert.assertEquals(knownValues.get(pair.getKey()), pair.getValue());
+                            Assert.assertEquals(s(knownValues.get(pair.getKey())), s(pair.getValue()));
                         else {
                             knownValues.put(pair.getKey(), pair.getValue());
                             knownValuesChanged = true;
@@ -893,6 +893,27 @@ public class KVDatabaseTest extends TestSupport {
                             knownValues.tailMap(min).clear();
                         else
                             knownValues.subMap(min, max).clear();
+                        knownValuesChanged = true;
+                    } else if (option < 60) {                                       // adjustCounter
+                        key = this.rb(1, false);
+                        key[0] = (byte)(key[0] & 0x0f);
+                        val = tx.get(key);
+                        long counter = -1;
+                        if (val != null) {
+                            try {
+                                counter = tx.decodeCounter(val);
+                            } catch (IllegalArgumentException e) {
+                                val = null;
+                            }
+                        }
+                        if (val == null) {
+                            counter = this.random.nextLong();
+                            tx.put(key, tx.encodeCounter(counter));
+                        }
+                        final long adj = this.random.nextInt(1 << this.random.nextInt(24)) - 1024;
+                        this.log("adj: " + s(key) + " by " + adj);
+                        tx.adjustCounter(key, adj);
+                        knownValues.put(key, tx.encodeCounter(counter + adj));
                         knownValuesChanged = true;
                     } else {                                                        // sleep
                         final int millis = this.r(50);
