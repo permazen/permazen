@@ -110,18 +110,24 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.rocksdb">org.jsimpledb.kv.rocksdb</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.simple">org.jsimpledb.kv.simple</a></td>
 <td class="colLast">
 <div class="block">A simple in-memory implementation of the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.sql">org.jsimpledb.kv.sql</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.util">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
@@ -330,7 +336,7 @@
 <tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></strong></code>
-<div class="block">Wrapper class that presents an <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of any <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>,
+<div class="block">Wrapper class that presents an <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of a <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>,
  using individual transactions for each operation.</div>
 </td>
 </tr>
@@ -441,6 +447,44 @@
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></td>
 <td class="colLast"><span class="strong">RaftKVTransaction.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#delegate()">delegate</a></strong>()</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.rocksdb">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a> in <a href="../../../../org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a> that implement <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></strong></code>
+<div class="block">An <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of a RocksDB database.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></strong></code>
+<div class="block">Straightforward <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of a RocksDB database.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVTransaction</a></strong></code>
+<div class="block"><a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb"><code>RocksDBKVDatabase</code></a> transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a></strong></code>
+<div class="block">Read-only <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of a RocksDB <code>Snapshot</code>.</div>
+</td>
 </tr>
 </tbody>
 </table>

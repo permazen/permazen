@@ -196,6 +196,8 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.RaftDBType</span></a> - Class in <a href="./org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.RocksDBType</span></a> - Class in <a href="./org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.XMLDBType</span></a> - Class in <a href="./org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/parse/expr/AbstractNamed.html" title="class in org.jsimpledb.parse.expr"><span class="strong">AbstractNamed</span></a> - Class in <a href="./org/jsimpledb/parse/expr/package-summary.html">org.jsimpledb.parse.expr</a></dt>
@@ -580,6 +582,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/ForwardingKVStore.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/ForwardingKVStore.html" title="class in org.jsimpledb.kv.util">ForwardingKVStore</a></dt>
 <dd>&nbsp;</dd>
@@ -979,7 +985,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">AtomicKVDatabase</span></a> - Class in <a href="./org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></dt>
 <dd>
-<div class="block">Wrapper class that presents an <a href="./org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of any <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>,
+<div class="block">Wrapper class that presents an <a href="./org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of a <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>,
  using individual transactions for each operation.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#AtomicKVDatabase(org.jsimpledb.kv.KVDatabase)">AtomicKVDatabase(KVDatabase)</a></span> - Constructor for class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
@@ -1906,6 +1912,12 @@
 <dd>
 <div class="block">Invoked when an exception is thrown by <a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html#serviceIO(java.nio.channels.SelectionKey)"><code>serviceIO()</code></a>.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>
+<div class="block">Close this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/CloseableTracker.html#close()">close()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/CloseableTracker.html" title="class in org.jsimpledb.util">CloseableTracker</a></dt>
 <dd>
 <div class="block">Close all unclosed items associated with this instance.</div>
@@ -2418,6 +2430,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.LevelDBType.html#createAtomicKVStore()">createAtomicKVStore()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.LevelDBType.html" title="class in org.jsimpledb.util">AbstractMain.LevelDBType</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.RocksDBType.html#createAtomicKVStore()">createAtomicKVStore()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util">AbstractMain.RocksDBType</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/ant/SchemaGeneratorTask.html#createClasspath()">createClasspath()</a></span> - Method in class org.jsimpledb.ant.<a href="./org/jsimpledb/ant/SchemaGeneratorTask.html" title="class in org.jsimpledb.ant">SchemaGeneratorTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/EnumConverter.html#createEnumConverter(java.lang.Class)">createEnumConverter(Class&lt;? extends Enum&lt;?&gt;&gt;)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/EnumConverter.html" title="class in org.jsimpledb">EnumConverter</a></dt>
@@ -2464,6 +2478,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.MySQLDBType.html#createKVDatabase()">createKVDatabase()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.MySQLDBType.html" title="class in org.jsimpledb.util">AbstractMain.MySQLDBType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.RaftDBType.html#createKVDatabase()">createKVDatabase()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util">AbstractMain.RaftDBType</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.RocksDBType.html#createKVDatabase()">createKVDatabase()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util">AbstractMain.RocksDBType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.XMLDBType.html#createKVDatabase()">createKVDatabase()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util">AbstractMain.XMLDBType</a></dt>
 <dd>&nbsp;</dd>
@@ -2516,6 +2532,8 @@
 <dd>
 <div class="block">Instantiate a new <a href="./org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVTransaction</code></a> instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">createSnapshotKVTransaction(SnapshotVersion)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#createSnapshotTransaction()">createSnapshotTransaction()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
 <div class="block">Create an empty, in-memory transaction initialized with the same schema history as this transaction.</div>
@@ -2580,6 +2598,8 @@
 <dd>
 <div class="block">Create a new transaction.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/XMLKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple">XMLKVDatabase</a></dt>
@@ -2695,6 +2715,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#decodeCounter(byte[])">decodeCounter(byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#decodeCounter(byte[])">decodeCounter(byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#decodeCounter(byte[])">decodeCounter(byte[])</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/ForwardingKVStore.html#decodeCounter(byte[])">decodeCounter(byte[])</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/ForwardingKVStore.html" title="class in org.jsimpledb.kv.util">ForwardingKVStore</a></dt>
 <dd>&nbsp;</dd>
@@ -2825,6 +2847,8 @@
 <div class="block">Get the underlying <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#delegate()">delegate()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#delegate()">delegate()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/ForwardingKVStore.html#delegate()">delegate()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/ForwardingKVStore.html" title="class in org.jsimpledb.kv.util">ForwardingKVStore</a></dt>
 <dd>
@@ -3057,6 +3081,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#encodeCounter(long)">encodeCounter(long)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#encodeCounter(long)">encodeCounter(long)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#encodeCounter(long)">encodeCounter(long)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/ForwardingKVStore.html#encodeCounter(long)">encodeCounter(long)</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/ForwardingKVStore.html" title="class in org.jsimpledb.kv.util">ForwardingKVStore</a></dt>
 <dd>&nbsp;</dd>
@@ -3479,6 +3505,14 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#finalize()">finalize()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#finalize()">finalize()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>
+<div class="block">Finalize this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#finalize()">finalize()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>
+<div class="block">Finalize this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html#finalize()">finalize()</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a></dt>
 <dd>
 <div class="block">Ensure transaction is eventually rolled back if leaked due to an application bug.</div>
@@ -3689,6 +3723,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a></dt>
 <dd>&nbsp;</dd>
@@ -4130,6 +4166,14 @@
 <dd>
 <div class="block">Get the <code>DB</code> underlying this instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#getDB()">getDB()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>
+<div class="block">Get the underlying <code>RocksDB</code> associated with this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#getDB()">getDB()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>
+<div class="block">Get the <code>RocksDB</code> underlying this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBUtil.html#getDefaultDBFactory()">getDefaultDBFactory()</a></span> - Static method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBUtil.html" title="class in org.jsimpledb.kv.leveldb">LevelDBUtil</a></dt>
 <dd>
 <div class="block">Get the default <code>DBFactory</code>.</div>
@@ -4160,6 +4204,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.RaftDBType.html#getDescription()">getDescription()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util">AbstractMain.RaftDBType</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.RocksDBType.html#getDescription()">getDescription()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util">AbstractMain.RocksDBType</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.XMLDBType.html#getDescription()">getDescription()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util">AbstractMain.XMLDBType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/change/ChangeCopier.html#getDestinationTransaction()">getDestinationTransaction()</a></span> - Method in class org.jsimpledb.change.<a href="./org/jsimpledb/change/ChangeCopier.html" title="class in org.jsimpledb.change">ChangeCopier</a></dt>
@@ -4171,6 +4217,10 @@
 <div class="block">Get the filesystem directory containing the database.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html#getDirectory()">getDirectory()</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a></dt>
+<dd>
+<div class="block">Get the filesystem directory containing the database.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#getDirectory()">getDirectory()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
 <dd>
 <div class="block">Get the filesystem directory containing the database.</div>
 </dd>
@@ -4805,6 +4855,8 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#getKVDatabase()">getKVDatabase()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html#getKVDatabase()">getKVDatabase()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVTransaction</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html#getKVDatabase()">getKVDatabase()</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLKVTransaction.html#getKVDatabase()">getKVDatabase()</a></span> - Method in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a></dt>
@@ -5239,6 +5291,10 @@
 <dd>
 <div class="block">Get the <code>Options</code> this instance will use when opening the database at startup.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#getOptions()">getOptions()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>
+<div class="block">Get the <code>Options</code> this instance will use when opening the database at startup.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/JObjectContainer.html#getOrderedPropertyNames()">getOrderedPropertyNames()</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></dt>
 <dd>
 <div class="block">Get the properties of this container in preferred order.</div>
@@ -5338,6 +5394,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a></dt>
 <dd>&nbsp;</dd>
@@ -6560,6 +6618,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#isConflict(org.jsimpledb.kv.mvcc.Mutations)">isConflict(Mutations)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
 <dd>
 <div class="block">Determine whether any of the given mutations conflict with any of the keys read by this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/ByteUtil.html#isConsecutive(byte[], byte[])">isConsecutive(byte[], byte[])</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ByteUtil.html" title="class in org.jsimpledb.util">ByteUtil</a></dt>
+<dd>
+<div class="block">Determine whether <code>key2</code> is the next key after <code>key1</code>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#isDone()">isDone()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>&nbsp;</dd>
@@ -7925,6 +7987,8 @@
 <dd>
 <div class="block">Apply a set of mutations to this instance atomically.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">mutate(Mutations, boolean)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc"><span class="strong">Mutations</span></a> - Interface in <a href="./org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></dt>
 <dd>
 <div class="block">Represents a set of mutations that can be applied to a <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
@@ -8424,6 +8488,10 @@
 <dd>
 <div class="block">Networking classes used by Raft.</div>
 </dd>
+<dt><a href="./org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a> - package org.jsimpledb.kv.rocksdb</dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
+</dd>
 <dt><a href="./org/jsimpledb/kv/simple/package-summary.html">org.jsimpledb.kv.simple</a> - package org.jsimpledb.kv.simple</dt>
 <dd>
 <div class="block">A simple in-memory implementation of the <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
@@ -8859,6 +8927,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a></dt>
 <dd>&nbsp;</dd>
@@ -9377,6 +9449,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLKVTransaction.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a></dt>
@@ -9452,6 +9528,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a></dt>
 <dd>&nbsp;</dd>
@@ -9593,6 +9671,41 @@
 <dd>
 <div class="block">Whether the ordering of this instance is reversed.</div>
 </dd>
+<dt><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBAtomicKVStore</span></a> - Class in <a href="./org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></dt>
+<dd>
+<div class="block">An <a href="./org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of a RocksDB database.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#RocksDBAtomicKVStore()">RocksDBAtomicKVStore()</a></span> - Constructor for class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#rocksdbDirectory">rocksdbDirectory</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBKVDatabase</span></a> - Class in <a href="./org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><code>RocksDBAtomicKVStore</code></a>, providing concurrent transactions
+ and linearizable ACID semantics.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#RocksDBKVDatabase()">RocksDBKVDatabase()</a></span> - Constructor for class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBKVStore</span></a> - Class in <a href="./org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></dt>
+<dd>
+<div class="block">Straightforward <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of a RocksDB database.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#RocksDBKVStore(org.rocksdb.RocksDB)">RocksDBKVStore(RocksDB)</a></span> - Constructor for class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>
+<div class="block">Convenience constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#RocksDBKVStore(org.rocksdb.RocksDB, org.rocksdb.ReadOptions, org.rocksdb.WriteBatch)">RocksDBKVStore(RocksDB, ReadOptions, WriteBatch)</a></span> - Constructor for class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBKVTransaction</span></a> - Class in <a href="./org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb"><code>RocksDBKVDatabase</code></a> transaction.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#rocksDBType">rocksDBType</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/SnapshotTransaction.html#rollback()">rollback()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a></dt>
 <dd>
 <div class="block">Roll back this transaction.</div>
@@ -10004,6 +10117,10 @@
 <dd>
 <div class="block">Configure the filesystem directory containing the database.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#setDirectory(java.io.File)">setDirectory(File)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>
+<div class="block">Configure the filesystem directory containing the database.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#setDone(boolean)">setDone(boolean)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html#setEchoEnabled(boolean)">setEchoEnabled(boolean)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli">TelnetConsole.ForwardingTerminal</a></dt>
@@ -10156,6 +10273,10 @@
 <dd>
 <div class="block">Configure the <a href="./org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> in which local persistent state is stored.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#setKVStore(org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore)">setKVStore(RocksDBAtomicKVStore)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a></dt>
+<dd>
+<div class="block">Configure the underlying <a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><code>RocksDBAtomicKVStore</code></a> used by this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#setLineLimit(int)">setLineLimit(int)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#setListenAddress(java.net.InetSocketAddress)">setListenAddress(InetSocketAddress)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
@@ -10235,6 +10356,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/schema/ReferenceSchemaField.html#setOnDelete(org.jsimpledb.core.DeleteAction)">setOnDelete(DeleteAction)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/ReferenceSchemaField.html" title="class in org.jsimpledb.schema">ReferenceSchemaField</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html#setOptions(org.iq80.leveldb.Options)">setOptions(Options)</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a></dt>
+<dd>
+<div class="block">Set the <code>Options</code> this instance will use when opening the database at startup.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#setOptions(org.rocksdb.Options)">setOptions(Options)</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
 <dd>
 <div class="block">Set the <code>Options</code> this instance will use when opening the database at startup.</div>
 </dd>
@@ -10606,6 +10731,8 @@
 <dd>
 <div class="block">Acquire a read-only, snapshot view of this instance based on the current state.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#snapshot()">snapshot()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><span class="strong">SnapshotJTransaction</span></a> - Class in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
 <dd>
 <div class="block">An initially empty, in-memory <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that persists indefinitely.</div>
@@ -10641,6 +10768,14 @@
 <div class="block">Read-only <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of a LevelDB <code>Snapshot</code>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#SnapshotLevelDBKVStore(org.iq80.leveldb.DB, boolean)">SnapshotLevelDBKVStore(DB, boolean)</a></span> - Constructor for class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html" title="class in org.jsimpledb.kv.leveldb">SnapshotLevelDBKVStore</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">SnapshotRocksDBKVStore</span></a> - Class in <a href="./org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></dt>
+<dd>
+<div class="block">Read-only <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of a RocksDB <code>Snapshot</code>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html#SnapshotRocksDBKVStore(org.rocksdb.RocksDB)">SnapshotRocksDBKVStore(RocksDB)</a></span> - Constructor for class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a></dt>
 <dd>
 <div class="block">Constructor.</div>
 </dd>
@@ -10762,6 +10897,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/XMLKVDatabase.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple">XMLKVDatabase</a></dt>
@@ -10821,6 +10958,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></dt>
 <dd>&nbsp;</dd>
@@ -11112,6 +11251,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/Timestamp.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/AbstractNamed.html#toString()">toString()</a></span> - Method in class org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/AbstractNamed.html" title="class in org.jsimpledb.parse.expr">AbstractNamed</a></dt>
 <dd>&nbsp;</dd>

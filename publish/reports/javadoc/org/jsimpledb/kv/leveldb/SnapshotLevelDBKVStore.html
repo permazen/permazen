@@ -239,10 +239,12 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SnapshotLevelDBKVStore</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.37">SnapshotLevelDBKVStore</a>(org.iq80.leveldb.DB&nbsp;db,
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.38">SnapshotLevelDBKVStore</a>(org.iq80.leveldb.DB&nbsp;db,
                       boolean&nbsp;verifyChecksums)</pre>
 <div class="block">Constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>db</code> - LevelDB database to snapshot</dd><dd><code>verifyChecksums</code> - whether to verify checksums on reads</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>db</code> - LevelDB database to snapshot</dd><dd><code>verifyChecksums</code> - whether to verify checksums on reads</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <code>db</code> is null</dd></dl>
 </li>
 </ul>
 </li>
@@ -259,7 +261,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>close</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.47">close</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.48">close</a>()</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/leveldb/LevelDBKVStore.html#close()">LevelDBKVStore</a></code></strong></div>
 <div class="block">Close this instance.
 
@@ -284,7 +286,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>put</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.62">put</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.63">put</a>(byte[]&nbsp;key,
        byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#put(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Set the value associated with the given key.</div>
@@ -302,7 +304,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.67">remove</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.68">remove</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#remove(byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 <dl>
@@ -319,7 +321,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>removeRange</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.72">removeRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.73">removeRange</a>(byte[]&nbsp;minKey,
                byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#removeRange(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove all key/value pairs whose keys are in a given range.
@@ -349,7 +351,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockListLast">
 <li class="blockList">
 <h4>adjustCounter</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.77">adjustCounter</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/leveldb/SnapshotLevelDBKVStore.html#line.78">adjustCounter</a>(byte[]&nbsp;key,
                  long&nbsp;amount)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)">KVStore</a></code></strong></div>
 <div class="block">Adjust the counter at the given key by the given amount.

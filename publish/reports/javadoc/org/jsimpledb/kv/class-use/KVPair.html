@@ -104,18 +104,24 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.rocksdb">org.jsimpledb.kv.rocksdb</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.simple">org.jsimpledb.kv.simple</a></td>
 <td class="colLast">
 <div class="block">A simple in-memory implementation of the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.sql">org.jsimpledb.kv.sql</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.util">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
@@ -295,6 +301,26 @@
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;</code></td>
 <td class="colLast"><span class="strong">MutableView.</span><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#getRange(byte[], byte[], boolean)">getRange</a></strong>(byte[]&nbsp;minKey,
+                byte[]&nbsp;maxKey,
+                boolean&nbsp;reverse)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.rocksdb">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a> in <a href="../../../../org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a> that return types with arguments of type <a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;</code></td>
+<td class="colLast"><span class="strong">RocksDBKVStore.</span><code><strong><a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#getRange(byte[], byte[], boolean)">getRange</a></strong>(byte[]&nbsp;minKey,
                 byte[]&nbsp;maxKey,
                 boolean&nbsp;reverse)</code>&nbsp;</td>
 </tr>

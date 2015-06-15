@@ -128,36 +128,42 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.rocksdb">org.jsimpledb.kv.rocksdb</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.simple">org.jsimpledb.kv.simple</a></td>
 <td class="colLast">
 <div class="block">A simple in-memory implementation of the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.sql">org.jsimpledb.kv.sql</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.util">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse">org.jsimpledb.parse</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB parsing related classes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.spring">org.jsimpledb.spring</a></td>
 <td class="colLast">
 <div class="block">Spring Framework integration classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.util">org.jsimpledb.util</a></td>
 <td class="colLast">
 <div class="block">General utility classes used with JSimpleDB.</div>
@@ -474,6 +480,27 @@
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></strong></code>
 <div class="block">A distributed <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> based on the Raft consensus algorithm.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.rocksdb">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a> in <a href="../../../../org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a> that implement <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a></strong></code>
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><code>RocksDBAtomicKVStore</code></a>, providing concurrent transactions
+ and linearizable ACID semantics.</div>
 </td>
 </tr>
 </tbody>

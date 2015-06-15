@@ -385,7 +385,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>getRange</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.168">getRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.155">getRange</a>(byte[]&nbsp;minKey,
                         byte[]&nbsp;maxKey,
                         boolean&nbsp;reverse)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">KVStore</a></code></strong></div>
@@ -425,7 +425,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>put</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.178">put</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.165">put</a>(byte[]&nbsp;key,
        byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#put(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Set the value associated with the given key.</div>
@@ -443,7 +443,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.197">remove</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.184">remove</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#remove(byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 <dl>
@@ -460,7 +460,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>removeRange</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.214">removeRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.201">removeRange</a>(byte[]&nbsp;minKey,
                byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#removeRange(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove all key/value pairs whose keys are in a given range.
@@ -490,7 +490,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>encodeCounter</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.237">encodeCounter</a>(long&nbsp;value)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.224">encodeCounter</a>(long&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)">KVStore</a></code></strong></div>
 <div class="block">Encode a counter value into a <code>byte[]</code> value suitable for use with <a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])"><code>decodeCounter()</code></a>
  and/or <a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)"><code>adjustCounter()</code></a>.</div>
@@ -509,7 +509,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>decodeCounter</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.242">decodeCounter</a>(byte[]&nbsp;bytes)</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.229">decodeCounter</a>(byte[]&nbsp;bytes)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])">KVStore</a></code></strong></div>
 <div class="block">Decode a counter value previously encoded by <a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)"><code>encodeCounter()</code></a>.</div>
 <dl>
@@ -527,7 +527,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>adjustCounter</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.247">adjustCounter</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.234">adjustCounter</a>(byte[]&nbsp;key,
                  long&nbsp;amount)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)">KVStore</a></code></strong></div>
 <div class="block">Adjust the counter at the given key by the given amount.
@@ -556,7 +556,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>addTo</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.291">addTo</a>(<a href="../../../../org/jsimpledb/util/SizeEstimator.html" title="class in org.jsimpledb.util">SizeEstimator</a>&nbsp;estimator)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.278">addTo</a>(<a href="../../../../org/jsimpledb/util/SizeEstimator.html" title="class in org.jsimpledb.util">SizeEstimator</a>&nbsp;estimator)</pre>
 <div class="block">Add the estimated size of this instance (in bytes) to the given estimator.
 
  <p>
@@ -573,7 +573,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.302">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.289">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>

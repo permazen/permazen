@@ -170,57 +170,64 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#isConsecutive(byte[], byte[])">isConsecutive</a></strong>(byte[]&nbsp;key1,
+                          byte[]&nbsp;key2)</code>
+<div class="block">Determine whether <code>key2</code> is the next key after <code>key1</code>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#isPrefixOf(byte[], byte[])">isPrefixOf</a></strong>(byte[]&nbsp;prefix,
                     byte[]&nbsp;value)</code>
 <div class="block">Determine if the first of two <code>byte[]</code> arrays is a prefix of the second.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#max(byte[], byte[])">max</a></strong>(byte[]&nbsp;b1,
       byte[]&nbsp;b2)</code>
 <div class="block">Determine the larger of two byte arrays when compared lexicographically using unsigned values.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#min(byte[], byte[])">min</a></strong>(byte[]&nbsp;b1,
       byte[]&nbsp;b2)</code>
 <div class="block">Determine the smaller of two byte arrays when compared lexicographically using unsigned values.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#parse(java.lang.String)">parse</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</code>
 <div class="block">Decode a hexadecimal <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> into a <code>byte[]</code> array.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#readInt(org.jsimpledb.util.ByteReader)">readInt</a></strong>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</code>
 <div class="block">Read an <code>int</code> as four big-endian bytes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static long</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#readLong(org.jsimpledb.util.ByteReader)">readLong</a></strong>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</code>
 <div class="block">Read a <code>long</code> as eight big-endian bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#toString(byte[])">toString</a></strong>(byte[]&nbsp;buf)</code>
 <div class="block">Convert a byte array into a string of hex digits, or <code>"null"</code> if <code>buf</code> is null.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#writeInt(org.jsimpledb.util.ByteWriter, int)">writeInt</a></strong>(<a href="../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
                 int&nbsp;value)</code>
 <div class="block">Write an <code>int</code> as four big-endian bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/ByteUtil.html#writeLong(org.jsimpledb.util.ByteWriter, long)">writeLong</a></strong>(<a href="../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
                   long&nbsp;value)</code>
@@ -363,13 +370,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <code>key</code> is null</dd></dl>
 </li>
 </ul>
+<a name="isConsecutive(byte[], byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isConsecutive</h4>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.143">isConsecutive</a>(byte[]&nbsp;key1,
+                    byte[]&nbsp;key2)</pre>
+<div class="block">Determine whether <code>key2</code> is the next key after <code>key1</code>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>key1</code> - first key</dd><dd><code>key2</code> - second key</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if <code>key2</code> immediately follows <code>key1</code></dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if either parameter is null</dd></dl>
+</li>
+</ul>
 <a name="getKeyAfterPrefix(byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeyAfterPrefix</h4>
-<pre>public static&nbsp;byte[]&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.145">getKeyAfterPrefix</a>(byte[]&nbsp;prefix)</pre>
+<pre>public static&nbsp;byte[]&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.165">getKeyAfterPrefix</a>(byte[]&nbsp;prefix)</pre>
 <div class="block">Get the first key that would be greater than the given key in unsigned lexicographic
  ordering <i>and</i> that does not have the given key as a prefix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>prefix</code> - lower bound prefix key</dd>
@@ -386,7 +408,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.166">toString</a>(byte[]&nbsp;buf)</pre>
+<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.186">toString</a>(byte[]&nbsp;buf)</pre>
 <div class="block">Convert a byte array into a string of hex digits, or <code>"null"</code> if <code>buf</code> is null.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - bytes</dd>
 <dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>buf</code></dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/util/ByteUtil.html#parse(java.lang.String)"><code>parse()</code></a></dd></dl>
@@ -398,7 +420,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>parse</h4>
-<pre>public static&nbsp;byte[]&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.189">parse</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</pre>
+<pre>public static&nbsp;byte[]&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.209">parse</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</pre>
 <div class="block">Decode a hexadecimal <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> into a <code>byte[]</code> array. The string must have an even
  number of digits and contain no other characters (e.g., whitespace).</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>text</code> - string previously encoded by <a href="../../../org/jsimpledb/util/ByteUtil.html#toString(byte[])"><code>toString(byte[])</code></a></dd>
@@ -414,7 +436,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>readInt</h4>
-<pre>public static&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.215">readInt</a>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</pre>
+<pre>public static&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.235">readInt</a>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</pre>
 <div class="block">Read an <code>int</code> as four big-endian bytes.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>reader</code> - input</dd>
 <dt><span class="strong">Returns:</span></dt><dd>decoded integer</dd>
@@ -429,7 +451,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>writeInt</h4>
-<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.227">writeInt</a>(<a href="../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.247">writeInt</a>(<a href="../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
             int&nbsp;value)</pre>
 <div class="block">Write an <code>int</code> as four big-endian bytes.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>writer</code> - byte destination</dd><dd><code>value</code> - value to write</dd>
@@ -443,7 +465,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>readLong</h4>
-<pre>public static&nbsp;long&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.242">readLong</a>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</pre>
+<pre>public static&nbsp;long&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.262">readLong</a>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</pre>
 <div class="block">Read a <code>long</code> as eight big-endian bytes.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>reader</code> - input</dd>
 <dt><span class="strong">Returns:</span></dt><dd>decoded long</dd>
@@ -457,7 +479,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>writeLong</h4>
-<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.258">writeLong</a>(<a href="../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/ByteUtil.html#line.278">writeLong</a>(<a href="../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
              long&nbsp;value)</pre>
 <div class="block">Write a <code>long</code> as eight big-endian bytes.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>writer</code> - byte destination</dd><dd><code>value</code> - value to write</dd>
