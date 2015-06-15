@@ -67,6 +67,7 @@ import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.Mutations;
 import org.jsimpledb.kv.mvcc.Reads;
 import org.jsimpledb.kv.mvcc.Writes;
+import org.jsimpledb.kv.raft.msg.AbstractTermedMessage;
 import org.jsimpledb.kv.raft.msg.AppendRequest;
 import org.jsimpledb.kv.raft.msg.AppendResponse;
 import org.jsimpledb.kv.raft.msg.CommitRequest;
@@ -75,6 +76,8 @@ import org.jsimpledb.kv.raft.msg.GrantVote;
 import org.jsimpledb.kv.raft.msg.InstallSnapshot;
 import org.jsimpledb.kv.raft.msg.Message;
 import org.jsimpledb.kv.raft.msg.MessageSwitch;
+import org.jsimpledb.kv.raft.msg.PingRequest;
+import org.jsimpledb.kv.raft.msg.PingResponse;
 import org.jsimpledb.kv.raft.msg.RequestVote;
 import org.jsimpledb.kv.raft.net.Network;
 import org.jsimpledb.kv.raft.net.TCPNetwork;
@@ -1970,36 +1973,41 @@ public class RaftKVDatabase implements KVDatabase {
             return;
         }
 
-        // Is sender's term too low? Ignore it
-        if (msg.getTerm() < this.currentTerm) {
-            if (this.log.isDebugEnabled()) {
-                this.debug("rec'd " + msg + " with term " + msg.getTerm() + " < " + this.currentTerm
-                  + " from \"" + peer + "\" at " + address + ", ignoring");
-            }
-            return;
-        }
+        // Handle termed messages
+        if (msg instanceof AbstractTermedMessage) {
+            final AbstractTermedMessage tmsg = (AbstractTermedMessage)msg;
 
-        // Is my term too low? If so update and revert to follower
-        if (msg.getTerm() > this.currentTerm) {
-
-            // First check with current role; in some special cases we ignore this
-            if (!this.role.mayAdvanceCurrentTerm(msg)) {
-                if (this.log.isTraceEnabled()) {
-                    this.trace("rec'd " + msg + " with term " + msg.getTerm() + " > " + this.currentTerm + " from \""
-                      + peer + "\" but current role says to ignore it");
+            // Is sender's term too low? Ignore it
+            if (tmsg.getTerm() < this.currentTerm) {
+                if (this.log.isDebugEnabled()) {
+                    this.debug("rec'd " + tmsg + " with term " + tmsg.getTerm() + " < " + this.currentTerm
+                      + " from \"" + peer + "\" at " + address + ", ignoring");
                 }
                 return;
             }
 
-            // Revert to follower
-            if (this.log.isDebugEnabled()) {
-                this.debug("rec'd " + msg.getClass().getSimpleName() + " with term " + msg.getTerm() + " > "
-                  + this.currentTerm + " from \"" + peer + "\", updating term and "
-                  + (this.role instanceof FollowerRole ? "remaining a" : "reverting to") + " follower");
+            // Is my term too low? If so update and revert to follower
+            if (tmsg.getTerm() > this.currentTerm) {
+
+                // First check with current role; in some special cases we ignore this
+                if (!this.role.mayAdvanceCurrentTerm(tmsg)) {
+                    if (this.log.isTraceEnabled()) {
+                        this.trace("rec'd " + tmsg + " with term " + tmsg.getTerm() + " > " + this.currentTerm + " from \""
+                          + peer + "\" but current role says to ignore it");
+                    }
+                    return;
+                }
+
+                // Revert to follower
+                if (this.log.isDebugEnabled()) {
+                    this.debug("rec'd " + tmsg.getClass().getSimpleName() + " with term " + tmsg.getTerm() + " > "
+                      + this.currentTerm + " from \"" + peer + "\", updating term and "
+                      + (this.role instanceof FollowerRole ? "remaining a" : "reverting to") + " follower");
+                }
+                if (!this.advanceTerm(tmsg.getTerm()))
+                    return;
+                this.changeRole(tmsg.isLeaderMessage() ? new FollowerRole(this, peer, address) : new FollowerRole(this));
             }
-            if (!this.advanceTerm(msg.getTerm()))
-                return;
-            this.changeRole(msg.isLeaderMessage() ? new FollowerRole(this, peer, address) : new FollowerRole(this));
         }
 
         // Debug
@@ -2033,6 +2041,14 @@ public class RaftKVDatabase implements KVDatabase {
                 @Override
                 public void caseInstallSnapshot(InstallSnapshot msg) {
                     RaftKVDatabase.this.role.caseInstallSnapshot(msg);
+                }
+                @Override
+                public void casePingRequest(PingRequest msg) {
+                    RaftKVDatabase.this.role.casePingRequest(msg);
+                }
+                @Override
+                public void casePingResponse(PingResponse msg) {
+                    RaftKVDatabase.this.role.casePingResponse(msg);
                 }
                 @Override
                 public void caseRequestVote(RequestVote msg) {
@@ -2508,6 +2524,14 @@ public class RaftKVDatabase implements KVDatabase {
         abstract void caseGrantVote(GrantVote msg);
         abstract void caseInstallSnapshot(InstallSnapshot msg);
         abstract void caseRequestVote(RequestVote msg);
+
+        void casePingRequest(PingRequest msg) {
+            this.raft.sendMessage(new PingResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(), msg.getRequestId()));
+        }
+
+        void casePingResponse(PingResponse msg) {
+            // ignore by default
+        }
 
         boolean mayAdvanceCurrentTerm(Message msg) {
             return true;

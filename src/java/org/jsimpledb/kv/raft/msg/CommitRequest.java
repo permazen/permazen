@@ -14,7 +14,7 @@ import org.jsimpledb.util.LongEncoder;
 /**
  * Sent from followers to leaders to start the commit of a transaction.
  */
-public class CommitRequest extends Message {
+public class CommitRequest extends AbstractTermedMessage {
 
     private final long txId;
     private final long baseTerm;

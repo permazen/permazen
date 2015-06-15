@@ -18,7 +18,7 @@ import org.jsimpledb.util.LongEncoder;
  * <p>
  * Also contains information about the follower's log.
  */
-public class AppendResponse extends Message {
+public class AppendResponse extends AbstractTermedMessage {
 
     private final Timestamp leaderTimestamp;        // leaderTimestamp from corresponding AppendRequest
     private final boolean success;                  // true if previous log entry term and index matched

@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 /**
  * Sent from a follower to a candidate to grant a vote during an election.
  */
-public class GrantVote extends Message {
+public class GrantVote extends AbstractTermedMessage {
 
 // Constructors
 

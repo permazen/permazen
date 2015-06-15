@@ -14,7 +14,7 @@ import org.jsimpledb.util.LongEncoder;
 /**
  * Send from candidates to other nodes to request a vote during an election.
  */
-public class RequestVote extends Message {
+public class RequestVote extends AbstractTermedMessage {
 
     private final long lastLogTerm;
     private final long lastLogIndex;

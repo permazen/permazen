@@ -20,11 +20,10 @@ import org.jsimpledb.kv.mvcc.Reads;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.raft.Timestamp;
 import org.jsimpledb.util.ByteUtil;
-import org.jsimpledb.util.LongEncoder;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
- * Support superclass for Raft messages.
+ * Support superclass for all Raft messages.
  */
 public abstract class Message {
 
@@ -36,6 +35,8 @@ public abstract class Message {
     static final byte GRANT_VOTE_TYPE = 5;
     static final byte INSTALL_SNAPSHOT_TYPE = 6;
     static final byte REQUEST_VOTE_TYPE = 7;
+    static final byte PING_REQUEST_TYPE = 8;
+    static final byte PING_RESPONSE_TYPE = 9;
 
     // Serialization version number
     private static final byte VERSION_1 = 1;
@@ -47,14 +48,12 @@ public abstract class Message {
     private final int clusterId;
     private final String senderId;
     private final String recipientId;
-    private final long term;
 
-    protected Message(byte type, int clusterId, String senderId, String recipientId, long term) {
+    protected Message(byte type, int clusterId, String senderId, String recipientId) {
         this.type = type;
         this.clusterId = clusterId;
         this.senderId = senderId;
         this.recipientId = recipientId;
-        this.term = term;
     }
 
     protected Message(byte type, ByteBuffer buf) {
@@ -62,7 +61,6 @@ public abstract class Message {
         this.clusterId = buf.getInt();
         this.senderId = Message.getString(buf);
         this.recipientId = Message.getString(buf);
-        this.term = LongEncoder.read(buf);
     }
 
     void checkArguments() {
@@ -70,7 +68,6 @@ public abstract class Message {
         Preconditions.checkArgument(this.clusterId != 0);
         Preconditions.checkArgument(this.senderId != null);
         Preconditions.checkArgument(this.recipientId != null);
-        Preconditions.checkArgument(this.term > 0);
     }
 
 // Properties
@@ -100,15 +97,6 @@ public abstract class Message {
      */
     public String getRecipientId() {
         return this.recipientId;
-    }
-
-    /**
-     * Get the term of the sender of this message.
-     *
-     * @return requester's unique ID
-     */
-    public long getTerm() {
-        return this.term;
     }
 
     /**
@@ -180,6 +168,12 @@ public abstract class Message {
         case REQUEST_VOTE_TYPE:
             msg = new RequestVote(buf);
             break;
+        case PING_REQUEST_TYPE:
+            msg = new PingRequest(buf);
+            break;
+        case PING_RESPONSE_TYPE:
+            msg = new PingResponse(buf);
+            break;
         default:
             throw new IllegalArgumentException("invalid message type " + type);
         }
@@ -218,7 +212,6 @@ public abstract class Message {
         buf.putInt(this.clusterId);
         Message.putString(buf, this.senderId);
         Message.putString(buf, this.recipientId);
-        LongEncoder.write(buf, this.term);
     }
 
     /**
@@ -231,8 +224,7 @@ public abstract class Message {
           + 1
           + 4
           + Message.calculateSize(this.senderId)
-          + Message.calculateSize(this.recipientId)
-          + LongEncoder.encodeLength(this.term);
+          + Message.calculateSize(this.recipientId);
     }
 
 // Object

@@ -27,7 +27,7 @@ import org.jsimpledb.util.LongEncoder;
  * leader lease timeout} is at least this high. In most cases, such an {@link AppendRequest} will have already been received,
  * so the transaction can be committed with a single round trip.
  */
-public class CommitResponse extends Message {
+public class CommitResponse extends AbstractTermedMessage {
 
     private final long txId;
     private final long commitTerm;

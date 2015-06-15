@@ -20,7 +20,7 @@ import org.jsimpledb.util.LongEncoder;
  * which is used to commit read-only transactions, as well as a {@linkplain #getLeaderTimestamp leader timestamp}
  * which should be reflected back in the corresponding {@link AppendResponse}.
  */
-public class AppendRequest extends Message {
+public class AppendRequest extends AbstractTermedMessage {
 
     private final Timestamp leaderTimestamp;        // leader's timestamp for this request
     private final Timestamp leaderLeaseTimeout;     // earliest leader timestamp at which time leader could be deposed

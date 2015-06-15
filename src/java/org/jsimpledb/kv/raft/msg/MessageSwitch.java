@@ -53,6 +53,20 @@ public interface MessageSwitch {
     void caseInstallSnapshot(InstallSnapshot msg);
 
     /**
+     * Handle a {@link PingRequest}.
+     *
+     * @param msg message received
+     */
+    void casePingRequest(PingRequest msg);
+
+    /**
+     * Handle a {@link PingResponse}.
+     *
+     * @param msg message received
+     */
+    void casePingResponse(PingResponse msg);
+
+    /**
      * Handle an {@link RequestVote}.
      *
      * @param msg message received

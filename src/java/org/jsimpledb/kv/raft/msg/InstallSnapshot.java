@@ -16,7 +16,7 @@ import org.jsimpledb.util.LongEncoder;
 /**
  * Sent from leader to follower to with a chunk of key/value pairs that will wholesale replace the follower's key/value store.
  */
-public class InstallSnapshot extends Message {
+public class InstallSnapshot extends AbstractTermedMessage {
 
     private final long snapshotTerm;
     private final long snapshotIndex;
