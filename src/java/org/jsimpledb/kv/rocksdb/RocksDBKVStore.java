@@ -38,7 +38,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
     private final WriteBatch writeBatch;
     private final RocksDB db;
 
-    private boolean closed;
+    private volatile boolean closed;
 
 // Constructors
 
@@ -92,7 +92,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
 // KVStore
 
     @Override
-    public synchronized byte[] get(byte[] key) {
+    public byte[] get(byte[] key) {
         key.getClass();
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
@@ -104,19 +104,21 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
     }
 
     @Override
-    public synchronized java.util.Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
+    public java.util.Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         return this.createIterator(this.readOptions, minKey, maxKey, reverse);
     }
 
     @Override
-    public synchronized void put(byte[] key, byte[] value) {
+    public void put(byte[] key, byte[] value) {
         key.getClass();
         value.getClass();
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
-        if (this.writeBatch != null)
-            this.writeBatch.put(key, value);
-        else {
+        if (this.writeBatch != null) {
+            synchronized (this.writeBatch) {
+                this.writeBatch.put(key, value);
+            }
+        } else {
             try {
                 this.db.put(key, value);
             } catch (RocksDBException e) {
@@ -126,13 +128,15 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
     }
 
     @Override
-    public synchronized void remove(byte[] key) {
+    public void remove(byte[] key) {
         key.getClass();
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
-        if (this.writeBatch != null)
-            this.writeBatch.remove(key);
-        else {
+        if (this.writeBatch != null) {
+            synchronized (this.writeBatch) {
+                this.writeBatch.remove(key);
+            }
+        } else {
             try {
                 this.db.remove(key);
             } catch (RocksDBException e) {
@@ -236,7 +240,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
 // Iterator
 
-    synchronized Iterator createIterator(ReadOptions readOptions, byte[] minKey, byte[] maxKey, boolean reverse) {
+    Iterator createIterator(ReadOptions readOptions, byte[] minKey, byte[] maxKey, boolean reverse) {
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
         return new Iterator(this.db.newIterator(readOptions), minKey, maxKey, reverse);
@@ -252,7 +256,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         private KVPair next;
         private byte[] removeKey;
         private boolean finished;
-        private boolean closed;
+        private volatile boolean closed;
 
         private Iterator(final RocksIterator cursor, byte[] minKey, byte[] maxKey, boolean reverse) {
 
@@ -265,7 +269,6 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
             });
 
             // Sanity checks
-            assert Thread.holdsLock(RocksDBKVStore.this);
             Preconditions.checkArgument(minKey == null || maxKey == null || ByteUtil.compare(minKey, maxKey) <= 0,
               "minKey > maxKey");
 
@@ -347,7 +350,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
             this.removeKey = null;
         }
 
-        private synchronized boolean findNext() {
+        private boolean findNext() {
 
             // Sanity check
             assert this.next == null;

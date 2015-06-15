@@ -49,12 +49,12 @@ public class SnapshotLevelDBKVStore extends LevelDBKVStore implements CloseableK
         if (this.closed)
             return;
         this.closed = true;
+        super.close();
         try {
             this.snapshot.close();
         } catch (Throwable e) {
             this.log.error("caught exception closing LevelDB snapshot (ignoring)", e);
         }
-        super.close();
     }
 
 // KVStore
