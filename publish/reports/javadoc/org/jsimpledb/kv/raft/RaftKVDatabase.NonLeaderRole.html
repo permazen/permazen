@@ -107,7 +107,7 @@
 </dl>
 <hr>
 <br>
-<pre>public abstract static class <a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.3625">RaftKVDatabase.NonLeaderRole</a>
+<pre>public abstract static class <a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.3633">RaftKVDatabase.NonLeaderRole</a>
 extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.Role</a></pre>
 <div class="block">Support superclass for the <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft">follower</a> and <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html" title="class in org.jsimpledb.kv.raft">candidate</a> roles,
  both of which have an election timer.</div>
@@ -176,7 +176,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" tit
 <ul class="blockList">
 <li class="blockList">
 <h4>isElectionTimerRunning</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html#line.3653">isElectionTimerRunning</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html#line.3661">isElectionTimerRunning</a>()</pre>
 <div class="block">Determine whether the election timer is running.
 
  <p>
@@ -191,7 +191,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" tit
 <ul class="blockListLast">
 <li class="blockList">
 <h4>startElection</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html#line.3664">startElection</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html#line.3672">startElection</a>()</pre>
 <div class="block">Force an immediate election timeout.</div>
 <dl><dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this role is no longer active or election timer is not running</dd></dl>

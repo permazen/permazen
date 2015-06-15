@@ -83,6 +83,7 @@
 <li><a href="org/jsimpledb/kv/raft/package-tree.html">org.jsimpledb.kv.raft</a>, </li>
 <li><a href="org/jsimpledb/kv/raft/msg/package-tree.html">org.jsimpledb.kv.raft.msg</a>, </li>
 <li><a href="org/jsimpledb/kv/raft/net/package-tree.html">org.jsimpledb.kv.raft.net</a>, </li>
+<li><a href="org/jsimpledb/kv/rocksdb/package-tree.html">org.jsimpledb.kv.rocksdb</a>, </li>
 <li><a href="org/jsimpledb/kv/simple/package-tree.html">org.jsimpledb.kv.simple</a>, </li>
 <li><a href="org/jsimpledb/kv/sql/package-tree.html">org.jsimpledb.kv.sql</a>, </li>
 <li><a href="org/jsimpledb/kv/util/package-tree.html">org.jsimpledb.kv.util</a>, </li>
@@ -345,6 +346,11 @@
 </li>
 <li type="circle">org.jsimpledb.kv.mvcc.<a href="org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">MutableView</span></a> (implements org.jsimpledb.util.<a href="org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a>)</li>
 <li type="circle">org.jsimpledb.kv.util.<a href="org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><span class="strong">NavigableMapKVStore</span></a></li>
+<li type="circle">org.jsimpledb.kv.rocksdb.<a href="org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBKVStore</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>)
+<ul>
+<li type="circle">org.jsimpledb.kv.rocksdb.<a href="org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">SnapshotRocksDBKVStore</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>)</li>
+</ul>
+</li>
 <li type="circle">org.jsimpledb.kv.simple.<a href="org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple"><span class="strong">SimpleKVTransaction</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>)
 <ul>
 <li type="circle">org.jsimpledb.kv.simple.<a href="org/jsimpledb/kv/simple/XMLKVTransaction.html" title="class in org.jsimpledb.kv.simple"><span class="strong">XMLKVTransaction</span></a></li>
@@ -361,6 +367,7 @@
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/AbstractMain.MemoryDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.MemoryDBType</span></a></li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/AbstractMain.MySQLDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.MySQLDBType</span></a></li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.RaftDBType</span></a></li>
+<li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.RocksDBType</span></a></li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.XMLDBType</span></a></li>
 </ul>
 </li>
@@ -604,9 +611,11 @@
 </ul>
 </li>
 <li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft"><span class="strong">RaftKVTransaction</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>)</li>
+<li type="circle">org.jsimpledb.kv.rocksdb.<a href="org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBAtomicKVStore</span></a> (implements org.jsimpledb.kv.mvcc.<a href="org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>)</li>
 <li type="circle">org.jsimpledb.kv.mvcc.<a href="org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">SnapshotKVTransaction</span></a> (implements java.io.<a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a>, org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>)
 <ul>
 <li type="circle">org.jsimpledb.kv.leveldb.<a href="org/jsimpledb/kv/leveldb/LevelDBKVTransaction.html" title="class in org.jsimpledb.kv.leveldb"><span class="strong">LevelDBKVTransaction</span></a></li>
+<li type="circle">org.jsimpledb.kv.rocksdb.<a href="org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBKVTransaction</span></a></li>
 </ul>
 </li>
 <li type="circle">org.jsimpledb.kv.util.<a href="org/jsimpledb/kv/util/UnmodifiableKVStore.html" title="class in org.jsimpledb.kv.util"><span class="strong">UnmodifiableKVStore</span></a></li>
@@ -822,6 +831,7 @@
 <li type="circle">org.jsimpledb.kv.mvcc.<a href="org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">SnapshotKVDatabase</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>)
 <ul>
 <li type="circle">org.jsimpledb.kv.leveldb.<a href="org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb"><span class="strong">LevelDBKVDatabase</span></a></li>
+<li type="circle">org.jsimpledb.kv.rocksdb.<a href="org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBKVDatabase</span></a></li>
 </ul>
 </li>
 <li type="circle">org.jsimpledb.kv.mvcc.<a href="org/jsimpledb/kv/mvcc/SnapshotVersion.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">SnapshotVersion</span></a></li>

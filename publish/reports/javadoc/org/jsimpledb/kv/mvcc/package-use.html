@@ -98,6 +98,12 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.rocksdb">org.jsimpledb.kv.rocksdb</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.util">org.jsimpledb.util</a></td>
 <td class="colLast">
 <div class="block">General utility classes used with JSimpleDB.</div>
@@ -243,6 +249,45 @@
 <tr class="rowColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/Writes.html#org.jsimpledb.kv.raft.msg">Writes</a>
 <div class="block">Holds a set of writes to a <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.rocksdb">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> used by <a href="../../../../org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/AtomicKVStore.html#org.jsimpledb.kv.rocksdb">AtomicKVStore</a>
+<div class="block">Extension of the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> interface for implementations that support atomic, batched reads and writes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/Mutations.html#org.jsimpledb.kv.rocksdb">Mutations</a>
+<div class="block">Represents a set of mutations that can be applied to a <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/SnapshotKVDatabase.html#org.jsimpledb.kv.rocksdb">SnapshotKVDatabase</a>
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on an underlying <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> that uses
+ <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#snapshot()">snapshot</a> views and optimistic locking to provide concurrent
+ transactions and linearizable ACID consistency.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/SnapshotKVTransaction.html#org.jsimpledb.kv.rocksdb">SnapshotKVTransaction</a>
+<div class="block"><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVDatabase</code></a> transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/SnapshotVersion.html#org.jsimpledb.kv.rocksdb">SnapshotVersion</a>
+<div class="block">Represents one <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVDatabase</code></a> MVCC version.</div>
 </td>
 </tr>
 </tbody>

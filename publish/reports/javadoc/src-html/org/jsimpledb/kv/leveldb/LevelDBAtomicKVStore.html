@@ -357,10 +357,10 @@
 <span class="sourceLineNo">349</span>            for (KeyRange range : mutations.getRemoveRanges()) {<a name="line.349"></a>
 <span class="sourceLineNo">350</span>                final byte[] min = range.getMin();<a name="line.350"></a>
 <span class="sourceLineNo">351</span>                final byte[] max = range.getMax();<a name="line.351"></a>
-<span class="sourceLineNo">352</span>                if (min != null &amp;&amp; max != null &amp;&amp; ByteUtil.compare(max, ByteUtil.getNextKey(min)) == 0)<a name="line.352"></a>
+<span class="sourceLineNo">352</span>                if (min != null &amp;&amp; max != null &amp;&amp; ByteUtil.isConsecutive(min, max))<a name="line.352"></a>
 <span class="sourceLineNo">353</span>                    batch.delete(min);<a name="line.353"></a>
 <span class="sourceLineNo">354</span>                else {<a name="line.354"></a>
-<span class="sourceLineNo">355</span>                    try (LevelDBKVStore.Iterator i = this.kv.createIteator(iteratorOptions, min, max, false)) {<a name="line.355"></a>
+<span class="sourceLineNo">355</span>                    try (LevelDBKVStore.Iterator i = this.kv.createIterator(iteratorOptions, min, max, false)) {<a name="line.355"></a>
 <span class="sourceLineNo">356</span>                        while (i.hasNext())<a name="line.356"></a>
 <span class="sourceLineNo">357</span>                            batch.delete(i.next().getKey());<a name="line.357"></a>
 <span class="sourceLineNo">358</span>                    }<a name="line.358"></a>

@@ -103,11 +103,16 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.33">AtomicKVDatabase</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.38">AtomicKVDatabase</a>
 extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a>
 implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></pre>
-<div class="block">Wrapper class that presents an <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of any <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>,
- using individual transactions for each operation.</div>
+<div class="block">Wrapper class that presents an <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of a <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>,
+ using individual transactions for each operation.
+
+ <p>
+ Warning: this class is only appropriate for use with <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>s that implement some form of MVCC;
+ <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>s that use locking will likely generate conflicts if <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#snapshot()"><code>snapshot()</code></a> is used concurrently
+ with other methods.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVDatabase</code></a></dd></dl>
 </li>
 </ul>
@@ -288,7 +293,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockListLast">
 <li class="blockList">
 <h4>kvdb</h4>
-<pre>protected final&nbsp;<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a> <a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.35">kvdb</a></pre>
+<pre>protected final&nbsp;<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a> <a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.40">kvdb</a></pre>
 </li>
 </ul>
 </li>
@@ -305,7 +310,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AtomicKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.43">AtomicKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb)</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.48">AtomicKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb)</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvdb</code> - underlying database</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -326,7 +331,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.51">get</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.56">get</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the value associated with the given key, if any.</div>
 <dl>
@@ -344,7 +349,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>getAtLeast</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.61">getAtLeast</a>(byte[]&nbsp;minKey)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.66">getAtLeast</a>(byte[]&nbsp;minKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtLeast(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the key/value pair having the smallest key greater than or equal to the given minimum, if any.
 
@@ -367,7 +372,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>getAtMost</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.71">getAtMost</a>(byte[]&nbsp;maxKey)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.76">getAtMost</a>(byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtMost(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the key/value pair having the largest key strictly less than the given maximum, if any.
 
@@ -390,7 +395,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>getRange</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPairIterator.html" title="class in org.jsimpledb.kv">KVPairIterator</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.81">getRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPairIterator.html" title="class in org.jsimpledb.kv">KVPairIterator</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.86">getRange</a>(byte[]&nbsp;minKey,
                       byte[]&nbsp;maxKey,
                       boolean&nbsp;reverse)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">KVStore</a></code></strong></div>
@@ -430,7 +435,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>put</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.86">put</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.91">put</a>(byte[]&nbsp;key,
        byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#put(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Set the value associated with the given key.</div>
@@ -448,7 +453,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.97">remove</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.102">remove</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#remove(byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 <dl>
@@ -465,7 +470,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>removeRange</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.108">removeRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.113">removeRange</a>(byte[]&nbsp;minKey,
                byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#removeRange(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove all key/value pairs whose keys are in a given range.
@@ -495,7 +500,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>adjustCounter</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.119">adjustCounter</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.124">adjustCounter</a>(byte[]&nbsp;key,
                  long&nbsp;amount)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)">KVStore</a></code></strong></div>
 <div class="block">Adjust the counter at the given key by the given amount.
@@ -524,7 +529,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>encodeCounter</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.130">encodeCounter</a>(long&nbsp;value)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.135">encodeCounter</a>(long&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)">KVStore</a></code></strong></div>
 <div class="block">Encode a counter value into a <code>byte[]</code> value suitable for use with <a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])"><code>decodeCounter()</code></a>
  and/or <a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)"><code>adjustCounter()</code></a>.</div>
@@ -543,7 +548,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>decodeCounter</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.140">decodeCounter</a>(byte[]&nbsp;bytes)</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.145">decodeCounter</a>(byte[]&nbsp;bytes)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])">KVStore</a></code></strong></div>
 <div class="block">Decode a counter value previously encoded by <a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)"><code>encodeCounter()</code></a>.</div>
 <dl>
@@ -562,7 +567,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <li class="blockList">
 <h4>start</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PostConstruct.html?is-external=true" title="class or interface in javax.annotation">@PostConstruct</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.153">start</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.158">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#start()">AtomicKVStore</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -584,7 +589,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Atomic
 <li class="blockList">
 <h4>stop</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PreDestroy.html?is-external=true" title="class or interface in javax.annotation">@PreDestroy</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.159">stop</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.164">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#stop()">AtomicKVStore</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -602,7 +607,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Atomic
 <ul class="blockList">
 <li class="blockList">
 <h4>snapshot</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.164">snapshot</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.169">snapshot</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#snapshot()">AtomicKVStore</a></code></strong></div>
 <div class="block">Acquire a read-only, snapshot view of this instance based on the current state.
 
@@ -623,7 +628,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Atomic
 <ul class="blockList">
 <li class="blockList">
 <h4>mutate</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.183">mutate</a>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.188">mutate</a>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
           boolean&nbsp;sync)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">AtomicKVStore</a></code></strong></div>
 <div class="block">Apply a set of mutations to this instance atomically.
@@ -652,7 +657,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Atomic
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.197">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#line.202">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>

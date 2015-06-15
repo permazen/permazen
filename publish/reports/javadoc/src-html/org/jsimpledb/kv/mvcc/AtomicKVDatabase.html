@@ -33,255 +33,260 @@
 <span class="sourceLineNo">025</span>import org.slf4j.LoggerFactory;<a name="line.25"></a>
 <span class="sourceLineNo">026</span><a name="line.26"></a>
 <span class="sourceLineNo">027</span>/**<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * Wrapper class that presents an {@link AtomicKVStore} view of any {@link KVDatabase},<a name="line.28"></a>
+<span class="sourceLineNo">028</span> * Wrapper class that presents an {@link AtomicKVStore} view of a {@link KVDatabase},<a name="line.28"></a>
 <span class="sourceLineNo">029</span> * using individual transactions for each operation.<a name="line.29"></a>
 <span class="sourceLineNo">030</span> *<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * @see SnapshotKVDatabase<a name="line.31"></a>
-<span class="sourceLineNo">032</span> */<a name="line.32"></a>
-<span class="sourceLineNo">033</span>public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>    protected final KVDatabase kvdb;<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>    /**<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * Constructor.<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     *<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * @param kvdb underlying database<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * @throws IllegalArgumentException if {@code kvdb} is null<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     */<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    public AtomicKVDatabase(KVDatabase kvdb) {<a name="line.43"></a>
-<span class="sourceLineNo">044</span>        Preconditions.checkArgument(kvdb != null, "null kvdb");<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        this.kvdb = kvdb;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>// KVStore<a name="line.48"></a>
-<span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>    @Override<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    public byte[] get(final byte[] key) {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        return this.doInTransaction(new Action&lt;byte[]&gt;() {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>            @Override<a name="line.53"></a>
-<span class="sourceLineNo">054</span>            public byte[] apply(KVStore kv) {<a name="line.54"></a>
-<span class="sourceLineNo">055</span>                return kv.get(key);<a name="line.55"></a>
-<span class="sourceLineNo">056</span>            }<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        });<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    }<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>    @Override<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    public KVPair getAtLeast(final byte[] minKey) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        return this.doInTransaction(new Action&lt;KVPair&gt;() {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>            @Override<a name="line.63"></a>
-<span class="sourceLineNo">064</span>            public KVPair apply(KVStore kv) {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>                return kv.getAtLeast(minKey);<a name="line.65"></a>
-<span class="sourceLineNo">066</span>            }<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        });<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
-<span class="sourceLineNo">069</span><a name="line.69"></a>
-<span class="sourceLineNo">070</span>    @Override<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    public KVPair getAtMost(final byte[] maxKey) {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        return this.doInTransaction(new Action&lt;KVPair&gt;() {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            @Override<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            public KVPair apply(KVStore kv) {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>                return kv.getAtMost(maxKey);<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            }<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        });<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    @Override<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    public KVPairIterator getRange(byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        return new KVPairIterator(this, new KeyRange(minKey != null ? minKey : ByteUtil.EMPTY, maxKey), null, reverse);<a name="line.82"></a>
+<span class="sourceLineNo">031</span> * &lt;p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * Warning: this class is only appropriate for use with {@link KVDatabase}s that implement some form of MVCC;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * {@link KVDatabase}s that use locking will likely generate conflicts if {@link #snapshot} is used concurrently<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * with other methods.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * @see SnapshotKVDatabase<a name="line.36"></a>
+<span class="sourceLineNo">037</span> */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>public class AtomicKVDatabase extends AbstractKVStore implements AtomicKVStore {<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    protected final KVDatabase kvdb;<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    /**<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * Constructor.<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     *<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * @param kvdb underlying database<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * @throws IllegalArgumentException if {@code kvdb} is null<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    public AtomicKVDatabase(KVDatabase kvdb) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        Preconditions.checkArgument(kvdb != null, "null kvdb");<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        this.kvdb = kvdb;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>// KVStore<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    @Override<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    public byte[] get(final byte[] key) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        return this.doInTransaction(new Action&lt;byte[]&gt;() {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            @Override<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            public byte[] apply(KVStore kv) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                return kv.get(key);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            }<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        });<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>    @Override<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    public KVPair getAtLeast(final byte[] minKey) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        return this.doInTransaction(new Action&lt;KVPair&gt;() {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            @Override<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            public KVPair apply(KVStore kv) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                return kv.getAtLeast(minKey);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        });<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    public KVPair getAtMost(final byte[] maxKey) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        return this.doInTransaction(new Action&lt;KVPair&gt;() {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            @Override<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            public KVPair apply(KVStore kv) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                return kv.getAtMost(maxKey);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            }<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        });<a name="line.82"></a>
 <span class="sourceLineNo">083</span>    }<a name="line.83"></a>
 <span class="sourceLineNo">084</span><a name="line.84"></a>
 <span class="sourceLineNo">085</span>    @Override<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    public void put(final byte[] key, final byte[] value) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            @Override<a name="line.88"></a>
-<span class="sourceLineNo">089</span>            public Void apply(KVStore kv) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                kv.put(key, value);<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                return null;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>            }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        });<a name="line.93"></a>
-<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>    @Override<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    public void remove(final byte[] key) {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>            @Override<a name="line.99"></a>
-<span class="sourceLineNo">100</span>            public Void apply(KVStore kv) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>                kv.remove(key);<a name="line.101"></a>
-<span class="sourceLineNo">102</span>                return null;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>            }<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        });<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>    @Override<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    public void removeRange(final byte[] minKey, final byte[] maxKey) {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>            @Override<a name="line.110"></a>
-<span class="sourceLineNo">111</span>            public Void apply(KVStore kv) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>                kv.removeRange(minKey, maxKey);<a name="line.112"></a>
-<span class="sourceLineNo">113</span>                return null;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            }<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        });<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>    @Override<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    public void adjustCounter(final byte[] key, final long amount) {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.120"></a>
-<span class="sourceLineNo">121</span>            @Override<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            public Void apply(KVStore kv) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>                kv.adjustCounter(key, amount);<a name="line.123"></a>
-<span class="sourceLineNo">124</span>                return null;<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            }<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        });<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    }<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
-<span class="sourceLineNo">129</span>    @Override<a name="line.129"></a>
-<span class="sourceLineNo">130</span>    public byte[] encodeCounter(final long value) {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        return this.doInTransaction(new Action&lt;byte[]&gt;() {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            @Override<a name="line.132"></a>
-<span class="sourceLineNo">133</span>            public byte[] apply(KVStore kv) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>                return kv.encodeCounter(value);<a name="line.134"></a>
-<span class="sourceLineNo">135</span>            }<a name="line.135"></a>
-<span class="sourceLineNo">136</span>        });<a name="line.136"></a>
-<span class="sourceLineNo">137</span>    }<a name="line.137"></a>
-<span class="sourceLineNo">138</span><a name="line.138"></a>
-<span class="sourceLineNo">139</span>    @Override<a name="line.139"></a>
-<span class="sourceLineNo">140</span>    public long decodeCounter(final byte[] bytes) {<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        return this.doInTransaction(new Action&lt;Long&gt;() {<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            @Override<a name="line.142"></a>
-<span class="sourceLineNo">143</span>            public Long apply(KVStore kv) {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>                return kv.decodeCounter(bytes);<a name="line.144"></a>
-<span class="sourceLineNo">145</span>            }<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        });<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>// AtomicKVStore<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>    @Override<a name="line.151"></a>
-<span class="sourceLineNo">152</span>    @PostConstruct<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    public void start() {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>        this.kvdb.start();<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    }<a name="line.155"></a>
-<span class="sourceLineNo">156</span><a name="line.156"></a>
-<span class="sourceLineNo">157</span>    @Override<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    @PreDestroy<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    public void stop() {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>        this.kvdb.stop();<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    }<a name="line.161"></a>
-<span class="sourceLineNo">162</span><a name="line.162"></a>
-<span class="sourceLineNo">163</span>    @Override<a name="line.163"></a>
-<span class="sourceLineNo">164</span>    public CloseableKVStore snapshot() {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>        final KVTransaction kvtx = this.kvdb.createTransaction();<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        boolean success = false;<a name="line.166"></a>
-<span class="sourceLineNo">167</span>        try {<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            try {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>                kvtx.setTimeout(Integer.MAX_VALUE);<a name="line.169"></a>
-<span class="sourceLineNo">170</span>            } catch (UnsupportedOperationException e) {<a name="line.170"></a>
-<span class="sourceLineNo">171</span>                // ignore<a name="line.171"></a>
-<span class="sourceLineNo">172</span>            }<a name="line.172"></a>
-<span class="sourceLineNo">173</span>            final SnapshotKVStore kvstore = new SnapshotKVStore(kvtx);<a name="line.173"></a>
-<span class="sourceLineNo">174</span>            success = true;<a name="line.174"></a>
-<span class="sourceLineNo">175</span>            return kvstore;<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        } finally {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            if (!success)<a name="line.177"></a>
-<span class="sourceLineNo">178</span>                kvtx.rollback();<a name="line.178"></a>
-<span class="sourceLineNo">179</span>        }<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    }<a name="line.180"></a>
-<span class="sourceLineNo">181</span><a name="line.181"></a>
-<span class="sourceLineNo">182</span>    @Override<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    public void mutate(final Mutations mutations, boolean sync) {<a name="line.183"></a>
-<span class="sourceLineNo">184</span>        Preconditions.checkArgument(mutations != null, "null mutations");<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.185"></a>
-<span class="sourceLineNo">186</span>            @Override<a name="line.186"></a>
-<span class="sourceLineNo">187</span>            public Void apply(KVStore kv) {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>                Writes.apply(mutations, kv);<a name="line.188"></a>
-<span class="sourceLineNo">189</span>                return null;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>            }<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        });<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    }<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>// Object<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>    @Override<a name="line.196"></a>
-<span class="sourceLineNo">197</span>    public String toString() {<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        return this.getClass().getSimpleName() + "[kvdb=" + this.kvdb + "]";<a name="line.198"></a>
-<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
+<span class="sourceLineNo">086</span>    public KVPairIterator getRange(byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        return new KVPairIterator(this, new KeyRange(minKey != null ? minKey : ByteUtil.EMPTY, maxKey), null, reverse);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>    @Override<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    public void put(final byte[] key, final byte[] value) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            @Override<a name="line.93"></a>
+<span class="sourceLineNo">094</span>            public Void apply(KVStore kv) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                kv.put(key, value);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                return null;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            }<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        });<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    @Override<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public void remove(final byte[] key) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            @Override<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            public Void apply(KVStore kv) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                kv.remove(key);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                return null;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            }<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        });<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    @Override<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    public void removeRange(final byte[] minKey, final byte[] maxKey) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            @Override<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            public Void apply(KVStore kv) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                kv.removeRange(minKey, maxKey);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                return null;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            }<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        });<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    @Override<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    public void adjustCounter(final byte[] key, final long amount) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            @Override<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            public Void apply(KVStore kv) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                kv.adjustCounter(key, amount);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                return null;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            }<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        });<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>    @Override<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    public byte[] encodeCounter(final long value) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        return this.doInTransaction(new Action&lt;byte[]&gt;() {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            @Override<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            public byte[] apply(KVStore kv) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                return kv.encodeCounter(value);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        });<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    }<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>    @Override<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    public long decodeCounter(final byte[] bytes) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        return this.doInTransaction(new Action&lt;Long&gt;() {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            @Override<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            public Long apply(KVStore kv) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                return kv.decodeCounter(bytes);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        });<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>// AtomicKVStore<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>    @Override<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    @PostConstruct<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    public void start() {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        this.kvdb.start();<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>    @Override<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    @PreDestroy<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    public void stop() {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        this.kvdb.stop();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    }<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>    @Override<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    public CloseableKVStore snapshot() {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        final KVTransaction kvtx = this.kvdb.createTransaction();<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        boolean success = false;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        try {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            try {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                kvtx.setTimeout(Integer.MAX_VALUE);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            } catch (UnsupportedOperationException e) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                // ignore<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            }<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            final SnapshotKVStore kvstore = new SnapshotKVStore(kvtx);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            success = true;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            return kvstore;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        } finally {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            if (!success)<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                kvtx.rollback();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    }<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>    @Override<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    public void mutate(final Mutations mutations, boolean sync) {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        Preconditions.checkArgument(mutations != null, "null mutations");<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        this.doInTransaction(new Action&lt;Void&gt;() {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            @Override<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            public Void apply(KVStore kv) {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                Writes.apply(mutations, kv);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                return null;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            }<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        });<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>// Object<a name="line.199"></a>
 <span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>// Internal methods<a name="line.201"></a>
-<span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>    private &lt;R&gt; R doInTransaction(Action&lt;R&gt; action) {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        int count = 0;<a name="line.204"></a>
-<span class="sourceLineNo">205</span>        while (true) {<a name="line.205"></a>
-<span class="sourceLineNo">206</span>            try {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>                final KVTransaction kvtx = this.kvdb.createTransaction();<a name="line.207"></a>
-<span class="sourceLineNo">208</span>                boolean success = false;<a name="line.208"></a>
-<span class="sourceLineNo">209</span>                try {<a name="line.209"></a>
-<span class="sourceLineNo">210</span>                    final R result = action.apply(kvtx);<a name="line.210"></a>
-<span class="sourceLineNo">211</span>                    success = true;<a name="line.211"></a>
-<span class="sourceLineNo">212</span>                    return result;<a name="line.212"></a>
-<span class="sourceLineNo">213</span>                } finally {<a name="line.213"></a>
-<span class="sourceLineNo">214</span>                    if (success)<a name="line.214"></a>
-<span class="sourceLineNo">215</span>                        kvtx.commit();<a name="line.215"></a>
-<span class="sourceLineNo">216</span>                    else<a name="line.216"></a>
-<span class="sourceLineNo">217</span>                        kvtx.rollback();<a name="line.217"></a>
-<span class="sourceLineNo">218</span>                }<a name="line.218"></a>
-<span class="sourceLineNo">219</span>            } catch (RetryTransactionException e) {<a name="line.219"></a>
-<span class="sourceLineNo">220</span>                if (count++ &lt; 3) {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>                    Thread.yield();<a name="line.221"></a>
-<span class="sourceLineNo">222</span>                    continue;<a name="line.222"></a>
+<span class="sourceLineNo">201</span>    @Override<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    public String toString() {<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        return this.getClass().getSimpleName() + "[kvdb=" + this.kvdb + "]";<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    }<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>// Internal methods<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>    private &lt;R&gt; R doInTransaction(Action&lt;R&gt; action) {<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        int count = 0;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        while (true) {<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            try {<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                final KVTransaction kvtx = this.kvdb.createTransaction();<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                boolean success = false;<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                try {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>                    final R result = action.apply(kvtx);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>                    success = true;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>                    return result;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>                } finally {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>                    if (success)<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                        kvtx.commit();<a name="line.220"></a>
+<span class="sourceLineNo">221</span>                    else<a name="line.221"></a>
+<span class="sourceLineNo">222</span>                        kvtx.rollback();<a name="line.222"></a>
 <span class="sourceLineNo">223</span>                }<a name="line.223"></a>
-<span class="sourceLineNo">224</span>                throw e;<a name="line.224"></a>
-<span class="sourceLineNo">225</span>            }<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        }<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    }<a name="line.227"></a>
-<span class="sourceLineNo">228</span><a name="line.228"></a>
-<span class="sourceLineNo">229</span>// Action<a name="line.229"></a>
-<span class="sourceLineNo">230</span><a name="line.230"></a>
-<span class="sourceLineNo">231</span>    private interface Action&lt;R&gt; {<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        R apply(KVStore kv);<a name="line.232"></a>
-<span class="sourceLineNo">233</span>    }<a name="line.233"></a>
-<span class="sourceLineNo">234</span><a name="line.234"></a>
-<span class="sourceLineNo">235</span>// Snapshot<a name="line.235"></a>
-<span class="sourceLineNo">236</span><a name="line.236"></a>
-<span class="sourceLineNo">237</span>    private static class SnapshotKVStore extends ForwardingKVStore implements CloseableKVStore {<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>        private final KVTransaction kvtx;<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        private final UnmodifiableKVStore delegate;<a name="line.240"></a>
+<span class="sourceLineNo">224</span>            } catch (RetryTransactionException e) {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>                if (count++ &lt; 3) {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                    Thread.yield();<a name="line.226"></a>
+<span class="sourceLineNo">227</span>                    continue;<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                }<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                throw e;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>            }<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        }<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    }<a name="line.232"></a>
+<span class="sourceLineNo">233</span><a name="line.233"></a>
+<span class="sourceLineNo">234</span>// Action<a name="line.234"></a>
+<span class="sourceLineNo">235</span><a name="line.235"></a>
+<span class="sourceLineNo">236</span>    private interface Action&lt;R&gt; {<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        R apply(KVStore kv);<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    }<a name="line.238"></a>
+<span class="sourceLineNo">239</span><a name="line.239"></a>
+<span class="sourceLineNo">240</span>// Snapshot<a name="line.240"></a>
 <span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>        private volatile boolean closed;<a name="line.242"></a>
+<span class="sourceLineNo">242</span>    private static class SnapshotKVStore extends ForwardingKVStore implements CloseableKVStore {<a name="line.242"></a>
 <span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>        SnapshotKVStore(KVTransaction kvtx) {<a name="line.244"></a>
-<span class="sourceLineNo">245</span>            this.kvtx = kvtx;<a name="line.245"></a>
-<span class="sourceLineNo">246</span>            this.delegate = new UnmodifiableKVStore(this.kvtx);<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        }<a name="line.247"></a>
+<span class="sourceLineNo">244</span>        private final KVTransaction kvtx;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        private final UnmodifiableKVStore delegate;<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>        private volatile boolean closed;<a name="line.247"></a>
 <span class="sourceLineNo">248</span><a name="line.248"></a>
-<span class="sourceLineNo">249</span>        @Override<a name="line.249"></a>
-<span class="sourceLineNo">250</span>        protected UnmodifiableKVStore delegate() {<a name="line.250"></a>
-<span class="sourceLineNo">251</span>            return this.delegate;<a name="line.251"></a>
+<span class="sourceLineNo">249</span>        SnapshotKVStore(KVTransaction kvtx) {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>            this.kvtx = kvtx;<a name="line.250"></a>
+<span class="sourceLineNo">251</span>            this.delegate = new UnmodifiableKVStore(this.kvtx);<a name="line.251"></a>
 <span class="sourceLineNo">252</span>        }<a name="line.252"></a>
 <span class="sourceLineNo">253</span><a name="line.253"></a>
-<span class="sourceLineNo">254</span>    // Object<a name="line.254"></a>
-<span class="sourceLineNo">255</span><a name="line.255"></a>
-<span class="sourceLineNo">256</span>        @Override<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        protected void finalize() throws Throwable {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>            try {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>                if (!this.closed)<a name="line.259"></a>
-<span class="sourceLineNo">260</span>                    LoggerFactory.getLogger(this.getClass()).warn(this + " leaked without invoking close()");<a name="line.260"></a>
-<span class="sourceLineNo">261</span>                this.close();<a name="line.261"></a>
-<span class="sourceLineNo">262</span>            } finally {<a name="line.262"></a>
-<span class="sourceLineNo">263</span>                super.finalize();<a name="line.263"></a>
-<span class="sourceLineNo">264</span>            }<a name="line.264"></a>
-<span class="sourceLineNo">265</span>        }<a name="line.265"></a>
-<span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>    // Closeable<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>        @Override<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        public void close() {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>            this.closed = true;<a name="line.271"></a>
-<span class="sourceLineNo">272</span>            this.kvtx.rollback();<a name="line.272"></a>
-<span class="sourceLineNo">273</span>        }<a name="line.273"></a>
-<span class="sourceLineNo">274</span>    }<a name="line.274"></a>
-<span class="sourceLineNo">275</span>}<a name="line.275"></a>
-<span class="sourceLineNo">276</span><a name="line.276"></a>
+<span class="sourceLineNo">254</span>        @Override<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        protected UnmodifiableKVStore delegate() {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>            return this.delegate;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        }<a name="line.257"></a>
+<span class="sourceLineNo">258</span><a name="line.258"></a>
+<span class="sourceLineNo">259</span>    // Object<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span>        @Override<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        protected void finalize() throws Throwable {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            try {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                if (!this.closed)<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                    LoggerFactory.getLogger(this.getClass()).warn(this + " leaked without invoking close()");<a name="line.265"></a>
+<span class="sourceLineNo">266</span>                this.close();<a name="line.266"></a>
+<span class="sourceLineNo">267</span>            } finally {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                super.finalize();<a name="line.268"></a>
+<span class="sourceLineNo">269</span>            }<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        }<a name="line.270"></a>
+<span class="sourceLineNo">271</span><a name="line.271"></a>
+<span class="sourceLineNo">272</span>    // Closeable<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>        @Override<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        public void close() {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>            this.closed = true;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            this.kvtx.rollback();<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        }<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    }<a name="line.279"></a>
+<span class="sourceLineNo">280</span>}<a name="line.280"></a>
+<span class="sourceLineNo">281</span><a name="line.281"></a>
 
 
 
