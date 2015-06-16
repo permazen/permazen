@@ -182,7 +182,9 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         this.cursorTracker.poll();
         final byte[] value = this.encodeCounter(amount);
         if (this.writeBatch != null)
-            this.writeBatch.merge(key, value);
+            synchronized (this.writeBatch) {
+                this.writeBatch.merge(key, value);
+            }
         else {
             try {
                 this.db.merge(key, value);
