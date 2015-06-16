@@ -34,6 +34,7 @@ public class ImportCommand extends AbstractCommand {
             @Override
             public void run(CliSession session) throws Exception {
                 session.getImports().add(name);
+                session.setRollbackOnly();
             }
         };
     }

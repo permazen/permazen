@@ -45,6 +45,7 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
         }
         writer.println("  New Schema Allowed: " + (session.isAllowNewSchema() ? "yes" : "no"));
         writer.println("  Access Mode: " + (session.isReadOnly() ? "read-only" : "read/write"));
+        session.setRollbackOnly();
     }
 }
 

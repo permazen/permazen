@@ -221,6 +221,7 @@ public class Console {
                 final boolean ok = this.session.perform(new CliSession.Action() {
                     @Override
                     public void run(CliSession session) {
+                        session.setRollbackOnly();
                         try {
                             actions.addAll(Console.this.commandListParser.parse(session, ctx, false));
                         } catch (ParseException e) {
@@ -271,6 +272,7 @@ public class Console {
         return this.session.perform(new CliSession.Action() {
             @Override
             public void run(CliSession session) {
+                session.setRollbackOnly();
                 actions.addAll(commandListParser.parse(session, ctx, false));
             }
         }) ? actions : null;
@@ -292,6 +294,7 @@ public class Console {
             Console.this.session.perform(new CliSession.Action() {
                 @Override
                 public void run(CliSession session) {
+                    session.setRollbackOnly();
                     result[0] = ConsoleCompleter.this.completeInTransaction(session, buffer, cursor, candidates);
                 }
             });

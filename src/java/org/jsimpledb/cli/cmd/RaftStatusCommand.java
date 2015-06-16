@@ -35,6 +35,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         return new RaftAction() {
             @Override
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
+                session.setRollbackOnly();
                 RaftStatusCommand.this.displayStatus(session.getWriter(), tx, tx.getKVDatabase());
             }
         };
