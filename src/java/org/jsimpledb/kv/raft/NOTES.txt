@@ -1,6 +1,8 @@
 TODO
 ====
 
+- when negative AppendResponse rec'd, send next one immediately
+
 - add new HermitRole to minimize disruption when node(s) get disconnected
     See https://groups.google.com/d/msg/raft-dev/5Lxxr2UwzQc/VmXlbo74lNwJ
 
