@@ -202,18 +202,18 @@ public class KVDatabaseTest extends TestSupport {
             this.rafts[i] = new RaftKVDatabase();
             final File kvdir = new File(dir, "kvstore");
             kvdir.mkdirs();
-            if (this.random.nextBoolean()) {
+//            if (this.random.nextBoolean()) {
                 this.log.info("using LevelDB as key/value store for Raft test");
                 final LevelDBAtomicKVStore levelkv = new LevelDBAtomicKVStore();
                 levelkv.setDirectory(kvdir);
                 levelkv.setCreateIfMissing(true);
                 this.rafts[i].setKVStore(levelkv);
-            } else {
-                this.log.info("using RocksDB as key/value store for Raft test");
-                final RocksDBAtomicKVStore rockskv = new RocksDBAtomicKVStore();
-                rockskv.setDirectory(kvdir);
-                this.rafts[i].setKVStore(rockskv);
-            }
+//            } else {
+//                this.log.info("using RocksDB as key/value store for Raft test");
+//                final RocksDBAtomicKVStore rockskv = new RocksDBAtomicKVStore();
+//                rockskv.setDirectory(kvdir);
+//                this.rafts[i].setKVStore(rockskv);
+//            }
             this.rafts[i].setLogDirectory(dir);
             this.rafts[i].setNetwork(this.raftNetworks[i]);
             this.rafts[i].setIdentity(name);
