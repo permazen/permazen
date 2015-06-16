@@ -50,12 +50,12 @@ public class CommitRequest extends AbstractTermedMessage {
         this.checkArguments();
     }
 
-    CommitRequest(ByteBuffer buf) {
+    CommitRequest(ByteBuffer buf, boolean readsOptional) {
         super(Message.COMMIT_REQUEST_TYPE, buf);
         this.txId = LongEncoder.read(buf);
         this.baseTerm = LongEncoder.read(buf);
         this.baseIndex = LongEncoder.read(buf);
-        this.readsData = Message.getByteBuffer(buf);
+        this.readsData = !readsOptional || Message.getBoolean(buf) ? Message.getByteBuffer(buf) : null;
         this.mutationData = Message.getBoolean(buf) ? Message.getByteBuffer(buf) : null;
         this.checkArguments();
     }
@@ -66,7 +66,6 @@ public class CommitRequest extends AbstractTermedMessage {
         Preconditions.checkArgument(this.txId != 0);
         Preconditions.checkArgument(this.baseTerm >= 0);
         Preconditions.checkArgument(this.baseIndex >= 0);
-        Preconditions.checkArgument(this.readsData != null);
     }
 
 // Properties
@@ -84,7 +83,7 @@ public class CommitRequest extends AbstractTermedMessage {
     }
 
     public ByteBuffer getReadsData() {
-        return this.readsData.asReadOnlyBuffer();
+        return this.readsData != null ? this.readsData.asReadOnlyBuffer() : null;
     }
 
     /**
@@ -127,7 +126,9 @@ public class CommitRequest extends AbstractTermedMessage {
         LongEncoder.write(dest, this.txId);
         LongEncoder.write(dest, this.baseTerm);
         LongEncoder.write(dest, this.baseIndex);
-        Message.putByteBuffer(dest, this.readsData);
+        Message.putBoolean(dest, this.readsData != null);
+        if (this.readsData != null)
+            Message.putByteBuffer(dest, this.readsData);
         Message.putBoolean(dest, this.mutationData != null);
         if (this.mutationData != null)
             Message.putByteBuffer(dest, this.mutationData);
@@ -140,7 +141,8 @@ public class CommitRequest extends AbstractTermedMessage {
           + LongEncoder.encodeLength(this.txId)
           + LongEncoder.encodeLength(this.baseTerm)
           + LongEncoder.encodeLength(this.baseIndex)
-          + Message.calculateSize(this.readsData)
+          + 1
+          + (this.readsData != null ? Message.calculateSize(this.readsData) : 0)
           + 1
           + (this.mutationData != null ? Message.calculateSize(this.mutationData) : 0);
     }
@@ -155,7 +157,8 @@ public class CommitRequest extends AbstractTermedMessage {
           + ",term=" + this.getTerm()
           + ",txId=" + this.txId
           + ",base=" + this.baseIndex + "t" + this.baseTerm
-          + ",readsData=" + this.describe(this.readsData)
+          + (this.readsData != null ?
+            ",readsData=" + this.describe(this.readsData) : "")
           + (this.mutationData != null ?
             ",mutationData=" + this.describe(this.mutationData) : this.mutationDataInvalid ? ",mutationData=invalid" : "")
           + "]";

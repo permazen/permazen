@@ -49,6 +49,7 @@ public class Session {
 
     private KVTransaction kvt;
     private Transaction tx;
+    private boolean rollbackOnly;
 
 // Constructors
 
@@ -316,11 +317,12 @@ public class Session {
             if (!this.openTransaction())
                 return false;
             boolean success = false;
+            this.rollbackOnly = false;
             try {
                 action.run(this);
                 success = true;
             } finally {
-                success &= this.closeTransaction(success);
+                success &= this.closeTransaction(success && !this.rollbackOnly);
             }
             return success;
         } catch (Exception e) {
@@ -329,6 +331,16 @@ public class Session {
         } finally {
             this.tx = null;
         }
+    }
+
+    /**
+     * Mark the current transaction to be rolled back.
+     *
+     * @throws IllegalStateException if {@link #perform perform()} is not currently being invoked
+     */
+    public void setRollbackOnly() {
+        Preconditions.checkState(this.kvt != null, "no transaction is open in this session");
+        this.rollbackOnly = true;
     }
 
     private boolean openTransaction() {

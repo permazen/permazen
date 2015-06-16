@@ -37,9 +37,11 @@ public abstract class Message {
     static final byte REQUEST_VOTE_TYPE = 7;
     static final byte PING_REQUEST_TYPE = 8;
     static final byte PING_RESPONSE_TYPE = 9;
+    static final byte MAX_TYPE = 10;
 
     // Serialization version number
     private static final byte VERSION_1 = 1;
+    private static final byte VERSION_2 = 2;
 
     // Minimum buffer size to use a direct buffer
     private static final int MIN_DIRECT_BUFFER_SIZE = 128;
@@ -64,7 +66,7 @@ public abstract class Message {
     }
 
     void checkArguments() {
-        Preconditions.checkArgument(this.type >= APPEND_REQUEST_TYPE && this.type <= REQUEST_VOTE_TYPE);
+        Preconditions.checkArgument(this.type > 0 && this.type < MAX_TYPE);
         Preconditions.checkArgument(this.clusterId != 0);
         Preconditions.checkArgument(this.senderId != null);
         Preconditions.checkArgument(this.recipientId != null);
@@ -138,6 +140,7 @@ public abstract class Message {
         final byte version = buf.get();
         switch (version) {
         case Message.VERSION_1:
+        case Message.VERSION_2:
             break;
         default:
             throw new IllegalArgumentException("unrecognized message format version " + version);
@@ -154,7 +157,7 @@ public abstract class Message {
             msg = new AppendResponse(buf);
             break;
         case COMMIT_REQUEST_TYPE:
-            msg = new CommitRequest(buf);
+            msg = new CommitRequest(buf, version > Message.VERSION_1);
             break;
         case COMMIT_RESPONSE_TYPE:
             msg = new CommitResponse(buf);
@@ -207,7 +210,7 @@ public abstract class Message {
      * @throws java.nio.BufferOverflowException if data overflows {@code buf}
      */
     public void writeTo(ByteBuffer buf) {
-        buf.put(Message.VERSION_1);
+        buf.put(Message.VERSION_2);
         buf.put(this.type);
         buf.putInt(this.clusterId);
         Message.putString(buf, this.senderId);

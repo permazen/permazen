@@ -37,6 +37,7 @@ public class RaftStepDownCommand extends AbstractRaftCommand {
         return new RaftAction() {
             @Override
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
+                session.setRollbackOnly();
                 RaftStepDownCommand.this.stepDown(session, tx.getKVDatabase());
             }
         };

@@ -36,6 +36,7 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
         return new RaftAction() {
             @Override
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
+                session.setRollbackOnly();
                 RaftStartElectionCommand.this.startElection(session, tx.getKVDatabase());
             }
         };
