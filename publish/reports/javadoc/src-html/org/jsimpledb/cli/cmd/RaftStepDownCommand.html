@@ -45,23 +45,24 @@
 <span class="sourceLineNo">037</span>        return new RaftAction() {<a name="line.37"></a>
 <span class="sourceLineNo">038</span>            @Override<a name="line.38"></a>
 <span class="sourceLineNo">039</span>            protected void run(CliSession session, RaftKVTransaction tx) throws Exception {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>                RaftStepDownCommand.this.stepDown(session, tx.getKVDatabase());<a name="line.40"></a>
-<span class="sourceLineNo">041</span>            }<a name="line.41"></a>
-<span class="sourceLineNo">042</span>        };<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    }<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    private void stepDown(CliSession session, RaftKVDatabase db) throws Exception {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        final RaftKVDatabase.LeaderRole leader;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        try {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>            leader = (RaftKVDatabase.LeaderRole)db.getCurrentRole();<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        } catch (ClassCastException e) {<a name="line.49"></a>
-<span class="sourceLineNo">050</span>            throw new Exception("current role is not leader; try `raft-status' for more info");<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        }<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        session.getWriter().println("Stepping down as Raft cluster leader");<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        leader.stepDown();<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
-<span class="sourceLineNo">055</span>}<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">040</span>                session.setRollbackOnly();<a name="line.40"></a>
+<span class="sourceLineNo">041</span>                RaftStepDownCommand.this.stepDown(session, tx.getKVDatabase());<a name="line.41"></a>
+<span class="sourceLineNo">042</span>            }<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        };<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private void stepDown(CliSession session, RaftKVDatabase db) throws Exception {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        final RaftKVDatabase.LeaderRole leader;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        try {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>            leader = (RaftKVDatabase.LeaderRole)db.getCurrentRole();<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        } catch (ClassCastException e) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            throw new Exception("current role is not leader; try `raft-status' for more info");<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        }<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        session.getWriter().println("Stepping down as Raft cluster leader");<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        leader.stepDown();<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
+<span class="sourceLineNo">056</span>}<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
 
 
 

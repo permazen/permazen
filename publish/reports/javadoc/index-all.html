@@ -1552,6 +1552,14 @@
 <dd>
 <div class="block">Handle an <a href="./org/jsimpledb/change/ObjectDelete.html" title="class in org.jsimpledb.change"><code>ObjectDelete</code></a> event.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/MessageSwitch.html#casePingRequest(org.jsimpledb.kv.raft.msg.PingRequest)">casePingRequest(PingRequest)</a></span> - Method in interface org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/MessageSwitch.html" title="interface in org.jsimpledb.kv.raft.msg">MessageSwitch</a></dt>
+<dd>
+<div class="block">Handle a <a href="./org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><code>PingRequest</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/MessageSwitch.html#casePingResponse(org.jsimpledb.kv.raft.msg.PingResponse)">casePingResponse(PingResponse)</a></span> - Method in interface org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/MessageSwitch.html" title="interface in org.jsimpledb.kv.raft.msg">MessageSwitch</a></dt>
+<dd>
+<div class="block">Handle a <a href="./org/jsimpledb/kv/raft/msg/PingResponse.html" title="class in org.jsimpledb.kv.raft.msg"><code>PingResponse</code></a>.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/FieldSwitch.html#caseReferenceField(org.jsimpledb.core.ReferenceField)">caseReferenceField(ReferenceField)</a></span> - Method in interface org.jsimpledb.core.<a href="./org/jsimpledb/core/FieldSwitch.html" title="interface in org.jsimpledb.core">FieldSwitch</a></dt>
 <dd>
 <div class="block">Handle a <a href="./org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a>.</div>
@@ -2168,6 +2176,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/ErrorCodes.html#CONNECTION_STRING_INVALID">CONNECTION_STRING_INVALID</a></span> - Static variable in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/ErrorCodes.html" title="class in org.jsimpledb.kv.fdb">ErrorCodes</a></dt>
 <dd>
 <div class="block">Connection string invalid.</div>
+</dd>
+<dt><a href="./org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft"><span class="strong">Consistency</span></a> - Enum in <a href="./org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a></dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVTransaction</code></a> supported consistency levels.</div>
 </dd>
 <dt><a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli"><span class="strong">Console</span></a> - Class in <a href="./org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a></dt>
 <dd>
@@ -4064,6 +4076,10 @@
 <dd>
 <div class="block">Get the outgoing connection timeout.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#getConsistency()">getConsistency()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
+<dd>
+<div class="block">Get the consistency level for this transaction.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/Console.html#getConsoleReader()">getConsoleReader()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli">Console</a></dt>
 <dd>
 <div class="block">Get the associated JLine <a href="http://jline.github.io/jline2/apidocs/reference/jline/console/ConsoleReader.html?is-external=true" title="class or interface in jline.console"><code>ConsoleReader</code></a>.</div>
@@ -4223,6 +4239,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#getDirectory()">getDirectory()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></dt>
 <dd>
 <div class="block">Get the filesystem directory containing the database.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html#getElectionTimeout()">getElectionTimeout()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.NonLeaderRole</a></dt>
+<dd>
+<div class="block">Get the election timer deadline, if currently running.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/change/ListFieldAdd.html#getElement()">getElement()</a></span> - Method in class org.jsimpledb.change.<a href="./org/jsimpledb/change/ListFieldAdd.html" title="class in org.jsimpledb.change">ListFieldAdd</a></dt>
 <dd>
@@ -5164,6 +5184,11 @@
 <dt><span class="strong"><a href="./org/jsimpledb/util/ByteUtil.html#getNextKey(byte[])">getNextKey(byte[])</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ByteUtil.html" title="class in org.jsimpledb.util">ByteUtil</a></dt>
 <dd>
 <div class="block">Get the next key greater than the given key in unsigned lexicographic ordering.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html#getNodesProbed()">getNodesProbed()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.FollowerRole</a></dt>
+<dd>
+<div class="block">Determine the number of nodes (including this node) that this node has successfully probed when probing
+ for a majority of nodes with <a href="./org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><code>PingRequest</code></a>s prior to reverting to a candidate.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/ObjIdBiMultiMap.html#getNumSources()">getNumSources()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ObjIdBiMultiMap.html" title="class in org.jsimpledb.util">ObjIdBiMultiMap</a></dt>
 <dd>
@@ -6627,10 +6652,6 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html#isEchoEnabled()">isEchoEnabled()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli">TelnetConsole.ForwardingTerminal</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html#isElectionTimerRunning()">isElectionTimerRunning()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.NonLeaderRole</a></dt>
-<dd>
-<div class="block">Determine whether the election timer is running.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyFilterUtil.html#isEmpty(org.jsimpledb.kv.KeyFilter)">isEmpty(KeyFilter)</a></span> - Static method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyFilterUtil.html" title="class in org.jsimpledb.kv">KeyFilterUtil</a></dt>
 <dd>
 <div class="block">Determine if the given instance is empty, i.e., contains no keys.</div>
@@ -6740,6 +6761,10 @@
 <dd>
 <div class="block">Determine whether this is a read-only transaction.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#isReadOnly()">isReadOnly()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
+<dd>
+<div class="block">Determine whether this transaction is configured as read-only.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#isReadOnly()">isReadOnly()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>
 <div class="block">Get whether new transactions should be marked read-only.</div>
@@ -6776,10 +6801,6 @@
 <dd>
 <div class="block">Determine whether this instance is a normal instance or is a "snapshot" instance associated
  with a <a href="./org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#isStaleReadOnly()">isStaleReadOnly()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
-<dd>
-<div class="block">Determine whether this instance is configured for read-only, stale read consistency.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/AppendResponse.html#isSuccess()">isSuccess()</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/AppendResponse.html" title="class in org.jsimpledb.kv.raft.msg">AppendResponse</a></dt>
 <dd>
@@ -8790,6 +8811,22 @@
 <dd>
 <div class="block">Perform a test transaction.</div>
 </dd>
+<dt><a href="./org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">PingRequest</span></a> - Class in <a href="./org/jsimpledb/kv/raft/msg/package-summary.html">org.jsimpledb.kv.raft.msg</a></dt>
+<dd>
+<div class="block">Sent from hermits to other nodes when trying to establish communication with a majority.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/PingRequest.html#PingRequest(int, java.lang.String, java.lang.String, long, org.jsimpledb.kv.raft.Timestamp)">PingRequest(int, String, String, long, Timestamp)</a></span> - Constructor for class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg">PingRequest</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><a href="./org/jsimpledb/kv/raft/msg/PingResponse.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">PingResponse</span></a> - Class in <a href="./org/jsimpledb/kv/raft/msg/package-summary.html">org.jsimpledb.kv.raft.msg</a></dt>
+<dd>
+<div class="block">Response to a <a href="./org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><code>PingRequest</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/PingResponse.html#PingResponse(int, java.lang.String, java.lang.String, long, org.jsimpledb.kv.raft.Timestamp)">PingResponse(int, String, String, long, Timestamp)</a></span> - Constructor for class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/PingResponse.html" title="class in org.jsimpledb.kv.raft.msg">PingResponse</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 <dt><a href="./org/jsimpledb/demo/Planet.html" title="class in org.jsimpledb.demo"><span class="strong">Planet</span></a> - Class in <a href="./org/jsimpledb/demo/package-summary.html">org.jsimpledb.demo</a></dt>
 <dd>
 <div class="block">Represents a planet.</div>
@@ -10074,6 +10111,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#setConnectTimeout(long)">setConnectTimeout(long)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#setConsistency(org.jsimpledb.kv.raft.Consistency)">setConsistency(Consistency)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
+<dd>
+<div class="block">Set the consistency level for this transaction.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/ExprQueryJObjectContainer.html#setContentExpression(java.lang.String)">setContentExpression(String)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui">ExprQueryJObjectContainer</a></dt>
 <dd>
 <div class="block">Configure the expression that returns this container's content.</div>
@@ -10379,6 +10420,10 @@
 <dd>
 <div class="block">Enable or disaable read-only mode.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#setReadOnly(boolean)">setReadOnly(boolean)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
+<dd>
+<div class="block">Set whether this transaction should be read-only.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#setReadOnly(boolean)">setReadOnly(boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#setReads(org.jsimpledb.kv.KeyRanges)">setReads(KeyRanges)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
@@ -10399,6 +10444,10 @@
 <dd>
 <div class="block">Mark this transaction for rollback only.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/Session.html#setRollbackOnly()">setRollbackOnly()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
+<dd>
+<div class="block">Mark the current transaction to be rolled back.</div>
+</dd>
 <dt><a href="./org/jsimpledb/schema/SetSchemaField.html" title="class in org.jsimpledb.schema"><span class="strong">SetSchemaField</span></a> - Class in <a href="./org/jsimpledb/schema/package-summary.html">org.jsimpledb.schema</a></dt>
 <dd>
 <div class="block">A set field in one version of a <a href="./org/jsimpledb/schema/SchemaObjectType.html" title="class in org.jsimpledb.schema"><code>SchemaObjectType</code></a>.</div>
@@ -10417,11 +10466,6 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html#SetSchemaVersionCommand()">SetSchemaVersionCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#setStaleReadOnly(boolean)">setStaleReadOnly(boolean)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
-<dd>
-<div class="block">Configure whether to reduce the consistency guarantees for this transaction from linearizable consistency
- to stale read consistency.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/AbstractSchemaItem.html#setStorageId(int)">setStorageId(int)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/AbstractSchemaItem.html" title="class in org.jsimpledb.schema">AbstractSchemaItem</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JSimpleDBFactory.html#setStorageIdGenerator(org.jsimpledb.StorageIdGenerator)">setStorageIdGenerator(StorageIdGenerator)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a></dt>
@@ -11731,6 +11775,10 @@
 <dd>
 <div class="block">Returns the enum constant of this type with the specified name.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/Consistency.html#valueOf(java.lang.String)">valueOf(String)</a></span> - Static method in enum org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this type with the specified name.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/TxState.html#valueOf(java.lang.String)">valueOf(String)</a></span> - Static method in enum org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/TxState.html" title="enum in org.jsimpledb.kv.raft">TxState</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this type with the specified name.</div>
@@ -11761,6 +11809,11 @@
 the order they are declared.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/LockManager.LockResult.html#values()">values()</a></span> - Static method in enum org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/LockManager.LockResult.html" title="enum in org.jsimpledb.kv.mvcc">LockManager.LockResult</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum type, in
+the order they are declared.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/Consistency.html#values()">values()</a></span> - Static method in enum org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum type, in
 the order they are declared.</div>
@@ -11928,6 +11981,10 @@ the order they are declared.</div>
 <dd>
 <div class="block">Apply the visitor pattern based on this instance's type.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/PingRequest.html#visit(org.jsimpledb.kv.raft.msg.MessageSwitch)">visit(MessageSwitch)</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg">PingRequest</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/PingResponse.html#visit(org.jsimpledb.kv.raft.msg.MessageSwitch)">visit(MessageSwitch)</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/PingResponse.html" title="class in org.jsimpledb.kv.raft.msg">PingResponse</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/RequestVote.html#visit(org.jsimpledb.kv.raft.msg.MessageSwitch)">visit(MessageSwitch)</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg">RequestVote</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/CounterSchemaField.html#visit(org.jsimpledb.schema.SchemaFieldSwitch)">visit(SchemaFieldSwitch&lt;R&gt;)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/CounterSchemaField.html" title="class in org.jsimpledb.schema">CounterSchemaField</a></dt>

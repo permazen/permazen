@@ -307,13 +307,19 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setSchemaModel(org.jsimpledb.schema.SchemaModel)">setSchemaModel</a></strong>(<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel)</code>&nbsp;</td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setRollbackOnly()">setRollbackOnly</a></strong>()</code>
+<div class="block">Mark the current transaction to be rolled back.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setSchemaVersion(int)">setSchemaVersion</a></strong>(int&nbsp;schemaVersion)</code>&nbsp;</td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setSchemaModel(org.jsimpledb.schema.SchemaModel)">setSchemaModel</a></strong>(<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setSchemaVersion(int)">setSchemaVersion</a></strong>(int&nbsp;schemaVersion)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setValidationMode(org.jsimpledb.ValidationMode)">setValidationMode</a></strong>(<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>&nbsp;</td>
 </tr>
@@ -362,7 +368,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>Session</h4>
-<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.61">Session</a>(<a href="../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb)</pre>
+<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.62">Session</a>(<a href="../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb)</pre>
 <div class="block">Constructor for <a href="../../org/jsimpledb/SessionMode.html#KEY_VALUE"><code>SessionMode.KEY_VALUE</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvdb</code> - key/value database</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -375,7 +381,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>Session</h4>
-<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.71">Session</a>(<a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;db)</pre>
+<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.72">Session</a>(<a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;db)</pre>
 <div class="block">Constructor for <a href="../../org/jsimpledb/SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>db</code> - core database</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -388,7 +394,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Session</h4>
-<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.81">Session</a>(<a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</pre>
+<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.82">Session</a>(<a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</pre>
 <div class="block">Constructor for <a href="../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jdb</code> - database</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -409,7 +415,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getMode</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.106">getMode</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.107">getMode</a>()</pre>
 <div class="block">Get this instance's <a href="../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>this instance's <a href="../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>.</dd></dl>
 </li>
@@ -420,7 +426,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getKVDatabase</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.115">getKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.116">getKVDatabase</a>()</pre>
 <div class="block">Get the associated <a href="../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated <a href="../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a></dd></dl>
 </li>
@@ -431,7 +437,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabase</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.125">getDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.126">getDatabase</a>()</pre>
 <div class="block">Get the associated <a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a>, if any.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated <a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> or null if this instance is not in <a href="../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a>
   or <a href="../../org/jsimpledb/SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a></dd></dl>
@@ -443,7 +449,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJSimpleDB</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.134">getJSimpleDB</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.135">getJSimpleDB</a>()</pre>
 <div class="block">Get the associated <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>, if any.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> or null if this instance is not in <a href="../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a></dd></dl>
 </li>
@@ -454,7 +460,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getKVTransaction</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.144">getKVTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.145">getKVTransaction</a>()</pre>
 <div class="block">Get the open <a href="../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> currently associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the open <a href="../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> in which to do work</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -467,7 +473,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getTransaction</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.156">getTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.157">getTransaction</a>()</pre>
 <div class="block">Get the open <a href="../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> currently associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the open <a href="../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> in which to do work</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -481,7 +487,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJTransaction</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.172">getJTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.173">getJTransaction</a>()</pre>
 <div class="block">Get the open <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> currently associated with this instance.
 
  <p>
@@ -498,7 +504,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getSchemaModel</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.186">getSchemaModel</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.187">getSchemaModel</a>()</pre>
 <div class="block">Get the <a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema"><code>SchemaModel</code></a> configured for this instance.
  If this is left unconfigured, after the first transaction it will be updated with the schema model actually used.
 
@@ -513,7 +519,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setSchemaModel</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.189">setSchemaModel</a>(<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.190">setSchemaModel</a>(<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel)</pre>
 </li>
 </ul>
 <a name="getNameIndex()">
@@ -522,7 +528,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getNameIndex</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/schema/NameIndex.html" title="class in org.jsimpledb.schema">NameIndex</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.199">getNameIndex</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/schema/NameIndex.html" title="class in org.jsimpledb.schema">NameIndex</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.200">getNameIndex</a>()</pre>
 <div class="block">Get the <a href="../../org/jsimpledb/schema/NameIndex.html" title="class in org.jsimpledb.schema"><code>NameIndex</code></a> for this instance's <a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema"><code>SchemaModel</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>name index for the schema model assumed by this session</dd></dl>
 </li>
@@ -533,7 +539,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabaseDescription</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.208">getDatabaseDescription</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.209">getDatabaseDescription</a>()</pre>
 <div class="block">Get a description of the database.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>a short description of the underlying database</dd></dl>
 </li>
@@ -544,7 +550,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setDatabaseDescription</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.211">setDatabaseDescription</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;databaseDescription)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.212">setDatabaseDescription</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;databaseDescription)</pre>
 </li>
 </ul>
 <a name="getSchemaVersion()">
@@ -553,7 +559,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getSchemaVersion</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.225">getSchemaVersion</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.226">getSchemaVersion</a>()</pre>
 <div class="block">Get the schema version associated with this instance.
  If this is left unconfigured, the highest numbered schema version will be
  used and after the first transaction this property will be updated accordingly.
@@ -569,7 +575,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setSchemaVersion</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.228">setSchemaVersion</a>(int&nbsp;schemaVersion)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.229">setSchemaVersion</a>(int&nbsp;schemaVersion)</pre>
 </li>
 </ul>
 <a name="getValidationMode()">
@@ -578,7 +584,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getValidationMode</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.241">getValidationMode</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.242">getValidationMode</a>()</pre>
 <div class="block">Get the <a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb"><code>ValidationMode</code></a> associated with this instance.
  If this is left unconfigured, <a href="../../org/jsimpledb/ValidationMode.html#AUTOMATIC"><code>ValidationMode.AUTOMATIC</code></a> is used for new transactions.
 
@@ -593,7 +599,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setValidationMode</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.244">setValidationMode</a>(<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.245">setValidationMode</a>(<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</pre>
 </li>
 </ul>
 <a name="isAllowNewSchema()">
@@ -602,7 +608,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>isAllowNewSchema</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.257">isAllowNewSchema</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.258">isAllowNewSchema</a>()</pre>
 <div class="block">Get whether the recording of new schema versions should be allowed.
  Default value is false.
 
@@ -617,7 +623,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setAllowNewSchema</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.260">setAllowNewSchema</a>(boolean&nbsp;allowNewSchema)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.261">setAllowNewSchema</a>(boolean&nbsp;allowNewSchema)</pre>
 </li>
 </ul>
 <a name="isReadOnly()">
@@ -626,7 +632,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>isReadOnly</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.270">isReadOnly</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.271">isReadOnly</a>()</pre>
 <div class="block">Get whether new transactions should be marked read-only.
  Default value is false.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether this session creates read-only transactions</dd></dl>
@@ -638,7 +644,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setReadOnly</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.273">setReadOnly</a>(boolean&nbsp;readOnly)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.274">setReadOnly</a>(boolean&nbsp;readOnly)</pre>
 </li>
 </ul>
 <a name="reportException(java.lang.Exception)">
@@ -647,7 +653,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>reportException</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.289">reportException</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.290">reportException</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</pre>
 <div class="block">Handle an exception thrown during an invocation of <a href="../../org/jsimpledb/Session.html#perform(org.jsimpledb.Session.Action)"><code>perform()</code></a>.
 
  <p>
@@ -660,10 +666,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <a name="perform(org.jsimpledb.Session.Action)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>perform</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.308">perform</a>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.309">perform</a>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</pre>
 <div class="block">Perform the given action within a new transaction associated with this instance.
 
  <p>
@@ -675,6 +681,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>action</code> is null</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if there is already an open transaction associated with this instance</dd></dl>
+</li>
+</ul>
+<a name="setRollbackOnly()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>setRollbackOnly</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.341">setRollbackOnly</a>()</pre>
+<div class="block">Mark the current transaction to be rolled back.</div>
+<dl><dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if <a href="../../org/jsimpledb/Session.html#perform(org.jsimpledb.Session.Action)"><code>perform()</code></a> is not currently being invoked</dd></dl>
 </li>
 </ul>
 </li>

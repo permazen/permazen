@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.raft;<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>/**<a name="line.8"></a>
+<span class="sourceLineNo">009</span> * {@link RaftKVTransaction} supported consistency levels.<a name="line.9"></a>
+<span class="sourceLineNo">010</span> */<a name="line.10"></a>
+<span class="sourceLineNo">011</span>public enum Consistency {<a name="line.11"></a>
+<span class="sourceLineNo">012</span><a name="line.12"></a>
+<span class="sourceLineNo">013</span>    /**<a name="line.13"></a>
+<span class="sourceLineNo">014</span>     * Uncommitted consistency.<a name="line.14"></a>
+<span class="sourceLineNo">015</span>     *<a name="line.15"></a>
+<span class="sourceLineNo">016</span>     * &lt;p&gt;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>     * Same as {@link #EVENTUAL}, but with the additional caveat that the view that the transaction sees may never<a name="line.17"></a>
+<span class="sourceLineNo">018</span>     * actually be committed. This can happen, e.g., if there is a Raft leadership change during the transaction.<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     *<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     * &lt;p&gt;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * Transactions at this level may result in less network communication and/or commit faster than {@link #EVENTUAL}.<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     * Read-only transactions at this level require no network communication, commit immediately, and never result in<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * {@link org.jsimpledb.kv.RetryTransactionException}s; read-only transactions are equivalent to invoking<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * {@link RaftKVTransaction#rollback rollback()} instead of {@link RaftKVTransaction#commit commit()}.<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    UNCOMMITTED,<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>    /**<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * Eventual consistency.<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     *<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * &lt;p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * The view is not guaranteed to be up-to-date; it's only guaranteed to be as up-to-date as is known to this node<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * when the transaction was opened. For example, it will always include changes from the transaction most recently<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * committed on this node. However, in general (for example, if stuck in a network partition minority), the view<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * could be a view of the database from arbitrarily far in the past.<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     *<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * &lt;p&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * Transactions at this level may result in less network communication and/or commit faster than {@link #LINEARIZABLE}.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    EVENTUAL,<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * Linearizable consistency.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     *<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * &lt;p&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * Transactions see a database that evolves step-wise through a global, linear sequence of atomic changes, where it appears as<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * if each change occurs instantaneously at some point in time between the start and end of the corresponding transaction.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     *<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * &lt;p&gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * This is the default consistency level.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    LINEARIZABLE;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>}<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

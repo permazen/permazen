@@ -181,40 +181,51 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#getConsistency()">getConsistency</a></strong>()</code>
+<div class="block">Get the consistency level for this transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#getKVDatabase()">getKVDatabase</a></strong>()</code>
 <div class="block">Get the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> with which this instance is associated.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/raft/TxState.html" title="enum in org.jsimpledb.kv.raft">TxState</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#getState()">getState</a></strong>()</code>
 <div class="block">Get the state of this transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#getTxId()">getTxId</a></strong>()</code>
 <div class="block">Get the locally unique ID of this transaction.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#isStaleReadOnly()">isStaleReadOnly</a></strong>()</code>
-<div class="block">Determine whether this instance is configured for read-only, stale read consistency.</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#isReadOnly()">isReadOnly</a></strong>()</code>
+<div class="block">Determine whether this transaction is configured as read-only.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#rollback()">rollback</a></strong>()</code>
 <div class="block">Cancel this transaction.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#setConsistency(org.jsimpledb.kv.raft.Consistency)">setConsistency</a></strong>(<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>&nbsp;consistency)</code>
+<div class="block">Set the consistency level for this transaction.</div>
+</td>
+</tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#setStaleReadOnly(boolean)">setStaleReadOnly</a></strong>(boolean&nbsp;staleReadOnly)</code>
-<div class="block">Configure whether to reduce the consistency guarantees for this transaction from linearizable consistency
- to stale read consistency.</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#setReadOnly(boolean)">setReadOnly</a></strong>(boolean&nbsp;readOnly)</code>
+<div class="block">Set whether this transaction should be read-only.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -269,7 +280,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getTxId</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.82">getTxId</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.83">getTxId</a>()</pre>
 <div class="block">Get the locally unique ID of this transaction.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>transaction ID</dd></dl>
 </li>
@@ -280,7 +291,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getState</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/TxState.html" title="enum in org.jsimpledb.kv.raft">TxState</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.91">getState</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/TxState.html" title="enum in org.jsimpledb.kv.raft">TxState</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.92">getState</a>()</pre>
 <div class="block">Get the state of this transaction.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>transaction state</dd></dl>
 </li>
@@ -291,7 +302,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getBaseTerm</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.111">getBaseTerm</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.112">getBaseTerm</a>()</pre>
 <div class="block">Get the term of the log entry on which this transaction is based.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>associated base log term</dd></dl>
 </li>
@@ -302,7 +313,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getBaseIndex</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.120">getBaseIndex</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.121">getBaseIndex</a>()</pre>
 <div class="block">Get the index of the log entry on which this transaction is based.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>associated base log index</dd></dl>
 </li>
@@ -313,7 +324,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getCommitTerm</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.130">getCommitTerm</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.131">getCommitTerm</a>()</pre>
 <div class="block">Get the index of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)
  before it can complete.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>associated commit log entry index, or zero if this transaction has not yet gotten to <a href="../../../../org/jsimpledb/kv/raft/TxState.html#COMMIT_WAITING"><code>TxState.COMMIT_WAITING</code></a></dd></dl>
@@ -325,53 +336,66 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getCommitIndex</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.147">getCommitIndex</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.148">getCommitIndex</a>()</pre>
 <div class="block">Get the term of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)
  before it can complete.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>associated commit log entry term, or zero if this transaction has not yet gotten to <a href="../../../../org/jsimpledb/kv/raft/TxState.html#COMMIT_WAITING"><code>TxState.COMMIT_WAITING</code></a></dd></dl>
 </li>
 </ul>
-<a name="setStaleReadOnly(boolean)">
+<a name="getConsistency()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setStaleReadOnly</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.185">setStaleReadOnly</a>(boolean&nbsp;staleReadOnly)</pre>
-<div class="block">Configure whether to reduce the consistency guarantees for this transaction from linearizable consistency
- to stale read consistency.
+<h4>getConsistency</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.167">getConsistency</a>()</pre>
+<div class="block">Get the consistency level for this transaction.
 
  <p>
- If so configured, this transaction guarantees a consistent, read-only view of the database as it existed
- at some point in the "recent past". The view is not guaranteed to be up-to-date; it's only guaranteed
- to be as up-to-date as is known to this node when the transaction was opened. For example, it will be
- at least as up to date as the most recently committed normal (linearizable) transaction on this node.
- However, in general (for example, if stuck in a network partition minority), the snapshot could be arbitrarily
- far in the past.
-
- <p>
- This setting may be modified freely during a transaction; it only determines behavior at <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> time.
- If set:
- <ul>
-  <li>The transaction will be read-only: modifications will be allowed (and reflected in subsequent reads),
-      but they will be discarded on <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a>.</li>
-  <li>The <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> operation may be faster, and will not generate any additional network traffic.</li>
-  <li>The <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> operation will still wait for the transaction's base log entry to be committed,
-      which eliminates the possibility of reading uncommitted data. If the possibility of reading uncommitted data
-      is tolerable, then any <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> wait can be avoided simply by invoking <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#rollback()"><code>rollback()</code></a> instead.</li>
- </ul></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>staleReadOnly</code> - true to configure stale reads, false for normal linearizable ACID semantics</dd><dt><span class="strong">See Also:</span></dt><dd><a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a></dd></dl>
+ The default consistency level is <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>Consistency.LINEARIZABLE</code></a>.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>transaction consistency level</dd></dl>
 </li>
 </ul>
-<a name="isStaleReadOnly()">
+<a name="setConsistency(org.jsimpledb.kv.raft.Consistency)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>isStaleReadOnly</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.195">isStaleReadOnly</a>()</pre>
-<div class="block">Determine whether this instance is configured for read-only, stale read consistency.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is configured for read-only, stale read consistency</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#setStaleReadOnly(boolean)"><code>setStaleReadOnly(boolean)</code></a></dd></dl>
+<h4>setConsistency</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.181">setConsistency</a>(<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>&nbsp;consistency)</pre>
+<div class="block">Set the consistency level for this transaction.
+
+ <p>
+ This setting may be modified freely during a transaction; it only determines behavior at <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> time.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>consistency</code> - desired consistency level</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code>IlleaglArgumentException</code> - if <code>consistency</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a></dd></dl>
+</li>
+</ul>
+<a name="isReadOnly()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isReadOnly</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.191">isReadOnly</a>()</pre>
+<div class="block">Determine whether this transaction is configured as read-only.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if this transaction is configured read-only</dd></dl>
+</li>
+</ul>
+<a name="setReadOnly(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setReadOnly</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.204">setReadOnly</a>(boolean&nbsp;readOnly)</pre>
+<div class="block">Set whether this transaction should be read-only.
+
+ <p>
+ Read-only transactions support modifications during the transaction, and these modifications will be visible
+ when read back, but they are discarded on <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>readOnly</code> - true to discard mutations on commit, false to apply mutations on commit</dd></dl>
 </li>
 </ul>
 <a name="configChange(java.lang.String, java.lang.String)">
@@ -380,7 +404,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>configChange</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.228">configChange</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;identity,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.237">configChange</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;identity,
                 <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;address)</pre>
 <div class="block">Include a cluster configuration change when this transaction is committed.
 
@@ -414,7 +438,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getConfigChange</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.250">getConfigChange</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.259">getConfigChange</a>()</pre>
 <div class="block">Get the cluster configuration change associated with this transaction, if any.
 
  <p>
@@ -432,7 +456,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>delegate</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.259">delegate</a>()</pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.268">delegate</a>()</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/util/ForwardingKVStore.html#delegate()">ForwardingKVStore</a></code></strong></div>
 <div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 <dl>
@@ -447,7 +471,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.268">getKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.277">getKVDatabase</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#getKVDatabase()">KVTransaction</a></code></strong></div>
 <div class="block">Get the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> with which this instance is associated.</div>
 <dl>
@@ -462,7 +486,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>setTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.287">setTimeout</a>(long&nbsp;timeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.296">setTimeout</a>(long&nbsp;timeout)</pre>
 <div class="block">Set the commit timeout for this instance.
 
  <p>
@@ -486,7 +510,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.293">commit</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.302">commit</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()">KVTransaction</a></code></strong></div>
 <div class="block">Commit this transaction.
 
@@ -507,7 +531,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.298">rollback</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.307">rollback</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()">KVTransaction</a></code></strong></div>
 <div class="block">Cancel this transaction.
 
@@ -529,7 +553,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.326">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.335">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -542,7 +566,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockListLast">
 <li class="blockList">
 <h4>finalize</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.339">finalize</a>()
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVTransaction.html#line.349">finalize</a>()
                  throws <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a></pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>

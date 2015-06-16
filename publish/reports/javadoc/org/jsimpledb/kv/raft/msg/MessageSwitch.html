@@ -35,7 +35,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../../org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../../org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?org/jsimpledb/kv/raft/msg/MessageSwitch.html" target="_top">Frames</a></li>
@@ -144,6 +144,18 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/MessageSwitch.html#casePingRequest(org.jsimpledb.kv.raft.msg.PingRequest)">casePingRequest</a></strong>(<a href="../../../../../org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg">PingRequest</a>&nbsp;msg)</code>
+<div class="block">Handle a <a href="../../../../../org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><code>PingRequest</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/MessageSwitch.html#casePingResponse(org.jsimpledb.kv.raft.msg.PingResponse)">casePingResponse</a></strong>(<a href="../../../../../org/jsimpledb/kv/raft/msg/PingResponse.html" title="class in org.jsimpledb.kv.raft.msg">PingResponse</a>&nbsp;msg)</code>
+<div class="block">Handle a <a href="../../../../../org/jsimpledb/kv/raft/msg/PingResponse.html" title="class in org.jsimpledb.kv.raft.msg"><code>PingResponse</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/msg/MessageSwitch.html#caseRequestVote(org.jsimpledb.kv.raft.msg.RequestVote)">caseRequestVote</a></strong>(<a href="../../../../../org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg">RequestVote</a>&nbsp;msg)</code>
 <div class="block">Handle an <a href="../../../../../org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg"><code>RequestVote</code></a>.</div>
 </td>
@@ -229,13 +241,35 @@
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>msg</code> - message received</dd></dl>
 </li>
 </ul>
+<a name="casePingRequest(org.jsimpledb.kv.raft.msg.PingRequest)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>casePingRequest</h4>
+<pre>void&nbsp;<a href="../../../../../src-html/org/jsimpledb/kv/raft/msg/MessageSwitch.html#line.60">casePingRequest</a>(<a href="../../../../../org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg">PingRequest</a>&nbsp;msg)</pre>
+<div class="block">Handle a <a href="../../../../../org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><code>PingRequest</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>msg</code> - message received</dd></dl>
+</li>
+</ul>
+<a name="casePingResponse(org.jsimpledb.kv.raft.msg.PingResponse)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>casePingResponse</h4>
+<pre>void&nbsp;<a href="../../../../../src-html/org/jsimpledb/kv/raft/msg/MessageSwitch.html#line.67">casePingResponse</a>(<a href="../../../../../org/jsimpledb/kv/raft/msg/PingResponse.html" title="class in org.jsimpledb.kv.raft.msg">PingResponse</a>&nbsp;msg)</pre>
+<div class="block">Handle a <a href="../../../../../org/jsimpledb/kv/raft/msg/PingResponse.html" title="class in org.jsimpledb.kv.raft.msg"><code>PingResponse</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>msg</code> - message received</dd></dl>
+</li>
+</ul>
 <a name="caseRequestVote(org.jsimpledb.kv.raft.msg.RequestVote)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>caseRequestVote</h4>
-<pre>void&nbsp;<a href="../../../../../src-html/org/jsimpledb/kv/raft/msg/MessageSwitch.html#line.60">caseRequestVote</a>(<a href="../../../../../org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg">RequestVote</a>&nbsp;msg)</pre>
+<pre>void&nbsp;<a href="../../../../../src-html/org/jsimpledb/kv/raft/msg/MessageSwitch.html#line.74">caseRequestVote</a>(<a href="../../../../../org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg">RequestVote</a>&nbsp;msg)</pre>
 <div class="block">Handle an <a href="../../../../../org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg"><code>RequestVote</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>msg</code> - message received</dd></dl>
 </li>
@@ -267,7 +301,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../../org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../../org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?org/jsimpledb/kv/raft/msg/MessageSwitch.html" target="_top">Frames</a></li>

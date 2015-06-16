@@ -103,7 +103,7 @@
 </dl>
 <hr>
 <br>
-<pre>public static class <a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.2588">RaftKVDatabase.LeaderRole</a>
+<pre>public static class <a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.2665">RaftKVDatabase.LeaderRole</a>
 extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.Role</a></pre>
 <div class="block">Raft leader role.</div>
 </li>
@@ -181,7 +181,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" tit
 <ul class="blockList">
 <li class="blockList">
 <h4>getFollowers</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft">Follower</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html#line.2638">getFollowers</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft">Follower</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html#line.2715">getFollowers</a>()</pre>
 <div class="block">Get this leader's known followers.
 
  <p>
@@ -195,7 +195,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" tit
 <ul class="blockList">
 <li class="blockList">
 <h4>getLeaseTimeout</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html#line.2666">getLeaseTimeout</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html#line.2743">getLeaseTimeout</a>()</pre>
 <div class="block">Get this leader's "lease timeout".
 
  <p>
@@ -220,7 +220,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" tit
 <ul class="blockList">
 <li class="blockList">
 <h4>stepDown</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html#line.2677">stepDown</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html#line.2754">stepDown</a>()</pre>
 <div class="block">Force this leader to step down.</div>
 <dl><dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this role is no longer active or election timer is not running</dd></dl>
@@ -232,7 +232,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" tit
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html#line.3481">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html#line.3558">toString</a>()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.Role</a></code></dd>
