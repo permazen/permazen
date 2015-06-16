@@ -1276,13 +1276,13 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Grab a snapshot of the key/value store
             this.snapshot = RaftKVDatabase.this.kv.snapshot();
-            this.config = new HashMap<>(RaftKVDatabase.this.lastAppliedConfig);
 
             // Create a view of just the state machine keys and values and successively layer unapplied log entries
             // If we require a committed view, then stop when we get to the first uncomitted log entry
             KVStore kview = PrefixKVStore.create(snapshot, STATE_MACHINE_PREFIX);
-            long viewIndex = RaftKVDatabase.this.getLastLogIndex();
-            long viewTerm = RaftKVDatabase.this.getLastLogTerm();
+            this.config = new HashMap<>(RaftKVDatabase.this.lastAppliedConfig);
+            long viewIndex = RaftKVDatabase.this.lastAppliedIndex;
+            long viewTerm = RaftKVDatabase.this.lastAppliedTerm;
             for (LogEntry logEntry : RaftKVDatabase.this.raftLog) {
                 if (committed && logEntry.getIndex() > RaftKVDatabase.this.commitIndex)
                     break;
