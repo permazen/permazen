@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.kv.raft.Consistency;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
 
@@ -42,6 +43,7 @@ public class RaftAddCommand extends AbstractRaftCommand {
         return new RaftAction() {
             @Override
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
+                tx.setConsistency(Consistency.UNCOMMITTED);
                 tx.configChange(identity, address);
             }
         };

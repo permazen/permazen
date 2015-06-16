@@ -48,7 +48,8 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     private final long baseIndex;                       // index of the log entry on which this transaction is based
 
     private TxState state = TxState.EXECUTING;
-    private volatile boolean staleReadOnly;
+    private volatile Consistency consistency = Consistency.LINEARIZABLE;
+    private volatile boolean readOnly;
     private volatile int timeout;
     private volatile String[] configChange;             // cluster config change associated with this transaction
     private RaftKVDatabase.Timer commitTimer;
@@ -156,44 +157,52 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     }
 
     /**
-     * Configure whether to reduce the consistency guarantees for this transaction from linearizable consistency
-     * to stale read consistency.
+     * Get the consistency level for this transaction.
      *
      * <p>
-     * If so configured, this transaction guarantees a consistent, read-only view of the database as it existed
-     * at some point in the "recent past". The view is not guaranteed to be up-to-date; it's only guaranteed
-     * to be as up-to-date as is known to this node when the transaction was opened. For example, it will be
-     * at least as up to date as the most recently committed normal (linearizable) transaction on this node.
-     * However, in general (for example, if stuck in a network partition minority), the snapshot could be arbitrarily
-     * far in the past.
+     * The default consistency level is {@link Consistency#LINEARIZABLE}.
      *
-     * <p>
-     * This setting may be modified freely during a transaction; it only determines behavior at {@link #commit} time.
-     * If set:
-     * <ul>
-     *  <li>The transaction will be read-only: modifications will be allowed (and reflected in subsequent reads),
-     *      but they will be discarded on {@link #commit}.</li>
-     *  <li>The {@link #commit} operation may be faster, and will not generate any additional network traffic.</li>
-     *  <li>The {@link #commit} operation will still wait for the transaction's base log entry to be committed,
-     *      which eliminates the possibility of reading uncommitted data. If the possibility of reading uncommitted data
-     *      is tolerable, then any {@link #commit} wait can be avoided simply by invoking {@link #rollback} instead.</li>
-     * </ul>
-     *
-     * @param staleReadOnly true to configure stale reads, false for normal linearizable ACID semantics
-     * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
+     * @return transaction consistency level
      */
-    public void setStaleReadOnly(boolean staleReadOnly) {
-        this.staleReadOnly = staleReadOnly;
+    public Consistency getConsistency() {
+        return this.consistency;
     }
 
     /**
-     * Determine whether this instance is configured for read-only, stale read consistency.
+     * Set the consistency level for this transaction.
      *
-     * @return true if this instance is configured for read-only, stale read consistency
-     * @see #setStaleReadOnly
+     * <p>
+     * This setting may be modified freely during a transaction; it only determines behavior at {@link #commit} time.
+     *
+     * @param consistency desired consistency level
+     * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
+     * @throws IlleaglArgumentException if {@code consistency} is null
      */
-    public boolean isStaleReadOnly() {
-        return this.staleReadOnly;
+    public void setConsistency(Consistency consistency) {
+        Preconditions.checkArgument(consistency != null, "null consistency");
+        this.consistency = consistency;
+    }
+
+    /**
+     * Determine whether this transaction is configured as read-only.
+     *
+     * @return true if this transaction is configured read-only
+     */
+    public boolean isReadOnly() {
+        return this.readOnly;
+    }
+
+    /**
+     * Set whether this transaction should be read-only.
+     *
+     * <p>
+     * Read-only transactions support modifications during the transaction, and these modifications will be visible
+     * when read back, but they are discarded on {@link #commit commit()}.
+     *
+     * @param readOnly true to discard mutations on commit, false to apply mutations on commit
+     */
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
 // Configuration Stuff
@@ -328,7 +337,8 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
           + "[txId=" + this.txId
           + ",state=" + this.state
           + ",base=" + this.baseIndex + "t" + this.baseTerm
-          + (this.staleReadOnly ? ",staleReadOnly" : "")
+          + ",consistency=" + this.consistency
+          + (this.readOnly ? ",readOnly" : "")
           + (this.configChange != null ? ",configChange=" + Arrays.<String>asList(this.configChange) : "")
           + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")
           + (this.timeout != 0 ? ",timeout=" + this.timeout : "")

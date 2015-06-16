@@ -142,9 +142,8 @@ import org.slf4j.LoggerFactory;
  *      any waiting read-only transactions. Leaders keep track of which followers are waiting on which leader lease
  *      timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
  *      is immediately notified.</li>
- *  <li>A weaker consistency guarantee for read-only transactions (stale reads) is also possible; see
- *      {@link RaftKVTransaction#setStaleReadOnly RaftKVTransaction.setStaleReadOnly()}; these transactions generate
- *      no additional network traffic.</li>
+ *  <li>Optional weaker consistency guarantees are availble on a per-transaction bases; see
+ *      {@link RaftKVTransaction#setConsistency RaftKVTransaction.setsetConsistency()}</li>
  *  </ul>
  *
  * <p><b>Limitations</b></p>
@@ -2408,7 +2407,68 @@ public class RaftKVDatabase implements KVDatabase {
          * @param tx the transaction
          * @throws KVTransactionException if an error occurs
          */
-        abstract void checkReadyTransaction(RaftKVTransaction tx);
+        void checkReadyTransaction(RaftKVTransaction tx) {
+
+            // Get transaction mutations
+            final Writes writes = tx.getMutableView().getWrites();
+            final String[] configChange = tx.getConfigChange();
+
+            // Determine whether transaction is truly read-only
+            final boolean readOnly = tx.isReadOnly() || (writes.isEmpty() && configChange == null);
+
+            // No need to talk to leader for read-only transactions unless LINEARIZABLE
+            if (readOnly) {
+                switch (tx.getConsistency()) {
+                case UNCOMMITTED:
+                    if (this.log.isTraceEnabled())
+                        this.trace("trivial commit for read-only, UNCOMMITTED " + tx);
+                    this.raft.succeed(tx);
+                    return;
+                case EVENTUAL:
+                    this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
+                    return;
+                default:
+                    break;
+                }
+            }
+
+            // Requires leader communication - let subclass handle it
+            this.checkReadyLeaderTransaction(tx, readOnly);
+        }
+
+        /**
+         * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state)
+         * and requires communication with the leader.
+         *
+         * @param tx the transaction
+         * @param readOnly if transaction is read-only
+         * @throws KVTransactionException if an error occurs
+         */
+        abstract void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly);
+
+        /**
+         * Advance a transaction from the {@link TxState#COMMIT_READY} state to the {@link TxState#COMMIT_WAITING} state.
+         *
+         * @param tx the transaction
+         */
+        void advanceReadyTransaction(RaftKVTransaction tx, long commitTerm, long commitIndex) {
+
+            // Sanity check
+            assert tx.getState().equals(TxState.COMMIT_READY);
+
+            // Set commit term & index and update state
+            if (this.log.isDebugEnabled())
+                this.debug("advancing " + tx + " to " + TxState.COMMIT_WAITING + " with commit " + commitIndex + "t" + commitTerm);
+            tx.setCommitTerm(commitTerm);
+            tx.setCommitIndex(commitIndex);
+            tx.setState(TxState.COMMIT_WAITING);
+
+            // Discard information we no longer need
+            tx.getMutableView().disableReadTracking();
+
+            // Check this transaction to see if it can be committed
+            this.raft.requestService(this.checkWaitingTransactionsService);
+        }
 
         /**
          * Check a transaction waiting for its log entry to be committed (in the {@link TxState#COMMIT_WAITING} state).
@@ -2468,34 +2528,12 @@ public class RaftKVDatabase implements KVDatabase {
          * <p>
          * Invoked either when transaction is closed or this role is being shutdown.
          *
-         * @param tx the transaction
-         */
-        abstract void cleanupForTransaction(RaftKVTransaction tx);
-
-        /**
-         * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state) for stale read isolation.
+         * <p>
+         * The implementation in {@link Role} does nothing; subclasses should override if appropriate.
          *
          * @param tx the transaction
-         * @return true if snapshot isolation and moved to {@link TxState@COMMIT_WAITING}
          */
-        boolean checkReadyTransactionStaleReadOnly(RaftKVTransaction tx) {
-
-            // Sanity check
-            assert Thread.holdsLock(this.raft);
-            assert tx.getState().equals(TxState.COMMIT_READY);
-
-            // Check isolation
-            if (!tx.isStaleReadOnly())
-                return false;
-
-            // For snapshot isolation, we only need to wait for the commit of the transaction's base log entry
-            tx.setCommitTerm(tx.getBaseTerm());
-            tx.setCommitIndex(tx.getBaseIndex());
-            tx.setState(TxState.COMMIT_WAITING);
-            this.raft.requestService(new CheckWaitingTransactionService(tx));
-
-            // Done
-            return true;
+        void cleanupForTransaction(RaftKVTransaction tx) {
         }
 
     // Messages
@@ -3203,38 +3241,47 @@ public class RaftKVDatabase implements KVDatabase {
     // Transactions
 
         @Override
-        void checkReadyTransaction(final RaftKVTransaction tx) {
+        void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly) {
 
             // Sanity check
             assert Thread.holdsLock(this.raft);
             assert tx.getState().equals(TxState.COMMIT_READY);
 
-            // Check snapshot isolation
-            if (this.checkReadyTransactionStaleReadOnly(tx))
-                return;
-
-            // Check for conflict
-            final String error = this.checkConflicts(tx.getBaseTerm(), tx.getBaseIndex(), tx.getMutableView().getReads());
-            if (error != null) {
-                if (this.log.isDebugEnabled())
-                    this.debug("local transaction " + tx + " failed due to conflict: " + error);
-                throw new RetryTransactionException(tx, error);
+            // Check for conflict when LINEARIZABLE
+            if (tx.getConsistency().equals(Consistency.LINEARIZABLE)) {
+                final String error = this.checkConflicts(tx.getBaseTerm(), tx.getBaseIndex(), tx.getMutableView().getReads());
+                if (error != null) {
+                    if (this.log.isDebugEnabled())
+                        this.debug("local transaction " + tx + " failed due to conflict: " + error);
+                    throw new RetryTransactionException(tx, error);
+                }
+            } else {
+                if (this.log.isTraceEnabled())
+                    this.trace("not checking for conflicts in " + tx.getConsistency() + " transaction " + tx);
             }
 
             // Handle read-only vs. read-write transaction
-            final Writes writes = tx.getMutableView().getWrites();
-            if (writes.isEmpty() && tx.getConfigChange() == null) {
+            if (readOnly) {
 
-                // Set commit term and index from last log entry
-                tx.setCommitTerm(this.raft.getLastLogTerm());
-                tx.setCommitIndex(this.raft.getLastLogIndex());
-                if (this.log.isDebugEnabled()) {
-                    this.debug("commit is " + tx.getCommitIndex() + "t" + tx.getCommitTerm()
-                      + " for local read-only transaction " + tx);
+                // Set commit term and index depending on consistency level
+                switch (tx.getConsistency()) {
+                case UNCOMMITTED:
+                    if (this.log.isTraceEnabled())
+                        this.trace("trivial commit for UNCOMMITTED " + tx);
+                    this.raft.succeed(tx);
+                    return;
+                case EVENTUAL:
+                    this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
+                    return;
+                case LINEARIZABLE:
+                    if (this.leaseTimeout != null && this.leaseTimeout.offsetFromNow() > 0)
+                        this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
+                    else
+                        this.advanceReadyTransaction(tx, this.raft.getLastLogTerm(), this.raft.getLastLogIndex());
+                    return;
+                default:
+                    throw new RuntimeException("internal error");
                 }
-
-                // We will be able to commit this transaction immediately
-                this.raft.requestService(new CheckWaitingTransactionService(tx));
             } else {
 
                 // Don't commit a new config change while there is any previous config change outstanding
@@ -3251,23 +3298,9 @@ public class RaftKVDatabase implements KVDatabase {
                 if (this.log.isDebugEnabled())
                     this.debug("added log entry " + logEntry + " for local transaction " + tx);
 
-                // Set commit term and index from new log entry
-                tx.setCommitTerm(logEntry.getTerm());
-                tx.setCommitIndex(logEntry.getIndex());
-
-                // If there are no followers, we can commit this immediately
-                if (this.followerMap.isEmpty())
-                    this.raft.requestService(new CheckWaitingTransactionService(tx));
+                // Update transaction
+                this.advanceReadyTransaction(tx, logEntry.getTerm(), logEntry.getIndex());
             }
-
-            // Update transaction state
-            tx.setState(TxState.COMMIT_WAITING);
-            tx.getMutableView().disableReadTracking();                                  // we no longer need this info
-        }
-
-        @Override
-        void cleanupForTransaction(RaftKVTransaction tx) {
-            // nothing to do
         }
 
         private boolean isConfigChangeOutstanding() {
@@ -3358,25 +3391,30 @@ public class RaftKVDatabase implements KVDatabase {
             if (follower == null)
                 return;
 
-            // Decode reads
-            final Reads reads;
-            try {
-                reads = Reads.deserialize(new ByteBufferInputStream(msg.getReadsData()));
-            } catch (Exception e) {
-                this.error("error decoding reads data in " + msg, e);
-                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getTxId(), "error decoding reads data: " + e));
-                return;
-            }
+            // Decode reads, if any, and check for conflicts
+            final ByteBuffer readsData = msg.getReadsData();
+            if (readsData != null) {
 
-            // Check for conflict
-            final String conflictMsg = this.checkConflicts(msg.getBaseTerm(), msg.getBaseIndex(), reads);
-            if (conflictMsg != null) {
-                if (this.log.isDebugEnabled())
-                    this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);
-                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getTxId(), conflictMsg));
-                return;
+                // Decode reads
+                final Reads reads;
+                try {
+                    reads = Reads.deserialize(new ByteBufferInputStream(msg.getReadsData()));
+                } catch (Exception e) {
+                    this.error("error decoding reads data in " + msg, e);
+                    this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
+                      this.raft.currentTerm, msg.getTxId(), "error decoding reads data: " + e));
+                    return;
+                }
+
+                // Check for conflict
+                final String conflictMsg = this.checkConflicts(msg.getBaseTerm(), msg.getBaseIndex(), reads);
+                if (conflictMsg != null) {
+                    if (this.log.isDebugEnabled())
+                        this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);
+                    this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
+                      this.raft.currentTerm, msg.getTxId(), conflictMsg));
+                    return;
+                }
             }
 
             // Handle read-only vs. read-write transaction
@@ -3902,18 +3940,14 @@ public class RaftKVDatabase implements KVDatabase {
     // Transactions
 
         @Override
-        void checkReadyTransaction(RaftKVTransaction tx) {
+        void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly) {
 
             // Sanity check
             assert Thread.holdsLock(this.raft);
             assert tx.getState().equals(TxState.COMMIT_READY);
 
-            // Check snapshot isolation
-            if (this.checkReadyTransactionStaleReadOnly(tx))
-                return;
-
             // Did we already send a CommitRequest for this transaction?
-            PendingRequest pendingRequest = this.pendingRequests.get(tx.getTxId());
+            final PendingRequest pendingRequest = this.pendingRequests.get(tx.getTxId());
             if (pendingRequest != null) {
                 if (this.log.isTraceEnabled())
                     this.trace("leaving alone ready tx " + tx + " because request already sent");
@@ -3935,7 +3969,7 @@ public class RaftKVDatabase implements KVDatabase {
                 final String[] configChange = tx.getConfigChange();
 
                 // Allow an empty read-only transaction when unconfigured
-                if (writes.isEmpty() && configChange == null) {
+                if (readOnly) {
                     this.raft.succeed(tx);
                     return;
                 }
@@ -3978,14 +4012,11 @@ public class RaftKVDatabase implements KVDatabase {
                 assert logEntry.getTerm() == 1;
                 assert logEntry.getIndex() == 1;
 
-                // Set commit term and index from new log entry
-                tx.setCommitTerm(logEntry.getTerm());
-                tx.setCommitIndex(logEntry.getIndex());
-                this.raft.commitIndex = logEntry.getIndex();
+                // Update transaction
+                this.advanceReadyTransaction(tx, logEntry.getTerm(), logEntry.getIndex());
 
-                // Update transaction state
-                tx.setState(TxState.COMMIT_WAITING);
-                tx.getMutableView().disableReadTracking();                                  // we no longer need this info
+                // Set commit term and index from new log entry
+                this.raft.commitIndex = logEntry.getIndex();
 
                 // Immediately become the leader of our new single-node cluster
                 assert this.raft.isConfigured();
@@ -4004,40 +4035,51 @@ public class RaftKVDatabase implements KVDatabase {
                 return;
             }
 
-            // Serialize reads into buffer
-            final Reads reads = tx.getMutableView().getReads();
-            final long readsDataSize = reads.serializedLength();
-            if (readsDataSize != (int)readsDataSize)
-                throw new KVTransactionException(tx, "transaction read information exceeds maximum length");
-            final ByteBuffer readsData = Util.allocateByteBuffer((int)readsDataSize);
-            try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {
-                reads.serialize(output);
-            } catch (IOException e) {
-                throw new RuntimeException("unexpected exception", e);
-            }
-            assert !readsData.hasRemaining();
-            readsData.flip();
+            // Gather reads data, but only if transaction is LINEARIZABLE; otherwise, we don't send them
+            final ByteBuffer readsData;
+            if (tx.getConsistency().equals(Consistency.LINEARIZABLE)) {
 
-            // Handle read-only vs. read-write transaction
-            final Writes writes = tx.getMutableView().getWrites();
-            FileWriter fileWriter = null;
+                // Serialize reads into buffer
+                final Reads reads = tx.getMutableView().getReads();
+                final long readsDataSize = reads.serializedLength();
+                if (readsDataSize != (int)readsDataSize)
+                    throw new KVTransactionException(tx, "transaction read information exceeds maximum length");
+                readsData = Util.allocateByteBuffer((int)readsDataSize);
+                try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {
+                    reads.serialize(output);
+                } catch (IOException e) {
+                    throw new RuntimeException("unexpected exception", e);
+                }
+                assert !readsData.hasRemaining();
+                readsData.flip();
+            } else
+                readsData = null;
+
+            // Gather writes data (i.e., mutations), but only if transaction is not read-only
             ByteBuffer mutationData = null;
-            if (!writes.isEmpty() || tx.getConfigChange() != null) {
+            if (!readOnly) {
 
-                // Serialize changes into a temporary file (but do not close or durably persist yet)
+                // Serialize mutations into a temporary file (but do not close or durably persist yet)
+                final Writes writes = tx.getMutableView().getWrites();
                 final File file = new File(this.raft.logDir,
                   String.format("%s%019d%s", TX_FILE_PREFIX, tx.getTxId(), TEMP_FILE_SUFFIX));
+                final FileWriter fileWriter;
                 try {
-                    LogEntry.writeData((fileWriter = new FileWriter(file)), new LogEntry.Data(writes, tx.getConfigChange()));
+                    fileWriter = new FileWriter(file);
+                } catch (IOException e) {
+                    throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);
+                }
+                try {
+                    LogEntry.writeData(fileWriter, new LogEntry.Data(writes, tx.getConfigChange()));
                     fileWriter.flush();
                 } catch (IOException e) {
                     fileWriter.getFile().delete();
                     Util.closeIfPossible(fileWriter);
                     throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);
                 }
-                final long writeLength = fileWriter.getLength();
 
                 // Load serialized writes from file
+                final long writeLength = fileWriter.getLength();
                 try {
                     mutationData = Util.readFile(fileWriter.getFile(), writeLength);
                 } catch (IOException e) {
@@ -4326,13 +4368,13 @@ public class RaftKVDatabase implements KVDatabase {
             if (this.log.isTraceEnabled())
                 this.trace("rec'd " + msg + " for " + tx);
             if (msg.isSuccess()) {
-                tx.setCommitTerm(msg.getCommitTerm());
-                tx.setCommitIndex(msg.getCommitIndex());
+
+                // Update transaction
+                this.advanceReadyTransaction(tx, msg.getCommitTerm(), msg.getCommitIndex());
+
+                // Track leader lease timeout we must wait for, if any
                 if (msg.getCommitLeaderLeaseTimeout() != null)
                     this.commitLeaderLeaseTimeoutMap.put(tx.getTxId(), msg.getCommitLeaderLeaseTimeout());
-                tx.setState(TxState.COMMIT_WAITING);
-                tx.getMutableView().disableReadTracking();                                  // we no longer need this info
-                this.raft.requestService(new CheckWaitingTransactionService(tx));
             } else
                 this.raft.fail(tx, new RetryTransactionException(tx, msg.getErrorMessage()));
         }
@@ -4682,22 +4724,13 @@ public class RaftKVDatabase implements KVDatabase {
     // Transactions
 
         @Override
-        void checkReadyTransaction(RaftKVTransaction tx) {
+        void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly) {
 
             // Sanity check
             assert Thread.holdsLock(this.raft);
             assert tx.getState().equals(TxState.COMMIT_READY);
 
-            // Check snapshot isolation
-            if (this.checkReadyTransactionStaleReadOnly(tx))
-                return;
-
-            // We can't do anything with it until we have a leader
-        }
-
-        @Override
-        void cleanupForTransaction(RaftKVTransaction tx) {
-            // nothing to do
+            // We can't do anything because we don't have a leader yet
         }
 
     // MessageSwitch
@@ -4714,16 +4747,12 @@ public class RaftKVDatabase implements KVDatabase {
 
         @Override
         void caseCommitResponse(CommitResponse msg) {
-
-            // We could not have ever sent a CommitRequest in this term
-            this.failUnexpectedMessage(msg);
+            this.failUnexpectedMessage(msg);                    // we could not have ever sent a CommitRequest in this term
         }
 
         @Override
         void caseInstallSnapshot(InstallSnapshot msg) {
-
-            // We could not have ever sent an AppendResponse in this term
-            this.failUnexpectedMessage(msg);
+            this.failUnexpectedMessage(msg);                    // we could not have ever sent an AppendResponse in this term
         }
 
         @Override
@@ -4834,7 +4863,7 @@ public class RaftKVDatabase implements KVDatabase {
         try {
             this.doCheckState();
         } catch (AssertionError e) {
-            throw new AssertionError("checkState() failure for \"" + this.identity + "\"", e);
+            throw new AssertionError("checkState() failure for " + this, e);
         }
         return true;
     }

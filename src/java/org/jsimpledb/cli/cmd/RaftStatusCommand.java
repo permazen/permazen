@@ -43,9 +43,6 @@ public class RaftStatusCommand extends AbstractRaftCommand {
 
     private void displayStatus(PrintWriter writer, RaftKVTransaction tx, RaftKVDatabase db) {
 
-        // Don't require communication with any peers to complete this transation
-        tx.setStaleReadOnly(true);
-
         // Configuration info
         writer.println();
         writer.println("Configuration");
@@ -173,13 +170,13 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println("Open Transactions");
         writer.println("=================");
         writer.println();
-        writer.println(String.format("%1s %-6s %-10s %-5s %-8s %-8s %s",
-          "", "ID", "State", "Stale", "Base", "Commit", "Config Change"));
-        writer.println(String.format("%1s %-6s %-10s %-5s %-8s %-8s %s",
-          "", "--", "-----", "-----", "----", "------", "-------------"));
+        writer.println(String.format("%1s %-6s %-10s %-5s %-12s %-8s %-8s %s",
+          "", "ID", "State", "Type", "Consistency", "Base", "Commit", "Config Change"));
+        writer.println(String.format("%1s %-6s %-10s %-5s %-12s %-8s %-8s %s",
+          "", "--", "-----", "----", "-----------", "----", "------", "-------------"));
         for (RaftKVTransaction tx2 : db.getOpenTransactions()) {
-            writer.println(String.format("%1s %-6d %-10s %-5s %-8s %-8s %s", tx2 == tx ? "*" : "", tx2.getTxId(),
-              tx2.getState(), tx2.isStaleReadOnly() ? "Yes" : "No", tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
+            writer.println(String.format("%1s %-6d %-10s %-5s %-12s %-8s %-8s %s", tx2 == tx ? "*" : "", tx2.getTxId(),
+              tx2.getState(), tx2.isReadOnly() ? "R/O" : "R/W", tx2.getConsistency(), tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
               tx2.getState().compareTo(TxState.COMMIT_WAITING) >= 0 ? tx2.getCommitIndex() + "t" + tx2.getCommitTerm() : "",
               this.describe(tx2.getConfigChange())));
         }
