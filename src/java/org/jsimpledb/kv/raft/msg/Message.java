@@ -36,7 +36,9 @@ public abstract class Message {
     static final byte GRANT_VOTE_TYPE = 5;
     static final byte INSTALL_SNAPSHOT_TYPE = 6;
     static final byte REQUEST_VOTE_TYPE = 7;
-    static final byte MAX_TYPE = 8;
+    static final byte PING_REQUEST_TYPE = 8;
+    static final byte PING_RESPONSE_TYPE = 9;
+    static final byte MAX_TYPE = 10;
 
     // Serialization version number
     private static final byte VERSION_1 = 1;
@@ -182,6 +184,12 @@ public abstract class Message {
             break;
         case REQUEST_VOTE_TYPE:
             msg = new RequestVote(buf);
+            break;
+        case PING_REQUEST_TYPE:
+            msg = new PingRequest(buf);
+            break;
+        case PING_RESPONSE_TYPE:
+            msg = new PingResponse(buf);
             break;
         default:
             throw new IllegalArgumentException("invalid message type " + type);

@@ -15,6 +15,7 @@ import org.jsimpledb.kv.raft.Follower;
 import org.jsimpledb.kv.raft.LogEntry;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
+import org.jsimpledb.kv.raft.Timestamp;
 import org.jsimpledb.kv.raft.TxState;
 import org.jsimpledb.parse.ParseContext;
 
@@ -153,7 +154,12 @@ public class RaftStatusCommand extends AbstractRaftCommand {
             writer.println(String.format("%-24s: %s", "Voted For",
               follower.getVotedFor() != null ? "\"" + follower.getVotedFor() + "\"" : "Nobody"));
             writer.println(String.format("%-24s: %s", "Installing snapshot", follower.isInstallingSnapshot() ? "Yes" : "No"));
-            writer.println(String.format("%-24s: %s", "Election timer running", follower.isElectionTimerRunning() ? "Yes" : "No"));
+            final Timestamp electionTimeout = follower.getElectionTimeout();
+            writer.println(String.format("%-24s: %s", "Election timer running",
+              electionTimeout != null ? "Yes; expires in " + electionTimeout.offsetFromNow() + "ms" : "No"));
+            final int probed = follower.getNodesProbed();
+            writer.println(String.format("%-24s: %s", "Nodes Probed",
+              probed != -1 ? String.format("%d / %d", follower.getNodesProbed(), config.size()) : "Not probing"));
         } else if (role instanceof RaftKVDatabase.CandidateRole) {
             final RaftKVDatabase.CandidateRole candidate = (RaftKVDatabase.CandidateRole)role;
 

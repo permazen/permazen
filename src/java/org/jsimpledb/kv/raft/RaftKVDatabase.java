@@ -75,6 +75,8 @@ import org.jsimpledb.kv.raft.msg.GrantVote;
 import org.jsimpledb.kv.raft.msg.InstallSnapshot;
 import org.jsimpledb.kv.raft.msg.Message;
 import org.jsimpledb.kv.raft.msg.MessageSwitch;
+import org.jsimpledb.kv.raft.msg.PingRequest;
+import org.jsimpledb.kv.raft.msg.PingResponse;
 import org.jsimpledb.kv.raft.msg.RequestVote;
 import org.jsimpledb.kv.raft.net.Network;
 import org.jsimpledb.kv.raft.net.TCPNetwork;
@@ -221,6 +223,19 @@ import org.slf4j.LoggerFactory;
  *  <li>Configuration changes that remove the last node in a cluster are disallowed.</li>
  *  <li>Only one configuration change may take place at a time.</li>
  * </ul>
+ *
+ * <p><b>Follower Probes</b></p>
+ *
+ * <p>
+ * This implementation includes a modification to the Raft state machine to avoid unnecessary, disruptive elections
+ * when a node or nodes is disconnected from, and then reconnected to, the majority.
+ *
+ * <p>
+ * When a follower's election timeout fires, before converting into a candidate, the follower is required to verify
+ * communication with a majority of the cluster using {@linkplain PingRequest} messages. Only when the follower has
+ * successfully done so may it become a candidate.  While in this intermediate "probing" mode, the follower responds
+ * normally to incoming messages. In particular, if the follower receives a valid {@link AppendRequest} from the leader, it
+ * reverts back to normal operation.
  *
  * @see <a href="https://raftconsensus.github.io/">The Raft Consensus Algorithm</a>
  */
@@ -1488,6 +1503,13 @@ public class RaftKVDatabase implements KVDatabase {
         }
 
         /**
+         * Get the deadline.
+         */
+        public Timestamp getDeadline() {
+            return this.timeoutDeadline;
+        }
+
+        /**
          * Determine if this timer has expired and requires service handling, and reset it if so.
          *
          * <p>
@@ -1969,15 +1991,6 @@ public class RaftKVDatabase implements KVDatabase {
             return;
         }
 
-        // Is sender's term too low? Ignore it
-        if (msg.getTerm() < this.currentTerm) {
-            if (this.log.isDebugEnabled()) {
-                this.debug("rec'd " + msg + " with term " + msg.getTerm() + " < " + this.currentTerm
-                  + " from \"" + peer + "\" at " + address + ", ignoring");
-            }
-            return;
-        }
-
         // Is my term too low? If so update and revert to follower
         if (msg.getTerm() > this.currentTerm) {
 
@@ -1999,6 +2012,23 @@ public class RaftKVDatabase implements KVDatabase {
             if (!this.advanceTerm(msg.getTerm()))
                 return;
             this.changeRole(msg.isLeaderMessage() ? new FollowerRole(this, peer, address) : new FollowerRole(this));
+        }
+
+        // Always handle ping request, even if sender's term is too low
+        if (msg instanceof PingRequest) {
+            final PingRequest ping = (PingRequest)msg;
+            this.sendMessage(new PingResponse(this.clusterId,
+              this.identity, ping.getSenderId(), this.currentTerm, ping.getTimestamp()));
+            return;
+        }
+
+        // Is sender's term too low? Ignore it
+        if (msg.getTerm() < this.currentTerm) {
+            if (this.log.isDebugEnabled()) {
+                this.debug("rec'd " + msg + " with term " + msg.getTerm() + " < " + this.currentTerm
+                  + " from \"" + peer + "\" at " + address + ", ignoring");
+            }
+            return;
         }
 
         // Debug
@@ -2032,6 +2062,14 @@ public class RaftKVDatabase implements KVDatabase {
                 @Override
                 public void caseInstallSnapshot(InstallSnapshot msg) {
                     RaftKVDatabase.this.role.caseInstallSnapshot(msg);
+                }
+                @Override
+                public void casePingRequest(PingRequest msg) {
+                    throw new RuntimeException("internal error");
+                }
+                @Override
+                public void casePingResponse(PingResponse msg) {
+                    RaftKVDatabase.this.role.casePingResponse(msg);
                 }
                 @Override
                 public void caseRequestVote(RequestVote msg) {
@@ -2546,6 +2584,10 @@ public class RaftKVDatabase implements KVDatabase {
         abstract void caseGrantVote(GrantVote msg);
         abstract void caseInstallSnapshot(InstallSnapshot msg);
         abstract void caseRequestVote(RequestVote msg);
+
+        void casePingResponse(PingResponse msg) {
+            // ignore by default
+        }
 
         boolean mayAdvanceCurrentTerm(Message msg) {
             return true;
@@ -3688,17 +3730,17 @@ public class RaftKVDatabase implements KVDatabase {
     // Status & Debugging
 
         /**
-         * Determine whether the election timer is running.
+         * Get the election timer deadline, if currently running.
          *
          * <p>
-         * For a follower that is not a member of its cluster, this will return false.
-         * For all other cases, this will return true.
+         * For a follower that is not a member of its cluster, this will return null because no election timer is running.
+         * For all other cases, this will return the time at which the election timer expires.
          *
-         * @return true if election timer is running
+         * @return current election timer expiration deadline, or null if not running
          */
-        public boolean isElectionTimerRunning() {
+        public Timestamp getElectionTimeout() {
             synchronized (this.raft) {
-                return this.electionTimer.isRunning();
+                return this.electionTimer.getDeadline();
             }
         }
 
@@ -3738,7 +3780,7 @@ public class RaftKVDatabase implements KVDatabase {
             if (this.electionTimer.pollForTimeout()) {
                 if (this.log.isDebugEnabled())
                     this.debug("election timeout while in " + this);
-                this.raft.changeRole(new CandidateRole(this.raft));
+                this.handleElectionTimeout();
             }
         }
 
@@ -3754,6 +3796,8 @@ public class RaftKVDatabase implements KVDatabase {
             // Restart timer
             this.electionTimer.timeoutAfter(this.raft.minElectionTimeout + randomizedPart);
         }
+
+        abstract void handleElectionTimeout();
 
     // MessageSwitch
 
@@ -3785,6 +3829,7 @@ public class RaftKVDatabase implements KVDatabase {
           = new HashMap<>();
         private Timestamp lastLeaderMessageTime;                                        // time of most recent rec'd AppendRequest
         private Timestamp leaderLeaseTimeout;                                           // latest rec'd leader lease timeout
+        private HashMap<String, Timestamp> probeTimestamps;                             // used only when probing majority
 
     // Constructors
 
@@ -3850,6 +3895,35 @@ public class RaftKVDatabase implements KVDatabase {
             }
         }
 
+        /**
+         * Determine the number of nodes (including this node) that this node has successfully probed when probing
+         * for a majority of nodes with {@link PingRequest}s prior to reverting to a candidate.
+         *
+         * @return the number of other nodes this node has successfully probed, or -1 if not probing
+         */
+        public int getNodesProbed() {
+            synchronized (this.raft) {
+                return this.probeTimestamps != null ? this.calculateProbedNodes() : -1;
+            }
+        }
+
+    // Probing mode
+
+        private int calculateProbedNodes() {
+            assert this.probeTimestamps != null;
+            int numProbed = this.raft.isClusterMember() ? 1 : 0;
+            final Timestamp now = new Timestamp();
+            for (Iterator<Timestamp> i = this.probeTimestamps.values().iterator(); i.hasNext(); ) {
+                final Timestamp timestamp = i.next();
+                if (now.offsetFrom(timestamp) >= this.raft.maxElectionTimeout) {                // timestamp is too old, discard
+                    i.remove();
+                    continue;
+                }
+                numProbed++;
+            }
+            return numProbed;
+        }
+
     // Lifecycle
 
         @Override
@@ -3910,6 +3984,49 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Verify leader's lease timeout has extended beyond that required by the transaction
             return this.leaderLeaseTimeout.compareTo(commitLeaderLeaseTimeout) >= 0;
+        }
+
+        @Override
+        void handleElectionTimeout() {
+
+            // Invalidate current leader
+            this.leader = null;
+            this.leaderAddress = null;
+
+            // If we are already probing, check probe results
+            if (this.probeTimestamps != null) {
+
+                // Get the number of nodes successfully probed this round, and the minimum number required (a majority)
+                final int numProbed = this.calculateProbedNodes();
+                final int numRequired = this.raft.currentConfig.size() / 2 + 1;
+
+                // Once we have successfully probed a majority we can finally become a candidate
+                if (this.log.isTraceEnabled())
+                    this.trace("now we have probed " + numProbed + "/" + numRequired + " required nodes");
+                if (numProbed >= numRequired) {
+                    if (this.log.isDebugEnabled())
+                        this.debug("successfully probed " + numProbed + " nodes, now converting to candidate");
+                    this.raft.changeRole(new CandidateRole(this.raft));
+                    return;
+                }
+            } else {
+
+                // Enter probing mode
+                if (this.log.isDebugEnabled())
+                    this.debug("follower election timeout: attempting to probe a majority before becoming candidate");
+                this.probeTimestamps = new HashMap<>(this.raft.currentConfig.size() - 1);
+            }
+
+            // Send out a(nother) round of probes to all other nodes
+            final Timestamp now = new Timestamp();
+            for (String peer : this.raft.currentConfig.keySet()) {
+                if (peer.equals(this.raft.identity))
+                    continue;
+                this.raft.sendMessage(new PingRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, now));
+            }
+
+            // Restart election timeout (now it's really a ping timer)
+            this.restartElectionTimer();
         }
 
         /**
@@ -4131,6 +4248,14 @@ public class RaftKVDatabase implements KVDatabase {
 
         @Override
         void caseAppendRequest(AppendRequest msg) {
+
+            // Cancel probing
+            if (this.probeTimestamps != null) {
+                if (this.log.isDebugEnabled())
+                    this.debug("heard from leader before we probed a majority, reverting back to normal follower");
+                this.probeTimestamps = null;
+            }
+            final Timestamp now = new Timestamp();
 
             // Record new cluster ID if we haven't done so already
             if (this.raft.clusterId == 0)
@@ -4512,6 +4637,20 @@ public class RaftKVDatabase implements KVDatabase {
                 this.debug("ignoring " + msg + " rec'd while in " + this);
         }
 
+        @Override
+        void casePingResponse(PingResponse msg) {
+
+            // Are we probing?
+            if (this.probeTimestamps == null) {
+                if (this.log.isTraceEnabled())
+                    this.trace("ignoring " + msg + " rec'd while not probing in " + this);
+                return;
+            }
+
+            // Update peer's ping timestamp and re-check probe status
+            this.probeTimestamps.put(msg.getSenderId(), msg.getTimestamp());
+        }
+
     // Helper methods
 
         /**
@@ -4702,6 +4841,11 @@ public class RaftKVDatabase implements KVDatabase {
         @Override
         void outputQueueEmpty(String address) {
             // nothing to do
+        }
+
+        @Override
+        void handleElectionTimeout() {
+            this.raft.changeRole(new CandidateRole(this.raft));
         }
 
         private void checkElectionResult() {
