@@ -158,7 +158,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
             writer.println(String.format("%-24s: %s", "Election timer running",
               electionTimeout != null ? "Yes; expires in " + electionTimeout.offsetFromNow() + "ms" : "No"));
             final int probed = follower.getNodesProbed();
-            writer.println(String.format("%-24s: %s", "Nodes Probed",
+            writer.println(String.format("%-24s: %s", "Election nodes probed",
               probed != -1 ? String.format("%d / %d", follower.getNodesProbed(), config.size()) : "Not probing"));
         } else if (role instanceof RaftKVDatabase.CandidateRole) {
             final RaftKVDatabase.CandidateRole candidate = (RaftKVDatabase.CandidateRole)role;

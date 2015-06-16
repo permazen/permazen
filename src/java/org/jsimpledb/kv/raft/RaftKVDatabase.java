@@ -2014,16 +2014,8 @@ public class RaftKVDatabase implements KVDatabase {
             this.changeRole(msg.isLeaderMessage() ? new FollowerRole(this, peer, address) : new FollowerRole(this));
         }
 
-        // Always handle ping request, even if sender's term is too low
-        if (msg instanceof PingRequest) {
-            final PingRequest ping = (PingRequest)msg;
-            this.sendMessage(new PingResponse(this.clusterId,
-              this.identity, ping.getSenderId(), this.currentTerm, ping.getTimestamp()));
-            return;
-        }
-
-        // Is sender's term too low? Ignore it
-        if (msg.getTerm() < this.currentTerm) {
+        // Is sender's term too low? Ignore it (except ping request)
+        if (msg.getTerm() < this.currentTerm && !(msg instanceof PingRequest)) {
             if (this.log.isDebugEnabled()) {
                 this.debug("rec'd " + msg + " with term " + msg.getTerm() + " < " + this.currentTerm
                   + " from \"" + peer + "\" at " + address + ", ignoring");
@@ -2065,7 +2057,7 @@ public class RaftKVDatabase implements KVDatabase {
                 }
                 @Override
                 public void casePingRequest(PingRequest msg) {
-                    throw new RuntimeException("internal error");
+                    RaftKVDatabase.this.role.casePingRequest(msg);
                 }
                 @Override
                 public void casePingResponse(PingResponse msg) {
@@ -2584,6 +2576,11 @@ public class RaftKVDatabase implements KVDatabase {
         abstract void caseGrantVote(GrantVote msg);
         abstract void caseInstallSnapshot(InstallSnapshot msg);
         abstract void caseRequestVote(RequestVote msg);
+
+        void casePingRequest(PingRequest msg) {
+            this.raft.sendMessage(new PingResponse(this.raft.clusterId,
+              this.raft.identity, msg.getSenderId(), this.raft.currentTerm, msg.getTimestamp()));
+        }
 
         void casePingResponse(PingResponse msg) {
             // ignore by default
