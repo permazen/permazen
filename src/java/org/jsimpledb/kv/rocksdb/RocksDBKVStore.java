@@ -38,7 +38,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
     private final WriteBatch writeBatch;
     private final RocksDB db;
 
-    private boolean closed;
+    private volatile boolean closed;
 
 // Constructors
 
@@ -258,7 +258,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         private KVPair next;
         private byte[] removeKey;
         private boolean finished;
-        private volatile boolean closed;
+        private boolean closed;
 
         private Iterator(final RocksIterator cursor, byte[] minKey, byte[] maxKey, boolean reverse) {
 
