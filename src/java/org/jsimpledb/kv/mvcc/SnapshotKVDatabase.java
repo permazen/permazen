@@ -16,7 +16,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.jsimpledb.kv.KVDatabase;
-import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
@@ -342,14 +341,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
                 break;
             if (this.log.isDebugEnabled())
                 this.log.debug("discarding obsolete version " + versionInfo);
-            final KVStore snapshot = versionInfo.getSnapshot();
-            if (snapshot instanceof AutoCloseable) {
-                try {
-                    ((AutoCloseable)snapshot).close();
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
+            versionInfo.getSnapshot().close();
             i.remove();
         }
     }

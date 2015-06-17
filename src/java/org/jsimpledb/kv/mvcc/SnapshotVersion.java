@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.CloseableKVStore;
 
 /**
  * Represents one {@link SnapshotKVDatabase} MVCC version.
@@ -18,7 +18,7 @@ import org.jsimpledb.kv.KVStore;
  * Information included:
  *  <ul>
  *  <li>MVCC version number</li>
- *  <li>{@link KVStore} snapshot</li>
+ *  <li>{@link CloseableKVStore} snapshot</li>
  *  <li>Open transactions based on this version</li>
  *  <li>The {@link Writes} of the transaction that was committed on this version, if any</li>
  *  </ul>
@@ -26,7 +26,7 @@ import org.jsimpledb.kv.KVStore;
 public class SnapshotVersion {
 
     private final long version;
-    private final KVStore snapshot;
+    private final CloseableKVStore snapshot;
     private final HashSet<SnapshotKVTransaction> openTransactions = new HashSet<>(2);
 
     private Writes committedWrites;
@@ -37,7 +37,7 @@ public class SnapshotVersion {
      * @param version version number
      * @param snapshot database snapshot
      */
-    SnapshotVersion(long version, KVStore snapshot) {
+    SnapshotVersion(long version, CloseableKVStore snapshot) {
         this.version = version;
         this.snapshot = snapshot;
     }
@@ -56,7 +56,7 @@ public class SnapshotVersion {
      *
      * @return unmodifiable {@link KVStore}
      */
-    public KVStore getSnapshot() {
+    public CloseableKVStore getSnapshot() {
         return this.snapshot;
     }
 
