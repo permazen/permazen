@@ -38,7 +38,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
     private final WriteBatch writeBatch;
     private final RocksDB db;
 
-    private volatile boolean closed;
+    private boolean closed;
 
 // Constructors
 

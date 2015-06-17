@@ -38,10 +38,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVStore {
 
-    static {
-        RocksDB.loadLibrary();
-    }
-
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final AtomicBoolean shutdownHookRegistered = new AtomicBoolean();
 

@@ -179,7 +179,7 @@ public class LevelDBKVStore extends AbstractKVStore implements CloseableKVStore 
         private KVPair next;
         private byte[] removeKey;
         private boolean finished;
-        private volatile boolean closed;
+        private boolean closed;
 
         private Iterator(DBIterator cursor, byte[] minKey, byte[] maxKey, boolean reverse) {
 
