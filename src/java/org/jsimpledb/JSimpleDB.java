@@ -37,40 +37,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A JSimpleDB database.
+ * JSimpleDB Java persistence layer.
  *
  * <p>
- * JSimpleDB consists of two main layers. The lower level "core" API provides a rigourous database abstraction on top of
- * a key/value store. It supports simple fields of any atomic Java type, as well as list, set, and map complex fields,
- * tightly controlled schema versioning, simple and composite indexes, and lifecycle and change notifications.
- * The core API is provided via the {@link Database} class.
- * </p>
+ * JSimpleDB is a Java persistence solution built on three layers of abstraction:
+ *  <ul>
+ *  <li>At the bottom layer is a simple {@code byte[]} <b>key/value</b> database represented by the
+ *      {@link org.jsimpledb.kv.KVDatabase} class. {@linkplain org.jsimpledb.kv.KVTransaction Transactions} are supported
+ *      at this layer and there are several available {@link org.jsimpledb.kv.KVDatabase} implementations.</li>
+ *  <li>On top of that sits the <b>core API</b> layer, which provides a rigourous database abstraction on top of the
+ *      key/value store. It supports simple fields of any atomic Java type, as well as list, set, and map complex fields,
+ *      tightly controlled schema versioning, simple and composite indexes, and lifecycle and change notifications.
+ *      It is not Java-specific or explicitly object-oriented. The core API is provided via the {@link Database} class.</li>
+ *  <li>The top layer is a Java-centric, type safe, object-oriented persistence layer for Java applications.
+ *      This {@link JSimpleDB} class represents an instance of the top layer.  It sits on top of the core API layer
+ *      and provides a fully type-safe Java view of a {@link Database}, where all access is through user-supplied
+ *      Java model classes (and {@link JTransaction}). Database types and fields, as well as listener methods,
+ *      are all declared using {@linkplain org.jsimpledb.annotation Java annotations}. {@link JSimpleDB} also provides
+ *      automatic incremental JSR 303 validation.</li>
+ *  </ul>
  *
  * <p>
- * This {@link JSimpleDB} class represents the upper layer. It sits on top of the core {@link Database} class and provides
- * a fully type-safe Java view of a {@link Database}, where all access is through user-supplied Java model classes.
- * In addition, a {@link JSimpleDB} provides automatic incremental JSR 303 validation. Database types and fields,
- * as well as listener methods, are all declared using various {@linkplain org.jsimpledb.annotation Java annotations}.
- * </p>
- *
- * <p>
- * User-provided Java model classes are typically abstract and declare fields as abstract Java bean methods. In any case,
- * {@link JSimpleDB} generates concrete subclasses at runtime; these runtime classes will implement the {@link JObject} interface.
- * The corresponding Java model objects are stateless; all database field state is derived from whichever transaction is
- * {@linkplain JTransaction#getCurrent associated with the current thread}.
- * </p>
+ * User-provided Java model classes are typically abstract and declare database fields as abstract Java bean methods.
+ * {@link JSimpleDB} generates concrete subclasses at runtime, and these runtime classes will implement the {@link JObject}
+ * interface. The corresponding Java model objects are stateless; all database field state is derived from whichever
+ * {@link JTransaction} is {@linkplain JTransaction#getCurrent associated with the current thread}.
  *
  * <p>
  * Not counting "snapshot" objects (see below), this class guarantees that for each {@link ObjId} there will only ever be
  * a single, globally unique, {@link JObject} Java model object. Therefore, the same Java model objects can be used in and
  * out of any transaction.
- * </p>
  *
  * <p>
  * "Snapshot" objects are in-memory copies of regular database objects that may be imported/exported to/from transactions.
  * Snapshot {@link JObject}s are distinct from regular database {@link JObject}s; their state is contained in an in-memory
  * {@link SnapshotJTransaction}. See {@link JObject#copyOut JObject.copyOut} and {@link JObject#copyIn JObject.copyIn}.
- * </p>
  *
  * @see JObject
  * @see JTransaction

@@ -2,6 +2,8 @@
 SHORT TERM
 ==========
 
+- Does JTransaction.getAll(UntypedJObject.class) work? queryIndex() ?
+
 - KVDatabase change notification/listener support
     - Forward up the stack for Raft @OnChange notifications
 

@@ -20,7 +20,7 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * A {@link FieldType} maps between instances of its supported Java type and the self-delimited {@code byte[]} encoding of
- * those instances used in the database. The {@code byte[]} encoding also implicitly defines database the sort order
+ * those instances used in the database. The {@code byte[]} encoding also implicitly defines the database sort order
  * (via unsigned lexicographical ordering). This ordering is also reflected via {@link #compare compare()}.
  * </p>
  *
