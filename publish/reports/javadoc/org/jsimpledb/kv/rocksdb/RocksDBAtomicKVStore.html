@@ -261,7 +261,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockListLast">
 <li class="blockList">
 <h4>RocksDBAtomicKVStore</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.61">RocksDBAtomicKVStore</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.57">RocksDBAtomicKVStore</a>()</pre>
 <div class="block">Constructor.</div>
 </li>
 </ul>
@@ -279,7 +279,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>getDirectory</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.72">getDirectory</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.68">getDirectory</a>()</pre>
 <div class="block">Get the filesystem directory containing the database.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>database directory</dd></dl>
 </li>
@@ -290,7 +290,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>setDirectory</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.82">setDirectory</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.78">setDirectory</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</pre>
 <div class="block">Configure the filesystem directory containing the database. Required property.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>directory</code> - database directory</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -303,7 +303,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>getDB</h4>
-<pre>public&nbsp;org.rocksdb.RocksDB&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.93">getDB</a>()</pre>
+<pre>public&nbsp;org.rocksdb.RocksDB&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.89">getDB</a>()</pre>
 <div class="block">Get the underlying <code>RocksDB</code> associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated <code>RocksDB</code></dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -316,7 +316,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>getOptions</h4>
-<pre>public&nbsp;org.rocksdb.Options&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.105">getOptions</a>()</pre>
+<pre>public&nbsp;org.rocksdb.Options&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.101">getOptions</a>()</pre>
 <div class="block">Get the <code>Options</code> this instance will use when opening the database at startup.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>database options</dd></dl>
 </li>
@@ -327,7 +327,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>setOptions</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.117">setOptions</a>(org.rocksdb.Options&nbsp;options)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.113">setOptions</a>(org.rocksdb.Options&nbsp;options)</pre>
 <div class="block">Set the <code>Options</code> this instance will use when opening the database at startup.
  Overwrites any previous options configuration(s).</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - database options</dd>
@@ -343,7 +343,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <li class="blockList">
 <h4>start</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PostConstruct.html?is-external=true" title="class or interface in javax.annotation">@PostConstruct</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.154">start</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.150">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#start()">AtomicKVStore</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -365,7 +365,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/Roc
 <li class="blockList">
 <h4>stop</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PreDestroy.html?is-external=true" title="class or interface in javax.annotation">@PreDestroy</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.198">stop</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.194">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#stop()">AtomicKVStore</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -383,7 +383,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/Roc
 <ul class="blockList">
 <li class="blockList">
 <h4>delegate</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.223">delegate</a>()</pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.219">delegate</a>()</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/util/ForwardingKVStore.html#delegate()">ForwardingKVStore</a></code></strong></div>
 <div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 <dl>
@@ -398,7 +398,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/Roc
 <ul class="blockList">
 <li class="blockList">
 <h4>snapshot</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.231">snapshot</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/rocksdb/SnapshotRocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">SnapshotRocksDBKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.227">snapshot</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#snapshot()">AtomicKVStore</a></code></strong></div>
 <div class="block">Acquire a read-only, snapshot view of this instance based on the current state.
 
@@ -419,7 +419,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/Roc
 <ul class="blockList">
 <li class="blockList">
 <h4>mutate</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.237">mutate</a>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.233">mutate</a>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
           boolean&nbsp;sync)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">AtomicKVStore</a></code></strong></div>
 <div class="block">Apply a set of mutations to this instance atomically.
@@ -448,7 +448,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/Roc
 <ul class="blockList">
 <li class="blockList">
 <h4>finalize</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.292">finalize</a>()
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.288">finalize</a>()
                  throws <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a></pre>
 <div class="block">Finalize this instance. Invokes <a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#stop()"><code>stop()</code></a> to close any unclosed iterators.</div>
 <dl>
@@ -464,7 +464,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/Roc
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.303">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html#line.299">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
