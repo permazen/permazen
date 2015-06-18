@@ -8,9 +8,12 @@ package org.jsimpledb.kv;
 import com.google.common.base.Converter;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -780,7 +783,9 @@ public class KVDatabaseTest extends TestSupport {
                 this.test();
                 this.log("succeeded");
             } catch (Throwable t) {
-                this.log("failed: " + t);
+                final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                t.printStackTrace(new PrintStream(buf, true));
+                this.log("failed: " + t + "\n" + new String(buf.toByteArray(), StandardCharsets.UTF_8));
                 this.fail = t;
             }
         }
@@ -862,9 +867,10 @@ public class KVDatabaseTest extends TestSupport {
                         max = this.rb(2, true);
                         pair = tx.getAtMost(max);
                         this.log("getAtMost: " + s(max) + " -> " + s(pair));
-                        if (pair == null)
-                            Assert.assertTrue(knownValues.headMap(max).isEmpty());
-                        else if (knownValues.containsKey(pair.getKey()))
+                        if (pair == null) {
+                            Assert.assertTrue(knownValues.headMap(max).isEmpty(),
+                              "getAtMost(" + s(max) + ") returned null but knownValues has " + knownValuesView);
+                        } else if (knownValues.containsKey(pair.getKey()))
                             Assert.assertEquals(s(knownValues.get(pair.getKey())), s(pair.getValue()));
                         else {
                             knownValues.put(pair.getKey(), pair.getValue());
@@ -902,18 +908,23 @@ public class KVDatabaseTest extends TestSupport {
                         if (val != null) {
                             try {
                                 counter = tx.decodeCounter(val);
+                                this.log("adj: valid value " + s(val) + " (" + counter + ") at key " + s(key));
                             } catch (IllegalArgumentException e) {
+                                this.log("adj: bogus value " + s(val) + " at key " + s(key));
                                 val = null;
                             }
                         }
                         if (val == null) {
                             counter = this.random.nextLong();
-                            tx.put(key, tx.encodeCounter(counter));
+                            final byte[] encodedCounter = tx.encodeCounter(counter);
+                            tx.put(key, encodedCounter);
+                            this.log("adj: initialize " + s(key) + " to " + s(encodedCounter));
                         }
                         final long adj = this.random.nextInt(1 << this.random.nextInt(24)) - 1024;
-                        this.log("adj: " + s(key) + " by " + adj);
+                        final byte[] encodedCounter = tx.encodeCounter(counter + adj);
+                        this.log("adj: " + s(key) + " by " + adj + " -> should now be " + s(encodedCounter));
                         tx.adjustCounter(key, adj);
-                        knownValues.put(key, tx.encodeCounter(counter + adj));
+                        knownValues.put(key, encodedCounter);
                         knownValuesChanged = true;
                     } else {                                                        // sleep
                         final int millis = this.r(50);
