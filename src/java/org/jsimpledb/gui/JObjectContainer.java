@@ -114,7 +114,8 @@ import org.slf4j.LoggerFactory;
  * model classes, these property values may derive from other objects related to the backing instance. In order for these
  * methods to work on the in-memory instance, the related objects must be copied into memory as well. The
  * {@link #getDependencies getDependencies()} method allows the subclass to specify what other database objects
- * some Vaadin property depends on.
+ * some Vaadin property depends on. Alternately, the subclass may override {@link #copyOut copyOut()} to take complete control
+ * of how objects are copied into memory.
  * </p>
  *
  * <p><b>Updating Items</b></p>
@@ -158,8 +159,7 @@ import org.slf4j.LoggerFactory;
  * Secondly, because the values of reference fields (including complex sub-fields) are displayed using reference labels,
  * and these are typically derived from the referenced object's fields, those indirectly referenced objects need to be
  * copied into the container's {@link org.jsimpledb.SnapshotJTransaction} as well. The easiest way to ensure these indirectly
- * referenced objects are copied is by overriding {@link #getDependencies getDependencies()} as described above. Alternately,
- * the subclass may override {@link #copyOut copyOut()} to take complete control of copying objects into memory.
+ * referenced objects are copied is by overriding {@link #getDependencies getDependencies()} as described above.
  * </p>
  */
 @SuppressWarnings("serial")
@@ -478,6 +478,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * @param copyState tracks what's already been copied
      * @return the copy of {@code target} in the current {@link org.jsimpledb.SnapshotJTransaction},
      *  or null if {@code target} is null
+     * @see #getDependencies getDependencies()
      */
     protected JObject copyOut(JObject target, CopyState copyState) {
 
@@ -514,18 +515,22 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     /**
      * Find objects related to the specified object that are needed by any
      * {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated
-     * methods into the current {@link org.jsimpledb.SnapshotJTransaction}. This effectively defines
-     * all of the other objects on which any container property of {@code jobj} may depend.
+     * methods.
+     *
+     * <p>
+     * This defines all of the other objects on which any container property of {@code jobj} may depend.
+     * These related objects will copied along with {@code obj} into the container's
+     * {@link org.jsimpledb.SnapshotJTransaction} when the container is (re)loaded.
      *
      * <p>
      * The implementation in {@link JObjectContainer} returns all objects that are directly referenced by {@code jobj},
      * delegating to {@link JSimpleDB#getReferencedObjects JSimpleDB.getReferencedObjects()}.
      * Subclasses may override this method to refine the selection.
-     * </p>
      *
      * @param jobj the object being copied
      * @return {@link Iterable} of additional objects to be copied, or null for none; any null values are ignored
      * @throws IllegalArgumentException if {@code jobj} is null
+     * @see #copyOut copyOut()
      */
     protected Iterable<? extends JObject> getDependencies(JObject jobj) {
         return this.jdb.getReferencedObjects(jobj);

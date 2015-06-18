@@ -52,9 +52,9 @@ public class SnapshotVersion {
     }
 
     /**
-     * Get the {@link KVStore} view of this version's snapshot.
+     * Get the {@link CloseableKVStore} view of this version's snapshot.
      *
-     * @return unmodifiable {@link KVStore}
+     * @return unmodifiable {@link CloseableKVStore}
      */
     public CloseableKVStore getSnapshot() {
         return this.snapshot;
