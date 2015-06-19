@@ -83,6 +83,7 @@ import org.jsimpledb.kv.raft.net.TCPNetwork;
 import org.jsimpledb.kv.util.PrefixKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.LongEncoder;
+import org.jsimpledb.util.ThrowableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1171,7 +1172,7 @@ public class RaftKVDatabase implements KVDatabase {
                 throw new RetryTransactionException(tx, "thread interrupted while waiting for commit", e);
             } catch (ExecutionException e) {
                 final Throwable cause = e.getCause();
-                Util.prependCurrentStackTrace(cause, "Asynchronous Commit");
+                ThrowableUtil.prependCurrentStackTrace(cause);
                 if (cause instanceof Error)
                     throw (Error)cause;
                 if (cause instanceof RuntimeException)

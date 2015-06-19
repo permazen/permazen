@@ -102,39 +102,5 @@ final class Util {
             return (ByteBuffer)buf.flip();
         }
     }
-
-    /**
-     * Mask a checked exception.
-     *
-     * @param t any exception
-     * @param <T> exception type
-     * @return never
-     * @throws T always
-     */
-    @SuppressWarnings("unchecked")
-    public static <T extends Throwable> T maskException(Throwable t) throws T {
-        throw (T)t;
-    }
-
-    /**
-     * Prepend stack frames from the current thread onto the given exception's stack frames.
-     *
-     * @param t exception from another thread
-     * @param description description of the operation (will appear in the intermediate "glue" stack frame)
-     */
-    public static void prependCurrentStackTrace(Throwable t, String description) {
-        Util.prependStackFrames(t, new Throwable(), description, 1);
-    }
-
-    private static void prependStackFrames(Throwable t, Throwable p, String description, int skip) {
-        final StackTraceElement[] innerFrames = t.getStackTrace();
-        final StackTraceElement[] outerFrames = p.getStackTrace();
-        final StackTraceElement[] frames = new StackTraceElement[innerFrames.length + 1 + Math.max(outerFrames.length - skip, 0)];
-        System.arraycopy(innerFrames, 0, frames, 0, innerFrames.length);
-        frames[innerFrames.length] = new StackTraceElement(Util.class.getName(), "prependStackFrames", description, -1);
-        for (int i = 0; i < outerFrames.length - skip; i++)
-            frames[innerFrames.length + 1 + i] = outerFrames[i + skip];
-        t.setStackTrace(frames);
-    }
 }
 
