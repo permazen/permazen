@@ -1,20 +1,13 @@
 TODO
 ====
 
-- InstallSnapshot Bugs
+- InstallSnapshot Bug:
 
-    1 Once a follower starts a snapshot install, need to set a global
-      (and persistent) flag that prevents follower from becoming a candidate
-      until the (or another) snapshot install completes, and during this time
-      no new transactions may start because the log is unavailable.
-
-    2 Should not erase existing log until new log is in place, otherwise
-      we are violating the node's requirement for log persistence
+    Should not erase existing log until new log is in place, otherwise
+    we are violating the node's requirement for log persistence.
 
 - when negative AppendResponse rec'd, send next one immediately
-
-- add new HermitRole to minimize disruption when node(s) get disconnected
-    See https://groups.google.com/d/msg/raft-dev/5Lxxr2UwzQc/VmXlbo74lNwJ
+    - simpler logic: always xmit if different from previous message
 
 - separate Loggers for:
     - transactions
