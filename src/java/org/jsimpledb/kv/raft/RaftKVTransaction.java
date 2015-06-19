@@ -6,11 +6,10 @@
 package org.jsimpledb.kv.raft;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.SettableFuture;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.jsimpledb.kv.CloseableKVStore;
@@ -40,7 +39,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
 
     // Transaction info
     private final long txId = COUNTER.incrementAndGet();
-    private final CommitFuture commitFuture = new CommitFuture();
+    private final SettableFuture<Void> commitFuture = SettableFuture.create();
     private final RaftKVDatabase kvdb;
     private final CloseableKVStore snapshot;            // snapshot of the committed key/value store
     private final MutableView view;                     // transaction's view of key/value store (restricted to prefix)
@@ -314,7 +313,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         return this.timeout;
     }
 
-    CommitFuture getCommitFuture() {
+    SettableFuture<Void> getCommitFuture() {
         return this.commitFuture;
     }
 
@@ -356,49 +355,6 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
             }
         } finally {
             super.finalize();
-        }
-    }
-
-// CommitFuture
-
-    static class CommitFuture extends FutureTask<Void> {
-
-        private final ExceptionCallable callable;
-
-        public CommitFuture() {
-            this(new ExceptionCallable());
-        }
-
-        CommitFuture(ExceptionCallable callable) {
-            super(callable);
-            this.callable = callable;
-        }
-
-        public void succeed() {
-            Preconditions.checkState(!this.isDone(), "already done");
-            this.run();
-        }
-
-        public void fail(Exception e) {
-            Preconditions.checkState(!this.isDone(), "already done");
-            this.callable.setException(e);
-            this.run();
-        }
-    }
-
-    private static class ExceptionCallable implements Callable<Void> {
-
-        private volatile Exception e;
-
-        public void setException(Exception e) {
-            this.e = e;
-        }
-
-        @Override
-        public Void call() throws Exception {
-            if (this.e != null)
-                throw this.e;
-            return null;
         }
     }
 

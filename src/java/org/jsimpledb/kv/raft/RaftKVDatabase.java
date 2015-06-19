@@ -1246,7 +1246,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Succeed transaction
         if (this.log.isDebugEnabled())
             this.debug("successfully committed " + tx);
-        tx.getCommitFuture().succeed();
+        tx.getCommitFuture().set(null);
         tx.setState(TxState.COMPLETED);
         this.role.cleanupForTransaction(tx);
     }
@@ -1263,7 +1263,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Fail transaction
         if (this.log.isDebugEnabled())
             this.debug("failed transaction " + tx + ": " + e);
-        tx.getCommitFuture().fail(e);
+        tx.getCommitFuture().setException(e);
         tx.setState(TxState.COMPLETED);
         this.role.cleanupForTransaction(tx);
     }
