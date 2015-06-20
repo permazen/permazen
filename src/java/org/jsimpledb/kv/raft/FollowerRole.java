@@ -214,6 +214,14 @@ public class FollowerRole extends NonLeaderRole {
         this.leader = null;
         this.leaderAddress = null;
 
+        // Is probing enabled?
+        if (!this.raft.followerProbingEnabled) {
+            if (this.log.isDebugEnabled())
+                this.debug("follower election timeout: probing is disabled, so converting immediately to candidate");
+            this.raft.changeRole(new CandidateRole(this.raft));
+            return;
+        }
+
         // If we are already probing, check probe results
         if (this.probeTimestamps != null) {
 

@@ -217,6 +217,9 @@ import org.slf4j.LoggerFactory;
  * normally to incoming messages. In particular, if the follower receives a valid {@link AppendRequest} from the leader, it
  * reverts back to normal operation.
  *
+ * <p>
+ * This behavior is optional, though enabled by default (see {@link #setFollowerProbingEnabled setFollowerProbingEnabled()});
+ *
  * @see <a href="https://raftconsensus.github.io/">The Raft Consensus Algorithm</a>
  */
 public class RaftKVDatabase implements KVDatabase {
@@ -250,11 +253,11 @@ public class RaftKVDatabase implements KVDatabase {
     public static final int DEFAULT_MAX_TRANSACTION_DURATION = 5 * 1000;
 
     /**
-     * Default maximum supported applied log entry memory usage ({@value DEFAULT_MAX_APPLIED_LOG_MEMORY} bytes).
+     * Default maximum supported applied log entry memory usage ({@value DEFAULT_MAX_UNAPPLIED_LOG_MEMORY} bytes).
      *
-     * @see #setMaxAppliedLogMemory
+     * @see #setMaxUnappliedLogMemory
      */
-    public static final long DEFAULT_MAX_APPLIED_LOG_MEMORY = 100 * 1024 * 1024;                // 100MB
+    public static final long DEFAULT_MAX_UNAPPLIED_LOG_MEMORY = 100 * 1024 * 1024;                // 100MB
 
     /**
      * Default transaction commit timeout ({@value DEFAULT_COMMIT_TIMEOUT}).
@@ -299,7 +302,8 @@ public class RaftKVDatabase implements KVDatabase {
     int heartbeatTimeout = DEFAULT_HEARTBEAT_TIMEOUT;
     int maxTransactionDuration = DEFAULT_MAX_TRANSACTION_DURATION;
     int commitTimeout = DEFAULT_COMMIT_TIMEOUT;
-    long maxAppliedLogMemory = DEFAULT_MAX_APPLIED_LOG_MEMORY;
+    long maxUnappliedLogMemory = DEFAULT_MAX_UNAPPLIED_LOG_MEMORY;
+    boolean followerProbingEnabled;
     File logDir;
 
     // Raft runtime state
@@ -501,7 +505,7 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @param duration maximum supported duration for outstanding transactions in milliseconds
      * @throws IllegalArgumentException if {@code duration <= 0}
-     * @see #setMaxAppliedLogMemory
+     * @see #setMaxUnappliedLogMemory
      */
     public synchronized void setMaxTransactionDuration(int duration) {
         Preconditions.checkArgument(duration > 0, "duration <= 0");
@@ -531,15 +535,15 @@ public class RaftKVDatabase implements KVDatabase {
      * This value may be changed while this instance is already running.
      *
      * <p>
-     * Default is {@link #DEFAULT_MAX_APPLIED_LOG_MEMORY}.
+     * Default is {@link #DEFAULT_MAX_UNAPPLIED_LOG_MEMORY}.
      *
      * @param memory maximum allowed memory usage for cached applied log entries
      * @throws IllegalArgumentException if {@code memory <= 0}
      * @see #setMaxTransactionDuration
      */
-    public synchronized void setMaxAppliedLogMemory(long memory) {
+    public synchronized void setMaxUnappliedLogMemory(long memory) {
         Preconditions.checkArgument(memory > 0, "memory <= 0");
-        this.maxAppliedLogMemory = memory;
+        this.maxUnappliedLogMemory = memory;
     }
 
     /**
@@ -547,8 +551,8 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @return maximum allowed memory usage for cached applied log entries
      */
-    public synchronized long getMaxAppliedLogMemory() {
-        return this.maxAppliedLogMemory;
+    public synchronized long getMaxUnappliedLogMemory() {
+        return this.maxUnappliedLogMemory;
     }
 
     /**
@@ -581,6 +585,31 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public synchronized int getCommitTimeout() {
         return this.commitTimeout;
+    }
+
+    /**
+     * Configure whether followers should be required to probe for network connectivity with a majority of the
+     * cluster after an election timeout prior to becoming a candidate.
+     *
+     * <p>
+     * This value may be changed at any time.
+     *
+     * <p>
+     * The default is enabled.
+     *
+     * @param followerProbingEnabled true to enable, false to disable
+     */
+    public synchronized void setFollowerProbingEnabled(boolean followerProbingEnabled) {
+        this.followerProbingEnabled = followerProbingEnabled;
+    }
+
+    /**
+     * Determine whether follower probing prior to becoming a candidate is enabled.
+     *
+     * @return true if follower probing is enabled, otherwise false
+     */
+    public synchronized boolean isFollowerProbingEnabled() {
+        return this.followerProbingEnabled;
     }
 
 // Status

@@ -183,11 +183,15 @@ public class KVDatabaseTest extends TestSupport {
         "raftMinElectionTimeout",
         "raftMaxElectionTimeout",
         "raftHeartbeatTimeout",
+        "raftMaxTransactionDuration",
+        "raftFollowerProbingEnabled",
         "raftNetworkDelayMillis",
         "raftNetworkDropRatio" })
     public void setTestRaftDirPrefix(@Optional String raftDirPrefix, @Optional("5") int numNodes,
       @Optional("2500") int commitTimeout, @Optional("300") int minElectionTimeout, @Optional("350") int maxElectionTimeout,
-      @Optional("150") int heartbeatTimeout, @Optional("25") int networkDelayMillis, @Optional("0.075") float networkDropRatio)
+      @Optional("150") int heartbeatTimeout, @Optional("5000") int maxTransactionDuration,
+      @Optional("true") boolean followerProbingEnabled,
+      @Optional("25") int networkDelayMillis, @Optional("0.075") float networkDropRatio)
       throws Exception {
         if (raftDirPrefix == null)
             return;
@@ -224,6 +228,8 @@ public class KVDatabaseTest extends TestSupport {
             this.rafts[i].setMinElectionTimeout(minElectionTimeout);
             this.rafts[i].setMaxElectionTimeout(maxElectionTimeout);
             this.rafts[i].setHeartbeatTimeout(heartbeatTimeout);
+            this.rafts[i].setMaxTransactionDuration(maxTransactionDuration);
+            this.rafts[i].setFollowerProbingEnabled(followerProbingEnabled);
         }
         for (int i = 0; i < numNodes; i++)
             this.rafts[i].start();

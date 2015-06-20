@@ -20,6 +20,8 @@
     <parameter name="raftMinElectionTimeout" value="100"/>
     <parameter name="raftMaxElectionTimeout" value="150"/>
     <parameter name="raftHeartbeatTimeout" value="50"/>
+    <parameter name="raftMaxTransactionDuration" value="500"/>
+    <parameter name="raftFollowerProbingEnabled" value="false"/>
     <parameter name="raftNetworkDelayMillis" value="10"/>
     <parameter name="raftNetworkDropRatio" value="0.05"/>
 -->
