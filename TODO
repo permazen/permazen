@@ -2,6 +2,8 @@
 SHORT TERM
 ==========
 
+- LevelDB & RocksDB: ensure removeRange() doesn't sync() on each k/v pair
+
 - Does JTransaction.getAll(UntypedJObject.class) work? queryIndex() ?
 
 - KVDatabase change notification/listener support
