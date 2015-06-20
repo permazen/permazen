@@ -41,6 +41,7 @@ import javax.annotation.PreDestroy;
 
 import org.dellroad.stuff.java.TimedWait;
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.RetryTransactionException;
@@ -287,9 +288,10 @@ public class RaftKVDatabase implements KVDatabase {
     static final byte[] LAST_APPLIED_INDEX_KEY = ByteUtil.parse("0004");
     static final byte[] LAST_APPLIED_CONFIG_KEY = ByteUtil.parse("0005");
     static final byte[] VOTED_FOR_KEY = ByteUtil.parse("0006");
+    static final byte[] FLIP_FLOP_KEY = ByteUtil.parse("0007");
 
-    // Prefix for all state machine key/value keys
-    static final byte[] STATE_MACHINE_PREFIX = ByteUtil.parse("80");
+    // Prefix for all state machine key/value keys (we alternate between these to handle snapshot installs)
+    private static final byte[] STATE_MACHINE_PREFIXES = new byte[] { (byte)0x80, (byte)0x81 };
 
     // Logging
     final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -309,6 +311,7 @@ public class RaftKVDatabase implements KVDatabase {
     // Raft runtime state
     Role role;                                                          // Raft state: LEADER, FOLLOWER, or CANDIDATE
     SecureRandom random;                                                // used to randomize election timeout, etc.
+    boolean flipflop;                                                   // determines which state machine prefix we are using
     int clusterId;                                                      // cluster ID (zero if unconfigured - usually)
     long currentTerm;                                                   // current Raft term (zero if unconfigured)
     long commitIndex;                                                   // current Raft commit index (zero if unconfigured)
@@ -840,15 +843,12 @@ public class RaftKVDatabase implements KVDatabase {
             this.lastAppliedTerm = this.decodeLong(LAST_APPLIED_TERM_KEY, 0);
             this.lastAppliedIndex = this.decodeLong(LAST_APPLIED_INDEX_KEY, 0);
             this.lastAppliedConfig = this.decodeConfig(LAST_APPLIED_CONFIG_KEY);
+            this.flipflop = this.decodeBoolean(FLIP_FLOP_KEY);
             this.currentConfig = this.buildCurrentConfig();
 
-            // If we crashed part way through a snapshot install, recover by resetting state machine
-            if (this.lastAppliedTerm < 0 || this.lastAppliedIndex < 0) {
-                if (this.log.isDebugEnabled())
-                    this.debug("detected partially applied snapshot, resetting state machine");
-                if (!this.resetStateMachine(true))
-                    throw new IOException("error resetting state machine");
-            }
+            // If we crashed part way through a snapshot install, recover by discarding partial install
+            if (this.discardFlipFloppedStateMachine() && this.log.isDebugEnabled())
+                this.debug("detected partially applied snapshot install, discarding");
 
             // Initialize commit index
             this.commitIndex = this.lastAppliedIndex;
@@ -1341,54 +1341,34 @@ public class RaftKVDatabase implements KVDatabase {
         }
     }
 
-// Raft stuff
+// Raft state
 
     /**
-     * Reset the persisted state machine to its initial state.
+     * Discard all key/value pairs in the "flip-flopped" state machine, i.e., the one that we are not currently using.
+     *
+     * @return true if there was anything to remove, otherwise false
      */
-    boolean resetStateMachine(boolean initialize) {
-
-        // Sanity check
-        assert Thread.holdsLock(this);
-        if (this.log.isDebugEnabled())
-            this.debug("resetting state machine");
-
-        // Set invalid values while we make non-atomic changes, in case we crash in the middle
-        if (!this.recordLastApplied(-1, -1, null))
-            return false;
-
-        // Delete all key/value pairs
-        this.kv.removeRange(STATE_MACHINE_PREFIX, ByteUtil.getKeyAfterPrefix(STATE_MACHINE_PREFIX));
-        assert !this.kv.getRange(STATE_MACHINE_PREFIX, ByteUtil.getKeyAfterPrefix(STATE_MACHINE_PREFIX), false).hasNext();
-
-        // Delete all log files
-        this.raftLog.clear();
-        for (File file : this.logDir.listFiles()) {
-            if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches()) {
-                if (!file.delete())
-                    this.error("failed to delete log file " + file);
-            }
-        }
-
-        // Optionally finish intialization
-        if (initialize && !this.recordLastApplied(0, 0, null))
-            return false;
-
-        // Done
-        if (this.log.isDebugEnabled())
-            this.debug("done resetting state machine");
-        return true;
+    boolean discardFlipFloppedStateMachine() {
+        final byte[] dirtyPrefix = this.getFlipFloppedStateMachinePrefix();
+        final Iterator<KVPair> dirtyIterator = this.kv.getRange(dirtyPrefix, ByteUtil.getKeyAfterPrefix(dirtyPrefix), false);
+        final boolean dirty = dirtyIterator.hasNext();
+        Util.closeIfPossible(dirtyIterator);
+        if (dirty)
+            this.kv.removeRange(dirtyPrefix, ByteUtil.getKeyAfterPrefix(dirtyPrefix));
+        return dirty;
     }
 
     /**
-     * Record the last applied term, index, and configuration in the persistent store.
+     * Perform a state machine flip-flop operation. Normally this would happen after a successful snapshot install.
      */
-    boolean recordLastApplied(long term, long index, Map<String, String> config) {
+    boolean flipFlopStateMachine(long term, long index, Map<String, String> config) {
 
         // Sanity check
         assert Thread.holdsLock(this);
-        if (this.log.isTraceEnabled())
-            this.trace("updating state machine last applied to " + index + "t" + term + " with config " + config);
+        assert term >= 0;
+        assert index >= 0;
+        if (this.log.isDebugEnabled())
+            this.debug("performing state machine flip-flop to " + index + "t" + term + " with config " + config);
         if (config == null)
             config = new HashMap<String, String>(0);
 
@@ -1397,23 +1377,36 @@ public class RaftKVDatabase implements KVDatabase {
         writes.getPuts().put(LAST_APPLIED_TERM_KEY, LongEncoder.encode(term));
         writes.getPuts().put(LAST_APPLIED_INDEX_KEY, LongEncoder.encode(index));
         writes.getPuts().put(LAST_APPLIED_CONFIG_KEY, this.encodeConfig(config));
+        writes.getPuts().put(FLIP_FLOP_KEY, this.encodeBoolean(!this.flipflop));
 
         // Update persistent store
         try {
             this.kv.mutate(writes, true);
         } catch (Exception e) {
-            this.error("error updating key/value store term/index to " + index + "t" + term, e);
+            this.error("flip-flop error updating key/value store term/index to " + index + "t" + term, e);
             return false;
         }
 
-        // Update in-memory copy
-        this.lastAppliedTerm = Math.max(term, 0);
-        this.lastAppliedIndex = Math.max(index, 0);
+        // Delete all unapplied log files (no longer applicable)
+        this.raftLog.clear();
+        for (File file : this.logDir.listFiles()) {
+            if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches() && !file.delete())
+                this.error("failed to delete log file " + file);
+        }
+
+        // Update in-memory copy of persistent state
+        this.flipflop = !this.flipflop;
+        this.lastAppliedTerm = term;
+        this.lastAppliedIndex = index;
         this.lastAppliedConfig = config;
         this.commitIndex = this.lastAppliedIndex;
         this.currentConfig = this.buildCurrentConfig();
-        if (term >= 0 && index >= 0)
-            this.info("new cluster configuration: " + this.currentConfig);
+        this.info("new cluster configuration: " + this.currentConfig);
+
+        // Discard the flip-flopped state machine
+        this.discardFlipFloppedStateMachine();
+
+        // Done
         return true;
     }
 
@@ -1473,6 +1466,24 @@ public class RaftKVDatabase implements KVDatabase {
         // Done
         this.clusterId = newClusterId;
         return true;
+    }
+
+    /**
+     * Get the prefix for state machine we are currently using.
+     */
+    byte[] getStateMachinePrefix() {
+        return this.getStateMachinePrefix(false);
+    }
+
+    /**
+     * Get the prefix for the flip-flopped state machine.
+     */
+    byte[] getFlipFloppedStateMachinePrefix() {
+        return this.getStateMachinePrefix(true);
+    }
+
+    private byte[] getStateMachinePrefix(boolean flipFlopped) {
+        return new byte[] { STATE_MACHINE_PREFIXES[flipFlopped ^ this.flipflop ? 1 : 0] };
     }
 
     /**
@@ -1771,6 +1782,15 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
 // Utility methods
+
+    byte[] encodeBoolean(boolean value) {
+        return new byte[] { value ? (byte)1 : (byte)0 };
+    }
+
+    boolean decodeBoolean(byte[] key) throws IOException {
+        final byte[] value = this.kv.get(key);
+        return value != null && value.length > 0 && value[0] != 0;
+    }
 
     long decodeLong(byte[] key, long defaultValue) throws IOException {
         final byte[] value = this.kv.get(key);

@@ -35,7 +35,7 @@ class MostRecentView {
 
         // Create a view of just the state machine keys and values and successively layer unapplied log entries
         // If we require a committed view, then stop when we get to the first uncomitted log entry
-        KVStore kview = PrefixKVStore.create(snapshot, RaftKVDatabase.STATE_MACHINE_PREFIX);
+        KVStore kview = PrefixKVStore.create(snapshot, raft.getStateMachinePrefix());
         this.config = new HashMap<>(raft.lastAppliedConfig);
         long viewIndex = raft.lastAppliedIndex;
         long viewTerm = raft.lastAppliedTerm;

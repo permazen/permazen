@@ -165,7 +165,7 @@ public class FollowerRole extends NonLeaderRole {
         if (this.snapshotReceive != null) {
             if (this.log.isDebugEnabled())
                 this.debug("aborting snapshot install due to leaving follower role");
-            this.raft.resetStateMachine(true);
+            this.raft.discardFlipFloppedStateMachine();
             this.snapshotReceive = null;
         }
 
@@ -526,12 +526,9 @@ public class FollowerRole extends NonLeaderRole {
 
         // If a snapshot install is in progress, cancel it
         if (this.snapshotReceive != null) {
-            if (this.log.isDebugEnabled()) {
-                this.debug("rec'd " + msg + " during in-progress " + this.snapshotReceive
-                  + "; aborting snapshot install and resetting state machine");
-            }
-            if (!this.raft.resetStateMachine(true))
-                return;
+            if (this.log.isDebugEnabled())
+                this.debug("rec'd " + msg + " during in-progress " + this.snapshotReceive + "; aborting snapshot install");
+            this.raft.discardFlipFloppedStateMachine();
             this.snapshotReceive = null;
             this.updateElectionTimer();
         }
@@ -778,11 +775,11 @@ public class FollowerRole extends NonLeaderRole {
         // Set up new install if necessary
         if (this.snapshotReceive == null || startNewInstall) {
             assert msg.getPairIndex() == 0;
-            if (!this.raft.resetStateMachine(false))
-                return;
+            if (this.raft.discardFlipFloppedStateMachine())
+                this.warn("detected left-over content in flip-flopped state machine; discarding");
             this.updateElectionTimer();
-            this.snapshotReceive = new SnapshotReceive(
-              PrefixKVStore.create(this.raft.kv, RaftKVDatabase.STATE_MACHINE_PREFIX), term, index, msg.getSnapshotConfig());
+            this.snapshotReceive = new SnapshotReceive(PrefixKVStore.create(this.raft.kv,
+              this.raft.getFlipFloppedStateMachinePrefix()), term, index, msg.getSnapshotConfig());
             if (this.log.isDebugEnabled()) {
                 this.debug("starting new snapshot install from \"" + msg.getSenderId()
                   + "\" of " + index + "t" + term + " with config " + msg.getSnapshotConfig());
@@ -796,11 +793,10 @@ public class FollowerRole extends NonLeaderRole {
         try {
             this.snapshotReceive.applyNextChunk(msg.getData());
         } catch (Exception e) {
-            this.error("error applying snapshot to key/value store; resetting state machine", e);
-            if (!this.raft.resetStateMachine(true))
-                return;
-            this.updateElectionTimer();
+            this.error("error applying snapshot to key/value store; aborting snapshot install", e);
             this.snapshotReceive = null;
+            this.raft.discardFlipFloppedStateMachine();
+            this.updateElectionTimer();
             return;
         }
 
@@ -812,8 +808,7 @@ public class FollowerRole extends NonLeaderRole {
                   + index + "t" + term + " with config " + snapshotConfig + " complete");
             }
             this.snapshotReceive = null;
-            if (!this.raft.recordLastApplied(term, index, snapshotConfig))
-                this.raft.resetStateMachine(true);                          // if this fails we are really screwed
+            this.raft.flipFlopStateMachine(term, index, snapshotConfig);
             this.updateElectionTimer();
         }
     }

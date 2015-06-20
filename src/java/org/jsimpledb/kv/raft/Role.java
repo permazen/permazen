@@ -138,29 +138,28 @@ public abstract class Role {
             myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_TERM_KEY, LongEncoder.encode(logEntry.getTerm()));
             myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_INDEX_KEY, LongEncoder.encode(logEntry.getIndex()));
             myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_CONFIG_KEY, this.raft.encodeConfig(logEntryConfig));
+            final byte[] stateMachinePrefix = this.raft.getStateMachinePrefix();
             final Mutations mutations = new Mutations() {
 
                 @Override
                 public Iterable<KeyRange> getRemoveRanges() {
-                    return Iterables.transform(logWrites.getRemoveRanges(),
-                      new PrefixKeyRangeFunction(RaftKVDatabase.STATE_MACHINE_PREFIX));
+                    return Iterables.transform(logWrites.getRemoveRanges(), new PrefixKeyRangeFunction(stateMachinePrefix));
                 }
 
                 @Override
                 public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
                     return Iterables.concat(
-                      Iterables.transform(logWrites.getPutPairs(), new PrefixPutFunction(RaftKVDatabase.STATE_MACHINE_PREFIX)),
+                      Iterables.transform(logWrites.getPutPairs(), new PrefixPutFunction(stateMachinePrefix)),
                       myWrites.getPutPairs());
                 }
 
                 @Override
                 public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
-                    return Iterables.transform(logWrites.getAdjustPairs(),
-                      new PrefixAdjustFunction(RaftKVDatabase.STATE_MACHINE_PREFIX));
+                    return Iterables.transform(logWrites.getAdjustPairs(), new PrefixAdjustFunction(stateMachinePrefix));
                 }
             };
 
-            // Apply updates to the key/value store (durably); prefix all transaction keys with STATE_MACHINE_PREFIX
+            // Apply updates to the key/value store (durably)
             if (this.log.isDebugEnabled())
                 this.debug("applying committed log entry " + logEntry + " to key/value store");
             try {

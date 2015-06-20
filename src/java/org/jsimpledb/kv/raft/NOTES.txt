@@ -1,11 +1,6 @@
 TODO
 ====
 
-- InstallSnapshot Bug:
-
-    Should not erase existing log until new log is in place, otherwise
-    we are violating the node's requirement for log persistence.
-
 - when negative AppendResponse rec'd, send next one immediately
     - simpler logic: always xmit if different from previous message
 
