@@ -5,20 +5,13 @@
 
 package org.jsimpledb.kv.raft;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
-import com.google.common.primitives.Bytes;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -26,9 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,14 +27,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableSet;
-import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -51,21 +39,13 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.dellroad.stuff.io.ByteBufferInputStream;
-import org.dellroad.stuff.io.ByteBufferOutputStream;
 import org.dellroad.stuff.java.TimedWait;
-import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVDatabase;
-import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransactionException;
-import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
-import org.jsimpledb.kv.mvcc.MutableView;
-import org.jsimpledb.kv.mvcc.Mutations;
-import org.jsimpledb.kv.mvcc.Reads;
 import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.raft.msg.AppendRequest;
 import org.jsimpledb.kv.raft.msg.AppendResponse;
@@ -80,7 +60,6 @@ import org.jsimpledb.kv.raft.msg.PingResponse;
 import org.jsimpledb.kv.raft.msg.RequestVote;
 import org.jsimpledb.kv.raft.net.Network;
 import org.jsimpledb.kv.raft.net.TCPNetwork;
-import org.jsimpledb.kv.util.PrefixKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.LongEncoder;
 import org.jsimpledb.util.ThrowableUtil;
@@ -108,11 +87,11 @@ import org.slf4j.LoggerFactory;
  *  <li>Concurrent transactions are supported through a simple optimistic locking MVCC scheme (same as used by
  *      {@link org.jsimpledb.kv.mvcc.SnapshotKVDatabase}):
  *      <ul>
- *      <li>Transactions execute locally until commit time, using a {@link MutableView} to collect mutations.
- *          The {@link MutableView} is based on the local node's most recent log entry (whether committed or not);
- *          this is called the <i>base term and index</i> for the transaction.</li>
- *      <li>On commit, the transaction's {@link Reads}, {@link Writes}, base index and term, and any config change are
- *          {@linkplain CommitRequest sent} to the leader.</li>
+ *      <li>Transactions execute locally until commit time, using a {@link org.jsimpledb.kv.mvcc.MutableView} to collect mutations.
+ *          The {@link org.jsimpledb.kv.mvcc.MutableView} is based on the local node's most recent log entry
+ *          (whether committed or not); this is called the <i>base term and index</i> for the transaction.</li>
+ *      <li>On commit, the transaction's {@link org.jsimpledb.kv.mvcc.Reads}, {@link org.jsimpledb.kv.mvcc.Writes},
+ *          base index and term, and any config change are {@linkplain CommitRequest sent} to the leader.</li>
  *      <li>The leader confirms that the log entry corresponding to the transaction's base index is either not yet applied,
  *          or was its most recently applied log entry. If this is not the case, then the transaction's base log entry
  *          is too old (older than <i>T<sub>max</sub></i>, or was applied and discarded early due to memory pressure),
@@ -120,8 +99,8 @@ import org.slf4j.LoggerFactory;
  *      <li>The leader verifies that the the log entry term matches the transaction's base term; if not, the base log entry
  *          has been overwritten, and the transaction is rejected with a {@link RetryTransactionException}.
  *      <li>The leader confirms that the {@link Writes} associated with log entries after the transaction's base log entry
- *          do not create {@linkplain Reads#isConflict conflicts} when compared against the transaction's {@link Reads}.
- *          If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
+ *          do not create {@linkplain org.jsimpledb.kv.mvcc.Reads#isConflict conflicts} when compared against the transaction's
+ *          {@link org.jsimpledb.kv.mvcc.Reads}. If so, the transaction is rejected with a {@link RetryTransactionException}.</li>
  *      <li>The leader adds a new log entry consisting of the transaction's {@link Writes} (and any config change) to its log.
  *          The associated term and index become the transaction's <i>commit term and index</i>; the leader then
  *          {@linkplain CommitResponse replies} to the follower with this information.</li>
@@ -283,68 +262,68 @@ public class RaftKVDatabase implements KVDatabase {
      * @see #setCommitTimeout
      * @see RaftKVTransaction#setTimeout
      */
-    public static final int DEFAULT_COMMIT_TIMEOUT = 5000;                                      // 5 seconds
+    public static final int DEFAULT_COMMIT_TIMEOUT = 5000;                              // 5 seconds
 
     // Internal constants
-    private static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
-    private static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;
-    private static final int MAX_UNAPPLIED_LOG_ENTRIES = 64;
-    private static final int FOLLOWER_LINGER_HEARTBEATS = 3;                // how long to keep updating removed followers
-    private static final float MAX_CLOCK_DRIFT = 0.01f;                     // max clock drift as a percentage ratio
+    static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
+    static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;
+    static final int MAX_UNAPPLIED_LOG_ENTRIES = 64;
+    static final int FOLLOWER_LINGER_HEARTBEATS = 3;                        // how long to keep updating removed followers
+    static final float MAX_CLOCK_DRIFT = 0.01f;                             // max clock drift as a percentage ratio
 
     // File prefixes and suffixes
-    private static final String TX_FILE_PREFIX = "tx-";
-    private static final String TEMP_FILE_PREFIX = "temp-";
-    private static final String TEMP_FILE_SUFFIX = ".tmp";
-    private static final Pattern TEMP_FILE_PATTERN = Pattern.compile(".*" + Pattern.quote(TEMP_FILE_SUFFIX));
+    static final String TX_FILE_PREFIX = "tx-";
+    static final String TEMP_FILE_PREFIX = "temp-";
+    static final String TEMP_FILE_SUFFIX = ".tmp";
+    static final Pattern TEMP_FILE_PATTERN = Pattern.compile(".*" + Pattern.quote(TEMP_FILE_SUFFIX));
 
     // Keys for persistent Raft state
-    private static final byte[] CLUSTER_ID_KEY = ByteUtil.parse("0001");
-    private static final byte[] CURRENT_TERM_KEY = ByteUtil.parse("0002");
-    private static final byte[] LAST_APPLIED_TERM_KEY = ByteUtil.parse("0003");
-    private static final byte[] LAST_APPLIED_INDEX_KEY = ByteUtil.parse("0004");
-    private static final byte[] LAST_APPLIED_CONFIG_KEY = ByteUtil.parse("0005");
-    private static final byte[] VOTED_FOR_KEY = ByteUtil.parse("0006");
+    static final byte[] CLUSTER_ID_KEY = ByteUtil.parse("0001");
+    static final byte[] CURRENT_TERM_KEY = ByteUtil.parse("0002");
+    static final byte[] LAST_APPLIED_TERM_KEY = ByteUtil.parse("0003");
+    static final byte[] LAST_APPLIED_INDEX_KEY = ByteUtil.parse("0004");
+    static final byte[] LAST_APPLIED_CONFIG_KEY = ByteUtil.parse("0005");
+    static final byte[] VOTED_FOR_KEY = ByteUtil.parse("0006");
 
     // Prefix for all state machine key/value keys
-    private static final byte[] STATE_MACHINE_PREFIX = ByteUtil.parse("80");
+    static final byte[] STATE_MACHINE_PREFIX = ByteUtil.parse("80");
 
     // Logging
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    final Logger log = LoggerFactory.getLogger(this.getClass());
 
     // Configuration state
-    private Network network = new TCPNetwork();
-    private String identity;
-    private int minElectionTimeout = DEFAULT_MIN_ELECTION_TIMEOUT;
-    private int maxElectionTimeout = DEFAULT_MAX_ELECTION_TIMEOUT;
-    private int heartbeatTimeout = DEFAULT_HEARTBEAT_TIMEOUT;
-    private int maxTransactionDuration = DEFAULT_MAX_TRANSACTION_DURATION;
-    private int commitTimeout = DEFAULT_COMMIT_TIMEOUT;
-    private long maxAppliedLogMemory = DEFAULT_MAX_APPLIED_LOG_MEMORY;
-    private File logDir;
+    Network network = new TCPNetwork();
+    String identity;
+    int minElectionTimeout = DEFAULT_MIN_ELECTION_TIMEOUT;
+    int maxElectionTimeout = DEFAULT_MAX_ELECTION_TIMEOUT;
+    int heartbeatTimeout = DEFAULT_HEARTBEAT_TIMEOUT;
+    int maxTransactionDuration = DEFAULT_MAX_TRANSACTION_DURATION;
+    int commitTimeout = DEFAULT_COMMIT_TIMEOUT;
+    long maxAppliedLogMemory = DEFAULT_MAX_APPLIED_LOG_MEMORY;
+    File logDir;
 
     // Raft runtime state
-    private Role role;                                                  // Raft state: LEADER, FOLLOWER, or CANDIDATE
-    private SecureRandom random;                                        // used to randomize election timeout, etc.
-    private int clusterId;                                              // cluster ID (zero if unconfigured - usually)
-    private long currentTerm;                                           // current Raft term (zero if unconfigured)
-    private long commitIndex;                                           // current Raft commit index (zero if unconfigured)
-    private long lastAppliedTerm;                                       // key/value store last applied term (zero if unconfigured)
-    private long lastAppliedIndex;                                      // key/value store last applied index (zero if unconfigured)
-    private final ArrayList<LogEntry> raftLog = new ArrayList<>();      // unapplied log entries (empty if unconfigured)
-    private Map<String, String> lastAppliedConfig;                      // key/value store last applied config (empty if none)
-    private Map<String, String> currentConfig;                          // most recent cluster config (empty if unconfigured)
+    Role role;                                                          // Raft state: LEADER, FOLLOWER, or CANDIDATE
+    SecureRandom random;                                                // used to randomize election timeout, etc.
+    int clusterId;                                                      // cluster ID (zero if unconfigured - usually)
+    long currentTerm;                                                   // current Raft term (zero if unconfigured)
+    long commitIndex;                                                   // current Raft commit index (zero if unconfigured)
+    long lastAppliedTerm;                                               // key/value store last applied term (zero if unconfigured)
+    long lastAppliedIndex;                                              // key/value store last applied index (zero if unconfigured)
+    final ArrayList<LogEntry> raftLog = new ArrayList<>();              // unapplied log entries (empty if unconfigured)
+    Map<String, String> lastAppliedConfig;                              // key/value store last applied config (empty if none)
+    Map<String, String> currentConfig;                                  // most recent cluster config (empty if unconfigured)
 
     // Non-Raft runtime state
-    private AtomicKVStore kv;
-    private FileChannel logDirChannel;
-    private ScheduledExecutorService executor;
-    private String returnAddress;                                       // return address for message currently being processed
-    private final HashSet<String> transmitting = new HashSet<>();       // network addresses whose output queues are not empty
-    private final HashMap<Long, RaftKVTransaction> openTransactions = new HashMap<>();
-    private final LinkedHashSet<Service> pendingService = new LinkedHashSet<>();
-    private boolean performingService;
-    private boolean shuttingDown;                                       // prevents new transactions from being created
+    AtomicKVStore kv;
+    FileChannel logDirChannel;
+    String returnAddress;                                               // return address for message currently being processed
+    ScheduledExecutorService serviceExecutor;
+    final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
+    final HashMap<Long, RaftKVTransaction> openTransactions = new HashMap<>();
+    final LinkedHashSet<Service> pendingService = new LinkedHashSet<>();
+    boolean performingService;
+    boolean shuttingDown;                                               // prevents new transactions from being created
 
 // Configuration
 
@@ -801,12 +780,14 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.random == null;
             this.random = new SecureRandom();
 
-            // Start up executor thread
-            assert this.executor == null;
-            this.executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            // Start up service executor thread
+            assert this.serviceExecutor == null;
+            this.serviceExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable action) {
-                    return new ServiceThread(action);
+                    final Thread thread = new Thread(action);
+                    thread.setName(RaftKVDatabase.this + " Service");
+                    return thread;
                 }
             });
 
@@ -941,17 +922,17 @@ public class RaftKVDatabase implements KVDatabase {
                 this.warn("open transactions not cleaned up during shutdown");
         }
 
-        // Shut down the executor and wait for pending tasks to finish
-        this.executor.shutdownNow();
+        // Shut down the service executor and wait for pending tasks to finish
+        this.serviceExecutor.shutdownNow();
         try {
-            this.executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            this.serviceExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
         // Final cleanup
         synchronized (this) {
-            this.executor = null;
+            this.serviceExecutor = null;
             this.cleanup();
         }
 
@@ -966,14 +947,14 @@ public class RaftKVDatabase implements KVDatabase {
             this.role.shutdown();
             this.role = null;
         }
-        if (this.executor != null) {
-            this.executor.shutdownNow();
+        if (this.serviceExecutor != null) {
+            this.serviceExecutor.shutdownNow();
             try {
-                this.executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+                this.serviceExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            this.executor = null;
+            this.serviceExecutor = null;
         }
         this.kv.stop();
         Util.closeIfPossible(this.logDirChannel);
@@ -1065,7 +1046,11 @@ public class RaftKVDatabase implements KVDatabase {
         this.currentConfig = this.buildCurrentConfig();
     }
 
-    private Map<String, String> buildCurrentConfig() {
+    /**
+     * Reconstruct the current config by starting with the last applied config and applying
+     * configuration deltas from unapplied log entries.
+     */
+    Map<String, String> buildCurrentConfig() {
 
         // Start with last applied config
         final HashMap<String, String> config = new HashMap<>(this.lastAppliedConfig);
@@ -1096,7 +1081,7 @@ public class RaftKVDatabase implements KVDatabase {
         // Base transaction on the most recent log entry. This is itself a form of optimistic locking: we assume that the
         // most recent log entry has a high probability of being committed (in the Raft sense), which is of course required
         // in order to commit any transaction based on it.
-        final MostRecentView view = new MostRecentView();
+        final MostRecentView view = new MostRecentView(this, false);
 
         // Create transaction
         final RaftKVTransaction tx = new RaftKVTransaction(this,
@@ -1133,13 +1118,13 @@ public class RaftKVDatabase implements KVDatabase {
                     if (this.log.isDebugEnabled())
                         this.debug("committing transaction " + tx);
                     tx.setState(TxState.COMMIT_READY);
-                    this.requestService(this.role.new CheckReadyTransactionService(tx));
+                    this.requestService(new CheckReadyTransactionService(this.role, tx));
 
                     // Setup commit timer
                     final int timeout = tx.getTimeout();
                     if (timeout != 0) {
-                        final Timer commitTimer = new Timer("commit timer for " + tx,
-                          new Service(null, "commit timeout for tx#" + tx.getTxId()) {
+                        final Timer commitTimer = new Timer(this, "commit timer for " + tx,
+                          new Service("commit timeout for tx#" + tx.getTxId()) {
                             @Override
                             public void run() {
                                 switch (tx.getState()) {
@@ -1268,74 +1253,6 @@ public class RaftKVDatabase implements KVDatabase {
         this.role.cleanupForTransaction(tx);
     }
 
-// DataView
-
-    /**
-     * A view of the database based on the most recent log entry, if any, otherwise directly on the committed key/value store.
-     * Caller is responsible for eventually closing the snapshot.
-     */
-    private class MostRecentView {
-
-        private final CloseableKVStore snapshot;
-        private final long term;
-        private final long index;
-        private final HashMap<String, String> config;
-        private final MutableView view;
-
-        public MostRecentView() {
-            this(false);
-        }
-
-        public MostRecentView(boolean committed) {
-            assert Thread.holdsLock(RaftKVDatabase.this);
-
-            // Grab a snapshot of the key/value store
-            this.snapshot = RaftKVDatabase.this.kv.snapshot();
-
-            // Create a view of just the state machine keys and values and successively layer unapplied log entries
-            // If we require a committed view, then stop when we get to the first uncomitted log entry
-            KVStore kview = PrefixKVStore.create(snapshot, STATE_MACHINE_PREFIX);
-            this.config = new HashMap<>(RaftKVDatabase.this.lastAppliedConfig);
-            long viewIndex = RaftKVDatabase.this.lastAppliedIndex;
-            long viewTerm = RaftKVDatabase.this.lastAppliedTerm;
-            for (LogEntry logEntry : RaftKVDatabase.this.raftLog) {
-                if (committed && logEntry.getIndex() > RaftKVDatabase.this.commitIndex)
-                    break;
-                final Writes writes = logEntry.getWrites();
-                if (!writes.isEmpty())
-                    kview = new MutableView(kview, null, logEntry.getWrites());
-                logEntry.applyConfigChange(this.config);
-                viewIndex = logEntry.getIndex();
-                viewTerm = logEntry.getTerm();
-            }
-
-            // Finalize
-            this.view = new MutableView(kview);
-            this.term = viewTerm;
-            this.index = viewIndex;
-        }
-
-        public long getTerm() {
-            return this.term;
-        }
-
-        public long getIndex() {
-            return this.index;
-        }
-
-        public Map<String, String> getConfig() {
-            return this.config;
-        }
-
-        public CloseableKVStore getSnapshot() {
-            return this.snapshot;
-        }
-
-        public MutableView getView() {
-            return this.view;
-        }
-    }
-
 // Service
 
     /**
@@ -1347,22 +1264,21 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @param service the service to perform
      */
-    private void requestService(Service service) {
+    void requestService(Service service) {
         assert Thread.holdsLock(this);
-        if (!this.pendingService.add(service))
-            return;
-        if (this.performingService)
+        assert service != null;
+        if (!this.pendingService.add(service) || this.performingService)
             return;
         try {
-            this.executor.submit(new ErrorLoggingRunnable() {
+            this.serviceExecutor.submit(new Runnable() {
                 @Override
-                protected void doRun() {
+                public void run() {
                     RaftKVDatabase.this.handlePendingService();
                 }
             });
         } catch (RejectedExecutionException e) {
             if (!this.shuttingDown)
-                this.warn("executor task rejected, skipping", e);
+                this.warn("service executor task rejected, skipping", e);
         }
     }
 
@@ -1371,7 +1287,6 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Sanity check
         assert this.checkState();
-        assert Thread.currentThread() instanceof ServiceThread;
         if (this.role == null)
             return;
 
@@ -1382,182 +1297,18 @@ public class RaftKVDatabase implements KVDatabase {
                 final Iterator<Service> i = this.pendingService.iterator();
                 final Service service = i.next();
                 i.remove();
+                assert service != null;
                 assert service.getRole() == null || service.getRole() == this.role;
                 if (this.log.isTraceEnabled())
                     this.trace("SERVICE [" + service + "] in " + this.role);
-                service.run();
+                try {
+                    service.run();
+                } catch (Throwable t) {
+                    RaftKVDatabase.this.error("exception in " + service, t);
+                }
             }
         } finally {
             this.performingService = false;
-        }
-    }
-
-    private class ServiceThread extends Thread {
-        ServiceThread(Runnable action) {
-            super(action);
-            this.setName(RaftKVDatabase.this + " Service");
-        }
-    }
-
-    private abstract static class Service implements Runnable {
-
-        private final Role role;
-        private final String desc;
-
-        protected Service(Role role, String desc) {
-            this.role = role;
-            this.desc = desc;
-        }
-
-        public Role getRole() {
-            return this.role;
-        }
-
-        @Override
-        public String toString() {
-            return this.desc;
-        }
-    }
-
-// Timer
-
-    /**
-     * One shot timer that {@linkplain #requestService requests} a {@link Service} on expiration.
-     *
-     * <p>
-     * This implementation avoids any race conditions between scheduling, firing, and cancelling.
-     */
-    class Timer {
-
-        private final Logger log = RaftKVDatabase.this.log;
-        private final String name;
-        private final Service service;
-        private ScheduledFuture<?> future;
-        private PendingTimeout pendingTimeout;                  // non-null IFF timeout has not been handled yet
-        private Timestamp timeoutDeadline;
-
-        public Timer(String name, Service service) {
-            this.name = name;
-            this.service = service;
-        }
-
-        /**
-         * Stop timer if running.
-         *
-         * @throws IllegalStateException if the lock object is not locked
-         */
-        public void cancel() {
-
-            // Sanity check
-            assert Thread.holdsLock(RaftKVDatabase.this);
-
-            // Cancel existing timer, if any
-            if (this.future != null) {
-                this.future.cancel(false);
-                this.future = null;
-            }
-
-            // Ensure the previously scheduled action does nothing if case we lose the cancel() race condition
-            this.pendingTimeout = null;
-            this.timeoutDeadline = null;
-        }
-
-        /**
-         * (Re)schedule this timer. Discards any previously scheduled timeout.
-         *
-         * @param delay delay before expiration in milliseonds
-         * @return true if restarted, false if executor rejected the task
-         * @throws IllegalStateException if the lock object is not locked
-         */
-        public void timeoutAfter(int delay) {
-
-            // Sanity check
-            assert Thread.holdsLock(RaftKVDatabase.this);
-            Preconditions.checkArgument(delay >= 0, "delay < 0");
-
-            // Cancel existing timeout action, if any
-            this.cancel();
-            assert this.future == null;
-            assert this.pendingTimeout == null;
-            assert this.timeoutDeadline == null;
-
-            // Reschedule new timeout action
-            this.timeoutDeadline = new Timestamp().offset(delay);
-            if (this.log.isTraceEnabled()) {
-                RaftKVDatabase.this.trace("rescheduling " + this.name + " for " + this.timeoutDeadline
-                  + " (" + delay + "ms from now)");
-            }
-            this.pendingTimeout = new PendingTimeout();
-            try {
-                this.future = RaftKVDatabase.this.executor.schedule(this.pendingTimeout, delay, TimeUnit.MILLISECONDS);
-            } catch (RejectedExecutionException e) {
-                if (!RaftKVDatabase.this.shuttingDown)
-                    RaftKVDatabase.this.warn("can't restart timer", e);
-            }
-        }
-
-        /**
-         * Force timer to expire immediately.
-         */
-        public void timeoutNow() {
-            this.timeoutAfter(0);
-        }
-
-        /**
-         * Get the deadline.
-         */
-        public Timestamp getDeadline() {
-            return this.timeoutDeadline;
-        }
-
-        /**
-         * Determine if this timer has expired and requires service handling, and reset it if so.
-         *
-         * <p>
-         * If this timer is not running, has not yet expired, or has previously expired and this method was already
-         * thereafter invoked, false is returned. Otherwise, true is returned, this timer is {@link #cancel}ed (if necessary),
-         * and the caller is expected to handle the implied service need.
-         *
-         * @return true if timer needs handling, false otherwise
-         */
-        public boolean pollForTimeout() {
-
-            // Sanity check
-            assert Thread.holdsLock(RaftKVDatabase.this);
-
-            // Has timer expired?
-            if (this.pendingTimeout == null || !this.timeoutDeadline.hasOccurred())
-                return false;
-
-            // Yes, timer requires service
-            if (Timer.this.log.isTraceEnabled())
-                RaftKVDatabase.this.trace(Timer.this.name + " expired " + -this.timeoutDeadline.offsetFromNow() + "ms ago");
-            this.cancel();
-            return true;
-        }
-
-        /**
-         * Determine if this timer is running, i.e., will expire or has expired but
-         * {@link #pollForTimeout} has not been invoked yet.
-         */
-        public boolean isRunning() {
-            return this.pendingTimeout != null;
-        }
-
-        private class PendingTimeout extends ErrorLoggingRunnable {
-
-            @Override
-            protected void doRun() {
-                synchronized (RaftKVDatabase.this) {
-
-                    // Avoid cancel() race condition
-                    if (Timer.this.pendingTimeout != this)
-                        return;
-
-                    // Trigger service
-                    RaftKVDatabase.this.requestService(Timer.this.service);
-                }
-            }
         }
     }
 
@@ -1566,7 +1317,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Reset the persisted state machine to its initial state.
      */
-    private boolean resetStateMachine(boolean initialize) {
+    boolean resetStateMachine(boolean initialize) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1603,7 +1354,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Record the last applied term, index, and configuration in the persistent store.
      */
-    private boolean recordLastApplied(long term, long index, Map<String, String> config) {
+    boolean recordLastApplied(long term, long index, Map<String, String> config) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1640,7 +1391,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Update and persist a new current term.
      */
-    private boolean advanceTerm(long newTerm) {
+    boolean advanceTerm(long newTerm) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1672,7 +1423,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @throws IllegalStateException if this node is already part of some cluster
      * @throws IllegalArgumentException if {@code newClusterId} is zero
      */
-    private boolean joinCluster(int newClusterId) {
+    boolean joinCluster(int newClusterId) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1700,7 +1451,7 @@ public class RaftKVDatabase implements KVDatabase {
      *
      * @param role new role
      */
-    private void changeRole(Role role) {
+    void changeRole(Role role) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1732,7 +1483,7 @@ public class RaftKVDatabase implements KVDatabase {
      * @return new {@link LogEntry}
      * @throws Exception if an error occurs
      */
-    private LogEntry appendLogEntry(long term, NewLogEntry newLogEntry) throws Exception {
+    LogEntry appendLogEntry(long term, NewLogEntry newLogEntry) throws Exception {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1764,112 +1515,28 @@ public class RaftKVDatabase implements KVDatabase {
         return logEntry;
     }
 
-    private long getLastLogIndex() {
+    long getLastLogIndex() {
         assert Thread.holdsLock(this);
         return this.lastAppliedIndex + this.raftLog.size();
     }
 
-    private long getLastLogTerm() {
+    long getLastLogTerm() {
         assert Thread.holdsLock(this);
         return this.getLogTermAtIndex(this.getLastLogIndex());
     }
 
-    private long getLogTermAtIndex(long index) {
+    long getLogTermAtIndex(long index) {
         assert Thread.holdsLock(this);
         assert index >= this.lastAppliedIndex;
         assert index <= this.getLastLogIndex();
         return index == this.lastAppliedIndex ? this.lastAppliedTerm : this.getLogEntryAtIndex(index).getTerm();
     }
 
-    private LogEntry getLogEntryAtIndex(long index) {
+    LogEntry getLogEntryAtIndex(long index) {
         assert Thread.holdsLock(this);
         assert index > this.lastAppliedIndex;
         assert index <= this.getLastLogIndex();
         return this.raftLog.get((int)(index - this.lastAppliedIndex - 1));
-    }
-
-    /**
-     * Contains the information required to commit a new entry to the log.
-     */
-    private class NewLogEntry {
-
-        private final LogEntry.Data data;
-        private final File tempFile;
-
-        /**
-         * Create an instance from a transaction and a temporary file
-         *
-         * @param data log entry mutations
-         * @throws Exception if an error occurs
-         */
-        public NewLogEntry(RaftKVTransaction tx, File tempFile) throws IOException {
-            this.data = new LogEntry.Data(tx.getMutableView().getWrites(), tx.getConfigChange());
-            this.tempFile = tempFile;
-        }
-
-        /**
-         * Create an instance from a transaction.
-         *
-         * @param data log entry mutations
-         * @throws Exception if an error occurs
-         */
-        public NewLogEntry(RaftKVTransaction tx) throws IOException {
-            this.data = new LogEntry.Data(tx.getMutableView().getWrites(), tx.getConfigChange());
-            this.tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, RaftKVDatabase.this.logDir);
-            try (FileWriter output = new FileWriter(this.tempFile)) {
-                LogEntry.writeData(output, data);
-            }
-        }
-
-        /**
-         * Create an instance from a {@link LogEntry.Data} object.
-         *
-         * @param data mutation data
-         * @throws Exception if an error occurs
-         */
-        public NewLogEntry(LogEntry.Data data) throws IOException {
-            this.data = data;
-            this.tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, RaftKVDatabase.this.logDir);
-            try (FileWriter output = new FileWriter(this.tempFile)) {
-                LogEntry.writeData(output, data);
-            }
-        }
-
-        /**
-         * Create an instance from a serialized data in a {@link ByteBuffer}.
-         *
-         * @param buf buffer containing serialized mutations
-         * @throws Exception if an error occurs
-         */
-        public NewLogEntry(ByteBuffer dataBuf) throws IOException {
-
-            // Copy data to temporary file
-            this.tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX, RaftKVDatabase.this.logDir);
-            try (FileWriter output = new FileWriter(this.tempFile)) {
-                while (dataBuf.hasRemaining())
-                    output.getFileOutputStream().getChannel().write(dataBuf);
-            }
-
-            // Avoid having two copies of the data in memory at once
-            dataBuf = null;
-
-            // Deserialize data from file back into memory
-            try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(tempFile), 4096)) {
-                this.data = LogEntry.readData(input);
-            }
-        }
-
-        public LogEntry.Data getData() {
-            return this.data;
-        }
-
-        public File getTempFile() {
-            return this.tempFile;
-        }
-
-        public void cancel() {
-            this.tempFile.delete();
-        }
     }
 
 // Object
@@ -1922,13 +1589,13 @@ public class RaftKVDatabase implements KVDatabase {
         this.role.outputQueueEmpty(address);
     }
 
-    private boolean isTransmitting(String address) {
+    boolean isTransmitting(String address) {
         return this.transmitting.contains(address);
     }
 
 // Messages
 
-    private boolean sendMessage(Message msg) {
+    synchronized boolean sendMessage(Message msg) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -1956,7 +1623,7 @@ public class RaftKVDatabase implements KVDatabase {
         return false;
     }
 
-    private synchronized void receiveMessage(String address, Message msg) {
+    synchronized void receiveMessage(String address, Message msg) {
 
         // Sanity check
         assert Thread.holdsLock(this);
@@ -2076,7 +1743,7 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Utility methods
 
-    private long decodeLong(byte[] key, long defaultValue) throws IOException {
+    long decodeLong(byte[] key, long defaultValue) throws IOException {
         final byte[] value = this.kv.get(key);
         if (value == null)
             return defaultValue;
@@ -2088,7 +1755,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
     }
 
-    private String decodeString(byte[] key, String defaultValue) throws IOException {
+    String decodeString(byte[] key, String defaultValue) throws IOException {
         final byte[] value = this.kv.get(key);
         if (value == null)
             return defaultValue;
@@ -2101,7 +1768,7 @@ public class RaftKVDatabase implements KVDatabase {
         }
     }
 
-    private byte[] encodeString(String value) {
+    byte[] encodeString(String value) {
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         final DataOutputStream output = new DataOutputStream(buf);
         try {
@@ -2113,7 +1780,7 @@ public class RaftKVDatabase implements KVDatabase {
         return buf.toByteArray();
     }
 
-    private Map<String, String> decodeConfig(byte[] key) throws IOException {
+    Map<String, String> decodeConfig(byte[] key) throws IOException {
         final Map<String, String> config = new HashMap<>();
         final byte[] value = this.kv.get(key);
         if (value == null)
@@ -2134,7 +1801,7 @@ public class RaftKVDatabase implements KVDatabase {
         return config;
     }
 
-    private byte[] encodeConfig(Map<String, String> config) {
+    byte[] encodeConfig(Map<String, String> config) {
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         final DataOutputStream data = new DataOutputStream(buf);
         try {
@@ -2151,2855 +1818,47 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Logging
 
-    private void trace(String msg, Throwable t) {
+    void trace(String msg, Throwable t) {
         this.log.trace(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
-    private void trace(String msg) {
+    void trace(String msg) {
         this.log.trace(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
-    private void debug(String msg, Throwable t) {
+    void debug(String msg, Throwable t) {
         this.log.debug(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
-    private void debug(String msg) {
+    void debug(String msg) {
         this.log.debug(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
-    private void info(String msg, Throwable t) {
+    void info(String msg, Throwable t) {
         this.log.info(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
-    private void info(String msg) {
+    void info(String msg) {
         this.log.info(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
-    private void warn(String msg, Throwable t) {
+    void warn(String msg, Throwable t) {
         this.log.warn(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
-    private void warn(String msg) {
+    void warn(String msg) {
         this.log.warn(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
-    private void error(String msg, Throwable t) {
+    void error(String msg, Throwable t) {
         this.log.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg), t);
     }
 
-    private void error(String msg) {
+    void error(String msg) {
         this.log.error(String.format("%s %s: %s", new Timestamp(), this.identity, msg));
     }
 
-// Raft Roles
-
-    /**
-     * Common superclass for the three roles played by a Raft node:
-     * {@linkplain LeaderRole leader}, {@linkplain FollowerRole follower}, and {@linkplain CandidateRole candidate}.
-     */
-    public abstract static class Role {
-
-        final Logger log = LoggerFactory.getLogger(this.getClass());
-        final RaftKVDatabase raft;
-        final Service checkReadyTransactionsService = new Service(this, "check ready transactions") {
-            @Override
-            public void run() {
-                Role.this.checkReadyTransactions();
-            }
-        };
-        final Service checkWaitingTransactionsService = new Service(this, "check waiting transactions") {
-            @Override
-            public void run() {
-                Role.this.checkWaitingTransactions();
-            }
-        };
-        final Service applyCommittedLogEntriesService = new Service(this, "apply committed logs") {
-            @Override
-            public void run() {
-                Role.this.applyCommittedLogEntries();
-            }
-        };
-
-    // Constructors
-
-        Role(RaftKVDatabase raft) {
-            this.raft = raft;
-            assert Thread.holdsLock(this.raft);
-        }
-
-    // Status
-
-        /**
-         * Get the {@link RaftKVDatabase} with which this instance is associated.
-         *
-         * @return associated database
-         */
-        public RaftKVDatabase getKVDatabase() {
-            return this.raft;
-        }
-
-    // Lifecycle
-
-        void setup() {
-            assert Thread.holdsLock(this.raft);
-            this.raft.requestService(this.checkReadyTransactionsService);
-            this.raft.requestService(this.checkWaitingTransactionsService);
-            this.raft.requestService(this.applyCommittedLogEntriesService);
-        }
-
-        void shutdown() {
-            assert Thread.holdsLock(this.raft);
-            for (RaftKVTransaction tx : this.raft.openTransactions.values())
-                this.cleanupForTransaction(tx);
-        }
-
-    // Service
-
-        abstract void outputQueueEmpty(String address);
-
-        /**
-         * Check transactions in the {@link TxState#COMMIT_READY} state to see if we can advance them.
-         */
-        void checkReadyTransactions() {
-            for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
-                new CheckReadyTransactionService(tx).run();
-        }
-
-        /**
-         * Check transactions in the {@link TxState#COMMIT_WAITING} state to see if they are committed yet.
-         * We invoke this service method whenever our {@code commitIndex} advances.
-         */
-        void checkWaitingTransactions() {
-            for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
-                new CheckWaitingTransactionService(tx).run();
-        }
-
-        /**
-         * Apply committed but unapplied log entries to the state machine.
-         * We invoke this service method whenever log entries are added or our {@code commitIndex} advances.
-         */
-        void applyCommittedLogEntries() {
-
-            // Apply committed log entries to the state machine
-            while (this.raft.lastAppliedIndex < this.raft.commitIndex) {
-
-                // Grab the first unwritten log entry
-                final LogEntry logEntry = this.raft.raftLog.get(0);
-                assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;
-
-                // Check with subclass
-                if (!this.mayApplyLogEntry(logEntry))
-                    break;
-
-                // Get the current config as of the log entry we're about to apply
-                final HashMap<String, String> logEntryConfig = new HashMap<>(this.raft.lastAppliedConfig);
-                logEntry.applyConfigChange(logEntryConfig);
-
-                // Prepare combined Mutations containing prefixed log entry changes plus my own
-                final Writes logWrites = logEntry.getWrites();
-                final Writes myWrites = new Writes();
-                myWrites.getPuts().put(LAST_APPLIED_TERM_KEY, LongEncoder.encode(logEntry.getTerm()));
-                myWrites.getPuts().put(LAST_APPLIED_INDEX_KEY, LongEncoder.encode(logEntry.getIndex()));
-                myWrites.getPuts().put(LAST_APPLIED_CONFIG_KEY, this.raft.encodeConfig(logEntryConfig));
-                final Mutations mutations = new Mutations() {
-
-                    @Override
-                    public Iterable<KeyRange> getRemoveRanges() {
-                        return Iterables.transform(logWrites.getRemoveRanges(), new PrefixKeyRangeFunction(STATE_MACHINE_PREFIX));
-                    }
-
-                    @Override
-                    public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
-                        return Iterables.concat(
-                          Iterables.transform(logWrites.getPutPairs(), new PrefixPutFunction(STATE_MACHINE_PREFIX)),
-                          myWrites.getPutPairs());
-                    }
-
-                    @Override
-                    public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
-                        return Iterables.transform(logWrites.getAdjustPairs(), new PrefixAdjustFunction(STATE_MACHINE_PREFIX));
-                    }
-                };
-
-                // Apply updates to the key/value store (durably); prefix all transaction keys with STATE_MACHINE_PREFIX
-                if (this.log.isDebugEnabled())
-                    this.debug("applying committed log entry " + logEntry + " to key/value store");
-                try {
-                    this.raft.kv.mutate(mutations, true);
-                } catch (Exception e) {
-                    if (e instanceof RuntimeException && e.getCause() instanceof IOException)
-                        e = (IOException)e.getCause();
-                    this.error("error applying log entry " + logEntry + " to key/value store", e);
-                    break;
-                }
-
-                // Update in-memory state
-                this.raft.lastAppliedTerm = logEntry.getTerm();
-                assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;
-                this.raft.lastAppliedIndex = logEntry.getIndex();
-                logEntry.applyConfigChange(this.raft.lastAppliedConfig);
-                assert this.raft.currentConfig.equals(this.raft.buildCurrentConfig());
-
-                // Delete the log entry
-                this.raft.raftLog.remove(0);
-                if (!logEntry.getFile().delete())
-                    this.error("failed to delete log file " + logEntry.getFile());
-            }
-        }
-
-        /**
-         * Determine whether the given log entry may be applied to the state machine.
-         */
-        boolean mayApplyLogEntry(LogEntry logEntry) {
-            return true;
-        }
-
-    // Transaction service classes
-
-        abstract class AbstractTransactionService extends Service {
-
-            protected final RaftKVTransaction tx;
-
-            AbstractTransactionService(RaftKVTransaction tx, String desc) {
-                super(Role.this, desc);
-                assert tx != null;
-                this.tx = tx;
-            }
-
-            @Override
-            public final void run() {
-                try {
-                    this.doRun();
-                } catch (KVTransactionException e) {
-                    Role.this.raft.fail(tx, e);
-                } catch (Exception e) {
-                    Role.this.raft.fail(tx, new KVTransactionException(tx, e));
-                }
-            }
-
-            protected abstract void doRun();
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == null || obj.getClass() != this.getClass())
-                    return false;
-                final AbstractTransactionService that = (AbstractTransactionService)obj;
-                return this.tx.equals(that.tx);
-            }
-
-            @Override
-            public int hashCode() {
-                return this.tx.hashCode();
-            }
-        }
-
-        class CheckReadyTransactionService extends AbstractTransactionService {
-
-            CheckReadyTransactionService(RaftKVTransaction tx) {
-                super(tx, "check ready tx#" + tx.getTxId());
-            }
-
-            @Override
-            protected void doRun() {
-                if (this.tx.getState().equals(TxState.COMMIT_READY))
-                    Role.this.checkReadyTransaction(this.tx);
-            }
-        }
-
-        class CheckWaitingTransactionService extends AbstractTransactionService {
-
-            CheckWaitingTransactionService(RaftKVTransaction tx) {
-                super(tx, "check waiting tx#" + tx.getTxId());
-            }
-
-            @Override
-            protected void doRun() {
-                if (this.tx.getState().equals(TxState.COMMIT_WAITING))
-                    Role.this.checkWaitingTransaction(this.tx);
-            }
-        }
-
-    // Transactions
-
-        /**
-         * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state).
-         *
-         * <p>
-         * This should be invoked:
-         * <ul>
-         *  <li>After changing roles</li>
-         *  <li>After a transaction has entered the {@link TxState#COMMIT_READY} state</li>
-         *  <li>After the leader is newly known (in {@link FollowerRole})</li>
-         *  <li>After the leader's output queue goes from non-empty to empty (in {@link FollowerRole})</li>
-         *  <li>After the leader's {@code commitIndex} has advanced, in case a config change transaction
-         *      is waiting on a previous config change transaction (in {@link LeaderRole})</li>
-         * </ul>
-         *
-         * @param tx the transaction
-         * @throws KVTransactionException if an error occurs
-         */
-        void checkReadyTransaction(RaftKVTransaction tx) {
-
-            // Get transaction mutations
-            final Writes writes = tx.getMutableView().getWrites();
-            final String[] configChange = tx.getConfigChange();
-
-            // Determine whether transaction is truly read-only
-            final boolean readOnly = tx.isReadOnly() || (writes.isEmpty() && configChange == null);
-
-            // No need to talk to leader for read-only transactions unless LINEARIZABLE
-            if (readOnly) {
-                switch (tx.getConsistency()) {
-                case UNCOMMITTED:
-                    if (this.log.isTraceEnabled())
-                        this.trace("trivial commit for read-only, UNCOMMITTED " + tx);
-                    this.raft.succeed(tx);
-                    return;
-                case EVENTUAL:
-                    this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
-                    return;
-                default:
-                    break;
-                }
-            }
-
-            // Requires leader communication - let subclass handle it
-            this.checkReadyLeaderTransaction(tx, readOnly);
-        }
-
-        /**
-         * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state)
-         * and requires communication with the leader.
-         *
-         * @param tx the transaction
-         * @param readOnly if transaction is read-only
-         * @throws KVTransactionException if an error occurs
-         */
-        abstract void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly);
-
-        /**
-         * Advance a transaction from the {@link TxState#COMMIT_READY} state to the {@link TxState#COMMIT_WAITING} state.
-         *
-         * @param tx the transaction
-         */
-        void advanceReadyTransaction(RaftKVTransaction tx, long commitTerm, long commitIndex) {
-
-            // Sanity check
-            assert tx.getState().equals(TxState.COMMIT_READY);
-
-            // Set commit term & index and update state
-            if (this.log.isDebugEnabled())
-                this.debug("advancing " + tx + " to " + TxState.COMMIT_WAITING + " with commit " + commitIndex + "t" + commitTerm);
-            tx.setCommitTerm(commitTerm);
-            tx.setCommitIndex(commitIndex);
-            tx.setState(TxState.COMMIT_WAITING);
-
-            // Discard information we no longer need
-            tx.getMutableView().disableReadTracking();
-
-            // Check this transaction to see if it can be committed
-            this.raft.requestService(this.checkWaitingTransactionsService);
-        }
-
-        /**
-         * Check a transaction waiting for its log entry to be committed (in the {@link TxState#COMMIT_WAITING} state).
-         *
-         * <p>
-         * This should be invoked:
-         * <ul>
-         *  <li>After changing roles</li>
-         *  <li>After a transaction has entered the {@link TxState#COMMIT_WAITING} state</li>
-         *  <li>After advancing my {@code commitIndex} (as leader or follower)</li>
-         *  <li>After receiving an updated {@linkplain AppendResponse#getLeaderLeaseTimeout leader lease timeout}
-         *      (in {@link FollowerRole})</li>
-         * </ul>
-         *
-         * @param tx the transaction
-         * @throws KVTransactionException if an error occurs
-         */
-        private void checkWaitingTransaction(RaftKVTransaction tx) {
-
-            // Handle the case the transaction's committed log index has already been applied to the state machine
-            final long commitIndex = tx.getCommitIndex();
-            if (commitIndex < this.raft.lastAppliedIndex) {
-
-                // This can happen if we lose contact and by the time we're back the log entry has
-                // already been applied to the state machine on some leader and that leader sent
-                // use an InstallSnapshot message. We don't know whether it actually got committed
-                // or not, so the transaction must be retried.
-                throw new RetryTransactionException(tx, "committed log entry was missed");
-            }
-
-            // Has the transaction's log entry been received and committed yet?
-            if (commitIndex > this.raft.commitIndex)
-                return;
-
-            // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader
-            final long commitTerm = tx.getCommitTerm();
-            if (this.raft.getLogTermAtIndex(commitIndex) != commitTerm)
-                throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's log entry overwritten");
-
-            // Check with subclass
-            if (!this.mayCommit(tx))
-                return;
-
-            // Transaction is officially committed now
-            if (this.log.isTraceEnabled())
-                this.trace("commit successful for " + tx + " (commit index " + this.raft.commitIndex + " >= " + commitIndex + ")");
-            this.raft.succeed(tx);
-        }
-
-        boolean mayCommit(RaftKVTransaction tx) {
-            return true;
-        }
-
-        /**
-         * Perform any role-specific transaction cleanups.
-         *
-         * <p>
-         * Invoked either when transaction is closed or this role is being shutdown.
-         *
-         * <p>
-         * The implementation in {@link Role} does nothing; subclasses should override if appropriate.
-         *
-         * @param tx the transaction
-         */
-        void cleanupForTransaction(RaftKVTransaction tx) {
-        }
-
-    // Messages
-
-        // This is a package access version of "implements MessageSwitch"
-        abstract void caseAppendRequest(AppendRequest msg);
-        abstract void caseAppendResponse(AppendResponse msg);
-        abstract void caseCommitRequest(CommitRequest msg);
-        abstract void caseCommitResponse(CommitResponse msg);
-        abstract void caseGrantVote(GrantVote msg);
-        abstract void caseInstallSnapshot(InstallSnapshot msg);
-        abstract void caseRequestVote(RequestVote msg);
-
-        void casePingRequest(PingRequest msg) {
-            this.raft.sendMessage(new PingResponse(this.raft.clusterId,
-              this.raft.identity, msg.getSenderId(), this.raft.currentTerm, msg.getTimestamp()));
-        }
-
-        void casePingResponse(PingResponse msg) {
-            // ignore by default
-        }
-
-        boolean mayAdvanceCurrentTerm(Message msg) {
-            return true;
-        }
-
-        void failUnexpectedMessage(Message msg) {
-            this.warn("rec'd unexpected message " + msg + " while in role " + this + "; ignoring");
-        }
-
-    // Debug
-
-        boolean checkState() {
-            return true;
-        }
-
-    // Logging
-
-        void trace(String msg, Throwable t) {
-            this.raft.trace(msg, t);
-        }
-
-        void trace(String msg) {
-            this.raft.trace(msg);
-        }
-
-        void debug(String msg, Throwable t) {
-            this.raft.debug(msg, t);
-        }
-
-        void debug(String msg) {
-            this.raft.debug(msg);
-        }
-
-        void info(String msg, Throwable t) {
-            this.raft.info(msg, t);
-        }
-
-        void info(String msg) {
-            this.raft.info(msg);
-        }
-
-        void warn(String msg, Throwable t) {
-            this.raft.warn(msg, t);
-        }
-
-        void warn(String msg) {
-            this.raft.warn(msg);
-        }
-
-        void error(String msg, Throwable t) {
-            this.raft.error(msg, t);
-        }
-
-        void error(String msg) {
-            this.raft.error(msg);
-        }
-
-    // Object
-
-        @Override
-        public abstract String toString();
-
-        String toStringPrefix() {
-            return this.getClass().getSimpleName()
-              + "[term=" + this.raft.currentTerm
-              + ",applied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm
-              + ",commit=" + this.raft.commitIndex
-              + ",log=" + this.raft.raftLog
-              + "]";
-        }
-    }
-
-// LEADER role
-
-    /**
-     * Raft leader role.
-     */
-    public static class LeaderRole extends Role {
-
-        // Our followers
-        private final HashMap<String, Follower> followerMap = new HashMap<>();
-
-        // Our leadership "lease" timeout - i.e., the earliest time another leader could possibly be elected
-        private Timestamp leaseTimeout;
-
-        // Service tasks
-        private final Service updateLeaderCommitIndexService = new Service(this, "update leader commitIndex") {
-            @Override
-            public void run() {
-                LeaderRole.this.updateLeaderCommitIndex();
-            }
-        };
-        private final Service updateLeaseTimeoutService = new Service(this, "update lease timeout") {
-            @Override
-            public void run() {
-                LeaderRole.this.updateLeaseTimeout();
-            }
-        };
-        private final Service updateKnownFollowersService = new Service(this, "update known followers") {
-            @Override
-            public void run() {
-                LeaderRole.this.updateKnownFollowers();
-            }
-        };
-        private final Timer checkApplyTimer = this.raft.new Timer("check apply entries", new Service(this, "check apply entries") {
-            @Override
-            public void run() {
-                LeaderRole.this.checkApplyEntries();
-            }
-        });
-
-    // Constructors
-
-        LeaderRole(RaftKVDatabase raft) {
-            super(raft);
-        }
-
-    // Status & Debugging
-
-        /**
-         * Get this leader's known followers.
-         *
-         * <p>
-         * The returned list is a copy; changes have no effect on this instance.
-         *
-         * @return this leader's followers
-         */
-        public List<Follower> getFollowers() {
-            final ArrayList<Follower> list;
-            synchronized (this.raft) {
-                list = new ArrayList<>(this.followerMap.values());
-            }
-            Collections.sort(list, Follower.SORT_BY_IDENTITY);
-            return list;
-        }
-
-        /**
-         * Get this leader's "lease timeout".
-         *
-         * <p>
-         * This is the earliest possible time at which some other, new leader could be elected in a new term.
-         * Consequently, it is the earliest possible time at which any entry that this leader is unaware of
-         * could be appended to the Raft log.
-         *
-         * <p>
-         * Normally, if followers are responding to {@link AppendRequest}s properly, this should be a value
-         * in the (near) future. This allows the leader to make the assumption, up until that point in time,
-         * that its log is fully up-to-date.
-         *
-         * <p>
-         * Until it hears from a majority of followers, a leader will not have a lease timeout established yet.
-         * In that case this method returns null.
-         *
-         * @return this leader's lease timeout, or null if none is established yet
-         */
-        public Timestamp getLeaseTimeout() {
-            synchronized (this.raft) {
-                return this.leaseTimeout;
-            }
-        }
-
-        /**
-         * Force this leader to step down.
-         *
-         * @throws IllegalStateException if this role is no longer active or election timer is not running
-         */
-        public void stepDown() {
-            synchronized (this.raft) {
-                Preconditions.checkState(this.raft.role == this, "role is no longer active");
-                this.debug("stepping down as leader due to invocation of stepDown()");
-                this.raft.changeRole(new FollowerRole(this.raft));
-            }
-        }
-
-    // Lifecycle
-
-        @Override
-        void setup() {
-            super.setup();
-            if (this.log.isDebugEnabled())
-                this.debug("entering leader role in term " + this.raft.currentTerm);
-
-            // Generate follower list
-            this.updateKnownFollowers();
-
-            // Append a "dummy" log entry with my current term. This allows us to advance the commit index when the last
-            // entry in our log is from a prior term. This is needed to avoid the problem where a transaction could end up
-            // waiting indefinitely for its log entry with a prior term number to be committed.
-            final LogEntry logEntry;
-            try {
-                logEntry = this.applyNewLogEntry(this.raft.new NewLogEntry(new LogEntry.Data(new Writes(), null)));
-            } catch (Exception e) {
-                this.error("error attempting to apply initial log entry", e);
-                return;
-            }
-            if (this.log.isDebugEnabled())
-                this.debug("added log entry " + logEntry + " to commit at the beginning of my new term");
-
-            // Start check apply timer
-            if (!this.raft.raftLog.isEmpty())
-                this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
-        }
-
-        @Override
-        void shutdown() {
-            super.shutdown();
-            for (Follower follower : this.followerMap.values())
-                follower.cleanup();
-            this.checkApplyTimer.cancel();
-        }
-
-    // Service
-
-        @Override
-        void outputQueueEmpty(String address) {
-
-            // Find matching follower(s) and update them if needed
-            for (Follower follower : this.followerMap.values()) {
-                if (follower.getAddress().equals(address)) {
-                    if (this.log.isTraceEnabled())
-                        this.trace("updating peer \"" + follower.getIdentity() + "\" after queue empty notification");
-                    this.raft.requestService(new UpdateFollowerService(follower));
-                }
-            }
-        }
-
-        @Override
-        void applyCommittedLogEntries() {
-            super.applyCommittedLogEntries();
-
-            // Stop check apply timer if there are none left
-            if (this.raft.raftLog.isEmpty() && this.checkApplyTimer.isRunning())
-                this.checkApplyTimer.cancel();
-        }
-
-        @Override
-        boolean mayApplyLogEntry(LogEntry logEntry) {
-
-            // Are we running out of memory, or keeping around too many log entries? If so, go ahead.
-            final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
-            if (logEntryMemoryUsage > this.raft.maxAppliedLogMemory
-              || this.raft.raftLog.size() > MAX_UNAPPLIED_LOG_ENTRIES) {
-                if (this.log.isTraceEnabled()) {
-                    this.trace("allowing log entry " + logEntry + " to be applied because memory usage "
-                      + logEntryMemoryUsage + " > " + this.raft.maxAppliedLogMemory + " and/or log length "
-                      + this.raft.raftLog.size() + " > " + MAX_UNAPPLIED_LOG_ENTRIES);
-                }
-                return true;
-            }
-
-            // Try to keep log entries around for a minimum amount of time to facilitate long-running transactions on followers
-            if (logEntry.getAge() < this.raft.maxTransactionDuration) {
-                if (this.log.isTraceEnabled()) {
-                    this.trace("delaying application of " + logEntry + " because it has age "
-                      + logEntry.getAge() + "ms < " + this.raft.maxTransactionDuration + "ms");
-                }
-                return false;
-            }
-
-            // If any snapshots are in progress, we don't want to apply any log entries with index greater than the snapshot's
-            // index, because then we'd "lose" the ability to update the follower with that log entry, and as a result just have
-            // to send a snapshot again. However, we impose a limit on how long we'll wait for a slow follower.
-            for (Follower follower : this.followerMap.values()) {
-                final SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
-                if (snapshotTransmit == null)
-                    continue;
-                if (snapshotTransmit.getSnapshotIndex() < logEntry.getIndex()
-                  && snapshotTransmit.getAge() < MAX_SNAPSHOT_TRANSMIT_AGE) {
-                    if (this.log.isTraceEnabled()) {
-                        this.trace("delaying application of " + logEntry + " because of in-progress snapshot install of "
-                          + snapshotTransmit.getSnapshotIndex() + "t" + snapshotTransmit.getSnapshotTerm()
-                          + " to " + follower);
-                    }
-                    return false;
-                }
-            }
-
-            // If some follower does not yet have the log entry, wait for them to get it (up to some maximum time)
-            if (logEntry.getAge() < MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout) {
-                for (Follower follower : this.followerMap.values()) {
-                    if (follower.getMatchIndex() < logEntry.getIndex()) {
-                        if (this.log.isTraceEnabled()) {
-                            this.trace("delaying application of " + logEntry + " (age " + logEntry.getAge()
-                              + " < " + (MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS * this.raft.heartbeatTimeout)
-                              + ") because of slow " + follower);
-                        }
-                        return false;
-                    }
-                }
-            }
-
-            // OK
-            return true;
-        }
-
-        // We have to periodically check if we can apply log entries, because the condition is time-dependent
-        private void checkApplyEntries() {
-            this.raft.requestService(this.applyCommittedLogEntriesService);
-            if (!this.raft.raftLog.isEmpty())
-                this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
-        }
-
-        /**
-         * Update my {@code commitIndex} based on followers' {@code matchIndex}'s.
-         *
-         * <p>
-         * This should be invoked:
-         * <ul>
-         *  <li>After any log entry has been added to the log, if we have zero followers</li>
-         *  <li>After a log entry that contains a configuration change has been added to the log</li>
-         *  <li>After a follower's {@linkplain Follower#getMatchIndex match index} has advanced</li>
-         * </ul>
-         */
-        private void updateLeaderCommitIndex() {
-
-            // Find highest index for which a majority of cluster members have ack'd the corresponding log entry from my term
-            final int totalCount = this.raft.currentConfig.size();                          // total possible nodes
-            final int requiredCount = totalCount / 2 + 1;                                   // require a majority
-            final int startingCount = this.raft.isClusterMember() ? 1 : 0;                  // count myself, if member
-            long maxCommitIndex = this.raft.commitIndex;
-            int commitCount = -1;
-            for (long index = this.raft.commitIndex + 1; index <= this.raft.getLastLogIndex(); index++) {
-
-                // Count the number of nodes (possibly including myself) that have a copy of the log entry at index
-                int count = startingCount;
-                for (Follower follower : this.followerMap.values()) {                       // count followers who are members
-                    if (follower.getMatchIndex() >= index && this.raft.isClusterMember(follower.getIdentity()))
-                        count++;
-                }
-
-                // The log entry term must match my current term (exception: unless every node has it)
-                final long term = this.raft.getLogTermAtIndex(index);
-                if (count < totalCount && term != this.raft.currentTerm)
-                    continue;
-
-                // Do a majority of cluster nodes have this log entry?
-                if (count < requiredCount) {
-                    if (term >= this.raft.currentTerm)                                      // there's no point in going further
-                        break;
-                    continue;                                                               // a later term log entry might work
-                }
-
-                // We have a winner
-                maxCommitIndex = index;
-                commitCount = count;
-            }
-
-            // Update commit index if it advanced
-            if (maxCommitIndex > this.raft.commitIndex) {
-
-                // Update index
-                if (this.log.isDebugEnabled()) {
-                    this.debug("advancing commit index from " + this.raft.commitIndex + " -> " + maxCommitIndex + " based on "
-                      + commitCount + "/" + totalCount + " nodes having received " + this.raft.getLogEntryAtIndex(maxCommitIndex));
-                }
-                this.raft.commitIndex = maxCommitIndex;
-
-                // Perform various service
-                this.raft.requestService(this.checkReadyTransactionsService);
-                this.raft.requestService(this.checkWaitingTransactionsService);
-                this.raft.requestService(this.applyCommittedLogEntriesService);
-
-                // Notify all (up-to-date) followers with the updated leaderCommit
-                this.updateAllSynchronizedFollowersNow();
-
-                // If we are no longer a member of the cluster, step down after the most recent config change is committed
-                if (!this.raft.isClusterMember() && this.raft.commitIndex >= this.findMostRecentConfigChange()) {
-                    if (this.log.isDebugEnabled())
-                        this.log.debug("stepping down as leader of cluster (no longer a member)");
-                    this.stepDown();
-                }
-            }
-        }
-
-        /**
-         * Update my {@code leaseTimeout} based on followers' returned {@code leaderTimeout}'s.
-         *
-         * <p>
-         * This should be invoked:
-         * <ul>
-         *  <li>After a follower has replied with an {@link AppendResponse} containing a newer
-         *      {@linkplain AppendResponse#getLeaderTimestamp leader timestamp} than before</li>
-         * </ul>
-         */
-        private void updateLeaseTimeout() {
-
-            // Only needed when we have followers
-            final int numFollowers = this.followerMap.size();
-            if (numFollowers == 0)
-                return;
-
-            // Get all cluster member leader timestamps, sorted in increasing order
-            final Timestamp[] leaderTimestamps = new Timestamp[this.raft.currentConfig.size()];
-            int index = 0;
-            if (this.raft.isClusterMember())
-                leaderTimestamps[index++] = new Timestamp();                        // this represents my own vote
-            for (Follower follower : this.followerMap.values()) {
-                if (this.raft.isClusterMember(follower.getIdentity()))
-                    leaderTimestamps[index++] = follower.getLeaderTimestamp();      // note follower timestamps could be null
-            }
-            Arrays.sort(leaderTimestamps, Timestamp.NULL_FIRST_SORT);
-
-            //
-            // Calculate highest leaderTimeout shared by a majority of cluster members, based on sorted array:
-            //
-            //  # nodes    timestamps
-            //  -------    ----------
-            //     5       [ ][ ][x][x][x]        3/5 x's make a majority at index (5 - 1)/2 = 2
-            //     6       [ ][ ][x][x][x][x]     4/6 x's make a majority at index (6 - 1)/2 = 2
-            //
-            // The minimum leaderTimeout shared by a majority of nodes is at index (leaderTimestamps.length - 1) / 2.
-            // We then add the minimum election timeout, then subtract a little for clock drift.
-            //
-            final Timestamp newLeaseTimeout = leaderTimestamps[(leaderTimestamps.length + 1) / 2]
-              .offset((int)(this.raft.minElectionTimeout * (1.0f - MAX_CLOCK_DRIFT) - 1));
-            if (Timestamp.NULL_FIRST_SORT.compare(newLeaseTimeout, this.leaseTimeout) > 0) {
-                assert newLeaseTimeout != null;
-
-                // Update my leader lease timeout
-                if (this.log.isTraceEnabled())
-                    this.trace("updating my lease timeout from " + this.leaseTimeout + " -> " + newLeaseTimeout);
-                this.leaseTimeout = newLeaseTimeout;
-
-                // Notify any followers who care
-                for (Follower follower : this.followerMap.values()) {
-                    final NavigableSet<Timestamp> timeouts = follower.getCommitLeaseTimeouts().headSet(this.leaseTimeout, true);
-                    if (!timeouts.isEmpty()) {
-                        follower.updateNow();                           // notify follower so it can commit waiting transaction(s)
-                        timeouts.clear();
-                    }
-                }
-            }
-        }
-
-        /**
-         * Update our list of followers to match our current configuration.
-         *
-         * <p>
-         * This should be invoked:
-         * <ul>
-         *  <li>After a log entry that contains a configuration change has been added to the log</li>
-         *  <li>When the {@linkplain Follower#getNextIndex next index} of a follower not in the current config advances</li>
-         * </ul>
-         */
-        private void updateKnownFollowers() {
-
-            // Compare known followers with the current config and determine who needs to be be added or removed
-            final HashSet<String> adds = new HashSet<>(this.raft.currentConfig.keySet());
-            adds.removeAll(this.followerMap.keySet());
-            adds.remove(this.raft.identity);
-            final HashSet<String> dels = new HashSet<>(this.followerMap.keySet());
-            dels.removeAll(this.raft.currentConfig.keySet());
-
-            // Keep around a follower after its removal until it receives the config change that removed it
-            for (Follower follower : this.followerMap.values()) {
-
-                // Is this follower scheduled for deletion?
-                final String peer = follower.getIdentity();
-                if (!dels.contains(peer))
-                    continue;
-
-                // Find the most recent log entry containing a config change in which the follower was removed
-                final String node = follower.getIdentity();
-                final long index = this.findMostRecentConfigChangeMatching(new Predicate<String[]>() {
-                    @Override
-                    public boolean apply(String[] configChange) {
-                        return configChange[0].equals(node) && configChange[1] == null;
-                    }
-                });
-
-                // If follower has not received that log entry yet, keep on updating them until they do
-                if (follower.getMatchIndex() < index)
-                    dels.remove(peer);
-            }
-
-            // Add new followers
-            for (String peer : adds) {
-                final String address = this.raft.currentConfig.get(peer);
-                final Follower follower = new Follower(peer, address, this.raft.getLastLogIndex());
-                if (this.log.isDebugEnabled())
-                    this.debug("adding new follower \"" + peer + "\" at " + address);
-                follower.setUpdateTimer(
-                  this.raft.new Timer("update timer for \"" + peer + "\"", new UpdateFollowerService(follower)));
-                this.followerMap.put(peer, follower);
-                follower.updateNow();                                               // schedule an immediate update
-            }
-
-            // Remove old followers
-            for (String peer : dels) {
-                final Follower follower = this.followerMap.remove(peer);
-                if (this.log.isDebugEnabled())
-                    this.debug("removing old follower \"" + peer + "\"");
-                follower.cleanup();
-            }
-        }
-
-        /**
-         * Check whether a follower needs an update and send one if so.
-         *
-         * <p>
-         * This should be invoked:
-         * <ul>
-         *  <li>After a new follower has been added</li>
-         *  <li>When the output queue for a follower goes from non-empty to empty</li>
-         *  <li>After the follower's {@linkplain Follower#getUpdateTimer update timer} has expired</li>
-         *  <li>After a new log entry has been added to the log (all followers)</li>
-         *  <li>After receiving an {@link AppendResponse} that caused the follower's
-         *      {@linkplain Follower#getNextIndex next index} to change</li>
-         *  <li>After receiving the first positive {@link AppendResponse} to a probe</li>
-         *  <li>After our {@code commitIndex} has advanced (all followers)</li>
-         *  <li>After our {@code leaseTimeout} has advanced past one or more of a follower's
-         *      {@linkplain Follower#getCommitLeaseTimeouts commit lease timeouts} (with update timer reset)</li>
-         *  <li>After sending a {@link CommitResponse} with a non-null {@linkplain CommitResponse#getCommitLeaderLeaseTimeout
-         *      commit leader lease timeout} (all followers) to probe for updated leader timestamps</li>
-         *  <li>After starting, aborting, or completing a snapshot install for a follower</li>
-         * </ul>
-         */
-        private void updateFollower(Follower follower) {
-
-            // If follower has an in-progress snapshot that has become too stale, abort it
-            final String peer = follower.getIdentity();
-            SnapshotTransmit snapshotTransmit = follower.getSnapshotTransmit();
-            if (snapshotTransmit != null && snapshotTransmit.getSnapshotIndex() < this.raft.lastAppliedIndex) {
-                if (this.log.isDebugEnabled())
-                    this.debug("aborting stale snapshot install for " + follower);
-                follower.cancelSnapshotTransmit();
-                follower.updateNow();
-            }
-
-            // Is follower's queue empty? If not, hold off until then
-            if (this.raft.isTransmitting(follower.getAddress())) {
-                if (this.log.isTraceEnabled())
-                    this.trace("no update for \"" + peer + "\": output queue still not empty");
-                return;
-            }
-
-            // Handle any in-progress snapshot install
-            if ((snapshotTransmit = follower.getSnapshotTransmit()) != null) {
-
-                // Send the next chunk in transmission, if any
-                final long pairIndex = snapshotTransmit.getPairIndex();
-                final ByteBuffer chunk = snapshotTransmit.getNextChunk();
-                boolean synced = true;
-                if (chunk != null) {
-
-                    // Send next chunk
-                    final InstallSnapshot msg = new InstallSnapshot(this.raft.clusterId, this.raft.identity, peer,
-                      this.raft.currentTerm, snapshotTransmit.getSnapshotTerm(), snapshotTransmit.getSnapshotIndex(), pairIndex,
-                      pairIndex == 0 ? snapshotTransmit.getSnapshotConfig() : null, !snapshotTransmit.hasMoreChunks(), chunk);
-                    if (this.raft.sendMessage(msg))
-                        return;
-                    if (this.log.isDebugEnabled())
-                        this.debug("canceling snapshot install for " + follower + " due to failure to send " + msg);
-
-                    // Message failed -> snapshot is fatally wounded, so cancel it
-                    synced = false;
-                }
-                if (synced) {
-                    if (this.log.isDebugEnabled())
-                        this.debug("completed snapshot install for out-of-date " + follower);
-                }
-
-                // Snapshot transmit is complete (or failed)
-                follower.cancelSnapshotTransmit();
-
-                // Trigger an immediate regular update
-                follower.setNextIndex(snapshotTransmit.getSnapshotIndex() + 1);
-                follower.setSynced(synced);
-                follower.updateNow();
-                this.raft.requestService(new UpdateFollowerService(follower));
-                return;
-            }
-
-            // Are we still waiting for the update timer to expire?
-            if (!follower.getUpdateTimer().pollForTimeout()) {
-                boolean waitForTimerToExpire = true;
-
-                // Don't wait for the update timer to expire if:
-                //  (a) The follower is sync'd; AND
-                //      (y) We have a new log entry that the follower doesn't have; OR
-                //      (y) We have a new leaderCommit that the follower doesn't have
-                // The effect is that we will pipeline updates to synchronized followers.
-                if (follower.isSynced()
-                  && (follower.getLeaderCommit() != this.raft.commitIndex
-                   || follower.getNextIndex() <= this.raft.getLastLogIndex()))
-                    waitForTimerToExpire = false;
-
-                // Wait for timer to expire
-                if (waitForTimerToExpire) {
-                    if (this.log.isTraceEnabled()) {
-                        this.trace("no update for \"" + follower.getIdentity() + "\": timer not expired yet, and follower is "
-                          + (follower.isSynced() ? "up to date" : "not synced"));
-                    }
-                    return;
-                }
-            }
-
-            // Get index of the next log entry to send to follower
-            final long nextIndex = follower.getNextIndex();
-
-            // If follower is too far behind, we must do a snapshot install
-            if (nextIndex <= this.raft.lastAppliedIndex) {
-                final MostRecentView view = this.raft.new MostRecentView(true);
-                follower.setSnapshotTransmit(new SnapshotTransmit(view.getTerm(),
-                  view.getIndex(), view.getConfig(), view.getSnapshot(), view.getView()));
-                if (this.log.isDebugEnabled())
-                    this.debug("started snapshot install for out-of-date " + follower);
-                this.raft.requestService(new UpdateFollowerService(follower));
-                return;
-            }
-
-            // Restart update timer here (to avoid looping if an error occurs below)
-            follower.getUpdateTimer().timeoutAfter(this.raft.heartbeatTimeout);
-
-            // Send actual data if follower is synced and there is a log entry to send; otherwise, just send a probe
-            final AppendRequest msg;
-            if (!follower.isSynced() || nextIndex > this.raft.getLastLogIndex()) {
-                msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, new Timestamp(),
-                  this.leaseTimeout, this.raft.commitIndex, this.raft.getLogTermAtIndex(nextIndex - 1), nextIndex - 1);   // probe
-            } else {
-
-                // Get log entry to send
-                final LogEntry logEntry = this.raft.getLogEntryAtIndex(nextIndex);
-
-                // If the log entry correspond's to follower's transaction, don't send the data because follower already has it.
-                // But only do this optimization the first time, in case something goes wrong on the follower's end.
-                ByteBuffer mutationData = null;
-                if (!follower.getSkipDataLogEntries().remove(logEntry)) {
-                    try {
-                        mutationData = logEntry.getContent();
-                    } catch (IOException e) {
-                        this.error("error reading log file " + logEntry.getFile(), e);
-                        return;
-                    }
-                }
-
-                // Create message
-                msg = new AppendRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, new Timestamp(),
-                  this.leaseTimeout, this.raft.commitIndex, this.raft.getLogTermAtIndex(nextIndex - 1), nextIndex - 1,
-                  logEntry.getTerm(), mutationData);
-            }
-
-            // Send update
-            final boolean sent = this.raft.sendMessage(msg);
-
-            // Advance next index if a log entry was sent; we allow pipelining log entries when synchronized
-            if (sent && !msg.isProbe()) {
-                assert follower.isSynced();
-                follower.setNextIndex(Math.min(follower.getNextIndex(), this.raft.getLastLogIndex()) + 1);
-            }
-
-            // Update leaderCommit for follower
-            if (sent)
-                follower.setLeaderCommit(msg.getLeaderCommit());
-        }
-
-        private void updateAllSynchronizedFollowersNow() {
-            for (Follower follower : this.followerMap.values()) {
-                if (follower.isSynced())
-                    follower.updateNow();
-            }
-        }
-
-        private class UpdateFollowerService extends Service {
-
-            private final Follower follower;
-
-            UpdateFollowerService(Follower follower) {
-                super(LeaderRole.this, "update follower \"" + follower.getIdentity() + "\"");
-                assert follower != null;
-                this.follower = follower;
-            }
-
-            @Override
-            public void run() {
-                LeaderRole.this.updateFollower(this.follower);
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == null || obj.getClass() != this.getClass())
-                    return false;
-                final UpdateFollowerService that = (UpdateFollowerService)obj;
-                return this.follower.equals(that.follower);
-            }
-
-            @Override
-            public int hashCode() {
-                return this.follower.hashCode();
-            }
-        }
-
-    // Transactions
-
-        @Override
-        void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly) {
-
-            // Sanity check
-            assert Thread.holdsLock(this.raft);
-            assert tx.getState().equals(TxState.COMMIT_READY);
-
-            // Check for conflict when LINEARIZABLE
-            if (tx.getConsistency().equals(Consistency.LINEARIZABLE)) {
-                final String error = this.checkConflicts(tx.getBaseTerm(), tx.getBaseIndex(), tx.getMutableView().getReads());
-                if (error != null) {
-                    if (this.log.isDebugEnabled())
-                        this.debug("local transaction " + tx + " failed due to conflict: " + error);
-                    throw new RetryTransactionException(tx, error);
-                }
-            } else {
-                if (this.log.isTraceEnabled())
-                    this.trace("not checking for conflicts in " + tx.getConsistency() + " transaction " + tx);
-            }
-
-            // Handle read-only vs. read-write transaction
-            if (readOnly) {
-
-                // Set commit term and index depending on consistency level
-                switch (tx.getConsistency()) {
-                case UNCOMMITTED:
-                    if (this.log.isTraceEnabled())
-                        this.trace("trivial commit for UNCOMMITTED " + tx);
-                    this.raft.succeed(tx);
-                    return;
-                case EVENTUAL:
-                    this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
-                    return;
-                case LINEARIZABLE:
-                    if (this.leaseTimeout != null && this.leaseTimeout.offsetFromNow() > 0)
-                        this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
-                    else
-                        this.advanceReadyTransaction(tx, this.raft.getLastLogTerm(), this.raft.getLastLogIndex());
-                    return;
-                default:
-                    throw new RuntimeException("internal error");
-                }
-            } else {
-
-                // Don't commit a new config change while there is any previous config change outstanding
-                if (tx.getConfigChange() != null && this.isConfigChangeOutstanding())
-                    return;
-
-                // Commit transaction as a new log entry
-                final LogEntry logEntry;
-                try {
-                    logEntry = this.applyNewLogEntry(this.raft.new NewLogEntry(tx));
-                } catch (Exception e) {
-                    throw new KVTransactionException(tx, "error attempting to persist transaction", e);
-                }
-                if (this.log.isDebugEnabled())
-                    this.debug("added log entry " + logEntry + " for local transaction " + tx);
-
-                // Update transaction
-                this.advanceReadyTransaction(tx, logEntry.getTerm(), logEntry.getIndex());
-            }
-        }
-
-        private boolean isConfigChangeOutstanding() {
-            for (int i = (int)(this.raft.commitIndex - this.raft.lastAppliedIndex) + 1; i < this.raft.raftLog.size(); i++) {
-                if (this.raft.raftLog.get(i).getConfigChange() != null)
-                    return true;
-            }
-            return false;
-        }
-
-    // Message
-
-        @Override
-        void caseAppendRequest(AppendRequest msg) {
-            this.failDuplicateLeader(msg);
-        }
-
-        @Override
-        void caseAppendResponse(AppendResponse msg) {
-
-            // Find follower
-            final Follower follower = this.findFollower(msg);
-            if (follower == null)
-                return;
-
-            // Update follower's last rec'd leader timestamp
-            if (follower.getLeaderTimestamp() == null || msg.getLeaderTimestamp().compareTo(follower.getLeaderTimestamp()) > 0) {
-                follower.setLeaderTimestamp(msg.getLeaderTimestamp());
-                this.raft.requestService(this.updateLeaseTimeoutService);
-            }
-
-            // Ignore if a snapshot install is in progress
-            if (follower.getSnapshotTransmit() != null) {
-                if (this.log.isTraceEnabled())
-                    this.trace("rec'd " + msg + " while sending snapshot install; ignoring");
-                return;
-            }
-
-            // Flag indicating we might want to update follower when done
-            boolean updateFollowerAgain = false;
-
-            // Update follower's match index
-            if (msg.getMatchIndex() > follower.getMatchIndex()) {
-                follower.setMatchIndex(msg.getMatchIndex());
-                this.raft.requestService(this.updateLeaderCommitIndexService);
-                this.raft.requestService(this.applyCommittedLogEntriesService);
-                if (!this.raft.isClusterMember(follower.getIdentity()))
-                    this.raft.requestService(this.updateKnownFollowersService);
-            }
-
-            // Check result and update follower's next index
-            final boolean wasSynced = follower.isSynced();
-            final long previousNextIndex = follower.getNextIndex();
-            if (!msg.isSuccess())
-                follower.setNextIndex(Math.max(follower.getNextIndex() - 1, 1));
-            follower.setSynced(msg.isSuccess());
-            if (follower.isSynced() != wasSynced) {
-                if (this.log.isDebugEnabled()) {
-                    this.debug("sync status of \"" + follower.getIdentity() + "\" changed -> "
-                      + (!follower.isSynced() ? "not " : "") + "synced");
-                }
-                updateFollowerAgain = true;
-            }
-
-            // Use follower's match index as a lower bound on follower's next index.
-            follower.setNextIndex(Math.max(follower.getNextIndex(), follower.getMatchIndex() + 1));
-
-            // Use follower's last log index as an upper bound on follower's next index.
-            follower.setNextIndex(Math.min(msg.getLastLogIndex() + 1, follower.getNextIndex()));
-
-            // Update follower again if next index has changed
-            updateFollowerAgain |= follower.getNextIndex() != previousNextIndex;
-
-            // Debug
-            if (this.log.isTraceEnabled())
-                this.trace("updated follower: " + follower + ", update again = " + updateFollowerAgain);
-
-            // Immediately update follower again (if appropriate)
-            if (updateFollowerAgain)
-                this.raft.requestService(new UpdateFollowerService(follower));
-        }
-
-        @Override
-        void caseCommitRequest(CommitRequest msg) {
-
-            // Find follower
-            final Follower follower = this.findFollower(msg);
-            if (follower == null)
-                return;
-
-            // Decode reads, if any, and check for conflicts
-            final ByteBuffer readsData = msg.getReadsData();
-            if (readsData != null) {
-
-                // Decode reads
-                final Reads reads;
-                try {
-                    reads = Reads.deserialize(new ByteBufferInputStream(msg.getReadsData()));
-                } catch (Exception e) {
-                    this.error("error decoding reads data in " + msg, e);
-                    this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                      this.raft.currentTerm, msg.getTxId(), "error decoding reads data: " + e));
-                    return;
-                }
-
-                // Check for conflict
-                final String conflictMsg = this.checkConflicts(msg.getBaseTerm(), msg.getBaseIndex(), reads);
-                if (conflictMsg != null) {
-                    if (this.log.isDebugEnabled())
-                        this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);
-                    this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                      this.raft.currentTerm, msg.getTxId(), conflictMsg));
-                    return;
-                }
-            }
-
-            // Handle read-only vs. read-write transaction
-            if (msg.isReadOnly()) {
-
-                // Get current time
-                final Timestamp minimumLeaseTimeout = new Timestamp();
-
-                // The follower may commit as soon as it sees the transaction's BASE log entry get committed.
-                // Note, we don't need to wait for any subsequent log entries to be committed, because if they
-                // are committed they are invisible to the transaction, and if they aren't ever committed then
-                // whatever log entries replace them will necessarily have been created sometime after now.
-                final CommitResponse response;
-                if (this.leaseTimeout != null && this.leaseTimeout.compareTo(minimumLeaseTimeout) > 0) {
-
-                    // No other leader could have been elected yet as of right now, so the transaction can commit immediately
-                    response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                      this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex());
-                } else {
-
-                    // Remember that this follower is now going to be waiting for this particular leaseTimeout
-                    follower.getCommitLeaseTimeouts().add(minimumLeaseTimeout);
-
-                    // Send immediate probes to all (up-to-date) followers in an attempt to increase our leaseTimeout quickly
-                    this.updateAllSynchronizedFollowersNow();
-
-                    // Build response
-                    response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                      this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex(), minimumLeaseTimeout);
-                }
-
-                // Send response
-                this.raft.sendMessage(response);
-            } else {
-
-                // If the client is requesting a config change, we could check for an outstanding config change now and if so
-                // delay our response until it completes, but that's not worth the trouble. Instead, applyNewLogEntry() will
-                // throw an exception and the client will just just have to retry the transaction.
-
-                // Commit mutations as a new log entry
-                final LogEntry logEntry;
-                try {
-                    logEntry = this.applyNewLogEntry(this.raft.new NewLogEntry(msg.getMutationData()));
-                } catch (Exception e) {
-                    this.error("error appending new log entry for " + msg, e);
-                    this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                      this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));
-                    return;
-                }
-                if (this.log.isDebugEnabled())
-                    this.debug("added log entry " + logEntry + " for remote " + msg);
-
-                // Follower transaction data optimization
-                follower.getSkipDataLogEntries().add(logEntry);
-
-                // Send response
-                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getTxId(), logEntry.getTerm(), logEntry.getIndex()));
-            }
-        }
-
-        @Override
-        void caseCommitResponse(CommitResponse msg) {
-            this.failDuplicateLeader(msg);
-        }
-
-        @Override
-        void caseInstallSnapshot(InstallSnapshot msg) {
-            this.failDuplicateLeader(msg);
-        }
-
-        @Override
-        void caseRequestVote(RequestVote msg) {
-
-            // Too late dude, I already won the election
-            if (this.log.isDebugEnabled())
-                this.debug("ignoring " + msg + " rec'd while in " + this);
-        }
-
-        @Override
-        void caseGrantVote(GrantVote msg) {
-
-            // Thanks and all, but I already won the election
-            if (this.log.isDebugEnabled())
-                this.debug("ignoring " + msg + " rec'd while in " + this);
-        }
-
-        private void failDuplicateLeader(Message msg) {
-
-            // This should never happen - same term but two different leaders
-            final boolean defer = this.raft.identity.compareTo(msg.getSenderId()) <= 0;
-            this.error("detected a duplicate leader in " + msg + " - should never happen; possible inconsistent cluster"
-              + " configuration on " + msg.getSenderId() + " (mine: " + this.raft.currentConfig + "); "
-              + (defer ? "reverting to follower" : "ignoring"));
-            if (defer)
-                this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));
-        }
-
-    // Object
-
-        @Override
-        public String toString() {
-            return this.toStringPrefix()
-              + ",followerMap=" + this.followerMap
-              + "]";
-        }
-
-    // Debug
-
-        @Override
-        boolean checkState() {
-            if (!super.checkState())
-                return false;
-            assert this.checkApplyTimer.isRunning() == !this.raft.raftLog.isEmpty();
-            for (Follower follower : this.followerMap.values()) {
-                assert follower.getNextIndex() <= this.raft.getLastLogIndex() + 1;
-                assert follower.getMatchIndex() <= this.raft.getLastLogIndex() + 1;
-                assert follower.getLeaderCommit() <= this.raft.commitIndex;
-                assert follower.getUpdateTimer().isRunning() || follower.getSnapshotTransmit() != null;
-            }
-            return true;
-        }
-
-    // Internal methods
-
-        /**
-         * Find the index of the most recent unapplied log entry having an associated config change.
-         *
-         * @return most recent config change log entry, or zero if none found
-         */
-        private long findMostRecentConfigChange() {
-            return this.findMostRecentConfigChangeMatching(Predicates.<String[]>alwaysTrue());
-        }
-
-        /**
-         * Find the index of the most recent unapplied log entry having an associated config change matching the given predicate.
-         *
-         * @return most recent matching log entry, or zero if none found
-         */
-        private long findMostRecentConfigChangeMatching(Predicate<String[]> predicate) {
-            for (long index = this.raft.getLastLogIndex(); index > this.raft.lastAppliedIndex; index--) {
-                final String[] configChange = this.raft.getLogEntryAtIndex(index).getConfigChange();
-                if (configChange == null && predicate.apply(configChange))
-                    return index;
-            }
-            return 0;
-        }
-
-        // Apply a new log entry to the Raft log
-        private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws Exception {
-
-            // Do a couple of extra checks if a config change is included
-            final String[] configChange = newLogEntry.getData().getConfigChange();
-            if (configChange != null) {
-
-                // Disallow a config change while there is a previous uncommitted config change
-                if (this.isConfigChangeOutstanding()) {
-                    newLogEntry.cancel();
-                    throw new IllegalStateException("uncommitted config change outstanding");
-                }
-
-                // Disallow a configuration change that removes the last node in a cluster
-                if (this.raft.currentConfig.size() == 1 && configChange[1] == null) {
-                    final String lastNode = this.raft.currentConfig.keySet().iterator().next();
-                    if (configChange[0].equals(lastNode)) {
-                        newLogEntry.cancel();
-                        throw new IllegalArgumentException("can't remove the last node in a cluster (\"" + lastNode + "\")");
-                    }
-                }
-            }
-
-            // Append a new entry to the Raft log
-            final LogEntry logEntry;
-            boolean success = false;
-            try {
-                logEntry = this.raft.appendLogEntry(this.raft.currentTerm, newLogEntry);
-                success = true;
-            } finally {
-                if (!success)
-                    newLogEntry.cancel();
-            }
-
-            // Update follower list if configuration changed
-            if (configChange != null)
-                this.raft.requestService(this.updateKnownFollowersService);
-
-            // Update commit index (this is only needed if config has changed, or in the single node case)
-            if (configChange != null || this.followerMap.isEmpty())
-                this.raft.requestService(this.updateLeaderCommitIndexService);
-
-            // Immediately update all up-to-date followers
-            this.updateAllSynchronizedFollowersNow();
-
-            // Start check apply timer if not already running
-            if (!this.checkApplyTimer.isRunning())
-                this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
-
-            // Done
-            return logEntry;
-        }
-
-        /**
-         * Check whether a proposed transaction can commit without any MVCC conflict.
-         *
-         * @param file file containing serialized copy of {@link writes} (content must already be fsync()'d to disk!)
-         * @param baseTerm the term of the log entry on which the transaction is based
-         * @param baseIndex the index of the log entry on which the transaction is based
-         * @param reads reads performed by the transaction
-         * @param writes writes performed by the transaction
-         * @return error message on failure, null for success
-         */
-        private String checkConflicts(long baseTerm, long baseIndex, Reads reads) {
-
-            // Validate the index of the log entry on which the transaction is based
-            final long minIndex = this.raft.lastAppliedIndex;
-            final long maxIndex = this.raft.getLastLogIndex();
-            if (baseIndex < minIndex)
-                return "transaction is too old: snapshot index " + baseIndex + " < last applied log index " + minIndex;
-            if (baseIndex > maxIndex)
-                return "transaction is too new: snapshot index " + baseIndex + " > most recent log index " + maxIndex;
-
-            // Validate the term of the log entry on which the transaction is based
-            final long actualBaseTerm = this.raft.getLogTermAtIndex(baseIndex);
-            if (baseTerm != actualBaseTerm) {
-                return "transaction is based on an overwritten log entry with index "
-                  + baseIndex + " and term " + baseTerm + " != " + actualBaseTerm;
-            }
-
-            // Check for conflicts from intervening commits
-            for (long index = baseIndex + 1; index <= maxIndex; index++) {
-                final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);
-                if (reads.isConflict(logEntry.getWrites())) {
-                    return "writes of committed transaction at index " + index
-                      + " conflict with transaction reads from transaction base index " + baseIndex;
-                }
-            }
-
-            // No conflict
-            return null;
-        }
-
-        private Follower findFollower(Message msg) {
-            final Follower follower = this.followerMap.get(msg.getSenderId());
-            if (follower == null)
-                this.warn("rec'd " + msg + " from unknown follower \"" + msg.getSenderId() + "\", ignoring");
-            return follower;
-        }
-    }
-
-    /**
-     * Support superclass for the {@linkplain FollowerRole follower} and {@linkplain CandidateRole candidate} roles,
-     * both of which have an election timer.
-     */
-    public abstract static class NonLeaderRole extends Role {
-
-        final Timer electionTimer = this.raft.new Timer("election timer", new Service(this, "election timeout") {
-            @Override
-            public void run() {
-                NonLeaderRole.this.checkElectionTimeout();
-            }
-        });
-        private final boolean startElectionTimer;
-
-    // Constructors
-
-        NonLeaderRole(RaftKVDatabase raft, boolean startElectionTimer) {
-            super(raft);
-            this.startElectionTimer = startElectionTimer;
-        }
-
-    // Status & Debugging
-
-        /**
-         * Get the election timer deadline, if currently running.
-         *
-         * <p>
-         * For a follower that is not a member of its cluster, this will return null because no election timer is running.
-         * For all other cases, this will return the time at which the election timer expires.
-         *
-         * @return current election timer expiration deadline, or null if not running
-         */
-        public Timestamp getElectionTimeout() {
-            synchronized (this.raft) {
-                return this.electionTimer.getDeadline();
-            }
-        }
-
-        /**
-         * Force an immediate election timeout.
-         *
-         * @throws IllegalStateException if this role is no longer active or election timer is not running
-         */
-        public void startElection() {
-            synchronized (this.raft) {
-                Preconditions.checkState(this.raft.role == this, "role is no longer active");
-                Preconditions.checkState(this.electionTimer.isRunning(), "election timer is not running");
-                this.debug("triggering immediate election timeout due to invocation of startElection()");
-                this.electionTimer.timeoutNow();
-            }
-        }
-
-    // Lifecycle
-
-        @Override
-        void setup() {
-            super.setup();
-            if (this.startElectionTimer)
-                this.restartElectionTimer();
-        }
-
-        @Override
-        void shutdown() {
-            super.shutdown();
-            this.electionTimer.cancel();
-        }
-
-    // Service
-
-        // Check for an election timeout
-        private void checkElectionTimeout() {
-            if (this.electionTimer.pollForTimeout()) {
-                if (this.log.isDebugEnabled())
-                    this.debug("election timeout while in " + this);
-                this.handleElectionTimeout();
-            }
-        }
-
-        void restartElectionTimer() {
-
-            // Sanity check
-            assert Thread.holdsLock(this.raft);
-
-            // Generate a randomized election timeout delay
-            final int range = this.raft.maxElectionTimeout - this.raft.minElectionTimeout;
-            final int randomizedPart = Math.round(this.raft.random.nextFloat() * range);
-
-            // Restart timer
-            this.electionTimer.timeoutAfter(this.raft.minElectionTimeout + randomizedPart);
-        }
-
-        abstract void handleElectionTimeout();
-
-    // MessageSwitch
-
-        @Override
-        void caseAppendResponse(AppendResponse msg) {
-            this.failUnexpectedMessage(msg);
-        }
-
-        @Override
-        void caseCommitRequest(CommitRequest msg) {
-            this.failUnexpectedMessage(msg);
-        }
-    }
-
-// FOLLOWER role
-
-    /**
-     * Raft follower role.
-     */
-    public static class FollowerRole extends NonLeaderRole {
-
-        private String leader;                                                          // our leader, if known
-        private String leaderAddress;                                                   // our leader's network address
-        private String votedFor;                                                        // the candidate we voted for this term
-        private SnapshotReceive snapshotReceive;                                        // in-progress snapshot install, if any
-        private final HashMap<Long, PendingRequest> pendingRequests = new HashMap<>();  // wait for CommitResponse or log entry
-        private final HashMap<Long, PendingWrite> pendingWrites = new HashMap<>();      // wait for AppendRequest with null data
-        private final HashMap<Long, Timestamp> commitLeaderLeaseTimeoutMap              // tx's waiting for leaderLeaseTimeout's
-          = new HashMap<>();
-        private Timestamp lastLeaderMessageTime;                                        // time of most recent rec'd AppendRequest
-        private Timestamp leaderLeaseTimeout;                                           // latest rec'd leader lease timeout
-        private HashMap<String, Timestamp> probeTimestamps;                             // used only when probing majority
-
-    // Constructors
-
-        FollowerRole(RaftKVDatabase raft) {
-            this(raft, null, null, null);
-        }
-
-        FollowerRole(RaftKVDatabase raft, String leader, String leaderAddress) {
-            this(raft, leader, leaderAddress, leader);
-        }
-
-        FollowerRole(RaftKVDatabase raft, String leader, String leaderAddress, String votedFor) {
-            super(raft, raft.isClusterMember());
-            this.leader = leader;
-            this.leaderAddress = leaderAddress;
-            this.votedFor = votedFor;
-            assert this.leaderAddress != null || this.leader == null;
-        }
-
-    // Status
-
-        /**
-         * Get the identity of my leader, if known.
-         *
-         * @return leader identity, or null if not known
-         */
-        public String getLeaderIdentity() {
-            synchronized (this.raft) {
-                return this.leader;
-            }
-        }
-
-        /**
-         * Get the address of my leader, if known.
-         *
-         * @return leader address, or null if not known
-         */
-        public String getLeaderAddress() {
-            synchronized (this.raft) {
-                return this.leaderAddress;
-            }
-        }
-
-        /**
-         * Get the identity of the node that this node voted for this term, if any.
-         *
-         * @return node voted for, or null if none
-         */
-        public String getVotedFor() {
-            synchronized (this.raft) {
-                return this.votedFor;
-            }
-        }
-
-        /**
-         * Determine whether this node is currently in the process of receiving a whole database snapshot download.
-         *
-         * @return true if snapshot install is in progress
-         */
-        public boolean isInstallingSnapshot() {
-            synchronized (this.raft) {
-                return this.snapshotReceive != null;
-            }
-        }
-
-        /**
-         * Determine the number of nodes (including this node) that this node has successfully probed when probing
-         * for a majority of nodes with {@link PingRequest}s prior to reverting to a candidate.
-         *
-         * @return the number of other nodes this node has successfully probed, or -1 if not probing
-         */
-        public int getNodesProbed() {
-            synchronized (this.raft) {
-                return this.probeTimestamps != null ? this.calculateProbedNodes() : -1;
-            }
-        }
-
-    // Probing mode
-
-        private int calculateProbedNodes() {
-            assert this.probeTimestamps != null;
-            int numProbed = this.raft.isClusterMember() ? 1 : 0;
-            final Timestamp now = new Timestamp();
-            for (Iterator<Timestamp> i = this.probeTimestamps.values().iterator(); i.hasNext(); ) {
-                final Timestamp timestamp = i.next();
-                if (now.offsetFrom(timestamp) >= this.raft.maxElectionTimeout) {                // timestamp is too old, discard
-                    i.remove();
-                    continue;
-                }
-                numProbed++;
-            }
-            return numProbed;
-        }
-
-    // Lifecycle
-
-        @Override
-        void setup() {
-            super.setup();
-            if (this.log.isDebugEnabled()) {
-                this.debug("entering follower role in term " + this.raft.currentTerm
-                  + (this.leader != null ? "; with leader \"" + this.leader + "\" at " + this.leaderAddress : "")
-                  + (this.votedFor != null ? "; having voted for \"" + this.votedFor + "\"" : ""));
-            }
-        }
-
-        @Override
-        void shutdown() {
-            super.shutdown();
-
-            // Cancel any in-progress snapshot install
-            if (this.snapshotReceive != null) {
-                if (this.log.isDebugEnabled())
-                    this.debug("aborting snapshot install due to leaving follower role");
-                this.raft.resetStateMachine(true);
-                this.snapshotReceive = null;
-            }
-
-            // Fail any (read-only) transactions waiting on a minimum lease timeout from deposed leader
-            for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values())) {
-                if (tx.getState().equals(TxState.COMMIT_WAITING) && this.commitLeaderLeaseTimeoutMap.containsKey(tx.getTxId()))
-                    this.raft.fail(tx, new RetryTransactionException(tx, "leader was deposed during commit"));
-            }
-
-            // Cleanup pending requests and commit writes
-            this.pendingRequests.clear();
-            for (PendingWrite pendingWrite : this.pendingWrites.values())
-                pendingWrite.cleanup();
-            this.pendingWrites.clear();
-        }
-
-    // Service
-
-        @Override
-        void outputQueueEmpty(String address) {
-            if (address.equals(this.leaderAddress))
-                this.raft.requestService(this.checkReadyTransactionsService);       // TODO: track specific transactions
-        }
-
-        // Check whether the required minimum leader lease timeout has been seen, if any
-        @Override
-        boolean mayCommit(RaftKVTransaction tx) {
-
-            // Is there a required minimum leader lease timeout associated with the transaction?
-            final Timestamp commitLeaderLeaseTimeout = this.commitLeaderLeaseTimeoutMap.get(tx.getTxId());
-            if (commitLeaderLeaseTimeout == null)
-                return true;
-
-            // Do we know the leader's lease timeout yet?
-            if (this.leaderLeaseTimeout == null)
-                return false;
-
-            // Verify leader's lease timeout has extended beyond that required by the transaction
-            return this.leaderLeaseTimeout.compareTo(commitLeaderLeaseTimeout) >= 0;
-        }
-
-        @Override
-        void handleElectionTimeout() {
-
-            // Invalidate current leader
-            this.leader = null;
-            this.leaderAddress = null;
-
-            // If we are already probing, check probe results
-            if (this.probeTimestamps != null) {
-
-                // Get the number of nodes successfully probed this round, and the minimum number required (a majority)
-                final int numProbed = this.calculateProbedNodes();
-                final int numRequired = this.raft.currentConfig.size() / 2 + 1;
-
-                // Once we have successfully probed a majority we can finally become a candidate
-                if (this.log.isTraceEnabled())
-                    this.trace("now we have probed " + numProbed + "/" + numRequired + " required nodes");
-                if (numProbed >= numRequired) {
-                    if (this.log.isDebugEnabled())
-                        this.debug("successfully probed " + numProbed + " nodes, now converting to candidate");
-                    this.raft.changeRole(new CandidateRole(this.raft));
-                    return;
-                }
-            } else {
-
-                // Enter probing mode
-                if (this.log.isDebugEnabled())
-                    this.debug("follower election timeout: attempting to probe a majority before becoming candidate");
-                this.probeTimestamps = new HashMap<>(this.raft.currentConfig.size() - 1);
-            }
-
-            // Send out a(nother) round of probes to all other nodes
-            final Timestamp now = new Timestamp();
-            for (String peer : this.raft.currentConfig.keySet()) {
-                if (peer.equals(this.raft.identity))
-                    continue;
-                this.raft.sendMessage(new PingRequest(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm, now));
-            }
-
-            // Restart election timeout (now it's really a ping timer)
-            this.restartElectionTimer();
-        }
-
-        /**
-         * Check whether the election timer should be running, and make it so.
-         *
-         * <p>
-         * This should be invoked:
-         * <ul>
-         *  <li>After a log entry that contains a configuration change has been added to the log</li>
-         *  <li>When a snapshot install starts</li>
-         *  <li>When a snapshot install completes</li>
-         * </ul>
-         */
-        private void updateElectionTimer() {
-            final boolean isClusterMember = this.raft.isClusterMember();
-            final boolean electionTimerRunning = this.electionTimer.isRunning();
-            if (isClusterMember && !electionTimerRunning) {
-                if (this.log.isTraceEnabled())
-                    this.trace("starting up election timer because I'm now part of the current config");
-                this.restartElectionTimer();
-            } else if (!isClusterMember && electionTimerRunning) {
-                if (this.log.isTraceEnabled())
-                    this.trace("stopping election timer because I'm no longer part of the current config");
-                this.electionTimer.cancel();
-            }
-        }
-
-    // Transactions
-
-        @Override
-        void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly) {
-
-            // Sanity check
-            assert Thread.holdsLock(this.raft);
-            assert tx.getState().equals(TxState.COMMIT_READY);
-
-            // Did we already send a CommitRequest for this transaction?
-            final PendingRequest pendingRequest = this.pendingRequests.get(tx.getTxId());
-            if (pendingRequest != null) {
-                if (this.log.isTraceEnabled())
-                    this.trace("leaving alone ready tx " + tx + " because request already sent");
-                return;
-            }
-
-            // If we are installing a snapshot, we must wait
-            if (this.snapshotReceive != null) {
-                if (this.log.isTraceEnabled())
-                    this.trace("leaving alone ready tx " + tx + " because a snapshot install is in progress");
-                return;
-            }
-
-            // Handle situation where we are unconfigured and not part of any cluster yet
-            if (!this.raft.isConfigured()) {
-
-                // Get transaction mutations
-                final Writes writes = tx.getMutableView().getWrites();
-                final String[] configChange = tx.getConfigChange();
-
-                // Allow an empty read-only transaction when unconfigured
-                if (readOnly) {
-                    this.raft.succeed(tx);
-                    return;
-                }
-
-                // Otherwise, we can only handle an initial config change that is adding the local node
-                if (configChange == null || !configChange[0].equals(this.raft.identity) || configChange[1] == null) {
-                    throw new RetryTransactionException(tx, "unconfigured system: an initial configuration change adding"
-                      + " the local node (\"" + this.raft.identity + "\") as the first member of a new cluster is required");
-                }
-
-                // Create a new cluster if needed
-                if (this.raft.clusterId == 0) {
-
-                    // Pick a new, random cluster ID
-                    int newClusterId;
-                    do
-                        newClusterId = this.raft.random.nextInt();
-                    while (newClusterId == 0);
-
-                    // Join new cluster
-                    this.info("creating new cluster with ID " + String.format("0x%08x", newClusterId));
-                    if (!this.raft.joinCluster(newClusterId))
-                        throw new KVTransactionException(tx, "error persisting new cluster ID");
-                }
-
-                // Advance term
-                assert this.raft.currentTerm == 0;
-                if (!this.raft.advanceTerm(this.raft.currentTerm + 1))
-                    throw new KVTransactionException(tx, "error advancing term");
-
-                // Append the first entry to the Raft log
-                final LogEntry logEntry;
-                try {
-                    logEntry = this.raft.appendLogEntry(this.raft.currentTerm, this.raft.new NewLogEntry(tx));
-                } catch (Exception e) {
-                    throw new KVTransactionException(tx, "error attempting to persist transaction", e);
-                }
-                if (this.log.isDebugEnabled())
-                    this.debug("added log entry " + logEntry + " for local transaction " + tx);
-                assert logEntry.getTerm() == 1;
-                assert logEntry.getIndex() == 1;
-
-                // Update transaction
-                this.advanceReadyTransaction(tx, logEntry.getTerm(), logEntry.getIndex());
-
-                // Set commit term and index from new log entry
-                this.raft.commitIndex = logEntry.getIndex();
-
-                // Immediately become the leader of our new single-node cluster
-                assert this.raft.isConfigured();
-                if (this.log.isDebugEnabled())
-                    this.debug("appointing myself leader in newly created cluster");
-                this.raft.changeRole(new LeaderRole(this.raft));
-                return;
-            }
-
-            // If we don't have a leader yet, or leader's queue is full, we must wait
-            if (this.leader == null || this.raft.isTransmitting(this.leaderAddress)) {
-                if (this.log.isTraceEnabled()) {
-                    this.trace("leaving alone ready tx " + tx + " because leader "
-                      + (this.leader == null ? "is not known yet" : "\"" + this.leader + "\" is not writable yet"));
-                }
-                return;
-            }
-
-            // Gather reads data, but only if transaction is LINEARIZABLE; otherwise, we don't send them
-            final ByteBuffer readsData;
-            if (tx.getConsistency().equals(Consistency.LINEARIZABLE)) {
-
-                // Serialize reads into buffer
-                final Reads reads = tx.getMutableView().getReads();
-                final long readsDataSize = reads.serializedLength();
-                if (readsDataSize != (int)readsDataSize)
-                    throw new KVTransactionException(tx, "transaction read information exceeds maximum length");
-                readsData = Util.allocateByteBuffer((int)readsDataSize);
-                try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {
-                    reads.serialize(output);
-                } catch (IOException e) {
-                    throw new RuntimeException("unexpected exception", e);
-                }
-                assert !readsData.hasRemaining();
-                readsData.flip();
-            } else
-                readsData = null;
-
-            // Gather writes data (i.e., mutations), but only if transaction is not read-only
-            ByteBuffer mutationData = null;
-            if (!readOnly) {
-
-                // Serialize mutations into a temporary file (but do not close or durably persist yet)
-                final Writes writes = tx.getMutableView().getWrites();
-                final File file = new File(this.raft.logDir,
-                  String.format("%s%019d%s", TX_FILE_PREFIX, tx.getTxId(), TEMP_FILE_SUFFIX));
-                final FileWriter fileWriter;
-                try {
-                    fileWriter = new FileWriter(file);
-                } catch (IOException e) {
-                    throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);
-                }
-                try {
-                    LogEntry.writeData(fileWriter, new LogEntry.Data(writes, tx.getConfigChange()));
-                    fileWriter.flush();
-                } catch (IOException e) {
-                    fileWriter.getFile().delete();
-                    Util.closeIfPossible(fileWriter);
-                    throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);
-                }
-
-                // Load serialized writes from file
-                final long writeLength = fileWriter.getLength();
-                try {
-                    mutationData = Util.readFile(fileWriter.getFile(), writeLength);
-                } catch (IOException e) {
-                    fileWriter.getFile().delete();
-                    Util.closeIfPossible(fileWriter);
-                    throw new KVTransactionException(tx, "error reading transaction mutations from temporary file", e);
-                }
-
-                // Record pending commit write with temporary file
-                final PendingWrite pendingWrite = new PendingWrite(tx, fileWriter);
-                this.pendingWrites.put(tx.getTxId(), pendingWrite);
-            }
-
-            // Record pending request
-            this.pendingRequests.put(tx.getTxId(), new PendingRequest(tx));
-
-            // Send commit request to leader
-            final CommitRequest msg = new CommitRequest(this.raft.clusterId, this.raft.identity, this.leader,
-              this.raft.currentTerm, tx.getTxId(), tx.getBaseTerm(), tx.getBaseIndex(), readsData, mutationData);
-            if (this.log.isTraceEnabled())
-                this.trace("sending " + msg + " to \"" + this.leader + "\" for " + tx);
-            if (!this.raft.sendMessage(msg))
-                throw new RetryTransactionException(tx, "error sending commit request to leader");
-        }
-
-        @Override
-        void cleanupForTransaction(RaftKVTransaction tx) {
-            this.pendingRequests.remove(tx.getTxId());
-            final PendingWrite pendingWrite = this.pendingWrites.remove(tx.getTxId());
-            if (pendingWrite != null)
-                pendingWrite.cleanup();
-            this.commitLeaderLeaseTimeoutMap.remove(tx.getTxId());
-        }
-
-    // Messages
-
-        @Override
-        boolean mayAdvanceCurrentTerm(Message msg) {
-
-            // Deny vote if we have heard from our leader within the minimum election timeout (dissertation, section 4.2.3)
-            if (msg instanceof RequestVote
-              && this.lastLeaderMessageTime != null
-              && this.lastLeaderMessageTime.offsetFromNow() > -this.raft.minElectionTimeout)
-                return false;
-
-            // OK
-            return true;
-        }
-
-        @Override
-        void caseAppendRequest(AppendRequest msg) {
-
-            // Cancel probing
-            if (this.probeTimestamps != null) {
-                if (this.log.isDebugEnabled())
-                    this.debug("heard from leader before we probed a majority, reverting back to normal follower");
-                this.probeTimestamps = null;
-            }
-            final Timestamp now = new Timestamp();
-
-            // Record new cluster ID if we haven't done so already
-            if (this.raft.clusterId == 0)
-                this.raft.joinCluster(msg.getClusterId());
-
-            // Record leader
-            if (!msg.getSenderId().equals(this.leader)) {
-                if (this.leader != null && !this.leader.equals(msg.getSenderId())) {
-                    this.error("detected a conflicting leader in " + msg + " (previous leader was \"" + this.leader
-                      + "\") - should never happen; possible inconsistent cluster configuration (mine: " + this.raft.currentConfig
-                      + ")");
-                }
-                this.leader = msg.getSenderId();
-                this.leaderAddress = this.raft.returnAddress;
-                this.leaderLeaseTimeout = null;
-                if (this.log.isDebugEnabled())
-                    this.debug("updated leader to \"" + this.leader + "\" at " + this.leaderAddress);
-                this.raft.requestService(this.checkReadyTransactionsService);     // allows COMMIT_READY transactions to be sent
-            }
-
-            // Get message info
-            final long leaderCommitIndex = msg.getLeaderCommit();
-            final long leaderPrevTerm = msg.getPrevLogTerm();
-            final long leaderPrevIndex = msg.getPrevLogIndex();
-            final long logTerm = msg.getLogEntryTerm();
-            final long logIndex = leaderPrevIndex + 1;
-
-            // Update timestamp last heard from leader
-            this.lastLeaderMessageTime = new Timestamp();
-
-            // Update leader's lease timeout
-            if (msg.getLeaderLeaseTimeout() != null
-              && (this.leaderLeaseTimeout == null || msg.getLeaderLeaseTimeout().compareTo(this.leaderLeaseTimeout) > 0)) {
-                if (this.log.isTraceEnabled())
-                    this.trace("advancing leader lease timeout " + this.leaderLeaseTimeout + " -> " + msg.getLeaderLeaseTimeout());
-                this.leaderLeaseTimeout = msg.getLeaderLeaseTimeout();
-                this.raft.requestService(this.checkWaitingTransactionsService);
-            }
-
-            // If a snapshot install is in progress, cancel it
-            if (this.snapshotReceive != null) {
-                if (this.log.isDebugEnabled()) {
-                    this.debug("rec'd " + msg + " during in-progress " + this.snapshotReceive
-                      + "; aborting snapshot install and resetting state machine");
-                }
-                if (!this.raft.resetStateMachine(true))
-                    return;
-                this.snapshotReceive = null;
-                this.updateElectionTimer();
-            }
-
-            // Restart election timeout (if running)
-            if (this.electionTimer.isRunning())
-                this.restartElectionTimer();
-
-            // Get my last log entry's index and term
-            long lastLogTerm = this.raft.getLastLogTerm();
-            long lastLogIndex = this.raft.getLastLogIndex();
-
-            // Check whether our previous log entry term matches that of leader; if not, or it doesn't exist, request fails
-            // Note: if log entry index is prior to my last applied log entry index, Raft guarantees that term must match
-            if (leaderPrevIndex >= this.raft.lastAppliedIndex
-              && (leaderPrevIndex > lastLogIndex || leaderPrevTerm != this.raft.getLogTermAtIndex(leaderPrevIndex))) {
-                if (this.log.isDebugEnabled())
-                    this.debug("rejecting " + msg + " because previous log entry doesn't match");
-                this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));
-                return;
-            }
-
-            // Check whether the message actually contains a log entry we can append; if so, append it
-            boolean success = true;
-            if (leaderPrevIndex >= this.raft.lastAppliedIndex && !msg.isProbe()) {
-
-                // Check for a conflicting (i.e., never committed, then overwritten) log entry that we need to clear away first
-                if (logIndex <= lastLogIndex && this.raft.getLogTermAtIndex(logIndex) != msg.getLogEntryTerm()) {
-
-                    // Delete conflicting log entry, and all entries that follow it, from the log
-                    final int startListIndex = (int)(logIndex - this.raft.lastAppliedIndex - 1);
-                    final List<LogEntry> conflictList = this.raft.raftLog.subList(startListIndex, this.raft.raftLog.size());
-                    for (LogEntry logEntry : conflictList) {
-                        if (this.log.isDebugEnabled())
-                            this.debug("deleting log entry " + logEntry + " overrwritten by " + msg);
-                        if (!logEntry.getFile().delete())
-                            this.error("failed to delete log file " + logEntry.getFile());
-                    }
-                    try {
-                        this.raft.logDirChannel.force(true);
-                    } catch (IOException e) {
-                        this.warn("errory fsync()'ing log directory " + this.raft.logDir, e);
-                    }
-                    conflictList.clear();
-
-                    // Rebuild current config
-                    this.raft.currentConfig = this.raft.buildCurrentConfig();
-
-                    // Update last log entry info
-                    lastLogTerm = this.raft.getLastLogTerm();
-                    lastLogIndex = this.raft.getLastLogIndex();
-                }
-
-                // Append the new log entry - if we don't already have it
-                if (logIndex > lastLogIndex) {
-                    assert logIndex == lastLogIndex + 1;
-                    LogEntry logEntry = null;
-                    do {
-
-                        // If message contains no data, we expect to get the data from the corresponding transaction
-                        final ByteBuffer mutationData = msg.getMutationData();
-                        if (mutationData == null) {
-
-                            // Find the matching pending commit write
-                            final PendingWrite pendingWrite;
-                            try {
-                                pendingWrite = Iterables.find(this.pendingWrites.values(), new Predicate<PendingWrite>() {
-                                    @Override
-                                    public boolean apply(PendingWrite pendingWrite) {
-                                        final RaftKVTransaction tx = pendingWrite.getTx();
-                                        return tx.getState().equals(TxState.COMMIT_WAITING)
-                                          && tx.getCommitTerm() == logTerm && tx.getCommitIndex() == logIndex;
-                                    }
-                                });
-                            } catch (NoSuchElementException e) {
-                                if (this.log.isDebugEnabled()) {
-                                    this.debug("rec'd " + msg + " but no read-write transaction matching commit "
-                                      + logIndex + "t" + logTerm + " found; rejecting");
-                                }
-                                break;
-                            }
-
-                            // Commit's writes are no longer pending
-                            final RaftKVTransaction tx = pendingWrite.getTx();
-                            this.pendingWrites.remove(tx.getTxId());
-
-                            // Close and durably persist the associated temporary file
-                            try {
-                                pendingWrite.getFileWriter().close();
-                            } catch (IOException e) {
-                                this.error("error closing temporary transaction file for " + tx, e);
-                                pendingWrite.cleanup();
-                                break;
-                            }
-
-                            // Append a new log entry using temporary file
-                            try {
-                                logEntry = this.raft.appendLogEntry(logTerm,
-                                  this.raft.new NewLogEntry(tx, pendingWrite.getFileWriter().getFile()));
-                            } catch (Exception e) {
-                                this.error("error appending new log entry for " + tx, e);
-                                pendingWrite.cleanup();
-                                break;
-                            }
-
-                            // Debug
-                            if (this.log.isDebugEnabled()) {
-                                this.debug("now waiting for commit of " + tx.getCommitIndex() + "t" + tx.getCommitTerm()
-                                  + " to commit " + tx);
-                            }
-                        } else {
-
-                            // Append new log entry normally using the data from the request
-                            try {
-                                logEntry = this.raft.appendLogEntry(logTerm, this.raft.new NewLogEntry(mutationData));
-                            } catch (Exception e) {
-                                this.error("error appending new log entry", e);
-                                break;
-                            }
-                        }
-                    } while (false);
-
-                    // Start/stop election timer as needed
-                    if (logEntry != null && logEntry.getConfigChange() != null)
-                        this.updateElectionTimer();
-
-                    // Success?
-                    success = logEntry != null;
-
-                    // Update last log entry info
-                    lastLogTerm = this.raft.getLastLogTerm();
-                    lastLogIndex = this.raft.getLastLogIndex();
-                }
-            }
-
-            // Update my commit index
-            final long newCommitIndex = Math.min(Math.max(leaderCommitIndex, this.raft.commitIndex), lastLogIndex);
-            if (newCommitIndex > this.raft.commitIndex) {
-                if (this.log.isDebugEnabled())
-                    this.debug("updating leader commit index from " + this.raft.commitIndex + " -> " + newCommitIndex);
-                this.raft.commitIndex = newCommitIndex;
-                this.raft.requestService(this.checkWaitingTransactionsService);
-                this.raft.requestService(this.applyCommittedLogEntriesService);
-            }
-
-            // Debug
-            if (this.log.isTraceEnabled()) {
-                this.trace("my updated follower state: "
-                  + "term=" + this.raft.currentTerm
-                  + " commitIndex=" + this.raft.commitIndex
-                  + " leaderLeaseTimeout=" + this.leaderLeaseTimeout
-                  + " lastApplied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm
-                  + " log=" + this.raft.raftLog);
-            }
-
-            // Send reply
-            if (success) {
-                this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getLeaderTimestamp(), true, msg.isProbe() ? logIndex - 1 : logIndex,
-                  this.raft.getLastLogIndex()));
-            } else {
-                this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),
-                  this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));
-            }
-        }
-
-        @Override
-        void caseCommitResponse(CommitResponse msg) {
-
-            // Find transaction
-            final RaftKVTransaction tx = this.raft.openTransactions.get(msg.getTxId());
-            if (tx == null)                                                                 // must have been rolled back locally
-                return;
-
-            // Sanity check transaction state
-            if (!tx.getState().equals(TxState.COMMIT_READY)) {
-                this.warn("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");
-                return;
-            }
-            if (this.pendingRequests.remove(tx.getTxId()) == null) {
-                if (this.log.isDebugEnabled())
-                    this.debug("rec'd " + msg + " for " + tx + " not expecting a response; ignoring");
-                return;
-            }
-
-            // Check result
-            if (this.log.isTraceEnabled())
-                this.trace("rec'd " + msg + " for " + tx);
-            if (msg.isSuccess()) {
-
-                // Update transaction
-                this.advanceReadyTransaction(tx, msg.getCommitTerm(), msg.getCommitIndex());
-
-                // Track leader lease timeout we must wait for, if any
-                if (msg.getCommitLeaderLeaseTimeout() != null)
-                    this.commitLeaderLeaseTimeoutMap.put(tx.getTxId(), msg.getCommitLeaderLeaseTimeout());
-            } else
-                this.raft.fail(tx, new RetryTransactionException(tx, msg.getErrorMessage()));
-        }
-
-        @Override
-        void caseInstallSnapshot(InstallSnapshot msg) {
-
-            // Restart election timer (if running)
-            if (this.electionTimer.isRunning())
-                this.restartElectionTimer();
-
-            // Do we have an existing install?
-            boolean startNewInstall = false;
-            if (this.snapshotReceive != null) {
-
-                // Does the message not match?
-                if (!this.snapshotReceive.matches(msg)) {
-
-                    // If the message is NOT the first one in a new install, ignore it
-                    if (msg.getPairIndex() != 0) {
-                        if (this.log.isDebugEnabled())
-                            this.debug("rec'd " + msg + " which doesn't match in-progress " + this.snapshotReceive + "; ignoring");
-                        return;
-                    }
-
-                    // The message is the first one in a new install, so discard the existing install
-                    if (this.log.isDebugEnabled()) {
-                        this.debug("rec'd initial " + msg + " with in-progress " + this.snapshotReceive
-                          + "; aborting previous install");
-                    }
-                    startNewInstall = true;
-                }
-            } else {
-
-                // If the message is NOT the first one in a new install, ignore it
-                if (msg.getPairIndex() != 0) {
-                    if (this.log.isDebugEnabled())
-                        this.debug("rec'd non-initial " + msg + " with no in-progress snapshot install; ignoring");
-                    return;
-                }
-            }
-
-            // Get snapshot term and index
-            final long term = msg.getSnapshotTerm();
-            final long index = msg.getSnapshotIndex();
-
-            // Set up new install if necessary
-            if (this.snapshotReceive == null || startNewInstall) {
-                assert msg.getPairIndex() == 0;
-                if (!this.raft.resetStateMachine(false))
-                    return;
-                this.updateElectionTimer();
-                this.snapshotReceive = new SnapshotReceive(
-                  PrefixKVStore.create(this.raft.kv, STATE_MACHINE_PREFIX), term, index, msg.getSnapshotConfig());
-                if (this.log.isDebugEnabled()) {
-                    this.debug("starting new snapshot install from \"" + msg.getSenderId()
-                      + "\" of " + index + "t" + term + " with config " + msg.getSnapshotConfig());
-                }
-            }
-            assert this.snapshotReceive.matches(msg);
-
-            // Apply next chunk of key/value pairs
-            if (this.log.isDebugEnabled())
-                this.debug("applying " + msg + " to " + this.snapshotReceive);
-            try {
-                this.snapshotReceive.applyNextChunk(msg.getData());
-            } catch (Exception e) {
-                this.error("error applying snapshot to key/value store; resetting state machine", e);
-                if (!this.raft.resetStateMachine(true))
-                    return;
-                this.updateElectionTimer();
-                this.snapshotReceive = null;
-                return;
-            }
-
-            // If that was the last chunk, finalize persistent state
-            if (msg.isLastChunk()) {
-                final Map<String, String> snapshotConfig = this.snapshotReceive.getSnapshotConfig();
-                if (this.log.isDebugEnabled()) {
-                    this.debug("snapshot install from \"" + msg.getSenderId() + "\" of "
-                      + index + "t" + term + " with config " + snapshotConfig + " complete");
-                }
-                this.snapshotReceive = null;
-                if (!this.raft.recordLastApplied(term, index, snapshotConfig))
-                    this.raft.resetStateMachine(true);                          // if this fails we are really screwed
-                this.updateElectionTimer();
-            }
-        }
-
-        @Override
-        void caseRequestVote(RequestVote msg) {
-
-            // Record new cluster ID if we haven't done so already
-            if (this.raft.clusterId == 0)
-                this.raft.joinCluster(msg.getClusterId());
-
-            // Did we already vote for somebody else?
-            final String peer = msg.getSenderId();
-            if (this.votedFor != null && !this.votedFor.equals(peer)) {
-                if (this.log.isDebugEnabled())
-                    this.debug("rec'd " + msg + "; rejected because we already voted for \"" + this.votedFor + "\"");
-                return;
-            }
-
-            // Verify that we are allowed to vote for this peer
-            if (msg.getLastLogTerm() < this.raft.getLastLogTerm()
-              || (msg.getLastLogTerm() == this.raft.getLastLogTerm() && msg.getLastLogIndex() < this.raft.getLastLogIndex())) {
-                if (this.log.isDebugEnabled()) {
-                    this.debug("rec'd " + msg + "; rejected because their log " + msg.getLastLogIndex() + "t"
-                      + msg.getLastLogTerm() + " loses to ours " + this.raft.getLastLogIndex() + "t" + this.raft.getLastLogTerm());
-                }
-                return;
-            }
-
-            // Persist our vote for this peer (if not already persisted)
-            if (this.votedFor == null) {
-                if (this.log.isDebugEnabled())
-                    this.debug("granting vote to \"" + peer + "\" in term " + this.raft.currentTerm);
-                if (!this.updateVotedFor(peer))
-                    return;
-            } else {
-                if (this.log.isDebugEnabled())
-                    this.debug("confirming existing vote for \"" + peer + "\" in term " + this.raft.currentTerm);
-            }
-
-            // Send reply
-            this.raft.sendMessage(new GrantVote(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm));
-        }
-
-        @Override
-        void caseGrantVote(GrantVote msg) {
-
-            // Ignore - we already lost the election to the real leader
-            if (this.log.isDebugEnabled())
-                this.debug("ignoring " + msg + " rec'd while in " + this);
-        }
-
-        @Override
-        void casePingResponse(PingResponse msg) {
-
-            // Are we probing?
-            if (this.probeTimestamps == null) {
-                if (this.log.isTraceEnabled())
-                    this.trace("ignoring " + msg + " rec'd while not probing in " + this);
-                return;
-            }
-
-            // Update peer's ping timestamp and re-check probe status
-            this.probeTimestamps.put(msg.getSenderId(), msg.getTimestamp());
-        }
-
-    // Helper methods
-
-        /**
-         * Record the peer voted for in the current term.
-         */
-        private boolean updateVotedFor(String recipient) {
-
-            // Sanity check
-            assert Thread.holdsLock(this.raft);
-            assert recipient != null;
-
-            // Update persistent store
-            final Writes writes = new Writes();
-            writes.getPuts().put(VOTED_FOR_KEY, this.raft.encodeString(recipient));
-            try {
-                this.raft.kv.mutate(writes, true);
-            } catch (Exception e) {
-                this.error("error persisting vote for \"" + recipient + "\"", e);
-                return false;
-            }
-
-            // Done
-            this.votedFor = recipient;
-            return true;
-        }
-
-    // Object
-
-        @Override
-        public String toString() {
-            return this.toStringPrefix()
-              + (this.leader != null ? ",leader=\"" + this.leader + "\"" : "")
-              + (this.votedFor != null ? ",votedFor=\"" + this.votedFor + "\"" : "")
-              + (!this.pendingRequests.isEmpty() ? ",pendingRequests=" + this.pendingRequests.keySet() : "")
-              + (!this.pendingWrites.isEmpty() ? ",pendingWrites=" + this.pendingWrites.keySet() : "")
-              + (!this.commitLeaderLeaseTimeoutMap.isEmpty() ? ",leaseTimeouts=" + this.commitLeaderLeaseTimeoutMap.keySet() : "")
-              + "]";
-        }
-
-    // Debug
-
-        @Override
-        boolean checkState() {
-            if (!super.checkState())
-                return false;
-            assert this.leaderAddress != null || this.leader == null;
-            assert this.electionTimer.isRunning() == this.raft.isClusterMember();
-            for (Map.Entry<Long, PendingRequest> entry : this.pendingRequests.entrySet()) {
-                final long txId = entry.getKey();
-                final PendingRequest pendingRequest = entry.getValue();
-                final RaftKVTransaction tx = pendingRequest.getTx();
-                assert txId == tx.getTxId();
-                assert tx.getState().equals(TxState.COMMIT_READY);
-                assert tx.getCommitTerm() == 0;
-                assert tx.getCommitIndex() == 0;
-            }
-            for (Map.Entry<Long, PendingWrite> entry : this.pendingWrites.entrySet()) {
-                final long txId = entry.getKey();
-                final PendingWrite pendingWrite = entry.getValue();
-                final RaftKVTransaction tx = pendingWrite.getTx();
-                assert txId == tx.getTxId();
-                assert tx.getState().equals(TxState.COMMIT_READY) || tx.getState().equals(TxState.COMMIT_WAITING);
-                assert pendingWrite.getFileWriter().getFile().exists();
-            }
-            return true;
-        }
-
-    // PendingRequest
-
-        // Represents a transaction in COMMIT_READY for which a CommitRequest has been sent to the leader
-        // but no CommitResponse has yet been received
-        private class PendingRequest {
-
-            private final RaftKVTransaction tx;
-
-            PendingRequest(RaftKVTransaction tx) {
-                this.tx = tx;
-                assert !FollowerRole.this.pendingRequests.containsKey(tx.getTxId());
-                FollowerRole.this.pendingRequests.put(tx.getTxId(), this);
-            }
-
-            public RaftKVTransaction getTx() {
-                return this.tx;
-            }
-        }
-
-    // PendingWrite
-
-        // Represents a read-write transaction in COMMIT_READY or COMMIT_WAITING for which the server's AppendRequest
-        // will have null mutationData, because we will already have the data on hand waiting in a temporary file. This
-        // is a simple optimization to avoid sending the same data from leader -> follower just sent from follower -> leader.
-        private static class PendingWrite {
-
-            private final RaftKVTransaction tx;
-            private final FileWriter fileWriter;
-
-            PendingWrite(RaftKVTransaction tx, FileWriter fileWriter) {
-                this.tx = tx;
-                this.fileWriter = fileWriter;
-            }
-
-            public RaftKVTransaction getTx() {
-                return this.tx;
-            }
-
-            public FileWriter getFileWriter() {
-                return this.fileWriter;
-            }
-
-            public void cleanup() {
-                this.fileWriter.getFile().delete();
-                Util.closeIfPossible(this.fileWriter);
-            }
-        }
-    }
-
-// CANDIDATE role
-
-    /**
-     * Raft candidate role.
-     */
-    public static class CandidateRole extends NonLeaderRole {
-
-        private final HashSet<String> votes = new HashSet<>();
-        private final Service checkElectionResultService = new Service(this, "check election result") {
-            @Override
-            public void run() {
-                CandidateRole.this.checkElectionResult();
-            }
-        };
-
-    // Constructors
-
-        CandidateRole(RaftKVDatabase raft) {
-            super(raft, true);
-        }
-
-    // Status
-
-        /**
-         * Get the number of votes required to win the election.
-         *
-         * @return required votes
-         */
-        public int getVotesRequired() {
-            synchronized (this.raft) {
-                return this.raft.currentConfig.size() / 2 + 1;
-            }
-        }
-
-        /**
-         * Get the number of votes received so far. Includes this node's vote.
-         *
-         * @return received votes
-         */
-        public int getVotesReceived() {
-            synchronized (this.raft) {
-                return this.votes.size() + (this.raft.isClusterMember() ? 1 : 0);
-            }
-        }
-
-    // Lifecycle
-
-        @Override
-        void setup() {
-            super.setup();
-
-            // Increment term
-            if (!this.raft.advanceTerm(this.raft.currentTerm + 1))
-                return;
-
-            // Request votes from other peers
-            final HashSet<String> voters = new HashSet<>(this.raft.currentConfig.keySet());
-            voters.remove(this.raft.identity);
-            if (this.log.isDebugEnabled())
-                this.debug("entering candidate role in term " + this.raft.currentTerm + "; requesting votes from " + voters);
-            for (String voter : voters) {
-                this.raft.sendMessage(new RequestVote(this.raft.clusterId, this.raft.identity, voter,
-                  this.raft.currentTerm, this.raft.getLastLogTerm(), this.raft.getLastLogIndex()));
-            }
-
-            // Check election result - needed in case we are the only node in the cluster
-            this.raft.requestService(this.checkElectionResultService);
-        }
-
-    // Service
-
-        @Override
-        void outputQueueEmpty(String address) {
-            // nothing to do
-        }
-
-        @Override
-        void handleElectionTimeout() {
-            this.raft.changeRole(new CandidateRole(this.raft));
-        }
-
-        private void checkElectionResult() {
-
-            // Tally votes
-            final int allVotes = this.raft.currentConfig.size();
-            final int numVotes = this.getVotesReceived();
-            final int votesRequired = this.getVotesRequired();
-            if (this.log.isDebugEnabled())
-                this.debug("current election tally: " + numVotes + "/" + allVotes + " with " + votesRequired + " required to win");
-
-            // Did we win?
-            if (numVotes >= votesRequired) {
-                if (this.log.isDebugEnabled())
-                    this.debug("won the election for term " + this.raft.currentTerm + "; becoming leader");
-                this.raft.changeRole(new LeaderRole(this.raft));
-            }
-        }
-
-    // Transactions
-
-        @Override
-        void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly) {
-
-            // Sanity check
-            assert Thread.holdsLock(this.raft);
-            assert tx.getState().equals(TxState.COMMIT_READY);
-
-            // We can't do anything because we don't have a leader yet
-        }
-
-    // MessageSwitch
-
-        @Override
-        void caseAppendRequest(AppendRequest msg) {
-            if (this.log.isDebugEnabled())
-                this.debug("rec'd " + msg + " in " + this + "; reverting to follower");
-            this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));
-            this.raft.receiveMessage(this.raft.returnAddress, msg);
-        }
-
-    // MessageSwitch
-
-        @Override
-        void caseCommitResponse(CommitResponse msg) {
-            this.failUnexpectedMessage(msg);                    // we could not have ever sent a CommitRequest in this term
-        }
-
-        @Override
-        void caseInstallSnapshot(InstallSnapshot msg) {
-            this.failUnexpectedMessage(msg);                    // we could not have ever sent an AppendResponse in this term
-        }
-
-        @Override
-        void caseRequestVote(RequestVote msg) {
-
-            // Ignore - we are also a candidate and have already voted for ourself
-            if (this.log.isDebugEnabled())
-                this.debug("ignoring " + msg + " rec'd while in " + this);
-        }
-
-        @Override
-        void caseGrantVote(GrantVote msg) {
-
-            // Record vote
-            this.votes.add(msg.getSenderId());
-            if (this.log.isDebugEnabled())
-                this.debug("rec'd election vote from \"" + msg.getSenderId() + "\" in term " + this.raft.currentTerm);
-
-            // Check election result
-            this.raft.requestService(this.checkElectionResultService);
-        }
-
-    // Object
-
-        @Override
-        public String toString() {
-            return this.toStringPrefix()
-              + ",votes=" + this.votes
-              + "]";
-        }
-
-    // Debug
-
-        @Override
-        boolean checkState() {
-            if (!super.checkState())
-                return false;
-            assert this.electionTimer.isRunning();
-            assert this.raft.isClusterMember();
-            return true;
-        }
-    }
-
-// Prefix Functions
-
-    private abstract static class AbstractPrefixFunction<F, T> implements Function<F, T> {
-
-        protected final byte[] prefix;
-
-        AbstractPrefixFunction(byte[] prefix) {
-            this.prefix = prefix;
-        }
-    }
-
-    private static class PrefixKeyRangeFunction extends AbstractPrefixFunction<KeyRange, KeyRange> {
-
-        PrefixKeyRangeFunction(byte[] prefix) {
-            super(prefix);
-        }
-
-        @Override
-        public KeyRange apply(KeyRange range) {
-            return range.prefixedBy(this.prefix);
-        }
-    }
-
-    private static class PrefixPutFunction extends AbstractPrefixFunction<Map.Entry<byte[], byte[]>, Map.Entry<byte[], byte[]>> {
-
-        PrefixPutFunction(byte[] prefix) {
-            super(prefix);
-        }
-
-        @Override
-        public Map.Entry<byte[], byte[]> apply(Map.Entry<byte[], byte[]> entry) {
-            return new AbstractMap.SimpleEntry<byte[], byte[]>(Bytes.concat(this.prefix, entry.getKey()), entry.getValue());
-        }
-    }
-
-    private static class PrefixAdjustFunction extends AbstractPrefixFunction<Map.Entry<byte[], Long>, Map.Entry<byte[], Long>> {
-
-        PrefixAdjustFunction(byte[] prefix) {
-            super(prefix);
-        }
-
-        @Override
-        public Map.Entry<byte[], Long> apply(Map.Entry<byte[], Long> entry) {
-            return new AbstractMap.SimpleEntry<byte[], Long>(Bytes.concat(this.prefix, entry.getKey()), entry.getValue());
-        }
-    }
-
 // Debug/Sanity Checking
-
-    private abstract class ErrorLoggingRunnable implements Runnable {
-
-        @Override
-        public final void run() {
-            try {
-                this.doRun();
-            } catch (Throwable t) {
-                RaftKVDatabase.this.error("exception in callback", t);
-            }
-        }
-
-        protected abstract void doRun();
-    }
 
     private boolean checkState() {
         try {
@@ -5025,7 +1884,7 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.clusterId == 0;
             assert this.raftLog.isEmpty();
             assert this.logDirChannel == null;
-            assert this.executor == null;
+            assert this.serviceExecutor == null;
             assert this.transmitting.isEmpty();
             assert this.openTransactions.isEmpty();
             assert this.pendingService.isEmpty();
@@ -5036,9 +1895,9 @@ public class RaftKVDatabase implements KVDatabase {
         // Handle running state
         assert this.kv != null;
         assert this.random != null;
-        assert this.executor != null;
+        assert this.serviceExecutor != null;
         assert this.logDirChannel != null;
-        assert !this.executor.isShutdown() || this.shuttingDown;
+        assert !this.serviceExecutor.isShutdown() || this.shuttingDown;
 
         assert this.currentTerm >= 0;
         assert this.commitIndex >= 0;

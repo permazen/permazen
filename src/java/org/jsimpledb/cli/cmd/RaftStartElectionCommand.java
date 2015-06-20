@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.kv.raft.NonLeaderRole;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
@@ -43,9 +44,9 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
     }
 
     private void startElection(CliSession session, RaftKVDatabase db) throws Exception {
-        final RaftKVDatabase.NonLeaderRole role;
+        final NonLeaderRole role;
         try {
-            role = (RaftKVDatabase.NonLeaderRole)db.getCurrentRole();
+            role = (NonLeaderRole)db.getCurrentRole();
         } catch (ClassCastException e) {
             throw new Exception("current role is not follower or candidate; try `raft-status' for more info");
         }

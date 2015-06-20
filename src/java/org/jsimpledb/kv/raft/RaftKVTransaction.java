@@ -51,7 +51,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     private volatile boolean readOnly;
     private volatile int timeout;
     private volatile String[] configChange;             // cluster config change associated with this transaction
-    private RaftKVDatabase.Timer commitTimer;
+    private Timer commitTimer;
     private long commitTerm;                            // term of the log entry representing this transaction's commit
     private long commitIndex;                           // index of the log entry representing this transaction's commit
 
@@ -321,10 +321,10 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         return this.view;
     }
 
-    RaftKVDatabase.Timer getCommitTimer() {
+    Timer getCommitTimer() {
         return this.commitTimer;
     }
-    void setCommitTimer(RaftKVDatabase.Timer commitTimer) {
+    void setCommitTimer(Timer commitTimer) {
         this.commitTimer = commitTimer;
     }
 

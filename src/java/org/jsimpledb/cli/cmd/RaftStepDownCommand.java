@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.kv.raft.LeaderRole;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
@@ -44,9 +45,9 @@ public class RaftStepDownCommand extends AbstractRaftCommand {
     }
 
     private void stepDown(CliSession session, RaftKVDatabase db) throws Exception {
-        final RaftKVDatabase.LeaderRole leader;
+        final LeaderRole leader;
         try {
-            leader = (RaftKVDatabase.LeaderRole)db.getCurrentRole();
+            leader = (LeaderRole)db.getCurrentRole();
         } catch (ClassCastException e) {
             throw new Exception("current role is not leader; try `raft-status' for more info");
         }

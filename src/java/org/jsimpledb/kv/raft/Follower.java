@@ -28,7 +28,7 @@ public class Follower {
 
     private final String identity;                      // follower's unique identity
     private final String address;                       // follower's network address
-    private RaftKVDatabase.Timer updateTimer;           // heartbeat/update timer
+    private Timer updateTimer;                          // heartbeat/update timer
 
     // Used to avoid sending data for log entry back to the follower if the follower, as the originator, already has the data
     private final HashSet<LogEntry> skipDataLogEntries = new HashSet<>();
@@ -165,10 +165,10 @@ public class Follower {
         return this.commitLeaseTimeouts;
     }
 
-    RaftKVDatabase.Timer getUpdateTimer() {
+    Timer getUpdateTimer() {
         return this.updateTimer;
     }
-    void setUpdateTimer(RaftKVDatabase.Timer updateTimer) {
+    void setUpdateTimer(Timer updateTimer) {
         this.updateTimer = updateTimer;
     }
 

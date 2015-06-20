@@ -11,10 +11,14 @@ import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.kv.raft.CandidateRole;
 import org.jsimpledb.kv.raft.Follower;
+import org.jsimpledb.kv.raft.FollowerRole;
+import org.jsimpledb.kv.raft.LeaderRole;
 import org.jsimpledb.kv.raft.LogEntry;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
+import org.jsimpledb.kv.raft.Role;
 import org.jsimpledb.kv.raft.Timestamp;
 import org.jsimpledb.kv.raft.TxState;
 import org.jsimpledb.parse.ParseContext;
@@ -94,11 +98,11 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println(String.format("%-24s: %dt%d", "Last applied log entry", db.getLastAppliedIndex(), db.getLastAppliedTerm()));
         writer.println(String.format("%-24s: %d", "Commit Index", db.getCommitIndex()));
         writer.println(String.format("%-24s: %d", "Current term", db.getCurrentTerm()));
-        final RaftKVDatabase.Role role = db.getCurrentRole();
+        final Role role = db.getCurrentRole();
         writer.println(String.format("%-24s: %s", "Current Role",
-          role instanceof RaftKVDatabase.LeaderRole ? "Leader" :
-          role instanceof RaftKVDatabase.FollowerRole ? "Follower" :
-          role instanceof RaftKVDatabase.CandidateRole ? "Candidate" : "None"));
+          role instanceof LeaderRole ? "Leader" :
+          role instanceof FollowerRole ? "Follower" :
+          role instanceof CandidateRole ? "Candidate" : "?" + role));
         writer.println(String.format("%-24s: %d", "Unapplied memory usage", db.getUnappliedLogMemoryUsage()));
         final List<LogEntry> log = db.getUnappliedLog();
         writer.println(String.format("%-24s: %d", "Unapplied log entries", log.size()));
@@ -115,8 +119,8 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         }
 
         // Role-specific info
-        if (role instanceof RaftKVDatabase.LeaderRole) {
-            final RaftKVDatabase.LeaderRole leader = (RaftKVDatabase.LeaderRole)role;
+        if (role instanceof LeaderRole) {
+            final LeaderRole leader = (LeaderRole)role;
 
             writer.println();
             writer.println("Leader Info");
@@ -140,8 +144,8 @@ public class RaftStatusCommand extends AbstractRaftCommand {
                        String.format("%+dms", follower.getLeaderTimestamp().offsetFromNow()) : "None"));
                 }
             }
-        } else if (role instanceof RaftKVDatabase.FollowerRole) {
-            final RaftKVDatabase.FollowerRole follower = (RaftKVDatabase.FollowerRole)role;
+        } else if (role instanceof FollowerRole) {
+            final FollowerRole follower = (FollowerRole)role;
 
             writer.println();
             writer.println("Follower Info");
@@ -160,8 +164,8 @@ public class RaftStatusCommand extends AbstractRaftCommand {
             final int probed = follower.getNodesProbed();
             writer.println(String.format("%-24s: %s", "Election nodes probed",
               probed != -1 ? String.format("%d / %d", follower.getNodesProbed(), config.size()) : "Not probing"));
-        } else if (role instanceof RaftKVDatabase.CandidateRole) {
-            final RaftKVDatabase.CandidateRole candidate = (RaftKVDatabase.CandidateRole)role;
+        } else if (role instanceof CandidateRole) {
+            final CandidateRole candidate = (CandidateRole)role;
 
             writer.println();
             writer.println("Candidate Info");
