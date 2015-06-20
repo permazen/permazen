@@ -739,6 +739,13 @@ public class FollowerRole extends NonLeaderRole {
         if (this.electionTimer.isRunning())
             this.restartElectionTimer();
 
+        // Sanity check that our log is not going backwards
+        if (msg.getSnapshotIndex() < this.raft.commitIndex) {
+            this.warn("rec'd " + msg + " with retrograde index " + msg.getSnapshotIndex()
+              + " < my commit index " + this.raft.commitIndex + ", ignoring");
+            return;
+        }
+
         // Do we have an existing install?
         boolean startNewInstall = false;
         if (this.snapshotReceive != null) {
