@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Future;
 
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
@@ -62,6 +63,26 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     public void setTimeout(long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.timeout = timeout;
+    }
+
+    /**
+     * Watch a key to monitor for changes in its value.
+     *
+     * <p>
+     * The implementation in {@link SQLKVTransaction} always throws {@link UnsupportedOperationException}.
+     * Subclasses may add support using a database-specific notification mechanism.
+     *
+     * @param key {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws StaleTransactionException {@inheritDoc}
+     * @throws RetryTransactionException {@inheritDoc}
+     * @throws KVDatabaseException {@inheritDoc}
+     * @throws UnsupportedOperationException {@inheritDoc}
+     * @throws IllegalArgumentException {@inheritDoc}
+     */
+    @Override
+    public Future<Void> watchKey(byte[] key) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

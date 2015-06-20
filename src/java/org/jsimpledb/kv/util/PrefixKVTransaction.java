@@ -6,6 +6,9 @@
 package org.jsimpledb.kv.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Bytes;
+
+import java.util.concurrent.Future;
 
 import org.jsimpledb.kv.KVTransaction;
 
@@ -78,6 +81,12 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
     @Override
     public void setTimeout(long timeout) {
         this.delegate().setTimeout(timeout);
+    }
+
+    @Override
+    public Future<Void> watchKey(byte[] key) {
+        Preconditions.checkArgument(key != null, "null key");
+        return this.delegate().watchKey(Bytes.concat(this.db.getKeyPrefix(), key));
     }
 
     @Override

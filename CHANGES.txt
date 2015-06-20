@@ -1,6 +1,7 @@
 Version Next
 
     - Added RocksDBKVDatabase based on RocksDB JNI adapter
+    - Added support for key watches
 
 Version 1.2.0 Released June 9, 2015
 

@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.simple;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -61,6 +62,11 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
     public void setTimeout(long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.waitTimeout = timeout;
+    }
+
+    @Override
+    public ListenableFuture<Void> watchKey(byte[] key) {
+        return this.kvdb.watchKey(key);
     }
 
     @Override

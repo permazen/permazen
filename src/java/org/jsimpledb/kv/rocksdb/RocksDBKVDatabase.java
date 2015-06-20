@@ -11,6 +11,9 @@ import org.jsimpledb.kv.mvcc.SnapshotVersion;
 /**
  * {@link org.jsimpledb.kv.KVDatabase} implementation based on a {@link RocksDBAtomicKVStore}, providing concurrent transactions
  * and linearizable ACID semantics.
+ *
+ * <p>
+ * {@linkplain RocksDBKVTransaction#watchKey Key watches} are supported.
  */
 public class RocksDBKVDatabase extends SnapshotKVDatabase {
 

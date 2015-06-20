@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.raft;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.util.Arrays;
@@ -295,6 +296,11 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     public void setTimeout(long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public ListenableFuture<Void> watchKey(byte[] key) {
+        return this.kvdb.watchKey(key);
     }
 
     @Override

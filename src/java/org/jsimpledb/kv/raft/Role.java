@@ -55,6 +55,12 @@ public abstract class Role {
             Role.this.applyCommittedLogEntries();
         }
     };
+    final Service triggerKeyWatchesService = new Service(this, "trigger key watches") {
+        @Override
+        public void run() {
+            Role.this.triggerKeyWatches();
+        }
+    };
 
 // Constructors
 
@@ -190,6 +196,35 @@ public abstract class Role {
      */
     boolean mayApplyLogEntry(LogEntry logEntry) {
         return true;
+    }
+
+    /**
+     * Trigger any key watches for changes in log entries committed since the last time we checked.
+     *
+     * <p>
+     * This should be invoked:
+     * <ul>
+     *  <li>After advancing the commitIndex</li>
+     *  <li>After resetting the state machine</li>
+     *  <li>After installing a snapshot</li>
+     * </ul>
+     */
+    void triggerKeyWatches() {
+
+        // Sanity check
+        assert this.raft.commitIndex >= this.raft.lastAppliedIndex;
+        assert this.raft.commitIndex <= this.raft.lastAppliedIndex + this.raft.raftLog.size();
+        assert this.raft.keyWatchIndex <= this.raft.commitIndex;
+
+        // If we have recevied a snapshot install, we may not be able to tell which keys have changed since last notification;
+        // in that case, trigger all key watches; otherwise, trigger the keys affected by newly committed log entries
+        if (this.raft.keyWatchIndex < this.raft.lastAppliedIndex) {
+            this.raft.keyWatchTracker.triggerAll();
+            this.raft.keyWatchIndex = this.raft.commitIndex;
+        } else {
+            while (this.raft.keyWatchIndex < this.raft.commitIndex)
+                this.raft.keyWatchTracker.trigger(this.raft.getLogEntryAtIndex(++this.raft.keyWatchIndex).getWrites());
+        }
     }
 
 // Transactions

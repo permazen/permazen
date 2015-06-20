@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv;
 
+import java.util.concurrent.Future;
+
 /**
  * {@link KVDatabase} transaction API.
  *
@@ -60,6 +62,48 @@ public interface KVTransaction extends KVStore {
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     void setTimeout(long timeout);
+
+    /**
+     * Watch a key to monitor for changes in its value.
+     *
+     * <p>
+     * When this method is invoked, {@code key}'s current value (if any) as read by this transaction is remembered. The returned
+     * {@link Future} completes if and when a different value for {@code key} is subsequently committed by some transaction,
+     * including possibly this one.
+     *
+     * <p>
+     * Key watches outlive the transaction in which they are created, persisting until they complete or are
+     * {@link Future#cancel cancel()}'ed. When a {@link KVDatabase} is {@link KVDatabase#stop}'ed, all outstanding
+     * key watches are implicitly {@link Future#cancel cancel()}'ed.
+     *
+     * <p><b>Caveats</b></p>
+     *
+     * <p>
+     * Key watches are not without overhead; applications should avoid overuse. For example, consider creating a
+     * single key that is used to consolidate modifications to a set of keys.
+     *
+     * <p>
+     * Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
+     * and reads the key's value (the actual implementation will likely be more efficient). This means a change that is
+     * quickly reverted could be missed, and that multiple changes could occur before notification. In addition, spurious
+     * notifications may occur, where the key's value has not changed.
+     *
+     * <p>
+     * A key watch is only guaranteed to be valid if the transaction in which it was created successfully commits.
+     *
+     * <p>
+     * Key watch support is optional; instances that don't support key watches throw {@link UnsupportedOperationException}.
+     *
+     * @param key the key to watch
+     * @return a {@link Future} that returns {@code key} when the value associated with {@code key} is modified
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
+     * @throws KVDatabaseException if an unexpected error occurs
+     * @throws UnsupportedOperationException if this instance does not support key watches
+     * @throws IllegalArgumentException if {@code key} starts with {@code 0xff} and such keys are not supported
+     * @throws IllegalArgumentException if {@code key} is null
+     */
+    Future<Void> watchKey(byte[] key);
 
     /**
      * Commit this transaction.

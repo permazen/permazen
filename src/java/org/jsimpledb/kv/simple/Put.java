@@ -8,6 +8,7 @@ package org.jsimpledb.kv.simple;
 import com.google.common.base.Preconditions;
 
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.util.KeyWatchTracker;
 
 /**
  * Represents the addition or changing of a key/value pair in a {@link SimpleKVTransaction}.
@@ -37,6 +38,11 @@ class Put extends Mutation {
     @Override
     public void apply(KVStore kv) {
         kv.put(this.getKey(), this.getValue());
+    }
+
+    @Override
+    public boolean trigger(KeyWatchTracker keyWatchTracker) {
+        return keyWatchTracker.trigger(this.getKey());
     }
 }
 

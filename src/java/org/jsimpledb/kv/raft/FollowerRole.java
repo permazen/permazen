@@ -363,6 +363,7 @@ public class FollowerRole extends NonLeaderRole {
 
             // Set commit term and index from new log entry
             this.raft.commitIndex = logEntry.getIndex();
+            this.raft.requestService(this.triggerKeyWatchesService);
 
             // Immediately become the leader of our new single-node cluster
             assert this.raft.isConfigured();
@@ -673,6 +674,7 @@ public class FollowerRole extends NonLeaderRole {
             this.raft.commitIndex = newCommitIndex;
             this.raft.requestService(this.checkWaitingTransactionsService);
             this.raft.requestService(this.applyCommittedLogEntriesService);
+            this.raft.requestService(this.triggerKeyWatchesService);
         }
 
         // Debug

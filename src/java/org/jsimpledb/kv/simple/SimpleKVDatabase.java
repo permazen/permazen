@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.simple;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -19,6 +20,7 @@ import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
 import org.jsimpledb.kv.mvcc.LockManager;
+import org.jsimpledb.kv.util.KeyWatchTracker;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.Logger;
@@ -32,14 +34,15 @@ import org.slf4j.LoggerFactory;
  * The ACID semantics, as well as {@linkplain #getWaitTimeout wait timeouts} and {@linkplain #getHoldTimeout hold timeouts},
  * are provided by the {@link LockManager} class. If the wait timeout is exceeded, a {@link RetryTransactionException}
  * is thrown. If the hold timeout is exceeded, a {@link TransactionTimeoutException} is thrown.
- * </p>
  *
  * <p>
  * Instances wrap an underlying {@link KVStore} which provides persistence and from which committed data is read and written.
  * During a transaction, all mutations are recorded internally; if/when the transaction is committed, those mutations are
  * applied to the underlying {@link KVStore} all at once, and this operation is bracketed by calls to
  * {@link #preCommit preCommit()} and {@link #postCommit postCommit()}.
- * </p>
+ *
+ * <p>
+ * {@linkplain SimpleKVTransaction#watchKey Key watches} are supported.
  *
  * @see LockManager
  */
@@ -64,6 +67,7 @@ public class SimpleKVDatabase implements KVDatabase {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final LockManager lockManager = new LockManager(this);
+    private final KeyWatchTracker keyWatchTracker = new KeyWatchTracker();
 
     private long waitTimeout;
 
@@ -171,11 +175,18 @@ public class SimpleKVDatabase implements KVDatabase {
 
     @Override
     public void stop() {
+        this.keyWatchTracker.failAll(new Exception("database stopped"));
     }
 
     @Override
     public synchronized SimpleKVTransaction createTransaction() {
         return new SimpleKVTransaction(this, this.waitTimeout);
+    }
+
+// Key Watches
+
+    synchronized ListenableFuture<Void> watchKey(byte[] key) {
+        return this.keyWatchTracker.register(key);
     }
 
 // Subclass hooks
@@ -534,9 +545,17 @@ public class SimpleKVDatabase implements KVDatabase {
         this.preCommit(tx);
         boolean successful = false;
         try {
+
+            // Apply mutations
             for (Mutation mutation : tx.mutations)
                 mutation.apply(this.kv);
             successful = true;
+
+            // Trigger key watches
+            if (this.keyWatchTracker.getNumKeysWatched() > 0) {
+                for (Mutation mutation : tx.mutations)
+                    mutation.trigger(this.keyWatchTracker);
+            }
         } finally {
             tx.mutations.clear();
             this.postCommit(tx, successful);

@@ -35,20 +35,20 @@ import org.jsimpledb.kv.util.XMLSerializer;
  * not yet been created and the database will initially be empty. Alternately, you can configure a file containing
  * default initial content via {@link #setInitialContentFile setInitialContentFile()}, or override {@link #getInitialContent}
  * to create the initial content more dynamically.
- * </p>
  *
  * <p>
  * When a {@link FileStreamRepository} is used, instances support "out-of-band" updates of the XML file. In that case,
  * each time a transaction is accessed the modification timestamp of the XML file is examined. If the XML file has been
  * updated by some external process since the time the transaction was created, the database will be reloaded from
  * the XML file and the transaction will fail with a {@link RetryTransactionException}.
- * </p>
  *
  * <p>
  * Note that two different processes modifying the XML file at the same time is not without race conditions: e.g., it's possible
  * for an external process to update the XML file just as a transaction associated with this instance is being committed
  * and written to the file, which will result in overwriting the external process' changes.
- * </p>
+ *
+ * <p>
+ * {@linkplain XMLKVTransaction#watchKey Key watches} are supported.
  *
  * @see XMLSerializer
  * @see AtomicUpdateFileOutputStream

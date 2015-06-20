@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.mvcc;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
+import org.jsimpledb.kv.util.KeyWatchTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +36,13 @@ import org.slf4j.LoggerFactory;
  * snapshot was created, and any of those writes {@linkplain Reads#isConflict conflict} with any of the committing
  * transaction's reads, a {@link RetryTransactionException} is thrown. Otherwise, the transaction is committed and its
  * writes are applied.
- * </p>
  *
  * <p>
  * Each outstanding transaction's mutations are batched up in memory using a {@link Writes} instance. Therefore,
  * the transaction load supported by this class is limited to what can fit in memory.
- * </p>
+ *
+ * <p>
+ * {@linkplain SnapshotKVTransaction#watchKey Key watches} are supported.
  *
  * @see AtomicKVDatabase
  */
@@ -52,6 +55,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
     private final TreeMap<Long, SnapshotVersion> versionInfoMap = new TreeMap<>();
 
     private AtomicKVStore kvstore;
+    private KeyWatchTracker keyWatchTracker;
     private long currentVersion;
     private boolean started;
     private boolean stopping;
@@ -110,6 +114,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             return;
         Preconditions.checkState(this.kvstore != null, "no KVStore configured");
         this.kvstore.start();
+        this.keyWatchTracker = new KeyWatchTracker();
         this.started = true;
     }
 
@@ -132,6 +137,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         synchronized (this) {
             assert this.started;
             this.kvstore.stop();
+            this.keyWatchTracker.failAll(new Exception("database stopped"));
+            this.keyWatchTracker = null;
             this.stopping = false;
             this.started = false;
         }
@@ -162,6 +169,13 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
         // Done
         return tx;
+    }
+
+// Key Watches
+
+    synchronized ListenableFuture<Void> watchKey(byte[] key) {
+        Preconditions.checkState(this.started, "not started");
+        return this.keyWatchTracker.register(key);
     }
 
 // Object
@@ -322,6 +336,9 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         if (this.log.isDebugEnabled())
             this.log.debug("updating current version from " + this.currentVersion + " -> " + (this.currentVersion + 1));
         this.currentVersion++;
+
+        // Notify watches
+        this.keyWatchTracker.trigger(transactionWrites);
     }
 
     private void cleanupTransaction(SnapshotKVTransaction tx) {

@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.mvcc;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -109,6 +110,11 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     public synchronized void setTimeout(long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.timeout = timeout;
+    }
+
+    @Override
+    public ListenableFuture<Void> watchKey(byte[] key) {
+        return this.kvdb.watchKey(key);
     }
 
     @Override

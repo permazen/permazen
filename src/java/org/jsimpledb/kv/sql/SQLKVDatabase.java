@@ -23,6 +23,9 @@ import org.jsimpledb.kv.TransactionTimeoutException;
 
 /**
  * Support superclass for SQL {@link KVDatabase} implementations.
+ *
+ * <p>
+ * {@linkplain org.jsimpledb.kv.KVTransaction#watchKey Key watches} are not supported.
  */
 public class SQLKVDatabase implements KVDatabase {
 

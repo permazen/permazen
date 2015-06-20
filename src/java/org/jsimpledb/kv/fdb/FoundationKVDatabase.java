@@ -24,6 +24,7 @@ import org.jsimpledb.kv.KVDatabaseException;
  *
  * <p>
  * Allows specifying a {@linkplain #setKeyPrefix key prefix} for all keys, allowing multiple independent databases.
+ * {@linkplain FoundationKVTransaction#watchKey Key watches} are supported.
  * </p>
  */
 public class FoundationKVDatabase implements KVDatabase {

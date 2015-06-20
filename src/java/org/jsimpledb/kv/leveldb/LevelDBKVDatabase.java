@@ -14,6 +14,9 @@ import org.jsimpledb.kv.mvcc.SnapshotVersion;
 /**
  * {@link org.jsimpledb.kv.KVDatabase} implementation based on a {@link LevelDBAtomicKVStore}, providing concurrent transactions
  * and linearizable ACID semantics.
+ *
+ * <p>
+ * {@linkplain LevelDBKVTransaction#watchKey Key watches} are supported.
  */
 public class LevelDBKVDatabase extends SnapshotKVDatabase {
 

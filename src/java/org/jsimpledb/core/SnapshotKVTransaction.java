@@ -5,6 +5,8 @@
 
 package org.jsimpledb.core;
 
+import java.util.concurrent.Future;
+
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
@@ -42,6 +44,16 @@ class SnapshotKVTransaction extends NavigableMapKVStore implements KVTransaction
      */
     @Override
     public void setTimeout(long timeout) {
+        throw new UnsupportedOperationException("snapshot transaction");
+    }
+
+    /**
+     * Not supported by {@link SnapshotKVTransaction}.
+     *
+     * @throws UnsupportedOperationException always
+     */
+    @Override
+    public Future<Void> watchKey(byte[] key) {
         throw new UnsupportedOperationException("snapshot transaction");
     }
 

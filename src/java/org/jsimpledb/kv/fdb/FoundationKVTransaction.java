@@ -18,6 +18,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.primitives.Bytes;
 
 import java.util.Iterator;
+import java.util.concurrent.Future;
 
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
@@ -74,6 +75,18 @@ public class FoundationKVTransaction implements KVTransaction {
     public void setTimeout(long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.tx.options().setTimeout(timeout);
+    }
+
+    @Override
+    public Future<Void> watchKey(byte[] key) {
+        Preconditions.checkArgument(key != null, "null key");
+        if (this.stale)
+            throw new StaleTransactionException(this);
+        try {
+            return new FutureWrapper<Void>(this.tx.watch(this.addPrefix(key)));
+        } catch (FDBException e) {
+            throw this.wrapException(e);
+        }
     }
 
     @Override

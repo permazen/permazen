@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.util.KeyWatchTracker;
 
 /**
  * Represents an outstanding {@link SimpleKVTransaction} mutation.
@@ -27,6 +28,10 @@ abstract class Mutation extends KeyRange {
     }
 
     public abstract void apply(KVStore kv);
+
+    public boolean trigger(KeyWatchTracker keyWatchTracker) {
+        return keyWatchTracker.trigger(this);
+    }
 
     public static Mutation key(byte[] value) {
         return new Mutation(value) {

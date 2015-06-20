@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.raft;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -61,6 +62,7 @@ import org.jsimpledb.kv.raft.msg.PingResponse;
 import org.jsimpledb.kv.raft.msg.RequestVote;
 import org.jsimpledb.kv.raft.net.Network;
 import org.jsimpledb.kv.raft.net.TCPNetwork;
+import org.jsimpledb.kv.util.KeyWatchTracker;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.LongEncoder;
 import org.jsimpledb.util.ThrowableUtil;
@@ -221,6 +223,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * This behavior is optional, though enabled by default (see {@link #setFollowerProbingEnabled setFollowerProbingEnabled()});
  *
+ * <p><b>Key Watches</b></p>
+ *
+ * <p>
+ * {@linkplain RaftKVTransaction#watchKey Key watches} are supported.
+ *
  * @see <a href="https://raftconsensus.github.io/">The Raft Consensus Algorithm</a>
  */
 public class RaftKVDatabase implements KVDatabase {
@@ -315,6 +322,7 @@ public class RaftKVDatabase implements KVDatabase {
     int clusterId;                                                      // cluster ID (zero if unconfigured - usually)
     long currentTerm;                                                   // current Raft term (zero if unconfigured)
     long commitIndex;                                                   // current Raft commit index (zero if unconfigured)
+    long keyWatchIndex;                                                 // index of last log entry that triggered key watches
     long lastAppliedTerm;                                               // key/value store last applied term (zero if unconfigured)
     long lastAppliedIndex;                                              // key/value store last applied index (zero if unconfigured)
     final ArrayList<LogEntry> raftLog = new ArrayList<>();              // unapplied log entries (empty if unconfigured)
@@ -329,6 +337,7 @@ public class RaftKVDatabase implements KVDatabase {
     final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
     final HashMap<Long, RaftKVTransaction> openTransactions = new HashMap<>();
     final LinkedHashSet<Service> pendingService = new LinkedHashSet<>();
+    final KeyWatchTracker keyWatchTracker = new KeyWatchTracker();
     boolean performingService;
     boolean shuttingDown;                                               // prevents new transactions from being created
 
@@ -850,8 +859,9 @@ public class RaftKVDatabase implements KVDatabase {
             if (this.discardFlipFloppedStateMachine() && this.log.isDebugEnabled())
                 this.debug("detected partially applied snapshot install, discarding");
 
-            // Initialize commit index
+            // Initialize commit index and key watch index
             this.commitIndex = this.lastAppliedIndex;
+            this.keyWatchIndex = this.commitIndex;
 
             // Reload outstanding log entries from disk
             this.loadLog();
@@ -993,11 +1003,13 @@ public class RaftKVDatabase implements KVDatabase {
         this.network.stop();
         this.currentTerm = 0;
         this.commitIndex = 0;
+        this.keyWatchIndex = 0;
         this.clusterId = 0;
         this.lastAppliedTerm = 0;
         this.lastAppliedIndex = 0;
         this.lastAppliedConfig = null;
         this.currentConfig = null;
+        this.keyWatchTracker.failAll(new Exception("database stopped"));
         this.transmitting.clear();
         this.pendingService.clear();
         this.shuttingDown = false;
@@ -1090,6 +1102,13 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Done
         return config;
+    }
+
+// Key Watches
+
+    synchronized ListenableFuture<Void> watchKey(byte[] key) {
+        Preconditions.checkState(this.role != null, "not started");
+        return this.keyWatchTracker.register(key);
     }
 
 // Transactions
@@ -1405,6 +1424,9 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Discard the flip-flopped state machine
         this.discardFlipFloppedStateMachine();
+
+        // Trigger key watches
+        this.requestService(this.role.triggerKeyWatchesService);
 
         // Done
         return true;
@@ -1934,6 +1956,7 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.raftLog.isEmpty();
             assert this.logDirChannel == null;
             assert this.serviceExecutor == null;
+            assert this.keyWatchTracker.getNumKeysWatched() == 0;
             assert this.transmitting.isEmpty();
             assert this.openTransactions.isEmpty();
             assert this.pendingService.isEmpty();
@@ -1958,6 +1981,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.currentTerm >= this.lastAppliedTerm;
         assert this.commitIndex >= this.lastAppliedIndex;
         assert this.commitIndex <= this.lastAppliedIndex + this.raftLog.size();
+        assert this.keyWatchIndex <= this.commitIndex;
         long index = this.lastAppliedIndex;
         long term = this.lastAppliedTerm;
         for (LogEntry logEntry : this.raftLog) {

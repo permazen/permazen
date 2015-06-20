@@ -17,6 +17,7 @@ import com.sleepycat.je.Transaction;
 import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.jsimpledb.kv.AbstractKVStore;
@@ -78,6 +79,22 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
     public void setTimeout(long timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
         this.tx.setLockTimeout(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Watch a key to monitor for changes in its value.
+     *
+     * <p>
+     * Oracle Berkeley DB Java Edition does not support key watches;
+     * the implementation in {@link BerkeleyKVDatabase} always throws {@link UnsupportedOperationException}.
+     *
+     * @param key {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws UnsupportedOperationException always
+     */
+    @Override
+    public Future<Void> watchKey(byte[] key) {
+        throw new UnsupportedOperationException();
     }
 
 // KVStore

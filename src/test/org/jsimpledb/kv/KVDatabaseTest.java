@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
@@ -398,6 +399,111 @@ public class KVDatabaseTest extends TestSupport {
             // expected
         }
         this.log.info("finished testSimpleStuff() on " + store);
+    }
+
+    @Test(dataProvider = "kvdbs")
+    public void testKeyWatch(KVDatabase store) throws Exception {
+
+        // Debug
+        this.log.info("starting testKeyWatch() on " + store);
+
+        // Clear database
+        this.log.info("testKeyWatch() on " + store + ": clearing database");
+        this.try3times(store, new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(null, null);
+                return null;
+            }
+        });
+        this.log.info("testKeyWatch() on " + store + ": done clearing database");
+
+        // Set up the modifications we want to test
+        final ArrayList<Transactional<Void>> mods = new ArrayList<>();
+        mods.add(new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.put(b("0123"), b("4567"));
+                return null;
+            }
+        });
+        mods.add(new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.put(b("0123"), b("89ab"));
+                return null;
+            }
+        });
+        mods.add(new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.put(b("0123"), tx.encodeCounter(1234));
+                return null;
+            }
+        });
+        mods.add(new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.adjustCounter(b("0123"), 99);
+                return null;
+            }
+        });
+        mods.add(new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.removeRange(b("01"), b("02"));
+                return null;
+            }
+        });
+        mods.add(new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.put(b("0123"), b(""));
+                return null;
+            }
+        });
+        mods.add(new Transactional<Void>() {
+            @Override
+            public Void transact(KVTransaction tx) {
+                tx.remove(b("0123"));
+                return null;
+            }
+        });
+
+        // Set watches, perform modifications, and test notifications
+        for (Transactional<Void> mod : mods) {
+
+            // Set watch
+            this.log.info("testKeyWatch() on " + store + ": creating key watch for " + mod);
+            final Future<Void> watch = this.try3times(store, new Transactional<Future<Void>>() {
+                @Override
+                public Future<Void> transact(KVTransaction tx) {
+                    try {
+                        return tx.watchKey(b("0123"));
+                    } catch (UnsupportedOperationException e) {
+                        return null;
+                    }
+                }
+            });
+            if (watch == null) {
+                this.log.info("testKeyWatch() on " + store + ": key watches not supported, bailing out");
+                return;
+            }
+            this.log.info("testKeyWatch() on " + store + ": created key watch: " + watch);
+
+            // Perform modification
+            this.log.info("testKeyWatch() on " + store + ": testing " + mod);
+            this.try3times(store, mod);
+
+            // Get notification
+            this.log.info("testKeyWatch() on " + store + ": waiting for notification");
+            final long start = System.nanoTime();
+            watch.get(1, TimeUnit.SECONDS);
+            this.log.info("testKeyWatch() on " + store + ": got notification in " + ((System.nanoTime() - start) / 1000000) + "ms");
+        }
+
+        // Done
+        this.log.info("finished testKeyWatch() on " + store);
     }
 
     @Test(dataProvider = "kvdbs")
