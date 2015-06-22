@@ -185,7 +185,8 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
  model classes, these property values may derive from other objects related to the backing instance. In order for these
  methods to work on the in-memory instance, the related objects must be copied into memory as well. The
  <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a> method allows the subclass to specify what other database objects
- some Vaadin property depends on.
+ some Vaadin property depends on. Alternately, the subclass may override <a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyOut(org.jsimpledb.JObject, org.jsimpledb.CopyState)"><code>copyOut()</code></a> to take complete control
+ of how objects are copied into memory.
  </p>
 
  <p><b>Updating Items</b></p>
@@ -229,8 +230,7 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
  Secondly, because the values of reference fields (including complex sub-fields) are displayed using reference labels,
  and these are typically derived from the referenced object's fields, those indirectly referenced objects need to be
  copied into the container's <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> as well. The easiest way to ensure these indirectly
- referenced objects are copied is by overriding <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a> as described above. Alternately,
- the subclass may override <a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyOut(org.jsimpledb.JObject, org.jsimpledb.CopyState)"><code>copyOut()</code></a> to take complete control of copying objects into memory.
+ referenced objects are copied is by overriding <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a> as described above.
  </p></div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../serialized-form.html#org.jsimpledb.gui.JObjectContainer">Serialized Form</a></dd></dl>
 </li>
@@ -413,7 +413,7 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)">getDependencies</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</code>
 <div class="block">Find objects related to the specified object that are needed by any
  <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated
- methods into the current <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.</div>
+ methods.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -804,7 +804,7 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
 <ul class="blockList">
 <li class="blockList">
 <h4>copyOut</h4>
-<pre>protected&nbsp;<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.482">copyOut</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
+<pre>protected&nbsp;<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.483">copyOut</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
               <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</pre>
 <div class="block">Copy the given database object, and any related objects needed by any
  <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods,
@@ -816,7 +816,7 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>target</code> - the object to copy, or null (ignored)</dd><dd><code>copyState</code> - tracks what's already been copied</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the copy of <code>target</code> in the current <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>,
-  or null if <code>target</code> is null</dd></dl>
+  or null if <code>target</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a></dd></dl>
 </li>
 </ul>
 <a name="getDependencies(org.jsimpledb.JObject)">
@@ -825,21 +825,24 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
 <ul class="blockList">
 <li class="blockList">
 <h4>getDependencies</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.530">getDependencies</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.535">getDependencies</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
 <div class="block">Find objects related to the specified object that are needed by any
  <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated
- methods into the current <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>. This effectively defines
- all of the other objects on which any container property of <code>jobj</code> may depend.
+ methods.
+
+ <p>
+ This defines all of the other objects on which any container property of <code>jobj</code> may depend.
+ These related objects will copied along with <code>obj</code> into the container's
+ <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> when the container is (re)loaded.
 
  <p>
  The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> returns all objects that are directly referenced by <code>jobj</code>,
  delegating to <a href="../../../org/jsimpledb/JSimpleDB.html#getReferencedObjects(org.jsimpledb.JObject)"><code>JSimpleDB.getReferencedObjects()</code></a>.
- Subclasses may override this method to refine the selection.
- </p></div>
+ Subclasses may override this method to refine the selection.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jobj</code> - the object being copied</dd>
 <dt><span class="strong">Returns:</span></dt><dd><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang"><code>Iterable</code></a> of additional objects to be copied, or null for none; any null values are ignored</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>jobj</code> is null</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>jobj</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyOut(org.jsimpledb.JObject, org.jsimpledb.CopyState)"><code>copyOut()</code></a></dd></dl>
 </li>
 </ul>
 <a name="doInTransaction(java.lang.Runnable)">
@@ -848,7 +851,7 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
 <ul class="blockList">
 <li class="blockList">
 <h4>doInTransaction</h4>
-<pre>protected abstract&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.539">doInTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
+<pre>protected abstract&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.544">doInTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
 <div class="block">Perform the given action within a <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - the action to perform</dd></dl>
 </li>
@@ -859,7 +862,7 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
 <ul class="blockList">
 <li class="blockList">
 <h4>queryForObjects</h4>
-<pre>protected abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.551">queryForObjects</a>()</pre>
+<pre>protected abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.556">queryForObjects</a>()</pre>
 <div class="block">Query for the database objects that will be used to fill this container. Objects should be returned in the
  desired order; any duplicates will be ignored.
 
@@ -875,7 +878,7 @@ extends <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getPropertyValue</h4>
-<pre>public&nbsp;&lt;V&gt;&nbsp;V&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.585">getPropertyValue</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
+<pre>public&nbsp;&lt;V&gt;&nbsp;V&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.590">getPropertyValue</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
                      <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/org/dellroad/stuff/vaadin7/PropertyDef.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">PropertyDef</a>&lt;V&gt;&nbsp;propertyDef)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>

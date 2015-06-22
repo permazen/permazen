@@ -108,7 +108,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.22">PrefixKVTransaction</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.25">PrefixKVTransaction</a>
 extends <a href="../../../../org/jsimpledb/kv/util/PrefixKVStore.html" title="class in org.jsimpledb.kv.util">PrefixKVStore</a>
 implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></pre>
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> view of all keys having a common <code>byte[]</code> prefix in a containing <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>.
@@ -187,6 +187,12 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <div class="block">Change the timeout for this transaction from its default value (optional operation).</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#watchKey(byte[])">watchKey</a></strong>(byte[]&nbsp;key)</code>
+<div class="block">Watch a key to monitor for changes in its value.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.kv.util.PrefixKVStore">
@@ -236,7 +242,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PrefixKVTransaction</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.36">PrefixKVTransaction</a>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;tx,
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.39">PrefixKVTransaction</a>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;tx,
                    byte[]&nbsp;keyPrefix)</pre>
 <div class="block">Constructor that wraps an existing <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>. There will be no associated <a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util"><code>PrefixKVDatabase</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - the containing <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a></dd><dd><code>keyPrefix</code> - prefix for all keys</dd>
@@ -258,7 +264,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>delegate</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.60">delegate</a>()</pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.63">delegate</a>()</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/util/ForwardingKVStore.html#delegate()">ForwardingKVStore</a></code></strong></div>
 <div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 <dl>
@@ -273,7 +279,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util">PrefixKVDatabase</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.72">getKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util">PrefixKVDatabase</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.75">getKVDatabase</a>()</pre>
 <div class="block">Get the <a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util"><code>PrefixKVDatabase</code></a> associated with this instance.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
@@ -289,7 +295,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>setTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.79">setTimeout</a>(long&nbsp;timeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.82">setTimeout</a>(long&nbsp;timeout)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#setTimeout(long)">KVTransaction</a></code></strong></div>
 <div class="block">Change the timeout for this transaction from its default value (optional operation).</div>
 <dl>
@@ -298,13 +304,57 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <dt><span class="strong">Parameters:</span></dt><dd><code>timeout</code> - transaction timeout in milliseconds, or zero for unlimited</dd></dl>
 </li>
 </ul>
+<a name="watchKey(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>watchKey</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.87">watchKey</a>(byte[]&nbsp;key)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#watchKey(byte[])">KVTransaction</a></code></strong></div>
+<div class="block">Watch a key to monitor for changes in its value.
+
+ <p>
+ When this method is invoked, <code>key</code>'s current value (if any) as read by this transaction is remembered. The returned
+ <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a> completes if and when a different value for <code>key</code> is subsequently committed by some transaction,
+ including possibly this one.
+
+ <p>
+ Key watches outlive the transaction in which they are created, persisting until they complete or are
+ <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true#cancel(boolean)" title="class or interface in java.util.concurrent"><code>cancel()</code></a>'ed. When a <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> is <a href="../../../../org/jsimpledb/kv/KVDatabase.html#stop()"><code>KVDatabase.stop()</code></a>'ed, all outstanding
+ key watches are implicitly <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true#cancel(boolean)" title="class or interface in java.util.concurrent"><code>cancel()</code></a>'ed.
+
+ <p><b>Caveats</b></p>
+
+ <p>
+ Key watches are not without overhead; applications should avoid overuse. For example, consider creating a
+ single key that is used to consolidate modifications to a set of keys.
+
+ <p>
+ Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
+ and reads the key's value (the actual implementation will likely be more efficient). This means a change that is
+ quickly reverted could be missed, and that multiple changes could occur before notification. In addition, spurious
+ notifications may occur, where the key's value has not changed.
+
+ <p>
+ A key watch is only guaranteed to be valid if the transaction in which it was created successfully commits.
+
+ <p>
+ Key watch support is optional; instances that don't support key watches throw <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#watchKey(byte[])">watchKey</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - the key to watch</dd>
+<dt><span class="strong">Returns:</span></dt><dd>a <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a> that returns <code>key</code> when the value associated with <code>key</code> is modified</dd></dl>
+</li>
+</ul>
 <a name="commit()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.84">commit</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.93">commit</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()">KVTransaction</a></code></strong></div>
 <div class="block">Commit this transaction.
 
@@ -325,7 +375,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockListLast">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.89">rollback</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.98">rollback</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()">KVTransaction</a></code></strong></div>
 <div class="block">Cancel this transaction.
 

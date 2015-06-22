@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.util;<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Utility methods dealing with {@link Throwable}s.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>public final class ThrowableUtil {<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>    private ThrowableUtil() {<a name="line.15"></a>
+<span class="sourceLineNo">016</span>    }<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>    /**<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     * Mask a checked exception and throw it as an unchecked exception.<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     *<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * @param t any exception<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     * @param &lt;T&gt; unchecked exception type<a name="line.22"></a>
+<span class="sourceLineNo">023</span>     * @return never<a name="line.23"></a>
+<span class="sourceLineNo">024</span>     * @throws T always<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    @SuppressWarnings("unchecked")<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    public static &lt;T extends Throwable&gt; T maskException(Throwable t) throws T {<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        throw (T)t;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>    }<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>    /**<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * Prepend stack frames from the current thread onto the given exception's stack frames.<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     *<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * &lt;p&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * This is used to re-throw an exception created in another thread without losing the stack frame information<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * associated with the current thread.<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     *<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * @param t exception from another thread<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * @throws IllegalArgumentException if {@code t} is null<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    public static void prependCurrentStackTrace(Throwable t) {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        Preconditions.checkArgument(t != null, "null t");<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        final StackTraceElement[] innerFrames = t.getStackTrace();<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        final StackTraceElement[] outerFrames = new Throwable().getStackTrace();<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        final StackTraceElement[] frames = new StackTraceElement[innerFrames.length + Math.max(outerFrames.length, 0)];<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        System.arraycopy(innerFrames, 0, frames, 0, innerFrames.length);<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        for (int i = 0; i &lt; outerFrames.length; i++)<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            frames[innerFrames.length + i] = outerFrames[i];<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        t.setStackTrace(frames);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
+<span class="sourceLineNo">051</span>}<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

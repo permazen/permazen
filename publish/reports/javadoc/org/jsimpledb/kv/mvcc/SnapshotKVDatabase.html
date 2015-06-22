@@ -102,7 +102,7 @@
 </dl>
 <hr>
 <br>
-<pre>public abstract class <a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.47">SnapshotKVDatabase</a>
+<pre>public abstract class <a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.49">SnapshotKVDatabase</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></pre>
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on an underlying <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> that uses
@@ -116,12 +116,13 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  snapshot was created, and any of those writes <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#isConflict(org.jsimpledb.kv.mvcc.Mutations)">conflict</a> with any of the committing
  transaction's reads, a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a> is thrown. Otherwise, the transaction is committed and its
  writes are applied.
- </p>
 
  <p>
  Each outstanding transaction's mutations are batched up in memory using a <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> instance. Therefore,
  the transaction load supported by this class is limited to what can fit in memory.
- </p></div>
+
+ <p>
+ <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html#watchKey(byte[])">Key watches</a> are supported.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>AtomicKVDatabase</code></a></dd></dl>
 </li>
 </ul>
@@ -271,7 +272,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>log</h4>
-<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.51">log</a></pre>
+<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.53">log</a></pre>
 </li>
 </ul>
 </li>
@@ -288,7 +289,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>SnapshotKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.68">SnapshotKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.71">SnapshotKVDatabase</a>()</pre>
 <div class="block">Default constructor.
 
  <p>
@@ -301,7 +302,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SnapshotKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.76">SnapshotKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.79">SnapshotKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvstore</code> - underlying key/value store</dd></dl>
 </li>
@@ -320,7 +321,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getKVStore</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.87">getKVStore</a>()</pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.90">getKVStore</a>()</pre>
 <div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>underlying key/value store</dd></dl>
 </li>
@@ -331,7 +332,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setKVStore</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.100">setKVStore</a>(<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.103">setKVStore</a>(<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</pre>
 <div class="block">Configure the underlying <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a>.
 
  <p>
@@ -348,7 +349,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <li class="blockList">
 <h4>start</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PostConstruct.html?is-external=true" title="class or interface in javax.annotation">@PostConstruct</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.109">start</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.112">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#start()">KVDatabase</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -370,7 +371,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Snapsh
 <li class="blockList">
 <h4>stop</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PreDestroy.html?is-external=true" title="class or interface in javax.annotation">@PreDestroy</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.119">stop</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.123">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#stop()">KVDatabase</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -388,7 +389,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Snapsh
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.147">createTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.153">createTransaction</a>()</pre>
 <div class="block">Create a new transaction.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
@@ -404,7 +405,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Snapsh
 <ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.171">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.184">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -417,7 +418,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Snapsh
 <ul class="blockList">
 <li class="blockList">
 <h4>createSnapshotKVTransaction</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.193">createSnapshotKVTransaction</a>(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotVersion.html" title="class in org.jsimpledb.kv.mvcc">SnapshotVersion</a>&nbsp;versionInfo)</pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.206">createSnapshotKVTransaction</a>(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotVersion.html" title="class in org.jsimpledb.kv.mvcc">SnapshotVersion</a>&nbsp;versionInfo)</pre>
 <div class="block">Instantiate a new <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVTransaction</code></a> instance.
 
  <p>
@@ -436,7 +437,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Snapsh
 <ul class="blockList">
 <li class="blockList">
 <h4>closeTransactions</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.204">closeTransactions</a>()</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.217">closeTransactions</a>()</pre>
 <div class="block">Forcibly close all outstanding transactions.
 
  <p>
@@ -450,7 +451,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Snapsh
 <ul class="blockList">
 <li class="blockList">
 <h4>logException</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.229">logException</a>(<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;e)</pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.242">logException</a>(<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;e)</pre>
 <div class="block">Log specified exception. Used to ensure exceptions are logged at the point they are thrown.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>e</code> - exception to log</dd>
 <dt><span class="strong">Returns:</span></dt><dd>e</dd></dl>
@@ -462,7 +463,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Snapsh
 <ul class="blockListLast">
 <li class="blockList">
 <h4>wrapException</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.245">wrapException</a>(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>&nbsp;tx,
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#line.258">wrapException</a>(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>&nbsp;tx,
                              <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang">RuntimeException</a>&nbsp;e)</pre>
 <div class="block">Wrap a <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang"><code>RuntimeException</code></a> as needed.
 

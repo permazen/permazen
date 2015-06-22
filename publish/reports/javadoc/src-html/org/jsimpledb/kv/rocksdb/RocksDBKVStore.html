@@ -46,7 +46,7 @@
 <span class="sourceLineNo">038</span>    private final WriteBatch writeBatch;<a name="line.38"></a>
 <span class="sourceLineNo">039</span>    private final RocksDB db;<a name="line.39"></a>
 <span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    private boolean closed;<a name="line.41"></a>
+<span class="sourceLineNo">041</span>    private volatile boolean closed;<a name="line.41"></a>
 <span class="sourceLineNo">042</span><a name="line.42"></a>
 <span class="sourceLineNo">043</span>// Constructors<a name="line.43"></a>
 <span class="sourceLineNo">044</span><a name="line.44"></a>
@@ -266,7 +266,7 @@
 <span class="sourceLineNo">258</span>        private KVPair next;<a name="line.258"></a>
 <span class="sourceLineNo">259</span>        private byte[] removeKey;<a name="line.259"></a>
 <span class="sourceLineNo">260</span>        private boolean finished;<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        private volatile boolean closed;<a name="line.261"></a>
+<span class="sourceLineNo">261</span>        private boolean closed;<a name="line.261"></a>
 <span class="sourceLineNo">262</span><a name="line.262"></a>
 <span class="sourceLineNo">263</span>        private Iterator(final RocksIterator cursor, byte[] minKey, byte[] maxKey, boolean reverse) {<a name="line.263"></a>
 <span class="sourceLineNo">264</span><a name="line.264"></a>

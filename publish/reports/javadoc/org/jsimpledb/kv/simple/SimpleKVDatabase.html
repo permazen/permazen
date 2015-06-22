@@ -102,7 +102,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.46">SimpleKVDatabase</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.49">SimpleKVDatabase</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></pre>
 <div class="block">Simple implementation of the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface that provides a concurrent, transactional view
@@ -112,14 +112,15 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  The ACID semantics, as well as <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#getWaitTimeout()">wait timeouts</a> and <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#getHoldTimeout()">hold timeouts</a>,
  are provided by the <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html" title="class in org.jsimpledb.kv.mvcc"><code>LockManager</code></a> class. If the wait timeout is exceeded, a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
  is thrown. If the hold timeout is exceeded, a <a href="../../../../org/jsimpledb/kv/TransactionTimeoutException.html" title="class in org.jsimpledb.kv"><code>TransactionTimeoutException</code></a> is thrown.
- </p>
 
  <p>
  Instances wrap an underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> which provides persistence and from which committed data is read and written.
  During a transaction, all mutations are recorded internally; if/when the transaction is committed, those mutations are
  applied to the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> all at once, and this operation is bracketed by calls to
  <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#preCommit(org.jsimpledb.kv.simple.SimpleKVTransaction)"><code>preCommit()</code></a> and <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#postCommit(org.jsimpledb.kv.simple.SimpleKVTransaction, boolean)"><code>postCommit()</code></a>.
- </p></div>
+
+ <p>
+ <a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html#watchKey(byte[])">Key watches</a> are supported.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html" title="class in org.jsimpledb.kv.mvcc"><code>LockManager</code></a></dd></dl>
 </li>
 </ul>
@@ -303,7 +304,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_WAIT_TIMEOUT</h4>
-<pre>public static final&nbsp;long <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.52">DEFAULT_WAIT_TIMEOUT</a></pre>
+<pre>public static final&nbsp;long <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.55">DEFAULT_WAIT_TIMEOUT</a></pre>
 <div class="block">Default <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#getWaitTimeout()">wait timeout</a> for newly created transactions in milliseconds
  (500L).</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.simple.SimpleKVDatabase.DEFAULT_WAIT_TIMEOUT">Constant Field Values</a></dd></dl>
@@ -315,7 +316,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_HOLD_TIMEOUT</h4>
-<pre>public static final&nbsp;long <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.57">DEFAULT_HOLD_TIMEOUT</a></pre>
+<pre>public static final&nbsp;long <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.60">DEFAULT_HOLD_TIMEOUT</a></pre>
 <div class="block">Default <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#getHoldTimeout()">hold timeout</a> in milliseconds (5000L).</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.simple.SimpleKVDatabase.DEFAULT_HOLD_TIMEOUT">Constant Field Values</a></dd></dl>
 </li>
@@ -326,7 +327,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>kv</h4>
-<pre>protected final&nbsp;<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a> <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.62">kv</a></pre>
+<pre>protected final&nbsp;<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a> <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.65">kv</a></pre>
 <div class="block">The <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> for the committed data.</div>
 </li>
 </ul>
@@ -336,7 +337,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>log</h4>
-<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.64">log</a></pre>
+<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.67">log</a></pre>
 </li>
 </ul>
 </li>
@@ -353,7 +354,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.73">SimpleKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.77">SimpleKVDatabase</a>()</pre>
 <div class="block">Constructor. Uses an internal in-memory <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> and the default wait and hold timeouts.</div>
 </li>
 </ul>
@@ -363,7 +364,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.82">SimpleKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kv)</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.86">SimpleKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kv)</pre>
 <div class="block">Constructor taking caller-supplied storage. Will use the default wait and hold timeouts.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kv</code> - <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> for the committed data, or null for an in-memory <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a></dd></dl>
 </li>
@@ -374,7 +375,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.95">SimpleKVDatabase</a>(long&nbsp;waitTimeout,
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.99">SimpleKVDatabase</a>(long&nbsp;waitTimeout,
                 long&nbsp;holdTimeout)</pre>
 <div class="block">Constructor taking timeout settings. Uses an internal in-memory <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
@@ -390,7 +391,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SimpleKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.109">SimpleKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kv,
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.113">SimpleKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kv,
                 long&nbsp;waitTimeout,
                 long&nbsp;holdTimeout)</pre>
 <div class="block">Primary constructor.</div>
@@ -415,7 +416,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getWaitTimeout</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.125">getWaitTimeout</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.129">getWaitTimeout</a>()</pre>
 <div class="block">Get the wait timeout for newly created transactions.
 
  <p>
@@ -431,7 +432,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setWaitTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.136">setWaitTimeout</a>(long&nbsp;waitTimeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.140">setWaitTimeout</a>(long&nbsp;waitTimeout)</pre>
 <div class="block">Set the wait timeout for newly created transactions. Default is <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#DEFAULT_WAIT_TIMEOUT"><code>DEFAULT_WAIT_TIMEOUT</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
   in milliseconds (default), or zero for unlimited</dd>
@@ -445,7 +446,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getHoldTimeout</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.151">getHoldTimeout</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.155">getHoldTimeout</a>()</pre>
 <div class="block">Get the hold timeout configured for this instance.
 
  <p>
@@ -461,7 +462,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setHoldTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.162">setHoldTimeout</a>(long&nbsp;holdTimeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.166">setHoldTimeout</a>(long&nbsp;holdTimeout)</pre>
 <div class="block">Set the hold timeout for this instance. Default is <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#DEFAULT_HOLD_TIMEOUT"><code>DEFAULT_HOLD_TIMEOUT</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
@@ -475,7 +476,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.169">start</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.173">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#start()">KVDatabase</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -496,7 +497,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.173">stop</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.177">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#stop()">KVDatabase</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -514,7 +515,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.177">createTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.182">createTransaction</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">KVDatabase</a></code></strong></div>
 <div class="block">Create a new transaction.</div>
 <dl>
@@ -529,7 +530,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>preCommit</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.198">preCommit</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.209">preCommit</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</pre>
 <div class="block">Invoked during transaction commit just prior to writing changes to the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.
 
  <p>
@@ -551,7 +552,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>postCommit</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.222">postCommit</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx,
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.233">postCommit</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx,
               boolean&nbsp;successful)</pre>
 <div class="block">Invoked during transaction commit just after writing changes to the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.
 
@@ -578,7 +579,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>checkState</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.244">checkState</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.255">checkState</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</pre>
 <div class="block">Verify that the given transaction is still usable.
 
  <p>

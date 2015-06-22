@@ -36,7 +36,7 @@
 <span class="sourceLineNo">028</span><a name="line.28"></a>
 <span class="sourceLineNo">029</span>    private final String identity;                      // follower's unique identity<a name="line.29"></a>
 <span class="sourceLineNo">030</span>    private final String address;                       // follower's network address<a name="line.30"></a>
-<span class="sourceLineNo">031</span>    private RaftKVDatabase.Timer updateTimer;           // heartbeat/update timer<a name="line.31"></a>
+<span class="sourceLineNo">031</span>    private Timer updateTimer;                          // heartbeat/update timer<a name="line.31"></a>
 <span class="sourceLineNo">032</span><a name="line.32"></a>
 <span class="sourceLineNo">033</span>    // Used to avoid sending data for log entry back to the follower if the follower, as the originator, already has the data<a name="line.33"></a>
 <span class="sourceLineNo">034</span>    private final HashSet&lt;LogEntry&gt; skipDataLogEntries = new HashSet&lt;&gt;();<a name="line.34"></a>
@@ -173,10 +173,10 @@
 <span class="sourceLineNo">165</span>        return this.commitLeaseTimeouts;<a name="line.165"></a>
 <span class="sourceLineNo">166</span>    }<a name="line.166"></a>
 <span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>    RaftKVDatabase.Timer getUpdateTimer() {<a name="line.168"></a>
+<span class="sourceLineNo">168</span>    Timer getUpdateTimer() {<a name="line.168"></a>
 <span class="sourceLineNo">169</span>        return this.updateTimer;<a name="line.169"></a>
 <span class="sourceLineNo">170</span>    }<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    void setUpdateTimer(RaftKVDatabase.Timer updateTimer) {<a name="line.171"></a>
+<span class="sourceLineNo">171</span>    void setUpdateTimer(Timer updateTimer) {<a name="line.171"></a>
 <span class="sourceLineNo">172</span>        this.updateTimer = updateTimer;<a name="line.172"></a>
 <span class="sourceLineNo">173</span>    }<a name="line.173"></a>
 <span class="sourceLineNo">174</span><a name="line.174"></a>

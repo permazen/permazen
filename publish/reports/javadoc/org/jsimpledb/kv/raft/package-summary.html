@@ -78,15 +78,40 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/CandidateRole.html" title="class in org.jsimpledb.kv.raft">CandidateRole</a></td>
+<td class="colLast">
+<div class="block">Raft candidate role.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft">Follower</a></td>
 <td class="colLast">
 <div class="block">Contains information maintained by leaders about followers.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/FollowerRole.html" title="class in org.jsimpledb.kv.raft">FollowerRole</a></td>
+<td class="colLast">
+<div class="block">Raft follower role.</div>
+</td>
+</tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/LeaderRole.html" title="class in org.jsimpledb.kv.raft">LeaderRole</a></td>
+<td class="colLast">
+<div class="block">Raft leader role.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft">LogEntry</a></td>
 <td class="colLast">
 <div class="block">Represents one unapplied Raft log entry.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/NonLeaderRole.html" title="class in org.jsimpledb.kv.raft">NonLeaderRole</a></td>
+<td class="colLast">
+<div class="block">Support superclass for the <a href="../../../../org/jsimpledb/kv/raft/FollowerRole.html" title="class in org.jsimpledb.kv.raft">follower</a> and <a href="../../../../org/jsimpledb/kv/raft/CandidateRole.html" title="class in org.jsimpledb.kv.raft">candidate</a> roles,
+ both of which have an election timer.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -96,41 +121,16 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.CandidateRole</a></td>
-<td class="colLast">
-<div class="block">Raft candidate role.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.FollowerRole</a></td>
-<td class="colLast">
-<div class="block">Raft follower role.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.LeaderRole</a></td>
-<td class="colLast">
-<div class="block">Raft leader role.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.NonLeaderRole</a></td>
-<td class="colLast">
-<div class="block">Support superclass for the <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft">follower</a> and <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html" title="class in org.jsimpledb.kv.raft">candidate</a> roles,
- both of which have an election timer.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.Role</a></td>
-<td class="colLast">
-<div class="block">Common superclass for the three roles played by a Raft node:
- <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html" title="class in org.jsimpledb.kv.raft">leader</a>, <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft">follower</a>, and <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html" title="class in org.jsimpledb.kv.raft">candidate</a>.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a></td>
+<td class="colLast">
+<div class="block">Common superclass for the three roles played by a Raft node:
+ <a href="../../../../org/jsimpledb/kv/raft/LeaderRole.html" title="class in org.jsimpledb.kv.raft">leader</a>, <a href="../../../../org/jsimpledb/kv/raft/FollowerRole.html" title="class in org.jsimpledb.kv.raft">follower</a>, and <a href="../../../../org/jsimpledb/kv/raft/CandidateRole.html" title="class in org.jsimpledb.kv.raft">candidate</a>.</div>
 </td>
 </tr>
 <tr class="rowColor">

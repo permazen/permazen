@@ -2,13 +2,13 @@
 <!-- NewPage -->
 <html lang="en">
 <head>
-<title>RaftKVDatabase.CandidateRole (Java Class Library API)</title>
+<title>LeaderRole (Java Class Library API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="RaftKVDatabase.CandidateRole (Java Class Library API)";
+        parent.document.title="LeaderRole (Java Class Library API)";
     }
 //-->
 </script>
@@ -25,7 +25,7 @@
 <li><a href="../../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
-<li><a href="class-use/RaftKVDatabase.CandidateRole.html">Use</a></li>
+<li><a href="class-use/LeaderRole.html">Use</a></li>
 <li><a href="package-tree.html">Tree</a></li>
 <li><a href="../../../../deprecated-list.html">Deprecated</a></li>
 <li><a href="../../../../index-all.html">Index</a></li>
@@ -34,12 +34,12 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/FollowerRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
-<li><a href="../../../../index.html?org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html" target="_top">Frames</a></li>
-<li><a href="RaftKVDatabase.CandidateRole.html" target="_top">No Frames</a></li>
+<li><a href="../../../../index.html?org/jsimpledb/kv/raft/LeaderRole.html" target="_top">Frames</a></li>
+<li><a href="LeaderRole.html" target="_top">No Frames</a></li>
 </ul>
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
@@ -78,22 +78,17 @@
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">org.jsimpledb.kv.raft</div>
-<h2 title="Class RaftKVDatabase.CandidateRole" class="title">Class RaftKVDatabase.CandidateRole</h2>
+<h2 title="Class LeaderRole" class="title">Class LeaderRole</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft">org.jsimpledb.kv.raft.RaftKVDatabase.Role</a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">org.jsimpledb.kv.raft.Role</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html" title="class in org.jsimpledb.kv.raft">org.jsimpledb.kv.raft.RaftKVDatabase.NonLeaderRole</a></li>
-<li>
-<ul class="inheritance">
-<li>org.jsimpledb.kv.raft.RaftKVDatabase.CandidateRole</li>
-</ul>
-</li>
+<li>org.jsimpledb.kv.raft.LeaderRole</li>
 </ul>
 </li>
 </ul>
@@ -102,15 +97,11 @@
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
-<dl>
-<dt>Enclosing class:</dt>
-<dd><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dd>
-</dl>
 <hr>
 <br>
-<pre>public static class <a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.4772">RaftKVDatabase.CandidateRole</a>
-extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.NonLeaderRole</a></pre>
-<div class="block">Raft candidate role.</div>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.39">LeaderRole</a>
+extends <a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a></pre>
+<div class="block">Raft leader role.</div>
 </li>
 </ul>
 </div>
@@ -130,35 +121,34 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html#getVotesReceived()">getVotesReceived</a></strong>()</code>
-<div class="block">Get the number of votes received so far.</div>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft">Follower</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/LeaderRole.html#getFollowers()">getFollowers</a></strong>()</code>
+<div class="block">Get this leader's known followers.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html#getVotesRequired()">getVotesRequired</a></strong>()</code>
-<div class="block">Get the number of votes required to win the election.</div>
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/LeaderRole.html#getLeaseTimeout()">getLeaseTimeout</a></strong>()</code>
+<div class="block">Get this leader's "lease timeout".</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/LeaderRole.html#stepDown()">stepDown</a></strong>()</code>
+<div class="block">Force this leader to step down.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html#toString()">toString</a></strong>()</code>&nbsp;</td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/LeaderRole.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.kv.raft.RaftKVDatabase.NonLeaderRole">
+<li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.kv.raft.Role">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;org.jsimpledb.kv.raft.<a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.NonLeaderRole</a></h3>
-<code><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html#getElectionTimeout()">getElectionTimeout</a>, <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html#startElection()">startElection</a></code></li>
-</ul>
-<ul class="blockList">
-<li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.kv.raft.RaftKVDatabase.Role">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;org.jsimpledb.kv.raft.<a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.Role</a></h3>
-<code><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html#getKVDatabase()">getKVDatabase</a></code></li>
+<h3>Methods inherited from class&nbsp;org.jsimpledb.kv.raft.<a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a></h3>
+<code><a href="../../../../org/jsimpledb/kv/raft/Role.html#getKVDatabase()">getKVDatabase</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -181,26 +171,55 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getVotesRequired()">
+<a name="getFollowers()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getVotesRequired</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html#line.4795">getVotesRequired</a>()</pre>
-<div class="block">Get the number of votes required to win the election.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>required votes</dd></dl>
+<h4>getFollowers</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft">Follower</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.89">getFollowers</a>()</pre>
+<div class="block">Get this leader's known followers.
+
+ <p>
+ The returned list is a copy; changes have no effect on this instance.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>this leader's followers</dd></dl>
 </li>
 </ul>
-<a name="getVotesReceived()">
+<a name="getLeaseTimeout()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getVotesReceived</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html#line.4806">getVotesReceived</a>()</pre>
-<div class="block">Get the number of votes received so far. Includes this node's vote.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>received votes</dd></dl>
+<h4>getLeaseTimeout</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.117">getLeaseTimeout</a>()</pre>
+<div class="block">Get this leader's "lease timeout".
+
+ <p>
+ This is the earliest possible time at which some other, new leader could be elected in a new term.
+ Consequently, it is the earliest possible time at which any entry that this leader is unaware of
+ could be appended to the Raft log.
+
+ <p>
+ Normally, if followers are responding to <a href="../../../../org/jsimpledb/kv/raft/msg/AppendRequest.html" title="class in org.jsimpledb.kv.raft.msg"><code>AppendRequest</code></a>s properly, this should be a value
+ in the (near) future. This allows the leader to make the assumption, up until that point in time,
+ that its log is fully up-to-date.
+
+ <p>
+ Until it hears from a majority of followers, a leader will not have a lease timeout established yet.
+ In that case this method returns null.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>this leader's lease timeout, or null if none is established yet</dd></dl>
+</li>
+</ul>
+<a name="stepDown()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>stepDown</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.128">stepDown</a>()</pre>
+<div class="block">Force this leader to step down.</div>
+<dl><dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this role is no longer active or election timer is not running</dd></dl>
 </li>
 </ul>
 <a name="toString()">
@@ -209,10 +228,10 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html#line.4922">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.932">toString</a>()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
-<dd><code><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase.Role</a></code></dd>
+<dd><code><a href="../../../../org/jsimpledb/kv/raft/Role.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -233,7 +252,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.
 <li><a href="../../../../overview-summary.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
-<li><a href="class-use/RaftKVDatabase.CandidateRole.html">Use</a></li>
+<li><a href="class-use/LeaderRole.html">Use</a></li>
 <li><a href="package-tree.html">Tree</a></li>
 <li><a href="../../../../deprecated-list.html">Deprecated</a></li>
 <li><a href="../../../../index-all.html">Index</a></li>
@@ -242,12 +261,12 @@ extends <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/FollowerRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
-<li><a href="../../../../index.html?org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html" target="_top">Frames</a></li>
-<li><a href="RaftKVDatabase.CandidateRole.html" target="_top">No Frames</a></li>
+<li><a href="../../../../index.html?org/jsimpledb/kv/raft/LeaderRole.html" target="_top">Frames</a></li>
+<li><a href="LeaderRole.html" target="_top">No Frames</a></li>
 </ul>
 <ul class="navList" id="allclasses_navbar_bottom">
 <li><a href="../../../../allclasses-noframe.html">All Classes</a></li>

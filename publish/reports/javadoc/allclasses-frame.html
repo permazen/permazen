@@ -57,6 +57,7 @@
 <li><a href="org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util" target="classFrame">ByteReader</a></li>
 <li><a href="org/jsimpledb/util/ByteUtil.html" title="class in org.jsimpledb.util" target="classFrame">ByteUtil</a></li>
 <li><a href="org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util" target="classFrame">ByteWriter</a></li>
+<li><a href="org/jsimpledb/kv/raft/CandidateRole.html" title="class in org.jsimpledb.kv.raft" target="classFrame">CandidateRole</a></li>
 <li><a href="org/jsimpledb/parse/expr/CastExprParser.html" title="class in org.jsimpledb.parse.expr" target="classFrame">CastExprParser</a></li>
 <li><a href="org/jsimpledb/util/CastFunction.html" title="class in org.jsimpledb.util" target="classFrame">CastFunction</a></li>
 <li><a href="org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change" target="classFrame">Change</a></li>
@@ -135,6 +136,7 @@
 <li><a href="org/jsimpledb/parse/expr/FieldValue.html" title="class in org.jsimpledb.parse.expr" target="classFrame">FieldValue</a></li>
 <li><a href="org/jsimpledb/parse/func/FilterFunction.html" title="class in org.jsimpledb.parse.func" target="classFrame">FilterFunction</a></li>
 <li><a href="org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft" target="classFrame">Follower</a></li>
+<li><a href="org/jsimpledb/kv/raft/FollowerRole.html" title="class in org.jsimpledb.kv.raft" target="classFrame">FollowerRole</a></li>
 <li><a href="org/jsimpledb/parse/func/ForEachFunction.html" title="class in org.jsimpledb.parse.func" target="classFrame">ForEachFunction</a></li>
 <li><a href="org/jsimpledb/kv/util/ForwardingKVStore.html" title="class in org.jsimpledb.kv.util" target="classFrame">ForwardingKVStore</a></li>
 <li><a href="org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb" target="classFrame">FoundationKVDatabase</a></li>
@@ -219,6 +221,7 @@
 <li><a href="org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util" target="classFrame">KeyListEncoder</a></li>
 <li><a href="org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv" target="classFrame">KeyRange</a></li>
 <li><a href="org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv" target="classFrame">KeyRanges</a></li>
+<li><a href="org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util" target="classFrame">KeyWatchTracker</a></li>
 <li><a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv" target="classFrame"><i>KVDatabase</i></a></li>
 <li><a href="org/jsimpledb/kv/KVDatabaseException.html" title="class in org.jsimpledb.kv" target="classFrame">KVDatabaseException</a></li>
 <li><a href="org/jsimpledb/cli/cmd/KVGetCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">KVGetCommand</a></li>
@@ -233,6 +236,7 @@
 <li><a href="org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv" target="classFrame"><i>KVStore</i></a></li>
 <li><a href="org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv" target="classFrame"><i>KVTransaction</i></a></li>
 <li><a href="org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv" target="classFrame">KVTransactionException</a></li>
+<li><a href="org/jsimpledb/kv/raft/LeaderRole.html" title="class in org.jsimpledb.kv.raft" target="classFrame">LeaderRole</a></li>
 <li><a href="org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb" target="classFrame">LevelDBAtomicKVStore</a></li>
 <li><a href="org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb" target="classFrame">LevelDBKVDatabase</a></li>
 <li><a href="org/jsimpledb/kv/leveldb/LevelDBKVStore.html" title="class in org.jsimpledb.kv.leveldb" target="classFrame">LevelDBKVStore</a></li>
@@ -285,6 +289,7 @@
 <li><a href="org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net" target="classFrame"><i>Network</i></a></li>
 <li><a href="org/jsimpledb/kv/raft/net/Network.Handler.html" title="interface in org.jsimpledb.kv.raft.net" target="classFrame"><i>Network.Handler</i></a></li>
 <li><a href="org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr" target="classFrame"><i>Node</i></a></li>
+<li><a href="org/jsimpledb/kv/raft/NonLeaderRole.html" title="class in org.jsimpledb.kv.raft" target="classFrame">NonLeaderRole</a></li>
 <li><a href="org/jsimpledb/gui/NullableField.html" title="class in org.jsimpledb.gui" target="classFrame">NullableField</a></li>
 <li><a href="org/jsimpledb/core/NullSafeType.html" title="class in org.jsimpledb.core" target="classFrame">NullSafeType</a></li>
 <li><a href="org/jsimpledb/change/ObjectCreate.html" title="class in org.jsimpledb.change" target="classFrame">ObjectCreate</a></li>
@@ -329,11 +334,6 @@
 <li><a href="org/jsimpledb/cli/cmd/QuitCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">QuitCommand</a></li>
 <li><a href="org/jsimpledb/cli/cmd/RaftAddCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">RaftAddCommand</a></li>
 <li><a href="org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft" target="classFrame">RaftKVDatabase</a></li>
-<li><a href="org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html" title="class in org.jsimpledb.kv.raft" target="classFrame">RaftKVDatabase.CandidateRole</a></li>
-<li><a href="org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft" target="classFrame">RaftKVDatabase.FollowerRole</a></li>
-<li><a href="org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html" title="class in org.jsimpledb.kv.raft" target="classFrame">RaftKVDatabase.LeaderRole</a></li>
-<li><a href="org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html" title="class in org.jsimpledb.kv.raft" target="classFrame">RaftKVDatabase.NonLeaderRole</a></li>
-<li><a href="org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft" target="classFrame">RaftKVDatabase.Role</a></li>
 <li><a href="org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft" target="classFrame">RaftKVTransaction</a></li>
 <li><a href="org/jsimpledb/cli/cmd/RaftRemoveCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">RaftRemoveCommand</a></li>
 <li><a href="org/jsimpledb/cli/cmd/RaftStartElectionCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">RaftStartElectionCommand</a></li>
@@ -355,6 +355,8 @@
 <li><a href="org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb" target="classFrame">RocksDBKVDatabase</a></li>
 <li><a href="org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb" target="classFrame">RocksDBKVStore</a></li>
 <li><a href="org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb" target="classFrame">RocksDBKVTransaction</a></li>
+<li><a href="org/jsimpledb/kv/rocksdb/RocksDBUtil.html" title="class in org.jsimpledb.kv.rocksdb" target="classFrame">RocksDBUtil</a></li>
+<li><a href="org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft" target="classFrame">Role</a></li>
 <li><a href="org/jsimpledb/core/RollbackOnlyTransactionException.html" title="class in org.jsimpledb.core" target="classFrame">RollbackOnlyTransactionException</a></li>
 <li><a href="org/jsimpledb/demo/Satellite.html" title="interface in org.jsimpledb.demo" target="classFrame"><i>Satellite</i></a></li>
 <li><a href="org/jsimpledb/cli/cmd/SaveCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">SaveCommand</a></li>
@@ -424,6 +426,7 @@
 <li><a href="org/jsimpledb/cli/TelnetConsole.html" title="class in org.jsimpledb.cli" target="classFrame">TelnetConsole</a></li>
 <li><a href="org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli" target="classFrame">TelnetConsole.ForwardingTerminal</a></li>
 <li><a href="org/jsimpledb/cli/TelnetConsole.TelnetTerminal.html" title="class in org.jsimpledb.cli" target="classFrame">TelnetConsole.TelnetTerminal</a></li>
+<li><a href="org/jsimpledb/util/ThrowableUtil.html" title="class in org.jsimpledb.util" target="classFrame">ThrowableUtil</a></li>
 <li><a href="org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft" target="classFrame">Timestamp</a></li>
 <li><a href="org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core" target="classFrame">Transaction</a></li>
 <li><a href="org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core" target="classFrame"><i>Transaction.Callback</i></a></li>

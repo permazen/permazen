@@ -680,6 +680,7 @@
 <li type="circle">org.jsimpledb.kv.util.<a href="org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util"><span class="strong">KeyListEncoder</span></a></li>
 <li type="circle">org.jsimpledb.kv.<a href="org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><span class="strong">KeyRange</span></a> (implements org.jsimpledb.util.<a href="org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a>)</li>
 <li type="circle">org.jsimpledb.kv.<a href="org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv"><span class="strong">KeyRanges</span></a> (implements java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;T&gt;, org.jsimpledb.kv.<a href="org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv">KeyFilter</a>, org.jsimpledb.util.<a href="org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a>)</li>
+<li type="circle">org.jsimpledb.kv.util.<a href="org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util"><span class="strong">KeyWatchTracker</span></a></li>
 <li type="circle">org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv"><span class="strong">KVPair</span></a></li>
 <li type="circle">org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVPairIterator.html" title="class in org.jsimpledb.kv"><span class="strong">KVPairIterator</span></a> (implements java.util.<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;E&gt;)</li>
 <li type="circle">org.jsimpledb.kv.leveldb.<a href="org/jsimpledb/kv/leveldb/LevelDBUtil.html" title="class in org.jsimpledb.kv.leveldb"><span class="strong">LevelDBUtil</span></a></li>
@@ -759,20 +760,21 @@
 </ul>
 </li>
 <li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><span class="strong">RaftKVDatabase</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>)</li>
-<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/RaftKVDatabase.Role.html" title="class in org.jsimpledb.kv.raft"><span class="strong">RaftKVDatabase.Role</span></a>
-<ul>
-<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/RaftKVDatabase.LeaderRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">RaftKVDatabase.LeaderRole</span></a></li>
-<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/RaftKVDatabase.NonLeaderRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">RaftKVDatabase.NonLeaderRole</span></a>
-<ul>
-<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/RaftKVDatabase.CandidateRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">RaftKVDatabase.CandidateRole</span></a></li>
-<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/RaftKVDatabase.FollowerRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">RaftKVDatabase.FollowerRole</span></a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li type="circle">org.jsimpledb.kv.mvcc.<a href="org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">Reads</span></a> (implements org.jsimpledb.util.<a href="org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a>)</li>
 <li type="circle">org.jsimpledb.gui.<a href="org/jsimpledb/gui/ReferenceFieldConverter.html" title="class in org.jsimpledb.gui"><span class="strong">ReferenceFieldConverter</span></a> (implements com.vaadin.data.util.converter.<a href="https://vaadin.com/api/com/vaadin/data/util/converter/Converter.html?is-external=true" title="class or interface in com.vaadin.data.util.converter">Converter</a>&lt;PRESENTATION,MODEL&gt;)</li>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/ReferencePath.html" title="class in org.jsimpledb"><span class="strong">ReferencePath</span></a></li>
+<li type="circle">org.jsimpledb.kv.rocksdb.<a href="org/jsimpledb/kv/rocksdb/RocksDBUtil.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBUtil</span></a></li>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Role</span></a>
+<ul>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/LeaderRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">LeaderRole</span></a></li>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/NonLeaderRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">NonLeaderRole</span></a>
+<ul>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/CandidateRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">CandidateRole</span></a></li>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/FollowerRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">FollowerRole</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/Schema.html" title="class in org.jsimpledb.core"><span class="strong">Schema</span></a></li>
 <li type="circle">org.jsimpledb.schema.<a href="org/jsimpledb/schema/SchemaFieldSwitchAdapter.html" title="class in org.jsimpledb.schema"><span class="strong">SchemaFieldSwitchAdapter</span></a>&lt;R&gt; (implements org.jsimpledb.schema.<a href="org/jsimpledb/schema/SchemaFieldSwitch.html" title="interface in org.jsimpledb.schema">SchemaFieldSwitch</a>&lt;R&gt;)</li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/SchemaItem.html" title="class in org.jsimpledb.core"><span class="strong">SchemaItem</span></a>
@@ -911,6 +913,7 @@
 </li>
 </ul>
 </li>
+<li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/ThrowableUtil.html" title="class in org.jsimpledb.util"><span class="strong">ThrowableUtil</span></a></li>
 <li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Timestamp</span></a> (implements java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Comparable.html?is-external=true" title="class or interface in java.lang">Comparable</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><span class="strong">Transaction</span></a>
 <ul>

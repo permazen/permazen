@@ -103,7 +103,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.36">BerkeleyKVTransaction</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.37">BerkeleyKVTransaction</a>
 extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a>
 implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a></pre>
 <div class="block">Oracle Berkeley DB Java Edition <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> implementation.</div>
@@ -231,6 +231,12 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#watchKey(byte[])">watchKey</a></strong>(byte[]&nbsp;key)</code>
+<div class="block">Watch a key to monitor for changes in its value.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#wrapException(com.sleepycat.je.DatabaseException)">wrapException</a></strong>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseException.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseException</a>&nbsp;e)</code>
 <div class="block">Wrap the given <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseException.html?is-external=true" title="class or interface in com.sleepycat.je"><code>DatabaseException</code></a> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
@@ -278,7 +284,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.64">getKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.65">getKVDatabase</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#getKVDatabase()">KVTransaction</a></code></strong></div>
 <div class="block">Get the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> with which this instance is associated.</div>
 <dl>
@@ -293,7 +299,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getTransaction</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Transaction.html?is-external=true" title="class or interface in com.sleepycat.je">Transaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.73">getTransaction</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Transaction.html?is-external=true" title="class or interface in com.sleepycat.je">Transaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.74">getTransaction</a>()</pre>
 <div class="block">Get the underlying <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Transaction.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Transaction</code></a> associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated transaction</dd></dl>
 </li>
@@ -304,7 +310,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>setTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.78">setTimeout</a>(long&nbsp;timeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.79">setTimeout</a>(long&nbsp;timeout)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#setTimeout(long)">KVTransaction</a></code></strong></div>
 <div class="block">Change the timeout for this transaction from its default value (optional operation).</div>
 <dl>
@@ -313,13 +319,34 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <dt><span class="strong">Parameters:</span></dt><dd><code>timeout</code> - transaction timeout in milliseconds, or zero for unlimited</dd></dl>
 </li>
 </ul>
+<a name="watchKey(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>watchKey</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.96">watchKey</a>(byte[]&nbsp;key)</pre>
+<div class="block">Watch a key to monitor for changes in its value.
+
+ <p>
+ Oracle Berkeley DB Java Edition does not support key watches;
+ the implementation in <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb"><code>BerkeleyKVDatabase</code></a> always throws <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#watchKey(byte[])">watchKey</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - the key to watch</dd>
+<dt><span class="strong">Returns:</span></dt><dd>a <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a> that returns <code>key</code> when the value associated with <code>key</code> is modified</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - always</dd></dl>
+</li>
+</ul>
 <a name="get(byte[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.86">get</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.103">get</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the value associated with the given key, if any.</div>
 <dl>
@@ -337,7 +364,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getAtLeast</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.108">getAtLeast</a>(byte[]&nbsp;minKey)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.125">getAtLeast</a>(byte[]&nbsp;minKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtLeast(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the key/value pair having the smallest key greater than or equal to the given minimum, if any.
 
@@ -360,7 +387,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getAtMost</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.115">getAtMost</a>(byte[]&nbsp;maxKey)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.132">getAtMost</a>(byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtMost(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the key/value pair having the largest key strictly less than the given maximum, if any.
 
@@ -383,7 +410,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getRange</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.CursorIterator.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction.CursorIterator</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.122">getRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.CursorIterator.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction.CursorIterator</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.139">getRange</a>(byte[]&nbsp;minKey,
                                             byte[]&nbsp;maxKey,
                                             boolean&nbsp;reverse)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">KVStore</a></code></strong></div>
@@ -423,7 +450,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>put</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.136">put</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.153">put</a>(byte[]&nbsp;key,
        byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#put(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Set the value associated with the given key.</div>
@@ -441,7 +468,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.149">remove</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.166">remove</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#remove(byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 <dl>
@@ -458,7 +485,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>removeRange</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.162">removeRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.179">removeRange</a>(byte[]&nbsp;minKey,
                byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#removeRange(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove all key/value pairs whose keys are in a given range.
@@ -488,7 +515,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.172">commit</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.189">commit</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()">KVTransaction</a></code></strong></div>
 <div class="block">Commit this transaction.
 
@@ -509,7 +536,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.184">rollback</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.201">rollback</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()">KVTransaction</a></code></strong></div>
 <div class="block">Cancel this transaction.
 
@@ -531,7 +558,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>close</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.198">close</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.215">close</a>()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a></code></dd>
@@ -546,7 +573,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>finalize</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.215">finalize</a>()
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.232">finalize</a>()
                  throws <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a></pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
@@ -561,7 +588,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockListLast">
 <li class="blockList">
 <h4>wrapException</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.234">wrapException</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseException.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseException</a>&nbsp;e)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#line.251">wrapException</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseException.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseException</a>&nbsp;e)</pre>
 <div class="block">Wrap the given <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseException.html?is-external=true" title="class or interface in com.sleepycat.je"><code>DatabaseException</code></a> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>e</code> - Berkeley database exception</dd>
 <dt><span class="strong">Returns:</span></dt><dd>appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a> with chained exception <code>e</code></dd>

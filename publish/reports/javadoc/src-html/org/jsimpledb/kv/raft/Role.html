@@ -1,0 +1,540 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2014 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.kv.raft;<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>import com.google.common.collect.Iterables;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.IOException;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.ArrayList;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.HashMap;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.Map;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.kv.KeyRange;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.kv.RetryTransactionException;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.kv.mvcc.Mutations;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.kv.mvcc.Writes;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jsimpledb.kv.raft.msg.AppendRequest;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jsimpledb.kv.raft.msg.AppendResponse;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jsimpledb.kv.raft.msg.CommitRequest;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jsimpledb.kv.raft.msg.CommitResponse;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jsimpledb.kv.raft.msg.GrantVote;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jsimpledb.kv.raft.msg.InstallSnapshot;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jsimpledb.kv.raft.msg.Message;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jsimpledb.kv.raft.msg.PingRequest;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jsimpledb.kv.raft.msg.PingResponse;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jsimpledb.kv.raft.msg.RequestVote;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jsimpledb.util.LongEncoder;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.slf4j.Logger;<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>/**<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * Common superclass for the three roles played by a Raft node:<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * {@linkplain LeaderRole leader}, {@linkplain FollowerRole follower}, and {@linkplain CandidateRole candidate}.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>public abstract class Role {<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    final Logger log;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    final RaftKVDatabase raft;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    final Service checkReadyTransactionsService = new Service(this, "check ready transactions") {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        @Override<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        public void run() {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>            Role.this.checkReadyTransactions();<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        }<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    };<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    final Service checkWaitingTransactionsService = new Service(this, "check waiting transactions") {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        @Override<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        public void run() {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>            Role.this.checkWaitingTransactions();<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        }<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    };<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    final Service applyCommittedLogEntriesService = new Service(this, "apply committed logs") {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        @Override<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        public void run() {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            Role.this.applyCommittedLogEntries();<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        }<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    };<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    final Service triggerKeyWatchesService = new Service(this, "trigger key watches") {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        @Override<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        public void run() {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            Role.this.triggerKeyWatches();<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        }<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    };<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>// Constructors<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    Role(RaftKVDatabase raft) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        this.raft = raft;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        this.log = this.raft.log;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        assert Thread.holdsLock(this.raft);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>// Status<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Get the {@link RaftKVDatabase} with which this instance is associated.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @return associated database<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    public RaftKVDatabase getKVDatabase() {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        return this.raft;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>// Lifecycle<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    void setup() {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        assert Thread.holdsLock(this.raft);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        this.raft.requestService(this.checkReadyTransactionsService);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        this.raft.requestService(this.checkWaitingTransactionsService);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        this.raft.requestService(this.applyCommittedLogEntriesService);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    void shutdown() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        assert Thread.holdsLock(this.raft);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        for (RaftKVTransaction tx : this.raft.openTransactions.values())<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            this.cleanupForTransaction(tx);<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>// Service<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    abstract void outputQueueEmpty(String address);<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>    /**<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * Check transactions in the {@link TxState#COMMIT_READY} state to see if we can advance them.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    void checkReadyTransactions() {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        for (RaftKVTransaction tx : new ArrayList&lt;RaftKVTransaction&gt;(this.raft.openTransactions.values()))<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            new CheckReadyTransactionService(this, tx).run();<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>    /**<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * Check transactions in the {@link TxState#COMMIT_WAITING} state to see if they are committed yet.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * We invoke this service method whenever our {@code commitIndex} advances.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     */<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    void checkWaitingTransactions() {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        for (RaftKVTransaction tx : new ArrayList&lt;RaftKVTransaction&gt;(this.raft.openTransactions.values()))<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            new CheckWaitingTransactionService(this, tx).run();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>    /**<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * Apply committed but unapplied log entries to the state machine.<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * We invoke this service method whenever log entries are added or our {@code commitIndex} advances.<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     */<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    void applyCommittedLogEntries() {<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>        // Apply committed log entries to the state machine<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        while (this.raft.lastAppliedIndex &lt; this.raft.commitIndex) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>            // Grab the first unwritten log entry<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            final LogEntry logEntry = this.raft.raftLog.get(0);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>            // Check with subclass<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            if (!this.mayApplyLogEntry(logEntry))<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                break;<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>            // Get the current config as of the log entry we're about to apply<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            final HashMap&lt;String, String&gt; logEntryConfig = new HashMap&lt;&gt;(this.raft.lastAppliedConfig);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            logEntry.applyConfigChange(logEntryConfig);<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>            // Prepare combined Mutations containing prefixed log entry changes plus my own<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            final Writes logWrites = logEntry.getWrites();<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            final Writes myWrites = new Writes();<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_TERM_KEY, LongEncoder.encode(logEntry.getTerm()));<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_INDEX_KEY, LongEncoder.encode(logEntry.getIndex()));<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            myWrites.getPuts().put(RaftKVDatabase.LAST_APPLIED_CONFIG_KEY, this.raft.encodeConfig(logEntryConfig));<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            final byte[] stateMachinePrefix = this.raft.getStateMachinePrefix();<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            final Mutations mutations = new Mutations() {<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>                @Override<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                public Iterable&lt;KeyRange&gt; getRemoveRanges() {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                    return Iterables.transform(logWrites.getRemoveRanges(), new PrefixKeyRangeFunction(stateMachinePrefix));<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                }<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>                @Override<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                public Iterable&lt;Map.Entry&lt;byte[], byte[]&gt;&gt; getPutPairs() {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                    return Iterables.concat(<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                      Iterables.transform(logWrites.getPutPairs(), new PrefixPutFunction(stateMachinePrefix)),<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                      myWrites.getPutPairs());<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                }<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>                @Override<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                public Iterable&lt;Map.Entry&lt;byte[], Long&gt;&gt; getAdjustPairs() {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                    return Iterables.transform(logWrites.getAdjustPairs(), new PrefixAdjustFunction(stateMachinePrefix));<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            };<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>            // Apply updates to the key/value store (durably)<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            if (this.log.isDebugEnabled())<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                this.debug("applying committed log entry " + logEntry + " to key/value store");<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            try {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                this.raft.kv.mutate(mutations, true);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            } catch (Exception e) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                if (e instanceof RuntimeException &amp;&amp; e.getCause() instanceof IOException)<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                    e = (IOException)e.getCause();<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                this.error("error applying log entry " + logEntry + " to key/value store", e);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                break;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            }<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>            // Update in-memory state<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            this.raft.lastAppliedTerm = logEntry.getTerm();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            assert logEntry.getIndex() == this.raft.lastAppliedIndex + 1;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            this.raft.lastAppliedIndex = logEntry.getIndex();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            logEntry.applyConfigChange(this.raft.lastAppliedConfig);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            assert this.raft.currentConfig.equals(this.raft.buildCurrentConfig());<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>            // Delete the log entry<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            this.raft.raftLog.remove(0);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            if (!logEntry.getFile().delete())<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                this.error("failed to delete log file " + logEntry.getFile());<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    }<a name="line.192"></a>
+<span class="sourceLineNo">193</span><a name="line.193"></a>
+<span class="sourceLineNo">194</span>    /**<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * Determine whether the given log entry may be applied to the state machine.<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     */<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    boolean mayApplyLogEntry(LogEntry logEntry) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        return true;<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    /**<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * Trigger any key watches for changes in log entries committed since the last time we checked.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     *<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * &lt;p&gt;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * This should be invoked:<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * &lt;ul&gt;<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     *  &lt;li&gt;After advancing the commitIndex&lt;/li&gt;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     *  &lt;li&gt;After resetting the state machine&lt;/li&gt;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     *  &lt;li&gt;After installing a snapshot&lt;/li&gt;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * &lt;/ul&gt;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     */<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    void triggerKeyWatches() {<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>        // Sanity check<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        assert this.raft.commitIndex &gt;= this.raft.lastAppliedIndex;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        assert this.raft.commitIndex &lt;= this.raft.lastAppliedIndex + this.raft.raftLog.size();<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        assert this.raft.keyWatchIndex &lt;= this.raft.commitIndex;<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>        // If we have recevied a snapshot install, we may not be able to tell which keys have changed since last notification;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        // in that case, trigger all key watches; otherwise, trigger the keys affected by newly committed log entries<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        if (this.raft.keyWatchIndex &lt; this.raft.lastAppliedIndex) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            this.raft.keyWatchTracker.triggerAll();<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            this.raft.keyWatchIndex = this.raft.commitIndex;<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        } else {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>            while (this.raft.keyWatchIndex &lt; this.raft.commitIndex)<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                this.raft.keyWatchTracker.trigger(this.raft.getLogEntryAtIndex(++this.raft.keyWatchIndex).getWrites());<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        }<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    }<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>// Transactions<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>    /**<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state).<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     *<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * &lt;p&gt;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * This should be invoked:<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * &lt;ul&gt;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     *  &lt;li&gt;After changing roles&lt;/li&gt;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     *  &lt;li&gt;After a transaction has entered the {@link TxState#COMMIT_READY} state&lt;/li&gt;<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     *  &lt;li&gt;After the leader is newly known (in {@link FollowerRole})&lt;/li&gt;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     *  &lt;li&gt;After the leader's output queue goes from non-empty to empty (in {@link FollowerRole})&lt;/li&gt;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     *  &lt;li&gt;After the leader's {@code commitIndex} has advanced, in case a config change transaction<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     *      is waiting on a previous config change transaction (in {@link LeaderRole})&lt;/li&gt;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * &lt;/ul&gt;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     *<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * @param tx the transaction<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     * @throws KVTransactionException if an error occurs<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     */<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    void checkReadyTransaction(RaftKVTransaction tx) {<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>        // Get transaction mutations<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        final Writes writes = tx.getMutableView().getWrites();<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        final String[] configChange = tx.getConfigChange();<a name="line.253"></a>
+<span class="sourceLineNo">254</span><a name="line.254"></a>
+<span class="sourceLineNo">255</span>        // Determine whether transaction is truly read-only<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        final boolean readOnly = tx.isReadOnly() || (writes.isEmpty() &amp;&amp; configChange == null);<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>        // No need to talk to leader for read-only transactions unless LINEARIZABLE<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        if (readOnly) {<a name="line.259"></a>
+<span class="sourceLineNo">260</span>            switch (tx.getConsistency()) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            case UNCOMMITTED:<a name="line.261"></a>
+<span class="sourceLineNo">262</span>                if (this.log.isTraceEnabled())<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                    this.trace("trivial commit for read-only, UNCOMMITTED " + tx);<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                this.raft.succeed(tx);<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                return;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>            case EVENTUAL:<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                return;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>            default:<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                break;<a name="line.270"></a>
+<span class="sourceLineNo">271</span>            }<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        }<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>        // Requires leader communication - let subclass handle it<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        this.checkReadyLeaderTransaction(tx, readOnly);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>    }<a name="line.276"></a>
+<span class="sourceLineNo">277</span><a name="line.277"></a>
+<span class="sourceLineNo">278</span>    /**<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state)<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * and requires communication with the leader.<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     *<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * @param tx the transaction<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @param readOnly if transaction is read-only<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * @throws KVTransactionException if an error occurs<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     */<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    abstract void checkReadyLeaderTransaction(RaftKVTransaction tx, boolean readOnly);<a name="line.286"></a>
+<span class="sourceLineNo">287</span><a name="line.287"></a>
+<span class="sourceLineNo">288</span>    /**<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     * Advance a transaction from the {@link TxState#COMMIT_READY} state to the {@link TxState#COMMIT_WAITING} state.<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     *<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     * @param tx the transaction<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     */<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    void advanceReadyTransaction(RaftKVTransaction tx, long commitTerm, long commitIndex) {<a name="line.293"></a>
+<span class="sourceLineNo">294</span><a name="line.294"></a>
+<span class="sourceLineNo">295</span>        // Sanity check<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        assert tx.getState().equals(TxState.COMMIT_READY);<a name="line.296"></a>
+<span class="sourceLineNo">297</span><a name="line.297"></a>
+<span class="sourceLineNo">298</span>        // Set commit term &amp; index and update state<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        if (this.log.isDebugEnabled())<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            this.debug("advancing " + tx + " to " + TxState.COMMIT_WAITING + " with commit " + commitIndex + "t" + commitTerm);<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        tx.setCommitTerm(commitTerm);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        tx.setCommitIndex(commitIndex);<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        tx.setState(TxState.COMMIT_WAITING);<a name="line.303"></a>
+<span class="sourceLineNo">304</span><a name="line.304"></a>
+<span class="sourceLineNo">305</span>        // Discard information we no longer need<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        tx.getMutableView().disableReadTracking();<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>        // Check this transaction to see if it can be committed<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        this.raft.requestService(this.checkWaitingTransactionsService);<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    }<a name="line.310"></a>
+<span class="sourceLineNo">311</span><a name="line.311"></a>
+<span class="sourceLineNo">312</span>    /**<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     * Check a transaction waiting for its log entry to be committed (in the {@link TxState#COMMIT_WAITING} state).<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     *<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     * &lt;p&gt;<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     * This should be invoked:<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     * &lt;ul&gt;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>     *  &lt;li&gt;After changing roles&lt;/li&gt;<a name="line.318"></a>
+<span class="sourceLineNo">319</span>     *  &lt;li&gt;After a transaction has entered the {@link TxState#COMMIT_WAITING} state&lt;/li&gt;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>     *  &lt;li&gt;After advancing my {@code commitIndex} (as leader or follower)&lt;/li&gt;<a name="line.320"></a>
+<span class="sourceLineNo">321</span>     *  &lt;li&gt;After receiving an updated {@linkplain AppendResponse#getLeaderLeaseTimeout leader lease timeout}<a name="line.321"></a>
+<span class="sourceLineNo">322</span>     *      (in {@link FollowerRole})&lt;/li&gt;<a name="line.322"></a>
+<span class="sourceLineNo">323</span>     * &lt;/ul&gt;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     *<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     * @param tx the transaction<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * @throws KVTransactionException if an error occurs<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     */<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    void checkWaitingTransaction(RaftKVTransaction tx) {<a name="line.328"></a>
+<span class="sourceLineNo">329</span><a name="line.329"></a>
+<span class="sourceLineNo">330</span>        // Handle the case the transaction's committed log index has already been applied to the state machine<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        final long commitIndex = tx.getCommitIndex();<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        if (commitIndex &lt; this.raft.lastAppliedIndex) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span><a name="line.333"></a>
+<span class="sourceLineNo">334</span>            // This can happen if we lose contact and by the time we're back the log entry has<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            // already been applied to the state machine on some leader and that leader sent<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            // use an InstallSnapshot message. We don't know whether it actually got committed<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            // or not, so the transaction must be retried.<a name="line.337"></a>
+<span class="sourceLineNo">338</span>            throw new RetryTransactionException(tx, "committed log entry was missed");<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        }<a name="line.339"></a>
+<span class="sourceLineNo">340</span><a name="line.340"></a>
+<span class="sourceLineNo">341</span>        // Has the transaction's log entry been received and committed yet?<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        if (commitIndex &gt; this.raft.commitIndex)<a name="line.342"></a>
+<span class="sourceLineNo">343</span>            return;<a name="line.343"></a>
+<span class="sourceLineNo">344</span><a name="line.344"></a>
+<span class="sourceLineNo">345</span>        // Verify the term of the committed log entry; if not what we expect, the log entry was overwritten by a new leader<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        final long commitTerm = tx.getCommitTerm();<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        if (this.raft.getLogTermAtIndex(commitIndex) != commitTerm)<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            throw new RetryTransactionException(tx, "leader was deposed during commit and transaction's log entry overwritten");<a name="line.348"></a>
+<span class="sourceLineNo">349</span><a name="line.349"></a>
+<span class="sourceLineNo">350</span>        // Check with subclass<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        if (!this.mayCommit(tx))<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            return;<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>        // Transaction is officially committed now<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        if (this.log.isTraceEnabled())<a name="line.355"></a>
+<span class="sourceLineNo">356</span>            this.trace("commit successful for " + tx + " (commit index " + this.raft.commitIndex + " &gt;= " + commitIndex + ")");<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        this.raft.succeed(tx);<a name="line.357"></a>
+<span class="sourceLineNo">358</span>    }<a name="line.358"></a>
+<span class="sourceLineNo">359</span><a name="line.359"></a>
+<span class="sourceLineNo">360</span>    boolean mayCommit(RaftKVTransaction tx) {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        return true;<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    }<a name="line.362"></a>
+<span class="sourceLineNo">363</span><a name="line.363"></a>
+<span class="sourceLineNo">364</span>    /**<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     * Perform any role-specific transaction cleanups.<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     *<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     * &lt;p&gt;<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     * Invoked either when transaction is closed or this role is being shutdown.<a name="line.368"></a>
+<span class="sourceLineNo">369</span>     *<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     * &lt;p&gt;<a name="line.370"></a>
+<span class="sourceLineNo">371</span>     * The implementation in {@link Role} does nothing; subclasses should override if appropriate.<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     *<a name="line.372"></a>
+<span class="sourceLineNo">373</span>     * @param tx the transaction<a name="line.373"></a>
+<span class="sourceLineNo">374</span>     */<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    void cleanupForTransaction(RaftKVTransaction tx) {<a name="line.375"></a>
+<span class="sourceLineNo">376</span>    }<a name="line.376"></a>
+<span class="sourceLineNo">377</span><a name="line.377"></a>
+<span class="sourceLineNo">378</span>// Messages<a name="line.378"></a>
+<span class="sourceLineNo">379</span><a name="line.379"></a>
+<span class="sourceLineNo">380</span>    // This is a package access version of "implements MessageSwitch"<a name="line.380"></a>
+<span class="sourceLineNo">381</span>    abstract void caseAppendRequest(AppendRequest msg);<a name="line.381"></a>
+<span class="sourceLineNo">382</span>    abstract void caseAppendResponse(AppendResponse msg);<a name="line.382"></a>
+<span class="sourceLineNo">383</span>    abstract void caseCommitRequest(CommitRequest msg);<a name="line.383"></a>
+<span class="sourceLineNo">384</span>    abstract void caseCommitResponse(CommitResponse msg);<a name="line.384"></a>
+<span class="sourceLineNo">385</span>    abstract void caseGrantVote(GrantVote msg);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>    abstract void caseInstallSnapshot(InstallSnapshot msg);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>    abstract void caseRequestVote(RequestVote msg);<a name="line.387"></a>
+<span class="sourceLineNo">388</span><a name="line.388"></a>
+<span class="sourceLineNo">389</span>    void casePingRequest(PingRequest msg) {<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        this.raft.sendMessage(new PingResponse(this.raft.clusterId,<a name="line.390"></a>
+<span class="sourceLineNo">391</span>          this.raft.identity, msg.getSenderId(), this.raft.currentTerm, msg.getTimestamp()));<a name="line.391"></a>
+<span class="sourceLineNo">392</span>    }<a name="line.392"></a>
+<span class="sourceLineNo">393</span><a name="line.393"></a>
+<span class="sourceLineNo">394</span>    void casePingResponse(PingResponse msg) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        // ignore by default<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    }<a name="line.396"></a>
+<span class="sourceLineNo">397</span><a name="line.397"></a>
+<span class="sourceLineNo">398</span>    boolean mayAdvanceCurrentTerm(Message msg) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        return true;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>    }<a name="line.400"></a>
+<span class="sourceLineNo">401</span><a name="line.401"></a>
+<span class="sourceLineNo">402</span>    void failUnexpectedMessage(Message msg) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        this.warn("rec'd unexpected message " + msg + " while in role " + this + "; ignoring");<a name="line.403"></a>
+<span class="sourceLineNo">404</span>    }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>// Debug<a name="line.406"></a>
+<span class="sourceLineNo">407</span><a name="line.407"></a>
+<span class="sourceLineNo">408</span>    boolean checkState() {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        return true;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>    }<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>// Logging<a name="line.412"></a>
+<span class="sourceLineNo">413</span><a name="line.413"></a>
+<span class="sourceLineNo">414</span>    void trace(String msg, Throwable t) {<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        this.raft.trace(msg, t);<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    }<a name="line.416"></a>
+<span class="sourceLineNo">417</span><a name="line.417"></a>
+<span class="sourceLineNo">418</span>    void trace(String msg) {<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        this.raft.trace(msg);<a name="line.419"></a>
+<span class="sourceLineNo">420</span>    }<a name="line.420"></a>
+<span class="sourceLineNo">421</span><a name="line.421"></a>
+<span class="sourceLineNo">422</span>    void debug(String msg, Throwable t) {<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        this.raft.debug(msg, t);<a name="line.423"></a>
+<span class="sourceLineNo">424</span>    }<a name="line.424"></a>
+<span class="sourceLineNo">425</span><a name="line.425"></a>
+<span class="sourceLineNo">426</span>    void debug(String msg) {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        this.raft.debug(msg);<a name="line.427"></a>
+<span class="sourceLineNo">428</span>    }<a name="line.428"></a>
+<span class="sourceLineNo">429</span><a name="line.429"></a>
+<span class="sourceLineNo">430</span>    void info(String msg, Throwable t) {<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        this.raft.info(msg, t);<a name="line.431"></a>
+<span class="sourceLineNo">432</span>    }<a name="line.432"></a>
+<span class="sourceLineNo">433</span><a name="line.433"></a>
+<span class="sourceLineNo">434</span>    void info(String msg) {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        this.raft.info(msg);<a name="line.435"></a>
+<span class="sourceLineNo">436</span>    }<a name="line.436"></a>
+<span class="sourceLineNo">437</span><a name="line.437"></a>
+<span class="sourceLineNo">438</span>    void warn(String msg, Throwable t) {<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        this.raft.warn(msg, t);<a name="line.439"></a>
+<span class="sourceLineNo">440</span>    }<a name="line.440"></a>
+<span class="sourceLineNo">441</span><a name="line.441"></a>
+<span class="sourceLineNo">442</span>    void warn(String msg) {<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        this.raft.warn(msg);<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    }<a name="line.444"></a>
+<span class="sourceLineNo">445</span><a name="line.445"></a>
+<span class="sourceLineNo">446</span>    void error(String msg, Throwable t) {<a name="line.446"></a>
+<span class="sourceLineNo">447</span>        this.raft.error(msg, t);<a name="line.447"></a>
+<span class="sourceLineNo">448</span>    }<a name="line.448"></a>
+<span class="sourceLineNo">449</span><a name="line.449"></a>
+<span class="sourceLineNo">450</span>    void error(String msg) {<a name="line.450"></a>
+<span class="sourceLineNo">451</span>        this.raft.error(msg);<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    }<a name="line.452"></a>
+<span class="sourceLineNo">453</span><a name="line.453"></a>
+<span class="sourceLineNo">454</span>// Object<a name="line.454"></a>
+<span class="sourceLineNo">455</span><a name="line.455"></a>
+<span class="sourceLineNo">456</span>    @Override<a name="line.456"></a>
+<span class="sourceLineNo">457</span>    public abstract String toString();<a name="line.457"></a>
+<span class="sourceLineNo">458</span><a name="line.458"></a>
+<span class="sourceLineNo">459</span>    String toStringPrefix() {<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        return this.getClass().getSimpleName()<a name="line.460"></a>
+<span class="sourceLineNo">461</span>          + "[term=" + this.raft.currentTerm<a name="line.461"></a>
+<span class="sourceLineNo">462</span>          + ",applied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm<a name="line.462"></a>
+<span class="sourceLineNo">463</span>          + ",commit=" + this.raft.commitIndex<a name="line.463"></a>
+<span class="sourceLineNo">464</span>          + ",log=" + this.raft.raftLog<a name="line.464"></a>
+<span class="sourceLineNo">465</span>          + "]";<a name="line.465"></a>
+<span class="sourceLineNo">466</span>    }<a name="line.466"></a>
+<span class="sourceLineNo">467</span>}<a name="line.467"></a>
+<span class="sourceLineNo">468</span><a name="line.468"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

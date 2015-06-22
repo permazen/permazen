@@ -119,20 +119,20 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
  not yet been created and the database will initially be empty. Alternately, you can configure a file containing
  default initial content via <a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html#setInitialContentFile(java.io.File)"><code>setInitialContentFile()</code></a>, or override <a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html#getInitialContent()"><code>getInitialContent()</code></a>
  to create the initial content more dynamically.
- </p>
 
  <p>
  When a <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/org/dellroad/stuff/io/FileStreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>FileStreamRepository</code></a> is used, instances support "out-of-band" updates of the XML file. In that case,
  each time a transaction is accessed the modification timestamp of the XML file is examined. If the XML file has been
  updated by some external process since the time the transaction was created, the database will be reloaded from
  the XML file and the transaction will fail with a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>.
- </p>
 
  <p>
  Note that two different processes modifying the XML file at the same time is not without race conditions: e.g., it's possible
  for an external process to update the XML file just as a transaction associated with this instance is being committed
  and written to the file, which will result in overwriting the external process' changes.
- </p></div>
+
+ <p>
+ <a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html#watchKey(byte[])">Key watches</a> are supported.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/util/XMLSerializer.html" title="class in org.jsimpledb.kv.util"><code>XMLSerializer</code></a>, 
 <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/org/dellroad/stuff/io/AtomicUpdateFileOutputStream.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>AtomicUpdateFileOutputStream</code></a>, 
 <a href="../../../../org/jsimpledb/spring/SpringXMLKVDatabase.html" title="class in org.jsimpledb.spring"><code>SpringXMLKVDatabase</code></a></dd></dl>

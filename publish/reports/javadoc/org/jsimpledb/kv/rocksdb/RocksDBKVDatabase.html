@@ -103,10 +103,13 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.15">RocksDBKVDatabase</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.18">RocksDBKVDatabase</a>
 extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></pre>
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><code>RocksDBAtomicKVStore</code></a>, providing concurrent transactions
- and linearizable ACID semantics.</div>
+ and linearizable ACID semantics.
+
+ <p>
+ <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html#watchKey(byte[])">Key watches</a> are supported.</div>
 </li>
 </ul>
 </div>
@@ -210,7 +213,7 @@ extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" titl
 <ul class="blockListLast">
 <li class="blockList">
 <h4>RocksDBKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.15">RocksDBKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.18">RocksDBKVDatabase</a>()</pre>
 </li>
 </ul>
 </li>
@@ -227,7 +230,7 @@ extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" titl
 <ul class="blockList">
 <li class="blockList">
 <h4>setKVStore</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.25">setKVStore</a>(<a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a>&nbsp;kvstore)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.28">setKVStore</a>(<a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a>&nbsp;kvstore)</pre>
 <div class="block">Configure the underlying <a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb"><code>RocksDBAtomicKVStore</code></a> used by this instance. Required property.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvstore</code> - underlying key/value store</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -240,7 +243,7 @@ extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" titl
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.32">createTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.35">createTransaction</a>()</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#createTransaction()">SnapshotKVDatabase</a></code></strong></div>
 <div class="block">Create a new transaction.</div>
 <dl>
@@ -257,7 +260,7 @@ extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" titl
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createSnapshotKVTransaction</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.39">createSnapshotKVTransaction</a>(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotVersion.html" title="class in org.jsimpledb.kv.mvcc">SnapshotVersion</a>&nbsp;versionInfo)</pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#line.42">createSnapshotKVTransaction</a>(<a href="../../../../org/jsimpledb/kv/mvcc/SnapshotVersion.html" title="class in org.jsimpledb.kv.mvcc">SnapshotVersion</a>&nbsp;versionInfo)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">SnapshotKVDatabase</a></code></strong></div>
 <div class="block">Instantiate a new <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVTransaction</code></a> instance.
 

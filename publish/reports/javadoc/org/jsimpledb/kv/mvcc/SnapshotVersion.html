@@ -102,7 +102,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
  Information included:
   <ul>
   <li>MVCC version number</li>
-  <li><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> snapshot</li>
+  <li><a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a> snapshot</li>
   <li>Open transactions based on this version</li>
   <li>The <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> of the transaction that was committed on this version, if any</li>
   </ul></div>
@@ -137,9 +137,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></td>
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotVersion.html#getSnapshot()">getSnapshot</a></strong>()</code>
-<div class="block">Get the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of this version's snapshot.</div>
+<div class="block">Get the <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a> view of this version's snapshot.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -191,9 +191,9 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getSnapshot</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotVersion.html#line.59">getSnapshot</a>()</pre>
-<div class="block">Get the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of this version's snapshot.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>unmodifiable <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a></dd></dl>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/SnapshotVersion.html#line.59">getSnapshot</a>()</pre>
+<div class="block">Get the <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a> view of this version's snapshot.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>unmodifiable <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a></dd></dl>
 </li>
 </ul>
 <a name="getOpenTransactions()">
