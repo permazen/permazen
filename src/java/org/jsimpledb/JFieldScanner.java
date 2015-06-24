@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,11 +90,18 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
           || Map.class.isAssignableFrom(returnType))
             return false;
         if (returnType != Counter.class) {
+            final Method setter;
             try {
-                Util.findSetterMethod(this.jclass.type, method);
+                setter = Util.findSetterMethod(this.jclass.type, method);
             } catch (IllegalArgumentException e) {
                 return false;
             }
+            if ((setter.getModifiers() & Modifier.ABSTRACT) == 0)
+                return false;
+            if ((setter.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0)
+                return false;
+            if ((setter.getModifiers() & Modifier.PRIVATE) != 0)
+                return false;
         }
         return true;
     }

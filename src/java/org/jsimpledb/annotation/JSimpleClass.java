@@ -83,11 +83,11 @@ public @interface JSimpleClass {
      * Whether to automatically generate database fields from un-annotated abstract Java bean methods.
      *
      * <p>
-     * If true, database fields corresponding to all <b>abstract</b> bean property getter methods will
-     * be auto-generated even if there is no {@link JField &#64;JField}, {@link JSetField &#64;JSetField},
-     * {@link JListField &#64;JListField}, or {@link JMapField &#64;JMapField} annotation. Note <i>this includes
-     * superclass and interface methods</i>.
-     * </p>
+     * If true, database fields will be auto-generated corresponding to all <b>abstract</b> bean property getter methods,
+     * even if there is no {@link JField &#64;JField}, {@link JSetField &#64;JSetField},
+     * {@link JListField &#64;JListField}, or {@link JMapField &#64;JMapField} annotation.
+     * Note <i>this includes superclass and interface methods</i>. Methods must be either {@code public} or
+     * {@code protected}. In the case of simple fields, there must also be a corresponding setter method.
      *
      * <p>
      * Getter methods with return type assignable to {@link java.util.Set}, {@link java.util.List}, and {@link java.util.Map}
