@@ -41,8 +41,18 @@ SHORT TERM
 MEDIUM TERM
 ===========
 
+- New CLI flags:
+    - `--console-port': accept console telnet connections on port
+    - `--background': disable console on stdin/stdout, daemonize
+
 LONG TERM
 =========
+
+- Add a network accessible API for KVDatabase
+    - New "over the network" KVDatabase client
+        - Includes server-side classes as well for embeddability
+    - New CLI flag:
+        - `--client-port': accept client TCP connections
 
 - Add expression predicates to reference paths, e.g.:
     "friend[this.name.length() > 3].name"
