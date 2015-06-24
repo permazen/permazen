@@ -1898,6 +1898,7 @@ public class Transaction {
      * @param id object ID
      * @return the {@link org.jsimpledb.kv.KVDatabase} key corresponding to {@code id}
      * @throws IllegalArgumentException if {@code id} is null
+     * @see org.jsimpledb.JTransaction#getKey(org.jsimpledb.JObject) JTransaction.getKey()
      */
     public byte[] getKey(ObjId id) {
         Preconditions.checkArgument(id != null, "null id");
@@ -1923,6 +1924,8 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code storageId} corresponds to a sub-field of a complex field
      * @throws IllegalArgumentException if {@code storageId} is less than or equal to zero
      * @throws IllegalArgumentException if {@code id} is null
+     * @see org.jsimpledb.JTransaction#getKey(org.jsimpledb.JObject, String) JTransaction.getKey()
+     * @see org.jsimpledb.kv.KVTransaction#watchKey KVTransaction.watchKey()
      */
     public byte[] getKey(ObjId id, int storageId) {
 

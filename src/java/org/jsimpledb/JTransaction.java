@@ -364,6 +364,7 @@ public class JTransaction {
      * @param jobj Java model object
      * @return the {@link org.jsimpledb.kv.KVDatabase} key corresponding to {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
+     * @see org.jsimpledb.core.Transaction#getKey(ObjId) Transaction.getKey()
      */
     public byte[] getKey(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
@@ -387,6 +388,8 @@ public class JTransaction {
      * @throws IllegalArgumentException if {@code jobj} does not contain the specified field
      * @throws IllegalArgumentException if {@code fieldName} is otherwise invalid
      * @throws IllegalArgumentException if either parameter is null
+     * @see org.jsimpledb.kv.KVTransaction#watchKey KVTransaction.watchKey()
+     * @see org.jsimpledb.core.Transaction#getKey(ObjId, int) Transaction.getKey()
      */
     public byte[] getKey(JObject jobj, String fieldName) {
         Preconditions.checkArgument(jobj != null, "null jobj");
