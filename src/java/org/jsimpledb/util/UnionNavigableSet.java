@@ -25,7 +25,7 @@ class UnionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
      * @param sets the sets to union
      */
     public UnionNavigableSet(Iterable<? extends NavigableSet<E>> sets) {
-        super(sets);
+        super(sets, false);
     }
 
     /**
@@ -37,7 +37,7 @@ class UnionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
      * @throws IllegalArgumentException if {@code bounds} is null
      */
     protected UnionNavigableSet(Iterable<? extends NavigableSet<E>> sets, Comparator<? super E> comparator, Bounds<E> bounds) {
-        super(sets, comparator, bounds);
+        super(sets, false, comparator, bounds);
     }
 
     @Override

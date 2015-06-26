@@ -9,30 +9,34 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
 
 /**
- * Provides a read-only view of the differnece of two or more {@link NavigableSet}s.
+ * Provides a read-only view of the difference of two or more {@link NavigableSet}s.
  */
 class DifferenceNavigableSet<E> extends AbstractMultiNavigableSet<E> {
 
     /**
      * Constructor.
      *
-     * @param sets the sets to union
+     * @param sets the sets to difference
      */
     @SuppressWarnings("unchecked")
     public DifferenceNavigableSet(NavigableSet<E> set1, NavigableSet<E> set2) {
-        super(Lists.newArrayList(set1, set2));
+        super(set1 instanceof EmptyNavigableSet ? Collections.<NavigableSet<E>>emptyList() :
+              set2 instanceof EmptyNavigableSet ? Collections.<NavigableSet<E>>singletonList(set1) :
+              Lists.newArrayList(set1, set2),
+            null);
     }
 
     /**
      * Internal constructor.
      *
-     * @param sets the sets to union
+     * @param sets the sets to difference
      * @param comparator common comparator
      * @param bounds range restriction
      * @throws IllegalArgumentException if {@code bounds} is null
@@ -40,7 +44,7 @@ class DifferenceNavigableSet<E> extends AbstractMultiNavigableSet<E> {
     @SuppressWarnings("unchecked")
     protected DifferenceNavigableSet(NavigableSet<E> set1, NavigableSet<E> set2,
       Comparator<? super E> comparator, Bounds<E> bounds) {
-        super(Lists.newArrayList(set1, set2), comparator, bounds);
+        super(Lists.newArrayList(set1, set2), null, comparator, bounds);
     }
 
     @Override

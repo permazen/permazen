@@ -23,7 +23,7 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
      * @param sets the sets to intersect
      */
     public IntersectionNavigableSet(Iterable<? extends NavigableSet<E>> sets) {
-        super(sets);
+        super(sets, true);
     }
 
     /**
@@ -36,7 +36,7 @@ class IntersectionNavigableSet<E> extends AbstractMultiNavigableSet<E> {
      */
     protected IntersectionNavigableSet(Iterable<? extends NavigableSet<E>> sets,
       Comparator<? super E> comparator, Bounds<E> bounds) {
-        super(sets, comparator, bounds);
+        super(sets, true, comparator, bounds);
     }
 
     @Override
