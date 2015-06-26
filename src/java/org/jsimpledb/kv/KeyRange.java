@@ -207,7 +207,7 @@ public class KeyRange implements SizeEstimating {
      * @return true if this instance contains no keys
      */
     public boolean isEmpty() {
-        return this.max != null && ByteUtil.compare(this.min, this.max) == 0;
+        return this.max != null && Arrays.equals(this.min, this.max);
     }
 
     /**
