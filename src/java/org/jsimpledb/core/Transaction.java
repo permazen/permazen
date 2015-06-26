@@ -1454,7 +1454,7 @@ public class Transaction {
      * Deleting an element results in {@linkplain #delete deleting} the corresponding object.
      * </p>
      *
-     * @return set containing all objects
+     * @return a live view of all database objects
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see #getAll(int)
      */
@@ -1477,7 +1477,7 @@ public class Transaction {
      * </p>
      *
      * @param storageId object type storage ID
-     * @return set containing all objects having the specified storage ID
+     * @return a live view of all database objects having the specified storage ID
      * @throws UnknownTypeException if {@code storageId} does not correspond to any known object type
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see #getAll()

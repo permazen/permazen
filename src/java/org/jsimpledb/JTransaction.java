@@ -316,9 +316,19 @@ public class JTransaction {
     /**
      * Get all instances of the given type.
      *
+     * <p>
+     * The returned set includes objects from all schema versions. Use {@link #queryVersion queryVersion()} to
+     * find objects with a specific schema version.
+     * </p>
+     *
+     * <p>
+     * The returned set is mutable, with the exception that {@link NavigableSet#add add()} is not supported.
+     * Deleting an element results in {@linkplain JObject#delete deleting} the corresponding object.
+     * </p>
+     *
      * @param type any Java type; use {@link Object Object.class} to return all database objects
      * @param <T> containing Java type
-     * @return read-only view of all instances of {@code type}
+     * @return a live view of all instances of {@code type}
      * @throws IllegalArgumentException if {@code type} is null
      * @throws StaleTransactionException if this transaction is no longer usable
      */

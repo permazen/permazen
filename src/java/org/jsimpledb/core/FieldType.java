@@ -295,9 +295,18 @@ public abstract class FieldType<T> implements Comparator<T> {
     }
 
     /**
-     * Compare two values. This method must provide a total ordering of all supported Java values.
-     * If null is a supported Java value, then this method must accept it without throwing an exception
-     * (note, this is a stronger requirement than {@link Comparator} requires). By convention, null usually sorts last.
+     * Order two field values.
+     *
+     * <p>
+     * This method must provide a total ordering of all supported Java values that is consistent with the database ordering,
+     * i.e., the unsigned lexicographical ordering of the corresponding {@code byte[]} encoded field values.
+     *
+     * <p>
+     * If null is a supported Java value, then the returned {@link Comparator} must accept null parameters without
+     * throwing an exception (note, this is a stronger requirement than the {@link Comparator} interface normally requires).
+     *
+     * <p>
+     * Note: by convention, null values usually sort last.
      *
      * @throws IllegalArgumentException if {@code value1} or {@code value2} is null and this type does not support null
      */
