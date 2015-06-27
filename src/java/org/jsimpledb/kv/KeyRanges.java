@@ -7,6 +7,7 @@ package org.jsimpledb.kv;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.UnmodifiableIterator;
 
@@ -49,7 +50,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
 
     private final ArrayList<KeyRange> ranges;
 
-    private volatile KeyRange lastContainingKeyRange;           // used for optimization
+    private int lastContainingKeyRangeIndex = -1;                  // used for optimization
 
 // Constructors
 
@@ -93,7 +94,9 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code range} is null
      */
     public KeyRanges(KeyRange range) {
-        this(Collections.singletonList(range));
+        this.ranges = new ArrayList<KeyRange>(1);
+        if (!range.isEmpty())
+            this.ranges.add(range);
     }
 
     /**
@@ -115,6 +118,12 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      */
     public KeyRanges(byte[] min, byte[] max) {
         this(Collections.singletonList(new KeyRange(min, max)));
+    }
+
+    private KeyRanges(ArrayList<KeyRange> ranges) {
+        assert ranges != null;
+        assert KeyRanges.isMinimal(ranges) : "not minimal: " + ranges;
+        this.ranges = ranges;
     }
 
     /**
@@ -255,13 +264,10 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      */
     public boolean contains(KeyRange range) {
         Preconditions.checkArgument(range != null, "null range");
-        final KeyRange[] pair = this.findKey(range.getMin());
-        if (pair[0] != pair[1])
+        final int[] pair = this.findKeyIndex(range.getMin());
+        if (pair[0] != pair[1] || pair[0] == -1)
             return false;
-        final KeyRange container = pair[0];
-        if (container == null)
-            return false;
-        return container.contains(range);
+        return this.ranges.get(pair[0]).contains(range);
     }
 
     /**
@@ -281,38 +287,48 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code key} is null
      */
     public KeyRange[] findKey(byte[] key) {
+        final int[] indexes = this.findKeyIndex(key);
+        return new KeyRange[] {
+          indexes[0] != -1 ? this.ranges.get(indexes[0]) : null,
+          indexes[1] != -1 ? this.ranges.get(indexes[1]) : null
+        };
+    }
+
+    private int[] findKeyIndex(byte[] key) {
 
         // Sanity check
         Preconditions.checkArgument(key != null, "null key");
 
         // Optimization: assume previous success is likely to repeat
-        final KeyRange temp = this.lastContainingKeyRange;
-        if (temp != null) {
-            if (temp.contains(key))
-                return new KeyRange[] { temp, temp };
-            this.lastContainingKeyRange = null;
+        final int temp = this.lastContainingKeyRangeIndex;
+        if (temp != -1) {
+            if (this.ranges.get(temp).contains(key))
+                return new int[] { temp, temp };
+            this.lastContainingKeyRangeIndex = -1;
         }
 
         // Search for matching range
         final int i = ~Collections.binarySearch(this.ranges, new KeyRange(key, key), KeyRange.SORT_BY_MIN);
         assert i >= 0;                                                  // this.ranges should never contain new KeyRange(key, key)
-        KeyRange left = null;
+        int leftIndex = -1;
         if (i > 0) {
-            if ((left = this.ranges.get(i - 1)).contains(key)) {
-                this.lastContainingKeyRange = left;
-                return new KeyRange[] { left, left };
+            leftIndex = i - 1;
+            if (this.ranges.get(leftIndex).contains(key)) {
+                this.lastContainingKeyRangeIndex = leftIndex;
+                return new int[] { leftIndex, leftIndex };
             }
         }
-        KeyRange right = null;
+        int rightIndex = -1;
         if (i < this.ranges.size()) {
-            if ((right = this.ranges.get(i)).contains(key)) {
-                this.lastContainingKeyRange = right;
-                return new KeyRange[] { right, right };
+            rightIndex = i;
+            if (this.ranges.get(rightIndex).contains(key)) {
+                this.lastContainingKeyRangeIndex = rightIndex;
+                return new int[] { rightIndex, rightIndex };
             }
         }
 
         // Not contained
-        return new KeyRange[] { left, right };
+        return new int[] { leftIndex, rightIndex };
     }
 
     /**
@@ -322,14 +338,56 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @return this instance with {@code range} added
      * @throws IllegalArgumentException if {@code range} is null
      */
+    @SuppressWarnings("unchecked")
     public KeyRanges add(KeyRange range) {
+
+        // Sanity checks
         Preconditions.checkArgument(range != null, "null range");
         if (range.isEmpty())
             return this;
-        final ArrayList<KeyRange> list = new ArrayList<>(this.ranges.size() + 1);
-        list.addAll(this.ranges);
-        list.add(range);
-        return new KeyRanges(list);
+        if (this.isEmpty())
+            return new KeyRanges(range);
+
+        // Start with same range list
+        final ArrayList<KeyRange> rangeList = (ArrayList<KeyRange>)this.ranges.clone();
+        assert !rangeList.isEmpty();
+
+        // Find where to start replacing ranges with new consolidated interval
+        byte[] minKey = range.getMin();
+        final int[] minFind = this.findKeyIndex(minKey);
+        int replaceIndexMin;
+        if (minFind[0] == minFind[1]
+          || (minFind[0] != -1 && Arrays.equals(minKey, rangeList.get(minFind[0]).getMax()))) {
+            assert minFind[0] != -1;
+            replaceIndexMin = minFind[0];
+            minKey = rangeList.get(replaceIndexMin).getMin();
+        } else
+            replaceIndexMin = minFind[0] + 1;               // works even if minFind[0] == -1
+
+        // Find where to stop replacing ranges with new consolidated interval
+        byte[] maxKey = range.getMax();
+        final int lastIndex = this.ranges.size() - 1;
+        final int[] maxFind = maxKey != null ? this.findKeyIndex(maxKey) :
+          new int[] { lastIndex, this.ranges.get(lastIndex).getMax() != null ? -1 : lastIndex };
+        int replaceIndexMax;
+        if (maxFind[0] == maxFind[1]) {
+            assert maxFind[1] != -1;
+            replaceIndexMax = maxFind[1] + 1;
+            maxKey = rangeList.get(maxFind[1]).getMax();
+        } else
+            replaceIndexMax = maxFind[1] != -1 ? maxFind[1] : lastIndex + 1;
+
+        // Replace all overlapping ranges with a single new range
+        if (replaceIndexMax == replaceIndexMin + 1)
+            rangeList.set(replaceIndexMin, new KeyRange(minKey, maxKey));
+        else {
+            if (replaceIndexMax > replaceIndexMin)
+                rangeList.subList(replaceIndexMin, replaceIndexMax).clear();
+            rangeList.add(replaceIndexMin, new KeyRange(minKey, maxKey));
+        }
+
+        // Done
+        return new KeyRanges(rangeList);
     }
 
     /**
@@ -339,11 +397,58 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @return this instance with {@code range} removed
      * @throws IllegalArgumentException if {@code range} is null
      */
+    @SuppressWarnings("unchecked")
     public KeyRanges remove(KeyRange range) {
+
+        // Sanity checks
         Preconditions.checkArgument(range != null, "null range");
-        if (range.isEmpty())
+        if (range.isEmpty() || this.ranges.isEmpty())
             return this;
-        return this.intersection(new KeyRanges(range).inverse());
+
+        // Start with same range list
+        final ArrayList<KeyRange> rangeList = (ArrayList<KeyRange>)this.ranges.clone();
+        assert !rangeList.isEmpty();
+
+        // Find where remove range's endpoints intersect our range list
+        final byte[] minKey = range.getMin();
+        final int[] minFind = this.findKeyIndex(minKey);
+        int imin = minFind[1];                                  // index of our range containing, or to the right of, minKey
+        if (imin == -1)                                         // all our ranges are to the left of minKey, nothing to do
+            return this;
+        final byte[] maxKey = range.getMax();
+        final int lastIndex = this.ranges.size() - 1;
+        final int[] maxFind = maxKey != null ? this.findKeyIndex(maxKey) :
+          new int[] { lastIndex, this.ranges.get(lastIndex).getMax() != null ? -1 : lastIndex };
+        int imax = maxFind[0];                                  // index of our range containing, or to the left of, maxKey
+        if (imax == -1)                                         // all our ranges are to the right of maxKey, nothing to do
+            return this;
+        if (imax < imin)                                        // the remove range is between and not touching two of our ranges
+            return this;
+
+        // Split rmin in two if it contains minKey
+        final KeyRange rmin = rangeList.get(imin);
+        if (ByteUtil.compare(rmin.getMin(), minKey) < 0) {
+            rangeList.set(imin, new KeyRange(rmin.getMin(), minKey));
+
+            // Handle the case were rmin and rmax are the same range
+            if (imax == imin) {
+                if (maxKey != null && (rmin.getMax() == null || ByteUtil.compare(maxKey, rmin.getMax()) < 0))
+                    rangeList.add(imin + 1, new KeyRange(maxKey, rmin.getMax()));
+                return new KeyRanges(rangeList);
+            }
+            imin++;
+        }
+
+        // Split rmax in two if it contains maxKey
+        final KeyRange rmax = rangeList.get(imax);
+        if (maxKey != null && (rmax.getMax() == null || ByteUtil.compare(maxKey, rmax.getMax()) < 0))
+            rangeList.set(imax--, new KeyRange(maxKey, rmax.getMax()));
+
+        // Remove all ranges from rmin through rmax
+        rangeList.subList(imin, imax + 1).clear();
+
+        // Done
+        return new KeyRanges(rangeList);
     }
 
     /**
@@ -357,13 +462,14 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         Preconditions.checkArgument(others != null, "null others");
         if (others.length == 0)
             return this;
-        final ArrayList<KeyRange> list = new ArrayList<>(this.ranges.size() + others.length);
-        list.addAll(this.ranges);
+        final ArrayList<ArrayList<KeyRange>> rangeLists = new ArrayList<>(1 + others.length);
+        rangeLists.add(this.ranges);
         for (KeyRanges other : others) {
             Preconditions.checkArgument(other != null, "null other");
-            list.addAll(other.ranges);
+            rangeLists.add(other.ranges);
         }
-        return new KeyRanges(list);
+        return new KeyRanges(KeyRanges.minimizeSortedByMinNoEmpty(
+          Lists.newArrayList(Iterables.mergeSorted(rangeLists, KeyRange.SORT_BY_MIN))));
     }
 
     /**
@@ -377,13 +483,12 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         Preconditions.checkArgument(others != null, "null others");
         if (others.length == 0)
             return this;
-        final ArrayList<KeyRange> list = new ArrayList<>(this.ranges.size() + others.length);
-        list.addAll(this.inverse().ranges);
-        for (KeyRanges other : others) {
-            Preconditions.checkArgument(other != null, "null other");
-            list.addAll(other.inverse().ranges);
+        final KeyRanges[] inverses = new KeyRanges[others.length];
+        for (int i = 0; i < others.length; i++) {
+            Preconditions.checkArgument(others[i] != null, "null other");
+            inverses[i] = others[i].inverse();
         }
-        return new KeyRanges(list).inverse();
+        return this.inverse().union(inverses).inverse();
     }
 
 // Iterable<KeyRange>
@@ -453,6 +558,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IOException if an I/O error occurs
      * @throws java.io.EOFException if the input ends unexpectedly
      * @throws IllegalArgumentException if {@code input} is null
+     * @throws IllegalArgumentException if {@code input} is invalid
      */
     public static KeyRanges deserialize(InputStream input) throws IOException {
         Preconditions.checkArgument(input != null, "null input");
@@ -462,6 +568,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         for (int i = 0; i < count; i++) {
             final byte[] min = KeyListEncoder.read(input, prev);
             final byte[] max = KeyListEncoder.read(input, min);
+            Preconditions.checkArgument(prev == null || ByteUtil.compare(min, prev) > 0, "invalid input");
             rangeList.add(new KeyRange(min, Arrays.equals(min, max) ? null : max));
             prev = max;
         }
@@ -528,16 +635,16 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
 
     @Override
     public boolean contains(byte[] key) {
-        final KeyRange[] pair = this.findKey(key);
-        return pair[0] == pair[1] && pair[0] != null;
+        final int[] pair = this.findKeyIndex(key);
+        return pair[0] == pair[1] && pair[0] != -1;
     }
 
     @Override
     public byte[] seekHigher(byte[] key) {
-        final KeyRange[] pair = this.findKey(key);
+        final int[] pair = this.findKeyIndex(key);
         if (pair[0] == pair[1])
-            return pair[0] != null ? key : null;
-        return pair[1] != null ? pair[1].getMin() : null;
+            return pair[0] != -1 ? key : null;
+        return pair[1] != -1 ? this.ranges.get(pair[1]).getMin() : null;
     }
 
     @Override
@@ -549,10 +656,10 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
             final byte[] lastMax = this.ranges.get(this.ranges.size() - 1).getMax();
             return lastMax != null ? lastMax : ByteUtil.EMPTY;
         }
-        final KeyRange[] pair = this.findKey(key);
+        final int[] pair = this.findKeyIndex(key);
         if (pair[0] == pair[1])
-            return pair[0] != null ? key : null;
-        return pair[0] != null ? pair[0].getMax() : null;
+            return pair[0] != -1 ? key : null;
+        return pair[0] != -1 ? this.ranges.get(pair[0]).getMax() : null;
     }
 
 // Object
@@ -594,7 +701,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
     //  - Sorted according to KeyRange.SORT_BY_MIN
     //  - No overlapping ranges
     //  - Adjacent ranges consolidated into a single range
-    private static ArrayList<KeyRange> minimize(List<KeyRange> ranges) {
+    private static ArrayList<KeyRange> minimize(ArrayList<KeyRange> ranges) {
 
         // Create array
         final ArrayList<KeyRange> sortedRanges = new ArrayList<>(ranges);
@@ -608,10 +715,20 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         // Sort remaining ranges by min, then max
         Collections.sort(sortedRanges, KeyRange.SORT_BY_MIN);
 
+        // Proceed
+        return KeyRanges.minimizeSortedByMinNoEmpty(sortedRanges);
+    }
+
+    private static ArrayList<KeyRange> minimizeSortedByMinNoEmpty(ArrayList<KeyRange> ranges) {
+
+        // Sanity check
+        assert KeyRanges.isSortedByMin(ranges);
+        assert !KeyRanges.containsEmpty(ranges);
+
         // Consolidate
         final ArrayList<KeyRange> list = new ArrayList<>(ranges.size());
         KeyRange prev = null;
-        for (KeyRange range : sortedRanges) {
+        for (KeyRange range : ranges) {
 
             // Sanity check range
             Preconditions.checkArgument(range != null, "null range");
@@ -645,7 +762,38 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         if (prev != null)
             list.add(prev);
         list.trimToSize();
+        assert KeyRanges.isMinimal(list);
         return list;
+    }
+
+    private static boolean isMinimal(List<KeyRange> ranges) {
+        KeyRange prev = null;
+        for (KeyRange range : ranges) {
+            if (range.isEmpty())
+                return false;
+            if (prev != null && KeyRange.compare(prev.getMax(), range.getMin()) >= 0)
+                return false;
+            prev = range;
+        }
+        return true;
+    }
+
+    private static boolean isSortedByMin(List<KeyRange> ranges) {
+        KeyRange prev = null;
+        for (KeyRange range : ranges) {
+            if (prev != null && KeyRange.SORT_BY_MIN.compare(prev, range) > 0)
+                return false;
+            prev = range;
+        }
+        return true;
+    }
+
+    private static boolean containsEmpty(List<KeyRange> ranges) {
+        for (KeyRange range : ranges) {
+            if (range.isEmpty())
+                return true;
+        }
+        return false;
     }
 }
 

@@ -298,7 +298,7 @@ public class KeyRange implements SizeEstimating {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[" + ByteUtil.toString(this.min) + "," + ByteUtil.toString(this.max) + "]";
+        return "[" + ByteUtil.toString(this.min) + "," + ByteUtil.toString(this.max) + ")";
     }
 }
 

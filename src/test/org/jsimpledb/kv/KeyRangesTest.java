@@ -7,9 +7,11 @@ package org.jsimpledb.kv;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.jsimpledb.TestSupport;
+import org.jsimpledb.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -158,6 +160,51 @@ public class KeyRangesTest extends TestSupport {
             },
 
         };
+    }
+
+///////////// add(), remove()
+
+    @Test
+    public void testAddRemove() throws Exception {
+        final HashSet<KeyRange> ranges = new HashSet<>();                               // expected ranges
+        KeyRanges keyRanges = KeyRanges.EMPTY;                                          // actual ranges
+        for (int i = 0; i < 100000; i++) {
+
+            // Get bounds
+            byte[] minKey;
+            byte[] maxKey;
+            do {
+                minKey = new byte[1 << this.random.nextInt(4)];
+                this.random.nextBytes(minKey);
+                maxKey = this.random.nextInt(7) != 0 ? new byte[1 << this.random.nextInt(4)] : null;
+                if (maxKey != null)
+                    this.random.nextBytes(maxKey);
+            } while (maxKey != null && ByteUtil.compare(maxKey, minKey) < 0);
+            final KeyRange range = new KeyRange(minKey, maxKey);
+
+            // Mutate
+            if (this.random.nextInt(3) < 2) {                                           // add
+                keyRanges = keyRanges.add(range);
+                ranges.add(range);
+            } else {                                                                    // remove
+                keyRanges = keyRanges.remove(range);
+                final KeyRange[] prevs = ranges.toArray(new KeyRange[ranges.size()]);
+                ranges.clear();
+                for (KeyRange prev : prevs) {
+                    if (!range.overlaps(prev)) {
+                        ranges.add(prev);
+                        continue;
+                    }
+                    if (ByteUtil.compare(prev.getMin(), range.getMin()) < 0)
+                        ranges.add(new KeyRange(prev.getMin(), range.getMin()));
+                    if (range.getMax() != null && (prev.getMax() == null || ByteUtil.compare(range.getMax(), prev.getMax()) < 0))
+                        ranges.add(new KeyRange(range.getMax(), prev.getMax()));
+                }
+            }
+
+            // Verify
+            Assert.assertEquals(keyRanges, new KeyRanges(ranges.toArray(new KeyRange[ranges.size()])));
+        }
     }
 
 ///////////// inverse(), union(), intersection()
