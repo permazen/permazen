@@ -26,6 +26,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -82,18 +83,24 @@ public class Database {
     public static final int MAX_INDEXED_FIELDS = 4;
 
     // Prefix of all meta-data keys
-    private static final byte METADATA_PREFIX = (byte)0x00;
+    private static final byte METADATA_PREFIX_BYTE = (byte)0x00;
+    private static final byte[] METADATA_PREFIX = new byte[] { METADATA_PREFIX_BYTE };
 
     // Meta-data keys and key prefixes
     private static final byte[] FORMAT_VERSION_KEY = new byte[] {
-      METADATA_PREFIX, (byte)0x00, (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'
+      METADATA_PREFIX_BYTE, (byte)0x00,
+      (byte)'J', (byte)'S', (byte)'i', (byte)'m', (byte)'p', (byte)'l', (byte)'e', (byte)'D', (byte)'B'
     };
     private static final byte[] SCHEMA_KEY_PREFIX = new byte[] {
-      METADATA_PREFIX, (byte)0x01
+      METADATA_PREFIX_BYTE, (byte)0x01
     };
     private static final byte[] VERSION_INDEX_PREFIX = new byte[] {
-      METADATA_PREFIX, (byte)0x80
+      METADATA_PREFIX_BYTE, (byte)0x80
     };
+
+    // Key ranges
+    private static final KeyRange METADATA_KEY_RANGE = KeyRange.forPrefix(METADATA_PREFIX);
+    private static final KeyRange SCHEMA_KEY_RANGE = KeyRange.forPrefix(SCHEMA_KEY_PREFIX);
 
     // JSimpleDB format version numbers
     private static final int FORMAT_VERSION_1 = 1;                                      // original format
@@ -307,17 +314,17 @@ public class Database {
             this.log.trace("creating transaction using "
               + (version != 0 ? "schema version " + version : "highest recorded schema version"));
         }
+        Iterator<KVPair> metaDataIterator = null;
         try {
 
             // Get iterator over meta-data key/value pairs
-            final byte[] metaDataPrefix = new byte[] { METADATA_PREFIX };
-            final Iterator<KVPair> metaDataIterator = kvt.getRange(metaDataPrefix,
-              ByteUtil.getKeyAfterPrefix(metaDataPrefix), false);
+            metaDataIterator = kvt.getRange(METADATA_KEY_RANGE.getMin(), METADATA_KEY_RANGE.getMax(), false);
 
             // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
             byte[] formatVersionBytes = null;
             if (metaDataIterator.hasNext()) {
                 final KVPair pair = metaDataIterator.next();
+                assert METADATA_KEY_RANGE.contains(pair.getKey());
                 if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
                     throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
                       + ByteUtil.toString(pair.getKey()) + ")");
@@ -389,30 +396,22 @@ public class Database {
             boolean firstAttempt = true;
             while (true) {
 
-                // Get iterator over schema key/value pairs
-                final Iterator<KVPair> schemaIterator = kvt.getRange(SCHEMA_KEY_PREFIX.clone(),
-                  ByteUtil.getKeyAfterPrefix(SCHEMA_KEY_PREFIX), false);
-
-                // Read recorded database schema versions - should immediately follow FORMAT_VERSION_KEY
+                // Read recorded database schema versions
                 final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
-                while (schemaIterator.hasNext()) {
-                    final KVPair pair = schemaIterator.next();
+                final Iterator<KVPair> schemaIterator = kvt.getRange(SCHEMA_KEY_RANGE.getMin(), SCHEMA_KEY_RANGE.getMax(), false);
+                try {
+                    while (schemaIterator.hasNext()) {
+                        final KVPair pair = schemaIterator.next();
+                        assert SCHEMA_KEY_RANGE.contains(pair.getKey());
 
-                    // Sanity check
-                    if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) < 0) {
-                        throw new InconsistentDatabaseException("database contains unrecognized garbage key "
-                          + ByteUtil.toString(pair.getKey()));
+                        // Decode schema version and get XML
+                        final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
+                        if (vers == 0)
+                            throw new InconsistentDatabaseException("database contains an invalid schema version zero");
+                        bytesMap.put(vers, pair.getValue());
                     }
-
-                    // Stop at end of recorded schemas
-                    if (!ByteUtil.isPrefixOf(SCHEMA_KEY_PREFIX, pair.getKey()))
-                        break;
-
-                    // Decode schema version and get XML
-                    final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
-                    if (vers == 0)
-                        throw new InconsistentDatabaseException("database contains an invalid schema version zero");
-                    bytesMap.put(vers, pair.getValue());
+                } finally {
+                    this.closeIfPossible(schemaIterator);
                 }
 
                 // Read and decode database schemas, avoiding rebuild if possible
@@ -486,6 +485,7 @@ public class Database {
             success = true;
             return tx;
         } finally {
+            this.closeIfPossible(metaDataIterator);
             if (!success) {
                 try {
                     kvt.rollback();
@@ -542,11 +542,12 @@ public class Database {
     }
 
     void copyMetaData(Transaction src, KVStore dst) {
-        for (Iterator<KVPair> i = src.kvt.getRange(new byte[] { METADATA_PREFIX }, VERSION_INDEX_PREFIX.clone(), false);
-          i.hasNext(); ) {
+        final Iterator<KVPair> i = src.kvt.getRange(METADATA_PREFIX.clone(), VERSION_INDEX_PREFIX.clone(), false);
+        while (i.hasNext()) {
             final KVPair pair = i.next();
             dst.put(pair.getKey(), pair.getValue());
         }
+        this.closeIfPossible(i);
     }
 
     void reset(SnapshotTransaction tx) {
@@ -671,6 +672,16 @@ public class Database {
         writer.write(SCHEMA_KEY_PREFIX);
         UnsignedIntEncoder.write(writer, version);
         return writer.getBytes();
+    }
+
+    private void closeIfPossible(Object obj) {
+        if (obj instanceof AutoCloseable) {
+            try {
+                ((AutoCloseable)obj).close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 }
 

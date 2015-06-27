@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.SortedSet;
 
 import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
@@ -179,6 +180,7 @@ public abstract class ComplexField<T> extends Field<T> {
         final byte[] prefixEnd = ByteUtil.getKeyAfterPrefix(prefix);
         for (Iterator<KVPair> i = tx.kvt.getRange(prefix, prefixEnd, false); i.hasNext(); ) {
             final KVPair pair = i.next();
+            assert KeyRange.forPrefix(prefix).contains(pair.getKey());
             this.addIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
         }
     }
@@ -219,6 +221,7 @@ public abstract class ComplexField<T> extends Field<T> {
         Preconditions.checkArgument(subField.indexed, "not indexed");
         for (Iterator<KVPair> i = tx.kvt.getRange(minKey, maxKey, false); i.hasNext(); ) {
             final KVPair pair = i.next();
+            assert new KeyRange(minKey, maxKey).contains(pair.getKey());
             this.removeIndexEntry(tx, id, subField, pair.getKey(), pair.getValue());
         }
     }

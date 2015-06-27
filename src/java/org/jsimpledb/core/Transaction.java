@@ -28,6 +28,7 @@ import java.util.TreeSet;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
+import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -990,14 +991,17 @@ public class Transaction {
             final ByteWriter dstWriter = new ByteWriter();
             dstWriter.write(dstId.getBytes());
             final int dstMark = dstWriter.mark();
-            for (Iterator<KVPair> i = srcTx.kvt.getRange(srcMinKey, srcMaxKey, false); i.hasNext(); ) {
+            final Iterator<KVPair> i = srcTx.kvt.getRange(srcMinKey, srcMaxKey, false);
+            while (i.hasNext()) {
                 final KVPair kv = i.next();
+                assert new KeyRange(srcMinKey, srcMaxKey).contains(kv.getKey());
                 final ByteReader srcReader = new ByteReader(kv.getKey());
                 srcReader.skip(srcMinKey.length);
                 dstWriter.reset(dstMark);
                 dstWriter.write(srcReader);
                 dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
             }
+            Transaction.closeIfPossible(i);
 
             // Create object's simple field index entries
             for (SimpleField<?> field : type.simpleFields.values()) {
@@ -2677,6 +2681,16 @@ public class Transaction {
         }
         id.writeTo(writer);
         return writer.getBytes();
+    }
+
+    private static void closeIfPossible(Object obj) {
+        if (obj instanceof AutoCloseable) {
+            try {
+                ((AutoCloseable)obj).close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 
 // Mutation
