@@ -5,7 +5,9 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -365,10 +367,12 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
     }
 
     private static KeyRanges buildKeyRanges(Iterable<byte[]> keys) {
-        KeyRanges ranges = KeyRanges.EMPTY;
-        for (byte[] key : keys)
-            ranges = ranges.add(new KeyRange(key));
-        return ranges;
+        return new KeyRanges(Iterables.transform(keys, new Function<byte[], KeyRange>() {
+            @Override
+            public KeyRange apply(byte[] key) {
+                return new KeyRange(key);
+            }
+        }));
     }
 
 // RangeIterator
@@ -452,10 +456,18 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
                 }
 
                 // Find the next put, if any
-                final Map.Entry<byte[], byte[]> putEntry = this.reverse ?
-                  (this.cursor != null ?
-                   MutableView.this.writes.getPuts().lowerEntry(this.cursor) : MutableView.this.writes.getPuts().lastEntry()) :
-                  MutableView.this.writes.getPuts().ceilingEntry(this.cursor);
+                Map.Entry<byte[], byte[]> putEntry;
+                if (this.reverse) {
+                    putEntry = this.cursor != null ?
+                      MutableView.this.writes.getPuts().lowerEntry(this.cursor) :
+                      MutableView.this.writes.getPuts().lastEntry();
+                    if (putEntry != null && ByteUtil.compare(putEntry.getKey(), this.limit) < 0)
+                        putEntry = null;
+                } else {
+                    putEntry = MutableView.this.writes.getPuts().ceilingEntry(this.cursor);
+                    if (putEntry != null && this.limit != null && ByteUtil.compare(putEntry.getKey(), this.limit) >= 0)
+                        putEntry = null;
+                }
                 final KVPair putPair = putEntry != null ? new KVPair(putEntry) : null;
 
                 // Figure out which pair wins (read or put)
