@@ -71,7 +71,7 @@ public class KVPair {
 
     @Override
     public String toString() {
-        return "KVPair[" + ByteUtil.toString(this.key) + ":" + ByteUtil.toString(this.value) + "]";
+        return "{" + ByteUtil.toString(this.key) + "," + ByteUtil.toString(this.value) + "}";
     }
 
     @Override

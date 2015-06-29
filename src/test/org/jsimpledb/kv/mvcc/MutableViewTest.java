@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import com.google.common.collect.Lists;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,7 +72,82 @@ public class MutableViewTest extends TestSupport {
         kv.put(KEY_F8, COUNTER_0);
     }
 
-    @Test(dataProvider = "conflicts")
+// VIEW
+
+    @Test
+    public void testRandomWrites() throws Exception {
+        KVStore kvstore = new NavigableMapKVStore();
+        KVStore expected = new NavigableMapKVStore();
+        MutableView mv = new MutableView(kvstore);
+        for (int i = 0; i < 100000; i++) {
+
+            // Get key(s) and value
+            byte[] minKey;
+            byte[] maxKey;
+            do {
+                minKey = new byte[1 << this.random.nextInt(4)];
+                this.random.nextBytes(minKey);
+                maxKey = this.random.nextInt(7) != 0 ? new byte[1 << this.random.nextInt(4)] : null;
+                if (maxKey != null)
+                    this.random.nextBytes(maxKey);
+            } while (maxKey != null && ByteUtil.compare(maxKey, minKey) < 0);
+            byte[] value = new byte[1 << this.random.nextInt(2)];
+            this.random.nextBytes(value);
+
+            // Mutate
+            final int choice = this.random.nextInt(85);
+            if (choice < 10) {
+                value = mv.get(minKey);
+                byte[] evalue = expected.get(minKey);
+                Assert.assertEquals(value, evalue);
+            } else if (choice < 20) {
+                KVPair pair = mv.getAtLeast(minKey);
+                KVPair epair = expected.getAtLeast(minKey);
+                Assert.assertEquals(pair, epair);
+            } else if (choice < 30) {
+                KVPair pair = mv.getAtMost(minKey);
+                KVPair epair = expected.getAtMost(minKey);
+                Assert.assertEquals(pair, epair);
+            } else if (choice < 40) {
+                final boolean reverse = this.random.nextBoolean();
+                if (this.random.nextInt(10) == 0)
+                    minKey = null;
+                if (this.random.nextInt(10) == 0)
+                    maxKey = null;
+                final List<KVPair> alist = Lists.newArrayList(mv.getRange(minKey, maxKey, reverse));
+                final List<KVPair> elist = Lists.newArrayList(expected.getRange(minKey, maxKey, reverse));
+                Assert.assertEquals(alist, elist, "iterations differ:\n  alist=" + alist + "\n  elist=" + elist + "\n");
+            } else if (choice < 60) {
+                mv.put(minKey, value);
+                expected.put(minKey, value);
+                if (this.log.isTraceEnabled())
+                    this.log.trace("PUT: " + ByteUtil.toString(minKey) + " -> " + ByteUtil.toString(value));
+            } else if (choice < 70) {
+                mv.remove(minKey);
+                expected.remove(minKey);
+                if (this.log.isTraceEnabled())
+                    this.log.trace("REMOVE: " + ByteUtil.toString(minKey));
+            } else if (choice < 80) {
+                mv.removeRange(minKey, maxKey);
+                expected.removeRange(minKey, maxKey);
+                if (this.log.isTraceEnabled())
+                    this.log.trace("REMOVE_RANGE: " + ByteUtil.toString(minKey) + ", " + ByteUtil.toString(maxKey));
+            } else {
+                mv.getWrites().applyTo(kvstore);
+                mv = new MutableView(kvstore);
+            }
+
+            // Verify
+            final boolean reverse = this.random.nextBoolean();
+            final List<KVPair> alist = Lists.newArrayList(mv.getRange(null, null, reverse));
+            final List<KVPair> elist = Lists.newArrayList(expected.getRange(null, null, reverse));
+            Assert.assertEquals(alist, elist, "contents differ:\n  alist=" + alist + "\n  elist=" + elist + "\n");
+        }
+    }
+
+// CONFLICTS
+
+    //@Test(dataProvider = "conflicts")
     public void testConflict(List<Access> access1, List<Access> access2, boolean expected) {
 
         // Set up KVStore

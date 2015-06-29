@@ -5,9 +5,7 @@
 
 package org.jsimpledb.kv.mvcc;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -16,7 +14,6 @@ import java.util.Set;
 
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
@@ -125,15 +122,10 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
     @Override
     public synchronized byte[] get(byte[] key) {
 
-        // Sanity check
-        assert this.check();
-
         // Check puts
         byte[] value = this.writes.getPuts().get(key);
-        if (value != null) {
-            assert !this.writes.getRemoves().contains(key);
+        if (value != null)
             return this.applyCounterAdjustment(key, value);
-        }
 
         // Check removes
         if (this.writes.getRemoves().contains(key))
@@ -156,9 +148,6 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
     @Override
     public Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
 
-        // Sanity check
-        assert this.check();
-
         // Build iterator
         return new RangeIterator(minKey, maxKey, reverse);
     }
@@ -167,16 +156,11 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
     public synchronized void put(byte[] key, byte[] value) {
 
         // Sanity check
-        assert this.check();
         Preconditions.checkArgument(key != null, "null key");
         Preconditions.checkArgument(value != null, "null value");
 
         // Overwrite any counter adjustment
         this.writes.getAdjusts().remove(key);
-
-        // Overwrite any removal
-        if (this.writes.getRemoves().contains(key))
-            this.writes.setRemoves(this.writes.getRemoves().remove(new KeyRange(key)));
 
         // Record the put
         this.writes.getPuts().put(key.clone(), value.clone());
@@ -186,7 +170,6 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
     public synchronized void remove(byte[] key) {
 
         // Sanity check
-        assert this.check();
         Preconditions.checkArgument(key != null, "null key");
 
         // Overwrite any counter adjustment
@@ -201,9 +184,6 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
     @Override
     public synchronized void removeRange(byte[] minKey, byte[] maxKey) {
-
-        // Sanity check
-        assert this.check();
 
         // Realize minKey
         if (minKey == null)
@@ -234,9 +214,6 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
     @Override
     public synchronized void adjustCounter(byte[] key, long amount) {
-
-        // Sanity check
-        assert this.check();
 
         // Check puts
         final byte[] putValue = this.writes.getPuts().get(key);
@@ -298,7 +275,7 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 // Internal methods
 
     // Apply accumulated counter adjustments to the value, if any
-    private byte[] applyCounterAdjustment(byte[] key, byte[] value) {
+    private synchronized byte[] applyCounterAdjustment(byte[] key, byte[] value) {
 
         // Is there an adjustment of this key?
         assert key != null;
@@ -348,38 +325,10 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
             this.reads.setReads(this.reads.getReads().union(readRanges));
     }
 
-// Debugging
-
-    // Verify puts, removes, and adjusts are all mutually disjoint
-    private synchronized boolean check() {
-        MutableView.verifyDisjoint(
-          this.writes.getRemoves(),
-          MutableView.buildKeyRanges(this.writes.getPuts().keySet()),
-          MutableView.buildKeyRanges(this.writes.getAdjusts().keySet()));
-        return true;
-    }
-
-    private static void verifyDisjoint(KeyRanges... rangeses) {
-        for (int i = 0; i < rangeses.length - 1; i++) {
-            for (int j = i + 1; j < rangeses.length; j++)
-                assert rangeses[i].intersection(rangeses[j]).isEmpty();
-        }
-    }
-
-    private static KeyRanges buildKeyRanges(Iterable<byte[]> keys) {
-        return new KeyRanges(Iterables.transform(keys, new Function<byte[], KeyRange>() {
-            @Override
-            public KeyRange apply(byte[] key) {
-                return new KeyRange(key);
-            }
-        }));
-    }
-
 // RangeIterator
 
     private class RangeIterator implements Iterator<KVPair> {
 
-        private final KVPairIterator pi;
         private final byte[] limit;
         private final boolean reverse;
 
@@ -388,22 +337,26 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
         private byte[] removeKey;               // key to remove if remove() is invoked
         private boolean finished;
 
+        // Position in underlying k/v store
+        private byte[] kvcursor;                // current position in underlying k/v store
+        private KVPair kvnext;                  // next kvstore pair, if already retrieved
+        private boolean kvdone;                 // no more pairs left in kvstore
+
+        // Position in puts
+        private byte[] putcursor;               // current position in puts
+        private KVPair putnext;                 // next put pair, if already retrieved
+        private boolean putdone;                // no more pairs left in puts
+
         RangeIterator(byte[] minKey, byte[] maxKey, boolean reverse) {
 
             // Realize minKey
             if (minKey == null)
                 minKey = ByteUtil.EMPTY;
 
-            // Build KVPairIterator that omits keys we've put or removed so far; this is safe even if more keys are put and/or
-            // removed after creation, because the set "keys we've put or removed so far" can only increase over time.
-            synchronized (MutableView.this) {
-                final KeyRanges putsAndRemoves = MutableView.buildKeyRanges(MutableView.this.writes.getPuts().keySet())
-                  .union(MutableView.this.writes.getRemoves());
-                this.pi = new KVPairIterator(MutableView.this.kv, new KeyRange(minKey, maxKey), putsAndRemoves.inverse(), reverse);
-            }
-
-            // Initialize cursor
+            // Initialize cursors
             this.cursor = reverse ? maxKey : minKey;
+            this.kvcursor = this.cursor;
+            this.putcursor = this.cursor;
             this.limit = reverse ? minKey : maxKey;
             this.reverse = reverse;
         }
@@ -441,86 +394,144 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
             if (this.finished)
                 return false;
 
-            // Compare against most current MutableView puts and removes
+            // Find the next underlying k/v pair, if we don't already have it
+            final KeyRanges removes;
             synchronized (MutableView.this) {
+                removes = MutableView.this.writes.getRemoves();
+            }
+            if (!this.kvdone && this.kvnext == null) {
+                while (true) {
 
-                // Find the next k/v pair not filtered out by (newly added) removes, if any
-                KVPair readPair = null;
-                while (this.pi.hasNext()) {
-                    readPair = this.pi.next();
-                    if (MutableView.this.writes.getRemoves().contains(readPair.getKey())) {
-                        readPair = null;
+                    // Get next k/v pair in underlying key/value store, if any
+                    if (this.reverse) {
+                        if ((this.kvnext = MutableView.this.kv.getAtMost(this.kvcursor)) == null
+                          || ByteUtil.compare(this.kvnext.getKey(), this.limit) < 0) {
+                            this.kvnext = null;
+                            this.kvdone = true;
+                            break;
+                        }
+                    } else {
+                        if ((this.kvnext = MutableView.this.kv.getAtLeast(this.kvcursor)) == null
+                          || (this.limit != null && ByteUtil.compare(this.kvnext.getKey(), this.limit) >= 0)) {
+                            this.kvnext = null;
+                            this.kvdone = true;
+                            break;
+                        }
+                    }
+                    assert this.kvnext != null;
+
+                    // If key has been removed, skip past the matching remove range
+                    final KeyRange[] ranges = removes.findKey(this.kvnext.getKey());
+                    if (ranges[0] == ranges[1] && ranges[0] != null) {
+                        if ((this.kvcursor = this.reverse ? ranges[0].getMin() : ranges[0].getMax()) == null) {
+                            this.kvnext = null;
+                            this.kvdone = true;
+                            break;
+                        }
                         continue;
                     }
+
+                    // Got one
                     break;
                 }
+            }
 
-                // Find the next put, if any
+            // Find next put pair, if we don't already have it
+            if (!this.putdone && this.putnext == null) {
                 Map.Entry<byte[], byte[]> putEntry;
                 if (this.reverse) {
-                    putEntry = this.cursor != null ?
-                      MutableView.this.writes.getPuts().lowerEntry(this.cursor) :
-                      MutableView.this.writes.getPuts().lastEntry();
-                    if (putEntry != null && ByteUtil.compare(putEntry.getKey(), this.limit) < 0)
+                    synchronized (MutableView.this) {
+                        putEntry = this.cursor != null ?
+                          MutableView.this.writes.getPuts().lowerEntry(this.putcursor) :
+                          MutableView.this.writes.getPuts().lastEntry();
+                    }
+                    if (putEntry == null || ByteUtil.compare(putEntry.getKey(), this.limit) < 0) {
                         putEntry = null;
+                        this.putdone = true;
+                    }
                 } else {
-                    putEntry = MutableView.this.writes.getPuts().ceilingEntry(this.cursor);
-                    if (putEntry != null && this.limit != null && ByteUtil.compare(putEntry.getKey(), this.limit) >= 0)
+                    synchronized (MutableView.this) {
+                        putEntry = MutableView.this.writes.getPuts().ceilingEntry(this.putcursor);
+                    }
+                    if (putEntry == null || this.limit != null && ByteUtil.compare(putEntry.getKey(), this.limit) >= 0) {
                         putEntry = null;
+                        this.putdone = true;
+                    }
                 }
-                final KVPair putPair = putEntry != null ? new KVPair(putEntry) : null;
-
-                // Figure out which pair wins (read or put)
-                KVPair pair;
-                int diff = 0;
-                if (readPair == null && putPair == null)
-                    pair = null;
-                else if (readPair == null)
-                    pair = putPair;
-                else if (putPair == null)
-                    pair = readPair;
-                else {
-                    diff = ByteUtil.compare(putPair.getKey(), readPair.getKey());
-                    if (reverse)
-                        diff = -diff;
-                    pair = diff <= 0 ? putPair : readPair;                  // if there's a tie, the put wins
-                }
-
-                // Record that we read from everything we just scanned over in the underlying KVStore
-                final byte[] skipMin;
-                final byte[] skipMax;
-                if (this.reverse) {
-                    skipMin = pair != null ? pair.getKey() : ByteUtil.EMPTY;
-                    skipMax = this.cursor;
+                if (putEntry != null) {
+                    this.putnext = new KVPair(putEntry);
+                    this.putcursor = putEntry.getKey();
                 } else {
-                    skipMin = this.cursor;
-                    skipMax = pair != null ? ByteUtil.getNextKey(pair.getKey()) : null;
+                    this.putdone = true;
+                    this.putnext = null;
                 }
-                if (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0)
-                    MutableView.this.recordReads(skipMin, skipMax);
-
-                // Finished?
-                if (pair == null) {
-                    this.finished = true;
-                    return false;
-                }
-
-                // Apply any counter to the retrieved value, if appropriate
-                final byte[] adjustedValue = MutableView.this.applyCounterAdjustment(pair.getKey(), pair.getValue());
-                if (adjustedValue != pair.getValue())
-                    pair = new KVPair(pair.getKey(), adjustedValue);
-
-                // Update state
-                this.next = pair;
-                this.cursor = pair != null ? (this.reverse ? pair.getKey() : ByteUtil.getNextKey(pair.getKey())) : null;
-
-                // If a put appeared prior to the KVPPairIterator's next k/v pair, backup the KVPairIterator for next time
-                if (diff < 0)
-                    this.pi.setNextTarget(this.cursor);
-
-                // Done
-                return this.next != null;
             }
+
+            // Figure out which pair appears first (k/v or put); if there's a tie, the put wins
+            if (this.kvnext == null && this.putnext == null)
+                this.next = null;
+            else if (this.kvnext == null) {
+                this.next = this.putnext;
+                this.putnext = null;
+            } else if (this.putnext == null) {
+                this.next = this.kvnext;
+                this.kvnext = null;
+            } else {
+                int diff = ByteUtil.compare(this.putnext.getKey(), this.kvnext.getKey());
+                if (reverse)
+                    diff = -diff;
+                if (diff < 0) {
+                    this.next = this.putnext;
+                    this.putnext = null;
+                } else if (diff > 0) {
+                    this.next = this.kvnext;
+                    this.kvnext = null;
+                } else {                                    // in a tie, the put wins
+                    this.next = this.putnext;
+                    this.putnext = null;
+                    this.kvnext = null;
+                }
+            }
+
+            // Record that we read from everything we just scanned over in the underlying KVStore
+            final byte[] skipMin;
+            final byte[] skipMax;
+            if (this.reverse) {
+                skipMin = this.next != null ? this.next.getKey() : ByteUtil.EMPTY;
+                skipMax = this.cursor;
+            } else {
+                skipMin = this.cursor;
+                skipMax = this.next != null ? ByteUtil.getNextKey(this.next.getKey()) : null;
+            }
+            if (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0)
+                MutableView.this.recordReads(skipMin, skipMax);
+
+            // Finished?
+            if (this.next == null) {
+                this.finished = true;
+                return false;
+            }
+
+            // Apply any counter adjustment to the retrieved value, if appropriate
+            final byte[] adjustedValue = MutableView.this.applyCounterAdjustment(this.next.getKey(), this.next.getValue());
+            if (adjustedValue != this.next.getValue())
+                this.next = new KVPair(this.next.getKey(), adjustedValue);
+
+            // Update cursors
+            this.cursor = this.reverse ? this.next.getKey() : ByteUtil.getNextKey(this.next.getKey());
+            if (!this.kvdone
+              && (this.kvcursor == null || (this.reverse ?
+               ByteUtil.compare(this.cursor, this.kvcursor) < 0 :
+               ByteUtil.compare(this.cursor, this.kvcursor) > 0)))
+                this.kvcursor = this.cursor;
+            if (!this.putdone
+              && (this.putcursor == null || (this.reverse ?
+               ByteUtil.compare(this.cursor, this.putcursor) < 0 :
+               ByteUtil.compare(this.cursor, this.putcursor) > 0)))
+                this.putcursor = this.cursor;
+
+            // Done
+            return true;
         }
     }
 }
