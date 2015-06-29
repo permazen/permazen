@@ -27,6 +27,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -142,9 +143,17 @@ public class JObjectEditorWindow extends ConfirmWindow {
         // Connect fields to properties via FieldGroup
         this.fieldGroup.setItemDataSource(item);
 
-        // Bind fields into FieldGroup
-        for (Map.Entry<String, Field<?>> entry : this.fieldMap.entrySet())
-            this.fieldGroup.bind(entry.getValue(), entry.getKey());
+        // Bind fields into FieldGroup; discard unknown fields
+        for (Iterator<Map.Entry<String, Field<?>>> i = this.fieldMap.entrySet().iterator(); i.hasNext(); ) {
+            final Map.Entry<String, Field<?>> entry = i.next();
+            final String fieldName = entry.getKey();
+            final Field<?> field = entry.getValue();
+            if (item.getItemProperty(fieldName) == null) {          // @FieldBuilder was specified for an unknown database field
+                i.remove();
+                continue;
+            }
+            this.fieldGroup.bind(field, fieldName);
+        }
     }
 
     @Override
