@@ -34,7 +34,7 @@ public class QueryMapValueIndexFunction extends AbstractQueryFunction {
     @Override
     public String getUsage() {
         return this.getName() + "(object-type, field-name, value-type, key-type) (JSimpleDB mode only)\n"
-          + "       " + this.getName() + "(type-name.field-name)"
+          + "       " + this.getName() + "(type-name.field-name)\n"
           + "       " + this.getName() + "(storage-id)";
     }
 

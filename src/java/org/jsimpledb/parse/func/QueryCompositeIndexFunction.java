@@ -30,7 +30,7 @@ public class QueryCompositeIndexFunction extends AbstractQueryFunction {
     @Override
     public String getUsage() {
         return this.getName() + "(object-type, index-name, value-type, ...) (JSimpleDB mode only)\n"
-          + "       " + this.getName() + "(type-name.index-name)"
+          + "       " + this.getName() + "(type-name.index-name)\n"
           + "       " + this.getName() + "(storage-id)";
     }
 

@@ -32,7 +32,7 @@ public class QueryListElementIndexFunction extends AbstractQueryFunction {
     @Override
     public String getUsage() {
         return this.getName() + "(object-type, field-name, value-type) (JSimpleDB mode only)\n"
-          + "       " + this.getName() + "(type-name.field-name)"
+          + "       " + this.getName() + "(type-name.field-name)\n"
           + "       " + this.getName() + "(storage-id)";
     }
 
