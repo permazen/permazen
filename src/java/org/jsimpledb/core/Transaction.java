@@ -2437,7 +2437,7 @@ public class Transaction {
                     refsList.add(refs);
             }
             if (refsList.isEmpty())
-                return NavigableSets.empty();
+                return NavigableSets.empty(FieldTypeRegistry.OBJ_ID);
 
             // Recurse on the union of those objects
             targetObjects = result = NavigableSets.union(refsList);

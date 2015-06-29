@@ -10,7 +10,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -30,34 +29,25 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
     /**
      * Convenience constructor for the case where there are no lower or upper bounds.
      *
-     * @param sets sets to be combined
-     * @param emptyEmpty true means an empty set implies empty, false means an empty set implies nothing
+     * @param sets sets to be combined; assumed to not contain any {@link EmptyNavigableSet}s
      * @throws IllegalArgumentException if the {@link NavigableSet}s in {@code sets} do not have equal {@link Comparator}s
      */
-    protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets, Boolean emptyEmpty) {
-        this(sets, emptyEmpty, AbstractMultiNavigableSet.getComparator(sets), new Bounds<E>());
+    protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets) {
+        this(sets, AbstractMultiNavigableSet.getComparator(sets), new Bounds<E>());
     }
 
     /**
      * Primary constructor.
      *
-     * @param sets sets to be combined
-     * @param emptyEmpty true means an empty set implies empty, false means an empty set implies nothing
+     * @param sets sets to be combined; assumed to not contain any {@link EmptyNavigableSet}s
      * @param comparator common comparator
      * @param bounds range restriction
      * @throws IllegalArgumentException if the {@link NavigableSet}s in {@code sets} do not have equal {@link Comparator}s
      * @throws IllegalArgumentException if {@code bounds} is null
      */
-    protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets, Boolean emptyEmpty,
+    protected AbstractMultiNavigableSet(Iterable<? extends NavigableSet<E>> sets,
       Comparator<? super E> comparator, Bounds<E> bounds) {
         super(bounds);
-        if (emptyEmpty != null) {
-            if (emptyEmpty) {
-                if (Iterables.find(sets, Predicates.instanceOf(EmptyNavigableSet.class), null) != null)         // intersection
-                    sets = Collections.<NavigableSet<E>>emptySet();
-            } else
-                sets = Iterables.filter(sets, Predicates.not(Predicates.instanceOf(EmptyNavigableSet.class)));  // union
-        }
         this.list = Lists.newArrayList(sets);
         this.comparator = comparator;
     }
@@ -69,15 +59,11 @@ abstract class AbstractMultiNavigableSet<E> extends AbstractNavigableSet<E> {
 
     /**
      * Get and verify a common {@link Comparator} (possibly null).
-     *
-     * <p>
-     * We allow an {@link EmptyNavigableSet} to be included even if it has the wrong comparator, because
-     * its comparator doesn't matter.
      */
     private static <E> Comparator<? super E> getComparator(Iterable<? extends NavigableSet<E>> sets) {
 
-        // Remove empty sets - their comparators don't matter
-        sets = Iterables.filter(sets, Predicates.not(Predicates.instanceOf(EmptyNavigableSet.class)));
+        // Empty sets should have already been filtered out
+        assert Iterables.find(sets, Predicates.instanceOf(EmptyNavigableSet.class), null) == null;
 
         // Get the first comparator
         final Iterator<? extends NavigableSet<E>> i = sets.iterator();
