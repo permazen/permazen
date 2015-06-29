@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
@@ -34,7 +33,6 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
     protected final SQLKVDatabase database;
     protected final Connection connection;
-    protected final HashMap<StmtType, PreparedStatement> preparedStatements = new HashMap<StmtType, PreparedStatement>();
 
     private long timeout;
     private boolean closed;
@@ -236,7 +234,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     private byte[] queryBytes(StmtType stmtType, byte[]... params) {
         return this.query(stmtType, new ResultSetFunction<byte[]>() {
             @Override
-            public byte[] apply(ResultSet resultSet) throws SQLException {
+            public byte[] apply(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
                 return resultSet.next() ? resultSet.getBytes(1) : null;
             }
         }, true, params);
@@ -245,7 +243,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     private KVPair queryKVPair(StmtType stmtType, byte[]... params) {
         return this.query(stmtType, new ResultSetFunction<KVPair>() {
             @Override
-            public KVPair apply(ResultSet resultSet) throws SQLException {
+            public KVPair apply(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
                 return resultSet.next() ? new KVPair(resultSet.getBytes(1), resultSet.getBytes(2)) : null;
             }
         }, true, params);
@@ -254,28 +252,26 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     private Iterator<KVPair> queryIterator(StmtType stmtType, byte[]... params) {
         return this.query(stmtType, new ResultSetFunction<Iterator<KVPair>>() {
             @Override
-            public Iterator<KVPair> apply(ResultSet resultSet) throws SQLException {
-                return new ResultSetIterator(resultSet);
+            public Iterator<KVPair> apply(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
+                return new ResultSetIterator(preparedStatement, resultSet);
             }
         }, false, params);
     }
 
     private <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {
         try {
-            PreparedStatement preparedStatement = this.preparedStatements.get(stmtType);
-            if (preparedStatement == null) {
-                preparedStatement = stmtType.create(this.database, this.connection);
-                this.preparedStatements.put(stmtType, preparedStatement);
-            }
+            final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection);
             for (int i = 0; i < params.length; i++)
                 preparedStatement.setBytes(i + 1, params[i]);
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
                 this.log.trace("SQL query: " + preparedStatement);
             final ResultSet resultSet = preparedStatement.executeQuery();
-            final T result = resultSetFunction.apply(resultSet);
-            if (close)
+            final T result = resultSetFunction.apply(preparedStatement, resultSet);
+            if (close) {
                 resultSet.close();
+                preparedStatement.close();
+            }
             return result;
         } catch (SQLException e) {
             throw this.handleException(e);
@@ -284,17 +280,14 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
     private void update(StmtType stmtType, byte[]... params) {
         try {
-            PreparedStatement preparedStatement = this.preparedStatements.get(stmtType);
-            if (preparedStatement == null) {
-                preparedStatement = stmtType.create(this.database, this.connection);
-                this.preparedStatements.put(stmtType, preparedStatement);
-            }
+            final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection);
             for (int i = 0; i < params.length; i++)
                 preparedStatement.setBytes(i + 1, params[i]);
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
                 this.log.trace("SQL update: " + preparedStatement);
             preparedStatement.executeUpdate();
+            preparedStatement.close();
         } catch (SQLException e) {
             throw this.handleException(e);
         }
@@ -304,28 +297,32 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
     private interface ResultSetFunction<T> {
 
-        T apply(ResultSet resultSet) throws SQLException;
+        T apply(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException;
     }
 
 // ResultSetIterator
 
     private class ResultSetIterator implements Iterator<KVPair>, Closeable {
 
-        private ResultSet resultSet;
+        private final PreparedStatement preparedStatement;
+        private final ResultSet resultSet;
+
         private boolean ready;
+        private boolean closed;
         private byte[] removeKey;
 
-        ResultSetIterator(ResultSet resultSet) {
-            Preconditions.checkArgument(resultSet != null, "null resultSet");
+        ResultSetIterator(PreparedStatement preparedStatement, ResultSet resultSet) {
+            assert preparedStatement != null;
+            assert resultSet != null;
             this.resultSet = resultSet;
-            synchronized (this) { }
+            this.preparedStatement = preparedStatement;
         }
 
     // Iterator
 
         @Override
         public synchronized boolean hasNext() {
-            if (this.resultSet == null)
+            if (this.closed)
                 return false;
             if (this.ready)
                 return true;
@@ -358,7 +355,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
         @Override
         public synchronized void remove() {
-            if (this.resultSet == null || this.removeKey == null)
+            if (this.closed || this.removeKey == null)
                 throw new IllegalStateException();
             SQLKVTransaction.this.remove(this.removeKey);
             this.removeKey = null;
@@ -368,14 +365,18 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
         @Override
         public synchronized void close() {
-            if (this.resultSet == null)
+            if (this.closed)
                 return;
+            this.closed = true;
             try {
                 this.resultSet.close();
             } catch (Exception e) {
                 // ignore
-            } finally {
-                this.resultSet = null;
+            }
+            try {
+                this.preparedStatement.close();
+            } catch (Exception e) {
+                // ignore
             }
         }
 
