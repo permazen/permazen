@@ -282,7 +282,7 @@
                         <link href="https://docs.oracle.com/javase/7/docs/api/"/>
                         <link href="https://docs.oracle.com/javaee/7/api/"/>
                         <link href="http://docs.guava-libraries.googlecode.com/git/javadoc/"/>
-                        <link href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/"/>
+                        <link href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/"/>
                         <link href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/"/>
                         <link href="https://foundationdb.com/key-value-store/documentation/javadoc/"/>
                         <link href="https://docs.oracle.com/cd/E17277_02/html/java/"/>
