@@ -7,6 +7,7 @@ package org.jsimpledb.gui;
 
 import com.google.common.reflect.TypeToken;
 import com.vaadin.data.Property;
+import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.AbstractProperty;
 import com.vaadin.data.util.MethodProperty;
@@ -27,7 +28,6 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -118,7 +118,14 @@ public class JObjectEditorWindow extends ConfirmWindow {
         final PropertysetItem item = new PropertysetItem();
 
         // Introspect for any @FieldBuilder.* annotations
-        this.fieldMap.putAll(new FieldBuilder().buildBeanPropertyFields(this.jobj));
+        final BeanFieldGroup<?> beanFieldGroup = FieldBuilder.buildFieldGroup(this.jobj);
+        for (Object id : beanFieldGroup.getBoundPropertyIds()) {
+            final String fieldName = (String)id;
+            final Field<?> field = beanFieldGroup.getField(id);
+            final Property<?> property = beanFieldGroup.getItemDataSource().getItemProperty(id);
+            this.fieldMap.put(fieldName, field);
+            item.addItemProperty(fieldName, property);
+        }
 
         // Build fields and components for all remaining database properties
         final SortedMap<String, JField> jfieldMap = jclass.getJFieldsByName();
@@ -143,17 +150,9 @@ public class JObjectEditorWindow extends ConfirmWindow {
         // Connect fields to properties via FieldGroup
         this.fieldGroup.setItemDataSource(item);
 
-        // Bind fields into FieldGroup; discard unknown fields
-        for (Iterator<Map.Entry<String, Field<?>>> i = this.fieldMap.entrySet().iterator(); i.hasNext(); ) {
-            final Map.Entry<String, Field<?>> entry = i.next();
-            final String fieldName = entry.getKey();
-            final Field<?> field = entry.getValue();
-            if (item.getItemProperty(fieldName) == null) {          // @FieldBuilder was specified for an unknown database field
-                i.remove();
-                continue;
-            }
-            this.fieldGroup.bind(field, fieldName);
-        }
+        // Bind fields into FieldGroup
+        for (Map.Entry<String, Field<?>> entry : this.fieldMap.entrySet())
+            this.fieldGroup.bind(entry.getValue(), entry.getKey());
     }
 
     @Override
