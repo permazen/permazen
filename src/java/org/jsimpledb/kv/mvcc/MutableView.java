@@ -7,6 +7,8 @@ package org.jsimpledb.kv.mvcc;
 
 import com.google.common.base.Preconditions;
 
+import java.io.Closeable;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -327,10 +329,10 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
 // RangeIterator
 
-    private class RangeIterator implements Iterator<KVPair> {
+    private class RangeIterator implements Iterator<KVPair>, Closeable {
 
-        private final byte[] limit;
-        private final boolean reverse;
+        private final boolean reverse;          // iteration direction
+        private final byte[] limit;             // limit of iteration; exclusive if forward, inclusive if reverse
 
         private byte[] cursor;                  // current position; inclusive if forward, exclusive if reverse
         private KVPair next;                    // the next k/v pair queued up, or null if not found yet
@@ -338,12 +340,10 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
         private boolean finished;
 
         // Position in underlying k/v store
-        private byte[] kvcursor;                // current position in underlying k/v store
+        private Iterator<KVPair> kviter;        // k/v store iterator, if any left
         private KVPair kvnext;                  // next kvstore pair, if already retrieved
-        private boolean kvdone;                 // no more pairs left in kvstore
 
         // Position in puts
-        private byte[] putcursor;               // current position in puts
         private KVPair putnext;                 // next put pair, if already retrieved
         private boolean putdone;                // no more pairs left in puts
 
@@ -354,9 +354,8 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
                 minKey = ByteUtil.EMPTY;
 
             // Initialize cursors
+            this.kviter = MutableView.this.kv.getRange(minKey, maxKey, reverse);
             this.cursor = reverse ? maxKey : minKey;
-            this.kvcursor = this.cursor;
-            this.putcursor = this.cursor;
             this.limit = reverse ? minKey : maxKey;
             this.reverse = reverse;
         }
@@ -386,9 +385,11 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
 
         private synchronized boolean findNext() {
 
-            // Invariants
+            // Invariants & checks
             assert this.next == null;
             assert this.cursor != null || this.reverse;
+            assert this.limit != null || !this.reverse;
+            assert this.kviter != null || this.kvnext == null;
 
             // Exhausted?
             if (this.finished)
@@ -399,35 +400,46 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
             synchronized (MutableView.this) {
                 removes = MutableView.this.writes.getRemoves();
             }
-            if (!this.kvdone && this.kvnext == null) {
+            if (this.kviter != null && this.kvnext == null) {
                 while (true) {
 
                     // Get next k/v pair in underlying key/value store, if any
-                    if (this.reverse) {
-                        if ((this.kvnext = MutableView.this.kv.getAtMost(this.kvcursor)) == null
-                          || ByteUtil.compare(this.kvnext.getKey(), this.limit) < 0) {
-                            this.kvnext = null;
-                            this.kvdone = true;
-                            break;
-                        }
-                    } else {
-                        if ((this.kvnext = MutableView.this.kv.getAtLeast(this.kvcursor)) == null
-                          || (this.limit != null && ByteUtil.compare(this.kvnext.getKey(), this.limit) >= 0)) {
-                            this.kvnext = null;
-                            this.kvdone = true;
-                            break;
-                        }
+                    if (!this.kviter.hasNext()) {
+                        this.closeKVStoreIterator();
+                        break;
                     }
+                    this.kvnext = this.kviter.next();
                     assert this.kvnext != null;
+                    assert !this.isPastLimit(this.kvnext.getKey());
+                    assert this.isPast(this.kvnext.getKey(), this.cursor) :
+                      "key " + ByteUtil.toString(this.kvnext.getKey()) + " is not past cursor " + ByteUtil.toString(this.cursor);
 
-                    // If key has been removed, skip past the matching remove range
+                    // If k/v pair has been removed, skip past the matching remove range
                     final KeyRange[] ranges = removes.findKey(this.kvnext.getKey());
                     if (ranges[0] == ranges[1] && ranges[0] != null) {
-                        if ((this.kvcursor = this.reverse ? ranges[0].getMin() : ranges[0].getMax()) == null) {
-                            this.kvnext = null;
-                            this.kvdone = true;
+                        final KeyRange removeRange = ranges[0];
+
+                        // Find the end of the remove range (if any)
+                        final byte[] removeRangeEnd = this.reverse ? removeRange.getMin() : removeRange.getMax();
+                        if (removeRangeEnd == null
+                         || this.isPastLimit(removeRangeEnd)
+                         || (this.reverse && Arrays.equals(removeRangeEnd, this.limit))) {
+                            this.closeKVStoreIterator();
                             break;
                         }
+
+                        // Skip over it and restart iterator
+                        this.closeKVStoreIterator();
+                        final byte[] iterMin;
+                        final byte[] iterMax;
+                        if (this.reverse) {
+                            iterMin = this.limit;
+                            iterMax = removeRangeEnd;
+                        } else {
+                            iterMin = removeRangeEnd;
+                            iterMax = this.limit;
+                        }
+                        this.kviter = MutableView.this.kv.getRange(iterMin, iterMax, this.reverse);
                         continue;
                     }
 
@@ -439,32 +451,20 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
             // Find next put pair, if we don't already have it
             if (!this.putdone && this.putnext == null) {
                 Map.Entry<byte[], byte[]> putEntry;
-                if (this.reverse) {
-                    synchronized (MutableView.this) {
+                synchronized (MutableView.this) {
+                    if (this.reverse) {
                         putEntry = this.cursor != null ?
-                          MutableView.this.writes.getPuts().lowerEntry(this.putcursor) :
+                          MutableView.this.writes.getPuts().lowerEntry(this.cursor) :
                           MutableView.this.writes.getPuts().lastEntry();
-                    }
-                    if (putEntry == null || ByteUtil.compare(putEntry.getKey(), this.limit) < 0) {
-                        putEntry = null;
-                        this.putdone = true;
-                    }
-                } else {
-                    synchronized (MutableView.this) {
-                        putEntry = MutableView.this.writes.getPuts().ceilingEntry(this.putcursor);
-                    }
-                    if (putEntry == null || this.limit != null && ByteUtil.compare(putEntry.getKey(), this.limit) >= 0) {
-                        putEntry = null;
-                        this.putdone = true;
+                    } else {
+                        putEntry = MutableView.this.writes.getPuts().ceilingEntry(this.cursor);
                     }
                 }
-                if (putEntry != null) {
-                    this.putnext = new KVPair(putEntry);
-                    this.putcursor = putEntry.getKey();
-                } else {
-                    this.putdone = true;
+                if (putEntry == null || this.isPastLimit(putEntry.getKey())) {
                     this.putnext = null;
-                }
+                    this.putdone = true;
+                } else
+                    this.putnext = new KVPair(putEntry);
             }
 
             // Figure out which pair appears first (k/v or put); if there's a tie, the put wins
@@ -480,15 +480,13 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
                 int diff = ByteUtil.compare(this.putnext.getKey(), this.kvnext.getKey());
                 if (reverse)
                     diff = -diff;
-                if (diff < 0) {
+                if (diff <= 0) {
                     this.next = this.putnext;
                     this.putnext = null;
-                } else if (diff > 0) {
+                    if (diff == 0)
+                        this.kvnext = null;                     // the kvstore key was overridden by the put key
+                } else {
                     this.next = this.kvnext;
-                    this.kvnext = null;
-                } else {                                    // in a tie, the put wins
-                    this.next = this.putnext;
-                    this.putnext = null;
                     this.kvnext = null;
                 }
             }
@@ -517,21 +515,42 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
             if (adjustedValue != this.next.getValue())
                 this.next = new KVPair(this.next.getKey(), adjustedValue);
 
-            // Update cursors
+            // Update cursor
             this.cursor = this.reverse ? this.next.getKey() : ByteUtil.getNextKey(this.next.getKey());
-            if (!this.kvdone
-              && (this.kvcursor == null || (this.reverse ?
-               ByteUtil.compare(this.cursor, this.kvcursor) < 0 :
-               ByteUtil.compare(this.cursor, this.kvcursor) > 0)))
-                this.kvcursor = this.cursor;
-            if (!this.putdone
-              && (this.putcursor == null || (this.reverse ?
-               ByteUtil.compare(this.cursor, this.putcursor) < 0 :
-               ByteUtil.compare(this.cursor, this.putcursor) > 0)))
-                this.putcursor = this.cursor;
 
             // Done
             return true;
+        }
+
+        private boolean isPastLimit(byte[] key) {
+            return this.isPast(key, this.limit);
+        }
+
+        private boolean isPast(byte[] key, byte[] mark) {
+            return this.reverse ?
+              mark == null || ByteUtil.compare(key, mark) < 0 :
+              mark != null && ByteUtil.compare(key, mark) >= 0;
+        }
+
+        private void closeKVStoreIterator() {
+            assert Thread.holdsLock(this);
+            if (this.kviter != null) {
+                try {
+                    ((AutoCloseable)this.kviter).close();
+                } catch (Exception e) {
+                    // ignore;
+                }
+                this.kviter = null;
+            }
+            this.kvnext = null;
+        }
+
+    // Closeable
+
+        @Override
+        public synchronized void close() {
+            this.closeKVStoreIterator();
+            this.putdone = true;
         }
     }
 }
