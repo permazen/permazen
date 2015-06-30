@@ -1001,7 +1001,7 @@ public class Transaction {
                 dstWriter.write(srcReader);
                 dstTx.kvt.put(dstWriter.getBytes(), kv.getValue());
             }
-            Transaction.closeIfPossible(i);
+            Database.closeIfPossible(i);
 
             // Create object's simple field index entries
             for (SimpleField<?> field : type.simpleFields.values()) {
@@ -2681,16 +2681,6 @@ public class Transaction {
         }
         id.writeTo(writer);
         return writer.getBytes();
-    }
-
-    private static void closeIfPossible(Object obj) {
-        if (obj instanceof AutoCloseable) {
-            try {
-                ((AutoCloseable)obj).close();
-            } catch (Exception e) {
-                // ignore
-            }
-        }
     }
 
 // Mutation

@@ -314,11 +314,10 @@ public class Database {
             this.log.trace("creating transaction using "
               + (version != 0 ? "schema version " + version : "highest recorded schema version"));
         }
-        Iterator<KVPair> metaDataIterator = null;
         try {
 
             // Get iterator over meta-data key/value pairs
-            metaDataIterator = kvt.getRange(METADATA_KEY_RANGE.getMin(), METADATA_KEY_RANGE.getMax(), false);
+            final Iterator<KVPair> metaDataIterator = kvt.getRange(METADATA_KEY_RANGE.getMin(), METADATA_KEY_RANGE.getMax(), false);
 
             // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
             byte[] formatVersionBytes = null;
@@ -342,8 +341,10 @@ public class Database {
                     throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
                 if (kvt.getAtMost(new byte[] { (byte)0xff }) != null)
                     throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
-                if (kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false).hasNext())
+                final Iterator<KVPair> testIterator = kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false);
+                if (testIterator.hasNext())
                     throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
+                Database.closeIfPossible(testIterator);
                 this.checkAddNewSchema(schemaModel, version, allowNewSchema);
 
                 // Initialize database
@@ -390,6 +391,7 @@ public class Database {
                       + ByteUtil.toString(pair.getKey()));
                 }
             }
+            Database.closeIfPossible(metaDataIterator);
 
             // Check schema
             Schemas schemas = null;
@@ -399,20 +401,17 @@ public class Database {
                 // Read recorded database schema versions
                 final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
                 final Iterator<KVPair> schemaIterator = kvt.getRange(SCHEMA_KEY_RANGE.getMin(), SCHEMA_KEY_RANGE.getMax(), false);
-                try {
-                    while (schemaIterator.hasNext()) {
-                        final KVPair pair = schemaIterator.next();
-                        assert SCHEMA_KEY_RANGE.contains(pair.getKey());
+                while (schemaIterator.hasNext()) {
+                    final KVPair pair = schemaIterator.next();
+                    assert SCHEMA_KEY_RANGE.contains(pair.getKey());
 
-                        // Decode schema version and get XML
-                        final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
-                        if (vers == 0)
-                            throw new InconsistentDatabaseException("database contains an invalid schema version zero");
-                        bytesMap.put(vers, pair.getValue());
-                    }
-                } finally {
-                    this.closeIfPossible(schemaIterator);
+                    // Decode schema version and get XML
+                    final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
+                    if (vers == 0)
+                        throw new InconsistentDatabaseException("database contains an invalid schema version zero");
+                    bytesMap.put(vers, pair.getValue());
                 }
+                Database.closeIfPossible(schemaIterator);
 
                 // Read and decode database schemas, avoiding rebuild if possible
                 schemas = this.lastSchemas;
@@ -485,7 +484,6 @@ public class Database {
             success = true;
             return tx;
         } finally {
-            this.closeIfPossible(metaDataIterator);
             if (!success) {
                 try {
                     kvt.rollback();
@@ -547,7 +545,7 @@ public class Database {
             final KVPair pair = i.next();
             dst.put(pair.getKey(), pair.getValue());
         }
-        this.closeIfPossible(i);
+        Database.closeIfPossible(i);
     }
 
     void reset(SnapshotTransaction tx) {
@@ -674,7 +672,7 @@ public class Database {
         return writer.getBytes();
     }
 
-    private void closeIfPossible(Object obj) {
+    static void closeIfPossible(Object obj) {
         if (obj instanceof AutoCloseable) {
             try {
                 ((AutoCloseable)obj).close();
