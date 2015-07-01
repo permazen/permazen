@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
 import org.jsimpledb.kv.KVPair;
@@ -79,6 +81,11 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                 return JSList.this.doSet(index, elem);
             }
         });
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        return new Iter();
     }
 
     private E doSet(final int index, final E newElem) {
@@ -365,6 +372,51 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
               + " can't hold values of type " + (elem != null ? elem.getClass().getName() : "null"), e);
         }
         return writer.getBytes();
+    }
+
+// Iter
+
+    private class Iter implements Iterator<E> {
+
+        private Iterator<KVPair> i;
+        private boolean finished;
+        private Integer removeIndex;
+
+        Iter() {
+            this.i = JSList.this.tx.kvt.getRange(JSList.this.contentPrefix,
+              ByteUtil.getKeyAfterPrefix(JSList.this.contentPrefix), false);
+            synchronized (this) { }
+        }
+
+        @Override
+        public synchronized boolean hasNext() {
+            if (this.finished)
+                return false;
+            if (!this.i.hasNext()) {
+                this.finished = true;
+                Database.closeIfPossible(this.i);
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public synchronized E next() {
+            if (this.finished)
+                throw new NoSuchElementException();
+            final KVPair pair = this.i.next();
+            final ByteReader keyReader = new ByteReader(pair.getKey());
+            keyReader.skip(JSList.this.contentPrefix.length);
+            this.removeIndex = UnsignedIntEncoder.read(keyReader);
+            return JSList.this.elementType.read(new ByteReader(pair.getValue()));
+        }
+
+        @Override
+        public synchronized void remove() {
+            Preconditions.checkState(this.removeIndex != null);
+            JSList.this.removeRange(this.removeIndex, this.removeIndex + 1);
+            this.removeIndex = null;
+        }
     }
 
 // ListFieldChangeNotifier
