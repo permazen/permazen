@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * <p>
  * Note that both primitive types and their corresponding wrapper types are supported as elements. A list whose
  * elements have primitive type will throw an exception on an attempt to add a null value.
- * To specify a primitive element type, specify the type name (e.g., {@code "int"})
+ * To specify a primitive element type, specify the primitive type name (e.g., {@code "int"})
  * as the {@link JField#type} in the {@link #element}.
  * </p>
  */

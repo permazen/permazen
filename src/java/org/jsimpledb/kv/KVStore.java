@@ -13,7 +13,11 @@ import java.util.Iterator;
  * <p>
  * Implementations are not required to support accessing keys that start with {@code 0xff},
  * and if not may throw {@link IllegalArgumentException} if such keys are accessed.
- * </p>
+ *
+ * <p><b>Thread Safety</b></p>
+ *
+ * <p>
+ * Instances must be thread safe, with the exception of the {@link Iterator} returned by {@link #getRange getRange()}.
  *
  * <p><b>Lock-free Counters</b></p>
  *
@@ -25,13 +29,11 @@ import java.util.Iterator;
  * Whether counter adjustments are actually lock-free is implementation dependent, however, the counter methods
  * {@link #encodeCounter encodeCounter()}, {@link #decodeCounter decodeCounter()}, and {@link #adjustCounter adjustCounter()}
  * must function correctly as specified in all cases.
- * </p>
  *
  * <p>
  * How counters are encoded is specific to the implementation. Clients needing to read or write counter values directly
  * should use {@link #decodeCounter decodeCounter()} and {@link #encodeCounter encodeCounter()}, respectively.
  * Counters are removed using the normal methods (i.e., {@link #remove remove()} and {@link #removeRange removeRange()}).
- * </p>
  */
 public interface KVStore {
 
@@ -99,7 +101,7 @@ public interface KVStore {
      * </p>
      *
      * <p>
-     * The returned {@link Iterator} is not guaranteed to be thread safe.
+     * The returned {@link Iterator} itself is not guaranteed to be thread safe.
      * </p>
      *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
