@@ -38,11 +38,11 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  * Instances are not thread safe.
  * </p>
  */
-public class Writes implements Mutations, SizeEstimating {
+public class Writes implements Cloneable, Mutations, SizeEstimating {
 
     private KeyRanges removes = KeyRanges.EMPTY;
-    private final TreeMap<byte[], byte[]> puts = new TreeMap<>(ByteUtil.COMPARATOR);
-    private final TreeMap<byte[], Long> adjusts = new TreeMap<>(ByteUtil.COMPARATOR);
+    private /*final*/ TreeMap<byte[], byte[]> puts = new TreeMap<>(ByteUtil.COMPARATOR);
+    private /*final*/ TreeMap<byte[], Long> adjusts = new TreeMap<>(ByteUtil.COMPARATOR);
 
 // Accessors
 
@@ -305,6 +305,22 @@ public class Writes implements Mutations, SizeEstimating {
               .addObjectOverhead()
               .addLongField();
         }
+    }
+
+// Cloneable
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Writes clone() {
+        final Writes clone;
+        try {
+            clone = (Writes)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        clone.puts = (TreeMap<byte[], byte[]>)this.puts.clone();
+        clone.adjusts = (TreeMap<byte[], Long>)this.adjusts.clone();
+        return clone;
     }
 
 // Object
