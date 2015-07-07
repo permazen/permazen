@@ -19,6 +19,10 @@ public class PingRequest extends AbstractPingMessage {
     /**
      * Constructor.
      *
+     * @param clusterId cluster ID
+     * @param senderId identity of sender
+     * @param recipientId identity of recipient
+     * @param term sender's current term
      * @param timestamp request timestamp
      */
     public PingRequest(int clusterId, String senderId, String recipientId, long term, Timestamp timestamp) {

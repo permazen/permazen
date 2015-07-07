@@ -176,7 +176,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      *
      * @param consistency desired consistency level
      * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
-     * @throws IlleaglArgumentException if {@code consistency} is null
+     * @throws IllegalArgumentException if {@code consistency} is null
      */
     public void setConsistency(Consistency consistency) {
         Preconditions.checkArgument(consistency != null, "null consistency");

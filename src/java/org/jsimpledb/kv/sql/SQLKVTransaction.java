@@ -73,8 +73,8 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
      * @param key {@inheritDoc}
      * @return {@inheritDoc}
      * @throws StaleTransactionException {@inheritDoc}
-     * @throws RetryTransactionException {@inheritDoc}
-     * @throws KVDatabaseException {@inheritDoc}
+     * @throws org.jsimpledb.kv.RetryTransactionException {@inheritDoc}
+     * @throws org.jsimpledb.kv.KVDatabaseException {@inheritDoc}
      * @throws UnsupportedOperationException {@inheritDoc}
      * @throws IllegalArgumentException {@inheritDoc}
      */
