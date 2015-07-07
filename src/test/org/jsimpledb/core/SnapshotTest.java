@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.kv.KVPair;
@@ -29,7 +30,7 @@ public class SnapshotTest extends TestSupport {
     public void testSnapshot() throws Exception {
 
         // Setup database
-        final TreeMap<byte[], byte[]> data1 = new TreeMap<byte[], byte[]>(ByteUtil.COMPARATOR);
+        final ConcurrentSkipListMap<byte[], byte[]> data1 = new ConcurrentSkipListMap<byte[], byte[]>(ByteUtil.COMPARATOR);
         final NavigableMapKVStore kvstore1 = new NavigableMapKVStore(data1);
         final SimpleKVDatabase kv1 = new SimpleKVDatabase(kvstore1, 100, 500);
         final Database db1 = new Database(kv1);
