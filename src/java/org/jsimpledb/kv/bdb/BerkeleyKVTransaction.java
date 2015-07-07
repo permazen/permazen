@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.jsimpledb.kv.AbstractKVStore;
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
@@ -185,6 +186,8 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         }
     }
 
+// More KVTransaction
+
     @Override
     public synchronized void commit() {
         if (this.closed)
@@ -207,6 +210,11 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
         } catch (DatabaseException e) {
             throw this.wrapException(e);
         }
+    }
+
+    @Override
+    public CloseableKVStore mutableSnapshot() {
+        throw new UnsupportedOperationException();
     }
 
 // Closeable

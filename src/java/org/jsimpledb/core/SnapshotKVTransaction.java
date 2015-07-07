@@ -7,8 +7,10 @@ package org.jsimpledb.core;
 
 import java.util.concurrent.Future;
 
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 
 /**
@@ -75,6 +77,11 @@ class SnapshotKVTransaction extends NavigableMapKVStore implements KVTransaction
     @Override
     public void rollback() {
         throw new UnsupportedOperationException("snapshot transaction");
+    }
+
+    @Override
+    public CloseableKVStore mutableSnapshot() {
+        return new CloseableForwardingKVStore(this.clone());
     }
 }
 

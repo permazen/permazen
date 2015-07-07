@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Future;
 
 import org.jsimpledb.kv.AbstractKVStore;
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
@@ -178,6 +179,11 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
         } finally {
             this.closeConnection();
         }
+    }
+
+    @Override
+    public CloseableKVStore mutableSnapshot() {
+        throw new UnsupportedOperationException();
     }
 
     /**

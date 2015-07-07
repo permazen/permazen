@@ -11,10 +11,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
+import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +50,7 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
         this.kvdb = kvdb;
         this.versionInfo = versionInfo;
         this.startTime = System.nanoTime();
-        this.mutableView = new MutableView(versionInfo.getSnapshot());
+        this.mutableView = new MutableView(versionInfo.getSnapshotRefs().getKVStore());
     }
 
 // Accessors
@@ -130,6 +132,15 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
             return;
         this.closed = true;
         this.kvdb.rollback(this);
+    }
+
+    @Override
+    public synchronized CloseableKVStore mutableSnapshot() {
+        this.checkState();
+        final SnapshotRefs snapshotRefs = this.versionInfo.getSnapshotRefs();
+        snapshotRefs.ref();
+        final MutableView snapshotView = new MutableView(snapshotRefs.getKVStore(), null, this.mutableView.getWrites().clone());
+        return new CloseableForwardingKVStore(snapshotView, snapshotRefs.getUnrefCloseable());
     }
 
 // Closeable

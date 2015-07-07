@@ -358,7 +358,7 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
                 break;
             if (this.log.isDebugEnabled())
                 this.log.debug("discarding obsolete version " + versionInfo);
-            versionInfo.getSnapshot().close();
+            versionInfo.close();
             i.remove();
         }
     }

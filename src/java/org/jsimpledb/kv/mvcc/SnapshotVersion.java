@@ -5,6 +5,7 @@
 
 package org.jsimpledb.kv.mvcc;
 
+import java.io.Closeable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,13 +24,14 @@ import org.jsimpledb.kv.CloseableKVStore;
  *  <li>The {@link Writes} of the transaction that was committed on this version, if any</li>
  *  </ul>
  */
-public class SnapshotVersion {
+public class SnapshotVersion implements Closeable {
 
     private final long version;
-    private final CloseableKVStore snapshot;
+    private final SnapshotRefs snapshotRefs;
     private final HashSet<SnapshotKVTransaction> openTransactions = new HashSet<>(2);
 
     private Writes committedWrites;
+    private boolean closed;
 
     /**
      * Constructor.
@@ -39,7 +41,7 @@ public class SnapshotVersion {
      */
     SnapshotVersion(long version, CloseableKVStore snapshot) {
         this.version = version;
-        this.snapshot = snapshot;
+        this.snapshotRefs = new SnapshotRefs(snapshot);
     }
 
     /**
@@ -52,12 +54,12 @@ public class SnapshotVersion {
     }
 
     /**
-     * Get the {@link CloseableKVStore} view of this version's snapshot.
+     * Get the {@link SnapshotRefs} for this version's snapshot.
      *
-     * @return unmodifiable {@link CloseableKVStore}
+     * @return {@link SnapshotRefs} for snapshot
      */
-    public CloseableKVStore getSnapshot() {
-        return this.snapshot;
+    public SnapshotRefs getSnapshotRefs() {
+        return this.snapshotRefs;
     }
 
     /**
@@ -76,6 +78,16 @@ public class SnapshotVersion {
      */
     public Writes getCommittedWrites() {
         return this.committedWrites;
+    }
+
+// Closeable
+
+    @Override
+    public synchronized void close() {
+        if (this.closed)
+            return;
+        this.snapshotRefs.unref();
+        this.closed = true;
     }
 
 // Package methods
@@ -98,7 +110,6 @@ public class SnapshotVersion {
     public String toString() {
         return this.getClass().getSimpleName()
           + "[vers=" + this.version
-          + ",snapshot=" + this.snapshot
           + (!this.openTransactions.isEmpty() ? ",openTx=" + this.openTransactions : "")
           + (this.committedWrites != null ? ",writes=" + this.committedWrites : "")
           + "]";

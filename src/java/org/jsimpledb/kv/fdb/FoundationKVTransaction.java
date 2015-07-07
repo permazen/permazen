@@ -20,6 +20,7 @@ import com.google.common.primitives.Bytes;
 import java.util.Iterator;
 import java.util.concurrent.Future;
 
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
@@ -214,6 +215,11 @@ public class FoundationKVTransaction implements KVTransaction {
             return;
         this.stale = true;
         this.cancel();
+    }
+
+    @Override
+    public CloseableKVStore mutableSnapshot() {
+        throw new UnsupportedOperationException();
     }
 
     private void cancel() {

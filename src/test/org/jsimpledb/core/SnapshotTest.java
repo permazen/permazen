@@ -11,14 +11,12 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.util.ByteUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -131,5 +131,27 @@ public interface KVTransaction extends KVStore {
      * {@link #commit} or {@link #rollback}, in which case the invocation will be ignored.
      */
     void rollback();
+
+    /**
+     * Create a mutable copy of the database content represented by this transaction.
+     *
+     * <p>
+     * The returned {@link KVStore} should be mutable, and be completely independent of this transaction
+     * (subsequent changes to this transaction do not affect it, and vice-versa).
+     *
+     * <p>
+     * The returned {@link KVStore} should be promply {@link CloseableKVStore#close close()}'d when no longer
+     * needed to release any underlying resources.
+     *
+     * <p>
+     * This is an optional method; only some underlying key/value store technologies can efficiently support it.
+     * Implementations may throw {@link UnsupportedOperationException} if not supported.
+     *
+     * @return independent, mutable copy of this transaction's entire database content
+     * @throws UnsupportedOperationException if this method is not supported
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws RetryTransactionException if this transaction must be retried and is no longer usable
+     */
+    CloseableKVStore mutableSnapshot();
 }
 

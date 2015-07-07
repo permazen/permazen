@@ -14,11 +14,16 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.jsimpledb.kv.AbstractKVStore;
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVPairIterator;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.mvcc.LockOwner;
+import org.jsimpledb.kv.mvcc.MutableView;
+import org.jsimpledb.kv.util.CloseableForwardingKVStore;
+import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.LoggerFactory;
 
@@ -116,11 +121,41 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
         this.kvdb.rollback(this);
     }
 
+    @Override
+    public CloseableKVStore mutableSnapshot() {
+
+        // Build copy
+        CloseableKVStore kvstore;
+        if (this.kvdb.kv instanceof NavigableMapKVStore) {
+            final NavigableMapKVStore kv = (NavigableMapKVStore)this.kvdb.kv;
+            kvstore = new CloseableForwardingKVStore(kv.clone());
+        } else if (this.kvdb.kv instanceof AtomicKVStore) {
+            final AtomicKVStore kv = (AtomicKVStore)this.kvdb.kv;
+            final CloseableKVStore snapshot = kv.snapshot();
+            final MutableView view = new MutableView(snapshot);
+            view.disableReadTracking();
+            kvstore = new CloseableForwardingKVStore(view, snapshot);
+        } else {
+            throw new UnsupportedOperationException("underlying KVStore "
+              + this.kvdb.kv.getClass().getSimpleName() + " is not an AtomicKVStore");
+        }
+
+        // Apply mutations
+        synchronized (this.kvdb) {
+            for (Mutation mutation : this.mutations)
+                mutation.apply(kvstore);
+        }
+
+        // Done
+        return kvstore;
+    }
+
     // Find the mutation that overlaps with the given key, if any.
     // This method assumes we are already synchronized on the associated database.
     Mutation findMutation(byte[] key) {
 
         // Sanity check during unit testing
+        assert Thread.holdsLock(this.kvdb);
         assert !this.hasOverlaps() && !this.hasEmpties();
 
         // Get all mutations starting at or prior to `key' and look for overlap

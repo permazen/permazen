@@ -10,6 +10,7 @@ import com.google.common.primitives.Bytes;
 
 import java.util.concurrent.Future;
 
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVTransaction;
 
 /**
@@ -97,6 +98,12 @@ public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction 
     @Override
     public void rollback() {
         this.delegate().rollback();
+    }
+
+    @Override
+    public CloseableKVStore mutableSnapshot() {
+        final CloseableKVStore kvstore = this.tx.mutableSnapshot();
+        return new CloseableForwardingKVStore(PrefixKVStore.create(kvstore, this.getKeyPrefix()), kvstore);
     }
 }
 

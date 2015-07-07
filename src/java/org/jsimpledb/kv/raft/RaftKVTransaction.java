@@ -18,6 +18,8 @@ import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.mvcc.MutableView;
+import org.jsimpledb.kv.mvcc.SnapshotRefs;
+import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     private final long txId = COUNTER.incrementAndGet();
     private final SettableFuture<Void> commitFuture = SettableFuture.create();
     private final RaftKVDatabase kvdb;
-    private final CloseableKVStore snapshot;            // snapshot of the committed key/value store
+    private final SnapshotRefs snapshotRefs;            // snapshot of the committed key/value store
     private final MutableView view;                     // transaction's view of key/value store (restricted to prefix)
     private final long baseTerm;                        // term of the log entry on which this transaction is based
     private final long baseIndex;                       // index of the log entry on which this transaction is based
@@ -69,7 +71,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         this.kvdb = kvdb;
         this.baseTerm = baseTerm;
         this.baseIndex = baseIndex;
-        this.snapshot = snapshot;
+        this.snapshotRefs = new SnapshotRefs(snapshot);
         this.view = view;
     }
 
@@ -99,7 +101,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         synchronized (this.kvdb) {
             assert state.compareTo(this.state) >= 0;
             if (this.state.equals(TxState.EXECUTING) && !this.state.equals(state))
-                this.snapshot.close();
+                this.snapshotRefs.unref();
             this.state = state;
         }
     }
@@ -311,6 +313,17 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     @Override
     public void rollback() {
         this.kvdb.rollback(this);
+    }
+
+    @Override
+    public CloseableKVStore mutableSnapshot() {
+        synchronized (this.kvdb) {
+            if (!this.state.equals(TxState.EXECUTING))
+                throw new StaleTransactionException(this);
+            this.snapshotRefs.ref();
+            final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, this.view.getWrites().clone());
+            return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
+        }
     }
 
 // Package-access methods
