@@ -36,6 +36,10 @@ public interface AtomicKVStore extends KVStore {
      * Stop this instance.
      *
      * <p>
+     * Any open {@link #snapshot}'s should be {@link CloseableKVStore#close close()}'d before invoking this method;
+     * the behavior of those that are not is undefined.
+     *
+     * <p>
      * This method is idempotent: if this instance has not been started, or is already stopped, nothing happens.
      */
     void stop();
