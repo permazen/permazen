@@ -10,6 +10,7 @@ import com.google.common.base.Converter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.NavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.jsimpledb.TestSupport;
 import org.jsimpledb.util.ByteUtil;
@@ -22,7 +23,7 @@ public class XMLSerializerTest extends TestSupport {
     @Test
     public void testXMLSerializer() throws Exception {
 
-        final NavigableMap<byte[], byte[]> data1 = new NavigableMapKVStore().getNavigableMap();
+        final ConcurrentSkipListMap<byte[], byte[]> data1 = new NavigableMapKVStore().getNavigableMap();
 
         data1.put(b("8901"), b(""));
         data1.put(b("0123"), b("4567"));
@@ -62,7 +63,7 @@ public class XMLSerializerTest extends TestSupport {
         Assert.assertEquals(actualIndent, expectedIndent);
         Assert.assertEquals(actualNodent, expectedNodent);
 
-        final NavigableMap<byte[], byte[]> data2 = new NavigableMapKVStore().getNavigableMap();
+        final ConcurrentSkipListMap<byte[], byte[]> data2 = new NavigableMapKVStore().getNavigableMap();
         new XMLSerializer(new NavigableMapKVStore(data2)).read(new ByteArrayInputStream(xmlIndent));
         Assert.assertEquals(s(data1), s(data2));
 

@@ -19,12 +19,12 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
 
 /**
- * Provides a {@link org.jsimpledb.kv.KVStore} view of an underlying {@link NavigableMap NavigableMap&lt;byte[], byte[]&gt;}
- * whose keys are sorted lexicographically as unsigned bytes.
+ * Provides a {@link org.jsimpledb.kv.KVStore} view of an underlying
+ * {@link ConcurrentSkipListMap NavigableMap&lt;byte[], byte[]&gt;} whose keys are sorted lexicographically as unsigned bytes.
  */
-public class NavigableMapKVStore extends AbstractKVStore {
+public class NavigableMapKVStore extends AbstractKVStore implements Cloneable {
 
-    private final NavigableMap<byte[], byte[]> map;
+    private /*final*/ ConcurrentSkipListMap<byte[], byte[]> map;
 
     /**
      * Convenience constructor. Uses an internally constructed {@link ConcurrentSkipListMap}.
@@ -48,18 +48,17 @@ public class NavigableMapKVStore extends AbstractKVStore {
      * The underlying map <b>must</b> sort keys lexicographically as unsigned bytes; otherwise, behavior is undefined.
      * </p>
      *
-     * <p>
-     * The underlying map's iterator <b>must not</b> throw {@link java.util.ConcurrentModificationException}. For example,
-     * {@link java.util.TreeMap} does not satisfy this constraint.
-     * </p>
-     *
      * @param map underlying map
      * @throws IllegalArgumentException if {@code map} is null
+     * @throws IllegalArgumentException if an invalid comparator is detected (this check is not reliable)
      * @see org.jsimpledb.util.ByteUtil#COMPARATOR
      */
-    public NavigableMapKVStore(NavigableMap<byte[], byte[]> map) {
+    public NavigableMapKVStore(ConcurrentSkipListMap<byte[], byte[]> map) {
         Preconditions.checkArgument(map != null, "null map");
+        Preconditions.checkArgument(map.comparator() != null
+          && map.comparator().compare(ByteUtil.parse("00"), ByteUtil.parse("ff")) < 0, "invalid comparator");
         this.map = map;
+        synchronized (this) { }
     }
 
     /**
@@ -67,7 +66,7 @@ public class NavigableMapKVStore extends AbstractKVStore {
      *
      * @return the underlying map
      */
-    public NavigableMap<byte[], byte[]> getNavigableMap() {
+    public ConcurrentSkipListMap<byte[], byte[]> getNavigableMap() {
         return this.map;
     }
 
@@ -75,8 +74,7 @@ public class NavigableMapKVStore extends AbstractKVStore {
 
     @Override
     public byte[] get(byte[] key) {
-        if (key == null)
-            throw new NullPointerException("null key");
+        Preconditions.checkArgument(key != null, "null key");
         return this.map.get(key);
     }
 
@@ -113,17 +111,14 @@ public class NavigableMapKVStore extends AbstractKVStore {
 
     @Override
     public void put(byte[] key, byte[] value) {
-        if (key == null)
-            throw new NullPointerException("null key");
-        if (value == null)
-            throw new NullPointerException("null value");
+        Preconditions.checkArgument(key != null, "null key");
+        Preconditions.checkArgument(value != null, "null value");
         this.map.put(key, value);
     }
 
     @Override
     public void remove(byte[] key) {
-        if (key == null)
-            throw new NullPointerException("null key");
+        Preconditions.checkArgument(key != null, "null key");
         this.map.remove(key);
     }
 
@@ -137,6 +132,20 @@ public class NavigableMapKVStore extends AbstractKVStore {
             this.map.tailMap(minKey).clear();
         else
             this.map.subMap(minKey, maxKey).clear();
+    }
+
+// Cloneable
+
+    @Override
+    public NavigableMapKVStore clone() {
+        final NavigableMapKVStore clone;
+        try {
+            clone = (NavigableMapKVStore)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        clone.map = this.map.clone();
+        return clone;
     }
 }
 
