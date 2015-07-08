@@ -419,7 +419,8 @@ public class JSimpleDB {
      * This does not invoke {@link JTransaction#setCurrent JTransaction.setCurrent()}: the caller is responsible
      * for doing that if necessary. However, this method does arrange for
      * {@link JTransaction#setCurrent JTransaction.setCurrent}{@code (null)} to be invoked as soon as the
-     * returned transaction is committed (or rolled back).
+     * returned transaction is committed (or rolled back), assuming {@link JTransaction#getCurrent} returns the
+     * {@link JTransaction} returned here at that time.
      * </p>
      *
      * @param allowNewSchema whether creating a new schema version is allowed
@@ -440,9 +441,10 @@ public class JSimpleDB {
     public JTransaction createTransaction(boolean allowNewSchema, ValidationMode validationMode) {
         Preconditions.checkArgument(validationMode != null, "null validationMode");
         final Transaction tx = this.db.createTransaction(this.getSchemaModel(), this.configuredVersion, allowNewSchema);
-        tx.addCallback(new CleanupCurrentCallback());
-        this.actualVersion = tx.getSchemas().getVersions().lastKey();
-        return new JTransaction(this, tx, validationMode);
+        this.actualVersion = tx.getSchema().getVersionNumber();
+        final JTransaction jtx = new JTransaction(this, tx, validationMode);
+        tx.addCallback(new CleanupCurrentCallback(jtx));
+        return jtx;
     }
 
 // Schema
@@ -798,24 +800,36 @@ public class JSimpleDB {
 
     private static final class CleanupCurrentCallback extends Transaction.CallbackAdapter {
 
-        @Override
-        public void afterCommit() {
-            JTransaction.setCurrent(null);
+        private final JTransaction jtx;
+
+        CleanupCurrentCallback(JTransaction jtx) {
+            assert jtx != null;
+            this.jtx = jtx;
         }
 
         @Override
         public void afterCompletion(boolean committed) {
-            JTransaction.setCurrent(null);
+            final JTransaction current;
+            try {
+                current = JTransaction.getCurrent();
+            } catch (IllegalStateException e) {
+                return;
+            }
+            if (current == this.jtx)
+                JTransaction.setCurrent(null);
         }
 
         @Override
         public int hashCode() {
-            return this.getClass().hashCode();
+            return this.jtx.hashCode();
         }
 
         @Override
         public boolean equals(Object obj) {
-            return obj != null && obj.getClass() == this.getClass();
+            if (obj == null || obj.getClass() != this.getClass())
+                return false;
+            final CleanupCurrentCallback that = (CleanupCurrentCallback)obj;
+            return this.jtx.equals(that.jtx);
         }
     }
 }
