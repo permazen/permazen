@@ -23,10 +23,12 @@ import java.util.TreeMap;
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.SnapshotTransaction;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.UnknownTypeException;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
@@ -434,8 +436,7 @@ public class JSimpleDB {
      *  is not recorded in the database and {@code allowNewSchema} is true, but {@code schemaModel} is incompatible
      *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
      *  incompatibly between schema versions)
-     * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid schema information is detected
-     *  in the database
+     * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws IllegalArgumentException if {@code validationMode} is null
      */
     public JTransaction createTransaction(boolean allowNewSchema, ValidationMode validationMode) {
@@ -445,6 +446,31 @@ public class JSimpleDB {
         final JTransaction jtx = new JTransaction(this, tx, validationMode);
         tx.addCallback(new CleanupCurrentCallback(jtx));
         return jtx;
+    }
+
+    /**
+     * Create a new {@link SnapshotJTransaction} based on the provided key/value store.
+     *
+     * <p>
+     * The key/value store will be initialized if necessary (i.e., {@code kvstore} may be empty), otherwise it will be
+     * validated against the schema information associated with this instance.
+     *
+     * <p>
+     * The returned {@link SnapshotJTransaction} does not support {@link SnapshotJTransaction#commit commit()} or
+     * {@link SnapshotJTransaction#rollback rollback()}, and can be used indefinitely.
+     *
+     * @param kvstore key/value store, empty or having content compatible with this transaction's {@link JSimpleDB}
+     * @param allowNewSchema whether creating a new schema version in {@code kvstore} is allowed
+     * @param validationMode the {@link ValidationMode} to use for the snapshot transaction
+     * @return snapshot transaction based on {@code kvstore}
+     * @throws org.jsimpledb.core.SchemaMismatchException if {@code kvstore} contains incompatible or missing schema information
+     * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws IllegalArgumentException if {@code kvstore} is null
+     */
+    public SnapshotJTransaction createSnapshotTransaction(KVStore kvstore, boolean allowNewSchema, ValidationMode validationMode) {
+        final SnapshotTransaction stx = this.db.createSnapshotTransaction(kvstore,
+          this.getSchemaModel(), this.configuredVersion, allowNewSchema);
+        return new SnapshotJTransaction(this, stx, validationMode);
     }
 
 // Schema

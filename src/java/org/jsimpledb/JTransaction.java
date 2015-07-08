@@ -136,8 +136,9 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Snapshot Transactions</b>
  * <ul>
- *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default in-memory transaction
+ *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default in-memory snapshot transaction
  *      associated with this transaction</li>
+ *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a new in-memory snapshot transaction</li>
  *  <li>{@link #copyTo(JTransaction, JObject, ObjId, CopyState, String[]) copyTo()}
  *      - Copy an object into another transaction</li>
  *  <li>{@link #copyTo(JTransaction, CopyState, Iterable) copyTo()}
@@ -419,15 +420,29 @@ public class JTransaction {
      *
      * <p>
      * The default {@link SnapshotJTransaction} uses {@link ValidationMode#MANUAL}.
-     * </p>
      *
      * @return the associated snapshot transaction
      * @see JObject#copyOut JObject.copyOut()
      */
     public synchronized SnapshotJTransaction getSnapshotTransaction() {
         if (this.snapshotTransaction == null)
-            this.snapshotTransaction = new SnapshotJTransaction(this, ValidationMode.MANUAL);
+            this.snapshotTransaction = this.createSnapshotTransaction(ValidationMode.MANUAL);
         return this.snapshotTransaction;
+    }
+
+    /**
+     * Create an empty snapshot transaction based on this instance.
+     *
+     * <p>
+     * This new instance will have the same schema meta-data as this instance.
+     *
+     * @param validationMode the {@link ValidationMode} to use for the new transaction
+     * @return newly created snapshot transaction
+     * @throws IllegalArgumentException if {@code validationMode} is null
+     * @throws org.jsimpledb.core.StaleTransactionException if this instance is no longer usable
+     */
+    public SnapshotJTransaction createSnapshotTransaction(ValidationMode validationMode) {
+        return new SnapshotJTransaction(this.jdb, this.tx.createSnapshotTransaction(), validationMode);
     }
 
     /**

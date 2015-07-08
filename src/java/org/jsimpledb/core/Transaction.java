@@ -30,6 +30,7 @@ import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
+import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ByteWriter;
@@ -190,11 +191,22 @@ public class Transaction {
     private final TreeMap<Integer, HashSet<FieldMonitor>> monitorMap = new TreeMap<>();
     private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
 
+// Constructors
+
+    Transaction(Database db, KVTransaction kvt, Schemas schemas) {
+        this(db, kvt, schemas, schemas.versions.lastKey());
+    }
+
     Transaction(Database db, KVTransaction kvt, Schemas schemas, int versionNumber) {
         this(db, kvt, schemas, schemas.getVersion(versionNumber));
     }
 
     Transaction(Database db, KVTransaction kvt, Schemas schemas, Schema schema) {
+        assert db != null;
+        assert kvt != null;
+        assert schemas != null;
+        assert schema != null;
+        assert schema == schemas.getVersion(schema.versionNumber);
         this.db = db;
         this.kvt = kvt;
         this.schemas = schemas;
@@ -477,18 +489,21 @@ public class Transaction {
     }
 
     /**
-     * Create an empty, in-memory transaction initialized with the same schema history as this transaction.
-     * The result can be used as a destination for "snapshot" copies of objects made via {@link #copy copy()}.
+     * Create an empty, in-memory "snapshot" transaction.
+     * The snapshot transaction will be initialized with the same schema meta-data as this instance but will be otherwise empty
+     * (i.e., contain no objects). It can be used as a destination for "snapshot" copies of objects made via {@link #copy copy()}.
      *
      * <p>
-     * The returned {@link SnapshotTransaction} does not support {@link #commit}, {@link #rollback}, {@link #setRollbackOnly},
-     * or {@link #addCallback addCallback()}. However, it can be used indefinitely after this transaction closes.
-     * </p>
+     * The returned {@link SnapshotTransaction} does not support {@link #commit}, {@link #rollback},
+     * or {@link #addCallback addCallback()}, and can be used indefinitely after this transaction closes.
      *
-     * @return uncloseable, empty, in-memory transaction with compatible schema information
+     * @return empty in-memory snapshot transaction with compatible schema information
+     * @see Database#createSnapshotTransaction Database.createSnapshotTransaction()
      */
     public SnapshotTransaction createSnapshotTransaction() {
-        return new SnapshotTransaction(this);
+        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
+        this.db.copyMetaData(this, kvstore);
+        return new SnapshotTransaction(this.db, kvstore, this.schemas, this.schema);
     }
 
 // Object Lifecycle

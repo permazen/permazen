@@ -294,193 +294,23 @@ public class Database {
      *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
      * @throws SchemaMismatchException
      *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null
-     * @throws InconsistentDatabaseException if inconsistent or invalid schema information is detected in the database
+     * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
      * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
      * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance
      */
     public Transaction createTransaction(final SchemaModel schemaModel, int version, final boolean allowNewSchema) {
 
-        // Sanity check
-        Preconditions.checkArgument(version >= 0, "invalid schema version: " + version);
-
-        // Validate schema
-        if (schemaModel != null)
-            schemaModel.validate();
-
         // Open KV transaction
         final KVTransaction kvt = this.kvdb.createTransaction();
         boolean success = false;
-        if (this.log.isTraceEnabled()) {
-            this.log.trace("creating transaction using "
-              + (version != 0 ? "schema version " + version : "highest recorded schema version"));
-        }
         try {
 
-            // Get iterator over meta-data key/value pairs
-            final Iterator<KVPair> metaDataIterator = kvt.getRange(METADATA_KEY_RANGE.getMin(), METADATA_KEY_RANGE.getMax(), false);
-
-            // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
-            byte[] formatVersionBytes = null;
-            if (metaDataIterator.hasNext()) {
-                final KVPair pair = metaDataIterator.next();
-                assert METADATA_KEY_RANGE.contains(pair.getKey());
-                if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
-                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
-                      + ByteUtil.toString(pair.getKey()) + ")");
-                }
-                formatVersionBytes = pair.getValue();
-            }
-
-            // Get database format object; check for an uninitialized database
-            final boolean uninitialized = formatVersionBytes == null;
-            final int formatVersion;
-            if (uninitialized) {
-
-                // Sanity checks
-                if (kvt.getAtLeast(new byte[0]) != null)
-                    throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
-                if (kvt.getAtMost(new byte[] { (byte)0xff }) != null)
-                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
-                final Iterator<KVPair> testIterator = kvt.getRange(new byte[0], new byte[] { (byte)0xff }, false);
-                if (testIterator.hasNext())
-                    throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
-                Database.closeIfPossible(testIterator);
-                this.checkAddNewSchema(schemaModel, version, allowNewSchema);
-
-                // Initialize database
-                formatVersion = CURRENT_FORMAT_VERSION;
-                this.log.info("detected an uninitialized database; initializing with format version " + formatVersion);
-                final ByteWriter writer = new ByteWriter();
-                UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
-                kvt.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
-
-                // Sanity check again
-                formatVersionBytes = kvt.get(FORMAT_VERSION_KEY.clone());
-                if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)
-                    throw new InconsistentDatabaseException("database failed basic read/write test");
-                final KVPair lower = kvt.getAtLeast(new byte[0]);
-                if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
-                    throw new InconsistentDatabaseException("database failed basic read/write test");
-                final KVPair upper = kvt.getAtMost(new byte[] { (byte)0xff });
-                if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
-                    throw new InconsistentDatabaseException("database failed basic read/write test");
-            } else {
-                try {
-                    formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);
-                } catch (IllegalArgumentException e) {
-                    throw new InconsistentDatabaseException("database contains invalid encoded format version "
-                      + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
-                }
-            }
-            final boolean compressedSchemaXML;
-            switch (formatVersion) {
-            case FORMAT_VERSION_1:
-            case FORMAT_VERSION_2:
-                compressedSchemaXML = formatVersion >= FORMAT_VERSION_2;
-                break;
-            default:
-                throw new InconsistentDatabaseException("database contains unrecognized format version "
-                  + formatVersion + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
-            }
-
-            // There should not be any other meta data prior to recorded schemas
-            if (metaDataIterator.hasNext()) {
-                final KVPair pair = metaDataIterator.next();
-                if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) < 0) {
-                    throw new InconsistentDatabaseException("database contains unrecognized garbage at key "
-                      + ByteUtil.toString(pair.getKey()));
-                }
-            }
-            Database.closeIfPossible(metaDataIterator);
-
-            // Check schema
-            Schemas schemas = null;
-            boolean firstAttempt = true;
-            while (true) {
-
-                // Read recorded database schema versions
-                final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
-                final Iterator<KVPair> schemaIterator = kvt.getRange(SCHEMA_KEY_RANGE.getMin(), SCHEMA_KEY_RANGE.getMax(), false);
-                while (schemaIterator.hasNext()) {
-                    final KVPair pair = schemaIterator.next();
-                    assert SCHEMA_KEY_RANGE.contains(pair.getKey());
-
-                    // Decode schema version and get XML
-                    final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
-                    if (vers == 0)
-                        throw new InconsistentDatabaseException("database contains an invalid schema version zero");
-                    bytesMap.put(vers, pair.getValue());
-                }
-                Database.closeIfPossible(schemaIterator);
-
-                // Read and decode database schemas, avoiding rebuild if possible
-                schemas = this.lastSchemas;
-                if (schemas != null && !schemas.isSameVersions(bytesMap))
-                    schemas = null;
-                if (schemas == null) {
-                    try {
-                        schemas = this.buildSchemas(bytesMap, compressedSchemaXML);
-                    } catch (IllegalArgumentException e) {
-                        if (firstAttempt)
-                            throw new InconsistentDatabaseException("database contains invalid schema information", e);
-                        else
-                            throw new InvalidSchemaException("schema is not valid: " + e.getMessage(), e);
-                    }
-                }
-
-                // If no version specified, assume the highest recorded version
-                if (version == 0 && !bytesMap.isEmpty())
-                    version = bytesMap.lastKey();
-
-                // If transaction schema was not found in the database, add it and retry
-                if (!bytesMap.containsKey(version)) {
-
-                    // Log it
-                    if (bytesMap.isEmpty()) {
-                        if (!uninitialized)
-                            throw new InconsistentDatabaseException("database is initialized but contains zero schema versions");
-                    } else {
-                        this.log.info("schema version " + version
-                          + " not found in database; known versions are " + bytesMap.keySet());
-                    }
-
-                    // Check whether we can add a new schema version
-                    this.checkAddNewSchema(schemaModel, version, allowNewSchema);
-
-                    // Record new schema in database
-                    this.log.info("recording new schema version " + version + " into database");
-                    this.writeSchema(kvt, version, schemaModel, compressedSchemaXML);
-
-                    // Try again
-                    schemas = null;
-                    firstAttempt = false;
-                    continue;
-                }
-
-                // Compare transaction schema with the schema of the same version found in the database
-                if (this.log.isTraceEnabled())
-                    this.log.trace("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
-                final SchemaModel dbSchemaModel = schemas.getVersion(version).getSchemaModel();
-                if (schemaModel != null) {
-                    if (!schemaModel.isCompatibleWith(dbSchemaModel)) {
-                        final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
-                        this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}"
-                          + "\n=== Differences ===\n{}", dbSchemaModel, schemaModel, diffs);
-                        throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "
-                          + version + " that is already recorded in the database:\n" + diffs);
-                    } else if (this.log.isTraceEnabled() && !schemaModel.equals(dbSchemaModel)) {
-                        final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
-                        this.log.trace("the provided schema differs from, but is compatible with, the database schema:\n{}", diffs);
-                    }
-                }
-                break;
-            }
-
-            // Save schema for next time
-            this.lastSchemas = schemas;
+            // Validate meta-data
+            final Schemas schemas = this.verifySchemas(kvt, schemaModel, version, allowNewSchema);
+            assert schemas != null;
 
             // Create transaction
-            final Transaction tx = new Transaction(this, kvt, schemas, version);
+            final Transaction tx = version > 0 ? new Transaction(this, kvt, schemas, version) : new Transaction(this, kvt, schemas);
             success = true;
             return tx;
         } finally {
@@ -492,6 +322,241 @@ public class Database {
                 }
             }
         }
+    }
+
+    /**
+     * Create a "snapshot" transaction based on the provided key/value store.
+     *
+     * <p>
+     * The key/value store will be initialized if necessary (i.e., {@code kvstore} may be empty), otherwise it will be
+     * validated against the schema information associated with this instance.
+     *
+     * <p>
+     * The returned {@link SnapshotTransaction} does not support {@link SnapshotTransaction#commit commit()},
+     * {@link SnapshotTransaction#rollback rollback()}, or {@link SnapshotTransaction#addCallback addCallback()},
+     * and can be used indefinitely.
+     *
+     * @param kvstore key/value store, empty or having content compatible with this transaction's {@link Database}
+     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
+     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
+     * @param allowNewSchema whether creating a new schema version in {@code kvstore} is allowed
+     * @return snapshot transaction based on {@code kvstore}
+     * @throws IllegalArgumentException if {@code version} is less than zero
+     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
+     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
+     *  as recorded in the database
+     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database
+     *  and {@code allowNewSchema} is false
+     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,
+     *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas
+     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
+     * @throws SchemaMismatchException
+     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null
+     * @throws SchemaMismatchException if {@code kvstore} contains incompatible or missing schema information
+     * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
+     * @throws IllegalArgumentException if {@code kvstore} is null
+     * @see Transaction#createSnapshotTransaction Transaction.createSnapshotTransaction()
+     */
+    public SnapshotTransaction createSnapshotTransaction(KVStore kvstore,
+      SchemaModel schemaModel, int version, boolean allowNewSchema) {
+
+        // Validate meta-data
+        final Schemas schemas = this.verifySchemas(kvstore, schemaModel, version, allowNewSchema);
+        assert schemas != null;
+
+        // Create snapshot transaction
+        return version > 0 ?
+          new SnapshotTransaction(this, kvstore, schemas, version) : new SnapshotTransaction(this, kvstore, schemas);
+    }
+
+    /**
+     * Initialize (if necessary) and validate the given {@link KVStore} for use with this database.
+     *
+     * @param kvstore key/value store
+     * @param schemaModel schema to use with the new transaction - <b>assumed to be valid</b>, or null
+     * @param version schema version number
+     * @param allowNewSchema whether creating a new schema version is allowed
+     */
+    Schemas verifySchemas(KVStore kvstore, SchemaModel schemaModel, int version, boolean allowNewSchema) {
+
+        // Sanity check
+        Preconditions.checkArgument(kvstore != null, "null kvstore");
+        Preconditions.checkArgument(version >= 0, "invalid schema version: " + version);
+        if (schemaModel != null)
+            schemaModel.validate();
+
+        // Debug
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("creating transaction using "
+              + (version != 0 ? "schema version " + version : "highest recorded schema version"));
+        }
+
+        // Get iterator over meta-data key/value pairs
+        final Iterator<KVPair> metaDataIterator = kvstore.getRange(METADATA_KEY_RANGE.getMin(), METADATA_KEY_RANGE.getMax(), false);
+
+        // Get format version; it should be first; if not found, database is uninitialized (and should be empty)
+        byte[] formatVersionBytes = null;
+        if (metaDataIterator.hasNext()) {
+            final KVPair pair = metaDataIterator.next();
+            assert METADATA_KEY_RANGE.contains(pair.getKey());
+            if (!Arrays.equals(pair.getKey(), FORMAT_VERSION_KEY)) {
+                throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage (key "
+                  + ByteUtil.toString(pair.getKey()) + ")");
+            }
+            formatVersionBytes = pair.getValue();
+        }
+
+        // Get database format object; check for an uninitialized database
+        final boolean uninitialized = formatVersionBytes == null;
+        final int formatVersion;
+        if (uninitialized) {
+
+            // Sanity checks
+            if (kvstore.getAtLeast(new byte[0]) != null)
+                throw new InconsistentDatabaseException("database is uninitialized but contains unrecognized garbage");
+            if (kvstore.getAtMost(new byte[] { (byte)0xff }) != null)
+                throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getAtMost()");
+            final Iterator<KVPair> testIterator = kvstore.getRange(new byte[0], new byte[] { (byte)0xff }, false);
+            if (testIterator.hasNext())
+                throw new InconsistentDatabaseException("inconsistent results from getAtLeast() and getRange()");
+            Database.closeIfPossible(testIterator);
+            this.checkAddNewSchema(schemaModel, version, allowNewSchema);
+
+            // Initialize database
+            formatVersion = CURRENT_FORMAT_VERSION;
+            this.log.info("detected an uninitialized database; initializing with format version " + formatVersion);
+            final ByteWriter writer = new ByteWriter();
+            UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
+            kvstore.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
+
+            // Sanity check again
+            formatVersionBytes = kvstore.get(FORMAT_VERSION_KEY.clone());
+            if (formatVersionBytes == null || ByteUtil.compare(formatVersionBytes, writer.getBytes()) != 0)
+                throw new InconsistentDatabaseException("database failed basic read/write test");
+            final KVPair lower = kvstore.getAtLeast(new byte[0]);
+            if (lower == null || !lower.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
+                throw new InconsistentDatabaseException("database failed basic read/write test");
+            final KVPair upper = kvstore.getAtMost(new byte[] { (byte)0xff });
+            if (upper == null || !upper.equals(new KVPair(FORMAT_VERSION_KEY, writer.getBytes())))
+                throw new InconsistentDatabaseException("database failed basic read/write test");
+        } else {
+            try {
+                formatVersion = UnsignedIntEncoder.decode(formatVersionBytes);
+            } catch (IllegalArgumentException e) {
+                throw new InconsistentDatabaseException("database contains invalid encoded format version "
+                  + ByteUtil.toString(formatVersionBytes) + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
+            }
+        }
+        final boolean compressedSchemaXML;
+        switch (formatVersion) {
+        case FORMAT_VERSION_1:
+        case FORMAT_VERSION_2:
+            compressedSchemaXML = formatVersion >= FORMAT_VERSION_2;
+            break;
+        default:
+            throw new InconsistentDatabaseException("database contains unrecognized format version "
+              + formatVersion + " under key " + ByteUtil.toString(FORMAT_VERSION_KEY));
+        }
+
+        // There should not be any other meta data prior to recorded schemas
+        if (metaDataIterator.hasNext()) {
+            final KVPair pair = metaDataIterator.next();
+            if (ByteUtil.compare(pair.getKey(), SCHEMA_KEY_PREFIX) < 0) {
+                throw new InconsistentDatabaseException("database contains unrecognized garbage at key "
+                  + ByteUtil.toString(pair.getKey()));
+            }
+        }
+        Database.closeIfPossible(metaDataIterator);
+
+        // Check schema
+        Schemas schemas = null;
+        boolean firstAttempt = true;
+        while (true) {
+
+            // Read recorded database schema versions
+            final TreeMap<Integer, byte[]> bytesMap = new TreeMap<>();
+            final Iterator<KVPair> schemaIterator = kvstore.getRange(SCHEMA_KEY_RANGE.getMin(), SCHEMA_KEY_RANGE.getMax(), false);
+            while (schemaIterator.hasNext()) {
+                final KVPair pair = schemaIterator.next();
+                assert SCHEMA_KEY_RANGE.contains(pair.getKey());
+
+                // Decode schema version and get XML
+                final int vers = UnsignedIntEncoder.read(new ByteReader(pair.getKey(), SCHEMA_KEY_PREFIX.length));
+                if (vers == 0)
+                    throw new InconsistentDatabaseException("database contains an invalid schema version zero");
+                bytesMap.put(vers, pair.getValue());
+            }
+            Database.closeIfPossible(schemaIterator);
+
+            // Read and decode database schemas, avoiding rebuild if possible
+            schemas = this.lastSchemas;
+            if (schemas != null && !schemas.isSameVersions(bytesMap))
+                schemas = null;
+            if (schemas == null) {
+                try {
+                    schemas = this.buildSchemas(bytesMap, compressedSchemaXML);
+                } catch (IllegalArgumentException e) {
+                    if (firstAttempt)
+                        throw new InconsistentDatabaseException("database contains invalid schema information", e);
+                    else
+                        throw new InvalidSchemaException("schema is not valid: " + e.getMessage(), e);
+                }
+            }
+
+            // If no version specified, assume the highest recorded version
+            if (version == 0 && !bytesMap.isEmpty())
+                version = bytesMap.lastKey();
+
+            // If transaction schema was not found in the database, add it and retry
+            if (!bytesMap.containsKey(version)) {
+
+                // Log it
+                if (bytesMap.isEmpty()) {
+                    if (!uninitialized)
+                        throw new InconsistentDatabaseException("database is initialized but contains zero schema versions");
+                } else {
+                    this.log.info("schema version " + version
+                      + " not found in database; known versions are " + bytesMap.keySet());
+                }
+
+                // Check whether we can add a new schema version
+                this.checkAddNewSchema(schemaModel, version, allowNewSchema);
+
+                // Record new schema in database
+                this.log.info("recording new schema version " + version + " into database");
+                this.writeSchema(kvstore, version, schemaModel, compressedSchemaXML);
+
+                // Try again
+                schemas = null;
+                firstAttempt = false;
+                continue;
+            }
+
+            // Compare transaction schema with the schema of the same version found in the database
+            if (this.log.isTraceEnabled())
+                this.log.trace("found schema version " + version + " in database; known versions are " + bytesMap.keySet());
+            final SchemaModel dbSchemaModel = schemas.getVersion(version).getSchemaModel();
+            if (schemaModel != null) {
+                if (!schemaModel.isCompatibleWith(dbSchemaModel)) {
+                    final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
+                    this.log.error("schema mismatch:\n=== Database schema ===\n{}\n=== Provided schema ===\n{}"
+                      + "\n=== Differences ===\n{}", dbSchemaModel, schemaModel, diffs);
+                    throw new IllegalArgumentException("the provided transaction schema does not match the schema with version "
+                      + version + " that is already recorded in the database:\n" + diffs);
+                } else if (this.log.isTraceEnabled() && !schemaModel.equals(dbSchemaModel)) {
+                    final Diffs diffs = schemaModel.differencesFrom(dbSchemaModel);
+                    this.log.trace("the provided schema differs from, but is compatible with, the database schema:\n{}", diffs);
+                }
+            }
+            break;
+        }
+
+        // Save schema for next time
+        this.lastSchemas = schemas;
+
+        // Done
+        return schemas;
     }
 
     /**
@@ -626,7 +691,7 @@ public class Database {
     /**
      * Record the given schema into the database.
      */
-    private void writeSchema(KVTransaction kvt, int version, SchemaModel schemaModel, boolean compress) {
+    private void writeSchema(KVStore kvt, int version, SchemaModel schemaModel, boolean compress) {
 
         // Encode as XML
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -661,7 +726,7 @@ public class Database {
     /**
      * Delete a schema version. Caller must verify no objects exist.
      */
-    void deleteSchema(KVTransaction kvt, int version) {
+    void deleteSchema(KVStore kvt, int version) {
         kvt.remove(this.getSchemaKey(version));
     }
 

@@ -5,30 +5,47 @@
 
 package org.jsimpledb.core;
 
+import org.jsimpledb.kv.KVStore;
+
 /**
- * An initially empty, in-memory {@link Transaction} that persists indefinitely.
+ * A "snapshot" {@link Transaction} that persists indefinitely.
  *
  * <p>
- * {@link SnapshotTransaction}s hold a "snapshot" some portion of the state of a {@link Transaction} for later use.
- * Each {@link SnapshotTransaction}s contains its own set of "snapshot" objects that are copies of
- * corresponding "real" database objects (as of the time they were copied).
- * </p>
+ * {@link SnapshotTransaction}s hold a "snapshot" of some portion of the state of a {@link Transaction}
+ * for later use. Each {@link SnapshotTransaction} contains its own set of "snapshot" objects.
  *
  * <p>
  * {@link SnapshotTransaction}s can never be closed (i.e., committed or rolled-back); they persist in memory until
  * no longer referenced. {@link Transaction.Callback}s may be registered but they will never be invoked.
- * </p>
  *
- * @see Transaction#createSnapshotTransaction
+ * <p>
+ * {@link SnapshotTransaction}s can be based on an arbitrary {@link KVStore};
+ * see {@link Database#createSnapshotTransaction Database.createSnapshotTransaction()}.
+ *
+ * @see Transaction#createSnapshotTransaction Transaction.createSnapshotTransaction()
+ * @see Database#createSnapshotTransaction Database.createSnapshotTransaction()
+ * @see org.jsimpledb.SnapshotJTransaction
  */
 public class SnapshotTransaction extends Transaction {
 
-    SnapshotTransaction(Transaction parent) {
-        super(parent.db, new SnapshotKVTransaction(parent), parent.schemas, parent.schema);
+// Constructors
+
+    SnapshotTransaction(Database db, KVStore kvstore, Schemas schemas) {
+        super(db, new SnapshotKVTransaction(kvstore), schemas);
     }
 
+    SnapshotTransaction(Database db, KVStore kvstore, Schemas schemas, int versionNumber) {
+        super(db, new SnapshotKVTransaction(kvstore), schemas, versionNumber);
+    }
+
+    SnapshotTransaction(Database db, KVStore kvstore, Schemas schemas, Schema schema) {
+        super(db, new SnapshotKVTransaction(kvstore), schemas, schema);
+    }
+
+// Methods
+
     /**
-     * Delete all objects contained in this snapshot transaction and reset it back to its initial empty state.
+     * Delete all objects contained in this snapshot transaction.
      *
      * <p>
      * It will contain schema meta-data but no objects.
@@ -69,20 +86,6 @@ public class SnapshotTransaction extends Transaction {
      */
     @Override
     public void rollback() {
-        throw new UnsupportedOperationException("snapshot transaction");
-    }
-
-    /**
-     * Mark this transaction for rollback only.
-     *
-     * <p>
-     * {@link SnapshotTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.
-     * </p>
-     *
-     * @throws UnsupportedOperationException always
-     */
-    @Override
-    public void setRollbackOnly() {
         throw new UnsupportedOperationException("snapshot transaction");
     }
 

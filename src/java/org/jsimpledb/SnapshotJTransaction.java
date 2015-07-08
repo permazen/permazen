@@ -7,55 +7,46 @@ package org.jsimpledb;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SnapshotTransaction;
+import org.jsimpledb.core.Transaction;
 
 /**
- * An initially empty, in-memory {@link JTransaction} that persists indefinitely.
+ * A "snapshot" {@link JTransaction} that persists indefinitely.
  *
  * <p>
  * {@link SnapshotJTransaction}s hold a "snapshot" some portion of the state of a {@link JTransaction} for later use.
- * Each {@link SnapshotJTransaction}s contains its own set of "snapshot" {@link JObject}s that are copies of
- * corresponding "real" database {@link JObject}s (as of the time they were copied). Because a {@link SnapshotJTransaction}
- * lives in memory indefinitely, these objects can be used just like normal Java objects, outside of any regular transaction.
- * However, in addition {@link JSimpleDB} features such as indexing, listeners, validation, etc. will continue to work normally.
- * </p>
+ * Each {@link SnapshotJTransaction} contains its own set of "snapshot" {@link JObject}s that are (usually) copies of
+ * the corresponding "real" database {@link JObject}s. Because a {@link SnapshotJTransaction}
+ * lives indefinitely, these objects can be used just like normal Java objects, outside of any regular transaction.
+ * In addition, {@link JSimpleDB} features such as indexing, listeners, validation, etc. also continue to work normally.
  *
  * <p>
- * Typically, {@link SnapshotJTransaction}s are not utilized directly; instead each {@link JTransaction} has an
- * {@linkplain JTransaction#getSnapshotTransaction associated} default {@link SnapshotJTransaction} instance,
- * and {@link JObject#copyOut JObject.copyOut()} is invoked to copy an object there.
- * However, more general usage is possible by creating instances of this class directly.
- * </p>
+ * For convenience, each {@link JTransaction} has a default {@link SnapshotJTransaction} instance
+ * {@linkplain JTransaction#getSnapshotTransaction associated} with it; {@link JObject#copyOut JObject.copyOut()}
+ * copies objects there.
  *
  * <p>
- * This class guarantees that for each {@link ObjId}, there will only exist a single {@link JObject} instance associated with it.
- * While there is a single pool of globally unique "database" {@link JObject}s per {@link JSimpleDB},
- * each {@link SnapshotJTransaction} maintains its own pool of "snapshot" {@link JObject} instances.
- * In turn, each snapshot {@link JObject} instance is {@linkplain JObject#getTransaction associated}
- * with a specific {@link SnapshotJTransaction}.
- * </p>
+ * More general usage is possible via {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()}.
+ * For example, for {@link org.jsimpledb.kv.KVDatabase}s that support it, using the key/value store snapshot returned by
+ * {@link org.jsimpledb.kv.KVTransaction#mutableSnapshot} allows an efficient copying of the entire database.
+ *
+ * <p>
+ * Instances guarantee that for each {@link ObjId}, there exists a unique associated {@link JObject}.
+ * While there is a single pool of globally unique "database" {@link JObject}s per {@link JSimpleDB} that is used by
+ * all normal {@link JTransaction}s, each {@link SnapshotJTransaction} maintains its own pool of "snapshot" {@link JObject}
+ * instances. Each snapshot {@link JObject} links back to its owning {@link SnapshotJTransaction}
+ * via {@linkplain JObject#getTransaction}.
+ *
+ * @see JTransaction#createSnapshotTransaction Transaction.createSnapshotTransaction()
+ * @see JSimpleDB#createSnapshotTransaction JSimpleDB.createSnapshotTransaction()
+ * @see org.jsimpledb.core.SnapshotTransaction
  */
 public class SnapshotJTransaction extends JTransaction {
 
     final JObjectCache jobjectCache;
 
-    /**
-     * Create a new instance based on the specified transaction. This new instance will be initially empty
-     * but will have the same recorded schema history as {@code jtx}.
-     *
-     * <p>
-     * It is not normally necessary to create {@link SnapshotJTransaction}s, as every {@link JTransaction}
-     * automatically has an associated default {@link SnapshotJTransaction} created for it and made available
-     * via {@link JTransaction#getSnapshotTransaction JTransaction.getSnapshotTransaction()}.
-     * </p>
-     *
-     * @param jtx open transaction from which to snapshot objects
-     * @param validationMode the {@link ValidationMode} to use for this transaction
-     * @throws IllegalArgumentException if either parameter is null
-     * @throws org.jsimpledb.core.StaleTransactionException if {@code jtx} is no longer usable
-     */
-    public SnapshotJTransaction(JTransaction jtx, ValidationMode validationMode) {
-        super(jtx.jdb, jtx.tx.createSnapshotTransaction(), validationMode);
-        this.jobjectCache = new JObjectCache(jtx.jdb) {
+    SnapshotJTransaction(JSimpleDB jdb, Transaction tx, ValidationMode validationMode) {
+        super(jdb, tx, validationMode);
+        this.jobjectCache = new JObjectCache(jdb) {
             @Override
             protected JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception {
                 return (JObject)classGenerator.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);

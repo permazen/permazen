@@ -140,8 +140,14 @@ public interface KVTransaction extends KVStore {
      * (subsequent changes to this transaction do not affect it, and vice-versa).
      *
      * <p>
+     * Note that as with any other information extracted from a {@link KVTransaction}, the returned content
+     * should not be considered valid until this transaction has been successfully committed.
+     *
+     * <p>
      * The returned {@link KVStore} should be promply {@link CloseableKVStore#close close()}'d when no longer
-     * needed to release any underlying resources.
+     * needed to release any underlying resources. In particular, the caller must ensure that the {@link KVStore}
+     * is {@link CloseableKVStore#close close()}'d even if this transaction's commit fails. This may require
+     * adding a transaction synchronization callback, etc.
      *
      * <p>
      * This is an optional method; only some underlying key/value store technologies can efficiently support it.

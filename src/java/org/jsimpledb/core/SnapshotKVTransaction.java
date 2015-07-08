@@ -9,24 +9,36 @@ import java.util.concurrent.Future;
 
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
-import org.jsimpledb.kv.util.CloseableForwardingKVStore;
-import org.jsimpledb.kv.util.NavigableMapKVStore;
+import org.jsimpledb.kv.util.ForwardingKVStore;
 
 /**
- * A dummy {@link KVTransaction} implementation based on an underlying {@link org.jsimpledb.kv.KVStore} instead of a
- * {@link org.jsimpledb.kv.KVDatabase}.
+ * A dummy {@link KVTransaction} implementation wrapping a provided {@link org.jsimpledb.kv.KVStore}.
  *
  * <p>
- * Instances serve simply to hold state in memory indefinitely. They cannot be committed or rolled back: all
- * {@link org.jsimpledb.kv.KVStore} methods are supported but all {@link KVTransaction} methods throw
- * {@link UnsupportedOperationException}.
+ * Instances serve simply to provide access to the underlying {@link org.jsimpledb.kv.KVStore} via the
+ * {@link KVTransaction} interface. They cannot be committed or rolled back: all {@link org.jsimpledb.kv.KVStore}
+ * methods are supported, but all {@link KVTransaction} methods throw {@link UnsupportedOperationException}.
  * </p>
  */
-class SnapshotKVTransaction extends NavigableMapKVStore implements KVTransaction {
+class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
 
-    SnapshotKVTransaction(Transaction tx) {
-        tx.db.copyMetaData(tx, this);
+    private final KVStore kvstore;
+
+    /**
+     * Constructor.
+     *
+     * @param kvstore underlying key/value store
+     */
+    SnapshotKVTransaction(KVStore kvstore) {
+        assert kvstore != null;
+        this.kvstore = kvstore;
+    }
+
+    @Override
+    protected KVStore delegate() {
+        return this.kvstore;
     }
 
     /**
@@ -79,9 +91,14 @@ class SnapshotKVTransaction extends NavigableMapKVStore implements KVTransaction
         throw new UnsupportedOperationException("snapshot transaction");
     }
 
+    /**
+     * Not supported by {@link SnapshotKVTransaction}.
+     *
+     * @throws UnsupportedOperationException always
+     */
     @Override
     public CloseableKVStore mutableSnapshot() {
-        return new CloseableForwardingKVStore(this.clone());
+        throw new UnsupportedOperationException("snapshot transaction");
     }
 }
 

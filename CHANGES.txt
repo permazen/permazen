@@ -1,7 +1,10 @@
 Version Next
 
+    - Added KVTransaction.mutableSnapshot() and KVStore-based
+      snapshot transactions in JSimpleDB and core layers
     - Added RocksDBKVDatabase based on RocksDB JNI adapter
-    - Added support for key watches
+    - Added support for KVDatabase key watches
+    - Improved performance of List field iterators
     - Fixed bugs and O(n^2) behavior in MutableView
 
 Version 1.2.0 Released June 9, 2015
