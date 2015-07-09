@@ -14,8 +14,9 @@ LevelDB as the local persistent store.
 Let A, B, C, ... represent the nodes in the cluster. In this example
 the identity of A is "nodeA" and the IP address of A is "A.A.A.A".
 
-If the nodes are running on the same host, you can specify different
-TCP ports, e.g., 127.0.0.1:1001, 127.0.0.1:1002, etc.
+If the nodes are running on the same host, you need to specify different
+TCP ports, either by appending them to the address like `127.0.0.1:1001'
+or by using the `--raft-port' flag.
 
  1. Choose a directory for the Raft persistent state on each machine.
     In this example we'll use ~/.raftX for machine X.
