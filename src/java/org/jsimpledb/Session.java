@@ -310,7 +310,6 @@ public class Session {
 
         // Sanity check
         Preconditions.checkArgument(action != null, "null action");
-        Preconditions.checkState(this.tx == null || this.kvt != null, "a transaction is already open in this session");
 
         // Perform action within new transaction
         try {
