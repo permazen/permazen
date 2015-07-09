@@ -330,7 +330,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     }
 
     /**
-     * Build the {@link KVStore} that will be used to back this container from the current {@link JTransaction}.
+     * Build the {@link org.jsimpledb.kv.KVStore} that will be used to back this container from the current {@link JTransaction}.
      *
      * <p>
      * This method should build a {@link org.jsimpledb.kv.KVStore} containing a copy of the required portion of the current

@@ -128,15 +128,14 @@ import org.slf4j.LoggerFactory;
  *      timeout values, and when the leader lease timeout advances to allow a follower to commit a transaction, the follower
  *      is immediately notified.</li>
  *  <li>Optional weaker consistency guarantees are availble on a per-transaction bases; see
- *      {@link RaftKVTransaction#setConsistency RaftKVTransaction.setsetConsistency()}</li>
+ *      {@link RaftKVTransaction#setConsistency RaftKVTransaction.setConsistency()}.</li>
  *  </ul>
  *
  * <p><b>Limitations</b></p>
  *
  * <ul>
  *  <li>A transaction's mutations must fit in memory.</li>
- *  <li>An {@link AtomicKVStore} is required to store local persistent state (note: any {@link KVDatabase} can be converted
- *      into an {@link AtomicKVStore} using the {@link org.jsimpledb.kv.mvcc.AtomicKVDatabase} utility class)</li>
+ *  <li>An {@link AtomicKVStore} is required to store local persistent state.</li>
  *  <li>All nodes must be configured with the same {@linkplain #setMinElectionTimeout minimum election timeout}.
  *      This guarantees that the leader's lease timeout calculation is valid.</li>
  *  <li>Due to the optimistic locking approach used, this implementation will perform poorly when there is a high
@@ -161,7 +160,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Initially, all nodes are in an <i>unconfigured</i> state, where nothing has been added to the Raft log yet and no
  * cluster is defined. Unconfigured nodes are passive: they stay in follower mode (i.e., they will not start elections),
- * and they disallow local transactions that make any changes other than as described below to initialize a new cluster.
+ * and they disallow local transactions that make any changes other than as described below to create a new cluster.
  *
  * <p>
  * An unconfigured node becomes configured when either:
@@ -169,19 +168,19 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link RaftKVTransaction#configChange RaftKVTransaction.configChange()} is invoked and committed within
  *      a local transaction, which creates a new single node cluster and commits the first log entry; or</li>
  *  <li>An {@link AppendRequest} is received from a leader of some existing cluster, in which case the node
- *      records the cluster ID (see below) and applies the received cluster configuration</li>
+ *      records the cluster ID thereby joining the cluster (see below), and applies the received cluster configuration.</li>
  * </ol>
  *
  * <p>
  * A node is configured if and only if it has recorded one or more log entries. The very first log entry
- * always contains the initial cluster configuration (containing only the node that created it), so any node that has a
- * non-empty log is configured.
+ * always contains the initial cluster configuration (containing only the node that created it, whether local or remote),
+ * so any node that has a non-empty log is configured.
  *
  * <p>
  * Newly created clusters are assigned a random 32-bit cluster ID (option #1 above). This ID is included in all messages sent
- * over the network, and adopted by unconfigured nodes that join the cluster (via option #2 above). Nodes discard incoming
- * messages containing a cluster ID different from one they have seen previously. This prevents data corruption that can occur
- * if nodes from two different clusters are inadvertently "mixed" together.
+ * over the network, and adopted by unconfigured nodes that join the cluster (via option #2 above). Configured nodes discard
+ * incoming messages containing a cluster ID different from the one they have joined. This prevents data corruption that can
+ * occur if nodes from two different clusters are inadvertently "mixed" together.
  *
  * <p>
  * Once a node joins a cluster with a specific cluster ID, it cannot be reassigned to a different cluster without first
@@ -191,15 +190,15 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Once a node configured, a separate issue is whether the node is <i>included</i> in its own configuration, i.e., whether
- * the node is a member of its cluster. A node that is not a member of its cluster does not count its own vote to determine
- * committed log entries (if a leader), and does not start elections (if a follower). However, it will accept and respond
- * to incoming {@link AppendRequest}s and {@link RequestVote}s.
+ * the node is a member of its cluster according to the current cluster configuration. A node that is not a member of its
+ * cluster does not count its own vote to determine committed log entries (if a leader), and does not start elections
+ * (if a follower). However, it will accept and respond to incoming {@link AppendRequest}s and {@link RequestVote}s.
  *
  * <p>
- * In addition, leaders follow these rules:
+ * In addition, leaders follow these rules with respect to configuration changes:
  * <ul>
- *  <li>If a leader is removed from a cluster, it remains the leader until the configuration change that
- *      removed it is committed (not counting its own vote), and then steps down (reverts to follower).</li>
+ *  <li>If a leader is removed from a cluster, it remains the leader until the corresponding configuration change
+ *      is committed (not counting its own vote), and then steps down (i.e., reverts to follower).</li>
  *  <li>If a follower is added to a cluster, the leader immediately starts sending that follower {@link AppendRequest}s.</li>
  *  <li>If a follower is removed from a cluster, the leader continues to send that follower {@link AppendRequest}s
  *      until the follower acknowledges receipt of the log entry containing the configuration change.</li>
@@ -221,7 +220,7 @@ import org.slf4j.LoggerFactory;
  * reverts back to normal operation.
  *
  * <p>
- * This behavior is optional, though enabled by default (see {@link #setFollowerProbingEnabled setFollowerProbingEnabled()});
+ * This behavior is optional, but enabled by default (see {@link #setFollowerProbingEnabled setFollowerProbingEnabled()});
  *
  * <p><b>Key Watches</b></p>
  *
