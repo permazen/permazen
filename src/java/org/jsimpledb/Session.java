@@ -347,7 +347,7 @@ public class Session {
         try {
 
             // Sanity check
-            Preconditions.checkState(this.tx == null || this.kvt != null, "a transaction is already open in this session");
+            Preconditions.checkState(this.tx == null && this.kvt == null, "a transaction is already open in this session");
 
             // Open transaction at the appropriate level
             switch (this.mode) {
