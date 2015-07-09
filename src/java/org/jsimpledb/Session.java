@@ -294,6 +294,62 @@ public class Session {
 // Transactions
 
     /**
+     * Associate the current {@link JTransaction} with this instance while performing the given action.
+     *
+     * <p>
+     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
+     * and then false returned.
+     *
+     * <p>
+     * There must be a {@link JTransaction} open and {@linkplain JTransaction#getCurrent associated with the current thread}.
+     * It will be left open when this method returns.
+     *
+     * <p>
+     * This method safely handles re-entrant invocation.
+     *
+     * @param action action to perform
+     * @return true if {@code action} completed successfully, false if {@code action} threw an exception
+     * @throws IllegalArgumentException if {@code action} is null
+     * @throws IllegalStateException if there is already an open transaction associated with this instance
+     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
+     */
+    public boolean performWithCurrentTransaction(Action action) {
+
+        // Sanity check
+        Preconditions.checkArgument(action != null, "null action");
+        Preconditions.checkArgument(SessionMode.JSIMPLEDB.equals(this.mode), "session is not in JSimpleDB mode");
+
+        // Check for re-entrant invocation, otherwise verify no other transaction is associated
+        final Transaction currentTx = JTransaction.getCurrent().getTransaction();
+        final KVTransaction currentKVT = currentTx.getKVTransaction();
+        final boolean associate;
+        if (this.tx == null && this.kvt == null)
+            associate = true;
+        else if (this.tx == currentTx && this.kvt == currentKVT)
+            associate = false;
+        else
+            throw new IllegalStateException("a different transaction is already open in this session");
+
+        // Perform action
+        if (associate) {
+            this.tx = currentTx;
+            this.kvt = currentKVT;
+        }
+        try {
+            action.run(this);
+            return true;
+        } catch (Exception e) {
+            this.reportException(e);
+            return false;
+        } finally {
+            if (associate) {
+                this.tx = null;
+                this.kvt = null;
+            }
+        }
+    }
+
+    /**
      * Perform the given action within a new transaction associated with this instance.
      *
      * <p>

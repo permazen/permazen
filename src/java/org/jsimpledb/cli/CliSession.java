@@ -274,6 +274,36 @@ public class CliSession extends ParseSession {
     }
 
     /**
+     * Associate the current {@link org.jsimpledb.JTransaction} with this instance while performing the given action.
+     *
+     * <p>
+     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
+     * and then false returned.
+     *
+     * <p>
+     * There must be a {@link org.jsimpledb.JTransaction} open and
+     * {@linkplain org.jsimpledb.JTransaction#getCurrent associated with the current thread}.
+     * It will be left open when this method returns.
+     *
+     * <p>
+     * This method safely handles re-entrant invocation.
+     *
+     * @param action action to perform
+     * @return true if {@code action} completed successfully, false if {@code action} threw an exception
+     * @throws IllegalArgumentException if {@code action} is null
+     * @throws IllegalStateException if there is already an open transaction associated with this instance
+     * @throws IllegalStateException if this instance is not in mode {@link org.jsimpledb.SessionMode#JSIMPLEDB}
+     */
+    public boolean performWithCurrentTransaction(final Action action) {
+        return this.performWithCurrentTransaction(new Session.Action() {
+            @Override
+            public void run(Session session) throws Exception {
+                action.run((CliSession)session);
+            }
+        });
+    }
+
+    /**
      * Callback interface used by {@link CliSession#perform CliSession.perform()}.
      */
     public interface Action {
