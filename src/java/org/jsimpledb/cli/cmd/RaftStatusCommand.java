@@ -78,6 +78,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         if (config.isEmpty())
             writer.println(String.format("%-24s: %s", "Cluster configuration", "Unconfigured"));
         else {
+            writer.println();
             writer.println(String.format("Cluster configuration:"));
             writer.println();
             writer.println(String.format("%1s %-16s %s", "", "Identity", "Address"));
