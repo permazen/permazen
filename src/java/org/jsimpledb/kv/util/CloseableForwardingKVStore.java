@@ -69,7 +69,8 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
         if (this.closed)
             return;
         try {
-            this.closeable.close();
+            if (this.closeable != null)
+                this.closeable.close();
         } catch (IOException e) {
             // ignore
         }
