@@ -39,6 +39,7 @@ import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.SnapshotJTransaction;
+import org.jsimpledb.ValidationMode;
 import org.jsimpledb.change.Change;
 import org.jsimpledb.change.ChangeAdapter;
 import org.jsimpledb.change.FieldChange;
@@ -46,7 +47,9 @@ import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.change.ObjectDelete;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.UnknownFieldException;
+import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.util.ObjIdSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +65,8 @@ import org.slf4j.LoggerFactory;
  * will then be restricted to database objects that are instances of the configured type. The type may be null, in which
  * case there is no restriction. The subclass method {@linkplain #queryForObjects queryForObjects()} determines which
  * objects are actually loaded into the container. The items in the container are backed by in-memory copies of the
- * corresponding database objects that live inside a {@link org.jsimpledb.SnapshotJTransaction}.
+ * corresponding database objects that live inside a {@link org.jsimpledb.SnapshotJTransaction} and therefore may persist
+ * indefinitely.
  * </p>
  *
  * <p><b>Container Properties</b></p>
@@ -95,28 +99,17 @@ import org.slf4j.LoggerFactory;
  * <p><b>Loading</b></p>
  *
  * <p>
- * Instances may be (re)loaded at any time by invoking {@link #reload}. This causes the container
- * to query for {@link JObject}s within a new {@link JTransaction} via the subclass-provided method
- * {@link #queryForObjects queryForObjects()}, which returns an {@link Iterable Iterable&lt;JObject&gt;}. This container
- * copies the resulting database objects into the container's
- * in-memory {@link org.jsimpledb.SnapshotJTransaction}. The latter effectively serves as the cache for the container,
- * so that database transactions may be short-lived and are only required when (re)loading. Because the container contents
- * are in memory, with large data sets this container should only be loaded with one "page" of objects at a time (a "page"
- * typically being only what a human would be willing to scroll through at one time). It is up to
- * {@link #queryForObjects queryForObjects()} to determine what and how many objects are returned, their sort order, etc.
- * (if {@link #queryForObjects queryForObjects()} returns any objects that are not instances of the configured type,
- * they are ignored). In any case, the maximum number of objects that will be loaded is limited by a
- * {@linkplain #setMaxObjects configurable} maximum.
- * </p>
+ * Instances may be (re)loaded at any time by invoking {@link #reload}. During reload, the container opens a {@link JTransaction}
+ * and then creates a {@link SnapshotJTransaction} using the {@link org.jsimpledb.kv.KVStore} returned by {@link #buildKVStore}.
+ * This {@link SnapshotJTransaction} holds the container's backing {@link JObject}s, and is set as the current transaction while
+ * {@link #queryForObjects queryForObjects()} determines which {@link JObject}s are included in the container. Therefore,
+ * {@link #buildKVStore} must ensure that all objects needed are included; the default implementation does this automatically
+ * for key/value stores implementing {@link org.jsimpledb.kv.KVTransaction#mutableSnapshot}.
  *
  * <p>
- * When {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated methods are present on Java
- * model classes, these property values may derive from other objects related to the backing instance. In order for these
- * methods to work on the in-memory instance, the related objects must be copied into memory as well. The
- * {@link #getDependencies getDependencies()} method allows the subclass to specify what other database objects
- * some Vaadin property depends on. Alternately, the subclass may override {@link #copyOut copyOut()} to take complete control
- * of how objects are copied into memory.
- * </p>
+ * It is up to {@link #queryForObjects queryForObjects()} to determine what and how many objects are returned, their sort order,
+ * etc. (any objects not instances of the configured type are ignored). The maximum number of objects that will be loaded is
+ * limited by a {@linkplain #setMaxObjects configurable} maximum.
  *
  * <p><b>Updating Items</b></p>
  *
@@ -208,6 +201,8 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     private ProvidesPropertyScanner<?> propertyScanner;
     private List<String> orderedPropertyNames;
 
+    private CloseableKVStore kvstore;
+
     /**
      * Constructor.
      *
@@ -276,20 +271,86 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         return jobj.getObjId();
     }
 
+// Connectable
+
+    @Override
+    public void disconnect() {
+        super.disconnect();
+        if (this.kvstore != null) {
+            this.kvstore.close();
+            this.kvstore = null;
+        }
+    }
+
     /**
      * (Re)load this container.
-     *
-     * <p>
-     * This method delegates to {@link #queryForObjects queryForObjects()} indirectly via {@link #doInTransaction}.
-     * </p>
      */
     public void reload() {
+
+        // Grab KVStore snapshot
+        final CloseableKVStore[] snapshotHolder = new CloseableKVStore[1];
         this.doInTransaction(new Runnable() {
             @Override
             public void run() {
-                JObjectContainer.this.doReloadInTransaction();
+                final JTransaction jtx = JTransaction.getCurrent();
+                final CloseableKVStore snapshot = JObjectContainer.this.buildKVStore();
+                jtx.getTransaction().addCallback(new Transaction.CallbackAdapter() {
+                    @Override
+                    public void afterCompletion(boolean committed) {
+                        if (!committed)
+                            snapshot.close();
+                    }
+                });
+                snapshotHolder[0] = snapshot;
             }
         });
+
+        // Replace previous KVStore snapshot (if any)
+        if (this.kvstore != null) {
+            this.kvstore.close();
+            this.kvstore = null;
+        }
+        this.kvstore = snapshotHolder[0];
+
+        // Create snapshot transaction
+        final SnapshotJTransaction sjtx = this.jdb.createSnapshotTransaction(this.kvstore, false, ValidationMode.MANUAL);
+
+        // Reload using snapshot transaction
+        sjtx.performAction(new Runnable() {
+            @Override
+            public void run() {
+                JObjectContainer.this.doInCurrentTransaction(new Runnable() {
+                    @Override
+                    public void run() {
+                        JObjectContainer.this.doReloadInTransaction();
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Build the {@link KVStore} that will be used to back this container from the current {@link JTransaction}.
+     *
+     * <p>
+     * This method should build a {@link org.jsimpledb.kv.KVStore} containing a copy of the required portion of the current
+     * {@link JTransaction}, including all objects needed for the container.
+     *
+     * <p>
+     * The implementation in {@link JObjectContainer} invokes {@link JTransaction#getCurrent}.{@link JTransaction#getTransaction
+     * getTransaction()}.{@link org.jsimpledb.core.Transaction#getKVTransaction getKVTransaction()}.{@link
+     * org.jsimpledb.kv.KVTransaction#mutableSnapshot mutableSnapshot()}; subclasses may override for
+     * {@link org.jsimpledb.kv.KVDatabase} instances that don't support {@link org.jsimpledb.kv.KVTransaction#mutableSnapshot}.
+     *
+     * <p>
+     * The returned {@link org.jsimpledb.kv.KVStore} will be {@link CloseableKVStore#close close()}'d when this container
+     * is reloaded or {@link #disconnect}'ed.
+     *
+     * @return snapshot of the current {@link JTransaction} key/value store containing the required objects
+     * @see JTransaction#getCurrent
+     */
+    protected CloseableKVStore buildKVStore() {
+        return JTransaction.getCurrent().getTransaction().getKVTransaction().mutableSnapshot();
     }
 
     /**
@@ -429,7 +490,7 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
         }
     }
 
-    // This method runs within a transactin
+    // This method runs within a transaction
     private void doReloadInTransaction() {
 
         // Get objects from subclass
@@ -445,29 +506,54 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
             });
         }
 
-        // Filter out any duplicate objects using ObjId set
-        final CopyState copyState = new CopyState();
-
-        // Copy database objects out of the database transaction into my in-memory transaction as we load them
-        jobjs = Iterables.transform(jobjs, new Function<JObject, JObject>() {
+        // Filter out duplicates
+        final ObjIdSet seenIds = new ObjIdSet();
+        jobjs = Iterables.filter(jobjs, new Predicate<JObject>() {
             @Override
-            public JObject apply(JObject jobj) {
-                return JObjectContainer.this.copyOut(jobj, copyState);
+            public boolean apply(JObject jobj) {
+                return seenIds.add(jobj.getObjId());
             }
         });
 
         // Limit the total number of objects in the container
         jobjs = Iterables.limit(jobjs, this.maxObjects);
 
-        // Now actually load them
+        // Rebuild dependencies map as we visit each object
         this.dependenciesMap.clear();
+        jobjs = Iterables.filter(jobjs, new Predicate<JObject>() {
+            @Override
+            public boolean apply(JObject target) {
+
+                // Get target dependencies
+                Iterable<? extends JObject> dependencies = JObjectContainer.this.getDependencies(target);
+                if (dependencies == null)
+                    return true;
+
+                // Create backward links
+                final ObjId targetId = target.getObjId();
+                for (JObject jobj : dependencies) {
+                    if (jobj == null)
+                        continue;
+                    final ObjId id = jobj.getObjId();
+                    ObjIdSet affectedIds = JObjectContainer.this.dependenciesMap.get(id);
+                    if (affectedIds == null) {
+                        affectedIds = new ObjIdSet();
+                        JObjectContainer.this.dependenciesMap.put(id, affectedIds);
+                    }
+                    affectedIds.add(targetId);
+                }
+                return true;
+            }
+        });
+
+        // Now actually load the objects
         this.load(jobjs);
     }
 
     /**
      * Copy the given database object, and any related objects needed by any
      * {@link org.dellroad.stuff.vaadin7.ProvidesProperty &#64;ProvidesProperty}-annotated methods,
-     * into the current {@link org.jsimpledb.SnapshotJTransaction}.
+     * into the specified transaction.
      *
      * <p>
      * The implementation in {@link JObjectContainer} copies {@code jobj}, and all of {@code jobj}'s related objects returned
@@ -475,38 +561,25 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * </p>
      *
      * @param target the object to copy, or null (ignored)
+     * @param dest destination transaction
      * @param copyState tracks what's already been copied
-     * @return the copy of {@code target} in the current {@link org.jsimpledb.SnapshotJTransaction},
-     *  or null if {@code target} is null
+     * @return the copy of {@code target} in {@code dest}, or null if {@code target} is null
      * @see #getDependencies getDependencies()
      */
-    protected JObject copyOut(JObject target, CopyState copyState) {
+    protected JObject copyWithDependencies(JObject target, JTransaction dest, CopyState copyState) {
 
         // Ignore null
         if (target == null)
             return null;
 
-        // Copy out object
-        final ObjId targetId = target.getObjId();
-        final JTransaction jtx = JTransaction.getCurrent();
-        final SnapshotJTransaction sjtx = jtx.getSnapshotTransaction();
-        final JObject copy = target.copyTo(sjtx, null, copyState);
+        // Copy out target object
+        final JTransaction jtx = target.getTransaction();
+        final JObject copy = target.copyTo(dest, null, copyState);
 
-        // Copy out (and track) related objects
-        Iterable<? extends JObject> dependencies = this.getDependencies(target);
-        if (dependencies != null) {
-            dependencies = Iterables.filter(dependencies, JObject.class);                       // filter out nulls
-            jtx.copyTo(sjtx, copyState, dependencies);
-            for (JObject jobj : dependencies) {
-                final ObjId id = jobj.getObjId();
-                ObjIdSet affectedIds = this.dependenciesMap.get(id);
-                if (affectedIds == null) {
-                    affectedIds = new ObjIdSet();
-                    this.dependenciesMap.put(id, affectedIds);
-                }
-                affectedIds.add(targetId);
-            }
-        }
+        // Copy out target's related objects
+        final Iterable<? extends JObject> dependencies = this.getDependencies(target);
+        if (dependencies != null)
+            jtx.copyTo(dest, copyState, dependencies);
 
         // Done
         return copy;
@@ -530,18 +603,24 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
      * @param jobj the object being copied
      * @return {@link Iterable} of additional objects to be copied, or null for none; any null values are ignored
      * @throws IllegalArgumentException if {@code jobj} is null
-     * @see #copyOut copyOut()
      */
     protected Iterable<? extends JObject> getDependencies(JObject jobj) {
         return this.jdb.getReferencedObjects(jobj);
     }
 
     /**
-     * Perform the given action within a {@link JTransaction}.
+     * Perform the given action within a new {@link JTransaction}.
      *
      * @param action the action to perform
      */
     protected abstract void doInTransaction(Runnable action);
+
+    /**
+     * Perform the given action within the current {@link JTransaction}.
+     *
+     * @param action the action to perform
+     */
+    protected abstract void doInCurrentTransaction(Runnable action);
 
     /**
      * Query for the database objects that will be used to fill this container. Objects should be returned in the

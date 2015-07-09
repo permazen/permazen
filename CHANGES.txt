@@ -2,6 +2,7 @@ Version Next
 
     - Added KVTransaction.mutableSnapshot() and KVStore-based
       snapshot transactions in JSimpleDB and core layers
+    - Changed JObjectContainer to use mutableSnapshot()
     - Added RocksDBKVDatabase based on RocksDB JNI adapter
     - Added support for KVDatabase key watches
     - Improved performance of List field iterators

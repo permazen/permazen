@@ -86,6 +86,16 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
     }
 
     @Override
+    protected void doInCurrentTransaction(final Runnable action) {
+        this.session.performWithCurrentTransaction(new ParseSession.Action() {
+            @Override
+            public void run(ParseSession session) {
+                action.run();
+            }
+        });
+    }
+
+    @Override
     protected Iterable<? extends JObject> queryForObjects() {
 
         // Any content?

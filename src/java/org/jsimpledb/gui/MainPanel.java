@@ -218,13 +218,14 @@ public class MainPanel extends VerticalLayout {
     @Transactional("jsimpledbGuiTransactionManager")
     private JObject doCopyForEdit(ObjId id) {
 
-        // Get object
-        final JObject jobj = JTransaction.getCurrent().getJObject(id);
+        // Find object
+        final JTransaction jtx = JTransaction.getCurrent();
+        final JObject jobj = jtx.getJObject(id);
         if (!jobj.exists())
             return null;
 
-        // Copy object and dependencies
-        return this.objectChooser.getJObjectContainer().copyOut(jobj, new CopyState());
+        // Copy out object and its dependencies
+        return this.objectChooser.getJObjectContainer().copyWithDependencies(jobj, jtx.getSnapshotTransaction(), new CopyState());
     }
 
 // New
