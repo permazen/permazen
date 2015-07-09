@@ -84,7 +84,7 @@ public abstract class AbstractKVCommand extends AbstractCommand {
 
             // Handle printables
             if (ch >= 0x20 && ch <= 0x7e) {
-                buf.append(ch);
+                buf.append((char)ch);
                 continue;
             }
 
