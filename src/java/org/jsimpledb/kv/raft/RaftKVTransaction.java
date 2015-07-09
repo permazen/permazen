@@ -19,6 +19,7 @@ import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.mvcc.SnapshotRefs;
+import org.jsimpledb.kv.mvcc.Writes;
 import org.jsimpledb.kv.util.CloseableForwardingKVStore;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 import org.slf4j.Logger;
@@ -321,9 +322,13 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
             if (!this.state.equals(TxState.EXECUTING))
                 throw new StaleTransactionException(this);
             this.snapshotRefs.ref();
-            final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, this.view.getWrites().clone());
-            return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
         }
+        final Writes writes;
+        synchronized (this.view) {
+            writes = this.view.getWrites().clone();
+        }
+        final MutableView snapshotView = new MutableView(this.snapshotRefs.getKVStore(), null, writes);
+        return new CloseableForwardingKVStore(snapshotView, this.snapshotRefs.getUnrefCloseable());
     }
 
 // Package-access methods

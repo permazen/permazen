@@ -127,7 +127,10 @@ public class SimpleKVTransaction extends AbstractKVStore implements KVTransactio
         // Build copy
         CloseableKVStore kvstore;
         if (this.kvdb.kv instanceof NavigableMapKVStore) {
-            final NavigableMapKVStore kv = (NavigableMapKVStore)this.kvdb.kv;
+            final NavigableMapKVStore kv;
+            synchronized (this.kvdb) {
+                kv = ((NavigableMapKVStore)this.kvdb.kv).clone();
+            }
             kvstore = new CloseableForwardingKVStore(kv.clone());
         } else if (this.kvdb.kv instanceof AtomicKVStore) {
             final AtomicKVStore kv = (AtomicKVStore)this.kvdb.kv;

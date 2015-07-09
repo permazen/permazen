@@ -46,7 +46,8 @@ import org.jsimpledb.util.SizeEstimator;
  * </p>
  *
  * <p>
- * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe.
+ * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe
+ * without first locking this instance.
  * </p>
  */
 public class MutableView extends AbstractKVStore implements SizeEstimating {

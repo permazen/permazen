@@ -135,11 +135,18 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
-    public synchronized CloseableKVStore mutableSnapshot() {
-        this.checkState();
-        final SnapshotRefs snapshotRefs = this.versionInfo.getSnapshotRefs();
-        snapshotRefs.ref();
-        final MutableView snapshotView = new MutableView(snapshotRefs.getKVStore(), null, this.mutableView.getWrites().clone());
+    public CloseableKVStore mutableSnapshot() {
+        final SnapshotRefs snapshotRefs;
+        synchronized (this) {
+            this.checkState();
+            snapshotRefs = this.versionInfo.getSnapshotRefs();
+            snapshotRefs.ref();
+        }
+        final Writes writes;
+        synchronized (this.mutableView) {
+            writes = this.mutableView.getWrites().clone();
+        }
+        final MutableView snapshotView = new MutableView(snapshotRefs.getKVStore(), null, writes);
         return new CloseableForwardingKVStore(snapshotView, snapshotRefs.getUnrefCloseable());
     }
 
