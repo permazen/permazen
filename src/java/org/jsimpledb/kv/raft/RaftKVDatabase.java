@@ -202,6 +202,8 @@ import org.slf4j.LoggerFactory;
  *  <li>If a follower is added to a cluster, the leader immediately starts sending that follower {@link AppendRequest}s.</li>
  *  <li>If a follower is removed from a cluster, the leader continues to send that follower {@link AppendRequest}s
  *      until the follower acknowledges receipt of the log entry containing the configuration change.</li>
+ *  <li>Leaders defer configuration changes until they have committed at least one log entry in the current term
+ *      (see <a href="https://groups.google.com/d/msg/raft-dev/t4xj6dJTP6E/d2D9LrWRza8J">this discussion</a>).</li>
  *  <li>Configuration changes that remove the last node in a cluster are disallowed.</li>
  *  <li>Only one configuration change may take place at a time.</li>
  * </ul>

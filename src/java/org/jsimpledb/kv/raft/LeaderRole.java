@@ -697,8 +697,8 @@ public class LeaderRole extends Role {
             }
         } else {
 
-            // Don't commit a new config change while there is any previous config change outstanding
-            if (tx.getConfigChange() != null && this.isConfigChangeOutstanding())
+            // If a config change is involved, check whether we can safely apply it
+            if (tx.getConfigChange() != null && !this.mayApplyNewConfigChange())
                 return;
 
             // Commit transaction as a new log entry
@@ -716,12 +716,22 @@ public class LeaderRole extends Role {
         }
     }
 
-    private boolean isConfigChangeOutstanding() {
+    // Determine whether it's safe to append a log entry with a configuration change
+    private boolean mayApplyNewConfigChange() {
+
+        // Rule #1: this leader must have committed at least one log entry in this term
+        assert this.raft.commitIndex >= this.raft.lastAppliedIndex;
+        if (this.raft.getLogTermAtIndex(this.raft.commitIndex) < this.raft.currentTerm)
+            return false;
+
+        // Rule #2: there must be no previous config change that is still uncommitted
         for (int i = (int)(this.raft.commitIndex - this.raft.lastAppliedIndex) + 1; i < this.raft.raftLog.size(); i++) {
             if (this.raft.raftLog.get(i).getConfigChange() != null)
-                return true;
+                return false;
         }
-        return false;
+
+        // OK
+        return true;
     }
 
 // Message
@@ -983,10 +993,10 @@ public class LeaderRole extends Role {
         final String[] configChange = newLogEntry.getData().getConfigChange();
         if (configChange != null) {
 
-            // Disallow a config change while there is a previous uncommitted config change
-            if (this.isConfigChangeOutstanding()) {
+            // If a config change is involved, check whether we can safely apply it
+            if (!this.mayApplyNewConfigChange()) {
                 newLogEntry.cancel();
-                throw new IllegalStateException("uncommitted config change outstanding");
+                throw new IllegalStateException("config change cannot be safely applied at this time");
             }
 
             // Disallow a configuration change that removes the last node in a cluster

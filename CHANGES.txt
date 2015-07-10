@@ -1,3 +1,7 @@
+Version Next
+
+    - Implement fix for Raft config change corner case
+
 Version 1.2.1 Released July 9, 2015
 
     - Added KVTransaction.mutableSnapshot() and KVStore-based
