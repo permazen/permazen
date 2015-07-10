@@ -210,7 +210,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/NullSafeType.html#compare(T, T)">compare</a></strong>(<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value1,
               <a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value2)</code>
-<div class="block">Compare two values.</div>
+<div class="block">Order two field values.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -551,9 +551,18 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.158">compare</a>(<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value1,
           <a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value2)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#compare(T, T)">FieldType</a></code></strong></div>
-<div class="block">Compare two values. This method must provide a total ordering of all supported Java values.
- If null is a supported Java value, then this method must accept it without throwing an exception
- (note, this is a stronger requirement than <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a> requires). By convention, null usually sorts last.</div>
+<div class="block">Order two field values.
+
+ <p>
+ This method must provide a total ordering of all supported Java values that is consistent with the database ordering,
+ i.e., the unsigned lexicographical ordering of the corresponding <code>byte[]</code> encoded field values.
+
+ <p>
+ If null is a supported Java value, then the returned <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a> must accept null parameters without
+ throwing an exception (note, this is a stronger requirement than the <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a> interface normally requires).
+
+ <p>
+ Note: by convention, null values usually sort last.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#compare(T, T)" title="class or interface in java.util">compare</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>

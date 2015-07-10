@@ -206,13 +206,13 @@ extends <a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html" title="c
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PingRequest</h4>
-<pre>public&nbsp;<a href="../../../../../src-html/org/jsimpledb/kv/raft/msg/PingRequest.html#line.24">PingRequest</a>(int&nbsp;clusterId,
+<pre>public&nbsp;<a href="../../../../../src-html/org/jsimpledb/kv/raft/msg/PingRequest.html#line.28">PingRequest</a>(int&nbsp;clusterId,
            <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;senderId,
            <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;recipientId,
            long&nbsp;term,
            <a href="../../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;timestamp)</pre>
 <div class="block">Constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>timestamp</code> - request timestamp</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>clusterId</code> - cluster ID</dd><dd><code>senderId</code> - identity of sender</dd><dd><code>recipientId</code> - identity of recipient</dd><dd><code>term</code> - sender's current term</dd><dd><code>timestamp</code> - request timestamp</dd></dl>
 </li>
 </ul>
 </li>
@@ -229,7 +229,7 @@ extends <a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html" title="c
 <ul class="blockList">
 <li class="blockList">
 <h4>visit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jsimpledb/kv/raft/msg/PingRequest.html#line.37">visit</a>(<a href="../../../../../org/jsimpledb/kv/raft/msg/MessageSwitch.html" title="interface in org.jsimpledb.kv.raft.msg">MessageSwitch</a>&nbsp;handler)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jsimpledb/kv/raft/msg/PingRequest.html#line.41">visit</a>(<a href="../../../../../org/jsimpledb/kv/raft/msg/MessageSwitch.html" title="interface in org.jsimpledb.kv.raft.msg">MessageSwitch</a>&nbsp;handler)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../org/jsimpledb/kv/raft/msg/Message.html#visit(org.jsimpledb.kv.raft.msg.MessageSwitch)">Message</a></code></strong></div>
 <div class="block">Apply the visitor pattern based on this instance's type.</div>
 <dl>

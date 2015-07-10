@@ -370,6 +370,10 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/Roc
 <div class="block">Stop this instance.
 
  <p>
+ Any open <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#snapshot()"><code>AtomicKVStore.snapshot()</code></a>'s should be <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a>'d before invoking this method;
+ the behavior of those that are not is undefined.
+
+ <p>
  This method is idempotent: if this instance has not been started, or is already stopped, nothing happens.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>

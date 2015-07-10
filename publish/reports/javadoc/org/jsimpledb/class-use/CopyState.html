@@ -196,11 +196,12 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
-<td class="colLast"><span class="strong">JObjectContainer.</span><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyOut(org.jsimpledb.JObject, org.jsimpledb.CopyState)">copyOut</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
-              <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</code>
+<td class="colLast"><span class="strong">JObjectContainer.</span><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyWithDependencies(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithDependencies</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
+                                        <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+                                        <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</code>
 <div class="block">Copy the given database object, and any related objects needed by any
- <a href="http://dellroad-stuff.googlecode.com/svn/trunk/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods,
- into the current <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.</div>
+ <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods,
+ into the specified transaction.</div>
 </td>
 </tr>
 </tbody>

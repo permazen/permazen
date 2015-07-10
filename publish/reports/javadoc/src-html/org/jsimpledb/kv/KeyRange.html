@@ -215,7 +215,7 @@
 <span class="sourceLineNo">207</span>     * @return true if this instance contains no keys<a name="line.207"></a>
 <span class="sourceLineNo">208</span>     */<a name="line.208"></a>
 <span class="sourceLineNo">209</span>    public boolean isEmpty() {<a name="line.209"></a>
-<span class="sourceLineNo">210</span>        return this.max != null &amp;&amp; ByteUtil.compare(this.min, this.max) == 0;<a name="line.210"></a>
+<span class="sourceLineNo">210</span>        return this.max != null &amp;&amp; Arrays.equals(this.min, this.max);<a name="line.210"></a>
 <span class="sourceLineNo">211</span>    }<a name="line.211"></a>
 <span class="sourceLineNo">212</span><a name="line.212"></a>
 <span class="sourceLineNo">213</span>    /**<a name="line.213"></a>
@@ -306,7 +306,7 @@
 <span class="sourceLineNo">298</span><a name="line.298"></a>
 <span class="sourceLineNo">299</span>    @Override<a name="line.299"></a>
 <span class="sourceLineNo">300</span>    public String toString() {<a name="line.300"></a>
-<span class="sourceLineNo">301</span>        return this.getClass().getSimpleName() + "[" + ByteUtil.toString(this.min) + "," + ByteUtil.toString(this.max) + "]";<a name="line.301"></a>
+<span class="sourceLineNo">301</span>        return "[" + ByteUtil.toString(this.min) + "," + ByteUtil.toString(this.max) + ")";<a name="line.301"></a>
 <span class="sourceLineNo">302</span>    }<a name="line.302"></a>
 <span class="sourceLineNo">303</span>}<a name="line.303"></a>
 <span class="sourceLineNo">304</span><a name="line.304"></a>

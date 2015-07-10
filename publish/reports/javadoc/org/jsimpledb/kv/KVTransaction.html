@@ -162,18 +162,24 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVTransaction.html#mutableSnapshot()">mutableSnapshot</a></strong>()</code>
+<div class="block">Create a mutable copy of the database content represented by this transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVTransaction.html#rollback()">rollback</a></strong>()</code>
 <div class="block">Cancel this transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVTransaction.html#setTimeout(long)">setTimeout</a></strong>(long&nbsp;timeout)</code>
 <div class="block">Change the timeout for this transaction from its default value (optional operation).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVTransaction.html#watchKey(byte[])">watchKey</a></strong>(byte[]&nbsp;key)</code>
 <div class="block">Watch a key to monitor for changes in its value.</div>
@@ -233,7 +239,7 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <ul class="blockList">
 <li class="blockList">
 <h4>watchKey</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.106">watchKey</a>(byte[]&nbsp;key)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.107">watchKey</a>(byte[]&nbsp;key)</pre>
 <div class="block">Watch a key to monitor for changes in its value.
 
  <p>
@@ -271,7 +277,7 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <dd><code><a href="../../../org/jsimpledb/kv/KVDatabaseException.html" title="class in org.jsimpledb.kv">KVDatabaseException</a></code> - if an unexpected error occurs</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this instance does not support key watches</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>key</code> starts with <code>0xff</code> and such keys are not supported</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>key</code> is null</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>key</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/JTransaction.html#getKey(org.jsimpledb.JObject, java.lang.String)"><code>JTransaction.getKey()</code></a></dd></dl>
 </li>
 </ul>
 <a name="commit()">
@@ -280,7 +286,7 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.120">commit</a>()</pre>
+<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.121">commit</a>()</pre>
 <div class="block">Commit this transaction.
 
  <p>
@@ -296,10 +302,10 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <a name="rollback()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.132">rollback</a>()</pre>
+<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.133">rollback</a>()</pre>
 <div class="block">Cancel this transaction.
 
  <p>
@@ -308,6 +314,39 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
  <p>
  This method may be invoked at any time, even after a previous invocation of
  <a href="../../../org/jsimpledb/kv/KVTransaction.html#commit()"><code>commit()</code></a> or <a href="../../../org/jsimpledb/kv/KVTransaction.html#rollback()"><code>rollback()</code></a>, in which case the invocation will be ignored.</div>
+</li>
+</ul>
+<a name="mutableSnapshot()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>mutableSnapshot</h4>
+<pre><a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.161">mutableSnapshot</a>()</pre>
+<div class="block">Create a mutable copy of the database content represented by this transaction.
+
+ <p>
+ The returned <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> should be mutable, and be completely independent of this transaction
+ (subsequent changes to this transaction do not affect it, and vice-versa).
+
+ <p>
+ Note that as with any other information extracted from a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>, the returned content
+ should not be considered valid until this transaction has been successfully committed.
+
+ <p>
+ The returned <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> should be promply <a href="../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a>'d when no longer
+ needed to release any underlying resources. In particular, the caller must ensure that the <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>
+ is <a href="../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a>'d even if this transaction's commit fails. This may require
+ adding a transaction synchronization callback, etc.
+
+ <p>
+ This is an optional method; only some underlying key/value store technologies can efficiently support it.
+ Implementations may throw <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a> if not supported.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>independent, mutable copy of this transaction's entire database content</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this method is not supported</dd>
+<dd><code><a href="../../../org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv">RetryTransactionException</a></code> - if this transaction must be retried and is no longer usable</dd></dl>
 </li>
 </ul>
 </li>

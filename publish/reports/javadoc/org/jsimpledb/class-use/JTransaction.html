@@ -116,7 +116,7 @@
 <tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></strong></code>
-<div class="block">An initially empty, in-memory <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that persists indefinitely.</div>
+<div class="block">A "snapshot" <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that persists indefinitely.</div>
 </td>
 </tr>
 </tbody>
@@ -207,20 +207,6 @@
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../org/jsimpledb/JTransaction.html#setCurrent(org.jsimpledb.JTransaction)">setCurrent</a></strong>(<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx)</code>
 <div class="block">Set the <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with the current thread.</div>
-</td>
-</tr>
-</tbody>
-</table>
-<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing constructors, and an explanation">
-<caption><span>Constructors in <a href="../../../org/jsimpledb/package-summary.html">org.jsimpledb</a> with parameters of type <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colOne" scope="col">Constructor and Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/SnapshotJTransaction.html#SnapshotJTransaction(org.jsimpledb.JTransaction, org.jsimpledb.ValidationMode)">SnapshotJTransaction</a></strong>(<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx,
-                                        <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
-<div class="block">Create a new instance based on the specified transaction.</div>
 </td>
 </tr>
 </tbody>
@@ -368,6 +354,25 @@
 <!--   -->
 </a>
 <h3>Uses of <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a> in <a href="../../../org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a> with parameters of type <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
+<td class="colLast"><span class="strong">JObjectContainer.</span><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyWithDependencies(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithDependencies</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
+                                        <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+                                        <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</code>
+<div class="block">Copy the given database object, and any related objects needed by any
+ <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods,
+ into the specified transaction.</div>
+</td>
+</tr>
+</tbody>
+</table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing constructors, and an explanation">
 <caption><span>Constructors in <a href="../../../org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a> with parameters of type <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>

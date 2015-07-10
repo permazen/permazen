@@ -74,6 +74,18 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb">org.jsimpledb</a></td>
+<td class="colLast">
+<div class="block">Abstraction layer allowing access to a <a href="../../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> using normal Java objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.core">org.jsimpledb.core</a></td>
+<td class="colLast">
+<div class="block">Core classes for the JSimpleDB Java persistence layer.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv">org.jsimpledb.kv</a></td>
 <td class="colLast">
 <div class="block"><code>byte[]</code> array key/value store API and related utility classes.</div>
@@ -138,6 +150,51 @@
 </li>
 <li class="blockList">
 <ul class="blockList">
+<li class="blockList"><a name="org.jsimpledb">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a> in <a href="../../../../org/jsimpledb/package-summary.html">org.jsimpledb</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../org/jsimpledb/package-summary.html">org.jsimpledb</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></code></td>
+<td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../../org/jsimpledb/JSimpleDB.html#createSnapshotTransaction(org.jsimpledb.kv.KVStore, boolean, org.jsimpledb.ValidationMode)">createSnapshotTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+                                                  boolean&nbsp;allowNewSchema,
+                                                  <a href="../../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
+<div class="block">Create a new <a href="../../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> based on the provided key/value store.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.core">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a> in <a href="../../../../org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a></code></td>
+<td class="colLast"><span class="strong">Database.</span><code><strong><a href="../../../../org/jsimpledb/core/Database.html#createSnapshotTransaction(org.jsimpledb.kv.KVStore, org.jsimpledb.schema.SchemaModel, int, boolean)">createSnapshotTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+                                                  <a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel,
+                                                  int&nbsp;version,
+                                                  boolean&nbsp;allowNewSchema)</code>
+<div class="block">Create a "snapshot" transaction based on the provided key/value store.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
 <li class="blockList"><a name="org.jsimpledb.kv">
 <!--   -->
 </a>
@@ -367,6 +424,10 @@
 <div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></td>
+<td class="colLast"><span class="strong">SnapshotRefs.</span><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotRefs.html#getKVStore()">getKVStore</a></strong>()</code>&nbsp;</td>
+</tr>
 </tbody>
 </table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
@@ -577,31 +638,38 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/ForwardingKVStore.html" title="class in org.jsimpledb.kv.util">ForwardingKVStore</a></strong></code>
-<div class="block">Forwards all <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> operations to another underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html" title="class in org.jsimpledb.kv.util">CloseableForwardingKVStore</a></strong></code>
+<div class="block">A <a href="../../../../org/jsimpledb/kv/util/ForwardingKVStore.html" title="class in org.jsimpledb.kv.util"><code>ForwardingKVStore</code></a> also implementing <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a>, with some associated
+ underlying <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io"><code>Closeable</code></a> resource to close when <a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html#close()"><code>CloseableForwardingKVStore.close()</code></a>'d.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util">NavigableMapKVStore</a></strong></code>
-<div class="block">Provides a <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of an underlying <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util"><code>NavigableMap&lt;byte[], byte[]&gt;</code></a>
- whose keys are sorted lexicographically as unsigned bytes.</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/ForwardingKVStore.html" title="class in org.jsimpledb.kv.util">ForwardingKVStore</a></strong></code>
+<div class="block">Forwards all <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> operations to another underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util">NavigableMapKVStore</a></strong></code>
+<div class="block">Provides a <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of an underlying
+ <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentSkipListMap.html?is-external=true" title="class or interface in java.util.concurrent"><code>NavigableMap&lt;byte[], byte[]&gt;</code></a> whose keys are sorted lexicographically as unsigned bytes.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVStore.html" title="class in org.jsimpledb.kv.util">PrefixKVStore</a></strong></code>
 <div class="block">A <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of all keys having a common <code>byte[]</code> prefix
  in an outer, containing <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html" title="class in org.jsimpledb.kv.util">PrefixKVTransaction</a></strong></code>
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> view of all keys having a common <code>byte[]</code> prefix in a containing <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/UnmodifiableKVStore.html" title="class in org.jsimpledb.kv.util">UnmodifiableKVStore</a></strong></code>
 <div class="block">Provides a read-only view of an underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
@@ -652,6 +720,10 @@
 <td class="colLast"><span class="strong">ForwardingKVStore.</span><code><strong><a href="../../../../org/jsimpledb/kv/util/ForwardingKVStore.html#delegate()">delegate</a></strong>()</code>
 <div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></td>
+<td class="colLast"><span class="strong">CloseableForwardingKVStore.</span><code><strong><a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html#delegate()">delegate</a></strong>()</code>&nbsp;</td>
 </tr>
 </tbody>
 </table>
@@ -758,6 +830,17 @@
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#AbstractKVNavigableSet(org.jsimpledb.kv.KVStore, boolean, org.jsimpledb.kv.KeyRange)">AbstractKVNavigableSet</a></strong>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kv,
                                             boolean&nbsp;prefixMode,
                                             <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&nbsp;keyRange)</code>
+<div class="block">Primary constructor.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html#CloseableForwardingKVStore(org.jsimpledb.kv.KVStore)">CloseableForwardingKVStore</a></strong>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore)</code>
+<div class="block">Constructor for a do-nothing <a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html#close()"><code>CloseableForwardingKVStore.close()</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html#CloseableForwardingKVStore(org.jsimpledb.kv.KVStore, java.io.Closeable)">CloseableForwardingKVStore</a></strong>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+                                                    <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a>&nbsp;resource)</code>
 <div class="block">Primary constructor.</div>
 </td>
 </tr>

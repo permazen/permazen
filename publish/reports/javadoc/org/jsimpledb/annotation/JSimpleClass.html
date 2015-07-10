@@ -237,11 +237,11 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JSimpleCla
 <div class="block">Whether to automatically generate database fields from un-annotated abstract Java bean methods.
 
  <p>
- If true, database fields corresponding to all <b>abstract</b> bean property getter methods will
- be auto-generated even if there is no <a href="../../../org/jsimpledb/annotation/JField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JField</code></a>, <a href="../../../org/jsimpledb/annotation/JSetField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSetField</code></a>,
- <a href="../../../org/jsimpledb/annotation/JListField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JListField</code></a>, or <a href="../../../org/jsimpledb/annotation/JMapField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JMapField</code></a> annotation. Note <i>this includes
- superclass and interface methods</i>.
- </p>
+ If true, database fields will be auto-generated corresponding to all <b>abstract</b> bean property getter methods,
+ even if there is no <a href="../../../org/jsimpledb/annotation/JField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JField</code></a>, <a href="../../../org/jsimpledb/annotation/JSetField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSetField</code></a>,
+ <a href="../../../org/jsimpledb/annotation/JListField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JListField</code></a>, or <a href="../../../org/jsimpledb/annotation/JMapField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JMapField</code></a> annotation.
+ Note <i>this includes superclass and interface methods</i>. Methods must be either <code>public</code> or
+ <code>protected</code>. In the case of simple fields, there must also be a corresponding setter method.
 
  <p>
  Getter methods with return type assignable to <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util"><code>Set</code></a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util"><code>List</code></a>, and <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util"><code>Map</code></a>

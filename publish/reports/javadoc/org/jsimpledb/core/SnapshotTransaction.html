@@ -99,21 +99,24 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public class <a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.24">SnapshotTransaction</a>
+<pre>public class <a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.29">SnapshotTransaction</a>
 extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></pre>
-<div class="block">An initially empty, in-memory <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> that persists indefinitely.
+<div class="block">A "snapshot" <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> that persists indefinitely.
 
  <p>
- <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s hold a "snapshot" some portion of the state of a <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> for later use.
- Each <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s contains its own set of "snapshot" objects that are copies of
- corresponding "real" database objects (as of the time they were copied).
- </p>
+ <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s hold a "snapshot" of some portion of the state of a <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a>
+ for later use. Each <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a> contains its own set of "snapshot" objects.
 
  <p>
  <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s can never be closed (i.e., committed or rolled-back); they persist in memory until
  no longer referenced. <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a>s may be registered but they will never be invoked.
- </p></div>
-<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/Transaction.html#createSnapshotTransaction()"><code>Transaction.createSnapshotTransaction()</code></a></dd></dl>
+
+ <p>
+ <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s can be based on an arbitrary <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>;
+ see <a href="../../../org/jsimpledb/core/Database.html#createSnapshotTransaction(org.jsimpledb.kv.KVStore, org.jsimpledb.schema.SchemaModel, int, boolean)"><code>Database.createSnapshotTransaction()</code></a>.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/Transaction.html#createSnapshotTransaction()"><code>Transaction.createSnapshotTransaction()</code></a>, 
+<a href="../../../org/jsimpledb/core/Database.html#createSnapshotTransaction(org.jsimpledb.kv.KVStore, org.jsimpledb.schema.SchemaModel, int, boolean)"><code>Database.createSnapshotTransaction()</code></a>, 
+<a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a></dd></dl>
 </li>
 </ul>
 </div>
@@ -183,7 +186,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#reset()">reset</a></strong>()</code>
-<div class="block">Delete all objects contained in this snapshot transaction and reset it back to its initial empty state.</div>
+<div class="block">Delete all objects contained in this snapshot transaction.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -192,19 +195,13 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <div class="block">Roll back this transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#setRollbackOnly()">setRollbackOnly</a></strong>()</code>
-<div class="block">Mark this transaction for rollback only.</div>
-</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.core.Transaction">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.core.<a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></h3>
-<code><a href="../../../org/jsimpledb/core/Transaction.html#addCreateListener(org.jsimpledb.core.CreateListener)">addCreateListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addDeleteListener(org.jsimpledb.core.DeleteListener)">addDeleteListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)">addListFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)">addMapFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)">addSetFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)">addSimpleFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addVersionChangeListener(org.jsimpledb.core.VersionChangeListener)">addVersionChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#adjustCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">adjustCounterField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)">copy</a>, <a href="../../../org/jsimpledb/core/Transaction.html#create(int)">create</a>, <a href="../../../org/jsimpledb/core/Transaction.html#create(int, int)">create</a>, <a href="../../../org/jsimpledb/core/Transaction.html#create(org.jsimpledb.core.ObjId)">create</a>, <a href="../../../org/jsimpledb/core/Transaction.html#create(org.jsimpledb.core.ObjId, int)">create</a>, <a href="../../../org/jsimpledb/core/Transaction.html#createSnapshotTransaction()">createSnapshotTransaction</a>, <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">delete</a>, <a href="../../../org/jsimpledb/core/Transaction.html#deleteSchemaVersion(int)">deleteSchemaVersion</a>, <a href="../../../org/jsimpledb/core/Transaction.html#exists(org.jsimpledb.core.ObjId)">exists</a>, <a href="../../../org/jsimpledb/core/Transaction.html#generateId(int)">generateId</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getAll()">getAll</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getAll(int)">getAll</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getDatabase()">getDatabase</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId)">getKey</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId, int)">getKey</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getKVTransaction()">getKVTransaction</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">getSchema</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getSchemas()">getSchemas</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getSchemaVersion(org.jsimpledb.core.ObjId)">getSchemaVersion</a>, <a href="../../../org/jsimpledb/core/Transaction.html#invertReferencePath(int[], java.lang.Iterable)">invertReferencePath</a>, <a href="../../../org/jsimpledb/core/Transaction.html#isReadOnly()">isReadOnly</a>, <a href="../../../org/jsimpledb/core/Transaction.html#isRollbackOnly()">isRollbackOnly</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex(int)">queryCompositeIndex</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex2(int)">queryCompositeIndex2</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex3(int)">queryCompositeIndex3</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex4(int)">queryCompositeIndex4</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryIndex(int)">queryIndex</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryListElementIndex(int)">queryListElementIndex</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryMapValueIndex(int)">queryMapValueIndex</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryVersion()">queryVersion</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readCounterField(org.jsimpledb.core.ObjId, int, boolean)">readCounterField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)">readListField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readMapField(org.jsimpledb.core.ObjId, int, boolean)">readMapField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)">readSetField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)">readSimpleField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeCreateListener(org.jsimpledb.core.CreateListener)">removeCreateListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeDeleteListener(org.jsimpledb.core.DeleteListener)">removeDeleteListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)">removeListFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)">removeMapFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)">removeSetFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)">removeSimpleFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeVersionChangeListener(org.jsimpledb.core.VersionChangeListener)">removeVersionChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">setReadOnly</a>, <a href="../../../org/jsimpledb/core/Transaction.html#setTimeout(long)">setTimeout</a>, <a href="../../../org/jsimpledb/core/Transaction.html#updateSchemaVersion(org.jsimpledb.core.ObjId)">updateSchemaVersion</a>, <a href="../../../org/jsimpledb/core/Transaction.html#writeCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">writeCounterField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#writeSimpleField(org.jsimpledb.core.ObjId, int, java.lang.Object, boolean)">writeSimpleField</a></code></li>
+<code><a href="../../../org/jsimpledb/core/Transaction.html#addCreateListener(org.jsimpledb.core.CreateListener)">addCreateListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addDeleteListener(org.jsimpledb.core.DeleteListener)">addDeleteListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)">addListFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)">addMapFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)">addSetFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)">addSimpleFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#addVersionChangeListener(org.jsimpledb.core.VersionChangeListener)">addVersionChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#adjustCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">adjustCounterField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)">copy</a>, <a href="../../../org/jsimpledb/core/Transaction.html#create(int)">create</a>, <a href="../../../org/jsimpledb/core/Transaction.html#create(int, int)">create</a>, <a href="../../../org/jsimpledb/core/Transaction.html#create(org.jsimpledb.core.ObjId)">create</a>, <a href="../../../org/jsimpledb/core/Transaction.html#create(org.jsimpledb.core.ObjId, int)">create</a>, <a href="../../../org/jsimpledb/core/Transaction.html#createSnapshotTransaction()">createSnapshotTransaction</a>, <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">delete</a>, <a href="../../../org/jsimpledb/core/Transaction.html#deleteSchemaVersion(int)">deleteSchemaVersion</a>, <a href="../../../org/jsimpledb/core/Transaction.html#exists(org.jsimpledb.core.ObjId)">exists</a>, <a href="../../../org/jsimpledb/core/Transaction.html#generateId(int)">generateId</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getAll()">getAll</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getAll(int)">getAll</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getDatabase()">getDatabase</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId)">getKey</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId, int)">getKey</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getKVTransaction()">getKVTransaction</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">getSchema</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getSchemas()">getSchemas</a>, <a href="../../../org/jsimpledb/core/Transaction.html#getSchemaVersion(org.jsimpledb.core.ObjId)">getSchemaVersion</a>, <a href="../../../org/jsimpledb/core/Transaction.html#invertReferencePath(int[], java.lang.Iterable)">invertReferencePath</a>, <a href="../../../org/jsimpledb/core/Transaction.html#isReadOnly()">isReadOnly</a>, <a href="../../../org/jsimpledb/core/Transaction.html#isRollbackOnly()">isRollbackOnly</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex(int)">queryCompositeIndex</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex2(int)">queryCompositeIndex2</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex3(int)">queryCompositeIndex3</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex4(int)">queryCompositeIndex4</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryIndex(int)">queryIndex</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryListElementIndex(int)">queryListElementIndex</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryMapValueIndex(int)">queryMapValueIndex</a>, <a href="../../../org/jsimpledb/core/Transaction.html#queryVersion()">queryVersion</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readCounterField(org.jsimpledb.core.ObjId, int, boolean)">readCounterField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)">readListField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readMapField(org.jsimpledb.core.ObjId, int, boolean)">readMapField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)">readSetField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)">readSimpleField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeCreateListener(org.jsimpledb.core.CreateListener)">removeCreateListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeDeleteListener(org.jsimpledb.core.DeleteListener)">removeDeleteListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)">removeListFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)">removeMapFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)">removeSetFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)">removeSimpleFieldChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#removeVersionChangeListener(org.jsimpledb.core.VersionChangeListener)">removeVersionChangeListener</a>, <a href="../../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">setReadOnly</a>, <a href="../../../org/jsimpledb/core/Transaction.html#setRollbackOnly()">setRollbackOnly</a>, <a href="../../../org/jsimpledb/core/Transaction.html#setTimeout(long)">setTimeout</a>, <a href="../../../org/jsimpledb/core/Transaction.html#updateSchemaVersion(org.jsimpledb.core.ObjId)">updateSchemaVersion</a>, <a href="../../../org/jsimpledb/core/Transaction.html#writeCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">writeCounterField</a>, <a href="../../../org/jsimpledb/core/Transaction.html#writeSimpleField(org.jsimpledb.core.ObjId, int, java.lang.Object, boolean)">writeSimpleField</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -233,8 +230,8 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.37">reset</a>()</pre>
-<div class="block">Delete all objects contained in this snapshot transaction and reset it back to its initial empty state.
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.54">reset</a>()</pre>
+<div class="block">Delete all objects contained in this snapshot transaction.
 
  <p>
  It will contain schema meta-data but no objects.
@@ -247,7 +244,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.57">commit</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.74">commit</a>()</pre>
 <div class="block">Commit this transaction.
 
  <p>
@@ -266,7 +263,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.71">rollback</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.88">rollback</a>()</pre>
 <div class="block">Roll back this transaction.
 
  <p>
@@ -279,32 +276,13 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - always</dd></dl>
 </li>
 </ul>
-<a name="setRollbackOnly()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setRollbackOnly</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.85">setRollbackOnly</a>()</pre>
-<div class="block">Mark this transaction for rollback only.
-
- <p>
- <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s do not support this method and will always throw <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.
- </p></div>
-<dl>
-<dt><strong>Overrides:</strong></dt>
-<dd><code><a href="../../../org/jsimpledb/core/Transaction.html#setRollbackOnly()">setRollbackOnly</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - always</dd></dl>
-</li>
-</ul>
 <a name="addCallback(org.jsimpledb.core.Transaction.Callback)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addCallback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.98">addCallback</a>(<a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a>&nbsp;callback)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.101">addCallback</a>(<a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a>&nbsp;callback)</pre>
 <div class="block">Register a transaction callback to be invoked when this transaction completes.
 
  <p>
@@ -323,7 +301,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isValid</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.111">isValid</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.114">isValid</a>()</pre>
 <div class="block">Determine whether this transaction is still valid.
 
  <p>

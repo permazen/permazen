@@ -227,7 +227,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
 <td class="colFirst"><code>abstract int</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/FieldType.html#compare(T, T)">compare</a></strong>(<a href="../../../org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&nbsp;value1,
               <a href="../../../org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&nbsp;value2)</code>
-<div class="block">Compare two values.</div>
+<div class="block">Order two field values.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -646,11 +646,20 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
 <ul class="blockList">
 <li class="blockList">
 <h4>compare</h4>
-<pre>public abstract&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.305">compare</a>(<a href="../../../org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&nbsp;value1,
+<pre>public abstract&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.314">compare</a>(<a href="../../../org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&nbsp;value1,
           <a href="../../../org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&nbsp;value2)</pre>
-<div class="block">Compare two values. This method must provide a total ordering of all supported Java values.
- If null is a supported Java value, then this method must accept it without throwing an exception
- (note, this is a stronger requirement than <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a> requires). By convention, null usually sorts last.</div>
+<div class="block">Order two field values.
+
+ <p>
+ This method must provide a total ordering of all supported Java values that is consistent with the database ordering,
+ i.e., the unsigned lexicographical ordering of the corresponding <code>byte[]</code> encoded field values.
+
+ <p>
+ If null is a supported Java value, then the returned <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a> must accept null parameters without
+ throwing an exception (note, this is a stronger requirement than the <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a> interface normally requires).
+
+ <p>
+ Note: by convention, null values usually sort last.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#compare(T, T)" title="class or interface in java.util">compare</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="../../../org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&gt;</code></dd>
@@ -664,7 +673,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
 <ul class="blockList">
 <li class="blockList">
 <h4>hasPrefix0x00</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.322">hasPrefix0x00</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.331">hasPrefix0x00</a>()</pre>
 <div class="block">Determine whether any of this field type's encoded values start with a <code>0x00</code> byte.
  Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
 
@@ -685,7 +694,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
 <ul class="blockList">
 <li class="blockList">
 <h4>hasPrefix0xff</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.341">hasPrefix0xff</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.350">hasPrefix0xff</a>()</pre>
 <div class="block">Determine whether any of this field type's encoded values start with a <code>0xff</code> byte.
  Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
 
@@ -706,7 +715,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
 <ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.360">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.369">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -719,7 +728,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
 <ul class="blockList">
 <li class="blockList">
 <h4>hashCode</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.365">hashCode</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.374">hashCode</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -732,7 +741,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
 <ul class="blockListLast">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.370">equals</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/FieldType.html#line.379">equals</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.util">equals</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="../../../org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&gt;</code></dd>

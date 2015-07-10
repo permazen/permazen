@@ -46,11 +46,11 @@
 <span class="sourceLineNo">038</span> * Instances are not thread safe.<a name="line.38"></a>
 <span class="sourceLineNo">039</span> * &lt;/p&gt;<a name="line.39"></a>
 <span class="sourceLineNo">040</span> */<a name="line.40"></a>
-<span class="sourceLineNo">041</span>public class Writes implements Mutations, SizeEstimating {<a name="line.41"></a>
+<span class="sourceLineNo">041</span>public class Writes implements Cloneable, Mutations, SizeEstimating {<a name="line.41"></a>
 <span class="sourceLineNo">042</span><a name="line.42"></a>
 <span class="sourceLineNo">043</span>    private KeyRanges removes = KeyRanges.EMPTY;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    private final TreeMap&lt;byte[], byte[]&gt; puts = new TreeMap&lt;&gt;(ByteUtil.COMPARATOR);<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    private final TreeMap&lt;byte[], Long&gt; adjusts = new TreeMap&lt;&gt;(ByteUtil.COMPARATOR);<a name="line.45"></a>
+<span class="sourceLineNo">044</span>    private /*final*/ TreeMap&lt;byte[], byte[]&gt; puts = new TreeMap&lt;&gt;(ByteUtil.COMPARATOR);<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private /*final*/ TreeMap&lt;byte[], Long&gt; adjusts = new TreeMap&lt;&gt;(ByteUtil.COMPARATOR);<a name="line.45"></a>
 <span class="sourceLineNo">046</span><a name="line.46"></a>
 <span class="sourceLineNo">047</span>// Accessors<a name="line.47"></a>
 <span class="sourceLineNo">048</span><a name="line.48"></a>
@@ -315,23 +315,39 @@
 <span class="sourceLineNo">307</span>        }<a name="line.307"></a>
 <span class="sourceLineNo">308</span>    }<a name="line.308"></a>
 <span class="sourceLineNo">309</span><a name="line.309"></a>
-<span class="sourceLineNo">310</span>// Object<a name="line.310"></a>
+<span class="sourceLineNo">310</span>// Cloneable<a name="line.310"></a>
 <span class="sourceLineNo">311</span><a name="line.311"></a>
 <span class="sourceLineNo">312</span>    @Override<a name="line.312"></a>
-<span class="sourceLineNo">313</span>    public String toString() {<a name="line.313"></a>
-<span class="sourceLineNo">314</span>        final Converter&lt;String, byte[]&gt; byteConverter = ByteUtil.STRING_CONVERTER.reverse();<a name="line.314"></a>
-<span class="sourceLineNo">315</span>        final ConvertedNavigableMap&lt;String, String, byte[], byte[]&gt; putsView<a name="line.315"></a>
-<span class="sourceLineNo">316</span>          = new ConvertedNavigableMap&lt;&gt;(this.puts, byteConverter, byteConverter);<a name="line.316"></a>
-<span class="sourceLineNo">317</span>        final ConvertedNavigableMap&lt;String, Long, byte[], Long&gt; adjustsView<a name="line.317"></a>
-<span class="sourceLineNo">318</span>          = new ConvertedNavigableMap&lt;&gt;(this.adjusts, byteConverter, Converter.&lt;Long&gt;identity());<a name="line.318"></a>
-<span class="sourceLineNo">319</span>        return this.getClass().getSimpleName()<a name="line.319"></a>
-<span class="sourceLineNo">320</span>          + "[removes=" + this.removes<a name="line.320"></a>
-<span class="sourceLineNo">321</span>          + ",puts=" + putsView<a name="line.321"></a>
-<span class="sourceLineNo">322</span>          + (!this.adjusts.isEmpty() ? ",adjusts=" + adjustsView : "")<a name="line.322"></a>
-<span class="sourceLineNo">323</span>          + "]";<a name="line.323"></a>
+<span class="sourceLineNo">313</span>    @SuppressWarnings("unchecked")<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    public Writes clone() {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        final Writes clone;<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        try {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>            clone = (Writes)super.clone();<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        } catch (CloneNotSupportedException e) {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>            throw new RuntimeException(e);<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        }<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        clone.puts = (TreeMap&lt;byte[], byte[]&gt;)this.puts.clone();<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        clone.adjusts = (TreeMap&lt;byte[], Long&gt;)this.adjusts.clone();<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        return clone;<a name="line.323"></a>
 <span class="sourceLineNo">324</span>    }<a name="line.324"></a>
-<span class="sourceLineNo">325</span>}<a name="line.325"></a>
-<span class="sourceLineNo">326</span><a name="line.326"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>// Object<a name="line.326"></a>
+<span class="sourceLineNo">327</span><a name="line.327"></a>
+<span class="sourceLineNo">328</span>    @Override<a name="line.328"></a>
+<span class="sourceLineNo">329</span>    public String toString() {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        final Converter&lt;String, byte[]&gt; byteConverter = ByteUtil.STRING_CONVERTER.reverse();<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        final ConvertedNavigableMap&lt;String, String, byte[], byte[]&gt; putsView<a name="line.331"></a>
+<span class="sourceLineNo">332</span>          = new ConvertedNavigableMap&lt;&gt;(this.puts, byteConverter, byteConverter);<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        final ConvertedNavigableMap&lt;String, Long, byte[], Long&gt; adjustsView<a name="line.333"></a>
+<span class="sourceLineNo">334</span>          = new ConvertedNavigableMap&lt;&gt;(this.adjusts, byteConverter, Converter.&lt;Long&gt;identity());<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        return this.getClass().getSimpleName()<a name="line.335"></a>
+<span class="sourceLineNo">336</span>          + "[removes=" + this.removes<a name="line.336"></a>
+<span class="sourceLineNo">337</span>          + ",puts=" + putsView<a name="line.337"></a>
+<span class="sourceLineNo">338</span>          + (!this.adjusts.isEmpty() ? ",adjusts=" + adjustsView : "")<a name="line.338"></a>
+<span class="sourceLineNo">339</span>          + "]";<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    }<a name="line.340"></a>
+<span class="sourceLineNo">341</span>}<a name="line.341"></a>
+<span class="sourceLineNo">342</span><a name="line.342"></a>
 
 
 

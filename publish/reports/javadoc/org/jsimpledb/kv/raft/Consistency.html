@@ -206,12 +206,12 @@ the order they are declared.</div>
 
  <p>
  Same as <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL"><code>EVENTUAL</code></a>, but with the additional caveat that the view that the transaction sees may never
- actually be committed. This can happen, e.g., if there is a Raft leadership change during the transaction.
+ actually get committed. This can happen, e.g., if there is a Raft leadership change during the transaction.
 
  <p>
  Transactions at this level may result in less network communication and/or commit faster than <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL"><code>EVENTUAL</code></a>.
  Read-only transactions at this level require no network communication, commit immediately, and never result in
- <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>s; read-only transactions are equivalent to invoking
+ <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>s; in fact, read-only transactions are equivalent to invoking
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#rollback()"><code>rollback()</code></a> instead of <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a>.</div>
 </li>
 </ul>
@@ -221,15 +221,14 @@ the order they are declared.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>EVENTUAL</h4>
-<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.41">EVENTUAL</a></pre>
+<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.40">EVENTUAL</a></pre>
 <div class="block">Eventual consistency.
 
  <p>
  Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".
- The view is not guaranteed to be up-to-date; it's only guaranteed to be as up-to-date as is known to this node
- when the transaction was opened. For example, it will always include changes from the transaction most recently
- committed on this node. However, in general (for example, if stuck in a network partition minority), the view
- could be a view of the database from arbitrarily far in the past.
+ The view is not guaranteed to be up-to-date; it's only guaranteed to be as up-to-date as what was known to this
+ node when the transaction was opened. In general (for example, if stuck in a network partition minority), the view
+ could be from arbitrarily far in the past.
 
  <p>
  Transactions at this level may result in less network communication and/or commit faster than <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>LINEARIZABLE</code></a>.</div>
@@ -241,7 +240,7 @@ the order they are declared.</div>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>LINEARIZABLE</h4>
-<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.53">LINEARIZABLE</a></pre>
+<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.52">LINEARIZABLE</a></pre>
 <div class="block">Linearizable consistency.
 
  <p>

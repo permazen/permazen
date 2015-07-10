@@ -98,7 +98,16 @@
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a></code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#createSnapshotTransaction()">createSnapshotTransaction</a></strong>()</code>
-<div class="block">Create an empty, in-memory transaction initialized with the same schema history as this transaction.</div>
+<div class="block">Create an empty, in-memory "snapshot" transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a></code></td>
+<td class="colLast"><span class="strong">Database.</span><code><strong><a href="../../../../org/jsimpledb/core/Database.html#createSnapshotTransaction(org.jsimpledb.kv.KVStore, org.jsimpledb.schema.SchemaModel, int, boolean)">createSnapshotTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+                                                  <a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel,
+                                                  int&nbsp;version,
+                                                  boolean&nbsp;allowNewSchema)</code>
+<div class="block">Create a "snapshot" transaction based on the provided key/value store.</div>
 </td>
 </tr>
 </tbody>

@@ -34,7 +34,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="class in org.jsimpledb.kv.util"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html" title="class in org.jsimpledb.kv.util"><span class="strong">Prev Class</span></a></li>
 <li><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -98,7 +98,7 @@
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a>, <a href="../../../../org/jsimpledb/kv/util/PrefixKVStore.html" title="class in org.jsimpledb.kv.util">PrefixKVStore</a>, <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>, <a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a>, <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>, <a href="../../../../org/jsimpledb/kv/util/UnmodifiableKVStore.html" title="class in org.jsimpledb.kv.util">UnmodifiableKVStore</a></dd>
+<dd><a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html" title="class in org.jsimpledb.kv.util">CloseableForwardingKVStore</a>, <a href="../../../../org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a>, <a href="../../../../org/jsimpledb/kv/util/PrefixKVStore.html" title="class in org.jsimpledb.kv.util">PrefixKVStore</a>, <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>, <a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a>, <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>, <a href="../../../../org/jsimpledb/kv/util/UnmodifiableKVStore.html" title="class in org.jsimpledb.kv.util">UnmodifiableKVStore</a></dd>
 </dl>
 <hr>
 <br>
@@ -352,7 +352,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface 
  </p>
 
  <p>
- The returned <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a> is not guaranteed to be thread safe.
+ The returned <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a> itself is not guaranteed to be thread safe.
  </p></div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
@@ -506,7 +506,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface 
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="class in org.jsimpledb.kv.util"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/util/CloseableForwardingKVStore.html" title="class in org.jsimpledb.kv.util"><span class="strong">Prev Class</span></a></li>
 <li><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">

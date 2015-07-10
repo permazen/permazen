@@ -94,7 +94,7 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public final class <a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.16">NavigableSets</a>
+<pre>public final class <a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.20">NavigableSets</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Utility methods relating to <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>.</div>
 </li>
@@ -206,7 +206,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>intersection</h4>
-<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.36">intersection</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&gt;&nbsp;sets)</pre>
+<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.41">intersection</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&gt;&nbsp;sets)</pre>
 <div class="block">Create a read-only view of the intersection of two or more <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s that have a consistent sort order.
  The <a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedSet.html?is-external=true#comparator()" title="class or interface in java.util">Comparator</a>s of the sets must all be <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.util">equal</a>
  (or else all null, for natural ordering).
@@ -218,7 +218,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>sets</code> - the sets to intersect</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the intersection of all <code>sets</code></dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>sets</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>sets</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>sets</code> is null</dd></dl>
 </li>
 </ul>
 <a name="intersection(java.util.NavigableSet...)">
@@ -228,7 +229,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <li class="blockList">
 <h4>intersection</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/SafeVarargs.html?is-external=true" title="class or interface in java.lang">@SafeVarargs</a>
-public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.57">intersection</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;...&nbsp;sets)</pre>
+public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.66">intersection</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;...&nbsp;sets)</pre>
 <div class="block">Create a read-only view of the intersection of two or more <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s that have a consistent sort order.
  The <a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedSet.html?is-external=true#comparator()" title="class or interface in java.util">Comparator</a>s of the sets must all be <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.util">equal</a>
  (or else all null, for natural ordering).
@@ -240,7 +241,8 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>sets</code> - the sets to intersect</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the intersection of all <code>sets</code></dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>sets</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>sets</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>sets</code> is null</dd></dl>
 </li>
 </ul>
 <a name="union(java.util.NavigableSet...)">
@@ -250,14 +252,15 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <li class="blockList">
 <h4>union</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/SafeVarargs.html?is-external=true" title="class or interface in java.lang">@SafeVarargs</a>
-public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.73">union</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;...&nbsp;sets)</pre>
+public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.84">union</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;...&nbsp;sets)</pre>
 <div class="block">Create a read-only view of the union of two or more <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s that have a consistent sort order.
  The <a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedSet.html?is-external=true#comparator()" title="class or interface in java.util">Comparator</a>s of the sets must all be <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.util">equal</a>
  (or else all null, for natural ordering).</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>sets</code> - the sets to union</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the union of all <code>sets</code></dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>sets</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>sets</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>sets</code> is null</dd></dl>
 </li>
 </ul>
 <a name="union(java.lang.Iterable)">
@@ -266,14 +269,15 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <ul class="blockList">
 <li class="blockList">
 <h4>union</h4>
-<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.87">union</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&gt;&nbsp;sets)</pre>
+<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.100">union</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&gt;&nbsp;sets)</pre>
 <div class="block">Create a read-only view of the union of two or more <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s that have a consistent sort order.
  The <a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedSet.html?is-external=true#comparator()" title="class or interface in java.util">Comparator</a>s of the sets must all be <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.util">equal</a>
  (or else all null, for natural ordering).</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>sets</code> - the sets to union</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the union of all <code>sets</code></dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>sets</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>sets</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>sets</code> is null</dd></dl>
 </li>
 </ul>
 <a name="difference(java.util.NavigableSet, java.util.NavigableSet)">
@@ -282,7 +286,7 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <ul class="blockList">
 <li class="blockList">
 <h4>difference</h4>
-<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.103">difference</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;set1,
+<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.120">difference</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;set1,
                              <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;set2)</pre>
 <div class="block">Create a read-only view of the difference of two <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s that have a consistent sort order.
  That is, a set containing all elements contained in the first set but not the second.
@@ -291,7 +295,8 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>set1</code> - original set</dd><dd><code>set2</code> - set of elements to exclude from <code>set1</code></dd>
 <dt><span class="strong">Returns:</span></dt><dd>the difference of <code>set1</code> and <code>set2</code></dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>set1</code> and <code>set2</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>set1</code> and <code>set2</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if either parameter is is null</dd></dl>
 </li>
 </ul>
 <a name="symmetricDifference(java.util.NavigableSet, java.util.NavigableSet)">
@@ -300,7 +305,7 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <ul class="blockList">
 <li class="blockList">
 <h4>symmetricDifference</h4>
-<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.119">symmetricDifference</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;set1,
+<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.141">symmetricDifference</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;set1,
                                       <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;set2)</pre>
 <div class="block">Create a read-only view of the symmetric difference of two <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s that have a consistent sort order.
  That is, the set containing all elements contained in the first set or the second set, but not in both sets.
@@ -309,7 +314,8 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>set1</code> - first set</dd><dd><code>set2</code> - second set</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the symmetric difference of <code>set1</code> and <code>set2</code></dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>set1</code> and <code>set2</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if the <code>set1</code> and <code>set2</code> do not have equal <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>s</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if either parameter is is null</dd></dl>
 </li>
 </ul>
 <a name="singleton(java.lang.Object)">
@@ -320,7 +326,7 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <ul class="blockList">
 <li class="blockList">
 <h4>singleton</h4>
-<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.132">singleton</a>(E&nbsp;value)</pre>
+<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.160">singleton</a>(E&nbsp;value)</pre>
 <div class="block">Create a <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a> containing a single element and natural ordering.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - singleton value</dd>
 <dt><span class="strong">Returns:</span></dt><dd>singleton set</dd>
@@ -337,7 +343,7 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <ul class="blockList">
 <li class="blockList">
 <h4>singleton</h4>
-<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.146">singleton</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super E&gt;&nbsp;comparator,
+<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.174">singleton</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super E&gt;&nbsp;comparator,
                             E&nbsp;value)</pre>
 <div class="block">Create a <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a> containing a single element.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>comparator</code> - comparator, or null for natural ordering</dd><dd><code>value</code> - singleton value (possibly null)</dd>
@@ -353,7 +359,7 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <ul class="blockList">
 <li class="blockList">
 <h4>empty</h4>
-<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.157">empty</a>()</pre>
+<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.185">empty</a>()</pre>
 <div class="block">Create an empty <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>.
  The returned set's <a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedSet.html?is-external=true#comparator()" title="class or interface in java.util"><code>comparator()</code></a> method will return null.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd>
@@ -366,7 +372,7 @@ public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs
 <ul class="blockListLast">
 <li class="blockList">
 <h4>empty</h4>
-<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.168">empty</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super E&gt;&nbsp;comparator)</pre>
+<pre>public static&nbsp;&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;E&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/NavigableSets.html#line.196">empty</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super E&gt;&nbsp;comparator)</pre>
 <div class="block">Create an empty <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a> with a specified <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util"><code>Comparator</code></a>.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - element type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>comparator</code> - comparator, or null for natural ordering</dd>
 <dt><span class="strong">Returns:</span></dt><dd>empty set</dd></dl>

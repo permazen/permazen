@@ -61,13 +61,13 @@
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
 </div>
@@ -99,58 +99,42 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public class <a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.37">SnapshotJTransaction</a>
+<pre>public class <a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.43">SnapshotJTransaction</a>
 extends <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></pre>
-<div class="block">An initially empty, in-memory <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that persists indefinitely.
+<div class="block">A "snapshot" <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that persists indefinitely.
 
  <p>
  <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>s hold a "snapshot" some portion of the state of a <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> for later use.
- Each <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>s contains its own set of "snapshot" <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s that are copies of
- corresponding "real" database <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s (as of the time they were copied). Because a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>
- lives in memory indefinitely, these objects can be used just like normal Java objects, outside of any regular transaction.
- However, in addition <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> features such as indexing, listeners, validation, etc. will continue to work normally.
- </p>
+ Each <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> contains its own set of "snapshot" <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s that are (usually) copies of
+ the corresponding "real" database <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s. Because a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>
+ lives indefinitely, these objects can be used just like normal Java objects, outside of any regular transaction.
+ In addition, <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> features such as indexing, listeners, validation, etc. also continue to work normally.
 
  <p>
- Typically, <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>s are not utilized directly; instead each <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> has an
- <a href="../../org/jsimpledb/JTransaction.html#getSnapshotTransaction()">associated</a> default <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> instance,
- and <a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)"><code>JObject.copyOut()</code></a> is invoked to copy an object there.
- However, more general usage is possible by creating instances of this class directly.
- </p>
+ For convenience, each <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> has a default <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> instance
+ <a href="../../org/jsimpledb/JTransaction.html#getSnapshotTransaction()">associated</a> with it; <a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)"><code>JObject.copyOut()</code></a>
+ copies objects there.
 
  <p>
- This class guarantees that for each <a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a>, there will only exist a single <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> instance associated with it.
- While there is a single pool of globally unique "database" <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s per <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>,
- each <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> maintains its own pool of "snapshot" <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> instances.
- In turn, each snapshot <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> instance is <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated</a>
- with a specific <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.
- </p></div>
+ More general usage is possible via <a href="../../org/jsimpledb/JTransaction.html#createSnapshotTransaction(org.jsimpledb.ValidationMode)"><code>JTransaction.createSnapshotTransaction()</code></a>.
+ For example, for <a href="../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>s that support it, using the key/value store snapshot returned by
+ <a href="../../org/jsimpledb/kv/KVTransaction.html#mutableSnapshot()"><code>KVTransaction.mutableSnapshot()</code></a> allows an efficient copying of the entire database.
+
+ <p>
+ Instances guarantee that for each <a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a>, there exists a unique associated <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>.
+ While there is a single pool of globally unique "database" <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s per <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> that is used by
+ all normal <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>s, each <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> maintains its own pool of "snapshot" <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>
+ instances. Each snapshot <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> links back to its owning <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>
+ via <a href="../../org/jsimpledb/JObject.html#getTransaction()">JObject.getTransaction()</a>.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JTransaction.html#createSnapshotTransaction(org.jsimpledb.ValidationMode)"><code>Transaction.createSnapshotTransaction()</code></a>, 
+<a href="../../org/jsimpledb/JSimpleDB.html#createSnapshotTransaction(org.jsimpledb.kv.KVStore, boolean, org.jsimpledb.ValidationMode)"><code>JSimpleDB.createSnapshotTransaction()</code></a>, 
+<a href="../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a></dd></dl>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<ul class="blockList">
-<li class="blockList"><a name="constructor_summary">
-<!--   -->
-</a>
-<h3>Constructor Summary</h3>
-<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
-<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colOne" scope="col">Constructor and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><strong><a href="../../org/jsimpledb/SnapshotJTransaction.html#SnapshotJTransaction(org.jsimpledb.JTransaction, org.jsimpledb.ValidationMode)">SnapshotJTransaction</a></strong>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx,
-                                        <a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
-<div class="block">Create a new instance based on the specified transaction.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method_summary">
@@ -193,7 +177,7 @@ extends <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsim
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></h3>
-<code><a href="../../org/jsimpledb/JTransaction.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.CopyState, java.lang.Iterable)">copyTo</a>, <a href="../../org/jsimpledb/JTransaction.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.JObject, org.jsimpledb.core.ObjId, org.jsimpledb.CopyState, java.lang.String...)">copyTo</a>, <a href="../../org/jsimpledb/JTransaction.html#create(java.lang.Class)">create</a>, <a href="../../org/jsimpledb/JTransaction.html#create(org.jsimpledb.JClass)">create</a>, <a href="../../org/jsimpledb/JTransaction.html#delete(org.jsimpledb.JObject)">delete</a>, <a href="../../org/jsimpledb/JTransaction.html#exists(org.jsimpledb.JObject)">exists</a>, <a href="../../org/jsimpledb/JTransaction.html#getAll(java.lang.Class)">getAll</a>, <a href="../../org/jsimpledb/JTransaction.html#getCurrent()">getCurrent</a>, <a href="../../org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId)">getJObject</a>, <a href="../../org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId, java.lang.Class)">getJObject</a>, <a href="../../org/jsimpledb/JTransaction.html#getJObject(T)">getJObject</a>, <a href="../../org/jsimpledb/JTransaction.html#getJSimpleDB()">getJSimpleDB</a>, <a href="../../org/jsimpledb/JTransaction.html#getKey(org.jsimpledb.JObject)">getKey</a>, <a href="../../org/jsimpledb/JTransaction.html#getKey(org.jsimpledb.JObject, java.lang.String)">getKey</a>, <a href="../../org/jsimpledb/JTransaction.html#getSchemaVersion(org.jsimpledb.JObject)">getSchemaVersion</a>, <a href="../../org/jsimpledb/JTransaction.html#getSnapshotTransaction()">getSnapshotTransaction</a>, <a href="../../org/jsimpledb/JTransaction.html#getTransaction()">getTransaction</a>, <a href="../../org/jsimpledb/JTransaction.html#getValidationMode()">getValidationMode</a>, <a href="../../org/jsimpledb/JTransaction.html#invertReferencePath(java.lang.Class, java.lang.String, java.lang.Iterable)">invertReferencePath</a>, <a href="../../org/jsimpledb/JTransaction.html#performAction(java.lang.Runnable)">performAction</a>, <a href="../../org/jsimpledb/JTransaction.html#queryCompositeIndex(java.lang.Class, java.lang.String, java.lang.Class, java.lang.Class)">queryCompositeIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryCompositeIndex(java.lang.Class, java.lang.String, java.lang.Class, java.lang.Class, java.lang.Class)">queryCompositeIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryCompositeIndex(java.lang.Class, java.lang.String, java.lang.Class, java.lang.Class, java.lang.Class, java.lang.Class)">queryCompositeIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryIndex(java.lang.Class, java.lang.String, java.lang.Class)">queryIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryIndex(int)">queryIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryListElementIndex(java.lang.Class, java.lang.String, java.lang.Class)">queryListElementIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryMapValueIndex(java.lang.Class, java.lang.String, java.lang.Class, java.lang.Class)">queryMapValueIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryVersion(java.lang.Class)">queryVersion</a>, <a href="../../org/jsimpledb/JTransaction.html#readCounterField(org.jsimpledb.JObject, int, boolean)">readCounterField</a>, <a href="../../org/jsimpledb/JTransaction.html#readListField(org.jsimpledb.JObject, int, boolean)">readListField</a>, <a href="../../org/jsimpledb/JTransaction.html#readMapField(org.jsimpledb.JObject, int, boolean)">readMapField</a>, <a href="../../org/jsimpledb/JTransaction.html#readSetField(org.jsimpledb.JObject, int, boolean)">readSetField</a>, <a href="../../org/jsimpledb/JTransaction.html#readSimpleField(org.jsimpledb.JObject, int, boolean)">readSimpleField</a>, <a href="../../org/jsimpledb/JTransaction.html#recreate(org.jsimpledb.JObject)">recreate</a>, <a href="../../org/jsimpledb/JTransaction.html#resetValidationQueue()">resetValidationQueue</a>, <a href="../../org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.JObject)">revalidate</a>, <a href="../../org/jsimpledb/JTransaction.html#setCurrent(org.jsimpledb.JTransaction)">setCurrent</a>, <a href="../../org/jsimpledb/JTransaction.html#updateSchemaVersion(org.jsimpledb.JObject)">updateSchemaVersion</a>, <a href="../../org/jsimpledb/JTransaction.html#validate()">validate</a>, <a href="../../org/jsimpledb/JTransaction.html#writeSimpleField(org.jsimpledb.JObject, int, java.lang.Object, boolean)">writeSimpleField</a></code></li>
+<code><a href="../../org/jsimpledb/JTransaction.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.CopyState, java.lang.Iterable)">copyTo</a>, <a href="../../org/jsimpledb/JTransaction.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.JObject, org.jsimpledb.core.ObjId, org.jsimpledb.CopyState, java.lang.String...)">copyTo</a>, <a href="../../org/jsimpledb/JTransaction.html#create(java.lang.Class)">create</a>, <a href="../../org/jsimpledb/JTransaction.html#create(org.jsimpledb.JClass)">create</a>, <a href="../../org/jsimpledb/JTransaction.html#createSnapshotTransaction(org.jsimpledb.ValidationMode)">createSnapshotTransaction</a>, <a href="../../org/jsimpledb/JTransaction.html#delete(org.jsimpledb.JObject)">delete</a>, <a href="../../org/jsimpledb/JTransaction.html#exists(org.jsimpledb.JObject)">exists</a>, <a href="../../org/jsimpledb/JTransaction.html#getAll(java.lang.Class)">getAll</a>, <a href="../../org/jsimpledb/JTransaction.html#getCurrent()">getCurrent</a>, <a href="../../org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId)">getJObject</a>, <a href="../../org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId, java.lang.Class)">getJObject</a>, <a href="../../org/jsimpledb/JTransaction.html#getJObject(T)">getJObject</a>, <a href="../../org/jsimpledb/JTransaction.html#getJSimpleDB()">getJSimpleDB</a>, <a href="../../org/jsimpledb/JTransaction.html#getKey(org.jsimpledb.JObject)">getKey</a>, <a href="../../org/jsimpledb/JTransaction.html#getKey(org.jsimpledb.JObject, java.lang.String)">getKey</a>, <a href="../../org/jsimpledb/JTransaction.html#getSchemaVersion(org.jsimpledb.JObject)">getSchemaVersion</a>, <a href="../../org/jsimpledb/JTransaction.html#getSnapshotTransaction()">getSnapshotTransaction</a>, <a href="../../org/jsimpledb/JTransaction.html#getTransaction()">getTransaction</a>, <a href="../../org/jsimpledb/JTransaction.html#getValidationMode()">getValidationMode</a>, <a href="../../org/jsimpledb/JTransaction.html#invertReferencePath(java.lang.Class, java.lang.String, java.lang.Iterable)">invertReferencePath</a>, <a href="../../org/jsimpledb/JTransaction.html#performAction(java.lang.Runnable)">performAction</a>, <a href="../../org/jsimpledb/JTransaction.html#queryCompositeIndex(java.lang.Class, java.lang.String, java.lang.Class, java.lang.Class)">queryCompositeIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryCompositeIndex(java.lang.Class, java.lang.String, java.lang.Class, java.lang.Class, java.lang.Class)">queryCompositeIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryCompositeIndex(java.lang.Class, java.lang.String, java.lang.Class, java.lang.Class, java.lang.Class, java.lang.Class)">queryCompositeIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryIndex(java.lang.Class, java.lang.String, java.lang.Class)">queryIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryIndex(int)">queryIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryListElementIndex(java.lang.Class, java.lang.String, java.lang.Class)">queryListElementIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryMapValueIndex(java.lang.Class, java.lang.String, java.lang.Class, java.lang.Class)">queryMapValueIndex</a>, <a href="../../org/jsimpledb/JTransaction.html#queryVersion(java.lang.Class)">queryVersion</a>, <a href="../../org/jsimpledb/JTransaction.html#readCounterField(org.jsimpledb.JObject, int, boolean)">readCounterField</a>, <a href="../../org/jsimpledb/JTransaction.html#readListField(org.jsimpledb.JObject, int, boolean)">readListField</a>, <a href="../../org/jsimpledb/JTransaction.html#readMapField(org.jsimpledb.JObject, int, boolean)">readMapField</a>, <a href="../../org/jsimpledb/JTransaction.html#readSetField(org.jsimpledb.JObject, int, boolean)">readSetField</a>, <a href="../../org/jsimpledb/JTransaction.html#readSimpleField(org.jsimpledb.JObject, int, boolean)">readSimpleField</a>, <a href="../../org/jsimpledb/JTransaction.html#recreate(org.jsimpledb.JObject)">recreate</a>, <a href="../../org/jsimpledb/JTransaction.html#resetValidationQueue()">resetValidationQueue</a>, <a href="../../org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.JObject)">revalidate</a>, <a href="../../org/jsimpledb/JTransaction.html#setCurrent(org.jsimpledb.JTransaction)">setCurrent</a>, <a href="../../org/jsimpledb/JTransaction.html#updateSchemaVersion(org.jsimpledb.JObject)">updateSchemaVersion</a>, <a href="../../org/jsimpledb/JTransaction.html#validate()">validate</a>, <a href="../../org/jsimpledb/JTransaction.html#writeSimpleField(org.jsimpledb.JObject, int, java.lang.Object, boolean)">writeSimpleField</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -210,36 +194,6 @@ extends <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsim
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<ul class="blockList">
-<li class="blockList"><a name="constructor_detail">
-<!--   -->
-</a>
-<h3>Constructor Detail</h3>
-<a name="SnapshotJTransaction(org.jsimpledb.JTransaction, org.jsimpledb.ValidationMode)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>SnapshotJTransaction</h4>
-<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.56">SnapshotJTransaction</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx,
-                    <a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</pre>
-<div class="block">Create a new instance based on the specified transaction. This new instance will be initially empty
- but will have the same recorded schema history as <code>jtx</code>.
-
- <p>
- It is not normally necessary to create <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>s, as every <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
- automatically has an associated default <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> created for it and made available
- via <a href="../../org/jsimpledb/JTransaction.html#getSnapshotTransaction()"><code>JTransaction.getSnapshotTransaction()</code></a>.
- </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>jtx</code> - open transaction from which to snapshot objects</dd><dd><code>validationMode</code> - the <a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb"><code>ValidationMode</code></a> to use for this transaction</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if either parameter is null</dd>
-<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if <code>jtx</code> is no longer usable</dd></dl>
-</li>
-</ul>
-</li>
-</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method_detail">
@@ -252,7 +206,7 @@ extends <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsim
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.73">reset</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.64">reset</a>()</pre>
 <div class="block">Delete all objects contained in this snapshot transaction and reset it back to its initial state.
 
  <p>
@@ -266,7 +220,7 @@ extends <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsim
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.88">commit</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.79">commit</a>()</pre>
 <div class="block">Commit this transaction.
 
  <p>
@@ -285,7 +239,7 @@ extends <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsim
 <ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.102">rollback</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.93">rollback</a>()</pre>
 <div class="block">Roll back this transaction.
 
  <p>
@@ -304,7 +258,7 @@ extends <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsim
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isValid</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.116">isValid</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/SnapshotJTransaction.html#line.107">isValid</a>()</pre>
 <div class="block">Determine whether this transaction is still valid.
 
  <p>
@@ -369,13 +323,13 @@ extends <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsim
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
 </div>

@@ -99,14 +99,15 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></dd>
+<dd><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>, <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public class <a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.25">NavigableMapKVStore</a>
-extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></pre>
-<div class="block">Provides a <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of an underlying <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util"><code>NavigableMap&lt;byte[], byte[]&gt;</code></a>
- whose keys are sorted lexicographically as unsigned bytes.</div>
+extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a>
+implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a></pre>
+<div class="block">Provides a <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> view of an underlying
+ <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentSkipListMap.html?is-external=true" title="class or interface in java.util.concurrent"><code>NavigableMap&lt;byte[], byte[]&gt;</code></a> whose keys are sorted lexicographically as unsigned bytes.</div>
 </li>
 </ul>
 </div>
@@ -130,7 +131,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#NavigableMapKVStore(java.util.NavigableMap)">NavigableMapKVStore</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;byte[],byte[]&gt;&nbsp;map)</code>
+<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#NavigableMapKVStore(java.util.concurrent.ConcurrentSkipListMap)">NavigableMapKVStore</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentSkipListMap.html?is-external=true" title="class or interface in java.util.concurrent">ConcurrentSkipListMap</a>&lt;byte[],byte[]&gt;&nbsp;map)</code>
 <div class="block">Primary constructor.</div>
 </td>
 </tr>
@@ -150,30 +151,34 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util">NavigableMapKVStore</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#clone()">clone</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#get(byte[])">get</a></strong>(byte[]&nbsp;key)</code>
 <div class="block">Get the value associated with the given key, if any.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#getAtLeast(byte[])">getAtLeast</a></strong>(byte[]&nbsp;minKey)</code>
 <div class="block">Get the key/value pair having the smallest key greater than or equal to the given minimum, if any.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#getAtMost(byte[])">getAtMost</a></strong>(byte[]&nbsp;maxKey)</code>
 <div class="block">Get the key/value pair having the largest key strictly less than the given maximum, if any.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;byte[],byte[]&gt;</code></td>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentSkipListMap.html?is-external=true" title="class or interface in java.util.concurrent">ConcurrentSkipListMap</a>&lt;byte[],byte[]&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#getNavigableMap()">getNavigableMap</a></strong>()</code>
 <div class="block">Get the underlying <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util"><code>NavigableMap</code></a> used by this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#getRange(byte[], byte[], boolean)">getRange</a></strong>(byte[]&nbsp;minKey,
                 byte[]&nbsp;maxKey,
@@ -181,20 +186,20 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <div class="block">Iterate the key/value pairs in the specified range.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#put(byte[], byte[])">put</a></strong>(byte[]&nbsp;key,
       byte[]&nbsp;value)</code>
 <div class="block">Set the value associated with the given key.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#remove(byte[])">remove</a></strong>(byte[]&nbsp;key)</code>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html#removeRange(byte[], byte[])">removeRange</a></strong>(byte[]&nbsp;minKey,
                       byte[]&nbsp;maxKey)</code>
@@ -214,7 +219,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
-<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -247,26 +252,22 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/util/ByteUtil.html#COMPARATOR"><code>ByteUtil.COMPARATOR</code></a></dd></dl>
 </li>
 </ul>
-<a name="NavigableMapKVStore(java.util.NavigableMap)">
+<a name="NavigableMapKVStore(java.util.concurrent.ConcurrentSkipListMap)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>NavigableMapKVStore</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.60">NavigableMapKVStore</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;byte[],byte[]&gt;&nbsp;map)</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.56">NavigableMapKVStore</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentSkipListMap.html?is-external=true" title="class or interface in java.util.concurrent">ConcurrentSkipListMap</a>&lt;byte[],byte[]&gt;&nbsp;map)</pre>
 <div class="block">Primary constructor.
 
  <p>
  The underlying map <b>must</b> sort keys lexicographically as unsigned bytes; otherwise, behavior is undefined.
- </p>
-
- <p>
- The underlying map's iterator <b>must not</b> throw <a href="https://docs.oracle.com/javase/7/docs/api/java/util/ConcurrentModificationException.html?is-external=true" title="class or interface in java.util"><code>ConcurrentModificationException</code></a>. For example,
- <a href="https://docs.oracle.com/javase/7/docs/api/java/util/TreeMap.html?is-external=true" title="class or interface in java.util"><code>TreeMap</code></a> does not satisfy this constraint.
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>map</code> - underlying map</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>map</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/util/ByteUtil.html#COMPARATOR"><code>ByteUtil.COMPARATOR</code></a></dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>map</code> is null</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if an invalid comparator is detected (this check is not reliable)</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/util/ByteUtil.html#COMPARATOR"><code>ByteUtil.COMPARATOR</code></a></dd></dl>
 </li>
 </ul>
 </li>
@@ -283,7 +284,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <ul class="blockList">
 <li class="blockList">
 <h4>getNavigableMap</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;byte[],byte[]&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.70">getNavigableMap</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ConcurrentSkipListMap.html?is-external=true" title="class or interface in java.util.concurrent">ConcurrentSkipListMap</a>&lt;byte[],byte[]&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.69">getNavigableMap</a>()</pre>
 <div class="block">Get the underlying <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util"><code>NavigableMap</code></a> used by this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the underlying map</dd></dl>
 </li>
@@ -294,7 +295,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.77">get</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.76">get</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the value associated with the given key, if any.</div>
 <dl>
@@ -312,7 +313,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <ul class="blockList">
 <li class="blockList">
 <h4>getAtLeast</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.84">getAtLeast</a>(byte[]&nbsp;minKey)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.82">getAtLeast</a>(byte[]&nbsp;minKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtLeast(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the key/value pair having the smallest key greater than or equal to the given minimum, if any.
 
@@ -335,7 +336,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <ul class="blockList">
 <li class="blockList">
 <h4>getAtMost</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.90">getAtMost</a>(byte[]&nbsp;maxKey)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.88">getAtMost</a>(byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtMost(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the key/value pair having the largest key strictly less than the given maximum, if any.
 
@@ -358,7 +359,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <ul class="blockList">
 <li class="blockList">
 <h4>getRange</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.96">getRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.94">getRange</a>(byte[]&nbsp;minKey,
                         byte[]&nbsp;maxKey,
                         boolean&nbsp;reverse)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">KVStore</a></code></strong></div>
@@ -383,9 +384,12 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
  </p>
 
  <p>
- The returned <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a> is not guaranteed to be thread safe.
+ The returned <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a> itself is not guaranteed to be thread safe.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>minKey</code> - minimum key (inclusive), or null for no minimum (start at the smallest key)</dd><dd><code>maxKey</code> - maximum key (exclusive), or null for no maximum (end at the largest key)</dd><dd><code>reverse</code> - true to return key/value pairs in reverse order (i.e., keys descending)</dd>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">getRange</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>minKey</code> - minimum key (inclusive), or null for no minimum (start at the smallest key)</dd><dd><code>maxKey</code> - maximum key (exclusive), or null for no maximum (end at the largest key)</dd><dd><code>reverse</code> - true to return key/value pairs in reverse order (i.e., keys descending)</dd>
 <dt><span class="strong">Returns:</span></dt><dd>iteration of key/value pairs in the range <code>minKey</code> (inclusive) to <code>maxKey</code> (exclusive)</dd></dl>
 </li>
 </ul>
@@ -395,7 +399,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <ul class="blockList">
 <li class="blockList">
 <h4>put</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.115">put</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.113">put</a>(byte[]&nbsp;key,
        byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#put(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Set the value associated with the given key.</div>
@@ -413,7 +417,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.124">remove</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.120">remove</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#remove(byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 <dl>
@@ -427,10 +431,10 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <a name="removeRange(byte[], byte[])">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>removeRange</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.131">removeRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.126">removeRange</a>(byte[]&nbsp;minKey,
                byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#removeRange(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove all key/value pairs whose keys are in a given range.
@@ -452,6 +456,19 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/AbstractKVStore.html#removeRange(byte[], byte[])">removeRange</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>minKey</code> - minimum key (inclusive), or null for no minimum</dd><dd><code>maxKey</code> - maximum key (exclusive), or null for no maximum</dd></dl>
+</li>
+</ul>
+<a name="clone()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>clone</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util">NavigableMapKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/NavigableMapKVStore.html#line.140">clone</a>()</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+</dl>
 </li>
 </ul>
 </li>

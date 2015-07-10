@@ -190,8 +190,12 @@ extends <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in 
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVStore.html#line.41">stop</a>()</pre>
+<pre>void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVStore.html#line.45">stop</a>()</pre>
 <div class="block">Stop this instance.
+
+ <p>
+ Any open <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#snapshot()"><code>snapshot()</code></a>'s should be <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a>'d before invoking this method;
+ the behavior of those that are not is undefined.
 
  <p>
  This method is idempotent: if this instance has not been started, or is already stopped, nothing happens.</div>
@@ -203,7 +207,7 @@ extends <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in 
 <ul class="blockList">
 <li class="blockList">
 <h4>snapshot</h4>
-<pre><a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVStore.html#line.59">snapshot</a>()</pre>
+<pre><a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVStore.html#line.63">snapshot</a>()</pre>
 <div class="block">Acquire a read-only, snapshot view of this instance based on the current state.
 
  <p>
@@ -224,7 +228,7 @@ extends <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>mutate</h4>
-<pre>void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVStore.html#line.85">mutate</a>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
+<pre>void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/AtomicKVStore.html#line.89">mutate</a>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
           boolean&nbsp;sync)</pre>
 <div class="block">Apply a set of mutations to this instance atomically.
 

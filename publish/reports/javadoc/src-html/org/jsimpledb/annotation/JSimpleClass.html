@@ -91,11 +91,11 @@
 <span class="sourceLineNo">083</span>     * Whether to automatically generate database fields from un-annotated abstract Java bean methods.<a name="line.83"></a>
 <span class="sourceLineNo">084</span>     *<a name="line.84"></a>
 <span class="sourceLineNo">085</span>     * &lt;p&gt;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     * If true, database fields corresponding to all &lt;b&gt;abstract&lt;/b&gt; bean property getter methods will<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     * be auto-generated even if there is no {@link JField &amp;#64;JField}, {@link JSetField &amp;#64;JSetField},<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     * {@link JListField &amp;#64;JListField}, or {@link JMapField &amp;#64;JMapField} annotation. Note &lt;i&gt;this includes<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     * superclass and interface methods&lt;/i&gt;.<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     * &lt;/p&gt;<a name="line.90"></a>
+<span class="sourceLineNo">086</span>     * If true, database fields will be auto-generated corresponding to all &lt;b&gt;abstract&lt;/b&gt; bean property getter methods,<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * even if there is no {@link JField &amp;#64;JField}, {@link JSetField &amp;#64;JSetField},<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * {@link JListField &amp;#64;JListField}, or {@link JMapField &amp;#64;JMapField} annotation.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * Note &lt;i&gt;this includes superclass and interface methods&lt;/i&gt;. Methods must be either {@code public} or<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * {@code protected}. In the case of simple fields, there must also be a corresponding setter method.<a name="line.90"></a>
 <span class="sourceLineNo">091</span>     *<a name="line.91"></a>
 <span class="sourceLineNo">092</span>     * &lt;p&gt;<a name="line.92"></a>
 <span class="sourceLineNo">093</span>     * Getter methods with return type assignable to {@link java.util.Set}, {@link java.util.List}, and {@link java.util.Map}<a name="line.93"></a>
