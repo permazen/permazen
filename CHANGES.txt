@@ -1,4 +1,4 @@
-Version Next
+Version 1.2.1 Released July 9, 2015
 
     - Added KVTransaction.mutableSnapshot() and KVStore-based
       snapshot transactions in JSimpleDB and core layers
