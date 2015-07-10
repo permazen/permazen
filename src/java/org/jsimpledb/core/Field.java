@@ -19,9 +19,10 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 public abstract class Field<T> extends SchemaItem {
 
     final TypeToken<T> typeToken;
+    final byte[] encodedStorageId;
 
     /**
-     * Constructor for normal fields of an {@link ObjType}.
+     * Constructor.
      *
      * @param name the name of the field
      * @param storageId field storage ID
@@ -35,6 +36,7 @@ public abstract class Field<T> extends SchemaItem {
         super(name, storageId, schema);
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.typeToken = typeToken;
+        this.encodedStorageId = UnsignedIntEncoder.encode(this.storageId);
     }
 
 // Public methods
@@ -104,14 +106,17 @@ public abstract class Field<T> extends SchemaItem {
      * Build the key (or key prefix) for this field in the given object.
      */
     byte[] buildKey(ObjId id) {
-        return Field.buildKey(id, this.storageId);
+        final ByteWriter writer = new ByteWriter(ObjId.NUM_BYTES + this.encodedStorageId.length);
+        id.writeTo(writer);
+        writer.write(this.encodedStorageId);
+        return writer.getBytes();
     }
 
     /**
-     * Build the key (or key prefix) for this field in the given object.
+     * Build the key (or key prefix) for a field with the given storage ID in the given object.
      */
     static byte[] buildKey(ObjId id, int storageId) {
-        final ByteWriter writer = new ByteWriter();
+        final ByteWriter writer = new ByteWriter(ObjId.NUM_BYTES + UnsignedIntEncoder.encodeLength(storageId));
         id.writeTo(writer);
         UnsignedIntEncoder.write(writer, storageId);
         return writer.getBytes();
