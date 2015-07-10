@@ -34,9 +34,9 @@ public class TypeSafetyTest3 extends TestSupport {
         JTransaction jtx = jdb1.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
 
-        final Car car;
-        final Boat boat;
-        final Inventory1 inventory1;
+        Car car;
+        Boat boat;
+        Inventory1 inventory1;
 
         try {
 
@@ -67,6 +67,10 @@ public class TypeSafetyTest3 extends TestSupport {
         try {
 
             inventory2 = jtx.getAll(Inventory2.class).iterator().next();
+
+            // Reload objects
+            car = jtx.getJObject(car);
+            boat = jtx.getJObject(boat);
 
             boat.setColor(Color.RED);   // triggers notification to carColorChange()?
 

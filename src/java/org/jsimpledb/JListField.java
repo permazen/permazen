@@ -25,7 +25,7 @@ public class JListField extends JCollectionField {
     @Override
     public List<?> getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readListField(jobj, this.storageId, false);
+        return jobj.getTransaction().readListField(jobj.getObjId(), this.storageId, false);
     }
 
     @Override

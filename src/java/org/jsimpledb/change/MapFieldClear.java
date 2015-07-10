@@ -35,7 +35,7 @@ public class MapFieldClear<T> extends MapFieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.readMapField(jobj, this.getStorageId(), false).clear();
+        jtx.readMapField(jobj.getObjId(), this.getStorageId(), false).clear();
     }
 
 // Object

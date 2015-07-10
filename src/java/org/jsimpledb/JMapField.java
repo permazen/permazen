@@ -54,7 +54,7 @@ public class JMapField extends JComplexField {
     @Override
     public NavigableMap<?, ?> getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readMapField(jobj, this.storageId, false);
+        return jobj.getTransaction().readMapField(jobj.getObjId(), this.storageId, false);
     }
 
     @Override

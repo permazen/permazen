@@ -66,6 +66,11 @@ public class ValidationTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
+            // Reload object
+            int checks = p1.getChecks();
+            p1 = tx.getJObject(p1);
+            p1.setChecks(checks);
+
             // Request validation
             p1.revalidate();
 
@@ -136,6 +141,11 @@ public class ValidationTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
+            // Reload object
+            int checks = p1.getChecks();
+            p1 = tx.getJObject(p1);
+            p1.setChecks(checks);
+
             p1.setAge(40);
             try {
                 tx.commit();
@@ -157,6 +167,11 @@ public class ValidationTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
+            // Reload object
+            int checks = p1.getChecks();
+            p1 = tx.getJObject(p1);
+            p1.setChecks(checks);
+
             p1.setName("bob");
             try {
                 tx.commit();
@@ -174,6 +189,11 @@ public class ValidationTest extends TestSupport {
         tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
+
+            // Reload object
+            int checks = p1.getChecks();
+            p1 = tx.getJObject(p1);
+            p1.setChecks(checks);
 
             p1.setChecks(-1);
             p1.revalidate();
@@ -195,6 +215,11 @@ public class ValidationTest extends TestSupport {
         tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
+
+            // Reload object
+            int checks = p1.getChecks();
+            p1 = tx.getJObject(p1);
+            p1.setChecks(checks);
 
             p1.setChecks(-1);
             p1.setAge(-99);

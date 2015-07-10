@@ -16,21 +16,13 @@ import org.jsimpledb.core.ObjId;
  * Therefore, it is conveninent to declare Java model classes {@code abstract} and {@code implements JObject}.
  * However, this is not strictly necessary; all of the methods declared here ultimately delegate to one of the
  * {@link JTransaction} support methods.
- * </p>
  *
  * <p>
- * There are two types of {@link JObject}s: normal instances, which always reflect the state of the {@link JTransaction}
- * {@linkplain JTransaction#getCurrent associated} with the current thread, and "snapshot" instances that reflect
- * the state of their associated {@link SnapshotJTransaction}. Use {@link #isSnapshot} to distinguish if necessary
- * Use {@link #copyIn copyIn()} and {@link #copyOut copyOut()} to copy data between normal and snapshot transactions.
- * </p>
+ * All {@link JObject}s are {@linkplain #getTransaction associated} with a specific {@linkplain JTransaction transaction},
+ * and are the unique representatives of for their corresponding {@link ObjId} in that transaction.
+ * All field state derives from the transaction.
  *
- * <p>
- * The {@link #getTransaction} method returns the transaction associated with an instance. For a normal instance,
- * this is just the {@link JTransaction} {@linkplain JTransaction#getCurrent associated} with the current thread;
- * if there is no such transaction, an {@link IllegalStateException} is thrown. For a "snapshot" instance,
- * {@link #getTransaction} always returns the corresponding {@link SnapshotJTransaction}.
- * </p>
+ * @see JTransaction
  */
 public interface JObject {
 

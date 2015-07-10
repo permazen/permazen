@@ -47,7 +47,7 @@ public class MapFieldAdd<T, K, V> extends MapFieldChange<T> {
     @Override
     @SuppressWarnings("unchecked")
     public void apply(JTransaction jtx, JObject jobj) {
-        ((Map<K, V>)jtx.readMapField(jobj, this.getStorageId(), false)).put(this.key, this.value);
+        ((Map<K, V>)jtx.readMapField(jobj.getObjId(), this.getStorageId(), false)).put(this.key, this.value);
     }
 
     /**

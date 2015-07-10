@@ -40,7 +40,7 @@ public class SetFieldRemove<T, E> extends SetFieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.readSetField(jobj, this.getStorageId(), false).remove(this.element);
+        jtx.readSetField(jobj.getObjId(), this.getStorageId(), false).remove(this.element);
     }
 
     /**

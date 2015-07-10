@@ -39,11 +39,10 @@ class ClassGenerator<T> {
 
      // Class name suffix for generated classes
     static final String CLASSNAME_SUFFIX = "$$JSimpleDB";
-    static final String SNAPSHOT_CLASSNAME_SUFFIX = "Snapshot";
 
     // Names of generated fields
+    static final String TX_FIELD_NAME = "$tx";
     static final String ID_FIELD_NAME = "$id";
-    static final String SNAPSHOT_TRANSACTION_FIELD_NAME = "$snapshot";
 
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
@@ -96,19 +95,19 @@ class ClassGenerator<T> {
 
             // JTransaction methods
             GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
-            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", JObject.class, int.class, boolean.class);
+            READ_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("readSimpleField", ObjId.class, int.class, boolean.class);
             WRITE_SIMPLE_FIELD_METHOD = JTransaction.class.getMethod("writeSimpleField",
               JObject.class, int.class, Object.class, boolean.class);
-            READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField", JObject.class, int.class, boolean.class);
-            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", JObject.class, int.class, boolean.class);
-            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", JObject.class, int.class, boolean.class);
-            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", JObject.class, int.class, boolean.class);
+            READ_COUNTER_FIELD_METHOD = JTransaction.class.getMethod("readCounterField", ObjId.class, int.class, boolean.class);
+            READ_SET_FIELD_METHOD = JTransaction.class.getMethod("readSetField", ObjId.class, int.class, boolean.class);
+            READ_LIST_FIELD_METHOD = JTransaction.class.getMethod("readListField", ObjId.class, int.class, boolean.class);
+            READ_MAP_FIELD_METHOD = JTransaction.class.getMethod("readMapField", ObjId.class, int.class, boolean.class);
             DELETE_METHOD = JTransaction.class.getMethod("delete", JObject.class);
-            EXISTS_METHOD = JTransaction.class.getMethod("exists", JObject.class);
+            EXISTS_METHOD = JTransaction.class.getMethod("exists", ObjId.class);
             RECREATE_METHOD = JTransaction.class.getMethod("recreate", JObject.class);
-            GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", JObject.class);
+            GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", ObjId.class);
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
-            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", JObject.class);
+            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class);
             COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",
               JTransaction.class, JObject.class, ObjId.class, CopyState.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
@@ -124,9 +123,7 @@ class ClassGenerator<T> {
     protected final ClassLoader loader;
 
     private Class<? extends T> subclass;
-    private Class<? extends T> snapshotSubclass;
     private Constructor<? extends T> constructor;
-    private Constructor<? extends T> snapshotConstructor;
 
     /**
      * Constructor for application classes.
@@ -159,30 +156,13 @@ class ClassGenerator<T> {
             if (this.subclass == null)
                 this.subclass = this.generateClass();
             try {
-                this.constructor = this.subclass.getConstructor(ObjId.class);
+                this.constructor = this.subclass.getConstructor(JTransaction.class, ObjId.class);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("internal error", e);
             }
             this.constructor.setAccessible(true);
         }
         return this.constructor;
-    }
-
-    /**
-     * Get generated snapshot subclass' constructor.
-     */
-    public Constructor<? extends T> getSnapshotConstructor() {
-        if (this.snapshotConstructor == null) {
-            if (this.snapshotSubclass == null)
-                this.snapshotSubclass = this.generateSnapshotClass();
-            try {
-                this.snapshotConstructor = this.snapshotSubclass.getConstructor(ObjId.class, SnapshotJTransaction.class);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("internal error", e);
-            }
-            this.snapshotConstructor.setAccessible(true);
-        }
-        return this.snapshotConstructor;
     }
 
     /**
@@ -198,29 +178,10 @@ class ClassGenerator<T> {
     }
 
     /**
-     * Generate the Java class for this instance's snapshot class.
-     */
-    @SuppressWarnings("unchecked")
-    public Class<? extends T> generateSnapshotClass() {
-        try {
-            return (Class<? extends T>)this.loader.loadClass(this.getSnapshotClassName().replace('/', '.'));
-        } catch (ClassNotFoundException e) {
-            throw new DatabaseException("internal error", e);
-        }
-    }
-
-    /**
      * Get class internal name. Note: this name contains slashes, not dots.
      */
     public String getClassName() {
         return this.getSuperclassName() + CLASSNAME_SUFFIX;
-    }
-
-    /**
-     * Get snapshot class internal name. Note: this name contains slashes, not dots.
-     */
-    public String getSnapshotClassName() {
-        return this.getClassName() + SNAPSHOT_CLASSNAME_SUFFIX;
     }
 
     /**
@@ -257,6 +218,11 @@ class ClassGenerator<T> {
 
     private void outputFields(ClassWriter cw) {
 
+        // Output "tx" field
+        final FieldVisitor fv = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
+          TX_FIELD_NAME, Type.getDescriptor(JTransaction.class), null, null);
+        fv.visitEnd();
+
         // Output "id" field
         final FieldVisitor idField = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
           ID_FIELD_NAME, Type.getDescriptor(ObjId.class), null, null);
@@ -265,15 +231,18 @@ class ClassGenerator<T> {
 
     private void outputConstructors(ClassWriter cw) {
 
-        // Foo(ObjId id)
+        // Foo(JTransaction tx, ObjId id)
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
-          Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class)), null, null);
+          Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(JTransaction.class), Type.getType(ObjId.class)), null, null);
         mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);                                                          // this.id = id
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitVarInsn(Opcodes.ALOAD, 1);                                                              // this.tx = tx
+        mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitVarInsn(Opcodes.ALOAD, 2);                                                              // this.id = id
         mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getSuperclassName(), "<init>", "()V", false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getSuperclassName(), "<init>", "()V", false);    // super()
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -284,7 +253,8 @@ class ClassGenerator<T> {
         // Output JObject.getTransaction()
         MethodVisitor mv = this.startMethod(cw, JOBJECT_GET_TRANSACTION);
         mv.visitCode();
-        this.emitInvoke(mv, GET_CURRENT_METHOD);                                                // JTransaction.getCurrent()
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -304,6 +274,7 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, GET_SCHEMA_VERSION_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -326,6 +297,7 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, EXISTS_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
@@ -334,7 +306,9 @@ class ClassGenerator<T> {
         // Add JObject.isSnapshot()
         mv = this.startMethod(cw, JOBJECT_IS_SNAPSHOT_METHOD);
         mv.visitCode();
-        mv.visitInsn(Opcodes.ICONST_0);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitTypeInsn(Opcodes.INSTANCEOF, Type.getType(SnapshotJTransaction.class).getInternalName());
         mv.visitInsn(Opcodes.IRETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -356,6 +330,7 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, REVALIDATE_METHOD);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
@@ -428,80 +403,6 @@ class ClassGenerator<T> {
             jfield.outputMethods(this, cw);
     }
 
-// Snaptshot Class
-
-    /**
-     * Generate the Java class bytecode for this instance's snapshot class.
-     */
-    protected byte[] generateSnapshotBytecode() {
-
-        // Generate class
-        this.log.debug("begin generating class " + this.getSnapshotClassName());
-        final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_SYNTHETIC,
-          this.getSnapshotClassName(), null, this.getClassName(), null);
-        cw.visitSource(GEN_SOURCE, null);
-        this.outputSnapshotFields(cw);
-        this.outputSnapshotConstructors(cw);
-        this.outputSnapshotMethods(cw);
-        cw.visitEnd();
-        final byte[] classfile = cw.toByteArray();
-        this.log.debug("done generating class " + this.getSnapshotClassName());
-        this.debugDump(System.out, classfile);
-
-        // Done
-        return classfile;
-    }
-
-    private void outputSnapshotFields(ClassWriter cw) {
-
-        // Output "snapshot" field
-        final FieldVisitor fv = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
-          SNAPSHOT_TRANSACTION_FIELD_NAME, Type.getDescriptor(SnapshotJTransaction.class), null, null);
-        fv.visitEnd();
-    }
-
-    private void outputSnapshotConstructors(ClassWriter cw) {
-
-        // Foo(ObjId id, SnapshotJTransaction snapshot)
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
-          Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class), Type.getType(SnapshotJTransaction.class)),
-          null, null);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);                                                          // this.$snapshot = snapshot
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitVarInsn(Opcodes.ALOAD, 2);
-        mv.visitFieldInsn(Opcodes.PUTFIELD, this.getSnapshotClassName(),
-          SNAPSHOT_TRANSACTION_FIELD_NAME, Type.getDescriptor(SnapshotJTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 1);                                                          // super(id)
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, this.getClassName(),
-          "<init>", Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType(ObjId.class)), false);
-        mv.visitInsn(Opcodes.RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
-    private void outputSnapshotMethods(ClassWriter cw) {
-
-        // Output getTransaction() (override)
-        MethodVisitor mv = this.startMethod(cw, JOBJECT_GET_TRANSACTION);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);                                                          // return this.$snapshot
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getSnapshotClassName(),
-          SNAPSHOT_TRANSACTION_FIELD_NAME, Type.getDescriptor(SnapshotJTransaction.class));
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // Add JObject.isSnapshot() (override)
-        mv = this.startMethod(cw, JOBJECT_IS_SNAPSHOT_METHOD);
-        mv.visitCode();
-        mv.visitInsn(Opcodes.ICONST_1);
-        mv.visitInsn(Opcodes.IRETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
 // Helper Methods
 
     // Debug dump - requires asm-util
@@ -518,9 +419,9 @@ class ClassGenerator<T> {
 
     /**
      * Emit code that overrides a Java bean method. When the {@code emitter} runs, the stack will look like:
-     * {@code ..., tx, this, storageId }.
+     * {@code ..., tx, this OR this.id, storageId }.
      */
-    void overrideBeanMethod(ClassWriter cw, Method method, int storageId, CodeEmitter emitter) {
+    void overrideBeanMethod(ClassWriter cw, Method method, int storageId, boolean jobject, CodeEmitter emitter) {
 
         // Generate initial stuff
         final MethodVisitor mv = cw.visitMethod(
@@ -531,6 +432,8 @@ class ClassGenerator<T> {
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
+        if (!jobject)
+            mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         mv.visitLdcInsn(storageId);
 
         // Emit caller-specific stuff

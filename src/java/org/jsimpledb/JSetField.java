@@ -25,7 +25,7 @@ public class JSetField extends JCollectionField {
     @Override
     public NavigableSet<?> getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readSetField(jobj, this.storageId, false);
+        return jobj.getTransaction().readSetField(jobj.getObjId(), this.storageId, false);
     }
 
     @Override

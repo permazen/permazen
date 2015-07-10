@@ -72,7 +72,6 @@ public class SnapshotTest extends TestSupport {
             Assert.assertEquals(p1a.getMap1().size(), 2);
 
             Assert.assertSame(p1, tx.getJObject(p1.getObjId()));
-            Assert.assertSame(p1, tx.getJSimpleDB().getJObject(p1.getObjId()));
             Assert.assertSame(p1a, stx.getJObject(p1.getObjId()));
 
             TestSupport.checkSet(tx.getAll(Person.class), buildSet(p1, p2, p3));
@@ -121,6 +120,11 @@ public class SnapshotTest extends TestSupport {
         final JTransaction tx2 = jdb.createTransaction(true, ValidationMode.MANUAL);
         JTransaction.setCurrent(tx2);
         try {
+
+            // Reload objects
+            p1 = tx2.getJObject(p1);
+            p2 = tx2.getJObject(p2);
+            p3 = tx2.getJObject(p3);
 
             Assert.assertEquals(p1.getName(), "Person #1");
             Assert.assertEquals(p1.getAge(), 123);

@@ -125,7 +125,7 @@ public class JSimpleField extends JField {
     @Override
     public Object getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readSimpleField(jobj, this.storageId, false);
+        return jobj.getTransaction().readSimpleField(jobj.getObjId(), this.storageId, false);
     }
 
     @Override
@@ -188,7 +188,7 @@ public class JSimpleField extends JField {
 
         // Setter
         final Method writeMethod = ClassGenerator.WRITE_SIMPLE_FIELD_METHOD;
-        generator.overrideBeanMethod(cw, this.setter, this.storageId, new ClassGenerator.CodeEmitter() {
+        generator.overrideBeanMethod(cw, this.setter, this.storageId, true, new ClassGenerator.CodeEmitter() {
             @Override
             public void emit(MethodVisitor mv) {
 

@@ -49,7 +49,7 @@ public class ListFieldReplace<T, E> extends ListFieldChange<T> {
     @Override
     @SuppressWarnings("unchecked")
     public void apply(JTransaction jtx, JObject jobj) {
-        ((List<E>)jtx.readListField(jobj, this.getStorageId(), false)).set(this.index, this.newValue);
+        ((List<E>)jtx.readListField(jobj.getObjId(), this.getStorageId(), false)).set(this.index, this.newValue);
     }
 
     /**

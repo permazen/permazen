@@ -172,11 +172,11 @@ public class TypeSafetyTest extends TestSupport {
             }
 
             // Verify bar3 still contains references to foo's
-            final JObject ref1 = (JObject)jtx.readSimpleField(bar3, 21, false);         // ref1 = bar3.getFriend()
+            final JObject ref1 = (JObject)jtx.readSimpleField(bar3.getObjId(), 21, false);         // ref1 = bar3.getFriend()
             Assert.assertTrue(ref1 instanceof UntypedJObject);
             Assert.assertEquals(ref1.getObjId(), f2);
             final HashSet<ObjId> ids = new HashSet<>();
-            for (Object obj : jtx.readSetField(bar3, 23, false))
+            for (Object obj : jtx.readSetField(bar3.getObjId(), 23, false))
                 ids.add(((JObject)obj).getObjId());
             TestSupport.checkSet(ids, buildSet(f1, f2, b1, b2));
 
@@ -186,10 +186,10 @@ public class TypeSafetyTest extends TestSupport {
             Assert.assertEquals(bar3.getSchemaVersion(), 2);
 
             // Now bar3 should no longer contains any references to foo's
-            Assert.assertNull(jtx.readSimpleField(bar3, 21, false));                    // bar3.getFriend()
+            Assert.assertNull(jtx.readSimpleField(bar3.getObjId(), 21, false));                    // bar3.getFriend()
             Assert.assertEquals(ref1.getObjId(), f2);
             ids.clear();
-            for (Object obj : jtx.readSetField(bar3, 23, false))
+            for (Object obj : jtx.readSetField(bar3.getObjId(), 23, false))
                 ids.add(((JObject)obj).getObjId());
             TestSupport.checkSet(ids, buildSet(b1, b2));
 

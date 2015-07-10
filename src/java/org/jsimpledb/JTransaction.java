@@ -197,6 +197,7 @@ public class JTransaction {
     private final InternalDeleteListener internalDeleteListener = new InternalDeleteListener();
     private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
     private final ObjIdSet validationQueue = new ObjIdSet();
+    private final JObjectCache jobjectCache = new JObjectCache(this);
 
     private final LoadingCache<IndexInfoKey, IndexInfo> indexInfoCache = CacheBuilder.newBuilder()
       .maximumSize(1000).build(new CacheLoader<IndexInfoKey, IndexInfo>() {
@@ -512,7 +513,7 @@ public class JTransaction {
         Preconditions.checkArgument(refPaths != null, "null refPaths");
 
         // Handle possible re-entrant object cache load
-        srcObj.getTransaction().getJObjectCache().registerJObject(srcObj);
+        srcObj.getTransaction().jobjectCache.registerJObject(srcObj);
 
         // Get source and dest ID
         final ObjId srcId = srcObj.getObjId();
@@ -635,7 +636,7 @@ public class JTransaction {
                 continue;
 
             // Handle possible re-entrant object cache load
-            jobj.getTransaction().getJObjectCache().registerJObject(jobj);
+            jobj.getTransaction().jobjectCache.registerJObject(jobj);
 
             // Copy object
             final ObjId id = jobj.getObjId();
@@ -682,42 +683,41 @@ public class JTransaction {
 // Object/Field Access
 
     /**
-     * Get the Java model object that has the given ID and whose state derives from this transaction.
-     * If this instance is a {@link SnapshotJTransaction}, the unique instance associated with this transaction
-     * will be returned. Otherwise, the instance shared by all non-snapshot {@link JTransaction}s will be returned.
+     * Get the Java model object that is associated with this transaction and has the given ID.
      *
      * <p>
-     * It is guaranteed that for any particular {@code id}, the same Java instance will always be returned by this instance.
-     * </p>
+     * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
      *
      * <p>
-     * A non-null object is always returned, but the corresponding object may not exist in this transaction.
+     * A non-null object is always returned, but the corresponding object may not actually exist in this transaction.
      * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
+     *
+     * <p>
      * Also, it's possible that {@code id} corresponds to an object type which no longer exists in the schema
      * version associated with this instance. In that case, an {@link UntypedJObject} is returned.
-     * </p>
      *
      * @param id object ID
      * @return Java model object
      * @throws IllegalArgumentException if {@code id} is null
      * @see #getJObject(ObjId, Class)
      * @see #getJObject(JObject)
-     * @see JSimpleDB#getJObject JSimpleDB.getJObject()
      */
     public JObject getJObject(ObjId id) {
-        return this.getJObjectCache().getJObject(id);
+        return this.jobjectCache.getJObject(id);
     }
 
     /**
-     * Get the Java model object with the given object ID and whose state derives from this transaction, cast to the given type.
+     * Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.
+     *
+     * <p>
      * This method just invoke {@link #getJObject(ObjId)} and then casts the result.
      *
      * @param id object ID
-     * @param type expected Java type
-     * @param <T> expected Java type
+     * @param type expected type
+     * @param <T> expected Java model type
      * @return Java model object
      * @throws ClassCastException if the Java model object does not have type {@code type}
-     * @throws IllegalArgumentException if {@code id} or {@code type} is null
+     * @throws IllegalArgumentException if {@code type} is null
      * @see #getJObject(ObjId)
      * @see #getJObject(JObject)
      */
@@ -728,6 +728,8 @@ public class JTransaction {
 
     /**
      * Get the Java model object with the same object ID as the given {@link JObject} and whose state derives from this transaction.
+     *
+     * <p>
      * This method is equivalent to {@code getJObject(jobj.getObjId())} followed by an appropriate cast to type {@code T}.
      *
      * @param jobj Java model object
@@ -794,7 +796,9 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean delete(JObject jobj) {
-        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
+
+        // Handle possible re-entrant object cache load
+        jobj.getTransaction().jobjectCache.registerJObject(jobj);
 
         // Delete object
         final ObjId id = jobj.getObjId();
@@ -818,13 +822,13 @@ public class JTransaction {
      * This method is typically only used by generated classes; normally, {@link JObject#exists} would be used instead.
      * </p>
      *
-     * @param jobj the object to test for existence
+     * @param id ID of the object to test for existence
      * @return true if object was found, false if object was not found
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws NullPointerException if {@code id} is null
      */
-    public boolean exists(JObject jobj) {
-        return this.tx.exists(jobj.getObjId());
+    public boolean exists(ObjId id) {
+        return this.tx.exists(id);
     }
 
     /**
@@ -842,7 +846,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean recreate(JObject jobj) {
-        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
+        jobj.getTransaction().jobjectCache.registerJObject(jobj);               // handle possible re-entrant object cache load
         return this.tx.create(jobj.getObjId());
     }
 
@@ -854,14 +858,13 @@ public class JTransaction {
      * This method is typically only used by generated classes; normally, {@link JObject#revalidate} would be used instead.
      * </p>
      *
-     * @param jobj the object to revalidate
+     * @param id ID of the object to revalidate
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalStateException if transaction commit is already in progress
-     * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws DeletedObjectException if the object does not exist in this transaction
+     * @throws NullPointerException if {@code id} is null
      */
-    public void revalidate(JObject jobj) {
-        final ObjId id = jobj.getObjId();
+    public void revalidate(ObjId id) {
         if (!this.tx.exists(id))
             throw new DeletedObjectException(id);
         this.revalidate(Collections.singleton(id));
@@ -897,14 +900,14 @@ public class JTransaction {
      * This method is typically only used by generated classes; normally, {@link JObject#getSchemaVersion} would be used instead.
      * </p>
      *
-     * @param jobj object whose version to query
+     * @param id ID of the object containing the field
      * @return object's schema version
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws DeletedObjectException if the object does not exist in this transaction
+     * @throws NullPointerException if {@code id} is null
      */
-    public int getSchemaVersion(JObject jobj) {
-        return this.tx.getSchemaVersion(jobj.getObjId());
+    public int getSchemaVersion(ObjId id) {
+        return this.tx.getSchemaVersion(id);
     }
 
     /**
@@ -930,7 +933,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean updateSchemaVersion(JObject jobj) {
-        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
+        jobj.getTransaction().jobjectCache.registerJObject(jobj);              // handle possible re-entrant object cache load
         return this.tx.updateSchemaVersion(jobj.getObjId());
     }
 
@@ -943,20 +946,20 @@ public class JTransaction {
      * and not normally invoked directly by user code.
      * </p>
      *
-     * @param jobj object containing the field
+     * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JSimpleField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @return value of the field in the object
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
+     * @throws DeletedObjectException if the object does not exist in this transaction
      * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws NullPointerException if {@code id} is null
      */
-    public Object readSimpleField(JObject jobj, int storageId, boolean updateVersion) {
+    public Object readSimpleField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this),
-          this.tx.readSimpleField(jobj.getObjId(), storageId, updateVersion));
+          this.tx.readSimpleField(id, storageId, updateVersion));
     }
 
     /**
@@ -983,7 +986,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public void writeSimpleField(JObject jobj, int storageId, Object value, boolean updateVersion) {
-        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
+        jobj.getTransaction().jobjectCache.registerJObject(jobj);              // handle possible re-entrant object cache load
         final Converter<?, ?> converter = this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
@@ -998,22 +1001,22 @@ public class JTransaction {
      * and not normally invoked directly by user code.
      * </p>
      *
-     * @param jobj object containing the field
+     * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JCounterField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @return value of the counter in the object
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
+     * @throws DeletedObjectException if the object does not exist in this transaction
      * @throws UnknownFieldException if no {@link JCounterField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws NullPointerException if {@code id} is null
      */
-    public Counter readCounterField(JObject jobj, int storageId, boolean updateVersion) {
+    public Counter readCounterField(ObjId id, int storageId, boolean updateVersion) {
         this.jdb.getJFieldInfo(storageId, JCounterFieldInfo.class);         // validate field type
         if (updateVersion)
-            this.tx.updateSchemaVersion(jobj.getObjId());
-        return new Counter(this.tx, jobj.getObjId(), storageId, updateVersion);
+            this.tx.updateSchemaVersion(id);
+        return new Counter(this.tx, id, storageId, updateVersion);
     }
 
     /**
@@ -1025,20 +1028,20 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      * </p>
      *
-     * @param jobj object containing the field
+     * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JSetField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
-     * @return the set field in {@code jobj} with storage ID {@code storageId}
+     * @return the set field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
+     * @throws DeletedObjectException if the object does not exist in this transaction
      * @throws UnknownFieldException if no {@link JSetField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws NullPointerException if {@code id} is null
      */
-    public NavigableSet<?> readSetField(JObject jobj, int storageId, boolean updateVersion) {
+    public NavigableSet<?> readSetField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJFieldInfo(storageId, JSetFieldInfo.class).getConverter(this),
-          this.tx.readSetField(jobj.getObjId(), storageId, updateVersion));
+          this.tx.readSetField(id, storageId, updateVersion));
     }
 
     /**
@@ -1050,20 +1053,20 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      * </p>
      *
-     * @param jobj object containing the field
+     * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JListField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
-     * @return the list field in {@code jobj} with storage ID {@code storageId}
+     * @return the list field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
+     * @throws DeletedObjectException if the object does not exist in this transaction
      * @throws UnknownFieldException if no {@link JListField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws NullPointerException if {@code id} is null
      */
-    public List<?> readListField(JObject jobj, int storageId, boolean updateVersion) {
+    public List<?> readListField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJFieldInfo(storageId, JListFieldInfo.class).getConverter(this),
-          this.tx.readListField(jobj.getObjId(), storageId, updateVersion));
+          this.tx.readListField(id, storageId, updateVersion));
     }
 
     /**
@@ -1075,20 +1078,20 @@ public class JTransaction {
      * getter override methods and not normally invoked directly by user code.
      * </p>
      *
-     * @param jobj object containing the field
+     * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JMapField}
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
-     * @return the map field in {@code jobj} with storage ID {@code storageId}
+     * @return the map field in the object with storage ID {@code storageId}
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
+     * @throws DeletedObjectException if the object does not exist in this transaction
      * @throws UnknownFieldException if no {@link JMapField} corresponding to {@code storageId} exists
-     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type
+     * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but the object has a type
      *  that does not exist in this instance's schema version
-     * @throws NullPointerException if {@code jobj} is null
+     * @throws NullPointerException if {@code id} is null
      */
-    public NavigableMap<?, ?> readMapField(JObject jobj, int storageId, boolean updateVersion) {
+    public NavigableMap<?, ?> readMapField(ObjId id, int storageId, boolean updateVersion) {
         return this.convert(this.jdb.getJFieldInfo(storageId, JMapFieldInfo.class).getConverter(this),
-          this.tx.readMapField(jobj.getObjId(), storageId, updateVersion));
+          this.tx.readMapField(id, storageId, updateVersion));
     }
 
 // Reference Path Access
@@ -1633,12 +1636,6 @@ public class JTransaction {
                 }
             }
         }
-    }
-
-// Object Cache
-
-    JObjectCache getJObjectCache() {
-        return this.jdb.jobjectCache;
     }
 
 // InternalCreateListener

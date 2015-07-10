@@ -81,7 +81,7 @@ public abstract class JField extends JSchemaObject {
         final TypeToken<?> propertyType = TypeToken.of(this.getter.getReturnType());
 
         // Generate method override
-        generator.overrideBeanMethod(cw, this.getter, this.storageId, new ClassGenerator.CodeEmitter() {
+        generator.overrideBeanMethod(cw, this.getter, this.storageId, false, new ClassGenerator.CodeEmitter() {
             @Override
             public void emit(MethodVisitor mv) {
 

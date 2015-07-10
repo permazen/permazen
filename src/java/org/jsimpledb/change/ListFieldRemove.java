@@ -43,7 +43,7 @@ public class ListFieldRemove<T, E> extends ListFieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.readListField(jobj, this.getStorageId(), false).remove(this.index);
+        jtx.readListField(jobj.getObjId(), this.getStorageId(), false).remove(this.index);
     }
 
     /**

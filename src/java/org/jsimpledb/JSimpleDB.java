@@ -66,14 +66,14 @@ import org.slf4j.LoggerFactory;
  * {@link JTransaction} is {@linkplain JTransaction#getCurrent associated with the current thread}.
  *
  * <p>
- * Not counting "snapshot" objects (see below), this class guarantees that for each {@link ObjId} there will only ever be
- * a single, globally unique, {@link JObject} Java model object. Therefore, the same Java model objects can be used in and
- * out of any transaction.
+ * All {@link JObject}s are associated with a specific transaction, and unique for their {@link ObjId} in that transaction.
  *
  * <p>
- * "Snapshot" objects are in-memory copies of regular database objects that may be imported/exported to/from transactions.
- * Snapshot {@link JObject}s are distinct from regular database {@link JObject}s; their state is contained in an in-memory
- * {@link SnapshotJTransaction}. See {@link JObject#copyOut JObject.copyOut} and {@link JObject#copyIn JObject.copyIn}.
+ * Normal transactions are created via {@link #createTransaction createTransaction()}. "Snapshot" transactions are
+ * special transactions that are "detached" from the database and can persist indefinitely. See
+ * {@link createSnapshotTransaction createSnapshotTransaction()}, {@link JTransaction#getSnapshotTransaction}, and
+ * {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()},
+ * and the methdos {@link JObject#copyOut JObject.copyOut} and {@link JObject#copyIn JObject.copyIn}.
  *
  * @see JObject
  * @see JTransaction
@@ -95,12 +95,7 @@ public class JSimpleDB {
     final Database db;
     final int configuredVersion;
     final StorageIdGenerator storageIdGenerator;
-    final JObjectCache jobjectCache = new JObjectCache(this) {
-        @Override
-        protected JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception {
-            return (JObject)classGenerator.getConstructor().newInstance(id);
-        }
-    };
+
     final boolean hasOnCreateMethods;
     final boolean hasOnDeleteMethods;
     final boolean hasOnVersionChangeMethods;
@@ -327,12 +322,8 @@ public class JSimpleDB {
 
         // Eagerly load all generated Java classes so we "fail fast" if there are any loading errors
         this.untypedClassGenerator.generateClass();
-        this.untypedClassGenerator.generateSnapshotClass();
-        for (JClass<?> jclass : this.jclasses.values()) {
-            final ClassGenerator<?> classGenerator = jclass.getClassGenerator();
-            classGenerator.generateClass();
-            classGenerator.generateSnapshotClass();
-        }
+        for (JClass<?> jclass : this.jclasses.values())
+            jclass.getClassGenerator().generateClass();
     }
 
     // This method exists solely to bind the generic type parameters
@@ -602,53 +593,6 @@ public class JSimpleDB {
         return new KeyRanges(list);
     }
 
-// Object Cache
-
-    /**
-     * Get the Java model object that is has the given ID. This returns the object associated with normal
-     * (i.e., non-snapshot) {@link JTransaction}s. To get the object associated with a snapshot transaction,
-     * invoke {@link JTransaction#getJObject(ObjId) JTransaction.getJObject()} on the snapshot transaction.
-     *
-     * <p>
-     * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
-     * Note: while for any {@link ObjId} there is only one globally unique {@link JObject} per {@link JSimpleDB}
-     * shared by all {@link JTransaction}s (the object returned by this method), each {@link SnapshotJTransaction}
-     * maintains its own distinct pool of unique "snapshot" {@link JObject}s.
-     * </p>
-     *
-     * <p>
-     * A non-null object is always returned, but the corresponding object may not exist in a given transaction.
-     * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
-     * Also, it's possible that {@code id} corresponds to an object type which no longer exists in the schema
-     * version associated with this instance. In that case, an {@link UntypedJObject} is returned.
-     * </p>
-     *
-     * @param id object ID
-     * @return Java model object
-     * @throws IllegalArgumentException if {@code id} is null
-     * @see JTransaction#getJObject JTransaction.getJObject()
-     */
-    public JObject getJObject(ObjId id) {
-        return this.jobjectCache.getJObject(id);
-    }
-
-    /**
-     * Get the Java object used to represent the given object ID, cast to the given type.
-     * This method just invoke {@link #getJObject(ObjId)} and then casts the result.
-     *
-     * @param id object ID
-     * @param type expected type
-     * @param <T> expected Java model type
-     * @return Java model object
-     * @see #getJObject(ObjId)
-     * @throws ClassCastException if the Java model object does not have type {@code type}
-     * @throws IllegalArgumentException if {@code type} is null
-     */
-    public <T> T getJObject(ObjId id, Class<T> type) {
-        Preconditions.checkArgument(type != null, "null type");
-        return type.cast(this.getJObject(id));
-    }
-
 // Reference Paths
 
     /**
@@ -811,10 +755,6 @@ public class JSimpleDB {
             for (ClassGenerator<?> generator : JSimpleDB.this.classGenerators) {
                 if (name.equals(generator.getClassName().replace('/', '.'))) {
                     bytes = generator.generateBytecode();
-                    break;
-                }
-                if (name.equals(generator.getSnapshotClassName().replace('/', '.'))) {
-                    bytes = generator.generateSnapshotBytecode();
                     break;
                 }
             }

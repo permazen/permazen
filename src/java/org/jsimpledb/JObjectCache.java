@@ -6,32 +6,23 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.google.common.collect.MapMaker;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jsimpledb.core.ObjId;
 
-abstract class JObjectCache {
+class JObjectCache {
 
-    private final JSimpleDB jdb;
+    private final JTransaction jtx;
     private final ThreadLocal<HashMap<ObjId, JObject>> instantiating = new ThreadLocal<>();
-    private final LoadingCache<ObjId, JObject> cache = CacheBuilder.newBuilder().weakValues().build(
-      new CacheLoader<ObjId, JObject>() {
-        @Override
-        public JObject load(ObjId id) throws Exception {
-            return JObjectCache.this.createJObject(id);
-        }
-    });
+    private final ConcurrentMap<ObjId, JObject> cache = new MapMaker().weakValues().makeMap();
 
-    JObjectCache(JSimpleDB jdb) {
-        Preconditions.checkArgument(jdb != null, "null jdb");
-        this.jdb = jdb;
+    JObjectCache(JTransaction jtx) {
+        this.jtx = jtx;
+        assert this.jtx != null;
     }
 
     /**
@@ -55,23 +46,18 @@ abstract class JObjectCache {
         }
 
         // Query cache
-        Throwable cause;
-        try {
-            return this.cache.get(id);
-        } catch (ExecutionException e) {
-            cause = e.getCause() != null ? e.getCause() : e;
-        } catch (UncheckedExecutionException e) {
-            cause = e.getCause() != null ? e.getCause() : e;
+        JObject jobj = this.cache.get(id);
+        if (jobj == null) {
+            synchronized (this.cache) {
+                if ((jobj = this.cache.get(id)) == null) {
+                    jobj = this.createJObject(id);
+                    this.cache.put(id, jobj);
+                }
+            }
         }
 
-        // Handle exception
-        if (cause instanceof InvocationTargetException)
-            cause = ((InvocationTargetException)cause).getTargetException();
-        if (cause instanceof JSimpleDBException)
-            throw (JSimpleDBException)cause;
-        if (cause instanceof Error)
-            throw (Error)cause;
-        throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
+        // Done
+        return jobj;
     }
 
     /**
@@ -98,11 +84,12 @@ abstract class JObjectCache {
             throw new IllegalArgumentException("conflicting jobj registration: " + jobj + " != " + previous);
     }
 
-    private JObject createJObject(ObjId id) throws Exception {
+    private JObject createJObject(ObjId id) {
 
         // Get ClassGenerator
-        final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
-        final ClassGenerator<?> classGenerator = jclass != null ? jclass.getClassGenerator() : this.jdb.getUntypedClassGenerator();
+        final JClass<?> jclass = this.jtx.jdb.jclasses.get(id.getStorageId());
+        final ClassGenerator<?> classGenerator = jclass != null ?
+          jclass.getClassGenerator() : this.jtx.jdb.getUntypedClassGenerator();
 
         // Set up currently instantiating objects map, if not already set up
         HashMap<ObjId, JObject> currentInvocations = this.instantiating.get();
@@ -118,7 +105,16 @@ abstract class JObjectCache {
 
         // Instantiate new JObject
         try {
-            return this.instantiate(classGenerator, id);
+            return (JObject)classGenerator.getConstructor().newInstance(this.jtx, id);
+        } catch (Exception e) {
+            Throwable cause = e;
+            if (cause instanceof InvocationTargetException)
+                cause = ((InvocationTargetException)cause).getTargetException();
+            if (cause instanceof RuntimeException)
+                throw (RuntimeException)cause;
+            if (cause instanceof Error)
+                throw (Error)cause;
+            throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
         } finally {
             if (cleanup)
                 this.instantiating.remove();
@@ -126,7 +122,5 @@ abstract class JObjectCache {
                 currentInvocations.remove(id);
         }
     }
-
-    protected abstract JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception;
 }
 

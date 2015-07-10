@@ -11,7 +11,7 @@ import com.vaadin.data.util.converter.Converter;
 import java.util.Locale;
 
 import org.jsimpledb.JObject;
-import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.ObjId;
 
 /**
@@ -20,11 +20,16 @@ import org.jsimpledb.core.ObjId;
 @SuppressWarnings("serial")
 public class ReferenceFieldConverter implements Converter<ObjId, JObject> {
 
-    private final JSimpleDB jdb;
+    private final JTransaction jtx;
 
-    public ReferenceFieldConverter(JSimpleDB jdb) {
-        Preconditions.checkArgument(jdb != null, "null jdb");
-        this.jdb = jdb;
+    /**
+     * Constructor.
+     *
+     * @param jtx transaction containing the {@link JObject}
+     */
+    public ReferenceFieldConverter(JTransaction jtx) {
+        Preconditions.checkArgument(jtx != null, "null jtx");
+        this.jtx = jtx;
     }
 
     @Override
@@ -48,7 +53,7 @@ public class ReferenceFieldConverter implements Converter<ObjId, JObject> {
     public JObject convertToModel(ObjId id, Class<? extends JObject> targetType, Locale locale) {
         if (id == null)
             return null;
-        return this.jdb.getJObject(id);
+        return this.jtx.getJObject(id);
     }
 }
 

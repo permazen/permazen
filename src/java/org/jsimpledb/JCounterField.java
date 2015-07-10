@@ -26,7 +26,7 @@ public class JCounterField extends JField {
     @Override
     public Counter getValue(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return jobj.getTransaction().readCounterField(jobj, this.storageId, false);
+        return jobj.getTransaction().readCounterField(jobj.getObjId(), this.storageId, false);
     }
 
     @Override

@@ -35,7 +35,7 @@ public class SetFieldClear<T> extends SetFieldChange<T> {
 
     @Override
     public void apply(JTransaction jtx, JObject jobj) {
-        jtx.readSetField(jobj, this.getStorageId(), false).clear();
+        jtx.readSetField(jobj.getObjId(), this.getStorageId(), false).clear();
     }
 
 // Object

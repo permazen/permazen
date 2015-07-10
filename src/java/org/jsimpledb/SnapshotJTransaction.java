@@ -5,7 +5,6 @@
 
 package org.jsimpledb;
 
-import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.SnapshotTransaction;
 import org.jsimpledb.core.Transaction;
 
@@ -29,29 +28,14 @@ import org.jsimpledb.core.Transaction;
  * For example, for {@link org.jsimpledb.kv.KVDatabase}s that support it, using the key/value store snapshot returned by
  * {@link org.jsimpledb.kv.KVTransaction#mutableSnapshot} allows an efficient copying of the entire database.
  *
- * <p>
- * Instances guarantee that for each {@link ObjId}, there exists a unique associated {@link JObject}.
- * While there is a single pool of globally unique "database" {@link JObject}s per {@link JSimpleDB} that is used by
- * all normal {@link JTransaction}s, each {@link SnapshotJTransaction} maintains its own pool of "snapshot" {@link JObject}
- * instances. Each snapshot {@link JObject} links back to its owning {@link SnapshotJTransaction}
- * via {@linkplain JObject#getTransaction}.
- *
  * @see JTransaction#createSnapshotTransaction Transaction.createSnapshotTransaction()
  * @see JSimpleDB#createSnapshotTransaction JSimpleDB.createSnapshotTransaction()
  * @see org.jsimpledb.core.SnapshotTransaction
  */
 public class SnapshotJTransaction extends JTransaction {
 
-    final JObjectCache jobjectCache;
-
     SnapshotJTransaction(JSimpleDB jdb, Transaction tx, ValidationMode validationMode) {
         super(jdb, tx, validationMode);
-        this.jobjectCache = new JObjectCache(jdb) {
-            @Override
-            protected JObject instantiate(ClassGenerator<?> classGenerator, ObjId id) throws Exception {
-                return (JObject)classGenerator.getSnapshotConstructor().newInstance(id, SnapshotJTransaction.this);
-            }
-        };
     }
 
     /**
@@ -106,12 +90,6 @@ public class SnapshotJTransaction extends JTransaction {
     @Override
     public boolean isValid() {
         return true;
-    }
-
-// Object Cache
-
-    JObjectCache getJObjectCache() {
-        return this.jobjectCache;
     }
 }
 
