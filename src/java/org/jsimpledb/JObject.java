@@ -43,10 +43,8 @@ public interface JObject {
      * @return the schema version of this instance
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
-     *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
+     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     int getSchemaVersion();
 
@@ -60,8 +58,6 @@ public interface JObject {
      * </p>
      *
      * @return the {@link JTransaction} that contains this instance's field state
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      */
     JTransaction getTransaction();
 
@@ -74,8 +70,6 @@ public interface JObject {
      * </p>
      *
      * @return true if instance was deleted, false if it did not exist
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction associated with the current thread is no longer usable
      * @throws org.jsimpledb.core.ReferencedObjectException if the object is referenced by some other object
@@ -87,10 +81,8 @@ public interface JObject {
      * Determine whether this instance still exists in its associated transaction.
      *
      * @return true if instance exists, otherwise false
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
-     *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
+     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     boolean exists();
 
@@ -107,10 +99,8 @@ public interface JObject {
      * The fields of a recreated object are set to their initial values. If the object already exists, nothing changes.
      *
      * @return true if instance was recreated, false if it already existed
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
-     *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
+     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     boolean recreate();
 
@@ -125,10 +115,8 @@ public interface JObject {
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if transaction commit is already in progress
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
-     *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
+     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     void revalidate();
 
@@ -144,10 +132,8 @@ public interface JObject {
      * @return true if the object's schema version was changed, false if it was already updated
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws org.jsimpledb.core.StaleTransactionException
-     *  if this is not a snapshot instance and the transaction associated with the current thread is no longer usable
+     *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
      */
     boolean upgrade();
 
@@ -204,8 +190,6 @@ public interface JObject {
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      *  (no exception is thrown however if an indirectly referenced object does not exist unless it is traversed)
      * @throws org.jsimpledb.core.DeletedObjectException if an object in {@code copied} is traversed but does not actually exist
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws org.jsimpledb.core.SchemaMismatchException
      *  if the schema corresponding to this object's version is not identical in both the {@link JTransaction}
      *  associated with this instance and {@code dest} (as well for any referenced objects)
@@ -246,8 +230,6 @@ public interface JObject {
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      *  (no exception is thrown however if an indirectly referenced object does not exist)
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @see #copyIn copyIn()
      */
@@ -281,8 +263,6 @@ public interface JObject {
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      *  (no exception is thrown however if an indirectly referenced object does not exist)
-     * @throws IllegalStateException if this is not a snapshot instance and there is no {@link JTransaction}
-     *  associated with the current thread
      * @throws org.jsimpledb.core.SchemaMismatchException
      *  if the schema corresponding to this object's version is not identical in both transactions
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
