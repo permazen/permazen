@@ -39,8 +39,6 @@ public class NullSafeType<T> extends FieldType<T> {
      */
     public static final int NULL_SENTINEL = 0xff;
 
-    private static final byte[] DEFAULT_VALUE = new byte[] { (byte)NULL_SENTINEL };
-
     /**
      * The inner {@link FieldType} that this instance wraps.
      */
@@ -55,7 +53,7 @@ public class NullSafeType<T> extends FieldType<T> {
      * @param inner inner type that is not null safe
      */
     public NullSafeType(String name, FieldType<T> inner) {
-        super(name, inner.getTypeToken().wrap(), inner.getEncodingSignature());
+        super(name, inner.getTypeToken().wrap(), inner.getEncodingSignature(), null);
         Preconditions.checkArgument(!(inner instanceof NullSafeType), "inner type is already null-safe");
         this.inner = inner;
         this.inline = !inner.hasPrefix0xff();
@@ -100,11 +98,6 @@ public class NullSafeType<T> extends FieldType<T> {
         if (!this.inline)
             writer.writeByte(NOT_NULL_SENTINEL);
         this.inner.write(writer, value);
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        return DEFAULT_VALUE;
     }
 
     @Override

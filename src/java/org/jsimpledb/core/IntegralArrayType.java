@@ -71,11 +71,6 @@ abstract class IntegralArrayType<T, E extends Number> extends ArrayType<T, E> {
     }
 
     @Override
-    public byte[] getDefaultValue() {
-        return new byte[] { (byte)END };
-    }
-
-    @Override
     public boolean hasPrefix0xff() {
         return this.integralType.hasPrefix0xff();
     }

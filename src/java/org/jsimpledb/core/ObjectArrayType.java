@@ -76,11 +76,6 @@ class ObjectArrayType<E> extends ArrayType<E[], E> {
     }
 
     @Override
-    public byte[] getDefaultValue() {
-        return new byte[] { (byte)END };
-    }
-
-    @Override
     protected int getArrayLength(E[] array) {
         return array.length;
     }

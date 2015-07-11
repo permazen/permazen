@@ -18,8 +18,6 @@ import org.jsimpledb.util.ByteWriter;
  */
 class CharacterType extends PrimitiveType<Character> {
 
-    private static final byte[] DEFAULT_VALUE = new byte[2];
-
     CharacterType() {
        super(Primitive.CHARACTER);
     }
@@ -42,11 +40,6 @@ class CharacterType extends PrimitiveType<Character> {
     @Override
     public void skip(ByteReader reader) {
         reader.skip(2);
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        return DEFAULT_VALUE;
     }
 
     @Override

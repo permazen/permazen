@@ -1258,8 +1258,8 @@ public class Transaction {
             final byte[] key = Field.buildKey(id, storageId);
             final byte[] oldValue = oldField != null ? this.kvt.get(key) : null;
             if (oldField != null && oldValueMap != null) {
-                final byte[] bytes = oldValue != null ? oldValue : oldField.fieldType.getDefaultValue();
-                final Object value = oldField.fieldType.read(new ByteReader(bytes));
+                final Object value = oldValue != null ?
+                  oldField.fieldType.read(new ByteReader(oldValue)) : oldField.fieldType.getDefaultValueObject();
                 oldValueMap.put(storageId, value);
             }
 
@@ -1553,7 +1553,7 @@ public class Transaction {
         final byte[] value = this.kvt.get(key);
 
         // Decode value
-        return field.fieldType.read(new ByteReader(value != null ? value : field.fieldType.getDefaultValue()));
+        return value != null ? field.fieldType.read(new ByteReader(value)) : field.fieldType.getDefaultValueObject();
     }
 
     /**
@@ -1578,8 +1578,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code value} is not an appropriate value for the field
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public synchronized void writeSimpleField(final ObjId id,
-      final int storageId, final Object value, final boolean updateVersion) {
+    public void writeSimpleField(final ObjId id, final int storageId, final Object value, final boolean updateVersion) {
         this.mutateAndNotify(id, new Mutation<Void>() {
             @Override
             public Void mutate() {
@@ -1604,7 +1603,7 @@ public class Transaction {
         final byte[] newValue = field.encode(newObj);
 
         // Before setting the new value, read the old value if one of the following is true:
-        //  - The field is being monitored -> we need to filter out "changes" that don't actuallly change anything
+        //  - The field is being monitored -> we need to filter out "changes" that don't actually change anything
         //  - The field is indexed -> we need the old value so we can remove the old index entry
         // If neither of the above is true, then there's no need to read the old value.
         byte[] oldValue = null;
@@ -1672,7 +1671,8 @@ public class Transaction {
         }
 
         // Notify monitors
-        final Object oldObj = field.fieldType.read(new ByteReader(oldValue != null ? oldValue : field.fieldType.getDefaultValue()));
+        final Object oldObj = oldValue != null ?
+          field.fieldType.read(new ByteReader(oldValue)) : field.fieldType.getDefaultValueObject();
         this.addFieldChangeNotification(new SimpleFieldChangeNotifier(field, id) {
             @Override
             @SuppressWarnings("unchecked")

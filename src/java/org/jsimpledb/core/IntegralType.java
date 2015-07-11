@@ -17,8 +17,6 @@ import org.jsimpledb.util.LongEncoder;
  */
 abstract class IntegralType<T extends Number> extends PrimitiveType<T> {
 
-    private static final byte[] DEFAULT_VALUE = new byte[] { (byte)LongEncoder.ZERO_ADJUST };
-
     IntegralType(Primitive<T> primitive) {
        super(primitive);
     }
@@ -37,11 +35,6 @@ abstract class IntegralType<T extends Number> extends PrimitiveType<T> {
     @Override
     public void skip(ByteReader reader) {
         reader.skip(LongEncoder.decodeLength(reader.peek()));
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        return DEFAULT_VALUE;
     }
 
     @Override

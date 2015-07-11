@@ -45,11 +45,6 @@ class CharacterArrayType extends ArrayType<char[], Character> {
     }
 
     @Override
-    public byte[] getDefaultValue() {
-        return this.stringType.getDefaultValue();
-    }
-
-    @Override
     public boolean hasPrefix0x00() {
         return this.stringType.hasPrefix0x00();
     }
