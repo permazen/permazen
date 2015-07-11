@@ -67,11 +67,6 @@ class DoubleArrayType extends ArrayType<double[], Double> {
     }
 
     @Override
-    public byte[] getDefaultValue() {
-        return END;
-    }
-
-    @Override
     public boolean hasPrefix0xff() {
         return this.doubleType.hasPrefix0xff();
     }

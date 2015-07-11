@@ -78,6 +78,9 @@ public abstract class FieldType<T> implements Comparator<T> {
     final String name;
     final TypeToken<T> typeToken;
     final long signature;
+    final T defaultValueObject;
+
+    byte[] defaultValue;
 
 // Constructors
 
@@ -87,16 +90,18 @@ public abstract class FieldType<T> implements Comparator<T> {
      * @param name the name of this type
      * @param typeToken Java type for the field's values
      * @param signature binary encoding signature
+     * @param defaultValue default value for this type
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if {@code name} is invalid
      */
-    protected FieldType(String name, TypeToken<T> typeToken, long signature) {
+    protected FieldType(String name, TypeToken<T> typeToken, long signature, T defaultValue) {
         Preconditions.checkArgument(name != null, "null name");
         Preconditions.checkArgument(name.matches(FieldType.NAME_PATTERN), "invalid type name `" + name + "'");
         Preconditions.checkArgument(typeToken != null, "null typeToken");
         this.name = name;
         this.typeToken = typeToken;
         this.signature = signature;
+        this.defaultValueObject = defaultValue;
     }
 
     /**
@@ -105,10 +110,11 @@ public abstract class FieldType<T> implements Comparator<T> {
      *
      * @param type Java type for the field's values
      * @param signature binary encoding signature
+     * @param defaultValue default value for this type
      * @throws NullPointerException if {@code type} is null
      */
-    protected FieldType(Class<T> type, long signature) {
-        this(type.getName(), TypeToken.of(type), signature);
+    protected FieldType(Class<T> type, long signature, T defaultValue) {
+        this(type.getName(), TypeToken.of(type), signature, defaultValue);
     }
 
 // Public methods
@@ -177,7 +183,27 @@ public abstract class FieldType<T> implements Comparator<T> {
      *
      * @return encoded default value
      */
-    public abstract byte[] getDefaultValue();
+    public final byte[] getDefaultValue() {
+        if (this.defaultValue == null) {
+            final ByteWriter writer = new ByteWriter();
+            try {
+                this.write(writer, this.defaultValueObject);
+            } catch (IllegalArgumentException e) {
+                throw new UnsupportedOperationException(this + " does not have a default value");
+            }
+            this.defaultValue = writer.getBytes();
+        }
+        return this.defaultValue.clone();
+    }
+
+    /**
+     * Get the default value for this field type.
+     *
+     * @return default value
+     */
+    public final T getDefaultValueObject() {
+        return this.defaultValueObject;
+    }
 
     /**
      * Read and discard a value from the given input.

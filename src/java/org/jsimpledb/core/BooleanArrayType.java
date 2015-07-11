@@ -87,11 +87,6 @@ loop:   while (true) {
     }
 
     @Override
-    public byte[] getDefaultValue() {
-        return new byte[] { (byte)END };
-    }
-
-    @Override
     public boolean hasPrefix0xff() {
         return false;
     }

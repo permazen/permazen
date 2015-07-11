@@ -9,7 +9,6 @@ import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.parse.ParseContext;
-import org.jsimpledb.util.ByteWriter;
 
 /**
  * Support superclass for primitive types.
@@ -19,15 +18,9 @@ abstract class PrimitiveType<T> extends NonNullFieldType<T> {
     final Primitive<T> primitive;
 
     PrimitiveType(Primitive<T> primitive) {
-        super(primitive.getName(), TypeToken.of(primitive.getType()), 0);
+        super(primitive.getName(), TypeToken.of(primitive.getType()), 0,
+          !primitive.equals(Primitive.VOID) ? primitive.getDefaultValue() : null);
         this.primitive = primitive;
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        final ByteWriter writer = new ByteWriter();
-        this.write(writer, this.primitive.getDefaultValue());
-        return writer.getBytes();
     }
 
     @Override

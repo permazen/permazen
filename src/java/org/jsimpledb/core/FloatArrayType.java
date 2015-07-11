@@ -67,11 +67,6 @@ class FloatArrayType extends ArrayType<float[], Float> {
     }
 
     @Override
-    public byte[] getDefaultValue() {
-        return END;
-    }
-
-    @Override
     public boolean hasPrefix0xff() {
         return this.floatType.hasPrefix0xff();
     }

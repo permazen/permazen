@@ -16,8 +16,6 @@ class BooleanType extends PrimitiveType<Boolean> {
     private static final byte FALSE_VALUE = (byte)0;
     private static final byte TRUE_VALUE = (byte)1;
 
-    private static final byte[] DEFAULT_VALUE = new byte[] { FALSE_VALUE };
-
     BooleanType() {
        super(Primitive.BOOLEAN);
     }
@@ -44,11 +42,6 @@ class BooleanType extends PrimitiveType<Boolean> {
     @Override
     public void skip(ByteReader reader) {
         this.read(reader);
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        return DEFAULT_VALUE;
     }
 
     @Override

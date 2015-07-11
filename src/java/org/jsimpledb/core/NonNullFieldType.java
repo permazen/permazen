@@ -10,27 +10,30 @@ import com.google.common.reflect.TypeToken;
 
 /**
  * Support superclass for {@link FieldType}'s that don't support null values.
+ *
+ * <p>
+ * Such types may not be used standalone, but only within an outer type such as {@link NullSafeType}.
  */
 abstract class NonNullFieldType<T> extends FieldType<T> {
 
+// Constructors
+
+    protected NonNullFieldType(String name, TypeToken<T> type, long signature, T defaultValue) {
+        super(name, type, signature, defaultValue);
+    }
+
+    protected NonNullFieldType(Class<T> type, long signature, T defaultValue) {
+       super(type, signature, defaultValue);
+    }
+
+// Constructors for when there is no default value
+
     protected NonNullFieldType(String name, TypeToken<T> type, long signature) {
-        super(name, type, signature);
+        this(name, type, signature, null);
     }
 
     protected NonNullFieldType(Class<T> type, long signature) {
-       super(type, signature);
-    }
-
-    /**
-     * Get the default value for this field type encoded as a {@code byte[]} array.
-     *
-     * <p>
-     * The implementation in {@link NonNullFieldType} always throws {@link UnsupportedOperationException}.
-     * </p>
-     */
-    @Override
-    public byte[] getDefaultValue() {
-        throw new UnsupportedOperationException();
+       this(type, signature, null);
     }
 
     @Override

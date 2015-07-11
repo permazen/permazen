@@ -20,7 +20,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 class UnsignedIntType extends NonNullFieldType<Integer> {
 
     UnsignedIntType() {
-        super("uint", TypeToken.of(Integer.class), 0);
+        super("uint", TypeToken.of(Integer.class), 0, 0);
     }
 
     @Override
@@ -37,11 +37,6 @@ class UnsignedIntType extends NonNullFieldType<Integer> {
     @Override
     public void skip(ByteReader reader) {
         reader.skip(UnsignedIntEncoder.decodeLength(reader.peek()));
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        return UnsignedIntEncoder.encode(0);
     }
 
     @Override

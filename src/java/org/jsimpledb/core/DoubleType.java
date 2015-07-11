@@ -15,11 +15,6 @@ import org.jsimpledb.util.ByteWriter;
  */
 class DoubleType extends PrimitiveType<Double> {
 
-    private static final byte[] DEFAULT_VALUE = new byte[] {
-      (byte)0x80, (byte)0x00, (byte)0x00, (byte)0x00,
-      (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
-    };
-
     private static final long POS_XOR = 0x8000000000000000L;
     private static final long NEG_XOR = 0xffffffffffffffffL;
     private static final long SIGN_BIT = 0x8000000000000000L;
@@ -45,11 +40,6 @@ class DoubleType extends PrimitiveType<Double> {
     @Override
     public void skip(ByteReader reader) {
         reader.skip(8);
-    }
-
-    @Override
-    public byte[] getDefaultValue() {
-        return DEFAULT_VALUE;
     }
 
     @Override

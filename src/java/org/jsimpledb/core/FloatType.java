@@ -47,11 +47,6 @@ class FloatType extends PrimitiveType<Float> {
     }
 
     @Override
-    public byte[] getDefaultValue() {
-        return DEFAULT_VALUE;
-    }
-
-    @Override
     public Float validate(Object obj) {
         if (obj instanceof Character)
             return (float)((Character)obj).charValue();
