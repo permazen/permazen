@@ -272,7 +272,7 @@ class ClassGenerator<T> {
         mv = this.startMethod(cw, JOBJECT_GET_SCHEMA_VERSION_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, GET_SCHEMA_VERSION_METHOD);
@@ -284,7 +284,7 @@ class ClassGenerator<T> {
         mv = this.startMethod(cw, JOBJECT_DELETE_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, DELETE_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
@@ -295,7 +295,7 @@ class ClassGenerator<T> {
         mv = this.startMethod(cw, JOBJECT_EXISTS_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, EXISTS_METHOD);
@@ -317,7 +317,7 @@ class ClassGenerator<T> {
         mv = this.startMethod(cw, JOBJECT_RECREATE_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, RECREATE_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
@@ -328,7 +328,7 @@ class ClassGenerator<T> {
         mv = this.startMethod(cw, JOBJECT_REVALIDATE_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
         this.emitInvoke(mv, REVALIDATE_METHOD);
@@ -340,7 +340,7 @@ class ClassGenerator<T> {
         mv = this.startMethod(cw, JOBJECT_UPGRADE_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.emitInvoke(mv, UPDATE_SCHEMA_VERSION_METHOD);
         mv.visitInsn(Opcodes.IRETURN);
@@ -351,7 +351,7 @@ class ClassGenerator<T> {
         mv = this.startMethod(cw, JOBJECT_COPY_TO_METHOD);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitVarInsn(Opcodes.ALOAD, 2);
@@ -367,7 +367,7 @@ class ClassGenerator<T> {
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitInsn(Opcodes.DUP);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         this.emitInvoke(mv, GET_SNAPSHOT_TRANSACTION_METHOD);
         mv.visitInsn(Opcodes.ACONST_NULL);
         mv.visitTypeInsn(Opcodes.NEW, Type.getType(CopyState.class).getInternalName());
@@ -430,7 +430,7 @@ class ClassGenerator<T> {
 
         // Push this.getTransaction(), this.id
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        this.emitInvoke(mv, this.getClassName(), JOBJECT_GET_TRANSACTION);
+        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         if (!jobject)
             mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
