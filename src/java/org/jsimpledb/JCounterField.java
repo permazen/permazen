@@ -42,13 +42,20 @@ public class JCounterField extends JField {
     }
 
     @Override
-    void outputMethods(final ClassGenerator<?> generator, ClassWriter cw) {
-        this.outputReadMethod(generator, cw, ClassGenerator.READ_COUNTER_FIELD_METHOD);
+    JCounterFieldInfo toJFieldInfo() {
+        return new JCounterFieldInfo(this);
+    }
+
+// Bytecode generation
+
+    @Override
+    void outputFields(ClassGenerator<?> generator, ClassWriter cw) {
+        this.outputCachedValueField(generator, cw);
     }
 
     @Override
-    JCounterFieldInfo toJFieldInfo() {
-        return new JCounterFieldInfo(this);
+    void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
+        this.outputCachedValueGetterMethod(generator, cw, ClassGenerator.READ_COUNTER_FIELD_METHOD);
     }
 }
 

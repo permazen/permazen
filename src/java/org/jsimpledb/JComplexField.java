@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.jsimpledb.schema.ComplexSchemaField;
+import org.objectweb.asm.ClassWriter;
 
 /**
  * Represents a complex field in a {@link JClass}.
@@ -61,5 +62,19 @@ public abstract class JComplexField extends JField {
      * @throws IllegalArgumentException if {@code subField} is not one of {@link #getSubFields}
      */
     abstract String getSubFieldName(JSimpleField subField);
+
+// Bytecode generation
+
+    @Override
+    final void outputFields(ClassGenerator<?> generator, ClassWriter cw) {
+        this.outputCachedValueField(generator, cw);
+    }
+
+    @Override
+    final void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
+        this.outputCachedValueGetterMethod(generator, cw, this.getFieldReaderMethod());
+    }
+
+    abstract Method getFieldReaderMethod();
 }
 

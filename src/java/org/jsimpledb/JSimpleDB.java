@@ -106,6 +106,8 @@ public class JSimpleDB {
     private SchemaModel schemaModel;
     private NameIndex nameIndex;
 
+// Constructors
+
     /**
      * Create an instance using an initially empty, in-memory {@link SimpleKVDatabase}.
      * Generates a database schema by introspecting the {@code classes}; schema version number {@code 1} is assumed
@@ -339,6 +341,8 @@ public class JSimpleDB {
         }
         return this.storageIdGenerator;
     }
+
+// Accessors
 
     /**
      * Get the core API {@link Database} underlying this instance.

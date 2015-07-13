@@ -14,7 +14,6 @@ import java.util.NavigableMap;
 
 import org.jsimpledb.core.MapField;
 import org.jsimpledb.schema.MapSchemaField;
-import org.objectweb.asm.ClassWriter;
 
 /**
  * Represents a map field in a {@link JClass}.
@@ -96,13 +95,15 @@ public class JMapField extends JComplexField {
     }
 
     @Override
-    void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
-        this.outputReadMethod(generator, cw, ClassGenerator.READ_MAP_FIELD_METHOD);
-    }
-
-    @Override
     JMapFieldInfo toJFieldInfo() {
         return new JMapFieldInfo(this);
+    }
+
+// Bytecode generation
+
+    @Override
+    Method getFieldReaderMethod() {
+        return ClassGenerator.READ_MAP_FIELD_METHOD;
     }
 }
 

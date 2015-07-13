@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 import java.util.NavigableSet;
 
 import org.jsimpledb.schema.SetSchemaField;
-import org.objectweb.asm.ClassWriter;
 
 /**
  * Represents a set field in a {@link JClass}.
@@ -41,13 +40,15 @@ public class JSetField extends JCollectionField {
     }
 
     @Override
-    void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
-        this.outputReadMethod(generator, cw, ClassGenerator.READ_SET_FIELD_METHOD);
-    }
-
-    @Override
     JSetFieldInfo toJFieldInfo() {
         return new JSetFieldInfo(this);
+    }
+
+// Bytecode generation
+
+    @Override
+    Method getFieldReaderMethod() {
+        return ClassGenerator.READ_SET_FIELD_METHOD;
     }
 }
 

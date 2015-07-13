@@ -43,6 +43,7 @@ class ClassGenerator<T> {
     // Names of generated fields
     static final String TX_FIELD_NAME = "$tx";
     static final String ID_FIELD_NAME = "$id";
+    static final String JFIELD_FIELD_PREFIX = "$f";
 
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
@@ -227,6 +228,12 @@ class ClassGenerator<T> {
         final FieldVisitor idField = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
           ID_FIELD_NAME, Type.getDescriptor(ObjId.class), null, null);
         idField.visitEnd();
+
+        // Output fields associated with JFields
+        if (this.jclass != null) {
+            for (JField jfield : this.jclass.jfields.values())
+                jfield.outputFields(this, cw);
+        }
     }
 
     private void outputConstructors(ClassWriter cw) {
@@ -486,8 +493,9 @@ class ClassGenerator<T> {
      * Create {@link MethodVisitor} to implement or override the given method.
      */
     MethodVisitor startMethod(ClassWriter cw, Method method) {
-        return cw.visitMethod(Opcodes.ACC_PUBLIC, method.getName(),
-          Type.getMethodDescriptor(method), null, null);
+        return cw.visitMethod(
+          method.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PRIVATE | Opcodes.ACC_PROTECTED),
+          method.getName(), Type.getMethodDescriptor(method), null, this.getExceptionNames(method));
     }
 
     private String[] getExceptionNames(Method method) {

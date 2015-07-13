@@ -10,8 +10,11 @@ import com.google.common.reflect.TypeToken;
 import java.lang.reflect.Method;
 
 import org.dellroad.stuff.java.Primitive;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SchemaField;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -70,6 +73,16 @@ public abstract class JField extends JSchemaObject {
      */
     public abstract <R> R visit(JFieldSwitch<R> target);
 
+    /**
+     * Create a {@link JFieldInfo} instance that corresponds to this instance.
+     */
+    abstract JFieldInfo toJFieldInfo();
+
+// Bytecode generation
+
+    void outputFields(ClassGenerator<?> generator, ClassWriter cw) {
+    }
+
     abstract void outputMethods(ClassGenerator<?> generator, ClassWriter cw);
 
     /**
@@ -102,9 +115,49 @@ public abstract class JField extends JSchemaObject {
         });
     }
 
-    /**
-     * Create a {@link JFieldInfo} instance that corresponds to this instance.
-     */
-    abstract JFieldInfo toJFieldInfo();
+    void outputCachedValueField(ClassGenerator<?> generator, ClassWriter cw) {
+        final FieldVisitor valueField = cw.visitField(Opcodes.ACC_PRIVATE,
+          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()), null, null);
+        valueField.visitEnd();
+    }
+
+    void outputCachedValueGetterMethod(ClassGenerator<?> generator, ClassWriter cw, Method fieldReaderMethod) {
+        final MethodVisitor mv = generator.startMethod(cw, this.getter);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
+          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()));
+        mv.visitInsn(Opcodes.DUP);
+        final Label valueReady = new Label();
+        mv.visitJumpInsn(Opcodes.IFNONNULL, valueReady);
+        mv.visitInsn(Opcodes.POP);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
+          ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
+          ClassGenerator.ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+        mv.visitLdcInsn(this.storageId);
+        mv.visitInsn(Opcodes.ICONST_1);                                                             // i.e., true
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
+          fieldReaderMethod.getName(), Type.getMethodDescriptor(fieldReaderMethod), false);
+        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getCachedValueFieldType()));
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitInsn(Opcodes.SWAP);
+        mv.visitFieldInsn(Opcodes.PUTFIELD, generator.getClassName(),
+          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()));
+        mv.visitLabel(valueReady);
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private String getCachedValueFieldName() {
+        return ClassGenerator.JFIELD_FIELD_PREFIX + this.storageId;
+    }
+
+    private Class<?> getCachedValueFieldType() {
+        return this.getter.getReturnType();
+    }
 }
 

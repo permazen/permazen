@@ -210,7 +210,7 @@ public class BasicTest extends TestSupport {
               null,         buildSet(t2)));
 
             try {
-                t1.getScores();
+                t1.getScores().clear();                     // we only detect object deletion on mutation
                 assert false;
             } catch (DeletedObjectException e) {
                 // expected

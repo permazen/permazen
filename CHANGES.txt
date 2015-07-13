@@ -1,6 +1,8 @@
 Version Next
 
     - Implement fix for Raft config change corner case
+    - Give each transaction its own pool of JObjects
+    - Add optimizations to improve performance of field access
 
 Version 1.2.1 Released July 9, 2015
 

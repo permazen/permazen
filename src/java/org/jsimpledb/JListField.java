@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.jsimpledb.schema.ListSchemaField;
-import org.objectweb.asm.ClassWriter;
 
 /**
  * Represents a list field in a {@link JClass}.
@@ -41,13 +40,15 @@ public class JListField extends JCollectionField {
     }
 
     @Override
-    void outputMethods(ClassGenerator<?> generator, ClassWriter cw) {
-        this.outputReadMethod(generator, cw, ClassGenerator.READ_LIST_FIELD_METHOD);
-    }
-
-    @Override
     JListFieldInfo toJFieldInfo() {
         return new JListFieldInfo(this);
+    }
+
+// Bytecode generation
+
+    @Override
+    Method getFieldReaderMethod() {
+        return ClassGenerator.READ_LIST_FIELD_METHOD;
     }
 }
 
