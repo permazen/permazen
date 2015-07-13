@@ -119,9 +119,9 @@ class ClassGenerator<T> {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    protected final JSimpleDB jdb;
     protected final JClass<T> jclass;
     protected final Class<T> modelClass;
-    protected final ClassLoader loader;
 
     private Class<? extends T> subclass;
     private Class<? extends T> snapshotSubclass;
@@ -132,21 +132,21 @@ class ClassGenerator<T> {
      * Constructor for application classes.
      */
     public ClassGenerator(JClass<T> jclass) {
-        this(jclass.jdb.loader, jclass, jclass.type);
+        this(jclass.jdb, jclass, jclass.type);
     }
 
     /**
      * Constructor for a "JObject" class with no fields.
      */
     public ClassGenerator(JSimpleDB jdb, Class<T> modelClass) {
-        this(jdb.loader, null, modelClass);
+        this(jdb, null, modelClass);
     }
 
     /**
      * Internal constructor.
      */
-    private ClassGenerator(ClassLoader loader, JClass<T> jclass, Class<T> modelClass) {
-        this.loader = loader;
+    private ClassGenerator(JSimpleDB jdb, JClass<T> jclass, Class<T> modelClass) {
+        this.jdb = jdb;
         this.jclass = jclass;
         this.modelClass = modelClass;
     }
@@ -191,7 +191,7 @@ class ClassGenerator<T> {
     @SuppressWarnings("unchecked")
     public Class<? extends T> generateClass() {
         try {
-            return (Class<? extends T>)this.loader.loadClass(this.getClassName().replace('/', '.'));
+            return (Class<? extends T>)this.jdb.loader.loadClass(this.getClassName().replace('/', '.'));
         } catch (ClassNotFoundException e) {
             throw new DatabaseException("internal error", e);
         }
@@ -203,7 +203,7 @@ class ClassGenerator<T> {
     @SuppressWarnings("unchecked")
     public Class<? extends T> generateSnapshotClass() {
         try {
-            return (Class<? extends T>)this.loader.loadClass(this.getSnapshotClassName().replace('/', '.'));
+            return (Class<? extends T>)this.jdb.loader.loadClass(this.getSnapshotClassName().replace('/', '.'));
         } catch (ClassNotFoundException e) {
             throw new DatabaseException("internal error", e);
         }
