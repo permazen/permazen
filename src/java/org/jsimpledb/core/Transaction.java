@@ -821,6 +821,9 @@ public class Transaction {
     // Delete all of an object's data
     private void deleteObjectData(ObjInfo info) {
 
+        // Sanity check
+        assert Thread.holdsLock(this);
+
         // Delete object's simple field index entries
         final ObjId id = info.getId();
         final ObjType type = info.getObjType();
@@ -1962,7 +1965,7 @@ public class Transaction {
         return writer.getBytes();
     }
 
-    boolean hasDefaultValue(ObjId id, SimpleField<?> field) {
+    synchronized boolean hasDefaultValue(ObjId id, SimpleField<?> field) {
 
         // Sanity check
         if (this.stale)
@@ -2007,6 +2010,9 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      */
     private ObjInfo getObjectInfo(ObjId id, boolean update) {
+
+        // Sanity check
+        assert Thread.holdsLock(this);
 
         // Check object type
         this.schemas.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.class);

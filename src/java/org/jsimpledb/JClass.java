@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -179,7 +180,7 @@ public class JClass<T> extends JSchemaObject {
             // Find corresponding setter method
             final Method setter;
             try {
-                setter = Util.findSetterMethod(this.type, getter);
+                setter = Util.findJFieldSetterMethod(this.type, getter);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage());
             }
@@ -318,6 +319,21 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
+        }
+
+        // Verify that the generated class will not have any remaining abstract methods
+        final Map<MethodKey, Method> abstractMethods = Util.findAbstractMethods(this.type);
+        for (JField jfield : this.jfields.values()) {
+            abstractMethods.remove(new MethodKey(jfield.getter));
+            if (jfield instanceof JSimpleField)
+                abstractMethods.remove(new MethodKey(((JSimpleField)jfield).setter));
+        }
+        for (Method method : JObject.class.getDeclaredMethods())
+            abstractMethods.remove(new MethodKey(method));
+        if (!abstractMethods.isEmpty()) {
+            throw new IllegalArgumentException("the @JSimpleClass-annotated type " + this.type.getName() + " is invalid because"
+              + " " + abstractMethods.size() + " abstract method(s) remain unimplemented: "
+              + abstractMethods.values().toString().replaceAll("^\\[(.*)\\]$", "$1"));
         }
 
         // Calculate which fields require validation

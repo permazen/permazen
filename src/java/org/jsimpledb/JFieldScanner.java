@@ -92,15 +92,11 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         if (returnType != Counter.class) {
             final Method setter;
             try {
-                setter = Util.findSetterMethod(this.jclass.type, method);
+                setter = Util.findJFieldSetterMethod(this.jclass.type, method);
             } catch (IllegalArgumentException e) {
                 return false;
             }
             if ((setter.getModifiers() & Modifier.ABSTRACT) == 0)
-                return false;
-            if ((setter.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0)
-                return false;
-            if ((setter.getModifiers() & Modifier.PRIVATE) != 0)
                 return false;
         }
         return true;
