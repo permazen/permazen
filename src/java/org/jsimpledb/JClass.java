@@ -179,7 +179,7 @@ public class JClass<T> extends JSchemaObject {
             // Find corresponding setter method
             final Method setter;
             try {
-                setter = Util.findSetterMethod(this.type, getter);
+                setter = Util.findJFieldSetterMethod(this.type, getter);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("invalid " + description + ": " + e.getMessage());
             }

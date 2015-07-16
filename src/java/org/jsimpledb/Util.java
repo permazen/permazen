@@ -128,14 +128,14 @@ public final class Util {
     }
 
     /**
-     * Find the setter method corresponding to a getter method.
+     * Find the setter method corresponding to a getter method. It must be either public or protected.
      *
      * @param type Java type (possibly a sub-type of the type in which {@code getter} is declared)
      * @param getter Java bean property getter method
      * @return Java bean property setter method
      * @throws IllegalArgumentException if no corresponding setter method exists
      */
-    public static Method findSetterMethod(Class<?> type, Method getter) {
+    static Method findJFieldSetterMethod(Class<?> type, Method getter) {
         final Matcher matcher = Pattern.compile("(is|get)(.+)").matcher(getter.getName());
         if (!matcher.matches()) {
             throw new IllegalArgumentException("can't infer setter method name from getter method "
@@ -144,9 +144,14 @@ public final class Util {
         final String setterName = "set" + matcher.group(2);
         for (TypeToken<?> superType : TypeToken.of(type).getTypes()) {
             try {
-                final Method setter = superType.getRawType().getMethod(setterName, getter.getReturnType());
+                final Method setter = superType.getRawType().getDeclaredMethod(setterName, getter.getReturnType());
                 if (setter.getReturnType() != Void.TYPE)
                     continue;
+                if ((setter.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0
+                  || (setter.getModifiers() & Modifier.PRIVATE) != 0) {
+                    throw new IllegalArgumentException("invalid setter method " + setterName
+                      + "() corresponding to getter method " + getter.getName() + "(): method must be public or protected");
+                }
                 return setter;
             } catch (NoSuchMethodException e) {
                 continue;
