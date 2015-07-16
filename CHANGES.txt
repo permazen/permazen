@@ -1,5 +1,7 @@
-Version Next
+Version 1.2.2 Released July 16, 2015
 
+    - Detect leftover abstract methods during schema generation
+    - Fix bug where protected setter methods were not auto-detected
     - Implement fix for Raft config change corner case
 
 Version 1.2.1 Released July 9, 2015
