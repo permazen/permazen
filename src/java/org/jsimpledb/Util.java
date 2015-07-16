@@ -20,8 +20,10 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -160,6 +162,32 @@ public final class Util {
         throw new IllegalArgumentException("can't find any setter method " + setterName
           + "() corresponding to getter method " + getter.getName() + "() taking " + getter.getReturnType()
           + " and returning void");
+    }
+
+    /**
+     * Find unimplemented abstract methods in the given class.
+     */
+    static Map<MethodKey, Method> findAbstractMethods(Class<?> type) {
+        final HashMap<MethodKey, Method> map = new HashMap<>();
+
+        // First find all methods, but don't include overridden supertype methods
+        for (TypeToken<?> superType : TypeToken.of(type).getTypes()) {
+            for (Method method : superType.getRawType().getDeclaredMethods()) {
+                final MethodKey key = new MethodKey(method);
+                if (!map.containsKey(key))
+                    map.put(key, method);
+            }
+        }
+
+        // Now discard all the non-abstract methods
+        for (Iterator<Map.Entry<MethodKey, Method>> i = map.entrySet().iterator(); i.hasNext(); ) {
+            final Map.Entry<MethodKey, Method> entry = i.next();
+            if ((entry.getValue().getModifiers() & Modifier.ABSTRACT) == 0)
+                i.remove();
+        }
+
+        // Done
+        return map;
     }
 
     /**
