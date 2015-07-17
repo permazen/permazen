@@ -37,9 +37,9 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/IndexInfo.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/JClass.java">
-<error line="137" column="5" severity="info" message="Executable statement count is 76 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="137" column="5" severity="info" message="Method length is 190 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
-<error line="454" column="26" severity="info" message="More than 7 parameters (found 8)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck"/>
+<error line="138" column="5" severity="info" message="Executable statement count is 81 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="138" column="5" severity="info" message="Method length is 205 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
+<error line="470" column="26" severity="info" message="More than 7 parameters (found 8)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/JCollectionField.java">
 </file>
@@ -128,6 +128,9 @@
 <error line="1918" column="28" severity="info" message="More than 7 parameters (found 8)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/ListConverter.java">
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/MethodKey.java">
+<error line="30" column="28" severity="info" message="&apos;31&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/NavigableMapConverter.java">
 </file>
@@ -418,8 +421,8 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/CharacterArrayType.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/CharacterType.java">
-<error line="31" column="30" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="36" column="38" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="29" column="30" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="34" column="38" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/CollectionField.java">
 </file>
@@ -475,7 +478,7 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/DoubleArrayType.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/DoubleType.java">
-<error line="47" column="21" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="42" column="21" severity="info" message="&apos;8&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/EnumField.java">
 </file>
@@ -502,7 +505,7 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/FieldSwitchAdapter.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/FieldType.java">
-<error line="232" column="52" severity="info" message="&apos;20&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="258" column="52" severity="info" message="&apos;20&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/FieldTypeMap.java">
 <error line="68" column="5" severity="info" message="More than 7 parameters (found 8)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ParameterNumberCheck"/>
@@ -666,10 +669,10 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/StringType.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/Transaction.java">
-<error line="949" column="5" severity="info" message="Executable statement count is 41 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="1177" column="5" severity="info" message="Executable statement count is 72 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="1177" column="5" severity="info" message="Method length is 210 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
-<error line="1592" column="5" severity="info" message="Executable statement count is 36 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="952" column="5" severity="info" message="Executable statement count is 41 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="1180" column="5" severity="info" message="Executable statement count is 71 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="1180" column="5" severity="info" message="Method length is 210 lines (max allowed is 150)." source="com.puppycrawl.tools.checkstyle.checks.sizes.MethodLengthCheck"/>
+<error line="1594" column="5" severity="info" message="Executable statement count is 36 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/core/TransactionException.java">
 </file>
@@ -984,12 +987,12 @@
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/PrefixPutFunction.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/RaftKVDatabase.java">
-<error line="782" column="5" severity="info" message="Executable statement count is 48 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
-<error line="950" column="45" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="966" column="51" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="991" column="55" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
-<error line="1762" column="23" severity="info" message="Anonymous inner class length is 38 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
-<error line="1942" column="5" severity="info" message="Executable statement count is 32 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="784" column="5" severity="info" message="Executable statement count is 48 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
+<error line="952" column="45" severity="info" message="&apos;5000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="968" column="51" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="993" column="55" severity="info" message="&apos;1000&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+<error line="1764" column="23" severity="info" message="Anonymous inner class length is 38 lines (max allowed is 20)." source="com.puppycrawl.tools.checkstyle.checks.sizes.AnonInnerLengthCheck"/>
+<error line="1944" column="5" severity="info" message="Executable statement count is 32 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/java/org/jsimpledb/kv/raft/RaftKVTransaction.java">
 </file>
@@ -2127,6 +2130,8 @@
 <error line="108" column="31" severity="info" message="&apos;200&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="111" column="33" severity="info" message="&apos;150&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
 <error line="111" column="68" severity="info" message="&apos;151&apos; is a magic number." source="com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck"/>
+</file>
+<file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/SchemaGenerationTest.java">
 </file>
 <file name="/Users/archie/proj/jsimpledb/jsimpledb/src/test/org/jsimpledb/SnapshotTest.java">
 <error line="35" column="5" severity="info" message="Executable statement count is 113 (max allowed is 30)." source="com.puppycrawl.tools.checkstyle.checks.sizes.ExecutableStatementCountCheck"/>

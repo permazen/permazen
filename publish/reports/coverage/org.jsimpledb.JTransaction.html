@@ -529,14 +529,14 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;270</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">static</span> JTransaction getCurrent() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;271</td>  <td class="nbHitsCovered">&nbsp;30992</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> JTransaction jtx = CURRENT.get();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;272</td>  <td class="nbHitsCovered"><a title="Line 272: Conditional coverage 100% (2/2).">&nbsp;30992</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 272: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (jtx == <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;271</td>  <td class="nbHitsCovered">&nbsp;45299</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> JTransaction jtx = CURRENT.get();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;272</td>  <td class="nbHitsCovered"><a title="Line 272: Conditional coverage 100% (2/2).">&nbsp;45299</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 272: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (jtx == <span class="keyword">null</span>) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;273</td>  <td class="nbHitsCovered">&nbsp;6</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"there is no "</span> + JTransaction.<span class="keyword">class</span>.getSimpleName()</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;274</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;              + <span class="string">" associated with the current thread"</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;275</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;276</td>  <td class="nbHitsCovered">&nbsp;30986</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> jtx;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;276</td>  <td class="nbHitsCovered">&nbsp;45293</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> jtx;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;277</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;278</td>  <td class="nbHits">&nbsp;</td>
@@ -1295,7 +1295,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;707</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> JObject getJObject(ObjId id) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;708</td>  <td class="nbHitsCovered">&nbsp;33505</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.getJObjectCache().getJObject(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;708</td>  <td class="nbHitsCovered">&nbsp;47857</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.getJObjectCache().getJObject(id);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;709</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;710</td>  <td class="nbHits">&nbsp;</td>
@@ -1394,7 +1394,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;760</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> &lt;T&gt; T create(Class&lt;T&gt; type) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;761</td>  <td class="nbHitsCovered">&nbsp;145</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.create(<span class="keyword">this</span>.jdb.getJClass(type));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;761</td>  <td class="nbHitsCovered">&nbsp;148</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.create(<span class="keyword">this</span>.jdb.getJClass(type));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;762</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;763</td>  <td class="nbHits">&nbsp;</td>
@@ -1423,8 +1423,8 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;775</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> &lt;T&gt; T create(JClass&lt;T&gt; jclass) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;776</td>  <td class="nbHitsCovered">&nbsp;145</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id = <span class="keyword">this</span>.tx.create(jclass.storageId);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;777</td>  <td class="nbHitsCovered">&nbsp;145</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> jclass.getType().cast(<span class="keyword">this</span>.getJObject(id));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;776</td>  <td class="nbHitsCovered">&nbsp;148</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id = <span class="keyword">this</span>.tx.create(jclass.storageId);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;777</td>  <td class="nbHitsCovered">&nbsp;148</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> jclass.getType().cast(<span class="keyword">this</span>.getJObject(id));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;778</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;779</td>  <td class="nbHits">&nbsp;</td>
@@ -1463,28 +1463,28 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;796</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">boolean</span> delete(JObject jobj) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;797</td>  <td class="nbHitsCovered">&nbsp;29</td>  <td class="src"><pre class="src">&nbsp;        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              <span class="comment">// handle possible re-entrant object cache load</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;797</td>  <td class="nbHitsCovered">&nbsp;26</td>  <td class="src"><pre class="src">&nbsp;        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              <span class="comment">// handle possible re-entrant object cache load</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;798</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;799</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Delete object</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;800</td>  <td class="nbHitsCovered">&nbsp;29</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id = jobj.getObjId();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;801</td>  <td class="nbHitsCovered">&nbsp;29</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">boolean</span> deleted = <span class="keyword">this</span>.tx.delete(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;800</td>  <td class="nbHitsCovered">&nbsp;26</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> ObjId id = jobj.getObjId();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;801</td>  <td class="nbHitsCovered">&nbsp;26</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">boolean</span> deleted = <span class="keyword">this</span>.tx.delete(id);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;802</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;803</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Remove object from validation queue if enqueued</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;804</td>  <td class="nbHitsCovered"><a title="Line 804: Conditional coverage 100% (2/2).">&nbsp;28</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 804: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (deleted) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;805</td>  <td class="nbHitsCovered">&nbsp;23</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">synchronized</span> (<span class="keyword">this</span>) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;806</td>  <td class="nbHitsCovered">&nbsp;23</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.validationQueue.remove(id);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;807</td>  <td class="nbHitsCovered">&nbsp;23</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;804</td>  <td class="nbHitsCovered"><a title="Line 804: Conditional coverage 100% (2/2).">&nbsp;25</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 804: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (deleted) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;805</td>  <td class="nbHitsCovered">&nbsp;20</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">synchronized</span> (<span class="keyword">this</span>) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;806</td>  <td class="nbHitsCovered">&nbsp;20</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.validationQueue.remove(id);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;807</td>  <td class="nbHitsCovered">&nbsp;20</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;808</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;809</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;810</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Done</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;811</td>  <td class="nbHitsCovered">&nbsp;28</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> deleted;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;811</td>  <td class="nbHitsCovered">&nbsp;25</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> deleted;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;812</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;813</td>  <td class="nbHits">&nbsp;</td>
@@ -1754,7 +1754,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;957</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> Object readSimpleField(JObject jobj, <span class="keyword">int</span> storageId, <span class="keyword">boolean</span> updateVersion) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;958</td>  <td class="nbHitsCovered">&nbsp;29854</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.convert(<span class="keyword">this</span>.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.<span class="keyword">class</span>).getConverter(<span class="keyword">this</span>),</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;958</td>  <td class="nbHitsCovered">&nbsp;44164</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.convert(<span class="keyword">this</span>.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.<span class="keyword">class</span>).getConverter(<span class="keyword">this</span>),</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;959</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          <span class="keyword">this</span>.tx.readSimpleField(jobj.getObjId(), storageId, updateVersion));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;960</td>  <td class="nbHits">&nbsp;</td>
@@ -1812,7 +1812,7 @@
 <tr>  <td class="numLineCover">&nbsp;986</td>  <td class="nbHitsCovered">&nbsp;185</td>  <td class="src"><pre class="src">&nbsp;        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              <span class="comment">// handle possible re-entrant object cache load</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;987</td>  <td class="nbHitsCovered">&nbsp;185</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Converter&lt;?, ?&gt; converter = <span class="keyword">this</span>.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.<span class="keyword">class</span>).getConverter(<span class="keyword">this</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;988</td>  <td class="nbHitsCovered"><a title="Line 988: Conditional coverage 100% (2/2).">&nbsp;185</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 988: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (converter != <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;989</td>  <td class="nbHitsCovered">&nbsp;77</td>  <td class="src"><pre class="src">&nbsp;            value = <span class="keyword">this</span>.convert(converter.reverse(), value);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;989</td>  <td class="nbHitsCovered">&nbsp;74</td>  <td class="src"><pre class="src">&nbsp;            value = <span class="keyword">this</span>.convert(converter.reverse(), value);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;990</td>  <td class="nbHitsCovered">&nbsp;185</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.tx.writeSimpleField(jobj.getObjId(), storageId, value, updateVersion);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;991</td>  <td class="nbHitsCovered">&nbsp;182</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;992</td>  <td class="nbHits">&nbsp;</td>
@@ -2919,7 +2919,7 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1640</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    JObjectCache getJObjectCache() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1641</td>  <td class="nbHitsCovered">&nbsp;33705</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.jdb.jobjectCache;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1641</td>  <td class="nbHitsCovered">&nbsp;48054</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.jdb.jobjectCache;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1642</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1643</td>  <td class="nbHits">&nbsp;</td>
@@ -3129,7 +3129,7 @@
   <td class="src"><pre class="src">&nbsp;    @SuppressWarnings(<span class="string">"unchecked"</span>)</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1776</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> &lt;X, Y&gt; Y convert(Converter&lt;X, Y&gt; converter, Object value) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;1777</td>  <td class="nbHitsCovered"><a title="Line 1777: Conditional coverage 100% (2/2).">&nbsp;30242</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 1777: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> converter != <span class="keyword">null</span> ? converter.convert((X)value) : (Y)value;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;1777</td>  <td class="nbHitsCovered"><a title="Line 1777: Conditional coverage 100% (2/2).">&nbsp;44549</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 1777: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> converter != <span class="keyword">null</span> ? converter.convert((X)value) : (Y)value;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1778</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;1779</td>  <td class="nbHits">&nbsp;</td>
@@ -3411,6 +3411,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 7/9/15 7:45 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 7/16/15 10:02 PM.</div>
 </body>
 </html>

@@ -100,7 +100,7 @@
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - the Java class</dd></dl>
 <hr>
 <br>
-<pre>public class <a href="../../src-html/org/jsimpledb/JClass.html#line.41">JClass</a>&lt;T&gt;
+<pre>public class <a href="../../src-html/org/jsimpledb/JClass.html#line.42">JClass</a>&lt;T&gt;
 extends <a href="../../org/jsimpledb/JSchemaObject.html" title="class in org.jsimpledb">JSchemaObject</a></pre>
 <div class="block">Information about a Java class that is used to represent a specific JSimpleDB object type.</div>
 </li>
@@ -181,7 +181,7 @@ extends <a href="../../org/jsimpledb/JSchemaObject.html" title="class in org.jsi
 <ul class="blockList">
 <li class="blockList">
 <h4>getType</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../org/jsimpledb/JClass.html" title="type parameter in JClass">T</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JClass.html#line.90">getType</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../org/jsimpledb/JClass.html" title="type parameter in JClass">T</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JClass.html#line.91">getType</a>()</pre>
 <div class="block">Get the Java model object type associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>associated Java type</dd></dl>
 </li>
@@ -192,7 +192,7 @@ extends <a href="../../org/jsimpledb/JSchemaObject.html" title="class in org.jsi
 <ul class="blockList">
 <li class="blockList">
 <h4>getJFieldsByStorageId</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>,<a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb">JField</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JClass.html#line.99">getJFieldsByStorageId</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>,<a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb">JField</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JClass.html#line.100">getJFieldsByStorageId</a>()</pre>
 <div class="block">Get all <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb"><code>JField</code></a>'s associated with this instance, indexed by storage ID.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>read-only mapping from storage ID to <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a></dd></dl>
 </li>
@@ -203,7 +203,7 @@ extends <a href="../../org/jsimpledb/JSchemaObject.html" title="class in org.jsi
 <ul class="blockList">
 <li class="blockList">
 <h4>getJFieldsByName</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb">JField</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JClass.html#line.108">getJFieldsByName</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb">JField</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JClass.html#line.109">getJFieldsByName</a>()</pre>
 <div class="block">Get all <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb"><code>JField</code></a>'s associated with this instance, indexed by name.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>read-only mapping from storage ID to <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a></dd></dl>
 </li>
@@ -214,7 +214,7 @@ extends <a href="../../org/jsimpledb/JSchemaObject.html" title="class in org.jsi
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getJField</h4>
-<pre>public&nbsp;&lt;T extends <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb">JField</a>&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JClass.html#line.122">getJField</a>(int&nbsp;storageId,
+<pre>public&nbsp;&lt;T extends <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb">JField</a>&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JClass.html#line.123">getJField</a>(int&nbsp;storageId,
                              <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
 <div class="block">Get the <a href="../../org/jsimpledb/JField.html" title="class in org.jsimpledb"><code>JField</code></a> in this instance associated with the specified storage ID, cast to the given type.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - expected field type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - field storage ID</dd><dd><code>type</code> - required type</dd>

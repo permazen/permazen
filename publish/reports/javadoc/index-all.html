@@ -3492,11 +3492,11 @@
 <dd>
 <div class="block">Defines the encoding, ordering, and range of possible values for a <a href="./org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a>.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/core/FieldType.html#FieldType(java.lang.String, com.google.common.reflect.TypeToken, long)">FieldType(String, TypeToken&lt;T&gt;, long)</a></span> - Constructor for class org.jsimpledb.core.<a href="./org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/core/FieldType.html#FieldType(java.lang.String, com.google.common.reflect.TypeToken, long, T)">FieldType(String, TypeToken&lt;T&gt;, long, T)</a></span> - Constructor for class org.jsimpledb.core.<a href="./org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a></dt>
 <dd>
 <div class="block">Constructor.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/core/FieldType.html#FieldType(java.lang.Class, long)">FieldType(Class&lt;T&gt;, long)</a></span> - Constructor for class org.jsimpledb.core.<a href="./org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/core/FieldType.html#FieldType(java.lang.Class, long, T)">FieldType(Class&lt;T&gt;, long, T)</a></span> - Constructor for class org.jsimpledb.core.<a href="./org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a></dt>
 <dd>
 <div class="block">Constructor taking a <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang"><code>Class</code></a> object.</div>
 </dd>
@@ -3613,10 +3613,6 @@
 <dt><span class="strong"><a href="./org/jsimpledb/Util.html#findLowestCommonAncestorOfClasses(java.lang.Iterable)">findLowestCommonAncestorOfClasses(Iterable&lt;Class&lt;?&gt;&gt;)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
 <dd>
 <div class="block">Find the narrowest type that is a supertype of all of the given types.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/Util.html#findSetterMethod(java.lang.Class, java.lang.reflect.Method)">findSetterMethod(Class&lt;?&gt;, Method)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
-<dd>
-<div class="block">Find the setter method corresponding to a getter method.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractNavigableSet.html#first()">first()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util">AbstractNavigableSet</a></dt>
 <dd>&nbsp;</dd>
@@ -4267,8 +4263,10 @@
 <dd>
 <div class="block">Get the default value for this field type encoded as a <code>byte[]</code> array.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/core/NullSafeType.html#getDefaultValue()">getDefaultValue()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/NullSafeType.html" title="class in org.jsimpledb.core">NullSafeType</a></dt>
-<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/FieldType.html#getDefaultValueObject()">getDefaultValueObject()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a></dt>
+<dd>
+<div class="block">Get the default value for this field type.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)">getDependencies(JObject)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></dt>
 <dd>
 <div class="block">Find objects related to the specified object that are needed by any

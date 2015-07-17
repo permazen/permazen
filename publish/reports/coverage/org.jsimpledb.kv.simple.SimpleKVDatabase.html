@@ -114,7 +114,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment"> * @see LockManager</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;48</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment"> */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;29373</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">public</span> <span class="keyword">class</span> SimpleKVDatabase <span class="keyword">implements</span> KVDatabase {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;49</td>  <td class="nbHitsCovered">&nbsp;25990</td>  <td class="src"><pre class="src">&nbsp;<span class="keyword">public</span> <span class="keyword">class</span> SimpleKVDatabase <span class="keyword">implements</span> KVDatabase {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;50</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;51</td>  <td class="nbHits">&nbsp;</td>
@@ -149,11 +149,11 @@
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">final</span> KVStore kv;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;66</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;67</td>  <td class="nbHitsCovered">&nbsp;152</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">final</span> Logger log = LoggerFactory.getLogger(<span class="keyword">this</span>.getClass());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;67</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">final</span> Logger log = LoggerFactory.getLogger(<span class="keyword">this</span>.getClass());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;68</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered">&nbsp;152</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> LockManager lockManager = <span class="keyword">new</span> LockManager(<span class="keyword">this</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsCovered">&nbsp;152</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> KeyWatchTracker keyWatchTracker = <span class="keyword">new</span> KeyWatchTracker();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;69</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> LockManager lockManager = <span class="keyword">new</span> LockManager(<span class="keyword">this</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;70</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">final</span> KeyWatchTracker keyWatchTracker = <span class="keyword">new</span> KeyWatchTracker();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;71</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;72</td>  <td class="nbHits">&nbsp;</td>
@@ -168,8 +168,8 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;77</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> SimpleKVDatabase() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered">&nbsp;145</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>(<span class="keyword">new</span> NavigableMapKVStore());</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;79</td>  <td class="nbHitsCovered">&nbsp;145</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;78</td>  <td class="nbHitsCovered">&nbsp;147</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>(<span class="keyword">new</span> NavigableMapKVStore());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;79</td>  <td class="nbHitsCovered">&nbsp;147</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;80</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;81</td>  <td class="nbHits">&nbsp;</td>
@@ -184,8 +184,8 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;86</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> SimpleKVDatabase(KVStore kv) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;87</td>  <td class="nbHitsCovered">&nbsp;145</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>(kv, DEFAULT_WAIT_TIMEOUT, DEFAULT_HOLD_TIMEOUT);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;88</td>  <td class="nbHitsCovered">&nbsp;145</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;87</td>  <td class="nbHitsCovered">&nbsp;147</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>(kv, DEFAULT_WAIT_TIMEOUT, DEFAULT_HOLD_TIMEOUT);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;88</td>  <td class="nbHitsCovered">&nbsp;147</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;89</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;90</td>  <td class="nbHits">&nbsp;</td>
@@ -232,11 +232,11 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     * @throws IllegalArgumentException if {@code waitTimeout} or {@code holdTimeout} is negative</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;112</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;113</td>  <td class="nbHitsCovered">&nbsp;152</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> SimpleKVDatabase(KVStore kv, <span class="keyword">long</span> waitTimeout, <span class="keyword">long</span> holdTimeout) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;114</td>  <td class="nbHitsCovered"><a title="Line 114: Conditional coverage 100% (2/2).">&nbsp;152</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 114: Conditional coverage 100% (2/2).">        <span class="keyword">this</span>.kv = kv != <span class="keyword">null</span> ? kv : <span class="keyword">new</span> NavigableMapKVStore();</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;115</td>  <td class="nbHitsCovered">&nbsp;152</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.setWaitTimeout(waitTimeout);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;116</td>  <td class="nbHitsCovered">&nbsp;152</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.setHoldTimeout(holdTimeout);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;117</td>  <td class="nbHitsCovered">&nbsp;152</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;113</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> SimpleKVDatabase(KVStore kv, <span class="keyword">long</span> waitTimeout, <span class="keyword">long</span> holdTimeout) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;114</td>  <td class="nbHitsCovered"><a title="Line 114: Conditional coverage 100% (2/2).">&nbsp;154</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 114: Conditional coverage 100% (2/2).">        <span class="keyword">this</span>.kv = kv != <span class="keyword">null</span> ? kv : <span class="keyword">new</span> NavigableMapKVStore();</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;115</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.setWaitTimeout(waitTimeout);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;116</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.setHoldTimeout(holdTimeout);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;117</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;118</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;119</td>  <td class="nbHits">&nbsp;</td>
@@ -261,7 +261,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;129</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">long</span> getWaitTimeout() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;130</td>  <td class="nbHitsCovered">&nbsp;29385</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.waitTimeout;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;130</td>  <td class="nbHitsCovered">&nbsp;29984</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.waitTimeout;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;131</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;132</td>  <td class="nbHits">&nbsp;</td>
@@ -282,9 +282,9 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;140</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> setWaitTimeout(<span class="keyword">long</span> waitTimeout) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;141</td>  <td class="nbHitsUncovered"><a title="Line 141: Conditional coverage 50% (1/2).">&nbsp;154</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 141: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(waitTimeout &gt;= 0, <span class="string">"waitTimeout &lt; 0"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;142</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.waitTimeout = waitTimeout;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;143</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;141</td>  <td class="nbHitsUncovered"><a title="Line 141: Conditional coverage 50% (1/2).">&nbsp;156</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 141: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(waitTimeout &gt;= 0, <span class="string">"waitTimeout &lt; 0"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;142</td>  <td class="nbHitsCovered">&nbsp;156</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.waitTimeout = waitTimeout;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;143</td>  <td class="nbHitsCovered">&nbsp;156</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;144</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;145</td>  <td class="nbHits">&nbsp;</td>
@@ -330,8 +330,8 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;166</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">void</span> setHoldTimeout(<span class="keyword">long</span> holdTimeout) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;167</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.lockManager.setHoldTimeout(holdTimeout);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;168</td>  <td class="nbHitsCovered">&nbsp;154</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;167</td>  <td class="nbHitsCovered">&nbsp;156</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.lockManager.setHoldTimeout(holdTimeout);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;168</td>  <td class="nbHitsCovered">&nbsp;156</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;169</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;170</td>  <td class="nbHits">&nbsp;</td>
@@ -357,7 +357,7 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;182</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> <span class="keyword">synchronized</span> SimpleKVTransaction createTransaction() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;183</td>  <td class="nbHitsCovered">&nbsp;29381</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> SimpleKVTransaction(<span class="keyword">this</span>, <span class="keyword">this</span>.waitTimeout);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;183</td>  <td class="nbHitsCovered">&nbsp;25998</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">new</span> SimpleKVTransaction(<span class="keyword">this</span>, <span class="keyword">this</span>.waitTimeout);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;184</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;185</td>  <td class="nbHits">&nbsp;</td>
@@ -409,7 +409,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;209</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">void</span> preCommit(SimpleKVTransaction tx) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;210</td>  <td class="nbHitsCovered">&nbsp;15453</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;210</td>  <td class="nbHitsCovered">&nbsp;15402</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;211</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;212</td>  <td class="nbHits">&nbsp;</td>
@@ -456,7 +456,7 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;233</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">void</span> postCommit(SimpleKVTransaction tx, <span class="keyword">boolean</span> successful) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;234</td>  <td class="nbHitsCovered">&nbsp;7802</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;234</td>  <td class="nbHitsCovered">&nbsp;7689</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;235</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;236</td>  <td class="nbHits">&nbsp;</td>
@@ -499,21 +499,21 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">     */</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;255</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> <span class="keyword">void</span> checkState(SimpleKVTransaction tx) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;256</td>  <td class="nbHitsCovered">&nbsp;296768</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;256</td>  <td class="nbHitsCovered">&nbsp;334030</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;257</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;258</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">void</span> checkUsable(SimpleKVTransaction tx) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;259</td>  <td class="nbHitsUncovered"><a title="Line 259: Conditional coverage 50% (1/2).">&nbsp;324127</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 259: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tx.stale)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;259</td>  <td class="nbHitsUncovered"><a title="Line 259: Conditional coverage 50% (1/2).">&nbsp;367215</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 259: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tx.stale)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;260</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(tx);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;261</td>  <td class="nbHitsUncovered"><a title="Line 261: Conditional coverage 50% (1/2).">&nbsp;324127</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 261: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.lockManager.checkHoldTimeout(tx.lockOwner) == -1) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;261</td>  <td class="nbHitsUncovered"><a title="Line 261: Conditional coverage 50% (1/2).">&nbsp;367215</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 261: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.lockManager.checkHoldTimeout(tx.lockOwner) == -1) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;262</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">this</span>.rollback(tx);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;263</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> TransactionTimeoutException(tx,</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;264</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;              <span class="string">"transaction taking too long: hold timeout of "</span> + <span class="keyword">this</span>.lockManager.getHoldTimeout() + <span class="string">"ms has expired"</span>);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;265</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;266</td>  <td class="nbHitsCovered">&nbsp;324127</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;266</td>  <td class="nbHitsCovered">&nbsp;367215</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;267</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;268</td>  <td class="nbHits">&nbsp;</td>
@@ -526,22 +526,22 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;272</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;273</td>  <td class="nbHitsUncovered"><a title="Line 273: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;76430</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 273: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkArgument(key.length == 0 || key[0] != (<span class="keyword">byte</span>)0xff, <span class="string">"key starts with 0xff"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;274</td>  <td class="nbHitsCovered">&nbsp;76430</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;275</td>  <td class="nbHitsCovered">&nbsp;76430</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;273</td>  <td class="nbHitsUncovered"><a title="Line 273: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;109113</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 273: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkArgument(key.length == 0 || key[0] != (<span class="keyword">byte</span>)0xff, <span class="string">"key starts with 0xff"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;274</td>  <td class="nbHitsCovered">&nbsp;109113</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;275</td>  <td class="nbHitsCovered">&nbsp;109113</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;276</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;277</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Check transaction mutations</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;278</td>  <td class="nbHitsCovered">&nbsp;76430</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Mutation mutation = tx.findMutation(key);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;279</td>  <td class="nbHitsCovered"><a title="Line 279: Conditional coverage 100% (2/2).">&nbsp;76430</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 279: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (mutation != <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;280</td>  <td class="nbHitsCovered"><a title="Line 280: Conditional coverage 100% (2/2).">&nbsp;51208</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 280: Conditional coverage 100% (2/2).">            <span class="keyword">return</span> mutation <span class="keyword">instanceof</span> Put ? ((Put)mutation).getValue() : <span class="keyword">null</span>;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;278</td>  <td class="nbHitsCovered">&nbsp;109113</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Mutation mutation = tx.findMutation(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;279</td>  <td class="nbHitsCovered"><a title="Line 279: Conditional coverage 100% (2/2).">&nbsp;109113</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 279: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (mutation != <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;280</td>  <td class="nbHitsCovered"><a title="Line 280: Conditional coverage 100% (2/2).">&nbsp;71372</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 280: Conditional coverage 100% (2/2).">            <span class="keyword">return</span> mutation <span class="keyword">instanceof</span> Put ? ((Put)mutation).getValue() : <span class="keyword">null</span>;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;281</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;282</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Read from underlying store</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;283</td>  <td class="nbHitsCovered">&nbsp;25222</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.getLock(tx, key, ByteUtil.getNextKey(key), <span class="keyword">false</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;284</td>  <td class="nbHitsCovered">&nbsp;25221</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.kv.get(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;283</td>  <td class="nbHitsCovered">&nbsp;37741</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.getLock(tx, key, ByteUtil.getNextKey(key), <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;284</td>  <td class="nbHitsCovered">&nbsp;37740</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">return</span> <span class="keyword">this</span>.kv.get(key);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;285</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;286</td>  <td class="nbHits">&nbsp;</td>
@@ -552,37 +552,37 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;289</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Realize minKey</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;290</td>  <td class="nbHitsCovered"><a title="Line 290: Conditional coverage 100% (2/2).">&nbsp;191014</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 290: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (minKey == <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;291</td>  <td class="nbHitsCovered">&nbsp;2700</td>  <td class="src"><pre class="src">&nbsp;            minKey = ByteUtil.EMPTY;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;290</td>  <td class="nbHitsCovered"><a title="Line 290: Conditional coverage 100% (2/2).">&nbsp;201524</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 290: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (minKey == <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;291</td>  <td class="nbHitsCovered">&nbsp;2690</td>  <td class="src"><pre class="src">&nbsp;            minKey = ByteUtil.EMPTY;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;292</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;293</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;294</td>  <td class="nbHitsCovered">&nbsp;191014</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;295</td>  <td class="nbHitsCovered">&nbsp;191014</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;294</td>  <td class="nbHitsCovered">&nbsp;201524</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;295</td>  <td class="nbHitsCovered">&nbsp;201524</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;296</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;297</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Save original min key for locking purposes</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;298</td>  <td class="nbHitsCovered">&nbsp;191014</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] originalMinKey = minKey;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;298</td>  <td class="nbHitsCovered">&nbsp;201524</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] originalMinKey = minKey;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;299</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;300</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Look for a mutation starting before minKey but containing it</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;301</td>  <td class="nbHitsCovered"><a title="Line 301: Conditional coverage 100% (2/2).">&nbsp;191014</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 301: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (minKey.length &gt; 0) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;302</td>  <td class="nbHitsCovered">&nbsp;186433</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Mutation overlap = tx.findMutation(minKey);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;303</td>  <td class="nbHitsCovered"><a title="Line 303: Conditional coverage 100% (2/2).">&nbsp;186433</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 303: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (overlap != <span class="keyword">null</span>) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;304</td>  <td class="nbHitsCovered"><a title="Line 304: Conditional coverage 100% (2/2).">&nbsp;7482</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 304: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (overlap <span class="keyword">instanceof</span> Put) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;305</td>  <td class="nbHitsCovered">&nbsp;6484</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">final</span> Put put = (Put)overlap;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;306</td>  <td class="nbHitsUncovered"><a title="Line 306: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;6484</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 306: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">                    <span class="keyword">assert</span> Arrays.equals(put.getKey(), minKey);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;307</td>  <td class="nbHitsCovered">&nbsp;6484</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">return</span> <span class="keyword">new</span> KVPair(put.getKey(), put.getValue());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;301</td>  <td class="nbHitsCovered"><a title="Line 301: Conditional coverage 100% (2/2).">&nbsp;201524</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 301: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (minKey.length &gt; 0) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;302</td>  <td class="nbHitsCovered">&nbsp;196953</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Mutation overlap = tx.findMutation(minKey);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;303</td>  <td class="nbHitsCovered"><a title="Line 303: Conditional coverage 100% (2/2).">&nbsp;196953</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 303: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (overlap != <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;304</td>  <td class="nbHitsCovered"><a title="Line 304: Conditional coverage 100% (2/2).">&nbsp;7494</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 304: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (overlap <span class="keyword">instanceof</span> Put) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;305</td>  <td class="nbHitsCovered">&nbsp;6497</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">final</span> Put put = (Put)overlap;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;306</td>  <td class="nbHitsUncovered"><a title="Line 306: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;6497</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 306: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">                    <span class="keyword">assert</span> Arrays.equals(put.getKey(), minKey);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;307</td>  <td class="nbHitsCovered">&nbsp;6497</td>  <td class="src"><pre class="src">&nbsp;                    <span class="keyword">return</span> <span class="keyword">new</span> KVPair(put.getKey(), put.getValue());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;308</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;309</td>  <td class="nbHitsUncovered"><a title="Line 309: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;998</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 309: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">                <span class="keyword">assert</span> overlap <span class="keyword">instanceof</span> Del;</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;310</td>  <td class="nbHitsCovered">&nbsp;998</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> <span class="keyword">byte</span>[] max = overlap.getMax();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;311</td>  <td class="nbHitsUncovered"><a title="Line 311: Conditional coverage 50% (1/2).">&nbsp;998</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 311: Conditional coverage 50% (1/2).">                <span class="keyword">if</span> (max == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;309</td>  <td class="nbHitsUncovered"><a title="Line 309: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;997</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 309: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">                <span class="keyword">assert</span> overlap <span class="keyword">instanceof</span> Del;</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;310</td>  <td class="nbHitsCovered">&nbsp;997</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> <span class="keyword">byte</span>[] max = overlap.getMax();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;311</td>  <td class="nbHitsUncovered"><a title="Line 311: Conditional coverage 50% (1/2).">&nbsp;997</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 311: Conditional coverage 50% (1/2).">                <span class="keyword">if</span> (max == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;312</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                    <span class="keyword">return</span> <span class="keyword">null</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;313</td>  <td class="nbHitsCovered">&nbsp;998</td>  <td class="src"><pre class="src">&nbsp;                minKey = max;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;313</td>  <td class="nbHitsCovered">&nbsp;997</td>  <td class="src"><pre class="src">&nbsp;                minKey = max;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;314</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;315</td>  <td class="nbHits">&nbsp;</td>
@@ -591,33 +591,33 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;317</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Find whichever is first: a transaction Put, or an underlying store entry not covered by a transaction Delete</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;318</td>  <td class="nbHitsCovered">&nbsp;184530</td>  <td class="src"><pre class="src">&nbsp;        SortedSet&lt;Mutation&gt; mutations = tx.mutations;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;318</td>  <td class="nbHitsCovered">&nbsp;195027</td>  <td class="src"><pre class="src">&nbsp;        SortedSet&lt;Mutation&gt; mutations = tx.mutations;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;319</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">while</span> (<span class="keyword">true</span>) {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;320</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;321</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Get the next mutation and kvstore entry &gt;= minKey (if they exist)</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;322</td>  <td class="nbHitsUncovered"><a title="Line 322: Conditional coverage 50% (1/2).">&nbsp;237798</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 322: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (minKey != <span class="keyword">null</span>)</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;323</td>  <td class="nbHitsCovered">&nbsp;237798</td>  <td class="src"><pre class="src">&nbsp;                mutations = mutations.tailSet(Mutation.key(minKey));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;324</td>  <td class="nbHitsCovered"><a title="Line 324: Conditional coverage 100% (2/2).">&nbsp;237798</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 324: Conditional coverage 100% (2/2).">            <span class="keyword">final</span> Mutation mutation = !mutations.isEmpty() ? mutations.first() : <span class="keyword">null</span>;</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;325</td>  <td class="nbHitsCovered">&nbsp;237798</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> KVPair entry = <span class="keyword">this</span>.kv.getAtLeast(minKey);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;322</td>  <td class="nbHitsUncovered"><a title="Line 322: Conditional coverage 50% (1/2).">&nbsp;235459</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 322: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (minKey != <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;323</td>  <td class="nbHitsCovered">&nbsp;235459</td>  <td class="src"><pre class="src">&nbsp;                mutations = mutations.tailSet(Mutation.key(minKey));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;324</td>  <td class="nbHitsCovered"><a title="Line 324: Conditional coverage 100% (2/2).">&nbsp;235459</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 324: Conditional coverage 100% (2/2).">            <span class="keyword">final</span> Mutation mutation = !mutations.isEmpty() ? mutations.first() : <span class="keyword">null</span>;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;325</td>  <td class="nbHitsCovered">&nbsp;235459</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> KVPair entry = <span class="keyword">this</span>.kv.getAtLeast(minKey);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;326</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;327</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Handle the case where neither is found</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;328</td>  <td class="nbHitsCovered"><a title="Line 328: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;237798</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 328: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">            <span class="keyword">if</span> (mutation == <span class="keyword">null</span> &amp;&amp; entry == <span class="keyword">null</span>) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;329</td>  <td class="nbHitsCovered">&nbsp;6678</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, originalMinKey, <span class="keyword">null</span>, <span class="keyword">false</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;330</td>  <td class="nbHitsCovered">&nbsp;6678</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;328</td>  <td class="nbHitsCovered"><a title="Line 328: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;235459</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 328: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">            <span class="keyword">if</span> (mutation == <span class="keyword">null</span> &amp;&amp; entry == <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;329</td>  <td class="nbHitsCovered">&nbsp;6473</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, originalMinKey, <span class="keyword">null</span>, <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;330</td>  <td class="nbHitsCovered">&nbsp;6473</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;331</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;332</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;333</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Check for whether mutation or kvstore wins (i.e., which is first)</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;334</td>  <td class="nbHitsCovered"><a title="Line 334: Conditional coverage 100% (6/6) [each condition: 100%, 100%, 100%].">&nbsp;231120</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 334: Conditional coverage 100% (6/6) [each condition: 100%, 100%, 100%].">            <span class="keyword">if</span> (mutation != <span class="keyword">null</span> &amp;&amp; (entry == <span class="keyword">null</span> || mutation.compareTo(entry.getKey()) &lt;= 0)) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;335</td>  <td class="nbHitsCovered"><a title="Line 335: Conditional coverage 100% (2/2).">&nbsp;142947</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 335: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;336</td>  <td class="nbHitsUncovered"><a title="Line 336: Conditional coverage 50% (1/2).">&nbsp;53268</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 336: Conditional coverage 50% (1/2).">                    <span class="keyword">if</span> ((minKey = mutation.getMax()) == <span class="keyword">null</span>) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;334</td>  <td class="nbHitsCovered"><a title="Line 334: Conditional coverage 100% (6/6) [each condition: 100%, 100%, 100%].">&nbsp;228986</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 334: Conditional coverage 100% (6/6) [each condition: 100%, 100%, 100%].">            <span class="keyword">if</span> (mutation != <span class="keyword">null</span> &amp;&amp; (entry == <span class="keyword">null</span> || mutation.compareTo(entry.getKey()) &lt;= 0)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;335</td>  <td class="nbHitsCovered"><a title="Line 335: Conditional coverage 100% (2/2).">&nbsp;143207</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 335: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;336</td>  <td class="nbHitsUncovered"><a title="Line 336: Conditional coverage 50% (1/2).">&nbsp;40432</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 336: Conditional coverage 50% (1/2).">                    <span class="keyword">if</span> ((minKey = mutation.getMax()) == <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;337</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                        <span class="keyword">this</span>.getLock(tx, originalMinKey, <span class="keyword">null</span>, <span class="keyword">false</span>);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;338</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                        <span class="keyword">return</span> <span class="keyword">null</span>;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;339</td>  <td class="nbHits">&nbsp;</td>
@@ -626,13 +626,13 @@
   <td class="src"><pre class="src">&nbsp;                    <span class="keyword">continue</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;341</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;342</td>  <td class="nbHitsCovered">&nbsp;89679</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Put put = (Put)mutation;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;343</td>  <td class="nbHitsCovered">&nbsp;89679</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, originalMinKey, ByteUtil.getNextKey(put.getKey()), <span class="keyword">false</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;344</td>  <td class="nbHitsCovered">&nbsp;89679</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">new</span> KVPair(put.getKey(), put.getValue());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;342</td>  <td class="nbHitsCovered">&nbsp;102775</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Put put = (Put)mutation;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;343</td>  <td class="nbHitsCovered">&nbsp;102775</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, originalMinKey, ByteUtil.getNextKey(put.getKey()), <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;344</td>  <td class="nbHitsCovered">&nbsp;102775</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">new</span> KVPair(put.getKey(), put.getValue());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;345</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            } <span class="keyword">else</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;346</td>  <td class="nbHitsCovered">&nbsp;88173</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, originalMinKey, ByteUtil.getNextKey(entry.getKey()), <span class="keyword">false</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;347</td>  <td class="nbHitsCovered">&nbsp;88173</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> entry;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;346</td>  <td class="nbHitsCovered">&nbsp;85779</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, originalMinKey, ByteUtil.getNextKey(entry.getKey()), <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;347</td>  <td class="nbHitsCovered">&nbsp;85779</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> entry;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;348</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;349</td>  <td class="nbHits">&nbsp;</td>
@@ -665,15 +665,15 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;365</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Get the next mutation and kvstore entry &lt; maxKey (if they exist)</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;366</td>  <td class="nbHitsCovered"><a title="Line 366: Conditional coverage 100% (2/2).">&nbsp;35169</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 366: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (maxKey != <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;367</td>  <td class="nbHitsCovered">&nbsp;35157</td>  <td class="src"><pre class="src">&nbsp;                mutations = mutations.headSet(Mutation.key(maxKey));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;368</td>  <td class="nbHitsCovered"><a title="Line 368: Conditional coverage 100% (2/2).">&nbsp;35169</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 368: Conditional coverage 100% (2/2).">            <span class="keyword">final</span> Mutation mutation = !mutations.isEmpty() ? mutations.last() : <span class="keyword">null</span>;</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;369</td>  <td class="nbHitsCovered">&nbsp;35169</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> KVPair entry = <span class="keyword">this</span>.kv.getAtMost(maxKey);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;366</td>  <td class="nbHitsCovered"><a title="Line 366: Conditional coverage 100% (2/2).">&nbsp;35316</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 366: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (maxKey != <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;367</td>  <td class="nbHitsCovered">&nbsp;35304</td>  <td class="src"><pre class="src">&nbsp;                mutations = mutations.headSet(Mutation.key(maxKey));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;368</td>  <td class="nbHitsCovered"><a title="Line 368: Conditional coverage 100% (2/2).">&nbsp;35316</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 368: Conditional coverage 100% (2/2).">            <span class="keyword">final</span> Mutation mutation = !mutations.isEmpty() ? mutations.last() : <span class="keyword">null</span>;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;369</td>  <td class="nbHitsCovered">&nbsp;35316</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> KVPair entry = <span class="keyword">this</span>.kv.getAtMost(maxKey);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;370</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;371</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Handle the case where neither is found</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;372</td>  <td class="nbHitsCovered"><a title="Line 372: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;35169</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 372: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">            <span class="keyword">if</span> (mutation == <span class="keyword">null</span> &amp;&amp; entry == <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;372</td>  <td class="nbHitsCovered"><a title="Line 372: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;35316</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 372: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">            <span class="keyword">if</span> (mutation == <span class="keyword">null</span> &amp;&amp; entry == <span class="keyword">null</span>) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;373</td>  <td class="nbHitsCovered">&nbsp;92</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, ByteUtil.EMPTY, originalMaxKey, <span class="keyword">false</span>);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;374</td>  <td class="nbHitsCovered">&nbsp;92</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;375</td>  <td class="nbHits">&nbsp;</td>
@@ -682,9 +682,9 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;377</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Check for whether mutation or kvstore wins (i.e., which is first)</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;378</td>  <td class="nbHitsCovered"><a title="Line 378: Conditional coverage 100% (6/6) [each condition: 100%, 100%, 100%].">&nbsp;35077</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 378: Conditional coverage 100% (6/6) [each condition: 100%, 100%, 100%].">            <span class="keyword">if</span> (mutation != <span class="keyword">null</span> &amp;&amp; (entry == <span class="keyword">null</span> || mutation.compareTo(entry.getKey()) &gt;= 0)) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;379</td>  <td class="nbHitsCovered"><a title="Line 379: Conditional coverage 100% (2/2).">&nbsp;34025</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 379: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;380</td>  <td class="nbHitsUncovered"><a title="Line 380: Conditional coverage 50% (1/2).">&nbsp;11769</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 380: Conditional coverage 50% (1/2).">                    <span class="keyword">if</span> ((maxKey = mutation.getMin()) == <span class="keyword">null</span>) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;378</td>  <td class="nbHitsCovered"><a title="Line 378: Conditional coverage 100% (6/6) [each condition: 100%, 100%, 100%].">&nbsp;35224</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 378: Conditional coverage 100% (6/6) [each condition: 100%, 100%, 100%].">            <span class="keyword">if</span> (mutation != <span class="keyword">null</span> &amp;&amp; (entry == <span class="keyword">null</span> || mutation.compareTo(entry.getKey()) &gt;= 0)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;379</td>  <td class="nbHitsCovered"><a title="Line 379: Conditional coverage 100% (2/2).">&nbsp;34086</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 379: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;380</td>  <td class="nbHitsUncovered"><a title="Line 380: Conditional coverage 50% (1/2).">&nbsp;11916</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 380: Conditional coverage 50% (1/2).">                    <span class="keyword">if</span> ((maxKey = mutation.getMin()) == <span class="keyword">null</span>) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;381</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                        <span class="keyword">this</span>.getLock(tx, ByteUtil.EMPTY, originalMaxKey, <span class="keyword">false</span>);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;382</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                        <span class="keyword">return</span> <span class="keyword">null</span>;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;383</td>  <td class="nbHits">&nbsp;</td>
@@ -693,13 +693,13 @@
   <td class="src"><pre class="src">&nbsp;                    <span class="keyword">continue</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;385</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;386</td>  <td class="nbHitsCovered">&nbsp;22256</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Put put = (Put)mutation;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;387</td>  <td class="nbHitsCovered">&nbsp;22256</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, put.getKey(), originalMaxKey, <span class="keyword">false</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;388</td>  <td class="nbHitsCovered">&nbsp;22256</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">new</span> KVPair(put.getKey(), put.getValue());</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;386</td>  <td class="nbHitsCovered">&nbsp;22170</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Put put = (Put)mutation;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;387</td>  <td class="nbHitsCovered">&nbsp;22170</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, put.getKey(), originalMaxKey, <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;388</td>  <td class="nbHitsCovered">&nbsp;22170</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> <span class="keyword">new</span> KVPair(put.getKey(), put.getValue());</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;389</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            } <span class="keyword">else</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;390</td>  <td class="nbHitsCovered">&nbsp;1052</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, entry.getKey(), originalMaxKey, <span class="keyword">false</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;391</td>  <td class="nbHitsCovered">&nbsp;1052</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> entry;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;390</td>  <td class="nbHitsCovered">&nbsp;1138</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">this</span>.getLock(tx, entry.getKey(), originalMaxKey, <span class="keyword">false</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;391</td>  <td class="nbHitsCovered">&nbsp;1138</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">return</span> entry;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;392</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;393</td>  <td class="nbHits">&nbsp;</td>
@@ -714,26 +714,26 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;398</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;399</td>  <td class="nbHitsUncovered"><a title="Line 399: Conditional coverage 50% (1/2).">&nbsp;28353</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 399: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (value == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;399</td>  <td class="nbHitsUncovered"><a title="Line 399: Conditional coverage 50% (1/2).">&nbsp;28370</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 399: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (value == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;400</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;401</td>  <td class="nbHitsUncovered"><a title="Line 401: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;28353</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 401: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkArgument(key.length == 0 || key[0] != (<span class="keyword">byte</span>)0xff, <span class="string">"key starts with 0xff"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;402</td>  <td class="nbHitsCovered">&nbsp;28353</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;403</td>  <td class="nbHitsCovered">&nbsp;28353</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;404</td>  <td class="nbHitsCovered">&nbsp;28353</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] keyNext = ByteUtil.getNextKey(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;401</td>  <td class="nbHitsUncovered"><a title="Line 401: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;28370</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 401: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkArgument(key.length == 0 || key[0] != (<span class="keyword">byte</span>)0xff, <span class="string">"key starts with 0xff"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;402</td>  <td class="nbHitsCovered">&nbsp;28370</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;403</td>  <td class="nbHitsCovered">&nbsp;28370</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;404</td>  <td class="nbHitsCovered">&nbsp;28370</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] keyNext = ByteUtil.getNextKey(key);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;405</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;406</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Check transaction mutations</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;407</td>  <td class="nbHitsCovered">&nbsp;28353</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Mutation mutation = tx.findMutation(key);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;408</td>  <td class="nbHitsCovered"><a title="Line 408: Conditional coverage 100% (2/2).">&nbsp;28353</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 408: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Put) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;409</td>  <td class="nbHitsUncovered"><a title="Line 409: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;71</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 409: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">assert</span> Arrays.equals(((Put)mutation).getKey(), key);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;407</td>  <td class="nbHitsCovered">&nbsp;28370</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Mutation mutation = tx.findMutation(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;408</td>  <td class="nbHitsCovered"><a title="Line 408: Conditional coverage 100% (2/2).">&nbsp;28370</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 408: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Put) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;409</td>  <td class="nbHitsUncovered"><a title="Line 409: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;69</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 409: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">assert</span> Arrays.equals(((Put)mutation).getKey(), key);</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;410</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;411</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Replace Put with new Put</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;412</td>  <td class="nbHitsCovered">&nbsp;71</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.remove(mutation);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;413</td>  <td class="nbHitsCovered">&nbsp;71</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.add(<span class="keyword">new</span> Put(key, value));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;414</td>  <td class="nbHitsCovered"><a title="Line 414: Conditional coverage 100% (2/2).">&nbsp;28282</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 414: Conditional coverage 100% (2/2).">        } <span class="keyword">else</span> <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;412</td>  <td class="nbHitsCovered">&nbsp;69</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.remove(mutation);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;413</td>  <td class="nbHitsCovered">&nbsp;69</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.add(<span class="keyword">new</span> Put(key, value));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;414</td>  <td class="nbHitsCovered"><a title="Line 414: Conditional coverage 100% (2/2).">&nbsp;28301</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 414: Conditional coverage 100% (2/2).">        } <span class="keyword">else</span> <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;415</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;416</td>  <td class="nbHits">&nbsp;</td>
@@ -752,11 +752,11 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;428</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Add write lock and new tx mutation</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;429</td>  <td class="nbHitsCovered">&nbsp;28165</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.getLock(tx, key, keyNext, <span class="keyword">true</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;430</td>  <td class="nbHitsCovered">&nbsp;28165</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.add(<span class="keyword">new</span> Put(key, value));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;429</td>  <td class="nbHitsCovered">&nbsp;28184</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.getLock(tx, key, keyNext, <span class="keyword">true</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;430</td>  <td class="nbHitsCovered">&nbsp;28184</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.add(<span class="keyword">new</span> Put(key, value));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;431</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;432</td>  <td class="nbHitsCovered">&nbsp;28353</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;432</td>  <td class="nbHitsCovered">&nbsp;28370</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;433</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;434</td>  <td class="nbHits">&nbsp;</td>
@@ -765,23 +765,23 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;436</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;437</td>  <td class="nbHitsUncovered"><a title="Line 437: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;867</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 437: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">        Preconditions.checkArgument(key.length == 0 || key[0] != (<span class="keyword">byte</span>)0xff, <span class="string">"key starts with 0xff"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;438</td>  <td class="nbHitsCovered">&nbsp;867</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;439</td>  <td class="nbHitsCovered">&nbsp;867</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;440</td>  <td class="nbHitsCovered">&nbsp;867</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] keyNext = ByteUtil.getNextKey(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;437</td>  <td class="nbHitsUncovered"><a title="Line 437: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;854</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 437: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">        Preconditions.checkArgument(key.length == 0 || key[0] != (<span class="keyword">byte</span>)0xff, <span class="string">"key starts with 0xff"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;438</td>  <td class="nbHitsCovered">&nbsp;854</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;439</td>  <td class="nbHitsCovered">&nbsp;854</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;440</td>  <td class="nbHitsCovered">&nbsp;854</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] keyNext = ByteUtil.getNextKey(key);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;441</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;442</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Check transaction mutations</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;443</td>  <td class="nbHitsCovered">&nbsp;867</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Mutation mutation = tx.findMutation(key);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;444</td>  <td class="nbHitsCovered"><a title="Line 444: Conditional coverage 100% (2/2).">&nbsp;867</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 444: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Put) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;445</td>  <td class="nbHitsUncovered"><a title="Line 445: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;701</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 445: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">assert</span> Arrays.equals(((Put)mutation).getKey(), key);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;443</td>  <td class="nbHitsCovered">&nbsp;854</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> Mutation mutation = tx.findMutation(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;444</td>  <td class="nbHitsCovered"><a title="Line 444: Conditional coverage 100% (2/2).">&nbsp;854</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 444: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (mutation <span class="keyword">instanceof</span> Put) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;445</td>  <td class="nbHitsUncovered"><a title="Line 445: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;688</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 445: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">assert</span> Arrays.equals(((Put)mutation).getKey(), key);</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;446</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;447</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Replace Put with Del</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;448</td>  <td class="nbHitsCovered">&nbsp;701</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.remove(mutation);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;449</td>  <td class="nbHitsCovered">&nbsp;701</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.add(<span class="keyword">new</span> Del(key));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;448</td>  <td class="nbHitsCovered">&nbsp;688</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.remove(mutation);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;449</td>  <td class="nbHitsCovered">&nbsp;688</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.add(<span class="keyword">new</span> Del(key));</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;450</td>  <td class="nbHitsCovered"><a title="Line 450: Conditional coverage 100% (2/2).">&nbsp;166</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 450: Conditional coverage 100% (2/2).">        } <span class="keyword">else</span> <span class="keyword">if</span> (mutation == <span class="keyword">null</span>) {</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;451</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
@@ -791,7 +791,7 @@
 <tr>  <td class="numLineCover">&nbsp;454</td>  <td class="nbHitsCovered">&nbsp;129</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.add(<span class="keyword">new</span> Del(key));</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;455</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;456</td>  <td class="nbHitsCovered">&nbsp;867</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;456</td>  <td class="nbHitsCovered">&nbsp;854</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;457</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;458</td>  <td class="nbHits">&nbsp;</td>
@@ -800,34 +800,34 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;460</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Realize minKey</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;461</td>  <td class="nbHitsUncovered"><a title="Line 461: Conditional coverage 50% (1/2).">&nbsp;4063</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 461: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (minKey == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;461</td>  <td class="nbHitsUncovered"><a title="Line 461: Conditional coverage 50% (1/2).">&nbsp;3954</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 461: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (minKey == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;462</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            minKey = ByteUtil.EMPTY;</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;463</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;464</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity check</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;465</td>  <td class="nbHitsCovered">&nbsp;4063</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">int</span> diff = KeyRange.compare(minKey, maxKey);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;466</td>  <td class="nbHitsUncovered"><a title="Line 466: Conditional coverage 50% (1/2).">&nbsp;4063</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 466: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(diff &lt;= 0, <span class="string">"minKey &gt; maxKey"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;467</td>  <td class="nbHitsCovered">&nbsp;4063</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;468</td>  <td class="nbHitsCovered">&nbsp;4063</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;469</td>  <td class="nbHitsUncovered"><a title="Line 469: Conditional coverage 50% (1/2).">&nbsp;4063</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 469: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (diff == 0)                                                          <span class="comment">// range is empty</span></a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;465</td>  <td class="nbHitsCovered">&nbsp;3954</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">int</span> diff = KeyRange.compare(minKey, maxKey);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;466</td>  <td class="nbHitsUncovered"><a title="Line 466: Conditional coverage 50% (1/2).">&nbsp;3954</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 466: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(diff &lt;= 0, <span class="string">"minKey &gt; maxKey"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;467</td>  <td class="nbHitsCovered">&nbsp;3954</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkUsable(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;468</td>  <td class="nbHitsCovered">&nbsp;3954</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;469</td>  <td class="nbHitsUncovered"><a title="Line 469: Conditional coverage 50% (1/2).">&nbsp;3954</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 469: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (diff == 0)                                                          <span class="comment">// range is empty</span></a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;470</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">return</span>;</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;471</td>  <td class="nbHitsCovered">&nbsp;4063</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] originalMinKey = minKey;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;472</td>  <td class="nbHitsCovered">&nbsp;4063</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] originalMaxKey = maxKey;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;471</td>  <td class="nbHitsCovered">&nbsp;3954</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] originalMinKey = minKey;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;472</td>  <td class="nbHitsCovered">&nbsp;3954</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> <span class="keyword">byte</span>[] originalMaxKey = maxKey;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;473</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;474</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Deal with partial overlap at the left end of the range</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;475</td>  <td class="nbHitsCovered"><a title="Line 475: Conditional coverage 100% (2/2).">&nbsp;4063</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 475: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (minKey.length &gt; 0) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;476</td>  <td class="nbHitsCovered">&nbsp;3913</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Mutation leftMutation = tx.findMutation(minKey);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;477</td>  <td class="nbHitsCovered"><a title="Line 477: Conditional coverage 100% (2/2).">&nbsp;3913</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 477: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (leftMutation <span class="keyword">instanceof</span> Put) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;478</td>  <td class="nbHitsUncovered"><a title="Line 478: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;75</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 478: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">                <span class="keyword">assert</span> Arrays.equals(((Put)leftMutation).getKey(), minKey);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;479</td>  <td class="nbHitsCovered">&nbsp;75</td>  <td class="src"><pre class="src">&nbsp;                tx.mutations.remove(leftMutation);                                          <span class="comment">// overwritten by this change</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;480</td>  <td class="nbHitsCovered"><a title="Line 480: Conditional coverage 100% (2/2).">&nbsp;3838</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 480: Conditional coverage 100% (2/2).">            } <span class="keyword">else</span> <span class="keyword">if</span> (leftMutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;481</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Del del = (Del)leftMutation;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;482</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;                tx.mutations.remove(del);                                                   <span class="comment">// will merge into this change</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;483</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;                minKey = del.getMin();                                                      <span class="comment">// guaranteed to be &lt;= minKey</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;484</td>  <td class="nbHitsUncovered"><a title="Line 484: Conditional coverage 50% (1/2).">&nbsp;2</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 484: Conditional coverage 50% (1/2).">                <span class="keyword">if</span> (KeyRange.compare(del.getMax(), maxKey) &gt; 0)                             <span class="comment">// get higher of the two maxKeys</span></a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;475</td>  <td class="nbHitsCovered"><a title="Line 475: Conditional coverage 100% (2/2).">&nbsp;3954</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 475: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (minKey.length &gt; 0) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;476</td>  <td class="nbHitsCovered">&nbsp;3836</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> Mutation leftMutation = tx.findMutation(minKey);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;477</td>  <td class="nbHitsCovered"><a title="Line 477: Conditional coverage 100% (2/2).">&nbsp;3836</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 477: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (leftMutation <span class="keyword">instanceof</span> Put) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;478</td>  <td class="nbHitsUncovered"><a title="Line 478: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;72</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 478: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">                <span class="keyword">assert</span> Arrays.equals(((Put)leftMutation).getKey(), minKey);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;479</td>  <td class="nbHitsCovered">&nbsp;72</td>  <td class="src"><pre class="src">&nbsp;                tx.mutations.remove(leftMutation);                                          <span class="comment">// overwritten by this change</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;480</td>  <td class="nbHitsCovered"><a title="Line 480: Conditional coverage 100% (2/2).">&nbsp;3764</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 480: Conditional coverage 100% (2/2).">            } <span class="keyword">else</span> <span class="keyword">if</span> (leftMutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;481</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Del del = (Del)leftMutation;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;482</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;                tx.mutations.remove(del);                                                   <span class="comment">// will merge into this change</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;483</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;                minKey = del.getMin();                                                      <span class="comment">// guaranteed to be &lt;= minKey</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;484</td>  <td class="nbHitsUncovered"><a title="Line 484: Conditional coverage 50% (1/2).">&nbsp;1</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 484: Conditional coverage 50% (1/2).">                <span class="keyword">if</span> (KeyRange.compare(del.getMax(), maxKey) &gt; 0)                             <span class="comment">// get higher of the two maxKeys</span></a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;485</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                    maxKey = del.getMax();</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;486</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
@@ -837,26 +837,26 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;489</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Deal with partial overlap at the right end of the range</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;490</td>  <td class="nbHitsCovered"><a title="Line 490: Conditional coverage 100% (2/2).">&nbsp;4063</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 490: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (maxKey != <span class="keyword">null</span>) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;491</td>  <td class="nbHitsCovered">&nbsp;3940</td>  <td class="src"><pre class="src">&nbsp;            Mutation rightMutation = <span class="keyword">null</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;490</td>  <td class="nbHitsCovered"><a title="Line 490: Conditional coverage 100% (2/2).">&nbsp;3954</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 490: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (maxKey != <span class="keyword">null</span>) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;491</td>  <td class="nbHitsCovered">&nbsp;3802</td>  <td class="src"><pre class="src">&nbsp;            Mutation rightMutation = <span class="keyword">null</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;492</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="keyword">try</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;493</td>  <td class="nbHitsUncovered"><a title="Line 493: Conditional coverage 50% (1/2).">&nbsp;3940</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 493: Conditional coverage 50% (1/2).">                rightMutation = minKey != <span class="keyword">null</span> ?</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;493</td>  <td class="nbHitsUncovered"><a title="Line 493: Conditional coverage 50% (1/2).">&nbsp;3802</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 493: Conditional coverage 50% (1/2).">                rightMutation = minKey != <span class="keyword">null</span> ?</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;494</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                  tx.mutations.subSet(Mutation.key(minKey), Mutation.key(maxKey)).last() :</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;495</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                  tx.mutations.headSet(Mutation.key(maxKey)).last();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;496</td>  <td class="nbHitsCovered">&nbsp;3903</td>  <td class="src"><pre class="src">&nbsp;            } <span class="keyword">catch</span> (NoSuchElementException e) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;496</td>  <td class="nbHitsCovered">&nbsp;3765</td>  <td class="src"><pre class="src">&nbsp;            } <span class="keyword">catch</span> (NoSuchElementException e) {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;497</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;                <span class="comment">// ignore</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;498</td>  <td class="nbHitsCovered">&nbsp;37</td>  <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;499</td>  <td class="nbHitsCovered"><a title="Line 499: Conditional coverage 100% (2/2).">&nbsp;3940</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 499: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (rightMutation <span class="keyword">instanceof</span> Put)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;500</td>  <td class="nbHitsCovered">&nbsp;25</td>  <td class="src"><pre class="src">&nbsp;                tx.mutations.remove(rightMutation);                                         <span class="comment">// overwritten by this change</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;501</td>  <td class="nbHitsCovered"><a title="Line 501: Conditional coverage 100% (2/2).">&nbsp;3915</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 501: Conditional coverage 100% (2/2).">            <span class="keyword">else</span> <span class="keyword">if</span> (rightMutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;502</td>  <td class="nbHitsCovered">&nbsp;12</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Del del = (Del)rightMutation;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;503</td>  <td class="nbHitsCovered">&nbsp;12</td>  <td class="src"><pre class="src">&nbsp;                tx.mutations.remove(del);                                                   <span class="comment">// will merge into this change</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;504</td>  <td class="nbHitsCovered"><a title="Line 504: Conditional coverage 100% (2/2).">&nbsp;12</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 504: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (KeyRange.compare(del.getMax(), maxKey) &gt; 0)                             <span class="comment">// get higher of the two maxKeys</span></a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;505</td>  <td class="nbHitsCovered">&nbsp;2</td>  <td class="src"><pre class="src">&nbsp;                    maxKey = del.getMax();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;499</td>  <td class="nbHitsCovered"><a title="Line 499: Conditional coverage 100% (2/2).">&nbsp;3802</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 499: Conditional coverage 100% (2/2).">            <span class="keyword">if</span> (rightMutation <span class="keyword">instanceof</span> Put)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;500</td>  <td class="nbHitsCovered">&nbsp;26</td>  <td class="src"><pre class="src">&nbsp;                tx.mutations.remove(rightMutation);                                         <span class="comment">// overwritten by this change</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;501</td>  <td class="nbHitsCovered"><a title="Line 501: Conditional coverage 100% (2/2).">&nbsp;3776</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 501: Conditional coverage 100% (2/2).">            <span class="keyword">else</span> <span class="keyword">if</span> (rightMutation <span class="keyword">instanceof</span> Del) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;502</td>  <td class="nbHitsCovered">&nbsp;11</td>  <td class="src"><pre class="src">&nbsp;                <span class="keyword">final</span> Del del = (Del)rightMutation;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;503</td>  <td class="nbHitsCovered">&nbsp;11</td>  <td class="src"><pre class="src">&nbsp;                tx.mutations.remove(del);                                                   <span class="comment">// will merge into this change</span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;504</td>  <td class="nbHitsCovered"><a title="Line 504: Conditional coverage 100% (2/2).">&nbsp;11</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 504: Conditional coverage 100% (2/2).">                <span class="keyword">if</span> (KeyRange.compare(del.getMax(), maxKey) &gt; 0)                             <span class="comment">// get higher of the two maxKeys</span></a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;505</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;                    maxKey = del.getMax();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;506</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;507</td>  <td class="nbHits">&nbsp;</td>
@@ -865,22 +865,22 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;509</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Remove all mutations in the middle</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;510</td>  <td class="nbHitsUncovered"><a title="Line 510: Conditional coverage 25% (1/4) [each condition: 50%, 0%].">&nbsp;4063</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 510: Conditional coverage 25% (1/4) [each condition: 50%, 0%].">        <span class="keyword">if</span> (originalMinKey == <span class="keyword">null</span> &amp;&amp; originalMaxKey == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;510</td>  <td class="nbHitsUncovered"><a title="Line 510: Conditional coverage 25% (1/4) [each condition: 50%, 0%].">&nbsp;3954</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 510: Conditional coverage 25% (1/4) [each condition: 50%, 0%].">        <span class="keyword">if</span> (originalMinKey == <span class="keyword">null</span> &amp;&amp; originalMaxKey == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;511</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            tx.mutations.clear();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;512</td>  <td class="nbHitsUncovered"><a title="Line 512: Conditional coverage 50% (1/2).">&nbsp;4063</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 512: Conditional coverage 50% (1/2).">        <span class="keyword">else</span> <span class="keyword">if</span> (originalMinKey == <span class="keyword">null</span>)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;512</td>  <td class="nbHitsUncovered"><a title="Line 512: Conditional coverage 50% (1/2).">&nbsp;3954</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 512: Conditional coverage 50% (1/2).">        <span class="keyword">else</span> <span class="keyword">if</span> (originalMinKey == <span class="keyword">null</span>)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;513</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            tx.mutations.headSet(Mutation.key(originalMaxKey)).clear();</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;514</td>  <td class="nbHitsCovered"><a title="Line 514: Conditional coverage 100% (2/2).">&nbsp;4063</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 514: Conditional coverage 100% (2/2).">        <span class="keyword">else</span> <span class="keyword">if</span> (originalMaxKey == <span class="keyword">null</span>)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;515</td>  <td class="nbHitsCovered">&nbsp;123</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.tailSet(Mutation.key(originalMinKey)).clear();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;514</td>  <td class="nbHitsCovered"><a title="Line 514: Conditional coverage 100% (2/2).">&nbsp;3954</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 514: Conditional coverage 100% (2/2).">        <span class="keyword">else</span> <span class="keyword">if</span> (originalMaxKey == <span class="keyword">null</span>)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;515</td>  <td class="nbHitsCovered">&nbsp;152</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.tailSet(Mutation.key(originalMinKey)).clear();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;516</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">else</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;517</td>  <td class="nbHitsCovered">&nbsp;3940</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.subSet(Mutation.key(originalMinKey), Mutation.key(originalMaxKey)).clear();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;517</td>  <td class="nbHitsCovered">&nbsp;3802</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.subSet(Mutation.key(originalMinKey), Mutation.key(originalMaxKey)).clear();</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;518</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;519</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Add write lock and new tx mutation</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;520</td>  <td class="nbHitsCovered">&nbsp;4063</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.getLock(tx, minKey, maxKey, <span class="keyword">true</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;521</td>  <td class="nbHitsCovered">&nbsp;4063</td>  <td class="src"><pre class="src">&nbsp;        tx.mutations.add(<span class="keyword">new</span> Del(minKey, maxKey));</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;522</td>  <td class="nbHitsCovered">&nbsp;4063</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;520</td>  <td class="nbHitsCovered">&nbsp;3954</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.getLock(tx, minKey, maxKey, <span class="keyword">true</span>);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;521</td>  <td class="nbHitsCovered">&nbsp;3954</td>  <td class="src"><pre class="src">&nbsp;        tx.mutations.add(<span class="keyword">new</span> Del(minKey, maxKey));</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;522</td>  <td class="nbHitsCovered">&nbsp;3954</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;523</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;524</td>  <td class="nbHits">&nbsp;</td>
@@ -889,14 +889,14 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;526</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Prevent use after commit() or rollback() invoked</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;527</td>  <td class="nbHitsUncovered"><a title="Line 527: Conditional coverage 50% (1/2).">&nbsp;57889</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 527: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tx.stale)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;527</td>  <td class="nbHitsUncovered"><a title="Line 527: Conditional coverage 50% (1/2).">&nbsp;55075</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 527: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (tx.stale)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;528</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> StaleTransactionException(tx);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;529</td>  <td class="nbHitsCovered">&nbsp;57889</td>  <td class="src"><pre class="src">&nbsp;        tx.stale = <span class="keyword">true</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;529</td>  <td class="nbHitsCovered">&nbsp;55075</td>  <td class="src"><pre class="src">&nbsp;        tx.stale = <span class="keyword">true</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;530</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;531</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Release all locks</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;532</td>  <td class="nbHitsCovered"><a title="Line 532: Conditional coverage 100% (2/2).">&nbsp;57889</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 532: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.lockManager.release(tx.lockOwner)) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;532</td>  <td class="nbHitsCovered"><a title="Line 532: Conditional coverage 100% (2/2).">&nbsp;55075</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 532: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (!<span class="keyword">this</span>.lockManager.release(tx.lockOwner)) {</a></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;533</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> TransactionTimeoutException(tx,</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;534</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;              <span class="string">"transaction taking too long: hold timeout of "</span> + <span class="keyword">this</span>.lockManager.getHoldTimeout() + <span class="string">"ms has expired"</span>);</pre></td></tr>
@@ -906,43 +906,43 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;537</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Check subclass state</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;538</td>  <td class="nbHitsCovered">&nbsp;57888</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;538</td>  <td class="nbHitsCovered">&nbsp;55074</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.checkState(tx);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;539</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;540</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// If there are no mutations, there's no need to write anything</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;541</td>  <td class="nbHitsCovered"><a title="Line 541: Conditional coverage 100% (2/2).">&nbsp;57888</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 541: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (tx.mutations.isEmpty())</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;542</td>  <td class="nbHitsCovered">&nbsp;42435</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;541</td>  <td class="nbHitsCovered"><a title="Line 541: Conditional coverage 100% (2/2).">&nbsp;55074</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 541: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (tx.mutations.isEmpty())</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;542</td>  <td class="nbHitsCovered">&nbsp;39672</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;543</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;544</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Commit mutations</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;545</td>  <td class="nbHitsCovered">&nbsp;15453</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.preCommit(tx);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;546</td>  <td class="nbHitsCovered">&nbsp;15453</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">boolean</span> successful = <span class="keyword">false</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;545</td>  <td class="nbHitsCovered">&nbsp;15402</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.preCommit(tx);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;546</td>  <td class="nbHitsCovered">&nbsp;15402</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">boolean</span> successful = <span class="keyword">false</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;547</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">try</span> {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;548</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;549</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Apply mutations</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;550</td>  <td class="nbHitsCovered"><a title="Line 550: Conditional coverage 100% (2/2).">&nbsp;15453</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 550: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Mutation mutation : tx.mutations)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;551</td>  <td class="nbHitsCovered">&nbsp;30444</td>  <td class="src"><pre class="src">&nbsp;                mutation.apply(<span class="keyword">this</span>.kv);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;552</td>  <td class="nbHitsCovered">&nbsp;15453</td>  <td class="src"><pre class="src">&nbsp;            successful = <span class="keyword">true</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;550</td>  <td class="nbHitsCovered"><a title="Line 550: Conditional coverage 100% (2/2).">&nbsp;15402</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 550: Conditional coverage 100% (2/2).">            <span class="keyword">for</span> (Mutation mutation : tx.mutations)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;551</td>  <td class="nbHitsCovered">&nbsp;30337</td>  <td class="src"><pre class="src">&nbsp;                mutation.apply(<span class="keyword">this</span>.kv);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;552</td>  <td class="nbHitsCovered">&nbsp;15402</td>  <td class="src"><pre class="src">&nbsp;            successful = <span class="keyword">true</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;553</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;554</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Trigger key watches</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;555</td>  <td class="nbHitsUncovered"><a title="Line 555: Conditional coverage 50% (1/2).">&nbsp;15453</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 555: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (<span class="keyword">this</span>.keyWatchTracker.getNumKeysWatched() &gt; 0) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;555</td>  <td class="nbHitsUncovered"><a title="Line 555: Conditional coverage 50% (1/2).">&nbsp;15402</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 555: Conditional coverage 50% (1/2).">            <span class="keyword">if</span> (<span class="keyword">this</span>.keyWatchTracker.getNumKeysWatched() &gt; 0) {</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;556</td>  <td class="nbHitsUncovered"><a title="Line 556: Conditional coverage 0% (0/2).">&nbsp;0</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 556: Conditional coverage 0% (0/2).">                <span class="keyword">for</span> (Mutation mutation : tx.mutations)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;557</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;                    mutation.trigger(<span class="keyword">this</span>.keyWatchTracker);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;558</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;559</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        } <span class="keyword">finally</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;560</td>  <td class="nbHitsCovered">&nbsp;15453</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.clear();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;561</td>  <td class="nbHitsCovered">&nbsp;15453</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.postCommit(tx, successful);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;562</td>  <td class="nbHitsCovered">&nbsp;15453</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;563</td>  <td class="nbHitsCovered">&nbsp;15453</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;560</td>  <td class="nbHitsCovered">&nbsp;15402</td>  <td class="src"><pre class="src">&nbsp;            tx.mutations.clear();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;561</td>  <td class="nbHitsCovered">&nbsp;15402</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.postCommit(tx, successful);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;562</td>  <td class="nbHitsCovered">&nbsp;15402</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;563</td>  <td class="nbHitsCovered">&nbsp;15402</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;564</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;565</td>  <td class="nbHits">&nbsp;</td>
@@ -951,15 +951,15 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;567</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Prevent use after commit() or rollback() invoked</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;568</td>  <td class="nbHitsCovered"><a title="Line 568: Conditional coverage 100% (2/2).">&nbsp;60416</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 568: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (tx.stale)</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;569</td>  <td class="nbHitsCovered">&nbsp;59539</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;570</td>  <td class="nbHitsCovered">&nbsp;877</td>  <td class="src"><pre class="src">&nbsp;        tx.stale = <span class="keyword">true</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;568</td>  <td class="nbHitsCovered"><a title="Line 568: Conditional coverage 100% (2/2).">&nbsp;57685</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 568: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> (tx.stale)</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;569</td>  <td class="nbHitsCovered">&nbsp;56779</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">return</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;570</td>  <td class="nbHitsCovered">&nbsp;906</td>  <td class="src"><pre class="src">&nbsp;        tx.stale = <span class="keyword">true</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;571</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;572</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Release all locks</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;573</td>  <td class="nbHitsCovered">&nbsp;877</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.lockManager.release(tx.lockOwner);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;574</td>  <td class="nbHitsCovered">&nbsp;877</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;573</td>  <td class="nbHitsCovered">&nbsp;906</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.lockManager.release(tx.lockOwner);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;574</td>  <td class="nbHitsCovered">&nbsp;906</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;575</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;576</td>  <td class="nbHits">&nbsp;</td>
@@ -976,20 +976,20 @@
   <td class="src"><pre class="src">&nbsp;        LockManager.LockResult lockResult;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;582</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">try</span> {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;583</td>  <td class="nbHitsCovered">&nbsp;265509</td>  <td class="src"><pre class="src">&nbsp;            lockResult = <span class="keyword">this</span>.lockManager.lock(tx.lockOwner, minKey, maxKey, write, tx.waitTimeout);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;583</td>  <td class="nbHitsCovered">&nbsp;288435</td>  <td class="src"><pre class="src">&nbsp;            lockResult = <span class="keyword">this</span>.lockManager.lock(tx.lockOwner, minKey, maxKey, write, tx.waitTimeout);</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;584</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;        } <span class="keyword">catch</span> (InterruptedException e) {</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;585</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">this</span>.rollback(tx);</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;586</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            Thread.currentThread().interrupt();</span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;587</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> RetryTransactionException(tx, <span class="string">"transaction interrupted while waiting to acquire lock"</span>, e);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;588</td>  <td class="nbHitsCovered">&nbsp;265509</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;588</td>  <td class="nbHitsCovered">&nbsp;288435</td>  <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;589</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;590</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Check result</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;591</td>  <td class="nbHitsUncovered"><a title="Line 591: Conditional coverage 66% (2/3).">&nbsp;265509</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 591: Conditional coverage 66% (2/3).">        <span class="keyword">switch</span> (lockResult) {</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;591</td>  <td class="nbHitsUncovered"><a title="Line 591: Conditional coverage 66% (2/3).">&nbsp;288435</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 591: Conditional coverage 66% (2/3).">        <span class="keyword">switch</span> (lockResult) {</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;592</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">case</span> SUCCESS:</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;593</td>  <td class="nbHitsCovered">&nbsp;265508</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">break</span>;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;593</td>  <td class="nbHitsCovered">&nbsp;288434</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">break</span>;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;594</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="keyword">case</span> WAIT_TIMEOUT_EXPIRED:</pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;595</td>  <td class="nbHitsCovered">&nbsp;1</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.rollback(tx);</pre></td></tr>
@@ -1005,13 +1005,13 @@
 <tr>  <td class="numLineCover">&nbsp;602</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"internal error"</span>);</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;603</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;604</td>  <td class="nbHitsCovered">&nbsp;265508</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;604</td>  <td class="nbHitsCovered">&nbsp;288434</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;605</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;}</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;606</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 7/9/15 7:46 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 7/16/15 10:02 PM.</div>
 </body>
 </html>
