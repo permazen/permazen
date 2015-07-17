@@ -405,7 +405,7 @@ public class OnVersionChangeTest extends TestSupport {
 // Version 4
 
     @JSimpleClass(storageId = 100, autogenFields = false)
-    public abstract static class Person4 implements JObject, HasName {
+    public abstract static class Person4 implements JObject {
 
         @JField(storageId = 105)
         @NotNull
