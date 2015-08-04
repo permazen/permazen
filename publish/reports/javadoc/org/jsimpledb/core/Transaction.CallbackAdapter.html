@@ -102,7 +102,7 @@
 </dl>
 <hr>
 <br>
-<pre>public static class <a href="../../../src-html/org/jsimpledb/core/Transaction.html#line.2806">Transaction.CallbackAdapter</a>
+<pre>public static class <a href="../../../src-html/org/jsimpledb/core/Transaction.html#line.2812">Transaction.CallbackAdapter</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a></pre>
 <div class="block">Adapter class for <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a>.
@@ -197,7 +197,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Transaction.CallbackAdapter</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2806">Transaction.CallbackAdapter</a>()</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2812">Transaction.CallbackAdapter</a>()</pre>
 </li>
 </ul>
 </li>
@@ -214,7 +214,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
 <ul class="blockList">
 <li class="blockList">
 <h4>beforeCommit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2809">beforeCommit</a>(boolean&nbsp;readOnly)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2815">beforeCommit</a>(boolean&nbsp;readOnly)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.Callback.html#beforeCommit(boolean)">Transaction.Callback</a></code></strong></div>
 <div class="block">Invoked before transaction commit (and before <a href="../../../org/jsimpledb/core/Transaction.Callback.html#beforeCompletion()"><code>Transaction.Callback.beforeCompletion()</code></a>).
  This method is invoked when a transaction is intended to be committed; it may however still be rolled back.
@@ -234,7 +234,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
 <ul class="blockList">
 <li class="blockList">
 <h4>beforeCompletion</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2813">beforeCompletion</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2819">beforeCompletion</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.Callback.html#beforeCompletion()">Transaction.Callback</a></code></strong></div>
 <div class="block">Invoked before transaction completion in any case (but after any <a href="../../../org/jsimpledb/core/Transaction.Callback.html#beforeCommit(boolean)"><code>beforeCommit()</code></a>).
  This method is invoked whether the transaction is going to be committed or rolled back,
@@ -256,7 +256,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
 <ul class="blockList">
 <li class="blockList">
 <h4>afterCommit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2817">afterCommit</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2823">afterCommit</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.Callback.html#afterCommit()">Transaction.Callback</a></code></strong></div>
 <div class="block">Invoked after successful transaction commit (and before <a href="../../../org/jsimpledb/core/Transaction.Callback.html#afterCompletion(boolean)"><code>afterCompletion()</code></a>).
 
@@ -275,7 +275,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
 <ul class="blockListLast">
 <li class="blockList">
 <h4>afterCompletion</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2821">afterCompletion</a>(boolean&nbsp;committed)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/Transaction.CallbackAdapter.html#line.2827">afterCompletion</a>(boolean&nbsp;committed)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.Callback.html#afterCompletion(boolean)">Transaction.Callback</a></code></strong></div>
 <div class="block">Invoked after transaction completion (but after any <a href="../../../org/jsimpledb/core/Transaction.Callback.html#afterCommit()"><code>Transaction.Callback.afterCommit()</code></a>).
  This method is invoked in any case, whether the transaction was committed or rolled back.

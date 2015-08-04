@@ -705,8 +705,8 @@
 <span class="sourceLineNo">697</span>            }<a name="line.697"></a>
 <span class="sourceLineNo">698</span>        } else {<a name="line.698"></a>
 <span class="sourceLineNo">699</span><a name="line.699"></a>
-<span class="sourceLineNo">700</span>            // Don't commit a new config change while there is any previous config change outstanding<a name="line.700"></a>
-<span class="sourceLineNo">701</span>            if (tx.getConfigChange() != null &amp;&amp; this.isConfigChangeOutstanding())<a name="line.701"></a>
+<span class="sourceLineNo">700</span>            // If a config change is involved, check whether we can safely apply it<a name="line.700"></a>
+<span class="sourceLineNo">701</span>            if (tx.getConfigChange() != null &amp;&amp; !this.mayApplyNewConfigChange())<a name="line.701"></a>
 <span class="sourceLineNo">702</span>                return;<a name="line.702"></a>
 <span class="sourceLineNo">703</span><a name="line.703"></a>
 <span class="sourceLineNo">704</span>            // Commit transaction as a new log entry<a name="line.704"></a>
@@ -724,367 +724,377 @@
 <span class="sourceLineNo">716</span>        }<a name="line.716"></a>
 <span class="sourceLineNo">717</span>    }<a name="line.717"></a>
 <span class="sourceLineNo">718</span><a name="line.718"></a>
-<span class="sourceLineNo">719</span>    private boolean isConfigChangeOutstanding() {<a name="line.719"></a>
-<span class="sourceLineNo">720</span>        for (int i = (int)(this.raft.commitIndex - this.raft.lastAppliedIndex) + 1; i &lt; this.raft.raftLog.size(); i++) {<a name="line.720"></a>
-<span class="sourceLineNo">721</span>            if (this.raft.raftLog.get(i).getConfigChange() != null)<a name="line.721"></a>
-<span class="sourceLineNo">722</span>                return true;<a name="line.722"></a>
-<span class="sourceLineNo">723</span>        }<a name="line.723"></a>
-<span class="sourceLineNo">724</span>        return false;<a name="line.724"></a>
-<span class="sourceLineNo">725</span>    }<a name="line.725"></a>
+<span class="sourceLineNo">719</span>    // Determine whether it's safe to append a log entry with a configuration change<a name="line.719"></a>
+<span class="sourceLineNo">720</span>    private boolean mayApplyNewConfigChange() {<a name="line.720"></a>
+<span class="sourceLineNo">721</span><a name="line.721"></a>
+<span class="sourceLineNo">722</span>        // Rule #1: this leader must have committed at least one log entry in this term<a name="line.722"></a>
+<span class="sourceLineNo">723</span>        assert this.raft.commitIndex &gt;= this.raft.lastAppliedIndex;<a name="line.723"></a>
+<span class="sourceLineNo">724</span>        if (this.raft.getLogTermAtIndex(this.raft.commitIndex) &lt; this.raft.currentTerm)<a name="line.724"></a>
+<span class="sourceLineNo">725</span>            return false;<a name="line.725"></a>
 <span class="sourceLineNo">726</span><a name="line.726"></a>
-<span class="sourceLineNo">727</span>// Message<a name="line.727"></a>
-<span class="sourceLineNo">728</span><a name="line.728"></a>
-<span class="sourceLineNo">729</span>    @Override<a name="line.729"></a>
-<span class="sourceLineNo">730</span>    void caseAppendRequest(AppendRequest msg) {<a name="line.730"></a>
-<span class="sourceLineNo">731</span>        this.failDuplicateLeader(msg);<a name="line.731"></a>
-<span class="sourceLineNo">732</span>    }<a name="line.732"></a>
-<span class="sourceLineNo">733</span><a name="line.733"></a>
-<span class="sourceLineNo">734</span>    @Override<a name="line.734"></a>
-<span class="sourceLineNo">735</span>    void caseAppendResponse(AppendResponse msg) {<a name="line.735"></a>
+<span class="sourceLineNo">727</span>        // Rule #2: there must be no previous config change that is still uncommitted<a name="line.727"></a>
+<span class="sourceLineNo">728</span>        for (int i = (int)(this.raft.commitIndex - this.raft.lastAppliedIndex) + 1; i &lt; this.raft.raftLog.size(); i++) {<a name="line.728"></a>
+<span class="sourceLineNo">729</span>            if (this.raft.raftLog.get(i).getConfigChange() != null)<a name="line.729"></a>
+<span class="sourceLineNo">730</span>                return false;<a name="line.730"></a>
+<span class="sourceLineNo">731</span>        }<a name="line.731"></a>
+<span class="sourceLineNo">732</span><a name="line.732"></a>
+<span class="sourceLineNo">733</span>        // OK<a name="line.733"></a>
+<span class="sourceLineNo">734</span>        return true;<a name="line.734"></a>
+<span class="sourceLineNo">735</span>    }<a name="line.735"></a>
 <span class="sourceLineNo">736</span><a name="line.736"></a>
-<span class="sourceLineNo">737</span>        // Find follower<a name="line.737"></a>
-<span class="sourceLineNo">738</span>        final Follower follower = this.findFollower(msg);<a name="line.738"></a>
-<span class="sourceLineNo">739</span>        if (follower == null)<a name="line.739"></a>
-<span class="sourceLineNo">740</span>            return;<a name="line.740"></a>
-<span class="sourceLineNo">741</span><a name="line.741"></a>
-<span class="sourceLineNo">742</span>        // Update follower's last rec'd leader timestamp<a name="line.742"></a>
-<span class="sourceLineNo">743</span>        if (follower.getLeaderTimestamp() == null || msg.getLeaderTimestamp().compareTo(follower.getLeaderTimestamp()) &gt; 0) {<a name="line.743"></a>
-<span class="sourceLineNo">744</span>            follower.setLeaderTimestamp(msg.getLeaderTimestamp());<a name="line.744"></a>
-<span class="sourceLineNo">745</span>            this.raft.requestService(this.updateLeaseTimeoutService);<a name="line.745"></a>
-<span class="sourceLineNo">746</span>        }<a name="line.746"></a>
-<span class="sourceLineNo">747</span><a name="line.747"></a>
-<span class="sourceLineNo">748</span>        // Ignore if a snapshot install is in progress<a name="line.748"></a>
-<span class="sourceLineNo">749</span>        if (follower.getSnapshotTransmit() != null) {<a name="line.749"></a>
-<span class="sourceLineNo">750</span>            if (this.log.isTraceEnabled())<a name="line.750"></a>
-<span class="sourceLineNo">751</span>                this.trace("rec'd " + msg + " while sending snapshot install; ignoring");<a name="line.751"></a>
-<span class="sourceLineNo">752</span>            return;<a name="line.752"></a>
-<span class="sourceLineNo">753</span>        }<a name="line.753"></a>
-<span class="sourceLineNo">754</span><a name="line.754"></a>
-<span class="sourceLineNo">755</span>        // Flag indicating we might want to update follower when done<a name="line.755"></a>
-<span class="sourceLineNo">756</span>        boolean updateFollowerAgain = false;<a name="line.756"></a>
+<span class="sourceLineNo">737</span>// Message<a name="line.737"></a>
+<span class="sourceLineNo">738</span><a name="line.738"></a>
+<span class="sourceLineNo">739</span>    @Override<a name="line.739"></a>
+<span class="sourceLineNo">740</span>    void caseAppendRequest(AppendRequest msg) {<a name="line.740"></a>
+<span class="sourceLineNo">741</span>        this.failDuplicateLeader(msg);<a name="line.741"></a>
+<span class="sourceLineNo">742</span>    }<a name="line.742"></a>
+<span class="sourceLineNo">743</span><a name="line.743"></a>
+<span class="sourceLineNo">744</span>    @Override<a name="line.744"></a>
+<span class="sourceLineNo">745</span>    void caseAppendResponse(AppendResponse msg) {<a name="line.745"></a>
+<span class="sourceLineNo">746</span><a name="line.746"></a>
+<span class="sourceLineNo">747</span>        // Find follower<a name="line.747"></a>
+<span class="sourceLineNo">748</span>        final Follower follower = this.findFollower(msg);<a name="line.748"></a>
+<span class="sourceLineNo">749</span>        if (follower == null)<a name="line.749"></a>
+<span class="sourceLineNo">750</span>            return;<a name="line.750"></a>
+<span class="sourceLineNo">751</span><a name="line.751"></a>
+<span class="sourceLineNo">752</span>        // Update follower's last rec'd leader timestamp<a name="line.752"></a>
+<span class="sourceLineNo">753</span>        if (follower.getLeaderTimestamp() == null || msg.getLeaderTimestamp().compareTo(follower.getLeaderTimestamp()) &gt; 0) {<a name="line.753"></a>
+<span class="sourceLineNo">754</span>            follower.setLeaderTimestamp(msg.getLeaderTimestamp());<a name="line.754"></a>
+<span class="sourceLineNo">755</span>            this.raft.requestService(this.updateLeaseTimeoutService);<a name="line.755"></a>
+<span class="sourceLineNo">756</span>        }<a name="line.756"></a>
 <span class="sourceLineNo">757</span><a name="line.757"></a>
-<span class="sourceLineNo">758</span>        // Update follower's match index<a name="line.758"></a>
-<span class="sourceLineNo">759</span>        if (msg.getMatchIndex() &gt; follower.getMatchIndex()) {<a name="line.759"></a>
-<span class="sourceLineNo">760</span>            follower.setMatchIndex(msg.getMatchIndex());<a name="line.760"></a>
-<span class="sourceLineNo">761</span>            this.raft.requestService(this.updateLeaderCommitIndexService);<a name="line.761"></a>
-<span class="sourceLineNo">762</span>            this.raft.requestService(this.applyCommittedLogEntriesService);<a name="line.762"></a>
-<span class="sourceLineNo">763</span>            if (!this.raft.isClusterMember(follower.getIdentity()))<a name="line.763"></a>
-<span class="sourceLineNo">764</span>                this.raft.requestService(this.updateKnownFollowersService);<a name="line.764"></a>
-<span class="sourceLineNo">765</span>        }<a name="line.765"></a>
-<span class="sourceLineNo">766</span><a name="line.766"></a>
-<span class="sourceLineNo">767</span>        // Check result and update follower's next index<a name="line.767"></a>
-<span class="sourceLineNo">768</span>        final boolean wasSynced = follower.isSynced();<a name="line.768"></a>
-<span class="sourceLineNo">769</span>        final long previousNextIndex = follower.getNextIndex();<a name="line.769"></a>
-<span class="sourceLineNo">770</span>        if (!msg.isSuccess())<a name="line.770"></a>
-<span class="sourceLineNo">771</span>            follower.setNextIndex(Math.max(follower.getNextIndex() - 1, 1));<a name="line.771"></a>
-<span class="sourceLineNo">772</span>        follower.setSynced(msg.isSuccess());<a name="line.772"></a>
-<span class="sourceLineNo">773</span>        if (follower.isSynced() != wasSynced) {<a name="line.773"></a>
-<span class="sourceLineNo">774</span>            if (this.log.isDebugEnabled()) {<a name="line.774"></a>
-<span class="sourceLineNo">775</span>                this.debug("sync status of \"" + follower.getIdentity() + "\" changed -&gt; "<a name="line.775"></a>
-<span class="sourceLineNo">776</span>                  + (!follower.isSynced() ? "not " : "") + "synced");<a name="line.776"></a>
-<span class="sourceLineNo">777</span>            }<a name="line.777"></a>
-<span class="sourceLineNo">778</span>            updateFollowerAgain = true;<a name="line.778"></a>
-<span class="sourceLineNo">779</span>        }<a name="line.779"></a>
-<span class="sourceLineNo">780</span><a name="line.780"></a>
-<span class="sourceLineNo">781</span>        // Use follower's match index as a lower bound on follower's next index.<a name="line.781"></a>
-<span class="sourceLineNo">782</span>        follower.setNextIndex(Math.max(follower.getNextIndex(), follower.getMatchIndex() + 1));<a name="line.782"></a>
-<span class="sourceLineNo">783</span><a name="line.783"></a>
-<span class="sourceLineNo">784</span>        // Use follower's last log index as an upper bound on follower's next index.<a name="line.784"></a>
-<span class="sourceLineNo">785</span>        follower.setNextIndex(Math.min(msg.getLastLogIndex() + 1, follower.getNextIndex()));<a name="line.785"></a>
-<span class="sourceLineNo">786</span><a name="line.786"></a>
-<span class="sourceLineNo">787</span>        // Update follower again if next index has changed<a name="line.787"></a>
-<span class="sourceLineNo">788</span>        updateFollowerAgain |= follower.getNextIndex() != previousNextIndex;<a name="line.788"></a>
-<span class="sourceLineNo">789</span><a name="line.789"></a>
-<span class="sourceLineNo">790</span>        // Debug<a name="line.790"></a>
-<span class="sourceLineNo">791</span>        if (this.log.isTraceEnabled())<a name="line.791"></a>
-<span class="sourceLineNo">792</span>            this.trace("updated follower: " + follower + ", update again = " + updateFollowerAgain);<a name="line.792"></a>
+<span class="sourceLineNo">758</span>        // Ignore if a snapshot install is in progress<a name="line.758"></a>
+<span class="sourceLineNo">759</span>        if (follower.getSnapshotTransmit() != null) {<a name="line.759"></a>
+<span class="sourceLineNo">760</span>            if (this.log.isTraceEnabled())<a name="line.760"></a>
+<span class="sourceLineNo">761</span>                this.trace("rec'd " + msg + " while sending snapshot install; ignoring");<a name="line.761"></a>
+<span class="sourceLineNo">762</span>            return;<a name="line.762"></a>
+<span class="sourceLineNo">763</span>        }<a name="line.763"></a>
+<span class="sourceLineNo">764</span><a name="line.764"></a>
+<span class="sourceLineNo">765</span>        // Flag indicating we might want to update follower when done<a name="line.765"></a>
+<span class="sourceLineNo">766</span>        boolean updateFollowerAgain = false;<a name="line.766"></a>
+<span class="sourceLineNo">767</span><a name="line.767"></a>
+<span class="sourceLineNo">768</span>        // Update follower's match index<a name="line.768"></a>
+<span class="sourceLineNo">769</span>        if (msg.getMatchIndex() &gt; follower.getMatchIndex()) {<a name="line.769"></a>
+<span class="sourceLineNo">770</span>            follower.setMatchIndex(msg.getMatchIndex());<a name="line.770"></a>
+<span class="sourceLineNo">771</span>            this.raft.requestService(this.updateLeaderCommitIndexService);<a name="line.771"></a>
+<span class="sourceLineNo">772</span>            this.raft.requestService(this.applyCommittedLogEntriesService);<a name="line.772"></a>
+<span class="sourceLineNo">773</span>            if (!this.raft.isClusterMember(follower.getIdentity()))<a name="line.773"></a>
+<span class="sourceLineNo">774</span>                this.raft.requestService(this.updateKnownFollowersService);<a name="line.774"></a>
+<span class="sourceLineNo">775</span>        }<a name="line.775"></a>
+<span class="sourceLineNo">776</span><a name="line.776"></a>
+<span class="sourceLineNo">777</span>        // Check result and update follower's next index<a name="line.777"></a>
+<span class="sourceLineNo">778</span>        final boolean wasSynced = follower.isSynced();<a name="line.778"></a>
+<span class="sourceLineNo">779</span>        final long previousNextIndex = follower.getNextIndex();<a name="line.779"></a>
+<span class="sourceLineNo">780</span>        if (!msg.isSuccess())<a name="line.780"></a>
+<span class="sourceLineNo">781</span>            follower.setNextIndex(Math.max(follower.getNextIndex() - 1, 1));<a name="line.781"></a>
+<span class="sourceLineNo">782</span>        follower.setSynced(msg.isSuccess());<a name="line.782"></a>
+<span class="sourceLineNo">783</span>        if (follower.isSynced() != wasSynced) {<a name="line.783"></a>
+<span class="sourceLineNo">784</span>            if (this.log.isDebugEnabled()) {<a name="line.784"></a>
+<span class="sourceLineNo">785</span>                this.debug("sync status of \"" + follower.getIdentity() + "\" changed -&gt; "<a name="line.785"></a>
+<span class="sourceLineNo">786</span>                  + (!follower.isSynced() ? "not " : "") + "synced");<a name="line.786"></a>
+<span class="sourceLineNo">787</span>            }<a name="line.787"></a>
+<span class="sourceLineNo">788</span>            updateFollowerAgain = true;<a name="line.788"></a>
+<span class="sourceLineNo">789</span>        }<a name="line.789"></a>
+<span class="sourceLineNo">790</span><a name="line.790"></a>
+<span class="sourceLineNo">791</span>        // Use follower's match index as a lower bound on follower's next index.<a name="line.791"></a>
+<span class="sourceLineNo">792</span>        follower.setNextIndex(Math.max(follower.getNextIndex(), follower.getMatchIndex() + 1));<a name="line.792"></a>
 <span class="sourceLineNo">793</span><a name="line.793"></a>
-<span class="sourceLineNo">794</span>        // Immediately update follower again (if appropriate)<a name="line.794"></a>
-<span class="sourceLineNo">795</span>        if (updateFollowerAgain)<a name="line.795"></a>
-<span class="sourceLineNo">796</span>            this.raft.requestService(new UpdateFollowerService(follower));<a name="line.796"></a>
-<span class="sourceLineNo">797</span>    }<a name="line.797"></a>
-<span class="sourceLineNo">798</span><a name="line.798"></a>
-<span class="sourceLineNo">799</span>    @Override<a name="line.799"></a>
-<span class="sourceLineNo">800</span>    void caseCommitRequest(CommitRequest msg) {<a name="line.800"></a>
-<span class="sourceLineNo">801</span><a name="line.801"></a>
-<span class="sourceLineNo">802</span>        // Find follower<a name="line.802"></a>
-<span class="sourceLineNo">803</span>        final Follower follower = this.findFollower(msg);<a name="line.803"></a>
-<span class="sourceLineNo">804</span>        if (follower == null)<a name="line.804"></a>
-<span class="sourceLineNo">805</span>            return;<a name="line.805"></a>
-<span class="sourceLineNo">806</span><a name="line.806"></a>
-<span class="sourceLineNo">807</span>        // Decode reads, if any, and check for conflicts<a name="line.807"></a>
-<span class="sourceLineNo">808</span>        final ByteBuffer readsData = msg.getReadsData();<a name="line.808"></a>
-<span class="sourceLineNo">809</span>        if (readsData != null) {<a name="line.809"></a>
-<span class="sourceLineNo">810</span><a name="line.810"></a>
-<span class="sourceLineNo">811</span>            // Decode reads<a name="line.811"></a>
-<span class="sourceLineNo">812</span>            final Reads reads;<a name="line.812"></a>
-<span class="sourceLineNo">813</span>            try {<a name="line.813"></a>
-<span class="sourceLineNo">814</span>                reads = Reads.deserialize(new ByteBufferInputStream(msg.getReadsData()));<a name="line.814"></a>
-<span class="sourceLineNo">815</span>            } catch (Exception e) {<a name="line.815"></a>
-<span class="sourceLineNo">816</span>                this.error("error decoding reads data in " + msg, e);<a name="line.816"></a>
-<span class="sourceLineNo">817</span>                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.817"></a>
-<span class="sourceLineNo">818</span>                  this.raft.currentTerm, msg.getTxId(), "error decoding reads data: " + e));<a name="line.818"></a>
-<span class="sourceLineNo">819</span>                return;<a name="line.819"></a>
-<span class="sourceLineNo">820</span>            }<a name="line.820"></a>
-<span class="sourceLineNo">821</span><a name="line.821"></a>
-<span class="sourceLineNo">822</span>            // Check for conflict<a name="line.822"></a>
-<span class="sourceLineNo">823</span>            final String conflictMsg = this.checkConflicts(msg.getBaseTerm(), msg.getBaseIndex(), reads);<a name="line.823"></a>
-<span class="sourceLineNo">824</span>            if (conflictMsg != null) {<a name="line.824"></a>
-<span class="sourceLineNo">825</span>                if (this.log.isDebugEnabled())<a name="line.825"></a>
-<span class="sourceLineNo">826</span>                    this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);<a name="line.826"></a>
+<span class="sourceLineNo">794</span>        // Use follower's last log index as an upper bound on follower's next index.<a name="line.794"></a>
+<span class="sourceLineNo">795</span>        follower.setNextIndex(Math.min(msg.getLastLogIndex() + 1, follower.getNextIndex()));<a name="line.795"></a>
+<span class="sourceLineNo">796</span><a name="line.796"></a>
+<span class="sourceLineNo">797</span>        // Update follower again if next index has changed<a name="line.797"></a>
+<span class="sourceLineNo">798</span>        updateFollowerAgain |= follower.getNextIndex() != previousNextIndex;<a name="line.798"></a>
+<span class="sourceLineNo">799</span><a name="line.799"></a>
+<span class="sourceLineNo">800</span>        // Debug<a name="line.800"></a>
+<span class="sourceLineNo">801</span>        if (this.log.isTraceEnabled())<a name="line.801"></a>
+<span class="sourceLineNo">802</span>            this.trace("updated follower: " + follower + ", update again = " + updateFollowerAgain);<a name="line.802"></a>
+<span class="sourceLineNo">803</span><a name="line.803"></a>
+<span class="sourceLineNo">804</span>        // Immediately update follower again (if appropriate)<a name="line.804"></a>
+<span class="sourceLineNo">805</span>        if (updateFollowerAgain)<a name="line.805"></a>
+<span class="sourceLineNo">806</span>            this.raft.requestService(new UpdateFollowerService(follower));<a name="line.806"></a>
+<span class="sourceLineNo">807</span>    }<a name="line.807"></a>
+<span class="sourceLineNo">808</span><a name="line.808"></a>
+<span class="sourceLineNo">809</span>    @Override<a name="line.809"></a>
+<span class="sourceLineNo">810</span>    void caseCommitRequest(CommitRequest msg) {<a name="line.810"></a>
+<span class="sourceLineNo">811</span><a name="line.811"></a>
+<span class="sourceLineNo">812</span>        // Find follower<a name="line.812"></a>
+<span class="sourceLineNo">813</span>        final Follower follower = this.findFollower(msg);<a name="line.813"></a>
+<span class="sourceLineNo">814</span>        if (follower == null)<a name="line.814"></a>
+<span class="sourceLineNo">815</span>            return;<a name="line.815"></a>
+<span class="sourceLineNo">816</span><a name="line.816"></a>
+<span class="sourceLineNo">817</span>        // Decode reads, if any, and check for conflicts<a name="line.817"></a>
+<span class="sourceLineNo">818</span>        final ByteBuffer readsData = msg.getReadsData();<a name="line.818"></a>
+<span class="sourceLineNo">819</span>        if (readsData != null) {<a name="line.819"></a>
+<span class="sourceLineNo">820</span><a name="line.820"></a>
+<span class="sourceLineNo">821</span>            // Decode reads<a name="line.821"></a>
+<span class="sourceLineNo">822</span>            final Reads reads;<a name="line.822"></a>
+<span class="sourceLineNo">823</span>            try {<a name="line.823"></a>
+<span class="sourceLineNo">824</span>                reads = Reads.deserialize(new ByteBufferInputStream(msg.getReadsData()));<a name="line.824"></a>
+<span class="sourceLineNo">825</span>            } catch (Exception e) {<a name="line.825"></a>
+<span class="sourceLineNo">826</span>                this.error("error decoding reads data in " + msg, e);<a name="line.826"></a>
 <span class="sourceLineNo">827</span>                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.827"></a>
-<span class="sourceLineNo">828</span>                  this.raft.currentTerm, msg.getTxId(), conflictMsg));<a name="line.828"></a>
+<span class="sourceLineNo">828</span>                  this.raft.currentTerm, msg.getTxId(), "error decoding reads data: " + e));<a name="line.828"></a>
 <span class="sourceLineNo">829</span>                return;<a name="line.829"></a>
 <span class="sourceLineNo">830</span>            }<a name="line.830"></a>
-<span class="sourceLineNo">831</span>        }<a name="line.831"></a>
-<span class="sourceLineNo">832</span><a name="line.832"></a>
-<span class="sourceLineNo">833</span>        // Handle read-only vs. read-write transaction<a name="line.833"></a>
-<span class="sourceLineNo">834</span>        if (msg.isReadOnly()) {<a name="line.834"></a>
-<span class="sourceLineNo">835</span><a name="line.835"></a>
-<span class="sourceLineNo">836</span>            // Get current time<a name="line.836"></a>
-<span class="sourceLineNo">837</span>            final Timestamp minimumLeaseTimeout = new Timestamp();<a name="line.837"></a>
-<span class="sourceLineNo">838</span><a name="line.838"></a>
-<span class="sourceLineNo">839</span>            // The follower may commit as soon as it sees the transaction's BASE log entry get committed.<a name="line.839"></a>
-<span class="sourceLineNo">840</span>            // Note, we don't need to wait for any subsequent log entries to be committed, because if they<a name="line.840"></a>
-<span class="sourceLineNo">841</span>            // are committed they are invisible to the transaction, and if they aren't ever committed then<a name="line.841"></a>
-<span class="sourceLineNo">842</span>            // whatever log entries replace them will necessarily have been created sometime after now.<a name="line.842"></a>
-<span class="sourceLineNo">843</span>            final CommitResponse response;<a name="line.843"></a>
-<span class="sourceLineNo">844</span>            if (this.leaseTimeout != null &amp;&amp; this.leaseTimeout.compareTo(minimumLeaseTimeout) &gt; 0) {<a name="line.844"></a>
+<span class="sourceLineNo">831</span><a name="line.831"></a>
+<span class="sourceLineNo">832</span>            // Check for conflict<a name="line.832"></a>
+<span class="sourceLineNo">833</span>            final String conflictMsg = this.checkConflicts(msg.getBaseTerm(), msg.getBaseIndex(), reads);<a name="line.833"></a>
+<span class="sourceLineNo">834</span>            if (conflictMsg != null) {<a name="line.834"></a>
+<span class="sourceLineNo">835</span>                if (this.log.isDebugEnabled())<a name="line.835"></a>
+<span class="sourceLineNo">836</span>                    this.debug("commit request " + msg + " failed due to conflict: " + conflictMsg);<a name="line.836"></a>
+<span class="sourceLineNo">837</span>                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.837"></a>
+<span class="sourceLineNo">838</span>                  this.raft.currentTerm, msg.getTxId(), conflictMsg));<a name="line.838"></a>
+<span class="sourceLineNo">839</span>                return;<a name="line.839"></a>
+<span class="sourceLineNo">840</span>            }<a name="line.840"></a>
+<span class="sourceLineNo">841</span>        }<a name="line.841"></a>
+<span class="sourceLineNo">842</span><a name="line.842"></a>
+<span class="sourceLineNo">843</span>        // Handle read-only vs. read-write transaction<a name="line.843"></a>
+<span class="sourceLineNo">844</span>        if (msg.isReadOnly()) {<a name="line.844"></a>
 <span class="sourceLineNo">845</span><a name="line.845"></a>
-<span class="sourceLineNo">846</span>                // No other leader could have been elected yet as of right now, so the transaction can commit immediately<a name="line.846"></a>
-<span class="sourceLineNo">847</span>                response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.847"></a>
-<span class="sourceLineNo">848</span>                  this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex());<a name="line.848"></a>
-<span class="sourceLineNo">849</span>            } else {<a name="line.849"></a>
-<span class="sourceLineNo">850</span><a name="line.850"></a>
-<span class="sourceLineNo">851</span>                // Remember that this follower is now going to be waiting for this particular leaseTimeout<a name="line.851"></a>
-<span class="sourceLineNo">852</span>                follower.getCommitLeaseTimeouts().add(minimumLeaseTimeout);<a name="line.852"></a>
-<span class="sourceLineNo">853</span><a name="line.853"></a>
-<span class="sourceLineNo">854</span>                // Send immediate probes to all (up-to-date) followers in an attempt to increase our leaseTimeout quickly<a name="line.854"></a>
-<span class="sourceLineNo">855</span>                this.updateAllSynchronizedFollowersNow();<a name="line.855"></a>
-<span class="sourceLineNo">856</span><a name="line.856"></a>
-<span class="sourceLineNo">857</span>                // Build response<a name="line.857"></a>
-<span class="sourceLineNo">858</span>                response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.858"></a>
-<span class="sourceLineNo">859</span>                  this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex(), minimumLeaseTimeout);<a name="line.859"></a>
-<span class="sourceLineNo">860</span>            }<a name="line.860"></a>
-<span class="sourceLineNo">861</span><a name="line.861"></a>
-<span class="sourceLineNo">862</span>            // Send response<a name="line.862"></a>
-<span class="sourceLineNo">863</span>            this.raft.sendMessage(response);<a name="line.863"></a>
-<span class="sourceLineNo">864</span>        } else {<a name="line.864"></a>
-<span class="sourceLineNo">865</span><a name="line.865"></a>
-<span class="sourceLineNo">866</span>            // If the client is requesting a config change, we could check for an outstanding config change now and if so<a name="line.866"></a>
-<span class="sourceLineNo">867</span>            // delay our response until it completes, but that's not worth the trouble. Instead, applyNewLogEntry() will<a name="line.867"></a>
-<span class="sourceLineNo">868</span>            // throw an exception and the client will just just have to retry the transaction.<a name="line.868"></a>
-<span class="sourceLineNo">869</span><a name="line.869"></a>
-<span class="sourceLineNo">870</span>            // Commit mutations as a new log entry<a name="line.870"></a>
-<span class="sourceLineNo">871</span>            final LogEntry logEntry;<a name="line.871"></a>
-<span class="sourceLineNo">872</span>            try {<a name="line.872"></a>
-<span class="sourceLineNo">873</span>                logEntry = this.applyNewLogEntry(new NewLogEntry(this.raft, msg.getMutationData()));<a name="line.873"></a>
-<span class="sourceLineNo">874</span>            } catch (Exception e) {<a name="line.874"></a>
-<span class="sourceLineNo">875</span>                this.error("error appending new log entry for " + msg, e);<a name="line.875"></a>
-<span class="sourceLineNo">876</span>                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.876"></a>
-<span class="sourceLineNo">877</span>                  this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));<a name="line.877"></a>
-<span class="sourceLineNo">878</span>                return;<a name="line.878"></a>
-<span class="sourceLineNo">879</span>            }<a name="line.879"></a>
-<span class="sourceLineNo">880</span>            if (this.log.isDebugEnabled())<a name="line.880"></a>
-<span class="sourceLineNo">881</span>                this.debug("added log entry " + logEntry + " for remote " + msg);<a name="line.881"></a>
-<span class="sourceLineNo">882</span><a name="line.882"></a>
-<span class="sourceLineNo">883</span>            // Follower transaction data optimization<a name="line.883"></a>
-<span class="sourceLineNo">884</span>            follower.getSkipDataLogEntries().add(logEntry);<a name="line.884"></a>
-<span class="sourceLineNo">885</span><a name="line.885"></a>
-<span class="sourceLineNo">886</span>            // Send response<a name="line.886"></a>
-<span class="sourceLineNo">887</span>            this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.887"></a>
-<span class="sourceLineNo">888</span>              this.raft.currentTerm, msg.getTxId(), logEntry.getTerm(), logEntry.getIndex()));<a name="line.888"></a>
-<span class="sourceLineNo">889</span>        }<a name="line.889"></a>
-<span class="sourceLineNo">890</span>    }<a name="line.890"></a>
-<span class="sourceLineNo">891</span><a name="line.891"></a>
-<span class="sourceLineNo">892</span>    @Override<a name="line.892"></a>
-<span class="sourceLineNo">893</span>    void caseCommitResponse(CommitResponse msg) {<a name="line.893"></a>
-<span class="sourceLineNo">894</span>        this.failDuplicateLeader(msg);<a name="line.894"></a>
-<span class="sourceLineNo">895</span>    }<a name="line.895"></a>
-<span class="sourceLineNo">896</span><a name="line.896"></a>
-<span class="sourceLineNo">897</span>    @Override<a name="line.897"></a>
-<span class="sourceLineNo">898</span>    void caseInstallSnapshot(InstallSnapshot msg) {<a name="line.898"></a>
-<span class="sourceLineNo">899</span>        this.failDuplicateLeader(msg);<a name="line.899"></a>
+<span class="sourceLineNo">846</span>            // Get current time<a name="line.846"></a>
+<span class="sourceLineNo">847</span>            final Timestamp minimumLeaseTimeout = new Timestamp();<a name="line.847"></a>
+<span class="sourceLineNo">848</span><a name="line.848"></a>
+<span class="sourceLineNo">849</span>            // The follower may commit as soon as it sees the transaction's BASE log entry get committed.<a name="line.849"></a>
+<span class="sourceLineNo">850</span>            // Note, we don't need to wait for any subsequent log entries to be committed, because if they<a name="line.850"></a>
+<span class="sourceLineNo">851</span>            // are committed they are invisible to the transaction, and if they aren't ever committed then<a name="line.851"></a>
+<span class="sourceLineNo">852</span>            // whatever log entries replace them will necessarily have been created sometime after now.<a name="line.852"></a>
+<span class="sourceLineNo">853</span>            final CommitResponse response;<a name="line.853"></a>
+<span class="sourceLineNo">854</span>            if (this.leaseTimeout != null &amp;&amp; this.leaseTimeout.compareTo(minimumLeaseTimeout) &gt; 0) {<a name="line.854"></a>
+<span class="sourceLineNo">855</span><a name="line.855"></a>
+<span class="sourceLineNo">856</span>                // No other leader could have been elected yet as of right now, so the transaction can commit immediately<a name="line.856"></a>
+<span class="sourceLineNo">857</span>                response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.857"></a>
+<span class="sourceLineNo">858</span>                  this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex());<a name="line.858"></a>
+<span class="sourceLineNo">859</span>            } else {<a name="line.859"></a>
+<span class="sourceLineNo">860</span><a name="line.860"></a>
+<span class="sourceLineNo">861</span>                // Remember that this follower is now going to be waiting for this particular leaseTimeout<a name="line.861"></a>
+<span class="sourceLineNo">862</span>                follower.getCommitLeaseTimeouts().add(minimumLeaseTimeout);<a name="line.862"></a>
+<span class="sourceLineNo">863</span><a name="line.863"></a>
+<span class="sourceLineNo">864</span>                // Send immediate probes to all (up-to-date) followers in an attempt to increase our leaseTimeout quickly<a name="line.864"></a>
+<span class="sourceLineNo">865</span>                this.updateAllSynchronizedFollowersNow();<a name="line.865"></a>
+<span class="sourceLineNo">866</span><a name="line.866"></a>
+<span class="sourceLineNo">867</span>                // Build response<a name="line.867"></a>
+<span class="sourceLineNo">868</span>                response = new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.868"></a>
+<span class="sourceLineNo">869</span>                  this.raft.currentTerm, msg.getTxId(), msg.getBaseTerm(), msg.getBaseIndex(), minimumLeaseTimeout);<a name="line.869"></a>
+<span class="sourceLineNo">870</span>            }<a name="line.870"></a>
+<span class="sourceLineNo">871</span><a name="line.871"></a>
+<span class="sourceLineNo">872</span>            // Send response<a name="line.872"></a>
+<span class="sourceLineNo">873</span>            this.raft.sendMessage(response);<a name="line.873"></a>
+<span class="sourceLineNo">874</span>        } else {<a name="line.874"></a>
+<span class="sourceLineNo">875</span><a name="line.875"></a>
+<span class="sourceLineNo">876</span>            // If the client is requesting a config change, we could check for an outstanding config change now and if so<a name="line.876"></a>
+<span class="sourceLineNo">877</span>            // delay our response until it completes, but that's not worth the trouble. Instead, applyNewLogEntry() will<a name="line.877"></a>
+<span class="sourceLineNo">878</span>            // throw an exception and the client will just just have to retry the transaction.<a name="line.878"></a>
+<span class="sourceLineNo">879</span><a name="line.879"></a>
+<span class="sourceLineNo">880</span>            // Commit mutations as a new log entry<a name="line.880"></a>
+<span class="sourceLineNo">881</span>            final LogEntry logEntry;<a name="line.881"></a>
+<span class="sourceLineNo">882</span>            try {<a name="line.882"></a>
+<span class="sourceLineNo">883</span>                logEntry = this.applyNewLogEntry(new NewLogEntry(this.raft, msg.getMutationData()));<a name="line.883"></a>
+<span class="sourceLineNo">884</span>            } catch (Exception e) {<a name="line.884"></a>
+<span class="sourceLineNo">885</span>                this.error("error appending new log entry for " + msg, e);<a name="line.885"></a>
+<span class="sourceLineNo">886</span>                this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.886"></a>
+<span class="sourceLineNo">887</span>                  this.raft.currentTerm, msg.getTxId(), e.getMessage() != null ? e.getMessage() : "" + e));<a name="line.887"></a>
+<span class="sourceLineNo">888</span>                return;<a name="line.888"></a>
+<span class="sourceLineNo">889</span>            }<a name="line.889"></a>
+<span class="sourceLineNo">890</span>            if (this.log.isDebugEnabled())<a name="line.890"></a>
+<span class="sourceLineNo">891</span>                this.debug("added log entry " + logEntry + " for remote " + msg);<a name="line.891"></a>
+<span class="sourceLineNo">892</span><a name="line.892"></a>
+<span class="sourceLineNo">893</span>            // Follower transaction data optimization<a name="line.893"></a>
+<span class="sourceLineNo">894</span>            follower.getSkipDataLogEntries().add(logEntry);<a name="line.894"></a>
+<span class="sourceLineNo">895</span><a name="line.895"></a>
+<span class="sourceLineNo">896</span>            // Send response<a name="line.896"></a>
+<span class="sourceLineNo">897</span>            this.raft.sendMessage(new CommitResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.897"></a>
+<span class="sourceLineNo">898</span>              this.raft.currentTerm, msg.getTxId(), logEntry.getTerm(), logEntry.getIndex()));<a name="line.898"></a>
+<span class="sourceLineNo">899</span>        }<a name="line.899"></a>
 <span class="sourceLineNo">900</span>    }<a name="line.900"></a>
 <span class="sourceLineNo">901</span><a name="line.901"></a>
 <span class="sourceLineNo">902</span>    @Override<a name="line.902"></a>
-<span class="sourceLineNo">903</span>    void caseRequestVote(RequestVote msg) {<a name="line.903"></a>
-<span class="sourceLineNo">904</span><a name="line.904"></a>
-<span class="sourceLineNo">905</span>        // Too late dude, I already won the election<a name="line.905"></a>
-<span class="sourceLineNo">906</span>        if (this.log.isDebugEnabled())<a name="line.906"></a>
-<span class="sourceLineNo">907</span>            this.debug("ignoring " + msg + " rec'd while in " + this);<a name="line.907"></a>
-<span class="sourceLineNo">908</span>    }<a name="line.908"></a>
-<span class="sourceLineNo">909</span><a name="line.909"></a>
-<span class="sourceLineNo">910</span>    @Override<a name="line.910"></a>
-<span class="sourceLineNo">911</span>    void caseGrantVote(GrantVote msg) {<a name="line.911"></a>
-<span class="sourceLineNo">912</span><a name="line.912"></a>
-<span class="sourceLineNo">913</span>        // Thanks and all, but I already won the election<a name="line.913"></a>
-<span class="sourceLineNo">914</span>        if (this.log.isDebugEnabled())<a name="line.914"></a>
-<span class="sourceLineNo">915</span>            this.debug("ignoring " + msg + " rec'd while in " + this);<a name="line.915"></a>
-<span class="sourceLineNo">916</span>    }<a name="line.916"></a>
-<span class="sourceLineNo">917</span><a name="line.917"></a>
-<span class="sourceLineNo">918</span>    private void failDuplicateLeader(Message msg) {<a name="line.918"></a>
+<span class="sourceLineNo">903</span>    void caseCommitResponse(CommitResponse msg) {<a name="line.903"></a>
+<span class="sourceLineNo">904</span>        this.failDuplicateLeader(msg);<a name="line.904"></a>
+<span class="sourceLineNo">905</span>    }<a name="line.905"></a>
+<span class="sourceLineNo">906</span><a name="line.906"></a>
+<span class="sourceLineNo">907</span>    @Override<a name="line.907"></a>
+<span class="sourceLineNo">908</span>    void caseInstallSnapshot(InstallSnapshot msg) {<a name="line.908"></a>
+<span class="sourceLineNo">909</span>        this.failDuplicateLeader(msg);<a name="line.909"></a>
+<span class="sourceLineNo">910</span>    }<a name="line.910"></a>
+<span class="sourceLineNo">911</span><a name="line.911"></a>
+<span class="sourceLineNo">912</span>    @Override<a name="line.912"></a>
+<span class="sourceLineNo">913</span>    void caseRequestVote(RequestVote msg) {<a name="line.913"></a>
+<span class="sourceLineNo">914</span><a name="line.914"></a>
+<span class="sourceLineNo">915</span>        // Too late dude, I already won the election<a name="line.915"></a>
+<span class="sourceLineNo">916</span>        if (this.log.isDebugEnabled())<a name="line.916"></a>
+<span class="sourceLineNo">917</span>            this.debug("ignoring " + msg + " rec'd while in " + this);<a name="line.917"></a>
+<span class="sourceLineNo">918</span>    }<a name="line.918"></a>
 <span class="sourceLineNo">919</span><a name="line.919"></a>
-<span class="sourceLineNo">920</span>        // This should never happen - same term but two different leaders<a name="line.920"></a>
-<span class="sourceLineNo">921</span>        final boolean defer = this.raft.identity.compareTo(msg.getSenderId()) &lt;= 0;<a name="line.921"></a>
-<span class="sourceLineNo">922</span>        this.error("detected a duplicate leader in " + msg + " - should never happen; possible inconsistent cluster"<a name="line.922"></a>
-<span class="sourceLineNo">923</span>          + " configuration on " + msg.getSenderId() + " (mine: " + this.raft.currentConfig + "); "<a name="line.923"></a>
-<span class="sourceLineNo">924</span>          + (defer ? "reverting to follower" : "ignoring"));<a name="line.924"></a>
-<span class="sourceLineNo">925</span>        if (defer)<a name="line.925"></a>
-<span class="sourceLineNo">926</span>            this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));<a name="line.926"></a>
-<span class="sourceLineNo">927</span>    }<a name="line.927"></a>
-<span class="sourceLineNo">928</span><a name="line.928"></a>
-<span class="sourceLineNo">929</span>// Object<a name="line.929"></a>
-<span class="sourceLineNo">930</span><a name="line.930"></a>
-<span class="sourceLineNo">931</span>    @Override<a name="line.931"></a>
-<span class="sourceLineNo">932</span>    public String toString() {<a name="line.932"></a>
-<span class="sourceLineNo">933</span>        return this.toStringPrefix()<a name="line.933"></a>
-<span class="sourceLineNo">934</span>          + ",followerMap=" + this.followerMap<a name="line.934"></a>
-<span class="sourceLineNo">935</span>          + "]";<a name="line.935"></a>
-<span class="sourceLineNo">936</span>    }<a name="line.936"></a>
-<span class="sourceLineNo">937</span><a name="line.937"></a>
-<span class="sourceLineNo">938</span>// Debug<a name="line.938"></a>
-<span class="sourceLineNo">939</span><a name="line.939"></a>
-<span class="sourceLineNo">940</span>    @Override<a name="line.940"></a>
-<span class="sourceLineNo">941</span>    boolean checkState() {<a name="line.941"></a>
-<span class="sourceLineNo">942</span>        if (!super.checkState())<a name="line.942"></a>
-<span class="sourceLineNo">943</span>            return false;<a name="line.943"></a>
-<span class="sourceLineNo">944</span>        assert this.checkApplyTimer.isRunning() == !this.raft.raftLog.isEmpty();<a name="line.944"></a>
-<span class="sourceLineNo">945</span>        for (Follower follower : this.followerMap.values()) {<a name="line.945"></a>
-<span class="sourceLineNo">946</span>            assert follower.getNextIndex() &lt;= this.raft.getLastLogIndex() + 1;<a name="line.946"></a>
-<span class="sourceLineNo">947</span>            assert follower.getMatchIndex() &lt;= this.raft.getLastLogIndex() + 1;<a name="line.947"></a>
-<span class="sourceLineNo">948</span>            assert follower.getLeaderCommit() &lt;= this.raft.commitIndex;<a name="line.948"></a>
-<span class="sourceLineNo">949</span>            assert follower.getUpdateTimer().isRunning() || follower.getSnapshotTransmit() != null;<a name="line.949"></a>
-<span class="sourceLineNo">950</span>        }<a name="line.950"></a>
-<span class="sourceLineNo">951</span>        return true;<a name="line.951"></a>
-<span class="sourceLineNo">952</span>    }<a name="line.952"></a>
-<span class="sourceLineNo">953</span><a name="line.953"></a>
-<span class="sourceLineNo">954</span>// Internal methods<a name="line.954"></a>
-<span class="sourceLineNo">955</span><a name="line.955"></a>
-<span class="sourceLineNo">956</span>    /**<a name="line.956"></a>
-<span class="sourceLineNo">957</span>     * Find the index of the most recent unapplied log entry having an associated config change.<a name="line.957"></a>
-<span class="sourceLineNo">958</span>     *<a name="line.958"></a>
-<span class="sourceLineNo">959</span>     * @return most recent config change log entry, or zero if none found<a name="line.959"></a>
-<span class="sourceLineNo">960</span>     */<a name="line.960"></a>
-<span class="sourceLineNo">961</span>    private long findMostRecentConfigChange() {<a name="line.961"></a>
-<span class="sourceLineNo">962</span>        return this.findMostRecentConfigChangeMatching(Predicates.&lt;String[]&gt;alwaysTrue());<a name="line.962"></a>
-<span class="sourceLineNo">963</span>    }<a name="line.963"></a>
-<span class="sourceLineNo">964</span><a name="line.964"></a>
-<span class="sourceLineNo">965</span>    /**<a name="line.965"></a>
-<span class="sourceLineNo">966</span>     * Find the index of the most recent unapplied log entry having an associated config change matching the given predicate.<a name="line.966"></a>
-<span class="sourceLineNo">967</span>     *<a name="line.967"></a>
-<span class="sourceLineNo">968</span>     * @return most recent matching log entry, or zero if none found<a name="line.968"></a>
-<span class="sourceLineNo">969</span>     */<a name="line.969"></a>
-<span class="sourceLineNo">970</span>    private long findMostRecentConfigChangeMatching(Predicate&lt;String[]&gt; predicate) {<a name="line.970"></a>
-<span class="sourceLineNo">971</span>        for (long index = this.raft.getLastLogIndex(); index &gt; this.raft.lastAppliedIndex; index--) {<a name="line.971"></a>
-<span class="sourceLineNo">972</span>            final String[] configChange = this.raft.getLogEntryAtIndex(index).getConfigChange();<a name="line.972"></a>
-<span class="sourceLineNo">973</span>            if (configChange == null &amp;&amp; predicate.apply(configChange))<a name="line.973"></a>
-<span class="sourceLineNo">974</span>                return index;<a name="line.974"></a>
-<span class="sourceLineNo">975</span>        }<a name="line.975"></a>
-<span class="sourceLineNo">976</span>        return 0;<a name="line.976"></a>
-<span class="sourceLineNo">977</span>    }<a name="line.977"></a>
-<span class="sourceLineNo">978</span><a name="line.978"></a>
-<span class="sourceLineNo">979</span>    // Apply a new log entry to the Raft log<a name="line.979"></a>
-<span class="sourceLineNo">980</span>    private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws Exception {<a name="line.980"></a>
-<span class="sourceLineNo">981</span><a name="line.981"></a>
-<span class="sourceLineNo">982</span>        // Do a couple of extra checks if a config change is included<a name="line.982"></a>
-<span class="sourceLineNo">983</span>        final String[] configChange = newLogEntry.getData().getConfigChange();<a name="line.983"></a>
-<span class="sourceLineNo">984</span>        if (configChange != null) {<a name="line.984"></a>
-<span class="sourceLineNo">985</span><a name="line.985"></a>
-<span class="sourceLineNo">986</span>            // Disallow a config change while there is a previous uncommitted config change<a name="line.986"></a>
-<span class="sourceLineNo">987</span>            if (this.isConfigChangeOutstanding()) {<a name="line.987"></a>
-<span class="sourceLineNo">988</span>                newLogEntry.cancel();<a name="line.988"></a>
-<span class="sourceLineNo">989</span>                throw new IllegalStateException("uncommitted config change outstanding");<a name="line.989"></a>
-<span class="sourceLineNo">990</span>            }<a name="line.990"></a>
+<span class="sourceLineNo">920</span>    @Override<a name="line.920"></a>
+<span class="sourceLineNo">921</span>    void caseGrantVote(GrantVote msg) {<a name="line.921"></a>
+<span class="sourceLineNo">922</span><a name="line.922"></a>
+<span class="sourceLineNo">923</span>        // Thanks and all, but I already won the election<a name="line.923"></a>
+<span class="sourceLineNo">924</span>        if (this.log.isDebugEnabled())<a name="line.924"></a>
+<span class="sourceLineNo">925</span>            this.debug("ignoring " + msg + " rec'd while in " + this);<a name="line.925"></a>
+<span class="sourceLineNo">926</span>    }<a name="line.926"></a>
+<span class="sourceLineNo">927</span><a name="line.927"></a>
+<span class="sourceLineNo">928</span>    private void failDuplicateLeader(Message msg) {<a name="line.928"></a>
+<span class="sourceLineNo">929</span><a name="line.929"></a>
+<span class="sourceLineNo">930</span>        // This should never happen - same term but two different leaders<a name="line.930"></a>
+<span class="sourceLineNo">931</span>        final boolean defer = this.raft.identity.compareTo(msg.getSenderId()) &lt;= 0;<a name="line.931"></a>
+<span class="sourceLineNo">932</span>        this.error("detected a duplicate leader in " + msg + " - should never happen; possible inconsistent cluster"<a name="line.932"></a>
+<span class="sourceLineNo">933</span>          + " configuration on " + msg.getSenderId() + " (mine: " + this.raft.currentConfig + "); "<a name="line.933"></a>
+<span class="sourceLineNo">934</span>          + (defer ? "reverting to follower" : "ignoring"));<a name="line.934"></a>
+<span class="sourceLineNo">935</span>        if (defer)<a name="line.935"></a>
+<span class="sourceLineNo">936</span>            this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));<a name="line.936"></a>
+<span class="sourceLineNo">937</span>    }<a name="line.937"></a>
+<span class="sourceLineNo">938</span><a name="line.938"></a>
+<span class="sourceLineNo">939</span>// Object<a name="line.939"></a>
+<span class="sourceLineNo">940</span><a name="line.940"></a>
+<span class="sourceLineNo">941</span>    @Override<a name="line.941"></a>
+<span class="sourceLineNo">942</span>    public String toString() {<a name="line.942"></a>
+<span class="sourceLineNo">943</span>        return this.toStringPrefix()<a name="line.943"></a>
+<span class="sourceLineNo">944</span>          + ",followerMap=" + this.followerMap<a name="line.944"></a>
+<span class="sourceLineNo">945</span>          + "]";<a name="line.945"></a>
+<span class="sourceLineNo">946</span>    }<a name="line.946"></a>
+<span class="sourceLineNo">947</span><a name="line.947"></a>
+<span class="sourceLineNo">948</span>// Debug<a name="line.948"></a>
+<span class="sourceLineNo">949</span><a name="line.949"></a>
+<span class="sourceLineNo">950</span>    @Override<a name="line.950"></a>
+<span class="sourceLineNo">951</span>    boolean checkState() {<a name="line.951"></a>
+<span class="sourceLineNo">952</span>        if (!super.checkState())<a name="line.952"></a>
+<span class="sourceLineNo">953</span>            return false;<a name="line.953"></a>
+<span class="sourceLineNo">954</span>        assert this.checkApplyTimer.isRunning() == !this.raft.raftLog.isEmpty();<a name="line.954"></a>
+<span class="sourceLineNo">955</span>        for (Follower follower : this.followerMap.values()) {<a name="line.955"></a>
+<span class="sourceLineNo">956</span>            assert follower.getNextIndex() &lt;= this.raft.getLastLogIndex() + 1;<a name="line.956"></a>
+<span class="sourceLineNo">957</span>            assert follower.getMatchIndex() &lt;= this.raft.getLastLogIndex() + 1;<a name="line.957"></a>
+<span class="sourceLineNo">958</span>            assert follower.getLeaderCommit() &lt;= this.raft.commitIndex;<a name="line.958"></a>
+<span class="sourceLineNo">959</span>            assert follower.getUpdateTimer().isRunning() || follower.getSnapshotTransmit() != null;<a name="line.959"></a>
+<span class="sourceLineNo">960</span>        }<a name="line.960"></a>
+<span class="sourceLineNo">961</span>        return true;<a name="line.961"></a>
+<span class="sourceLineNo">962</span>    }<a name="line.962"></a>
+<span class="sourceLineNo">963</span><a name="line.963"></a>
+<span class="sourceLineNo">964</span>// Internal methods<a name="line.964"></a>
+<span class="sourceLineNo">965</span><a name="line.965"></a>
+<span class="sourceLineNo">966</span>    /**<a name="line.966"></a>
+<span class="sourceLineNo">967</span>     * Find the index of the most recent unapplied log entry having an associated config change.<a name="line.967"></a>
+<span class="sourceLineNo">968</span>     *<a name="line.968"></a>
+<span class="sourceLineNo">969</span>     * @return most recent config change log entry, or zero if none found<a name="line.969"></a>
+<span class="sourceLineNo">970</span>     */<a name="line.970"></a>
+<span class="sourceLineNo">971</span>    private long findMostRecentConfigChange() {<a name="line.971"></a>
+<span class="sourceLineNo">972</span>        return this.findMostRecentConfigChangeMatching(Predicates.&lt;String[]&gt;alwaysTrue());<a name="line.972"></a>
+<span class="sourceLineNo">973</span>    }<a name="line.973"></a>
+<span class="sourceLineNo">974</span><a name="line.974"></a>
+<span class="sourceLineNo">975</span>    /**<a name="line.975"></a>
+<span class="sourceLineNo">976</span>     * Find the index of the most recent unapplied log entry having an associated config change matching the given predicate.<a name="line.976"></a>
+<span class="sourceLineNo">977</span>     *<a name="line.977"></a>
+<span class="sourceLineNo">978</span>     * @return most recent matching log entry, or zero if none found<a name="line.978"></a>
+<span class="sourceLineNo">979</span>     */<a name="line.979"></a>
+<span class="sourceLineNo">980</span>    private long findMostRecentConfigChangeMatching(Predicate&lt;String[]&gt; predicate) {<a name="line.980"></a>
+<span class="sourceLineNo">981</span>        for (long index = this.raft.getLastLogIndex(); index &gt; this.raft.lastAppliedIndex; index--) {<a name="line.981"></a>
+<span class="sourceLineNo">982</span>            final String[] configChange = this.raft.getLogEntryAtIndex(index).getConfigChange();<a name="line.982"></a>
+<span class="sourceLineNo">983</span>            if (configChange == null &amp;&amp; predicate.apply(configChange))<a name="line.983"></a>
+<span class="sourceLineNo">984</span>                return index;<a name="line.984"></a>
+<span class="sourceLineNo">985</span>        }<a name="line.985"></a>
+<span class="sourceLineNo">986</span>        return 0;<a name="line.986"></a>
+<span class="sourceLineNo">987</span>    }<a name="line.987"></a>
+<span class="sourceLineNo">988</span><a name="line.988"></a>
+<span class="sourceLineNo">989</span>    // Apply a new log entry to the Raft log<a name="line.989"></a>
+<span class="sourceLineNo">990</span>    private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws Exception {<a name="line.990"></a>
 <span class="sourceLineNo">991</span><a name="line.991"></a>
-<span class="sourceLineNo">992</span>            // Disallow a configuration change that removes the last node in a cluster<a name="line.992"></a>
-<span class="sourceLineNo">993</span>            if (this.raft.currentConfig.size() == 1 &amp;&amp; configChange[1] == null) {<a name="line.993"></a>
-<span class="sourceLineNo">994</span>                final String lastNode = this.raft.currentConfig.keySet().iterator().next();<a name="line.994"></a>
-<span class="sourceLineNo">995</span>                if (configChange[0].equals(lastNode)) {<a name="line.995"></a>
-<span class="sourceLineNo">996</span>                    newLogEntry.cancel();<a name="line.996"></a>
-<span class="sourceLineNo">997</span>                    throw new IllegalArgumentException("can't remove the last node in a cluster (\"" + lastNode + "\")");<a name="line.997"></a>
-<span class="sourceLineNo">998</span>                }<a name="line.998"></a>
-<span class="sourceLineNo">999</span>            }<a name="line.999"></a>
-<span class="sourceLineNo">1000</span>        }<a name="line.1000"></a>
+<span class="sourceLineNo">992</span>        // Do a couple of extra checks if a config change is included<a name="line.992"></a>
+<span class="sourceLineNo">993</span>        final String[] configChange = newLogEntry.getData().getConfigChange();<a name="line.993"></a>
+<span class="sourceLineNo">994</span>        if (configChange != null) {<a name="line.994"></a>
+<span class="sourceLineNo">995</span><a name="line.995"></a>
+<span class="sourceLineNo">996</span>            // If a config change is involved, check whether we can safely apply it<a name="line.996"></a>
+<span class="sourceLineNo">997</span>            if (!this.mayApplyNewConfigChange()) {<a name="line.997"></a>
+<span class="sourceLineNo">998</span>                newLogEntry.cancel();<a name="line.998"></a>
+<span class="sourceLineNo">999</span>                throw new IllegalStateException("config change cannot be safely applied at this time");<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>            }<a name="line.1000"></a>
 <span class="sourceLineNo">1001</span><a name="line.1001"></a>
-<span class="sourceLineNo">1002</span>        // Append a new entry to the Raft log<a name="line.1002"></a>
-<span class="sourceLineNo">1003</span>        final LogEntry logEntry;<a name="line.1003"></a>
-<span class="sourceLineNo">1004</span>        boolean success = false;<a name="line.1004"></a>
-<span class="sourceLineNo">1005</span>        try {<a name="line.1005"></a>
-<span class="sourceLineNo">1006</span>            logEntry = this.raft.appendLogEntry(this.raft.currentTerm, newLogEntry);<a name="line.1006"></a>
-<span class="sourceLineNo">1007</span>            success = true;<a name="line.1007"></a>
-<span class="sourceLineNo">1008</span>        } finally {<a name="line.1008"></a>
-<span class="sourceLineNo">1009</span>            if (!success)<a name="line.1009"></a>
-<span class="sourceLineNo">1010</span>                newLogEntry.cancel();<a name="line.1010"></a>
-<span class="sourceLineNo">1011</span>        }<a name="line.1011"></a>
-<span class="sourceLineNo">1012</span><a name="line.1012"></a>
-<span class="sourceLineNo">1013</span>        // Update follower list if configuration changed<a name="line.1013"></a>
-<span class="sourceLineNo">1014</span>        if (configChange != null)<a name="line.1014"></a>
-<span class="sourceLineNo">1015</span>            this.raft.requestService(this.updateKnownFollowersService);<a name="line.1015"></a>
-<span class="sourceLineNo">1016</span><a name="line.1016"></a>
-<span class="sourceLineNo">1017</span>        // Update commit index (this is only needed if config has changed, or in the single node case)<a name="line.1017"></a>
-<span class="sourceLineNo">1018</span>        if (configChange != null || this.followerMap.isEmpty())<a name="line.1018"></a>
-<span class="sourceLineNo">1019</span>            this.raft.requestService(this.updateLeaderCommitIndexService);<a name="line.1019"></a>
-<span class="sourceLineNo">1020</span><a name="line.1020"></a>
-<span class="sourceLineNo">1021</span>        // Immediately update all up-to-date followers<a name="line.1021"></a>
-<span class="sourceLineNo">1022</span>        this.updateAllSynchronizedFollowersNow();<a name="line.1022"></a>
-<span class="sourceLineNo">1023</span><a name="line.1023"></a>
-<span class="sourceLineNo">1024</span>        // Start check apply timer if not already running<a name="line.1024"></a>
-<span class="sourceLineNo">1025</span>        if (!this.checkApplyTimer.isRunning())<a name="line.1025"></a>
-<span class="sourceLineNo">1026</span>            this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);<a name="line.1026"></a>
-<span class="sourceLineNo">1027</span><a name="line.1027"></a>
-<span class="sourceLineNo">1028</span>        // Done<a name="line.1028"></a>
-<span class="sourceLineNo">1029</span>        return logEntry;<a name="line.1029"></a>
-<span class="sourceLineNo">1030</span>    }<a name="line.1030"></a>
-<span class="sourceLineNo">1031</span><a name="line.1031"></a>
-<span class="sourceLineNo">1032</span>    /**<a name="line.1032"></a>
-<span class="sourceLineNo">1033</span>     * Check whether a proposed transaction can commit without any MVCC conflict.<a name="line.1033"></a>
-<span class="sourceLineNo">1034</span>     *<a name="line.1034"></a>
-<span class="sourceLineNo">1035</span>     * @param file file containing serialized copy of {@link writes} (content must already be fsync()'d to disk!)<a name="line.1035"></a>
-<span class="sourceLineNo">1036</span>     * @param baseTerm the term of the log entry on which the transaction is based<a name="line.1036"></a>
-<span class="sourceLineNo">1037</span>     * @param baseIndex the index of the log entry on which the transaction is based<a name="line.1037"></a>
-<span class="sourceLineNo">1038</span>     * @param reads reads performed by the transaction<a name="line.1038"></a>
-<span class="sourceLineNo">1039</span>     * @param writes writes performed by the transaction<a name="line.1039"></a>
-<span class="sourceLineNo">1040</span>     * @return error message on failure, null for success<a name="line.1040"></a>
-<span class="sourceLineNo">1041</span>     */<a name="line.1041"></a>
-<span class="sourceLineNo">1042</span>    private String checkConflicts(long baseTerm, long baseIndex, Reads reads) {<a name="line.1042"></a>
-<span class="sourceLineNo">1043</span><a name="line.1043"></a>
-<span class="sourceLineNo">1044</span>        // Validate the index of the log entry on which the transaction is based<a name="line.1044"></a>
-<span class="sourceLineNo">1045</span>        final long minIndex = this.raft.lastAppliedIndex;<a name="line.1045"></a>
-<span class="sourceLineNo">1046</span>        final long maxIndex = this.raft.getLastLogIndex();<a name="line.1046"></a>
-<span class="sourceLineNo">1047</span>        if (baseIndex &lt; minIndex)<a name="line.1047"></a>
-<span class="sourceLineNo">1048</span>            return "transaction is too old: snapshot index " + baseIndex + " &lt; last applied log index " + minIndex;<a name="line.1048"></a>
-<span class="sourceLineNo">1049</span>        if (baseIndex &gt; maxIndex)<a name="line.1049"></a>
-<span class="sourceLineNo">1050</span>            return "transaction is too new: snapshot index " + baseIndex + " &gt; most recent log index " + maxIndex;<a name="line.1050"></a>
-<span class="sourceLineNo">1051</span><a name="line.1051"></a>
-<span class="sourceLineNo">1052</span>        // Validate the term of the log entry on which the transaction is based<a name="line.1052"></a>
-<span class="sourceLineNo">1053</span>        final long actualBaseTerm = this.raft.getLogTermAtIndex(baseIndex);<a name="line.1053"></a>
-<span class="sourceLineNo">1054</span>        if (baseTerm != actualBaseTerm) {<a name="line.1054"></a>
-<span class="sourceLineNo">1055</span>            return "transaction is based on an overwritten log entry with index "<a name="line.1055"></a>
-<span class="sourceLineNo">1056</span>              + baseIndex + " and term " + baseTerm + " != " + actualBaseTerm;<a name="line.1056"></a>
-<span class="sourceLineNo">1057</span>        }<a name="line.1057"></a>
-<span class="sourceLineNo">1058</span><a name="line.1058"></a>
-<span class="sourceLineNo">1059</span>        // Check for conflicts from intervening commits<a name="line.1059"></a>
-<span class="sourceLineNo">1060</span>        for (long index = baseIndex + 1; index &lt;= maxIndex; index++) {<a name="line.1060"></a>
-<span class="sourceLineNo">1061</span>            final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);<a name="line.1061"></a>
-<span class="sourceLineNo">1062</span>            if (reads.isConflict(logEntry.getWrites())) {<a name="line.1062"></a>
-<span class="sourceLineNo">1063</span>                return "writes of committed transaction at index " + index<a name="line.1063"></a>
-<span class="sourceLineNo">1064</span>                  + " conflict with transaction reads from transaction base index " + baseIndex;<a name="line.1064"></a>
-<span class="sourceLineNo">1065</span>            }<a name="line.1065"></a>
-<span class="sourceLineNo">1066</span>        }<a name="line.1066"></a>
-<span class="sourceLineNo">1067</span><a name="line.1067"></a>
-<span class="sourceLineNo">1068</span>        // No conflict<a name="line.1068"></a>
-<span class="sourceLineNo">1069</span>        return null;<a name="line.1069"></a>
-<span class="sourceLineNo">1070</span>    }<a name="line.1070"></a>
-<span class="sourceLineNo">1071</span><a name="line.1071"></a>
-<span class="sourceLineNo">1072</span>    private Follower findFollower(Message msg) {<a name="line.1072"></a>
-<span class="sourceLineNo">1073</span>        final Follower follower = this.followerMap.get(msg.getSenderId());<a name="line.1073"></a>
-<span class="sourceLineNo">1074</span>        if (follower == null)<a name="line.1074"></a>
-<span class="sourceLineNo">1075</span>            this.warn("rec'd " + msg + " from unknown follower \"" + msg.getSenderId() + "\", ignoring");<a name="line.1075"></a>
-<span class="sourceLineNo">1076</span>        return follower;<a name="line.1076"></a>
-<span class="sourceLineNo">1077</span>    }<a name="line.1077"></a>
-<span class="sourceLineNo">1078</span>}<a name="line.1078"></a>
-<span class="sourceLineNo">1079</span><a name="line.1079"></a>
+<span class="sourceLineNo">1002</span>            // Disallow a configuration change that removes the last node in a cluster<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>            if (this.raft.currentConfig.size() == 1 &amp;&amp; configChange[1] == null) {<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>                final String lastNode = this.raft.currentConfig.keySet().iterator().next();<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span>                if (configChange[0].equals(lastNode)) {<a name="line.1005"></a>
+<span class="sourceLineNo">1006</span>                    newLogEntry.cancel();<a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>                    throw new IllegalArgumentException("can't remove the last node in a cluster (\"" + lastNode + "\")");<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>                }<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>            }<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>        }<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span><a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>        // Append a new entry to the Raft log<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>        final LogEntry logEntry;<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>        boolean success = false;<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>        try {<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>            logEntry = this.raft.appendLogEntry(this.raft.currentTerm, newLogEntry);<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>            success = true;<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>        } finally {<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>            if (!success)<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>                newLogEntry.cancel();<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span>        }<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span><a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>        // Update follower list if configuration changed<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>        if (configChange != null)<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span>            this.raft.requestService(this.updateKnownFollowersService);<a name="line.1025"></a>
+<span class="sourceLineNo">1026</span><a name="line.1026"></a>
+<span class="sourceLineNo">1027</span>        // Update commit index (this is only needed if config has changed, or in the single node case)<a name="line.1027"></a>
+<span class="sourceLineNo">1028</span>        if (configChange != null || this.followerMap.isEmpty())<a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>            this.raft.requestService(this.updateLeaderCommitIndexService);<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span><a name="line.1030"></a>
+<span class="sourceLineNo">1031</span>        // Immediately update all up-to-date followers<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span>        this.updateAllSynchronizedFollowersNow();<a name="line.1032"></a>
+<span class="sourceLineNo">1033</span><a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>        // Start check apply timer if not already running<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>        if (!this.checkApplyTimer.isRunning())<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>            this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span><a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>        // Done<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>        return logEntry;<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>    }<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span><a name="line.1041"></a>
+<span class="sourceLineNo">1042</span>    /**<a name="line.1042"></a>
+<span class="sourceLineNo">1043</span>     * Check whether a proposed transaction can commit without any MVCC conflict.<a name="line.1043"></a>
+<span class="sourceLineNo">1044</span>     *<a name="line.1044"></a>
+<span class="sourceLineNo">1045</span>     * @param file file containing serialized copy of {@link writes} (content must already be fsync()'d to disk!)<a name="line.1045"></a>
+<span class="sourceLineNo">1046</span>     * @param baseTerm the term of the log entry on which the transaction is based<a name="line.1046"></a>
+<span class="sourceLineNo">1047</span>     * @param baseIndex the index of the log entry on which the transaction is based<a name="line.1047"></a>
+<span class="sourceLineNo">1048</span>     * @param reads reads performed by the transaction<a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>     * @param writes writes performed by the transaction<a name="line.1049"></a>
+<span class="sourceLineNo">1050</span>     * @return error message on failure, null for success<a name="line.1050"></a>
+<span class="sourceLineNo">1051</span>     */<a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>    private String checkConflicts(long baseTerm, long baseIndex, Reads reads) {<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span><a name="line.1053"></a>
+<span class="sourceLineNo">1054</span>        // Validate the index of the log entry on which the transaction is based<a name="line.1054"></a>
+<span class="sourceLineNo">1055</span>        final long minIndex = this.raft.lastAppliedIndex;<a name="line.1055"></a>
+<span class="sourceLineNo">1056</span>        final long maxIndex = this.raft.getLastLogIndex();<a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>        if (baseIndex &lt; minIndex)<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>            return "transaction is too old: snapshot index " + baseIndex + " &lt; last applied log index " + minIndex;<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span>        if (baseIndex &gt; maxIndex)<a name="line.1059"></a>
+<span class="sourceLineNo">1060</span>            return "transaction is too new: snapshot index " + baseIndex + " &gt; most recent log index " + maxIndex;<a name="line.1060"></a>
+<span class="sourceLineNo">1061</span><a name="line.1061"></a>
+<span class="sourceLineNo">1062</span>        // Validate the term of the log entry on which the transaction is based<a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>        final long actualBaseTerm = this.raft.getLogTermAtIndex(baseIndex);<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span>        if (baseTerm != actualBaseTerm) {<a name="line.1064"></a>
+<span class="sourceLineNo">1065</span>            return "transaction is based on an overwritten log entry with index "<a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>              + baseIndex + " and term " + baseTerm + " != " + actualBaseTerm;<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span>        }<a name="line.1067"></a>
+<span class="sourceLineNo">1068</span><a name="line.1068"></a>
+<span class="sourceLineNo">1069</span>        // Check for conflicts from intervening commits<a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>        for (long index = baseIndex + 1; index &lt;= maxIndex; index++) {<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span>            final LogEntry logEntry = this.raft.getLogEntryAtIndex(index);<a name="line.1071"></a>
+<span class="sourceLineNo">1072</span>            if (reads.isConflict(logEntry.getWrites())) {<a name="line.1072"></a>
+<span class="sourceLineNo">1073</span>                return "writes of committed transaction at index " + index<a name="line.1073"></a>
+<span class="sourceLineNo">1074</span>                  + " conflict with transaction reads from transaction base index " + baseIndex;<a name="line.1074"></a>
+<span class="sourceLineNo">1075</span>            }<a name="line.1075"></a>
+<span class="sourceLineNo">1076</span>        }<a name="line.1076"></a>
+<span class="sourceLineNo">1077</span><a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>        // No conflict<a name="line.1078"></a>
+<span class="sourceLineNo">1079</span>        return null;<a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>    }<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span><a name="line.1081"></a>
+<span class="sourceLineNo">1082</span>    private Follower findFollower(Message msg) {<a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>        final Follower follower = this.followerMap.get(msg.getSenderId());<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span>        if (follower == null)<a name="line.1084"></a>
+<span class="sourceLineNo">1085</span>            this.warn("rec'd " + msg + " from unknown follower \"" + msg.getSenderId() + "\", ignoring");<a name="line.1085"></a>
+<span class="sourceLineNo">1086</span>        return follower;<a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>    }<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span>}<a name="line.1088"></a>
+<span class="sourceLineNo">1089</span><a name="line.1089"></a>
 
 
 
