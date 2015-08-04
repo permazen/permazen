@@ -70,6 +70,8 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
     RocksDBKVStore(RocksDB db, ReadOptions readOptions, boolean closeReadOptions, WriteBatch writeBatch) {
         Preconditions.checkArgument(db != null, "null db");
         Preconditions.checkArgument(readOptions != null);
+        assert RocksDBUtil.isInitialized(db);
+        assert RocksDBUtil.isInitialized(readOptions);
         this.db = db;
         this.readOptions = readOptions;
         this.closeReadOptions = closeReadOptions;
@@ -95,6 +97,8 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
     public byte[] get(byte[] key) {
         key.getClass();
         Preconditions.checkState(!this.closed, "closed");
+        assert RocksDBUtil.isInitialized(this.db);
+        assert RocksDBUtil.isInitialized(this.readOptions);
         this.cursorTracker.poll();
         try {
             return this.db.get(this.readOptions, key);
@@ -115,10 +119,12 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
         if (this.writeBatch != null) {
+            assert RocksDBUtil.isInitialized(this.writeBatch);
             synchronized (this.writeBatch) {
                 this.writeBatch.put(key, value);
             }
         } else {
+            assert RocksDBUtil.isInitialized(this.db);
             try {
                 this.db.put(key, value);
             } catch (RocksDBException e) {
@@ -133,10 +139,12 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
         if (this.writeBatch != null) {
+            assert RocksDBUtil.isInitialized(this.writeBatch);
             synchronized (this.writeBatch) {
                 this.writeBatch.remove(key);
             }
         } else {
+            assert RocksDBUtil.isInitialized(this.db);
             try {
                 this.db.remove(key);
             } catch (RocksDBException e) {
@@ -181,11 +189,13 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
         final byte[] value = this.encodeCounter(amount);
-        if (this.writeBatch != null)
+        if (this.writeBatch != null) {
+            assert RocksDBUtil.isInitialized(this.writeBatch);
             synchronized (this.writeBatch) {
                 this.writeBatch.merge(key, value);
             }
-        else {
+        } else {
+            assert RocksDBUtil.isInitialized(this.db);
             try {
                 this.db.merge(key, value);
             } catch (RocksDBException e) {
@@ -245,6 +255,9 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
     Iterator createIterator(ReadOptions readOptions, byte[] minKey, byte[] maxKey, boolean reverse) {
         Preconditions.checkState(!this.closed, "closed");
         this.cursorTracker.poll();
+        assert RocksDBUtil.isInitialized(this.db);
+        assert RocksDBUtil.isInitialized(readOptions);
+        assert readOptions.snapshot() == null || RocksDBUtil.isInitialized(readOptions.snapshot());
         return new Iterator(this.db.newIterator(readOptions), minKey, maxKey, reverse);
     }
 
@@ -275,6 +288,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
               "minKey > maxKey");
 
             // Initialize
+            assert RocksDBUtil.isInitialized(cursor);
             this.cursor = cursor;
             this.minKey = minKey;
             this.maxKey = maxKey;
@@ -287,36 +301,48 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
                 if (maxKey != null) {
                     if (RocksDBKVStore.this.log.isTraceEnabled())
                         RocksDBKVStore.this.log.trace("seek to " + ByteUtil.toString(maxKey));
+                    assert RocksDBUtil.isInitialized(this.cursor);
                     this.cursor.seek(maxKey);
                     if (this.cursor.isValid()) {
                         if (RocksDBKVStore.this.log.isTraceEnabled())
                             RocksDBKVStore.this.log.trace("valid, seek to previous before " + ByteUtil.toString(maxKey));
+                        assert RocksDBUtil.isInitialized(this.cursor);
                         this.cursor.prev();
                     } else {
                         if (RocksDBKVStore.this.log.isTraceEnabled())
                             RocksDBKVStore.this.log.trace("not valid, seek to last");
+                        assert RocksDBUtil.isInitialized(this.cursor);
                         this.cursor.seekToLast();
                     }
                 } else {
                     if (RocksDBKVStore.this.log.isTraceEnabled())
                         RocksDBKVStore.this.log.trace("seek to last");
+                    assert RocksDBUtil.isInitialized(this.cursor);
                     this.cursor.seekToLast();
                 }
             } else {
                 if (minKey != null) {
                     if (RocksDBKVStore.this.log.isTraceEnabled())
                         RocksDBKVStore.this.log.trace("seek to " + ByteUtil.toString(minKey));
+                    assert RocksDBUtil.isInitialized(this.cursor);
                     this.cursor.seek(minKey);
                 } else {
                     if (RocksDBKVStore.this.log.isTraceEnabled())
                         RocksDBKVStore.this.log.trace("seek to first");
+                    assert RocksDBUtil.isInitialized(this.cursor);
                     this.cursor.seekToFirst();
                 }
             }
             if (RocksDBKVStore.this.log.isTraceEnabled()) {
+                assert RocksDBUtil.isInitialized(this.cursor);
                 RocksDBKVStore.this.log.trace("starting position is "
                   + (this.cursor.isValid() ? new KVPair(this.cursor.key(), this.cursor.value()) : "INVALID"));
             }
+            assert !this.cursor.isValid() || (this.reverse ?
+              maxKey == null || ByteUtil.compare(this.cursor.key(), maxKey) < 0 :
+              minKey != null && ByteUtil.compare(this.cursor.key(), minKey) >= 0) :
+              "first key " + ByteUtil.toString(this.cursor.key())
+              + (reverse ? " >= " + ByteUtil.toString(maxKey) + " max key" : " < " + ByteUtil.toString(minKey) + " min key");
 
             // Update from cursor
             this.updateFromCursor();
@@ -361,14 +387,18 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
 
             // Advance cursor
             if (this.reverse) {
+                assert RocksDBUtil.isInitialized(this.cursor);
                 this.cursor.prev();
                 if (RocksDBKVStore.this.log.isTraceEnabled()) {
+                    assert RocksDBUtil.isInitialized(this.cursor);
                     RocksDBKVStore.this.log.trace("seek previous -> "
                       + (this.cursor.isValid() ? new KVPair(this.cursor.key(), this.cursor.value()) : "START"));
                 }
             } else {
+                assert RocksDBUtil.isInitialized(this.cursor);
                 this.cursor.next();
                 if (RocksDBKVStore.this.log.isTraceEnabled()) {
+                    assert RocksDBUtil.isInitialized(this.cursor);
                     RocksDBKVStore.this.log.trace("seek next -> "
                       + (this.cursor.isValid() ? new KVPair(this.cursor.key(), this.cursor.value()) : "END"));
                 }
@@ -381,13 +411,16 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
         private boolean updateFromCursor() {
 
             // Have we run off the end?
+            assert RocksDBUtil.isInitialized(this.cursor);
             if (!this.cursor.isValid()) {
                 this.finished = true;
                 return false;
             }
 
             // Read cursor
+            assert RocksDBUtil.isInitialized(this.cursor);
             final byte[] key = this.cursor.key();
+            assert RocksDBUtil.isInitialized(this.cursor);
             final byte[] value = this.cursor.value();
 
             // Have we reached our bound?
@@ -414,6 +447,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
             this.closed = true;
             if (RocksDBKVStore.this.log.isTraceEnabled())
                 RocksDBKVStore.this.log.trace("closing " + this);
+            assert RocksDBUtil.isInitialized(this.cursor);
             try {
                 this.cursor.dispose();
             } catch (Throwable e) {
