@@ -17,6 +17,22 @@ SHORT TERM
         - https://cloud.google.com/datastore/docs/concepts/overview
     - LMDB
         - https://github.com/deephacks/lmdbjni
+    - FlatFileAtomicKVStore - simplistic atomic data store
+        - Flat file(s) on disk
+            - key/value array file
+                - key/value pairs, ordered by key
+                - pairs contain refs into key & value data files
+            - key data file
+                - prefix optimized? e.g.:
+                    - absolute offset into key file of key prefix
+                    - relative offset from end of prefix to key suffix
+            - value data file
+        - Binary search for keys
+        - Memory map files (if non-trivial size)
+        - Read many, write few
+        - Optional
+            - Write transactions to log file
+            - Background thread consolidates
 
 - key/value layer transaction improvements
     - Add Spring transaction manager
