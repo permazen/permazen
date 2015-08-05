@@ -183,8 +183,30 @@ public class JSimpleField extends JField {
     @Override
     void outputMethods(final ClassGenerator<?> generator, ClassWriter cw) {
 
+        // Get property type
+        final TypeToken<?> propertyType = TypeToken.of(this.getter.getReturnType());
+
         // Getter
-        this.outputReadMethod(generator, cw, ClassGenerator.READ_SIMPLE_FIELD_METHOD);
+        final Method readMethod = ClassGenerator.READ_SIMPLE_FIELD_METHOD;
+        generator.overrideBeanMethod(cw, this.getter, this.storageId, false, new ClassGenerator.CodeEmitter() {
+            @Override
+            public void emit(MethodVisitor mv) {
+
+                // Push "true"
+                mv.visitInsn(Opcodes.ICONST_1);
+
+                // Invoke JTransaction.readXXX()
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
+                  readMethod.getName(), Type.getMethodDescriptor(readMethod), false);
+
+                // Cast result value
+                mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));
+
+                // Unwrap result if necessary
+                if (propertyType.isPrimitive())
+                    generator.unwrap(mv, Primitive.get(propertyType.getRawType()));
+            }
+        });
 
         // Setter
         final Method writeMethod = ClassGenerator.WRITE_SIMPLE_FIELD_METHOD;

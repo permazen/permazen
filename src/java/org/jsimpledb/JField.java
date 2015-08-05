@@ -5,11 +5,8 @@
 
 package org.jsimpledb;
 
-import com.google.common.reflect.TypeToken;
-
 import java.lang.reflect.Method;
 
-import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SchemaField;
 import org.objectweb.asm.ClassWriter;
@@ -84,36 +81,6 @@ public abstract class JField extends JSchemaObject {
     }
 
     abstract void outputMethods(ClassGenerator<?> generator, ClassWriter cw);
-
-    /**
-     * Generate bytecode for getter method override.
-     */
-    void outputReadMethod(final ClassGenerator<?> generator, ClassWriter cw, final Method readMethod) {
-
-        // Get property type
-        final TypeToken<?> propertyType = TypeToken.of(this.getter.getReturnType());
-
-        // Generate method override
-        generator.overrideBeanMethod(cw, this.getter, this.storageId, false, new ClassGenerator.CodeEmitter() {
-            @Override
-            public void emit(MethodVisitor mv) {
-
-                // Push "true"
-                mv.visitInsn(Opcodes.ICONST_1);
-
-                // Invoke JTransaction.readXXX()
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
-                  readMethod.getName(), Type.getMethodDescriptor(readMethod), false);
-
-                // Cast result value
-                mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));
-
-                // Unwrap result if necessary
-                if (propertyType.isPrimitive())
-                    generator.unwrap(mv, Primitive.get(propertyType.getRawType()));
-            }
-        });
-    }
 
     void outputCachedValueField(ClassGenerator<?> generator, ClassWriter cw) {
         final FieldVisitor valueField = cw.visitField(Opcodes.ACC_PRIVATE,
