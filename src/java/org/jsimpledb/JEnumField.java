@@ -15,6 +15,11 @@ import org.jsimpledb.core.EnumFieldType;
 import org.jsimpledb.core.EnumValue;
 import org.jsimpledb.schema.EnumSchemaField;
 import org.jsimpledb.schema.SimpleSchemaField;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * Represents an {@link Enum} field in a {@link JClass}.
@@ -66,6 +71,54 @@ public class JEnumField extends JSimpleField {
     @Override
     JEnumFieldInfo toJFieldInfo(int parentStorageId) {
         return new JEnumFieldInfo(this, parentStorageId);
+    }
+
+// Bytecode generation
+
+    @Override
+    void outputFields(ClassGenerator<?> generator, ClassWriter cw) {
+        final FieldVisitor valueField = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
+          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(EnumConverter.class), null, null);
+        valueField.visitEnd();
+    }
+
+    @Override
+    void outputClassInitializerBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
+        mv.visitLdcInsn(Type.getType(this.typeToken.getRawType()));
+        generator.emitInvoke(mv, ClassGenerator.ENUM_CONVERTER_CREATE_METHOD);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, generator.getClassName(),
+          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(EnumConverter.class));
+    }
+
+    @Override
+    void outputMethods(final ClassGenerator<?> generator, ClassWriter cw) {
+
+        // Getter
+        MethodVisitor mv = cw.visitMethod(
+          this.getter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
+          this.getter.getName(), Type.getMethodDescriptor(this.getter), null, generator.getExceptionNames(this.getter));
+        mv.visitFieldInsn(Opcodes.GETSTATIC, generator.getClassName(),
+          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(EnumConverter.class));
+        generator.emitInvoke(mv, ClassGenerator.CONVERTER_REVERSE_METHOD);
+        this.outputReadCoreValueBytecode(generator, mv);
+        generator.emitInvoke(mv, ClassGenerator.CONVERTER_CONVERT_METHOD);
+        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getter.getReturnType()));
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Setter
+        mv = cw.visitMethod(
+          this.setter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
+          this.setter.getName(), Type.getMethodDescriptor(this.setter), null, generator.getExceptionNames(this.setter));
+        mv.visitFieldInsn(Opcodes.GETSTATIC, generator.getClassName(),
+          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(EnumConverter.class));
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        generator.emitInvoke(mv, ClassGenerator.CONVERTER_CONVERT_METHOD);
+        this.outputWriteCoreValueBytecode(generator, mv);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
     }
 }
 

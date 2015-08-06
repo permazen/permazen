@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Converter;
+
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.Transaction;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -44,6 +47,7 @@ class ClassGenerator<T> {
     static final String TX_FIELD_NAME = "$tx";
     static final String ID_FIELD_NAME = "$id";
     static final String JFIELD_FIELD_PREFIX = "$f";
+    static final String ENUM_CONVERTER_FIELD_PREFIX = "$ec";
 
     // JObject method handles
     static final Method JOBJECT_GET_OBJ_ID_METHOD;
@@ -75,6 +79,20 @@ class ClassGenerator<T> {
     static final Method REVALIDATE_METHOD;
     static final Method COPY_TO_METHOD;
     static final Method GET_SNAPSHOT_TRANSACTION_METHOD;
+    static final Method GET_TRANSACTION_METHOD;
+    static final Method GET_JOBJECT_METHOD;
+    static final Method REGISTER_JOBJECT_METHOD;
+
+    // Converter method handles
+    static final Method CONVERTER_CONVERT_METHOD;
+    static final Method CONVERTER_REVERSE_METHOD;
+
+    // EnumConverter method handles
+    static final Method ENUM_CONVERTER_CREATE_METHOD;
+
+    // Transaction method handles
+    static final Method TRANSACTION_READ_SIMPLE_FIELD_METHOD;
+    static final Method TRANSACTION_WRITE_SIMPLE_FIELD_METHOD;
 
     static {
         try {
@@ -112,6 +130,22 @@ class ClassGenerator<T> {
             COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",
               JTransaction.class, JObject.class, ObjId.class, CopyState.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
+            GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
+            GET_JOBJECT_METHOD = JTransaction.class.getMethod("getJObject", ObjId.class);
+            REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
+
+            // Transaction methods
+            TRANSACTION_READ_SIMPLE_FIELD_METHOD = Transaction.class.getMethod("readSimpleField",
+              ObjId.class, int.class, boolean.class);
+            TRANSACTION_WRITE_SIMPLE_FIELD_METHOD = Transaction.class.getMethod("writeSimpleField",
+              ObjId.class, int.class, Object.class, boolean.class);
+
+            // Converter
+            CONVERTER_CONVERT_METHOD = Converter.class.getMethod("convert", Object.class);
+            CONVERTER_REVERSE_METHOD = Converter.class.getMethod("reverse");
+
+            // EnumConverter
+            ENUM_CONVERTER_CREATE_METHOD = EnumConverter.class.getMethod("createEnumConverter", Class.class);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("internal error", e);
         }
@@ -256,6 +290,17 @@ class ClassGenerator<T> {
     }
 
     private void outputMethods(ClassWriter cw) {
+
+        // Output <clinit>
+        if (this.jclass != null) {
+            MethodVisitor mv = cw.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "<clinit>", "()V", null, null);
+            mv.visitCode();
+            for (JField jfield : this.jclass.jfields.values())
+                jfield.outputClassInitializerBytecode(this, mv);
+            mv.visitInsn(Opcodes.RETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        }
 
         // Output JObject.getTransaction()
         MethodVisitor mv = this.startMethod(cw, JOBJECT_GET_TRANSACTION);
@@ -425,36 +470,6 @@ class ClassGenerator<T> {
     }
 
     /**
-     * Emit code that overrides a Java bean method. When the {@code emitter} runs, the stack will look like:
-     * {@code ..., tx, this OR this.id, storageId }.
-     */
-    void overrideBeanMethod(ClassWriter cw, Method method, int storageId, boolean jobject, CodeEmitter emitter) {
-
-        // Generate initial stuff
-        final MethodVisitor mv = cw.visitMethod(
-          method.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PRIVATE | Opcodes.ACC_PROTECTED),
-          method.getName(), Type.getMethodDescriptor(method), null, this.getExceptionNames(method));
-
-        // Push this.getTransaction(), this.id
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        if (!jobject)
-            mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
-        mv.visitLdcInsn(storageId);
-
-        // Emit caller-specific stuff
-        emitter.emit(mv);
-
-        // Return
-        mv.visitInsn(Type.getType(method.getReturnType()).getOpcode(Opcodes.IRETURN));
-
-        // Finish up
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
-    /**
      * Emit code that wraps the primitive value on the top of the stack.
      */
     void wrap(MethodVisitor mv, Primitive<?> primitive) {
@@ -498,7 +513,10 @@ class ClassGenerator<T> {
           method.getName(), Type.getMethodDescriptor(method), null, this.getExceptionNames(method));
     }
 
-    private String[] getExceptionNames(Method method) {
+    /**
+     * Get list of exception types for method.
+     */
+    String[] getExceptionNames(Method method) {
         ArrayList<String> list = new ArrayList<String>();
         for (Class<?> type : method.getExceptionTypes())
             list.add(Type.getType(type).getInternalName());

@@ -77,6 +77,9 @@ public abstract class JField extends JSchemaObject {
 
 // Bytecode generation
 
+    void outputClassInitializerBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
+    }
+
     void outputFields(ClassGenerator<?> generator, ClassWriter cw) {
     }
 
@@ -114,6 +117,7 @@ public abstract class JField extends JSchemaObject {
         mv.visitFieldInsn(Opcodes.PUTFIELD, generator.getClassName(),
           this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()));
         mv.visitLabel(valueReady);
+        mv.visitFrame(Opcodes.F_SAME1, 0, new Object[0], 1, new String[] { Type.getInternalName(this.getCachedValueFieldType()) });
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

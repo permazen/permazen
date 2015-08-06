@@ -15,6 +15,11 @@ import org.jsimpledb.core.DeleteAction;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ReferenceFieldType;
 import org.jsimpledb.schema.ReferenceSchemaField;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * Represents a reference field in a {@link JClass} or a reference sub-field of a complex field in a {@link JClass}.
@@ -80,6 +85,58 @@ public class JReferenceField extends JSimpleField {
     @Override
     JReferenceFieldInfo toJFieldInfo(int parentStorageId) {
         return new JReferenceFieldInfo(this, parentStorageId);
+    }
+
+// Bytecode generation
+
+    @Override
+    void outputMethods(final ClassGenerator<?> generator, ClassWriter cw) {
+
+        // Getter
+        MethodVisitor mv = cw.visitMethod(
+          this.getter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
+          this.getter.getName(), Type.getMethodDescriptor(this.getter), null, generator.getExceptionNames(this.getter));
+        this.outputReadCoreValueBytecode(generator, mv);
+        mv.visitInsn(Opcodes.DUP);
+        final Label label1 = new Label();
+        mv.visitJumpInsn(Opcodes.IFNONNULL, label1);
+        mv.visitInsn(Opcodes.POP);
+        mv.visitInsn(Opcodes.ACONST_NULL);
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitLabel(label1);
+        mv.visitFrame(Opcodes.F_SAME1, 0, new Object[0], 1, new String[] { Type.getInternalName(Object.class) });
+        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(ObjId.class));
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
+          ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        mv.visitInsn(Opcodes.SWAP);
+        generator.emitInvoke(mv, ClassGenerator.GET_JOBJECT_METHOD);
+        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getter.getReturnType()));
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // Setter
+        mv = cw.visitMethod(
+          this.setter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
+          this.setter.getName(), Type.getMethodDescriptor(this.setter), null, generator.getExceptionNames(this.setter));
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        final Label label2 = new Label();
+        final Label label3 = new Label();
+        mv.visitJumpInsn(Opcodes.IFNONNULL, label2);
+        mv.visitInsn(Opcodes.ACONST_NULL);
+        mv.visitJumpInsn(Opcodes.GOTO, label3);
+        mv.visitLabel(label2);
+        mv.visitFrame(Opcodes.F_SAME, 0, new Object[0], 0, new Object[0]);
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        generator.emitInvoke(mv, ClassGenerator.JOBJECT_GET_OBJ_ID_METHOD);
+        mv.visitLabel(label3);
+        mv.visitFrame(Opcodes.F_SAME1, 0, new Object[0], 1, new String[] { Type.getInternalName(ObjId.class) });
+        //mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(ObjId.class));
+        this.outputWriteCoreValueBytecode(generator, mv);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
     }
 }
 

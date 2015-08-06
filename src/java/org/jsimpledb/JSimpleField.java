@@ -16,6 +16,7 @@ import java.util.Comparator;
 
 import org.dellroad.stuff.java.Primitive;
 import org.jsimpledb.core.FieldType;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -180,55 +181,77 @@ public class JSimpleField extends JField {
         schemaField.setIndexed(this.indexed);
     }
 
+// Bytecode generation
+
     @Override
     void outputMethods(final ClassGenerator<?> generator, ClassWriter cw) {
 
-        // Get property type
+        // Get field info
         final TypeToken<?> propertyType = TypeToken.of(this.getter.getReturnType());
 
         // Getter
-        final Method readMethod = ClassGenerator.READ_SIMPLE_FIELD_METHOD;
-        generator.overrideBeanMethod(cw, this.getter, this.storageId, false, new ClassGenerator.CodeEmitter() {
-            @Override
-            public void emit(MethodVisitor mv) {
-
-                // Push "true"
-                mv.visitInsn(Opcodes.ICONST_1);
-
-                // Invoke JTransaction.readXXX()
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
-                  readMethod.getName(), Type.getMethodDescriptor(readMethod), false);
-
-                // Cast result value
-                mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));
-
-                // Unwrap result if necessary
-                if (propertyType.isPrimitive())
-                    generator.unwrap(mv, Primitive.get(propertyType.getRawType()));
-            }
-        });
+        MethodVisitor mv = cw.visitMethod(
+          this.getter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
+          this.getter.getName(), Type.getMethodDescriptor(this.getter), null, generator.getExceptionNames(this.getter));
+        this.outputReadCoreValueBytecode(generator, mv);
+        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));
+        if (propertyType.isPrimitive())
+            generator.unwrap(mv, Primitive.get(propertyType.getRawType()));
+        mv.visitInsn(Type.getType(this.getter.getReturnType()).getOpcode(Opcodes.IRETURN));
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
 
         // Setter
-        final Method writeMethod = ClassGenerator.WRITE_SIMPLE_FIELD_METHOD;
-        generator.overrideBeanMethod(cw, this.setter, this.storageId, true, new ClassGenerator.CodeEmitter() {
-            @Override
-            public void emit(MethodVisitor mv) {
+        mv = cw.visitMethod(
+          this.setter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
+          this.setter.getName(), Type.getMethodDescriptor(this.setter), null, generator.getExceptionNames(this.setter));
+        mv.visitVarInsn(Type.getType(this.typeToken.getRawType()).getOpcode(Opcodes.ILOAD), 1);
+        if (this.typeToken.isPrimitive())
+            generator.wrap(mv, Primitive.get(this.typeToken.getRawType()));
+        this.outputWriteCoreValueBytecode(generator, mv);
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
 
-                // Push field value
-                mv.visitVarInsn(Type.getType(JSimpleField.this.typeToken.getRawType()).getOpcode(Opcodes.ILOAD), 1);
+    void outputReadCoreValueBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
 
-                // Wrap result if needed
-                if (JSimpleField.this.typeToken.isPrimitive())
-                    generator.wrap(mv, Primitive.get(JSimpleField.this.typeToken.getRawType()));
+        // Get field info
+        final TypeToken<?> propertyType = TypeToken.of(this.getter.getReturnType());
 
-                // Push "true"
-                mv.visitInsn(Opcodes.ICONST_1);
+        // this.$tx.getTransaction().readSimpleField(this.id, STORAGEID, true)
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
+          ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        generator.emitInvoke(mv, ClassGenerator.GET_TRANSACTION_METHOD);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
+          ClassGenerator.ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+        mv.visitLdcInsn(this.storageId);
+        mv.visitInsn(Opcodes.ICONST_1);
+        generator.emitInvoke(mv, ClassGenerator.TRANSACTION_READ_SIMPLE_FIELD_METHOD);
+    }
 
-                // Invoke Transaction.writeSimpleField()
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),
-                  writeMethod.getName(), Type.getMethodDescriptor(writeMethod), false);
-            }
-        });
+    void outputWriteCoreValueBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
+
+        // JTransaction.registerJObject(this);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        generator.emitInvoke(mv, ClassGenerator.REGISTER_JOBJECT_METHOD);
+
+        // this.$tx.getTransaction().writeSimpleField(this.id, STORAGEID, STACK[0], true)
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
+          ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
+        generator.emitInvoke(mv, ClassGenerator.GET_TRANSACTION_METHOD);
+        mv.visitInsn(Opcodes.SWAP);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
+          ClassGenerator.ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+        mv.visitInsn(Opcodes.SWAP);
+        mv.visitLdcInsn(this.storageId);
+        mv.visitInsn(Opcodes.SWAP);
+        mv.visitInsn(Opcodes.ICONST_1);
+        generator.emitInvoke(mv, ClassGenerator.TRANSACTION_WRITE_SIMPLE_FIELD_METHOD);
     }
 
     @Override
