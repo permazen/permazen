@@ -168,6 +168,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #readSetField readSetField()} - Access a set field</li>
  *  <li>{@link #readListField readListField()} - Access a list field</li>
  *  <li>{@link #readMapField readMapField()} - Access a map field</li>
+ *  <li>{@link #registerJObject registerJObject()} - Ensure a {@link JObject} is registered in the object cache</li>
  * </ul>
  *
  * <p>
@@ -512,7 +513,7 @@ public class JTransaction {
         Preconditions.checkArgument(refPaths != null, "null refPaths");
 
         // Handle possible re-entrant object cache load
-        srcObj.getTransaction().getJObjectCache().registerJObject(srcObj);
+        JTransaction.registerJObject(srcObj);
 
         // Get source and dest ID
         final ObjId srcId = srcObj.getObjId();
@@ -635,7 +636,7 @@ public class JTransaction {
                 continue;
 
             // Handle possible re-entrant object cache load
-            jobj.getTransaction().getJObjectCache().registerJObject(jobj);
+            JTransaction.registerJObject(jobj);
 
             // Copy object
             final ObjId id = jobj.getObjId();
@@ -794,7 +795,9 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean delete(JObject jobj) {
-        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
+
+        // Handle possible re-entrant object cache load
+        JTransaction.registerJObject(jobj);
 
         // Delete object
         final ObjId id = jobj.getObjId();
@@ -842,7 +845,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean recreate(JObject jobj) {
-        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
+        JTransaction.registerJObject(jobj);                                     // handle possible re-entrant object cache load
         return this.tx.create(jobj.getObjId());
     }
 
@@ -930,8 +933,22 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean updateSchemaVersion(JObject jobj) {
-        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
+        JTransaction.registerJObject(jobj);                                     // handle possible re-entrant object cache load
         return this.tx.updateSchemaVersion(jobj.getObjId());
+    }
+
+    /**
+     * Ensure the given {@link JObject} is registered in its associated transaction's object cache.
+     *
+     * <p>
+     * This method is used internally, to handle mutations in model class superclass constructors, which will occur
+     * before the newly created {@link JObject} is fully constructed and associated with its {@link JTransaction}.
+     *
+     * @param jobj object to register
+     * @throws NullPointerException if {@code jobj} is null
+     */
+    public static void registerJObject(JObject jobj) {
+        jobj.getTransaction().getJObjectCache().registerJObject(jobj);
     }
 
     /**
@@ -983,7 +1000,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public void writeSimpleField(JObject jobj, int storageId, Object value, boolean updateVersion) {
-        jobj.getTransaction().getJObjectCache().registerJObject(jobj);              // handle possible re-entrant object cache load
+        JTransaction.registerJObject(jobj);                                    // handle possible re-entrant object cache load
         final Converter<?, ?> converter = this.jdb.getJFieldInfo(storageId, JSimpleFieldInfo.class).getConverter(this);
         if (converter != null)
             value = this.convert(converter.reverse(), value);
