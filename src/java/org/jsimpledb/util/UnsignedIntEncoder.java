@@ -14,8 +14,44 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 /**
- * Encodes unsigned (i.e., non-negative) {@code int} values to/from binary, preserving sort order, and such
+ * Encodes unsigned (i.e., non-negative) {@code int} values to/from self-delimited binary, preserving sort order, and such
  * that the length of the encoding is optimized for values near zero and encoded values never begin with {@code 0xff}.
+ *
+ * <p>
+ * The encoding uses a simple prefixing format:
+ *
+ * <div style="margin-left: 20px;">
+ * <table border="1" cellpadding="3" cellspacing="0" summary="Encoding Format">
+ * <tr style="bgcolor:#ccffcc">
+ *  <th align="left">Encoded Bytes</th>
+ *  <th align="left">Value</th>
+ * </tr>
+ * <tr>
+ *  <td>{@code 0x00 ... 0xfa}</td>
+ *  <td>Same</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code 0xfb 0xWW}</td>
+ *  <td>{@code 0xWW}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code 0xfc 0xWW 0xXX}</td>
+ *  <td>{@code 0xWWXX}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code 0xfd 0xWW 0xXX 0xYY}</td>
+ *  <td>{@code 0xWWXXYY}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code 0xfe 0xWW 0xXX 0xYY 0xZZ}</td>
+ *  <td>{@code 0xWWXXYYZZ}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@code 0xff}</td>
+ *  <td>Illegal</td>
+ * </tr>
+ * </table>
+ * </div>
  */
 public final class UnsignedIntEncoder {
 
