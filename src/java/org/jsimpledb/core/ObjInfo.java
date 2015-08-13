@@ -17,16 +17,19 @@ class ObjInfo {
     private static final int META_DATA_VERSION = 1;
 
     // Stored meta-data
-    private final Transaction tx;
-    private final ObjId id;
-    private final int version;
-    private final boolean deleteNotified;
+    final Transaction tx;
+    final ObjId id;
+    final int version;
+    final boolean deleteNotified;
 
     // Additional derived meta-data
-    private Schema schema;
-    private ObjType objType;
+    Schema schema;
+    ObjType objType;
 
+    // Constructor that reads from key/value store
     ObjInfo(Transaction tx, ObjId id) {
+        assert tx != null;
+        assert id != null;
         this.tx = tx;
         this.id = id;
         final byte[] value = tx.kvt.get(this.id.getBytes());
@@ -42,12 +45,20 @@ class ObjInfo {
         this.deleteNotified = FieldTypeRegistry.BOOLEAN.read(reader);
     }
 
-    public ObjId getId() {
-        return this.id;
+    // Constructor for explicitly given data
+    ObjInfo(Transaction tx, ObjId id, int version, boolean deleteNotified, Schema schema, ObjType objType) {
+        assert tx != null;
+        assert id != null;
+        this.tx = tx;
+        this.id = id;
+        this.version = version;
+        this.deleteNotified = deleteNotified;
+        this.schema = schema;
+        this.objType = objType;
     }
 
-    public int getStorageId() {
-        return id.getStorageId();
+    public ObjId getId() {
+        return this.id;
     }
 
     public int getVersion() {
@@ -72,7 +83,7 @@ class ObjInfo {
     public ObjType getObjType() {
         if (this.objType == null) {
             try {
-                this.objType = this.getSchema().getObjType(this.getStorageId());
+                this.objType = this.getSchema().getObjType(this.id.getStorageId());
             } catch (IllegalArgumentException e) {
                 throw new InconsistentDatabaseException("object " + this.id + " has invalid storage ID", e);
             }
