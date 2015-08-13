@@ -7,8 +7,12 @@ package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -172,6 +176,7 @@ import org.slf4j.LoggerFactory;
 public class Transaction {
 
     private static final int MAX_GENERATED_KEY_ATTEMPTS = 1000;
+    private static final int MAX_OBJ_INFO_CACHE_ENTRIES = 1000;
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -190,6 +195,14 @@ public class Transaction {
     private final HashSet<DeleteListener> deleteListeners = new HashSet<>();
     private final TreeMap<Integer, HashSet<FieldMonitor>> monitorMap = new TreeMap<>();
     private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
+    private final LoadingCache<ObjId, ObjInfo> objInfoCache = CacheBuilder.newBuilder()
+      .maximumSize(MAX_OBJ_INFO_CACHE_ENTRIES)
+      .build(new CacheLoader<ObjId, ObjInfo>() {
+        @Override
+        public ObjInfo load(ObjId id) {
+            return new ObjInfo(Transaction.this, id);
+        }
+      });
 
 // Constructors
 
@@ -556,7 +569,9 @@ public class Transaction {
             return false;
 
         // Initialize object
-        this.initialize(id, this.schemas.getVersion(versionNumber).getObjType(id.getStorageId()));
+        final Schema objSchema = versionNumber == this.schema.versionNumber ? this.schema : this.schemas.getVersion(versionNumber);
+        final ObjType objType = objSchema.getObjType(id.getStorageId());
+        this.initialize(id, versionNumber, objSchema, objType);
 
         // Done
         return true;
@@ -601,13 +616,14 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        final ObjType objType = this.schemas.getVersion(versionNumber).getObjType(storageId);
+        final Schema objSchema = versionNumber == this.schema.versionNumber ? this.schema : this.schemas.getVersion(versionNumber);
+        final ObjType objType = objSchema.getObjType(storageId);
 
         // Generate object ID
-        final ObjId id = this.generateIdValidated(objType.storageId);
+        final ObjId id = this.generateIdValidated(storageId);
 
         // Initialize object
-        this.initialize(id, objType);
+        this.initialize(id, versionNumber, objSchema, objType);
 
         // Done
         return id;
@@ -649,7 +665,7 @@ public class Transaction {
           + MAX_GENERATED_KEY_ATTEMPTS + " attempts; is our source of randomness truly random?");
     }
 
-    private synchronized void initialize(ObjId id, ObjType objType) {
+    private synchronized void initialize(ObjId id, int versionNumber, Schema schema, ObjType objType) {
 
         // Sanity check
         if (this.stale)
@@ -657,8 +673,9 @@ public class Transaction {
         if (this.readOnly)
             throw new ReadOnlyTransactionException(this);
 
-        // Write object meta-data
-        ObjInfo.write(this, id, objType.schema.versionNumber, false);
+        // Write object meta-data and update object info cache
+        ObjInfo.write(this, id, versionNumber, false);
+        this.objInfoCache.put(id, new ObjInfo(this, id, versionNumber, false, schema, objType));
 
         // Write object version index entry
         this.kvt.put(Database.buildVersionIndexKey(id, objType.schema.versionNumber), ByteUtil.EMPTY);
@@ -774,8 +791,11 @@ public class Transaction {
             if (info.isDeleteNotified() || this.deleteListeners.isEmpty())
                 break;
 
-            // Issue delete notifications and retry
+            // Set "delete notified" flag and update object info cache
             ObjInfo.write(this, id, info.getVersion(), true);
+            this.objInfoCache.put(id, new ObjInfo(this, id, info.getVersion(), true, info.schema, info.objType));
+
+            // Issue delete notifications and retry
             for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
                 listener.onDelete(this, id);
         }
@@ -847,6 +867,9 @@ public class Transaction {
 
         // Delete object schema version entry
         this.kvt.remove(Database.buildVersionIndexKey(id, info.getVersion()));
+
+        // Update ObjInfo cache
+        this.objInfoCache.invalidate(id);
     }
 
     /**
@@ -1370,8 +1393,9 @@ public class Transaction {
 
     //////// Update object version and corresponding index entry
 
-        // Update object version
+        // Change object version and update object info cache
         ObjInfo.write(this, id, newVersion, info.isDeleteNotified());
+        this.objInfoCache.put(id, new ObjInfo(this, id, newVersion, info.isDeleteNotified(), targetVersion, newType));
 
         // Update object version index entry
         this.kvt.remove(Database.buildVersionIndexKey(id, oldVersion));
@@ -2014,25 +2038,41 @@ public class Transaction {
         // Sanity check
         assert Thread.holdsLock(this);
 
-        // Check object type
-        this.schemas.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.class);
+        // Load object info into cache, if not already there
+        ObjInfo info = this.objInfoCache.getIfPresent(id);
+        if (info == null) {
 
-        // Check schema version
-        final ObjInfo info = new ObjInfo(this, id);
-        if (!update || info.getSchema() == this.schema)
+            // Verify object type encoded within object ID is valid
+            this.schemas.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.class);
+
+            // Load object into cache; if object doesn't exist, we'll get an exception here
+            try {
+                info = this.objInfoCache.getUnchecked(id);
+            } catch (UncheckedExecutionException e) {
+                throw (RuntimeException)e.getCause();
+            }
+        }
+
+        // Is a schema udpate required?
+        if (!update || info.getVersion() == this.schema.versionNumber)
             return info;
 
         // Update schema version
+        final ObjInfo info2 = info;
         this.mutateAndNotify(new Mutation<Void>() {
             @Override
             public Void mutate() {
-                Transaction.this.updateVersion(info, Transaction.this.schema);
+                Transaction.this.updateVersion(info2, Transaction.this.schema);
                 return null;
             }
         });
 
         // Get updated object info
-        return new ObjInfo(this, id);
+        try {
+            return this.objInfoCache.getUnchecked(id);
+        } catch (UncheckedExecutionException e) {
+            throw (RuntimeException)e.getCause();
+        }
     }
 
 // Field Change Notifications
