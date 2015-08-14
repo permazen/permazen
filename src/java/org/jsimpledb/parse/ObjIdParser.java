@@ -71,7 +71,7 @@ public class ObjIdParser implements Parser<ObjId> {
         final ArrayList<String> completions = new ArrayList<>();
         final ObjId min = min0;
         final ObjId max = max0;
-        session.perform(new ParseSession.Action() {
+        session.performParseSessionAction(new ParseSession.Action() {
             @Override
             public void run(ParseSession session) throws Exception {
                 final Transaction tx = session.getTransaction();

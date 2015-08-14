@@ -77,7 +77,7 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
 
     @Override
     protected void doInTransaction(final Runnable action) {
-        this.session.perform(new ParseSession.Action() {
+        this.session.performParseSessionAction(new ParseSession.Action() {
             @Override
             public void run(ParseSession session) {
                 action.run();
@@ -87,7 +87,7 @@ public class ExprQueryJObjectContainer extends JObjectContainer {
 
     @Override
     protected void doInCurrentTransaction(final Runnable action) {
-        this.session.performWithCurrentTransaction(new ParseSession.Action() {
+        this.session.performParseSessionActionWithCurrentTransaction(new ParseSession.Action() {
             @Override
             public void run(ParseSession session) {
                 action.run();

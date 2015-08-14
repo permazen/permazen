@@ -140,7 +140,7 @@ public class Session {
      * Get the open {@link KVTransaction} currently associated with this instance.
      *
      * @return the open {@link KVTransaction} in which to do work
-     * @throws IllegalStateException if {@link #perform perform()} is not currently being invoked
+     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
      */
     public KVTransaction getKVTransaction() {
         Preconditions.checkState(this.kvt != null, "no transaction is currently associated with this session");
@@ -151,7 +151,7 @@ public class Session {
      * Get the open {@link Transaction} currently associated with this instance.
      *
      * @return the open {@link Transaction} in which to do work
-     * @throws IllegalStateException if {@link #perform perform()} is not currently being invoked
+     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
      * @throws IllegalStateException if this instance is not in mode {@link SessionMode#CORE_API} or {@link SessionMode#JSIMPLEDB}
      */
     public Transaction getTransaction() {
@@ -167,7 +167,7 @@ public class Session {
      * This method just invokes {@link JTransaction#getCurrent} and returns the result.
      *
      * @return the open {@link JTransaction} in which to do work
-     * @throws IllegalStateException if {@link #perform perform()} is not currently being invoked
+     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
      * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
      */
     public JTransaction getJTransaction() {
@@ -278,14 +278,14 @@ public class Session {
 // Errors
 
     /**
-     * Handle an exception thrown during an invocation of {@link #perform perform()}.
+     * Handle an exception thrown during an invocation of {@link #performSessionAction performSessionAction()}.
      *
      * <p>
      * The implementation in {@code Session} logs an error message. Subclasses are encouraged to
      * handle errors more gracefully within the context of the associated application.
      * </p>
      *
-     * @param e exception thrown during {@link #perform perform()}
+     * @param e exception thrown during {@link #performSessionAction performSessionAction()}
      */
     protected void reportException(Exception e) {
         this.log.error("exception within session", e);
@@ -313,7 +313,7 @@ public class Session {
      * @throws IllegalStateException if there is already an open transaction associated with this instance
      * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
      */
-    public boolean performWithCurrentTransaction(Action action) {
+    public boolean performSessionActionWithCurrentTransaction(Action action) {
 
         // Sanity check
         Preconditions.checkArgument(action != null, "null action");
@@ -362,7 +362,7 @@ public class Session {
      * @throws IllegalArgumentException if {@code action} is null
      * @throws IllegalStateException if there is already an open transaction associated with this instance
      */
-    public boolean perform(Action action) {
+    public boolean performSessionAction(Action action) {
 
         // Sanity check
         Preconditions.checkArgument(action != null, "null action");
@@ -391,7 +391,7 @@ public class Session {
     /**
      * Mark the current transaction to be rolled back.
      *
-     * @throws IllegalStateException if {@link #perform perform()} is not currently being invoked
+     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
      */
     public void setRollbackOnly() {
         Preconditions.checkState(this.kvt != null, "no transaction is open in this session");
@@ -505,7 +505,8 @@ public class Session {
 // Action
 
     /**
-     * Callback interface used by {@link Session#perform Session.perform()}.
+     * Callback interface used by {@link Session#performSessionAction Session.performSessionAction()}
+     * and {@link Session#performSessionActionWithCurrentTransaction Session.performSessionActionWithCurrentTransaction()}.
      */
     public interface Action {
 

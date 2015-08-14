@@ -218,7 +218,7 @@ public class Console {
                 // Parse command(s)
                 final ArrayList<CliSession.Action> actions = new ArrayList<>();
                 final boolean[] needMoreInput = new boolean[1];
-                final boolean ok = this.session.perform(new CliSession.Action() {
+                final boolean ok = this.session.performCliSessionAction(new CliSession.Action() {
                     @Override
                     public void run(CliSession session) {
                         session.setRollbackOnly();
@@ -242,7 +242,7 @@ public class Console {
 
                 // Execute commands
                 for (CliSession.Action action : actions) {
-                    if (!this.session.perform(action))
+                    if (!this.session.performCliSessionAction(action))
                         break;
                 }
 
@@ -269,7 +269,7 @@ public class Console {
         Preconditions.checkArgument(text != null, "null text");
         final ParseContext ctx = new ParseContext(text);
         final ArrayList<CliSession.Action> actions = new ArrayList<>();
-        return this.session.perform(new CliSession.Action() {
+        return this.session.performCliSessionAction(new CliSession.Action() {
             @Override
             public void run(CliSession session) {
                 session.setRollbackOnly();
@@ -291,7 +291,7 @@ public class Console {
         @Override
         public int complete(final String buffer, final int cursor, final List<CharSequence> candidates) {
             final int[] result = new int[1];
-            Console.this.session.perform(new CliSession.Action() {
+            Console.this.session.performCliSessionAction(new CliSession.Action() {
                 @Override
                 public void run(CliSession session) {
                     session.setRollbackOnly();

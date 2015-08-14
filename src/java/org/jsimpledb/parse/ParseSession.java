@@ -272,8 +272,8 @@ public class ParseSession extends Session {
      * @throws IllegalArgumentException if {@code action} is null
      * @throws IllegalStateException if there is already an open transaction associated with this instance
      */
-    public boolean perform(final Action action) {
-        return this.perform(new Session.Action() {
+    public boolean performParseSessionAction(final Action action) {
+        return this.performSessionAction(new Session.Action() {
             @Override
             public void run(Session session) throws Exception {
                 action.run((ParseSession)session);
@@ -302,8 +302,8 @@ public class ParseSession extends Session {
      * @throws IllegalStateException if there is already an open transaction associated with this instance
      * @throws IllegalStateException if this instance is not in mode {@link org.jsimpledb.SessionMode#JSIMPLEDB}
      */
-    public boolean performWithCurrentTransaction(final Action action) {
-        return this.performWithCurrentTransaction(new Session.Action() {
+    public boolean performParseSessionActionWithCurrentTransaction(final Action action) {
+        return this.performSessionActionWithCurrentTransaction(new Session.Action() {
             @Override
             public void run(Session session) throws Exception {
                 action.run((ParseSession)session);
@@ -312,7 +312,9 @@ public class ParseSession extends Session {
     }
 
     /**
-     * Callback interface used by {@link ParseSession#perform ParseSession.perform()}.
+     * Callback interface used by {@link ParseSession#performParseSessionAction ParseSession.performParseSessionAction()}
+     * and {@link ParseSession#performParseSessionActionWithCurrentTransaction
+     *  ParseSession.performParseSessionActionWithCurrentTransaction()}.
      */
     public interface Action {
 

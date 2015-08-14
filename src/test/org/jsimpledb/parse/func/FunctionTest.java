@@ -74,7 +74,7 @@ public class FunctionTest extends TestSupport {
 
     private void testExpression(final String expression, Object expected) {
         final Object[] actual = new Object[1];
-        this.session.perform(new ParseSession.Action() {
+        this.session.performParseSessionAction(new ParseSession.Action() {
             @Override
             public void run(ParseSession session) throws Exception {
                 actual[0] = new ExprParser().parse(session, new ParseContext(expression), false).evaluate(session).get(session);

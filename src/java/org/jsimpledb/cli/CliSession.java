@@ -264,8 +264,8 @@ public class CliSession extends ParseSession {
      * @throws IllegalArgumentException if {@code action} is null
      * @throws IllegalStateException if there is already an open transaction associated with this instance
      */
-    public boolean perform(final Action action) {
-        return this.perform(new Session.Action() {
+    public boolean performCliSessionAction(final Action action) {
+        return this.performSessionAction(new Session.Action() {
             @Override
             public void run(Session session) throws Exception {
                 action.run((CliSession)session);
@@ -294,8 +294,8 @@ public class CliSession extends ParseSession {
      * @throws IllegalStateException if there is already an open transaction associated with this instance
      * @throws IllegalStateException if this instance is not in mode {@link org.jsimpledb.SessionMode#JSIMPLEDB}
      */
-    public boolean performWithCurrentTransaction(final Action action) {
-        return this.performWithCurrentTransaction(new Session.Action() {
+    public boolean performCliSessionActionWithCurrentTransaction(final Action action) {
+        return this.performSessionActionWithCurrentTransaction(new Session.Action() {
             @Override
             public void run(Session session) throws Exception {
                 action.run((CliSession)session);
@@ -304,7 +304,9 @@ public class CliSession extends ParseSession {
     }
 
     /**
-     * Callback interface used by {@link CliSession#perform CliSession.perform()}.
+     * Callback interface used by {@link CliSession#performCliSessionAction CliSession.performCliSessionAction()}
+     * and {@link CliSession#performCliSessionActionWithCurrentTransaction
+     *  CliSession.performCliSessionActionWithCurrentTransaction()}.
      */
     public interface Action {
 

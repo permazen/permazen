@@ -200,7 +200,7 @@ public class Main extends AbstractMain {
         if (!this.oneShotCommands.isEmpty()) {
             for (String text : this.oneShotCommands) {
                 for (CliSession.Action action : console.parseCommand(text)) {
-                    if (!session.perform(action))
+                    if (!session.performCliSessionAction(action))
                         return 1;
                 }
             }
