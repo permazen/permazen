@@ -71,9 +71,9 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Normal transactions are created via {@link #createTransaction createTransaction()}. "Snapshot" transactions are
  * special transactions that are "detached" from the database and can persist indefinitely. See
- * {@link createSnapshotTransaction createSnapshotTransaction()}, {@link JTransaction#getSnapshotTransaction}, and
  * {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()},
- * and the methdos {@link JObject#copyOut JObject.copyOut} and {@link JObject#copyIn JObject.copyIn}.
+ * {@link JTransaction#getSnapshotTransaction}, and the methods {@link JObject#copyOut JObject.copyOut} and
+ * {@link JObject#copyIn JObject.copyIn}.
  *
  * @see JObject
  * @see JTransaction
