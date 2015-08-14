@@ -18,8 +18,8 @@ import org.jsimpledb.core.ObjId;
  * {@link JTransaction} support methods.
  *
  * <p>
- * All {@link JObject}s are {@linkplain #getTransaction associated} with a specific {@linkplain JTransaction transaction},
- * and are the unique representatives of for their corresponding {@link ObjId} in that transaction.
+ * All {@link JObject}s are {@linkplain #getTransaction associated} with a specific {@linkplain JTransaction},
+ * and are the unique representatives for their corresponding {@link ObjId} in that transaction.
  * All field state derives from the transaction.
  *
  * @see JTransaction
