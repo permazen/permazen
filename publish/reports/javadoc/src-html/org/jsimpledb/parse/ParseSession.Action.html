@@ -280,8 +280,8 @@
 <span class="sourceLineNo">272</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.272"></a>
 <span class="sourceLineNo">273</span>     * @throws IllegalStateException if there is already an open transaction associated with this instance<a name="line.273"></a>
 <span class="sourceLineNo">274</span>     */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>    public boolean perform(final Action action) {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        return this.perform(new Session.Action() {<a name="line.276"></a>
+<span class="sourceLineNo">275</span>    public boolean performParseSessionAction(final Action action) {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        return this.performSessionAction(new Session.Action() {<a name="line.276"></a>
 <span class="sourceLineNo">277</span>            @Override<a name="line.277"></a>
 <span class="sourceLineNo">278</span>            public void run(Session session) throws Exception {<a name="line.278"></a>
 <span class="sourceLineNo">279</span>                action.run((ParseSession)session);<a name="line.279"></a>
@@ -310,8 +310,8 @@
 <span class="sourceLineNo">302</span>     * @throws IllegalStateException if there is already an open transaction associated with this instance<a name="line.302"></a>
 <span class="sourceLineNo">303</span>     * @throws IllegalStateException if this instance is not in mode {@link org.jsimpledb.SessionMode#JSIMPLEDB}<a name="line.303"></a>
 <span class="sourceLineNo">304</span>     */<a name="line.304"></a>
-<span class="sourceLineNo">305</span>    public boolean performWithCurrentTransaction(final Action action) {<a name="line.305"></a>
-<span class="sourceLineNo">306</span>        return this.performWithCurrentTransaction(new Session.Action() {<a name="line.306"></a>
+<span class="sourceLineNo">305</span>    public boolean performParseSessionActionWithCurrentTransaction(final Action action) {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        return this.performSessionActionWithCurrentTransaction(new Session.Action() {<a name="line.306"></a>
 <span class="sourceLineNo">307</span>            @Override<a name="line.307"></a>
 <span class="sourceLineNo">308</span>            public void run(Session session) throws Exception {<a name="line.308"></a>
 <span class="sourceLineNo">309</span>                action.run((ParseSession)session);<a name="line.309"></a>
@@ -320,20 +320,22 @@
 <span class="sourceLineNo">312</span>    }<a name="line.312"></a>
 <span class="sourceLineNo">313</span><a name="line.313"></a>
 <span class="sourceLineNo">314</span>    /**<a name="line.314"></a>
-<span class="sourceLineNo">315</span>     * Callback interface used by {@link ParseSession#perform ParseSession.perform()}.<a name="line.315"></a>
-<span class="sourceLineNo">316</span>     */<a name="line.316"></a>
-<span class="sourceLineNo">317</span>    public interface Action {<a name="line.317"></a>
-<span class="sourceLineNo">318</span><a name="line.318"></a>
-<span class="sourceLineNo">319</span>        /**<a name="line.319"></a>
-<span class="sourceLineNo">320</span>         * Perform some action using the given {@link ParseSession} while a transaction is open.<a name="line.320"></a>
-<span class="sourceLineNo">321</span>         *<a name="line.321"></a>
-<span class="sourceLineNo">322</span>         * @param session session with open transaction<a name="line.322"></a>
-<span class="sourceLineNo">323</span>         * @throws Exception if an error occurs<a name="line.323"></a>
-<span class="sourceLineNo">324</span>         */<a name="line.324"></a>
-<span class="sourceLineNo">325</span>        void run(ParseSession session) throws Exception;<a name="line.325"></a>
-<span class="sourceLineNo">326</span>    }<a name="line.326"></a>
-<span class="sourceLineNo">327</span>}<a name="line.327"></a>
-<span class="sourceLineNo">328</span><a name="line.328"></a>
+<span class="sourceLineNo">315</span>     * Callback interface used by {@link ParseSession#performParseSessionAction ParseSession.performParseSessionAction()}<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     * and {@link ParseSession#performParseSessionActionWithCurrentTransaction<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     *  ParseSession.performParseSessionActionWithCurrentTransaction()}.<a name="line.317"></a>
+<span class="sourceLineNo">318</span>     */<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    public interface Action {<a name="line.319"></a>
+<span class="sourceLineNo">320</span><a name="line.320"></a>
+<span class="sourceLineNo">321</span>        /**<a name="line.321"></a>
+<span class="sourceLineNo">322</span>         * Perform some action using the given {@link ParseSession} while a transaction is open.<a name="line.322"></a>
+<span class="sourceLineNo">323</span>         *<a name="line.323"></a>
+<span class="sourceLineNo">324</span>         * @param session session with open transaction<a name="line.324"></a>
+<span class="sourceLineNo">325</span>         * @throws Exception if an error occurs<a name="line.325"></a>
+<span class="sourceLineNo">326</span>         */<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        void run(ParseSession session) throws Exception;<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    }<a name="line.328"></a>
+<span class="sourceLineNo">329</span>}<a name="line.329"></a>
+<span class="sourceLineNo">330</span><a name="line.330"></a>
 
 
 

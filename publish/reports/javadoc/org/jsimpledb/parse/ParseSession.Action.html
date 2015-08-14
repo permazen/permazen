@@ -90,8 +90,9 @@
 </dl>
 <hr>
 <br>
-<pre>public static interface <a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.317">ParseSession.Action</a></pre>
-<div class="block">Callback interface used by <a href="../../../org/jsimpledb/parse/ParseSession.html#perform(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.perform()</code></a>.</div>
+<pre>public static interface <a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.319">ParseSession.Action</a></pre>
+<div class="block">Callback interface used by <a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.performParseSessionAction()</code></a>
+ and <a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.performParseSessionActionWithCurrentTransaction()</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -137,7 +138,7 @@
 <ul class="blockListLast">
 <li class="blockList">
 <h4>run</h4>
-<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.Action.html#line.325">run</a>(<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)
+<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.Action.html#line.327">run</a>(<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)
          throws <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></pre>
 <div class="block">Perform some action using the given <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a> while a transaction is open.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - session with open transaction</dd>

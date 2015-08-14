@@ -208,7 +208,7 @@
 <span class="sourceLineNo">200</span>        if (!this.oneShotCommands.isEmpty()) {<a name="line.200"></a>
 <span class="sourceLineNo">201</span>            for (String text : this.oneShotCommands) {<a name="line.201"></a>
 <span class="sourceLineNo">202</span>                for (CliSession.Action action : console.parseCommand(text)) {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>                    if (!session.perform(action))<a name="line.203"></a>
+<span class="sourceLineNo">203</span>                    if (!session.performCliSessionAction(action))<a name="line.203"></a>
 <span class="sourceLineNo">204</span>                        return 1;<a name="line.204"></a>
 <span class="sourceLineNo">205</span>                }<a name="line.205"></a>
 <span class="sourceLineNo">206</span>            }<a name="line.206"></a>

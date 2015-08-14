@@ -211,7 +211,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
  container's in-memory <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> rather than in a real database transaction, so the
  <a href="../../../org/jsimpledb/gui/JObjectContainer.html#VERSION_PROPERTY"><code>VERSION_PROPERTY</code></a> will return a different schema version from what's in the database. The automatic schema
  upgrade can be avoided if desired by reading the field using the appropriate <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> field access method
- (e.g., <a href="../../../org/jsimpledb/JTransaction.html#readSimpleField(org.jsimpledb.JObject, int, boolean)"><code>JTransaction.readSimpleField()</code></a>) and being prepared to handle a
+ (e.g., <a href="../../../org/jsimpledb/JTransaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)"><code>JTransaction.readSimpleField()</code></a>) and being prepared to handle a
  <a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core"><code>UnknownFieldException</code></a> if/when the object has an older schema version that does not contain
  the requested field.
  </p>

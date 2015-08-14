@@ -94,7 +94,7 @@
 </dl>
 <hr>
 <br>
-<pre>public interface <a href="../../src-html/org/jsimpledb/JObject.html#line.35">JObject</a></pre>
+<pre>public interface <a href="../../src-html/org/jsimpledb/JObject.html#line.27">JObject</a></pre>
 <div class="block">Interface implemented by <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> Java model objects.
 
  <p>
@@ -103,21 +103,12 @@
  Therefore, it is conveninent to declare Java model classes <code>abstract</code> and <code>implements JObject</code>.
  However, this is not strictly necessary; all of the methods declared here ultimately delegate to one of the
  <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> support methods.
- </p>
 
  <p>
- There are two types of <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s: normal instances, which always reflect the state of the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
- <a href="../../org/jsimpledb/JTransaction.html#getCurrent()">associated</a> with the current thread, and "snapshot" instances that reflect
- the state of their associated <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>. Use <a href="../../org/jsimpledb/JObject.html#isSnapshot()"><code>isSnapshot()</code></a> to distinguish if necessary
- Use <a href="../../org/jsimpledb/JObject.html#copyIn(java.lang.String...)"><code>copyIn()</code></a> and <a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)"><code>copyOut()</code></a> to copy data between normal and snapshot transactions.
- </p>
-
- <p>
- The <a href="../../org/jsimpledb/JObject.html#getTransaction()"><code>getTransaction()</code></a> method returns the transaction associated with an instance. For a normal instance,
- this is just the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> <a href="../../org/jsimpledb/JTransaction.html#getCurrent()">associated</a> with the current thread;
- if there is no such transaction, an <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang"><code>IllegalStateException</code></a> is thrown. For a "snapshot" instance,
- <a href="../../org/jsimpledb/JObject.html#getTransaction()"><code>getTransaction()</code></a> always returns the corresponding <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.
- </p></div>
+ All <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s are <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated</a> with a specific <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>,
+ and are the unique representatives for their corresponding <a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a> in that transaction.
+ All field state derives from the transaction.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a></dd></dl>
 </li>
 </ul>
 </div>
@@ -234,7 +225,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>getObjId</h4>
-<pre><a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.46">getObjId</a>()</pre>
+<pre><a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.38">getObjId</a>()</pre>
 <div class="block">Get this instance's unique JSimpleDB object identifier.
 
  <p>
@@ -249,14 +240,12 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>getSchemaVersion</h4>
-<pre>int&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.59">getSchemaVersion</a>()</pre>
+<pre>int&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.49">getSchemaVersion</a>()</pre>
 <div class="block">Get this instance's current schema version. Does not change this instance's schema version.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the schema version of this instance</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with this instance</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
-<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this is not a snapshot instance and the transaction associated with the current thread is no longer usable</dd></dl>
+<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated with this instance</a> is no longer usable</dd></dl>
 </li>
 </ul>
 <a name="getTransaction()">
@@ -265,7 +254,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>getTransaction</h4>
-<pre><a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.74">getTransaction</a>()</pre>
+<pre><a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.62">getTransaction</a>()</pre>
 <div class="block">Get this instance's associated <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.
 
  <p>
@@ -273,10 +262,7 @@
  <a href="../../org/jsimpledb/JTransaction.html#getCurrent()">associated</a> with the current thread. Otherwise, this instance
  is a snapshot instance and this method returns the associated <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.
  </p></div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that contains this instance's field state</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that contains this instance's field state</dd></dl>
 </li>
 </ul>
 <a name="delete()">
@@ -285,7 +271,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>delete</h4>
-<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.92">delete</a>()</pre>
+<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.78">delete</a>()</pre>
 <div class="block">Delete this instance, if it exists, in this instance's associated transaction.
 
  <p>
@@ -294,8 +280,6 @@
  </p></div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if instance was deleted, false if it did not exist</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction associated with the current thread is no longer usable</dd>
 <dd><code><a href="../../org/jsimpledb/core/ReferencedObjectException.html" title="class in org.jsimpledb.core">ReferencedObjectException</a></code> - if the object is referenced by some other object
   through a reference field configured for <a href="../../org/jsimpledb/core/DeleteAction.html#EXCEPTION"><code>DeleteAction.EXCEPTION</code></a></dd></dl>
@@ -307,13 +291,11 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>exists</h4>
-<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.103">exists</a>()</pre>
+<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.87">exists</a>()</pre>
 <div class="block">Determine whether this instance still exists in its associated transaction.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if instance exists, otherwise false</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
-<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this is not a snapshot instance and the transaction associated with the current thread is no longer usable</dd></dl>
+<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated with this instance</a> is no longer usable</dd></dl>
 </li>
 </ul>
 <a name="isSnapshot()">
@@ -322,7 +304,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>isSnapshot</h4>
-<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.111">isSnapshot</a>()</pre>
+<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.95">isSnapshot</a>()</pre>
 <div class="block">Determine whether this instance is a normal instance or is a "snapshot" instance associated
  with a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if instance is a snapshot instance</dd></dl>
@@ -334,14 +316,12 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>recreate</h4>
-<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.123">recreate</a>()</pre>
+<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.105">recreate</a>()</pre>
 <div class="block">Recreate a deleted instance, if it does not exist, in its associated transaction.
  The fields of a recreated object are set to their initial values. If the object already exists, nothing changes.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if instance was recreated, false if it already existed</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
-<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this is not a snapshot instance and the transaction associated with the current thread is no longer usable</dd></dl>
+<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated with this instance</a> is no longer usable</dd></dl>
 </li>
 </ul>
 <a name="revalidate()">
@@ -350,7 +330,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>revalidate</h4>
-<pre>void&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.141">revalidate</a>()</pre>
+<pre>void&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.121">revalidate</a>()</pre>
 <div class="block">Add this instance to the validation queue for validation in its associated transaction.
 
  <p>
@@ -360,9 +340,7 @@
 <dl><dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with this instance</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if transaction commit is already in progress</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
-<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this is not a snapshot instance and the transaction associated with the current thread is no longer usable</dd></dl>
+<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated with this instance</a> is no longer usable</dd></dl>
 </li>
 </ul>
 <a name="upgrade()">
@@ -371,7 +349,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>upgrade</h4>
-<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.160">upgrade</a>()</pre>
+<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.138">upgrade</a>()</pre>
 <div class="block">Update the schema version of this instance, if necessary, so that it matches the schema version
  of its associated transaction.
 
@@ -382,9 +360,7 @@
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if the object's schema version was changed, false if it was already updated</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with this instance</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
-<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this is not a snapshot instance and the transaction associated with the current thread is no longer usable</dd></dl>
+<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated with this instance</a> is no longer usable</dd></dl>
 </li>
 </ul>
 <a name="copyTo(org.jsimpledb.JTransaction, org.jsimpledb.core.ObjId, org.jsimpledb.CopyState, java.lang.String...)">
@@ -393,7 +369,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>copyTo</h4>
-<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.226">copyTo</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.202">copyTo</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
              <a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
              <a href="../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState,
              <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
@@ -445,8 +421,6 @@
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with this instance
   (no exception is thrown however if an indirectly referenced object does not exist unless it is traversed)</dd>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if an object in <code>copied</code> is traversed but does not actually exist</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
 <dd><code><a href="../../org/jsimpledb/core/SchemaMismatchException.html" title="class in org.jsimpledb.core">SchemaMismatchException</a></code> - if the schema corresponding to this object's version is not identical in both the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
   associated with this instance and <code>dest</code> (as well for any referenced objects)</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>dest</code>, <code>copied</code>, or <code>refPaths</code> is null</dd>
@@ -461,7 +435,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>copyOut</h4>
-<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.262">copyOut</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
+<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.236">copyOut</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
 <div class="block">Snapshot this instance and other instances it references.
 
  <p>
@@ -489,8 +463,6 @@
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with this instance
   (no exception is thrown however if an indirectly referenced object does not exist)</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any path in <code>refPaths</code> is invalid</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JObject.html#copyIn(java.lang.String...)"><code>copyIn()</code></a></dd></dl>
 </li>
 </ul>
@@ -500,7 +472,7 @@
 <ul class="blockListLast">
 <li class="blockList">
 <h4>copyIn</h4>
-<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.299">copyIn</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
+<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.271">copyIn</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
 <div class="block">Copy this instance and other instances it references into the transaction associated with the current thread.
 
  <p>
@@ -527,8 +499,6 @@
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with this instance
   (no exception is thrown however if an indirectly referenced object does not exist)</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this is not a snapshot instance and there is no <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
-  associated with the current thread</dd>
 <dd><code><a href="../../org/jsimpledb/core/SchemaMismatchException.html" title="class in org.jsimpledb.core">SchemaMismatchException</a></code> - if the schema corresponding to this object's version is not identical in both transactions</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any path in <code>refPaths</code> is invalid</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)"><code>copyOut()</code></a></dd></dl>
 </li>

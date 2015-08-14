@@ -127,7 +127,8 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a></strong></code>
-<div class="block">Callback interface used by <a href="../../../org/jsimpledb/parse/ParseSession.html#perform(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.perform()</code></a>.</div>
+<div class="block">Callback interface used by <a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.performParseSessionAction()</code></a>
+ and <a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.performParseSessionActionWithCurrentTransaction()</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -209,13 +210,13 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/parse/ParseSession.html#perform(org.jsimpledb.parse.ParseSession.Action)">perform</a></strong>(<a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a>&nbsp;action)</code>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionAction</a></strong>(<a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a>&nbsp;action)</code>
 <div class="block">Perform the given action within a new transaction associated with this instance.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/parse/ParseSession.html#performWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">performWithCurrentTransaction</a></strong>(<a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a>&nbsp;action)</code>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionActionWithCurrentTransaction</a></strong>(<a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a>&nbsp;action)</code>
 <div class="block">Associate the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
 </td>
 </tr>
@@ -249,7 +250,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.<a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></h3>
-<code><a href="../../../org/jsimpledb/Session.html#getDatabase()">getDatabase</a>, <a href="../../../org/jsimpledb/Session.html#getDatabaseDescription()">getDatabaseDescription</a>, <a href="../../../org/jsimpledb/Session.html#getJSimpleDB()">getJSimpleDB</a>, <a href="../../../org/jsimpledb/Session.html#getJTransaction()">getJTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getKVDatabase()">getKVDatabase</a>, <a href="../../../org/jsimpledb/Session.html#getKVTransaction()">getKVTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getMode()">getMode</a>, <a href="../../../org/jsimpledb/Session.html#getNameIndex()">getNameIndex</a>, <a href="../../../org/jsimpledb/Session.html#getSchemaModel()">getSchemaModel</a>, <a href="../../../org/jsimpledb/Session.html#getSchemaVersion()">getSchemaVersion</a>, <a href="../../../org/jsimpledb/Session.html#getTransaction()">getTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getValidationMode()">getValidationMode</a>, <a href="../../../org/jsimpledb/Session.html#isAllowNewSchema()">isAllowNewSchema</a>, <a href="../../../org/jsimpledb/Session.html#isReadOnly()">isReadOnly</a>, <a href="../../../org/jsimpledb/Session.html#perform(org.jsimpledb.Session.Action)">perform</a>, <a href="../../../org/jsimpledb/Session.html#performWithCurrentTransaction(org.jsimpledb.Session.Action)">performWithCurrentTransaction</a>, <a href="../../../org/jsimpledb/Session.html#reportException(java.lang.Exception)">reportException</a>, <a href="../../../org/jsimpledb/Session.html#setAllowNewSchema(boolean)">setAllowNewSchema</a>, <a href="../../../org/jsimpledb/Session.html#setDatabaseDescription(java.lang.String)">setDatabaseDescription</a>, <a href="../../../org/jsimpledb/Session.html#setReadOnly(boolean)">setReadOnly</a>, <a href="../../../org/jsimpledb/Session.html#setRollbackOnly()">setRollbackOnly</a>, <a href="../../../org/jsimpledb/Session.html#setSchemaModel(org.jsimpledb.schema.SchemaModel)">setSchemaModel</a>, <a href="../../../org/jsimpledb/Session.html#setSchemaVersion(int)">setSchemaVersion</a>, <a href="../../../org/jsimpledb/Session.html#setValidationMode(org.jsimpledb.ValidationMode)">setValidationMode</a></code></li>
+<code><a href="../../../org/jsimpledb/Session.html#getDatabase()">getDatabase</a>, <a href="../../../org/jsimpledb/Session.html#getDatabaseDescription()">getDatabaseDescription</a>, <a href="../../../org/jsimpledb/Session.html#getJSimpleDB()">getJSimpleDB</a>, <a href="../../../org/jsimpledb/Session.html#getJTransaction()">getJTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getKVDatabase()">getKVDatabase</a>, <a href="../../../org/jsimpledb/Session.html#getKVTransaction()">getKVTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getMode()">getMode</a>, <a href="../../../org/jsimpledb/Session.html#getNameIndex()">getNameIndex</a>, <a href="../../../org/jsimpledb/Session.html#getSchemaModel()">getSchemaModel</a>, <a href="../../../org/jsimpledb/Session.html#getSchemaVersion()">getSchemaVersion</a>, <a href="../../../org/jsimpledb/Session.html#getTransaction()">getTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getValidationMode()">getValidationMode</a>, <a href="../../../org/jsimpledb/Session.html#isAllowNewSchema()">isAllowNewSchema</a>, <a href="../../../org/jsimpledb/Session.html#isReadOnly()">isReadOnly</a>, <a href="../../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)">performSessionAction</a>, <a href="../../../org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)">performSessionActionWithCurrentTransaction</a>, <a href="../../../org/jsimpledb/Session.html#reportException(java.lang.Exception)">reportException</a>, <a href="../../../org/jsimpledb/Session.html#setAllowNewSchema(boolean)">setAllowNewSchema</a>, <a href="../../../org/jsimpledb/Session.html#setDatabaseDescription(java.lang.String)">setDatabaseDescription</a>, <a href="../../../org/jsimpledb/Session.html#setReadOnly(boolean)">setReadOnly</a>, <a href="../../../org/jsimpledb/Session.html#setRollbackOnly()">setRollbackOnly</a>, <a href="../../../org/jsimpledb/Session.html#setSchemaModel(org.jsimpledb.schema.SchemaModel)">setSchemaModel</a>, <a href="../../../org/jsimpledb/Session.html#setSchemaVersion(int)">setSchemaVersion</a>, <a href="../../../org/jsimpledb/Session.html#setValidationMode(org.jsimpledb.ValidationMode)">setValidationMode</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -411,13 +412,13 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>klass</code> is null</dd></dl>
 </li>
 </ul>
-<a name="perform(org.jsimpledb.parse.ParseSession.Action)">
+<a name="performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>perform</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.275">perform</a>(<a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a>&nbsp;action)</pre>
+<h4>performParseSessionAction</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.275">performParseSessionAction</a>(<a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a>&nbsp;action)</pre>
 <div class="block">Perform the given action within a new transaction associated with this instance.
 
  <p>
@@ -431,13 +432,13 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if there is already an open transaction associated with this instance</dd></dl>
 </li>
 </ul>
-<a name="performWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">
+<a name="performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>performWithCurrentTransaction</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.305">performWithCurrentTransaction</a>(<a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a>&nbsp;action)</pre>
+<h4>performParseSessionActionWithCurrentTransaction</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.305">performParseSessionActionWithCurrentTransaction</a>(<a href="../../../org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse">ParseSession.Action</a>&nbsp;action)</pre>
 <div class="block">Associate the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.
 
  <p>

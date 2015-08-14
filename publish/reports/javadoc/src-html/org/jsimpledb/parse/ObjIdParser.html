@@ -79,7 +79,7 @@
 <span class="sourceLineNo">071</span>        final ArrayList&lt;String&gt; completions = new ArrayList&lt;&gt;();<a name="line.71"></a>
 <span class="sourceLineNo">072</span>        final ObjId min = min0;<a name="line.72"></a>
 <span class="sourceLineNo">073</span>        final ObjId max = max0;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        session.perform(new ParseSession.Action() {<a name="line.74"></a>
+<span class="sourceLineNo">074</span>        session.performParseSessionAction(new ParseSession.Action() {<a name="line.74"></a>
 <span class="sourceLineNo">075</span>            @Override<a name="line.75"></a>
 <span class="sourceLineNo">076</span>            public void run(ParseSession session) throws Exception {<a name="line.76"></a>
 <span class="sourceLineNo">077</span>                final Transaction tx = session.getTransaction();<a name="line.77"></a>

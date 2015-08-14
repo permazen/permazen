@@ -307,7 +307,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>getDB</h4>
-<pre>public&nbsp;org.rocksdb.RocksDB&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.88">getDB</a>()</pre>
+<pre>public&nbsp;org.rocksdb.RocksDB&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.90">getDB</a>()</pre>
 <div class="block">Get the <code>RocksDB</code> underlying this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>underlying database</dd></dl>
 </li>
@@ -318,7 +318,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.95">get</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.97">get</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the value associated with the given key, if any.</div>
 <dl>
@@ -336,7 +336,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>getRange</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.107">getRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.111">getRange</a>(byte[]&nbsp;minKey,
                         byte[]&nbsp;maxKey,
                         boolean&nbsp;reverse)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">KVStore</a></code></strong></div>
@@ -376,7 +376,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>put</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.112">put</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.116">put</a>(byte[]&nbsp;key,
        byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#put(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Set the value associated with the given key.</div>
@@ -394,7 +394,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.131">remove</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.137">remove</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#remove(byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 <dl>
@@ -411,7 +411,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>encodeCounter</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.150">encodeCounter</a>(long&nbsp;value)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.158">encodeCounter</a>(long&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)">KVStore</a></code></strong></div>
 <div class="block">Encode a counter value into a <code>byte[]</code> value suitable for use with <a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])"><code>decodeCounter()</code></a>
  and/or <a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)"><code>adjustCounter()</code></a>.</div>
@@ -430,7 +430,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>decodeCounter</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.165">decodeCounter</a>(byte[]&nbsp;value)</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.173">decodeCounter</a>(byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])">KVStore</a></code></strong></div>
 <div class="block">Decode a counter value previously encoded by <a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)"><code>encodeCounter()</code></a>.</div>
 <dl>
@@ -448,7 +448,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>adjustCounter</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.179">adjustCounter</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.187">adjustCounter</a>(byte[]&nbsp;key,
                  long&nbsp;amount)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)">KVStore</a></code></strong></div>
 <div class="block">Adjust the counter at the given key by the given amount.
@@ -477,7 +477,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>finalize</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.203">finalize</a>()
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.213">finalize</a>()
                  throws <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a></pre>
 <div class="block">Finalize this instance. Invokes <a href="../../../../org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#close()"><code>close()</code></a> to close any unclosed iterators.</div>
 <dl>
@@ -493,7 +493,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.214">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.224">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -506,7 +506,7 @@ implements <a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="i
 <ul class="blockListLast">
 <li class="blockList">
 <h4>close</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.232">close</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#line.242">close</a>()</pre>
 <div class="block">Close this instance.
 
  <p>

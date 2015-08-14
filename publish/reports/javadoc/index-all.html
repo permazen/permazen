@@ -1858,7 +1858,8 @@
 </dd>
 <dt><a href="./org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli"><span class="strong">CliSession.Action</span></a> - Interface in <a href="./org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a></dt>
 <dd>
-<div class="block">Callback interface used by <a href="./org/jsimpledb/cli/CliSession.html#perform(org.jsimpledb.cli.CliSession.Action)"><code>CliSession.perform()</code></a>.</div>
+<div class="block">Callback interface used by <a href="./org/jsimpledb/cli/CliSession.html#performCliSessionAction(org.jsimpledb.cli.CliSession.Action)"><code>CliSession.performCliSessionAction()</code></a>
+ and <a href="./org/jsimpledb/cli/CliSession.html#performCliSessionActionWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)"><code>CliSession.performCliSessionActionWithCurrentTransaction()</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/CopyState.html#clone()">clone()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a></dt>
 <dd>&nbsp;</dd>
@@ -3401,7 +3402,7 @@
 <dd>
 <div class="block">Determine whether this instance still exists in its associated transaction.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#exists(org.jsimpledb.JObject)">exists(JObject)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#exists(org.jsimpledb.core.ObjId)">exists(ObjId)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Determine whether the object with the given object ID exists in this transaction.</div>
 </dd>
@@ -4787,21 +4788,13 @@
 <dd>
 <div class="block">Get the Java model object containing the field that changed.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#getJObject(org.jsimpledb.core.ObjId)">getJObject(ObjId)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
-<dd>
-<div class="block">Get the Java model object that is has the given ID.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#getJObject(org.jsimpledb.core.ObjId, java.lang.Class)">getJObject(ObjId, Class&lt;T&gt;)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
-<dd>
-<div class="block">Get the Java object used to represent the given object ID, cast to the given type.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId)">getJObject(ObjId)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
-<div class="block">Get the Java model object that has the given ID and whose state derives from this transaction.</div>
+<div class="block">Get the Java model object that is associated with this transaction and has the given ID.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId, java.lang.Class)">getJObject(ObjId, Class&lt;T&gt;)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
-<div class="block">Get the Java model object with the given object ID and whose state derives from this transaction, cast to the given type.</div>
+<div class="block">Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#getJObject(T)">getJObject(T)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
@@ -5643,7 +5636,7 @@
 <dd>
 <div class="block">Get this instance's current schema version.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#getSchemaVersion(org.jsimpledb.JObject)">getSchemaVersion(JObject)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#getSchemaVersion(org.jsimpledb.core.ObjId)">getSchemaVersion(ObjId)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Get this schema version of the specified object.</div>
 </dd>
@@ -6797,6 +6790,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/schema/SimpleSchemaField.html#isIndexed()">isIndexed()</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/SimpleSchemaField.html" title="class in org.jsimpledb.schema">SimpleSchemaField</a></dt>
 <dd>
 <div class="block">Get whether this field is indexed or not.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBUtil.html#isInitialized(org.rocksdb.RocksObject)">isInitialized(RocksObject)</a></span> - Static method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBUtil.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBUtil</a></dt>
+<dd>
+<div class="block">Determine whether the given <code>RocksObject</code> is still valid, i.e., has not been deposed.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FollowerRole.html#isInstallingSnapshot()">isInstallingSnapshot()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FollowerRole.html" title="class in org.jsimpledb.kv.raft">FollowerRole</a></dt>
 <dd>
@@ -8871,7 +8868,8 @@
 </dd>
 <dt><a href="./org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse"><span class="strong">ParseSession.Action</span></a> - Interface in <a href="./org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></dt>
 <dd>
-<div class="block">Callback interface used by <a href="./org/jsimpledb/parse/ParseSession.html#perform(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.perform()</code></a>.</div>
+<div class="block">Callback interface used by <a href="./org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.performParseSessionAction()</code></a>
+ and <a href="./org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.performParseSessionActionWithCurrentTransaction()</code></a>.</div>
 </dd>
 <dt><a href="./org/jsimpledb/parse/ParseUtil.html" title="class in org.jsimpledb.parse"><span class="strong">ParseUtil</span></a> - Class in <a href="./org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></dt>
 <dd>
@@ -8901,18 +8899,6 @@
 <dd>
 <div class="block">Peek at next byte, if any.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#perform(org.jsimpledb.cli.CliSession.Action)">perform(CliSession.Action)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
-<dd>
-<div class="block">Perform the given action within a new transaction associated with this instance.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/parse/ParseSession.html#perform(org.jsimpledb.parse.ParseSession.Action)">perform(ParseSession.Action)</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></dt>
-<dd>
-<div class="block">Perform the given action within a new transaction associated with this instance.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/Session.html#perform(org.jsimpledb.Session.Action)">perform(Session.Action)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
-<dd>
-<div class="block">Perform the given action within a new transaction associated with this instance.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#performAction(java.lang.Runnable)">performAction(Runnable)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Invoke the given <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang"><code>Runnable</code></a> with this instance as the <a href="./org/jsimpledb/JTransaction.html#getCurrent()">current transaction</a>.</div>
@@ -8921,6 +8907,30 @@
 <dd>
 <div class="block">QueryPerformanceCounter doesn't work.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#performCliSessionAction(org.jsimpledb.cli.CliSession.Action)">performCliSessionAction(CliSession.Action)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dd>
+<div class="block">Perform the given action within a new transaction associated with this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#performCliSessionActionWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)">performCliSessionActionWithCurrentTransaction(CliSession.Action)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dd>
+<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionAction(ParseSession.Action)</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></dt>
+<dd>
+<div class="block">Perform the given action within a new transaction associated with this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionActionWithCurrentTransaction(ParseSession.Action)</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></dt>
+<dd>
+<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)">performSessionAction(Session.Action)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
+<dd>
+<div class="block">Perform the given action within a new transaction associated with this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)">performSessionActionWithCurrentTransaction(Session.Action)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
+<dd>
+<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#performTestTransaction(org.jsimpledb.core.Database, org.jsimpledb.schema.SchemaModel)">performTestTransaction(Database, SchemaModel)</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>
 <div class="block">Perform a test transaction.</div>
@@ -8928,18 +8938,6 @@
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#performTestTransaction(org.jsimpledb.JSimpleDB)">performTestTransaction(JSimpleDB)</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>
 <div class="block">Perform a test transaction.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#performWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)">performWithCurrentTransaction(CliSession.Action)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
-<dd>
-<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/parse/ParseSession.html#performWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">performWithCurrentTransaction(ParseSession.Action)</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></dt>
-<dd>
-<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/Session.html#performWithCurrentTransaction(org.jsimpledb.Session.Action)">performWithCurrentTransaction(Session.Action)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
-<dd>
-<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">PingRequest</span></a> - Class in <a href="./org/jsimpledb/kv/raft/msg/package-summary.html">org.jsimpledb.kv.raft.msg</a></dt>
 <dd>
@@ -9382,7 +9380,7 @@
 <dd>
 <div class="block">Read the value of a <a href="./org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> from an object, optionally updating the object's schema version.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readCounterField(org.jsimpledb.JObject, int, boolean)">readCounterField(JObject, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readCounterField(org.jsimpledb.core.ObjId, int, boolean)">readCounterField(ObjId, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Read a counter field.</div>
 </dd>
@@ -9394,7 +9392,7 @@
 <dd>
 <div class="block">Access a <a href="./org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> associated with an object, optionally updating the object's schema version.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readListField(org.jsimpledb.JObject, int, boolean)">readListField(JObject, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)">readListField(ObjId, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Read a list field.</div>
 </dd>
@@ -9406,7 +9404,7 @@
 <dd>
 <div class="block">Access a <a href="./org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> associated with an object, optionally updating the object's schema version.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readMapField(org.jsimpledb.JObject, int, boolean)">readMapField(JObject, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readMapField(org.jsimpledb.core.ObjId, int, boolean)">readMapField(ObjId, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Read a map field.</div>
 </dd>
@@ -9437,7 +9435,7 @@
 <dd>
 <div class="block">Access a <a href="./org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> associated with an object, optionally updating the object's schema version.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readSetField(org.jsimpledb.JObject, int, boolean)">readSetField(JObject, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)">readSetField(ObjId, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Read a set field.</div>
 </dd>
@@ -9445,7 +9443,7 @@
 <dd>
 <div class="block">Read the value of a <a href="./org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> from an object, optionally updating the object's schema version.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readSimpleField(org.jsimpledb.JObject, int, boolean)">readSimpleField(JObject, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)">readSimpleField(ObjId, int, boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Read a simple field.</div>
 </dd>
@@ -9484,8 +9482,10 @@
 <dd>
 <div class="block">Vaadin <a href="https://vaadin.com/api/com/vaadin/data/util/converter/Converter.html?is-external=true" title="class or interface in com.vaadin.data.util.converter"><code>Converter</code></a> for that converts between <a href="./org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a>'s and <a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/gui/ReferenceFieldConverter.html#ReferenceFieldConverter(org.jsimpledb.JSimpleDB)">ReferenceFieldConverter(JSimpleDB)</a></span> - Constructor for class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/ReferenceFieldConverter.html" title="class in org.jsimpledb.gui">ReferenceFieldConverter</a></dt>
-<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/gui/ReferenceFieldConverter.html#ReferenceFieldConverter(org.jsimpledb.JTransaction)">ReferenceFieldConverter(JTransaction)</a></span> - Constructor for class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/ReferenceFieldConverter.html" title="class in org.jsimpledb.gui">ReferenceFieldConverter</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 <dt><a href="./org/jsimpledb/gui/ReferenceFieldField.html" title="class in org.jsimpledb.gui"><span class="strong">ReferenceFieldField</span></a> - Class in <a href="./org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a></dt>
 <dd>
 <div class="block">A Vaadin <a href="https://vaadin.com/api/com/vaadin/ui/Field.html?is-external=true" title="class or interface in com.vaadin.ui"><code>Field</code></a> that edits a database object reference.</div>
@@ -9535,6 +9535,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/parse/ParseSession.html#registerFunction(java.lang.Class)">registerFunction(Class&lt;?&gt;)</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></dt>
 <dd>
 <div class="block">Create an instance of the specified class and register it as an <a href="./org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func"><code>AbstractFunction</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#registerJObject(org.jsimpledb.JObject)">registerJObject(JObject)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dd>
+<div class="block">Ensure the given <a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> is registered in its associated transaction's object cache.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#registerStandardCommands()">registerStandardCommands()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>
@@ -9724,7 +9728,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#reportException(java.lang.Exception)">reportException(Exception)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>
-<div class="block">Handle an exception thrown during an invocation of <a href="./org/jsimpledb/Session.html#perform(org.jsimpledb.Session.Action)"><code>perform()</code></a>.</div>
+<div class="block">Handle an exception thrown during an invocation of <a href="./org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)"><code>performSessionAction()</code></a>.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">RequestVote</span></a> - Class in <a href="./org/jsimpledb/kv/raft/msg/package-summary.html">org.jsimpledb.kv.raft.msg</a></dt>
 <dd>
@@ -9803,7 +9807,7 @@
 <dd>
 <div class="block">Add this instance to the validation queue for validation in its associated transaction.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.JObject)">revalidate(JObject)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.core.ObjId)">revalidate(ObjId)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Add the given instance to the validation queue for validation, which will occur either at <a href="./org/jsimpledb/JTransaction.html#commit()"><code>JTransaction.commit()</code></a> time
  or at the next invocation of <a href="./org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a>, whichever occurs first.</div>
@@ -9859,6 +9863,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#rocksDBType">rocksDBType</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/rocksdb/RocksDBUtil.html" title="class in org.jsimpledb.kv.rocksdb"><span class="strong">RocksDBUtil</span></a> - Class in <a href="./org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></dt>
+<dd>
+<div class="block">Utility methods for use with RocksDB.</div>
+</dd>
 <dt><a href="./org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Role</span></a> - Class in <a href="./org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a></dt>
 <dd>
 <div class="block">Common superclass for the three roles played by a Raft node:
@@ -10154,7 +10162,8 @@
 </dd>
 <dt><a href="./org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><span class="strong">Session.Action</span></a> - Interface in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
 <dd>
-<div class="block">Callback interface used by <a href="./org/jsimpledb/Session.html#perform(org.jsimpledb.Session.Action)"><code>Session.perform()</code></a>.</div>
+<div class="block">Callback interface used by <a href="./org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)"><code>Session.performSessionAction()</code></a>
+ and <a href="./org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
 </dd>
 <dt><a href="./org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><span class="strong">SessionMode</span></a> - Enum in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
 <dd>
@@ -11796,7 +11805,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/util/UnsignedIntEncoder.html" title="class in org.jsimpledb.util"><span class="strong">UnsignedIntEncoder</span></a> - Class in <a href="./org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></dt>
 <dd>
-<div class="block">Encodes unsigned (i.e., non-negative) <code>int</code> values to/from binary, preserving sort order, and such
+<div class="block">Encodes unsigned (i.e., non-negative) <code>int</code> values to/from self-delimited binary, preserving sort order, and such
  that the length of the encoding is optimized for values near zero and encoded values never begin with <code>0xff</code>.</div>
 </dd>
 <dt><a href="./org/jsimpledb/UntypedJObject.html" title="class in org.jsimpledb"><span class="strong">UntypedJObject</span></a> - Class in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>

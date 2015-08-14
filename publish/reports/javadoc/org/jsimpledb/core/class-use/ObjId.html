@@ -173,35 +173,34 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#exists(org.jsimpledb.core.ObjId)">exists</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Determine whether the object with the given object ID exists in this transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;</code></td>
 <td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../../org/jsimpledb/JSimpleDB.html#getJClass(org.jsimpledb.core.ObjId)">getJClass</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Get the <a href="../../../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a> associated with the object ID.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
-<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId)">getJObject</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
-<div class="block">Get the Java model object that has the given ID and whose state derives from this transaction.</div>
-</td>
-</tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
-<td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../../org/jsimpledb/JSimpleDB.html#getJObject(org.jsimpledb.core.ObjId)">getJObject</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
-<div class="block">Get the Java model object that is has the given ID.</div>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId)">getJObject</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Get the Java model object that is associated with this transaction and has the given ID.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId, java.lang.Class)">getJObject</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                     <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</code>
-<div class="block">Get the Java model object with the given object ID and whose state derives from this transaction, cast to the given type.</div>
+<div class="block">Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
-<td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../../org/jsimpledb/JSimpleDB.html#getJObject(org.jsimpledb.core.ObjId, java.lang.Class)">getJObject</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
-                    <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</code>
-<div class="block">Get the Java object used to represent the given object ID, cast to the given type.</div>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#getSchemaVersion(org.jsimpledb.core.ObjId)">getSchemaVersion</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Get this schema version of the specified object.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -215,6 +214,53 @@
 <td class="colLast"><span class="strong">CopyState.</span><code><strong><a href="../../../../org/jsimpledb/CopyState.html#markTraversed(org.jsimpledb.core.ObjId, int[])">markTraversed</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                           int[]&nbsp;fields)</code>
 <div class="block">Determine if the specified reference path has already been traversed starting at the given object, and if not mark it so.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/Counter.html" title="class in org.jsimpledb">Counter</a></code></td>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#readCounterField(org.jsimpledb.core.ObjId, int, boolean)">readCounterField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                                int&nbsp;storageId,
+                                boolean&nbsp;updateVersion)</code>
+<div class="block">Read a counter field.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;?&gt;</code></td>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)">readListField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                          int&nbsp;storageId,
+                          boolean&nbsp;updateVersion)</code>
+<div class="block">Read a list field.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;?,?&gt;</code></td>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#readMapField(org.jsimpledb.core.ObjId, int, boolean)">readMapField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                        int&nbsp;storageId,
+                        boolean&nbsp;updateVersion)</code>
+<div class="block">Read a map field.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;?&gt;</code></td>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)">readSetField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                        int&nbsp;storageId,
+                        boolean&nbsp;updateVersion)</code>
+<div class="block">Read a set field.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)">readSimpleField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                              int&nbsp;storageId,
+                              boolean&nbsp;updateVersion)</code>
+<div class="block">Read a simple field.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.core.ObjId)">revalidate</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Add the given instance to the validation queue for validation, which will occur either at <a href="../../../../org/jsimpledb/JTransaction.html#commit()"><code>JTransaction.commit()</code></a> time
+ or at the next invocation of <a href="../../../../org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a>, whichever occurs first.</div>
 </td>
 </tr>
 </tbody>

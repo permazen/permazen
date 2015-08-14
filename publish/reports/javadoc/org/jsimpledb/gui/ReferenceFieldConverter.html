@@ -136,7 +136,9 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/util/converter/Conver
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../org/jsimpledb/gui/ReferenceFieldConverter.html#ReferenceFieldConverter(org.jsimpledb.JSimpleDB)">ReferenceFieldConverter</a></strong>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</code>&nbsp;</td>
+<td class="colOne"><code><strong><a href="../../../org/jsimpledb/gui/ReferenceFieldConverter.html#ReferenceFieldConverter(org.jsimpledb.JTransaction)">ReferenceFieldConverter</a></strong>(<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx)</code>
+<div class="block">Constructor.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -195,13 +197,15 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/util/converter/Conver
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ReferenceFieldConverter(org.jsimpledb.JSimpleDB)">
+<a name="ReferenceFieldConverter(org.jsimpledb.JTransaction)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ReferenceFieldConverter</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.25">ReferenceFieldConverter</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.30">ReferenceFieldConverter</a>(<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx)</pre>
+<div class="block">Constructor.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>jtx</code> - transaction containing the <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a></dd></dl>
 </li>
 </ul>
 </li>
@@ -218,7 +222,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/util/converter/Conver
 <ul class="blockList">
 <li class="blockList">
 <h4>getPresentationType</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.31">getPresentationType</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.36">getPresentationType</a>()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://vaadin.com/api/com/vaadin/data/util/converter/Converter.html?is-external=true#getPresentationType()" title="class or interface in com.vaadin.data.util.converter">getPresentationType</a></code>&nbsp;in interface&nbsp;<code><a href="https://vaadin.com/api/com/vaadin/data/util/converter/Converter.html?is-external=true" title="class or interface in com.vaadin.data.util.converter">Converter</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></dd>
@@ -231,7 +235,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/util/converter/Conver
 <ul class="blockList">
 <li class="blockList">
 <h4>getModelType</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.36">getModelType</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.41">getModelType</a>()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://vaadin.com/api/com/vaadin/data/util/converter/Converter.html?is-external=true#getModelType()" title="class or interface in com.vaadin.data.util.converter">getModelType</a></code>&nbsp;in interface&nbsp;<code><a href="https://vaadin.com/api/com/vaadin/data/util/converter/Converter.html?is-external=true" title="class or interface in com.vaadin.data.util.converter">Converter</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></dd>
@@ -244,7 +248,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/util/converter/Conver
 <ul class="blockList">
 <li class="blockList">
 <h4>convertToPresentation</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.41">convertToPresentation</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.46">convertToPresentation</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
                           <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;targetType,
                           <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Locale.html?is-external=true" title="class or interface in java.util">Locale</a>&nbsp;locale)</pre>
 <dl>
@@ -259,7 +263,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/util/converter/Conver
 <ul class="blockListLast">
 <li class="blockList">
 <h4>convertToModel</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.48">convertToModel</a>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+<pre>public&nbsp;<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ReferenceFieldConverter.html#line.53">convertToModel</a>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                      <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;targetType,
                      <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Locale.html?is-external=true" title="class or interface in java.util">Locale</a>&nbsp;locale)</pre>
 <dl>

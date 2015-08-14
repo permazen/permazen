@@ -13,13 +13,13 @@
 <span class="sourceLineNo">005</span><a name="line.5"></a>
 <span class="sourceLineNo">006</span>package org.jsimpledb;<a name="line.6"></a>
 <span class="sourceLineNo">007</span><a name="line.7"></a>
-<span class="sourceLineNo">008</span>import com.google.common.reflect.TypeToken;<a name="line.8"></a>
+<span class="sourceLineNo">008</span>import java.lang.reflect.Method;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>import java.lang.reflect.Method;<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>import org.dellroad.stuff.java.Primitive;<a name="line.12"></a>
-<span class="sourceLineNo">013</span>import org.jsimpledb.schema.SchemaField;<a name="line.13"></a>
-<span class="sourceLineNo">014</span>import org.objectweb.asm.ClassWriter;<a name="line.14"></a>
+<span class="sourceLineNo">010</span>import org.jsimpledb.core.ObjId;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.jsimpledb.schema.SchemaField;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import org.objectweb.asm.ClassWriter;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.objectweb.asm.FieldVisitor;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.objectweb.asm.Label;<a name="line.14"></a>
 <span class="sourceLineNo">015</span>import org.objectweb.asm.MethodVisitor;<a name="line.15"></a>
 <span class="sourceLineNo">016</span>import org.objectweb.asm.Opcodes;<a name="line.16"></a>
 <span class="sourceLineNo">017</span>import org.objectweb.asm.Type;<a name="line.17"></a>
@@ -78,44 +78,73 @@
 <span class="sourceLineNo">070</span>     */<a name="line.70"></a>
 <span class="sourceLineNo">071</span>    public abstract &lt;R&gt; R visit(JFieldSwitch&lt;R&gt; target);<a name="line.71"></a>
 <span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>    abstract void outputMethods(ClassGenerator&lt;?&gt; generator, ClassWriter cw);<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * Generate bytecode for getter method override.<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     */<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    void outputReadMethod(final ClassGenerator&lt;?&gt; generator, ClassWriter cw, final Method readMethod) {<a name="line.78"></a>
+<span class="sourceLineNo">073</span>    /**<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * Create a {@link JFieldInfo} instance that corresponds to this instance.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     */<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    abstract JFieldInfo toJFieldInfo();<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>// Bytecode generation<a name="line.78"></a>
 <span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>        // Get property type<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        final TypeToken&lt;?&gt; propertyType = TypeToken.of(this.getter.getReturnType());<a name="line.81"></a>
-<span class="sourceLineNo">082</span><a name="line.82"></a>
-<span class="sourceLineNo">083</span>        // Generate method override<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        generator.overrideBeanMethod(cw, this.getter, this.storageId, new ClassGenerator.CodeEmitter() {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            @Override<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            public void emit(MethodVisitor mv) {<a name="line.86"></a>
+<span class="sourceLineNo">080</span>    boolean hasClassInitializerBytecode() {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        return false;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    void outputClassInitializerBytecode(ClassGenerator&lt;?&gt; generator, MethodVisitor mv) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        throw new UnsupportedOperationException();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
 <span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>                // Push "true"<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                mv.visitInsn(Opcodes.ICONST_1);<a name="line.89"></a>
+<span class="sourceLineNo">088</span>    void outputFields(ClassGenerator&lt;?&gt; generator, ClassWriter cw) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
 <span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>                // Invoke JTransaction.readXXX()<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),<a name="line.92"></a>
-<span class="sourceLineNo">093</span>                  readMethod.getName(), Type.getMethodDescriptor(readMethod), false);<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>                // Cast result value<a name="line.95"></a>
-<span class="sourceLineNo">096</span>                mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>                // Unwrap result if necessary<a name="line.98"></a>
-<span class="sourceLineNo">099</span>                if (propertyType.isPrimitive())<a name="line.99"></a>
-<span class="sourceLineNo">100</span>                    generator.unwrap(mv, Primitive.get(propertyType.getRawType()));<a name="line.100"></a>
-<span class="sourceLineNo">101</span>            }<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        });<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
-<span class="sourceLineNo">104</span><a name="line.104"></a>
-<span class="sourceLineNo">105</span>    /**<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * Create a {@link JFieldInfo} instance that corresponds to this instance.<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    abstract JFieldInfo toJFieldInfo();<a name="line.108"></a>
-<span class="sourceLineNo">109</span>}<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">091</span>    abstract void outputMethods(ClassGenerator&lt;?&gt; generator, ClassWriter cw);<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    void outputCachedValueField(ClassGenerator&lt;?&gt; generator, ClassWriter cw) {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        final FieldVisitor valueField = cw.visitField(Opcodes.ACC_PRIVATE,<a name="line.94"></a>
+<span class="sourceLineNo">095</span>          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()), null, null);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        valueField.visitEnd();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    void outputCachedValueGetterMethod(ClassGenerator&lt;?&gt; generator, ClassWriter cw, Method fieldReaderMethod) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        final MethodVisitor mv = generator.startMethod(cw, this.getter);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        mv.visitVarInsn(Opcodes.ALOAD, 0);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),<a name="line.102"></a>
+<span class="sourceLineNo">103</span>          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()));<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        mv.visitInsn(Opcodes.DUP);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        final Label valueReady = new Label();<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        mv.visitJumpInsn(Opcodes.IFNONNULL, valueReady);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        mv.visitInsn(Opcodes.POP);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        mv.visitVarInsn(Opcodes.ALOAD, 0);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),<a name="line.109"></a>
+<span class="sourceLineNo">110</span>          ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        mv.visitVarInsn(Opcodes.ALOAD, 0);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),<a name="line.112"></a>
+<span class="sourceLineNo">113</span>          ClassGenerator.ID_FIELD_NAME, Type.getDescriptor(ObjId.class));<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        mv.visitLdcInsn(this.storageId);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        mv.visitInsn(Opcodes.ICONST_1);                                                             // i.e., true<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(JTransaction.class),<a name="line.116"></a>
+<span class="sourceLineNo">117</span>          fieldReaderMethod.getName(), Type.getMethodDescriptor(fieldReaderMethod), false);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getCachedValueFieldType()));<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        mv.visitInsn(Opcodes.DUP);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        mv.visitVarInsn(Opcodes.ALOAD, 0);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        mv.visitInsn(Opcodes.SWAP);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        mv.visitFieldInsn(Opcodes.PUTFIELD, generator.getClassName(),<a name="line.122"></a>
+<span class="sourceLineNo">123</span>          this.getCachedValueFieldName(), Type.getDescriptor(this.getCachedValueFieldType()));<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        mv.visitLabel(valueReady);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        mv.visitFrame(Opcodes.F_SAME1, 0, new Object[0], 1, new String[] { Type.getInternalName(this.getCachedValueFieldType()) });<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        mv.visitInsn(Opcodes.ARETURN);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        mv.visitMaxs(0, 0);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        mv.visitEnd();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    }<a name="line.129"></a>
+<span class="sourceLineNo">130</span><a name="line.130"></a>
+<span class="sourceLineNo">131</span>    private String getCachedValueFieldName() {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        return ClassGenerator.JFIELD_FIELD_PREFIX + this.storageId;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>    private Class&lt;?&gt; getCachedValueFieldType() {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        return this.getter.getReturnType();<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    }<a name="line.137"></a>
+<span class="sourceLineNo">138</span>}<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
 
 
 
