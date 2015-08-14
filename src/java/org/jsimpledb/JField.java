@@ -77,7 +77,12 @@ public abstract class JField extends JSchemaObject {
 
 // Bytecode generation
 
+    boolean hasClassInitializerBytecode() {
+        return false;
+    }
+
     void outputClassInitializerBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
+        throw new UnsupportedOperationException();
     }
 
     void outputFields(ClassGenerator<?> generator, ClassWriter cw) {

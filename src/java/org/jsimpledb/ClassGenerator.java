@@ -291,15 +291,30 @@ class ClassGenerator<T> {
 
     private void outputMethods(ClassWriter cw) {
 
-        // Output <clinit>
+        // Output <clinit>, if needed
         if (this.jclass != null) {
-            MethodVisitor mv = cw.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "<clinit>", "()V", null, null);
-            mv.visitCode();
-            for (JField jfield : this.jclass.jfields.values())
-                jfield.outputClassInitializerBytecode(this, mv);
-            mv.visitInsn(Opcodes.RETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+
+            // Do any fields require initialization bytecode?
+            boolean needClassInitializer = false;
+            for (JField jfield : this.jclass.jfields.values()) {
+                if (jfield.hasClassInitializerBytecode()) {
+                    needClassInitializer = true;
+                    break;
+                }
+            }
+
+            // If so, add <clinit> method
+            if (needClassInitializer) {
+                MethodVisitor mv = cw.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "<clinit>", "()V", null, null);
+                mv.visitCode();
+                for (JField jfield : this.jclass.jfields.values()) {
+                    if (jfield.hasClassInitializerBytecode())
+                        jfield.outputClassInitializerBytecode(this, mv);
+                }
+                mv.visitInsn(Opcodes.RETURN);
+                mv.visitMaxs(0, 0);
+                mv.visitEnd();
+            }
         }
 
         // Output JObject.getTransaction()

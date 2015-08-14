@@ -83,6 +83,11 @@ public class JEnumField extends JSimpleField {
     }
 
     @Override
+    boolean hasClassInitializerBytecode() {
+        return true;
+    }
+
+    @Override
     void outputClassInitializerBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
         mv.visitLdcInsn(Type.getType(this.typeToken.getRawType()));
         generator.emitInvoke(mv, ClassGenerator.ENUM_CONVERTER_CREATE_METHOD);
