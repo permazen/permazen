@@ -1,10 +1,13 @@
+Version 1.3.0
+
+    - Give each transaction its own pool of JObjects
+    - Add optimizations to improve performance of field access
+
 Version 1.2.2 Released July 16, 2015
 
     - Detect leftover abstract methods during schema generation
     - Fix bug where protected setter methods were not auto-detected
     - Implement fix for Raft config change corner case
-    - Give each transaction its own pool of JObjects
-    - Add optimizations to improve performance of field access
 
 Version 1.2.1 Released July 9, 2015
 
