@@ -1446,14 +1446,14 @@ public class JTransaction {
             final IndexInfoKey that = (IndexInfoKey)obj;
             return this.name.equals(that.name)
               && this.composite == that.composite
-              && this.types.equals(that.types);
+              && Arrays.equals(this.types, that.types);
         }
 
         @Override
         public int hashCode() {
             return this.name.hashCode()
               ^ (this.composite ? 1 : 0)
-              ^ this.types.hashCode();
+              ^ Arrays.hashCode(this.types);
         }
     }
 
