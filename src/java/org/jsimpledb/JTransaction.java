@@ -8,13 +8,9 @@ package org.jsimpledb;
 import com.google.common.base.Converter;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -199,14 +195,6 @@ public class JTransaction {
     private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
     private final ObjIdSet validationQueue = new ObjIdSet();
     private final JObjectCache jobjectCache = new JObjectCache(this);
-
-    private final LoadingCache<IndexInfoKey, IndexInfo> indexInfoCache = CacheBuilder.newBuilder()
-      .maximumSize(1000).build(new CacheLoader<IndexInfoKey, IndexInfo>() {
-        @Override
-        public IndexInfo load(IndexInfoKey key) {
-            return key.getIndexInfo(JTransaction.this.jdb);
-        }
-    });
 
     private SnapshotJTransaction snapshotTransaction;
     private boolean commitInvoked;
@@ -1157,7 +1145,7 @@ public class JTransaction {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V, T> Index<V, T> queryIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
-        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
+        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
         final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(info.fieldInfo.storageId));
         final Converter<?, ?> valueConverter = this.getReverseConverter(info.fieldInfo);
         final Converter<T, ObjId> targetConverter = new ReferenceConverter<T>(this, targetType);
@@ -1179,7 +1167,7 @@ public class JTransaction {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V, T> Index2<V, T, Integer> queryListElementIndex(Class<T> targetType, String fieldName, Class<V> valueType) {
-        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
+        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType));
         if (!(info.superFieldInfo instanceof JListFieldInfo))
             throw new IllegalArgumentException("`" + fieldName + "' is not a list element sub-field");
         final CoreIndex2<?, ObjId, Integer> index = info.applyFilters(this.tx.queryListElementIndex(info.superFieldInfo.storageId));
@@ -1206,7 +1194,7 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V, T, K> Index2<V, T, K> queryMapValueIndex(Class<T> targetType,
       String fieldName, Class<V> valueType, Class<K> keyType) {
-        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType, keyType));
+        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(fieldName, false, targetType, valueType, keyType));
         if (!(info.superFieldInfo instanceof JMapFieldInfo))
             throw new IllegalArgumentException("`" + fieldName + "' is not a map value sub-field");
         final JMapFieldInfo mapFieldInfo = (JMapFieldInfo)info.superFieldInfo;
@@ -1236,7 +1224,7 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, T> Index2<V1, V2, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type) {
-        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(indexName, true, targetType, value1Type, value2Type));
+        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(indexName, true, targetType, value1Type, value2Type));
         final CoreIndex2<?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex2(info.indexInfo.storageId));
         final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
         final Converter<?, ?> value2Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(1));
@@ -1263,7 +1251,8 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, V3, T> Index3<V1, V2, V3, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type) {
-        final IndexInfo info = this.getIndexInfo(new IndexInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type));
+        final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(indexName,
+          true, targetType, value1Type, value2Type, value3Type));
         final CoreIndex3<?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex3(info.indexInfo.storageId));
         final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
         final Converter<?, ?> value2Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(1));
@@ -1293,7 +1282,7 @@ public class JTransaction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V1, V2, V3, V4, T> Index4<V1, V2, V3, V4, T> queryCompositeIndex(Class<T> targetType,
       String indexName, Class<V1> value1Type, Class<V2> value2Type, Class<V3> value3Type, Class<V4> value4Type) {
-        final IndexInfo info = this.getIndexInfo(
+        final IndexInfo info = this.jdb.getIndexInfo(
           new IndexInfoKey(indexName, true, targetType, value1Type, value2Type, value3Type, value4Type));
         final CoreIndex4<?, ?, ?, ?, ObjId> index = info.applyFilters(this.tx.queryCompositeIndex4(info.indexInfo.storageId));
         final Converter<?, ?> value1Converter = this.getReverseConverter(info.indexInfo.jfieldInfos.get(0));
@@ -1389,72 +1378,9 @@ public class JTransaction {
             return new ConvertedIndex(this.tx.queryIndex(fieldInfo.storageId), valueConverter, referenceConverter);
     }
 
-    private IndexInfo getIndexInfo(IndexInfoKey key) {
-        try {
-            return this.indexInfoCache.getUnchecked(key);
-        } catch (UncheckedExecutionException e) {
-            final Throwable t = e.getCause();
-            if (t instanceof RuntimeException)
-                throw (RuntimeException)t;
-            if (t instanceof Error)
-                throw (Error)t;
-            throw e;
-        }
-    }
-
     private Converter<?, ?> getReverseConverter(JSimpleFieldInfo fieldInfo) {
         final Converter<?, ?> converter = fieldInfo.getConverter(this);
         return converter != null ? converter.reverse() : Converter.identity();
-    }
-
-// IndexInfoKey
-
-    private static class IndexInfoKey {
-
-        private final Class<?>[] types;
-        private final boolean composite;
-        private final String name;
-
-        public IndexInfoKey(String name, boolean composite, Class<?>... types) {
-            this.name = name;
-            this.composite = composite;
-            this.types = types;
-        }
-
-        public IndexInfo getIndexInfo(JSimpleDB jdb) {
-
-            // Handle composite index
-            if (this.composite)
-                return new IndexInfo(jdb, this.types[0], this.name, Arrays.copyOfRange(this.types, 1, this.types.length));
-
-            // Handle map value index
-            if (this.types.length == 3)
-                return new IndexInfo(jdb, this.types[0], this.name, this.types[1], this.types[2]);
-
-            // Handle all others
-            return new IndexInfo(jdb, this.types[0], this.name, this.types[1]);
-        }
-
-    // Object
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this)
-                return true;
-            if (obj == null || obj.getClass() != this.getClass())
-                return false;
-            final IndexInfoKey that = (IndexInfoKey)obj;
-            return this.name.equals(that.name)
-              && this.composite == that.composite
-              && Arrays.equals(this.types, that.types);
-        }
-
-        @Override
-        public int hashCode() {
-            return this.name.hashCode()
-              ^ (this.composite ? 1 : 0)
-              ^ Arrays.hashCode(this.types);
-        }
     }
 
 // Transaction Lifecycle

@@ -6,7 +6,11 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -102,6 +106,14 @@ public class JSimpleDB {
     final boolean anyJClassRequiresValidation;
 
     volatile int actualVersion;
+
+    private final LoadingCache<IndexInfoKey, IndexInfo> indexInfoCache = CacheBuilder.newBuilder()
+      .maximumSize(1000).build(new CacheLoader<IndexInfoKey, IndexInfo>() {
+        @Override
+        public IndexInfo load(IndexInfoKey key) {
+            return key.getIndexInfo(JSimpleDB.this);
+        }
+    });
 
     private SchemaModel schemaModel;
     private NameIndex nameIndex;
@@ -675,6 +687,21 @@ public class JSimpleDB {
 
         // Done
         return Iterables.concat(iterables);
+    }
+
+// IndexInfo Cache
+
+    IndexInfo getIndexInfo(IndexInfoKey key) {
+        try {
+            return this.indexInfoCache.getUnchecked(key);
+        } catch (UncheckedExecutionException e) {
+            final Throwable t = e.getCause();
+            if (t instanceof RuntimeException)
+                throw (RuntimeException)t;
+            if (t instanceof Error)
+                throw (Error)t;
+            throw e;
+        }
     }
 
 // Internal Stuff
