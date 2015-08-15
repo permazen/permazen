@@ -2049,7 +2049,12 @@ public class Transaction {
             try {
                 info = this.objInfoCache.getUnchecked(id);
             } catch (UncheckedExecutionException e) {
-                throw (RuntimeException)e.getCause();
+                final Throwable t = e.getCause();
+                if (t instanceof RuntimeException)
+                    throw (RuntimeException)t;
+                if (t instanceof Error)
+                    throw (Error)t;
+                throw e;
             }
         }
 
@@ -2071,7 +2076,12 @@ public class Transaction {
         try {
             return this.objInfoCache.getUnchecked(id);
         } catch (UncheckedExecutionException e) {
-            throw (RuntimeException)e.getCause();
+            final Throwable t = e.getCause();
+            if (t instanceof RuntimeException)
+                throw (RuntimeException)t;
+            if (t instanceof Error)
+                throw (Error)t;
+            throw e;
         }
     }
 
