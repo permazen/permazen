@@ -30,7 +30,7 @@ import org.jsimpledb.util.SizeEstimator;
  * Instances are not thread safe.
  * </p>
  */
-public class Reads implements SizeEstimating {
+public class Reads implements Cloneable, SizeEstimating {
 
     private KeyRanges reads;
 
@@ -162,6 +162,18 @@ public class Reads implements SizeEstimating {
         estimator
           .addObjectOverhead()
           .addField(this.reads);
+    }
+
+// Cloneable
+
+    @Override
+    public Reads clone() {
+        final Reads clone;
+        try {
+            return (Reads)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 // Object

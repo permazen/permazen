@@ -50,10 +50,10 @@ import org.jsimpledb.util.SizeEstimator;
  * without first locking this instance.
  * </p>
  */
-public class MutableView extends AbstractKVStore implements SizeEstimating {
+public class MutableView extends AbstractKVStore implements Cloneable, SizeEstimating {
 
     private final KVStore kv;
-    private final Writes writes;
+    private /*final*/ Writes writes;
     private Reads reads;
 
 // Constructors
@@ -83,7 +83,7 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
         this.kv = kv;
         this.reads = reads;
         this.writes = writes;
-        synchronized (this) { }                                     // because this.reads is not final
+        synchronized (this) { }                                     // because this.reads and this.writes are not final
     }
 
 // Public methods
@@ -263,6 +263,31 @@ public class MutableView extends AbstractKVStore implements SizeEstimating {
           .addReferenceField()                              // kv
           .addField(this.reads)                             // reads
           .addField(this.writes);                           // writes
+    }
+
+// Cloneable
+
+    /**
+     * Clone this instance.
+     *
+     * <p>
+     * The clone will have the same underlying {@link KVStore}, but its own {@link Reads} and {@link Writes},
+     * which will themselves be cloned from this instance's copies.
+     *
+     * @return clone of this instance
+     */
+    @Override
+    public synchronized MutableView clone() {
+        final MutableView clone;
+        try {
+            clone = (MutableView)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        if (this.reads != null)
+            clone.reads = this.reads.clone();
+        clone.writes = this.writes.clone();
+        return clone;
     }
 
 // Object
