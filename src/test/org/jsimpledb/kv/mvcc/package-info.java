@@ -1,6 +1,6 @@
 
 /*
- * Copyright (C) 2011 Archie L. Cobbs. All rights reserved.
+ * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
 package org.jsimpledb.kv.mvcc;
