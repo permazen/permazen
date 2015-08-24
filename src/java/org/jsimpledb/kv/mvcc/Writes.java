@@ -242,10 +242,6 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
     /**
      * Deserialize an instance created by {@link #serialize serialize()}.
      *
-     * <p>
-     * Any {@link IOException} thrown during iteration will be wrapped in a {@link RuntimeException}.
-     * An {@link IllegalArgumentException} is also possible during iteration if malformed input is detected.
-     *
      * @param input input stream containing data from {@link #serialize serialize()}
      * @return deserialized instance
      * @throws IllegalArgumentException if {@code input} is null

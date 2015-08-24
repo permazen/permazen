@@ -153,6 +153,15 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
     }
 
     /**
+     * Determine the number of individual {@link KeyRange}s contained in this instance.
+     *
+     * @return size of this instance
+     */
+    public int size() {
+        return this.ranges.size();
+    }
+
+    /**
      * Determine whether this instance is empty, i.e., contains no keys.
      *
      * @return true if this instance is empty

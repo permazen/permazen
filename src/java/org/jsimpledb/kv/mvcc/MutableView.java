@@ -89,6 +89,15 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
 // Public methods
 
     /**
+     * Get the underlying {@link KVStore} associated with this instance.
+     *
+     * @return underlying {@link KVStore}
+     */
+    public KVStore getKVStore() {
+        return this.kv;
+    }
+
+    /**
      * Get the {@link Reads} associated with this instance.
      *
      * <p>
