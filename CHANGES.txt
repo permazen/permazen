@@ -1,6 +1,7 @@
 Version 1.3.1
 
-    - Fixed performance bug with index info cache.
+    - Added read optimized, array-based key/value database
+    - Fixed performance bug with index info cache
 
 Version 1.3.0 Released August 14, 2015
 
