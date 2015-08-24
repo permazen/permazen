@@ -188,7 +188,7 @@ public class KVDatabaseTest extends TestSupport {
     })
     public void setArrayDirPrefix(@Optional String arrayDirPrefix,
       @Optional("90") int compactMaxDelay,
-      @Optional("4096") int compactLowWater,
+      @Optional("65536") int compactLowWater,
       @Optional("1073741824") int compactHighWater) throws IOException {
         if (arrayDirPrefix != null) {
             final File dir = File.createTempFile(arrayDirPrefix, null);
@@ -208,21 +208,28 @@ public class KVDatabaseTest extends TestSupport {
 
     @BeforeClass
     @Parameters({
-        "raftDirPrefix",
-        "raftNumNodes",
-        "raftCommitTimeout",
-        "raftMinElectionTimeout",
-        "raftMaxElectionTimeout",
-        "raftHeartbeatTimeout",
-        "raftMaxTransactionDuration",
-        "raftFollowerProbingEnabled",
-        "raftNetworkDelayMillis",
-        "raftNetworkDropRatio" })
+      "raftDirPrefix",
+      "raftNumNodes",
+      "raftCommitTimeout",
+      "raftMinElectionTimeout",
+      "raftMaxElectionTimeout",
+      "raftHeartbeatTimeout",
+      "raftMaxTransactionDuration",
+      "raftFollowerProbingEnabled",
+      "raftNetworkDelayMillis",
+      "raftNetworkDropRatio",
+      "arrayCompactMaxDelay",
+      "arrayCompactSpaceLowWater",
+      "arrayCompactSpaceHighWater",
+    })
     public void setTestRaftDirPrefix(@Optional String raftDirPrefix, @Optional("5") int numNodes,
       @Optional("2500") int commitTimeout, @Optional("300") int minElectionTimeout, @Optional("350") int maxElectionTimeout,
       @Optional("150") int heartbeatTimeout, @Optional("5000") int maxTransactionDuration,
       @Optional("true") boolean followerProbingEnabled,
-      @Optional("25") int networkDelayMillis, @Optional("0.075") float networkDropRatio)
+      @Optional("25") int networkDelayMillis, @Optional("0.075") float networkDropRatio,
+      @Optional("90") int arrayCompactMaxDelay,
+      @Optional("65536") int arrayCompactLowWater,
+      @Optional("1073741824") int arrayCompactHighWater)
       throws Exception {
         if (raftDirPrefix == null)
             return;
@@ -240,18 +247,36 @@ public class KVDatabaseTest extends TestSupport {
             this.rafts[i] = new RaftKVDatabase();
             final File kvdir = new File(dir, "kvstore");
             kvdir.mkdirs();
-//            if (this.random.nextBoolean()) {
+            switch (this.random.nextInt(3)) {
+            case 1:
+            {
                 this.log.info("using LevelDB as key/value store for Raft test");
                 final LevelDBAtomicKVStore levelkv = new LevelDBAtomicKVStore();
                 levelkv.setDirectory(kvdir);
                 levelkv.setCreateIfMissing(true);
                 this.rafts[i].setKVStore(levelkv);
-//            } else {
+                break;
+            }
+//            case 2:
+//            {
 //                this.log.info("using RocksDB as key/value store for Raft test");
 //                final RocksDBAtomicKVStore rockskv = new RocksDBAtomicKVStore();
 //                rockskv.setDirectory(kvdir);
 //                this.rafts[i].setKVStore(rockskv);
+//                break;
 //            }
+            default:
+            {
+                this.log.info("using Array as key/value store for Raft test");
+                final AtomicArrayKVStore arraykv = new AtomicArrayKVStore();
+                arraykv.setDirectory(kvdir);
+                arraykv.setCompactMaxDelay(arrayCompactMaxDelay);
+                arraykv.setCompactLowWater(arrayCompactLowWater);
+                arraykv.setCompactHighWater(arrayCompactHighWater);
+                this.rafts[i].setKVStore(arraykv);
+                break;
+            }
+            }
             this.rafts[i].setLogDirectory(dir);
             this.rafts[i].setNetwork(this.raftNetworks[i]);
             this.rafts[i].setIdentity(name);
