@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -88,7 +89,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     /**
      * Default compaction space low-water mark in bytes ({@value #DEFAULT_COMPACTION_LOW_WATER} bytes).
      */
-    public static final int DEFAULT_COMPACTION_LOW_WATER = 4096;
+    public static final int DEFAULT_COMPACTION_LOW_WATER = 64 * 1024;
 
     /**
      * Default compaction space high-water mark in bytes ({@value #DEFAULT_COMPACTION_HIGH_WATER} bytes).
@@ -263,8 +264,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         try {
 
             // Already started?
-            if (this.kvstore != null)
+            if (this.kvstore != null) {
+                success = true;
                 return;
+            }
             this.log.info("starting " + this);
 
             // Sanity check
@@ -295,8 +298,16 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Create executor if needed
             this.createdExecutorService = this.executorService == null;
-            if (this.createdExecutorService)
-                this.executorService = Executors.newSingleThreadExecutor();
+            if (this.createdExecutorService) {
+                this.executorService = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                    @Override
+                    public Thread newThread(Runnable action) {
+                        final Thread thread = new Thread(action);
+                        thread.setName("Compactor for " + AtomicArrayKVStore.this);
+                        return thread;
+                    }
+                });
+            }
 
             // Create directory if needed
             boolean initializeFiles = false;
@@ -396,20 +407,20 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             this.modsFileSyncPoint = this.modsFileLength;
 
             // Read and apply pre-existing uncompacted modifications from modifications file
-            try (FileInputStream input = new FileInputStream(this.modsFile)) {
-                boolean anyMods = false;
-                while (input.available() > 0) {
-                    final Writes writes;
-                    try {
-                        writes = Writes.deserialize(input);
-                    } catch (Exception e) {
-                        break;                                                      // probably a partial write
+            if (this.modsFileLength > 0) {
+                this.log.info("reading " + this.modsFileLength + " bytes of uncompacted modifications from " + this.modsFile);
+                try (FileInputStream input = new FileInputStream(this.modsFile)) {
+                    while (input.available() > 0) {
+                        final Writes writes;
+                        try {
+                            writes = Writes.deserialize(input);
+                        } catch (Exception e) {
+                            break;                                                      // probably a partial write
+                        }
+                        writes.applyTo(this.mods);
                     }
-                    writes.applyTo(this.mods);
-                    anyMods = true;
+                    this.firstModTimestamp = System.nanoTime() | 1;                     // avoid zero value which is special
                 }
-                if (anyMods)
-                    this.firstModTimestamp = System.nanoTime() | 1;                 // avoid zero value which is special
             }
 
             // Schedule compaction if necessary
@@ -835,7 +846,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             }
             if (this.log.isDebugEnabled()) {
                 this.log.debug("starting compaction for generation " + this.generation + " -> " + (this.generation + 1)
-                  + " at mods file length " + previousModsFileLength);
+                  + " with mods file length " + previousModsFileLength);
             }
 
             // Create the next generation
@@ -973,6 +984,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 newModsFileOutput = new FileOutputStream(newModsFile, true);
                 assert newModsFile.exists();
 
+                // Sync directory
+                this.directoryChannel.force(false);
+
                 // We're done creating files
                 success = true;
             } finally {
@@ -981,6 +995,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 this.writeLock.lock();
                 try {
                     if (success) {
+
+                        // Initialize for wrap-up
                         success = false;
 
                         // Size up additional mods
@@ -1020,11 +1036,22 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                             }
                         }
 
-                        // Write out new generation file
-                        try (AtomicUpdateFileOutputStream output = new AtomicUpdateFileOutputStream(this.generationFile)) {
-                            new PrintStream(output, true).println(newGeneration);
-                            output.getChannel().force(false);
+                        // Atomically update new generation file contents
+                        final AtomicUpdateFileOutputStream genOutput = new AtomicUpdateFileOutputStream(this.generationFile);
+                        boolean genSuccess = false;
+                        try {
+                            new PrintStream(genOutput, true).println(newGeneration);
+                            genOutput.getChannel().force(false);
+                            genSuccess = true;
+                        } finally {
+                            if (genSuccess)
+                                genOutput.close();
+                            else
+                                genOutput.cancel();
                         }
+
+                        // Declare success
+                        success = true;
 
                         // Remember old info so we can clean it up
                         final File oldIndxFile = this.indxFile;
@@ -1032,9 +1059,6 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         final File oldValsFile = this.valsFile;
                         final File oldModsFile = this.modsFile;
                         final FileOutputStream oldModsFileOutput = this.modsFileOutput;
-
-                        // Declare success
-                        success = true;
 
                         // Change to the new generation
                         this.generation = newGeneration;
@@ -1051,6 +1075,13 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         this.kvstore = new ArrayKVStore(this.indx, this.keys, this.vals);
                         this.mods = new MutableView(this.kvstore, null, this.mods.getWrites());
 
+                        // Sync directory prior to deleting files
+                        try {
+                            this.directoryChannel.force(false);
+                        } catch (IOException e) {
+                            this.log.error("error syncing directory " + this.directory + " (ignoring)", e);
+                        }
+
                         // Delete old files
                         oldIndxFile.delete();
                         oldKeysFile.delete();
@@ -1063,13 +1094,6 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         } catch (IOException e) {
                             // ignore
                         }
-
-                        // Sync directory
-                        try {
-                            this.directoryChannel.force(false);
-                        } catch (IOException e) {
-                            this.log.error("error syncing directory " + this.directory + " (ignoring)", e);
-                        }
                     }
                 } finally {
                     try {
@@ -1077,7 +1101,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         // Logit
                         if (this.log.isDebugEnabled()) {
                             final float duration = (System.nanoTime() - compactionStartTime) / 1000000000f;
-                            this.log.debug("compaction for generation " + this.generation + " -> " + (this.generation + 1)
+                            this.log.debug("compaction for generation " + (newGeneration - 1) + " -> " + newGeneration
                               + (success ? " succeeded" : " failed") + " in " + String.format("%.4s", duration) + " seconds");
                         }
 
@@ -1136,10 +1160,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName()
-          + "[dir=" + this.directory
-          + ",kvstore=" + this.kvstore
-          + "]";
+        return this.getClass().getSimpleName() + "[" + this.directory + "]";
     }
 
     private static ByteBuffer getBuffer(File file, FileChannel fileChannel) throws IOException {
