@@ -180,6 +180,8 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#AbstractMain()">AbstractMain()</a></span> - Constructor for class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.ArrayDBType</span></a> - Class in <a href="./org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.BerkeleyDBType</span></a> - Class in <a href="./org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util"><span class="strong">AbstractMain.DBType</span></a>&lt;<a href="./org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a> extends <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&gt; - Class in <a href="./org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></dt>
@@ -571,6 +573,8 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)">adjustCounter(byte[], long)</a></span> - Method in interface org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></dt>
@@ -839,6 +843,49 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/TypeContainer.html#areChildrenAllowed(java.lang.Object)">areChildrenAllowed(Object)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">TypeContainer</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#arraydbDirectory">arraydbDirectory</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#arrayDBType">arrayDBType</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array"><span class="strong">ArrayKVDatabase</span></a> - Class in <a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a></dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <code>ArrayAtomicKVStore</code>, providing concurrent transactions
+ and linearizable ACID semantics.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#ArrayKVDatabase()">ArrayKVDatabase()</a></span> - Constructor for class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/array/ArrayKVException.html" title="class in org.jsimpledb.kv.array"><span class="strong">ArrayKVException</span></a> - Exception in <a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a></dt>
+<dd>
+<div class="block">Superclass of all unchecked exceptions thrown by a <a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>ArrayKVStore</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVException.html#ArrayKVException()">ArrayKVException()</a></span> - Constructor for exception org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVException.html" title="class in org.jsimpledb.kv.array">ArrayKVException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVException.html#ArrayKVException(java.lang.String)">ArrayKVException(String)</a></span> - Constructor for exception org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVException.html" title="class in org.jsimpledb.kv.array">ArrayKVException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVException.html#ArrayKVException(java.lang.Throwable)">ArrayKVException(Throwable)</a></span> - Constructor for exception org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVException.html" title="class in org.jsimpledb.kv.array">ArrayKVException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVException.html#ArrayKVException(java.lang.String, java.lang.Throwable)">ArrayKVException(String, Throwable)</a></span> - Constructor for exception org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVException.html" title="class in org.jsimpledb.kv.array">ArrayKVException</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array"><span class="strong">ArrayKVStore</span></a> - Class in <a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a></dt>
+<dd>
+<div class="block">A simple read-only <code>KVStore</code> based on a sorted array of key/value pairs.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#ArrayKVStore(java.nio.ByteBuffer, java.nio.ByteBuffer, java.nio.ByteBuffer)">ArrayKVStore(ByteBuffer, ByteBuffer, ByteBuffer)</a></span> - Constructor for class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><a href="./org/jsimpledb/kv/array/ArrayKVTransaction.html" title="class in org.jsimpledb.kv.array"><span class="strong">ArrayKVTransaction</span></a> - Class in <a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a></dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array"><code>ArrayKVDatabase</code></a> transaction.</div>
+</dd>
+<dt><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array"><span class="strong">ArrayKVWriter</span></a> - Class in <a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a></dt>
+<dd>
+<div class="block">Writes <a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>ArrayKVStore</code></a> index, key, and value data, given a sorted sequence of key/value pairs.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#ArrayKVWriter(java.io.OutputStream, java.io.OutputStream, java.io.OutputStream)">ArrayKVWriter(OutputStream, OutputStream, OutputStream)</a></span> - Constructor for class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/CoreIndex2.html#asIndex()">asIndex()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/CoreIndex2.html" title="class in org.jsimpledb.core">CoreIndex2</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/CoreIndex3.html#asIndex()">asIndex()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/CoreIndex3.html" title="class in org.jsimpledb.core">CoreIndex3</a></dt>
@@ -982,6 +1029,12 @@
 <div class="block">Parses Java assignment expressions of the form <code>x = y</code>, <code>x += y</code>, etc.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/AssignmentExprParser.html#AssignmentExprParser()">AssignmentExprParser()</a></span> - Constructor for class org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/AssignmentExprParser.html" title="class in org.jsimpledb.parse.expr">AssignmentExprParser</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array"><span class="strong">AtomicArrayKVStore</span></a> - Class in <a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a></dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> based on <a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>ArrayKVStore</code></a> with background compaction.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#AtomicArrayKVStore()">AtomicArrayKVStore()</a></span> - Constructor for class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">AtomicKVDatabase</span></a> - Class in <a href="./org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></dt>
 <dd>
@@ -1863,6 +1916,12 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/CopyState.html#clone()">clone()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>
+<div class="block">Clone this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util">NavigableMapKVStore</a></dt>
@@ -1911,6 +1970,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/ObjIdSet.html#clone()">clone()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ObjIdSet.html" title="class in org.jsimpledb.util">ObjIdSet</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
+<dd>
+<div class="block">Close all three outputs.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.CursorIterator.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.CursorIterator.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction.CursorIterator</a></dt>
@@ -2472,6 +2535,8 @@
 <dd>
 <div class="block">Create a <a href="./org/jsimpledb/kv/util/PrefixKVStore.html" title="class in org.jsimpledb.kv.util"><code>PrefixKVStore</code></a> instance using the specified prefix and underlying <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.ArrayDBType.html#createAtomicKVStore()">createAtomicKVStore()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util">AbstractMain.ArrayDBType</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.DBType.html#createAtomicKVStore()">createAtomicKVStore()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.LevelDBType.html#createAtomicKVStore()">createAtomicKVStore()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.LevelDBType.html" title="class in org.jsimpledb.util">AbstractMain.LevelDBType</a></dt>
@@ -2511,6 +2576,8 @@
 <dd>
 <div class="block">Create an SQL statement that reads the value column associated with key <code>&#63;1</code>.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.ArrayDBType.html#createKVDatabase()">createKVDatabase()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util">AbstractMain.ArrayDBType</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#createKVDatabase()">createKVDatabase()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util">AbstractMain.BerkeleyDBType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.DBType.html#createKVDatabase()">createKVDatabase()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a></dt>
@@ -2572,6 +2639,8 @@
 <div class="block">Create a new <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/channels/SelectionKey.html?is-external=true" title="class or interface in java.nio.channels"><code>SelectionKey</code></a> by registering the given channel on the given <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/channels/Selector.html?is-external=true" title="class or interface in java.nio.channels"><code>Selector</code></a>
  and associating the specified <a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html" title="interface in org.jsimpledb.kv.raft.net"><code>SelectorSupport.IOHandler</code></a> to handle I/O ready conditions.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">createSnapshotKVTransaction(SnapshotVersion)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">createSnapshotKVTransaction(SnapshotVersion)</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">createSnapshotKVTransaction(SnapshotVersion)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></dt>
@@ -2638,6 +2707,8 @@
 <dd>
 <div class="block">Create a new transaction.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a></dt>
@@ -2764,6 +2835,8 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#decodeCounter(byte[])">decodeCounter(byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#decodeCounter(byte[])">decodeCounter(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#decodeCounter(byte[])">decodeCounter(byte[])</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])">decodeCounter(byte[])</a></span> - Method in interface org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></dt>
@@ -2805,6 +2878,18 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_COMMIT_TIMEOUT">DEFAULT_COMMIT_TIMEOUT</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Default transaction commit timeout (5000).</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#DEFAULT_COMPACTION_HIGH_WATER">DEFAULT_COMPACTION_HIGH_WATER</a></span> - Static variable in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Default compaction space high-water mark in bytes (1073741824 bytes).</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#DEFAULT_COMPACTION_LOW_WATER">DEFAULT_COMPACTION_LOW_WATER</a></span> - Static variable in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Default compaction space low-water mark in bytes (65536 bytes).</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#DEFAULT_COMPACTION_MAX_DELAY">DEFAULT_COMPACTION_MAX_DELAY</a></span> - Static variable in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Default compaction maximum delay in seconds (90 seconds).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#DEFAULT_CONNECT_TIMEOUT">DEFAULT_CONNECT_TIMEOUT</a></span> - Static variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
 <dd>
@@ -3138,6 +3223,8 @@
 <div class="block">Encode the given value.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#encodeCounter(long)">encodeCounter(long)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#encodeCounter(long)">encodeCounter(long)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#encodeCounter(long)">encodeCounter(long)</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
 <dd>&nbsp;</dd>
@@ -3563,6 +3650,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/IndexedFieldParser.html#filterSubFields(java.lang.Iterable)">filterSubFields(Iterable&lt;? extends SimpleField&lt;?&gt;&gt;)</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/IndexedFieldParser.html" title="class in org.jsimpledb.parse">IndexedFieldParser</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#finalize()">finalize()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Finalize this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#finalize()">finalize()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html#finalize()">finalize()</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a></dt>
@@ -3629,6 +3720,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractNavigableMap.html#floorKey(K)">floorKey(K)</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractNavigableMap.html" title="class in org.jsimpledb.util">AbstractNavigableMap</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#flush()">flush()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
+<dd>
+<div class="block">Flush all three outputs.</div>
+</dd>
 <dt><a href="./org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Follower</span></a> - Class in <a href="./org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a></dt>
 <dd>
 <div class="block">Contains information maintained by leaders about followers.</div>
@@ -3788,6 +3883,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#get(byte[])">get(byte[])</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
@@ -3944,6 +4043,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#getAtLeast(byte[])">getAtLeast(byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#getAtLeast(byte[])">getAtLeast(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#getAtLeast(byte[])">getAtLeast(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#getAtLeast(byte[])">getAtLeast(byte[])</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#getAtLeast(byte[])">getAtLeast(byte[])</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
@@ -3965,6 +4068,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/PrefixKVStore.html#getAtLeast(byte[])">getAtLeast(byte[])</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/PrefixKVStore.html" title="class in org.jsimpledb.kv.util">PrefixKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#getAtMost(byte[])">getAtMost(byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#getAtMost(byte[])">getAtMost(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#getAtMost(byte[])">getAtMost(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#getAtMost(byte[])">getAtMost(byte[])</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
@@ -4274,6 +4381,8 @@
  <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated
  methods.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.ArrayDBType.html#getDescription()">getDescription()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util">AbstractMain.ArrayDBType</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#getDescription()">getDescription()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util">AbstractMain.BerkeleyDBType</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.DBType.html#getDescription()">getDescription()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a></dt>
@@ -4295,6 +4404,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/change/ChangeCopier.html#getDestinationTransaction()">getDestinationTransaction()</a></span> - Method in class org.jsimpledb.change.<a href="./org/jsimpledb/change/ChangeCopier.html" title="class in org.jsimpledb.change">ChangeCopier</a></dt>
 <dd>
 <div class="block">Get the destination transaction configured in this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#getDirectory()">getDirectory()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Get the filesystem directory containing the database.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getDirectory()">getDirectory()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>
@@ -4710,6 +4823,10 @@
 <dd>
 <div class="block">Get the fields that comprise this index.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#getIndxLength()">getIndxLength()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
+<dd>
+<div class="block">Get the number of bytes written so far to the index file.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/XMLKVDatabase.html#getInitialContent()">getInitialContent()</a></span> - Method in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple">XMLKVDatabase</a></dt>
 <dd>
 <div class="block">Get the initial content for an uninitialized database.</div>
@@ -4913,10 +5030,16 @@
 <dd>
 <div class="block">Get the <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> instance used to restrict the range of visible keys, if any.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#getKeysLength()">getKeysLength()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
+<dd>
+<div class="block">Get the number of bytes written so far to the key data file.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Database.html#getKVDatabase()">getKVDatabase()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a></dt>
 <dd>
 <div class="block">Get the <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> underlying this instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVTransaction.html#getKVDatabase()">getKVDatabase()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVTransaction.html" title="class in org.jsimpledb.kv.array">ArrayKVTransaction</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#getKVDatabase()">getKVDatabase()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#getKVDatabase()">getKVDatabase()</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
@@ -4952,6 +5075,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVPairIterator.html#getKVStore()">getKVStore()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVPairIterator.html" title="class in org.jsimpledb.kv">KVPairIterator</a></dt>
 <dd>
 <div class="block">Get the <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> associated with this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/MutableView.html#getKVStore()">getKVStore()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></dt>
+<dd>
+<div class="block">Get the underlying <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> associated with this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#getKVStore()">getKVStore()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></dt>
 <dd>
@@ -5472,6 +5599,10 @@
 <dd>
 <div class="block">Get the written key/value pairs contained by this instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
@@ -6006,6 +6137,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/spring/OpenTransactionInViewFilter.html#getValidationMode()">getValidationMode()</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/OpenTransactionInViewFilter.html" title="class in org.jsimpledb.spring">OpenTransactionInViewFilter</a></dt>
 <dd>
 <div class="block">Get transaction validation mode.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#getValsLength()">getValsLength()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
+<dd>
+<div class="block">Get the number of bytes written so far to the value data file.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/change/MapFieldAdd.html#getValue()">getValue()</a></span> - Method in class org.jsimpledb.change.<a href="./org/jsimpledb/change/MapFieldAdd.html" title="class in org.jsimpledb.change">MapFieldAdd</a></dt>
 <dd>
@@ -8110,6 +8245,8 @@
 <dd>
 <div class="block">Constructor using caller-provided <a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> (optional} and <a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a>.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">mutate(Mutations, boolean)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">mutate(Mutations, boolean)</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">mutate(Mutations, boolean)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/AtomicKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">AtomicKVDatabase</a></dt>
@@ -8596,6 +8733,10 @@
 <dd>
 <div class="block"><code>byte[]</code> array key/value store API and related utility classes.</div>
 </dd>
+<dt><a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a> - package org.jsimpledb.kv.array</dt>
+<dd>
+<div class="block">A simple <code>KVStore</code> implementation based on a sorted array of key/value pairs.</div>
+</dd>
 <dt><a href="./org/jsimpledb/kv/bdb/package-summary.html">org.jsimpledb.kv.bdb</a> - package org.jsimpledb.kv.bdb</dt>
 <dd>
 <div class="block"><a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on Oracle's Berkeley DB Java Edition.</div>
@@ -9078,6 +9219,10 @@
 <div class="block">Publish that the specified object has changed if the current transaction is successful.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#put(byte[], byte[])">put(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
@@ -9582,6 +9727,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.CursorIterator.html#remove()">remove()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.CursorIterator.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction.CursorIterator</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#remove(byte[])">remove(byte[])</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
@@ -9671,6 +9820,10 @@
 <div class="block">Remove a monitor previously added via <a href="./org/jsimpledb/core/Transaction.html#addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)"><code>addMapFieldChangeListener()</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>&nbsp;</dd>
@@ -9974,6 +10127,11 @@
 <dd>
 <div class="block">Locate annotated classes on the classpath.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#scheduleCompaction()">scheduleCompaction()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Schedule a new compaction cycle, unless there is one already scheduled or running, or there are no
+ outstanding uncompacted modifications.</div>
+</dd>
 <dt><a href="./org/jsimpledb/core/Schema.html" title="class in org.jsimpledb.core"><span class="strong">Schema</span></a> - Class in <a href="./org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a></dt>
 <dd>
 <div class="block">Contains information describing one schema version.</div>
@@ -10235,6 +10393,18 @@
 <dd>
 <div class="block">Configure the default transaction commit timeout.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#setCompactHighWater(int)">setCompactHighWater(int)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Configure the compaction space high-water mark in bytes.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#setCompactLowWater(int)">setCompactLowWater(int)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Configure the compaction space low-water mark in bytes.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#setCompactMaxDelay(int)">setCompactMaxDelay(int)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Configure the compaction time maximum delay.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html#setCompressionType(org.iq80.leveldb.CompressionType)">setCompressionType(CompressionType)</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a></dt>
 <dd>
 <div class="block">Configure the compression type.</div>
@@ -10279,6 +10449,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html#setDataSource(javax.sql.DataSource)">setDataSource(DataSource)</a></span> - Method in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql"><code>DataSource</code></a> used with this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#setDirectory(java.io.File)">setDirectory(File)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Configure the filesystem directory containing the database.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setDirectory(java.io.File)">setDirectory(File)</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>
@@ -10437,6 +10611,10 @@
 <dd>
 <div class="block">Configure a prefix for all keys.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#setKVStore(org.jsimpledb.kv.array.AtomicArrayKVStore)">setKVStore(AtomicArrayKVStore)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
+<dd>
+<div class="block">Configure the underlying <code>ArrayAtomicKVStore</code> used by this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html#setKVStore(org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore)">setKVStore(LevelDBAtomicKVStore)</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the underlying <a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb"><code>LevelDBAtomicKVStore</code></a> used by this instance.</div>
@@ -10578,6 +10756,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#setRollbackOnly()">setRollbackOnly()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>
 <div class="block">Mark the current transaction to be rolled back.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#setScheduledExecutorService(java.util.concurrent.ScheduledExecutorService)">setScheduledExecutorService(ScheduledExecutorService)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><code>ScheduledExecutorService</code></a> used to schedule background compaction.</div>
 </dd>
 <dt><a href="./org/jsimpledb/schema/SetSchemaField.html" title="class in org.jsimpledb.schema"><span class="strong">SetSchemaField</span></a> - Class in <a href="./org/jsimpledb/schema/package-summary.html">org.jsimpledb.schema</a></dt>
 <dd>
@@ -10828,6 +11010,10 @@
 <dd>
 <div class="block">Create a <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a> containing a single element.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#size()">size()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
+<dd>
+<div class="block">Determine the number of individual <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s contained in this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractIterationSet.html#size()">size()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractIterationSet.html" title="class in org.jsimpledb.util">AbstractIterationSet</a></dt>
 <dd>
 <div class="block">Calculate size.</div>
@@ -10897,6 +11083,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/gui/SmallButton.html#SmallButton(java.lang.String)">SmallButton(String)</a></span> - Constructor for class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/SmallButton.html" title="class in org.jsimpledb.gui">SmallButton</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/SmallButton.html#SmallButton(java.lang.String, com.vaadin.ui.Button.ClickListener)">SmallButton(String, Button.ClickListener)</a></span> - Constructor for class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/SmallButton.html" title="class in org.jsimpledb.gui">SmallButton</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#snapshot()">snapshot()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html#snapshot()">snapshot()</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a></dt>
 <dd>&nbsp;</dd>
@@ -11047,6 +11235,8 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/demo/Star.html#Star()">Star()</a></span> - Constructor for class org.jsimpledb.demo.<a href="./org/jsimpledb/demo/Star.html" title="class in org.jsimpledb.demo">Star</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a></dt>
@@ -11109,6 +11299,8 @@
 <dd>
 <div class="block">Force this leader to step down.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a></dt>
@@ -11375,6 +11567,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/EnumConverter.html#toString()">toString()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/EnumConverter.html" title="class in org.jsimpledb">EnumConverter</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JSchemaObject.html#toString()">toString()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSchemaObject.html" title="class in org.jsimpledb">JSchemaObject</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRange.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a></dt>
 <dd>&nbsp;</dd>
@@ -12231,6 +12425,8 @@ the order they are declared.</div>
 <dd>
 <div class="block">Constructor when any word is acceptable.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#wrapException(org.jsimpledb.kv.mvcc.SnapshotKVTransaction, java.lang.RuntimeException)">wrapException(SnapshotKVTransaction, RuntimeException)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html#wrapException(com.sleepycat.je.DatabaseException)">wrapException(DatabaseException)</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></dt>
 <dd>
 <div class="block">Wrap the given <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseException.html?is-external=true" title="class or interface in com.sleepycat.je"><code>DatabaseException</code></a> in the appropriate <a href="./org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
@@ -12344,6 +12540,10 @@ the order they are declared.</div>
 <dt><span class="strong"><a href="./org/jsimpledb/util/ByteUtil.html#writeInt(org.jsimpledb.util.ByteWriter, int)">writeInt(ByteWriter, int)</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ByteUtil.html" title="class in org.jsimpledb.util">ByteUtil</a></dt>
 <dd>
 <div class="block">Write an <code>int</code> as four big-endian bytes.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#writeKV(byte[], byte[])">writeKV(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
+<dd>
+<div class="block">Write out the next key/value pair.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyListEncoder.html#writeLength(byte[], byte[])">writeLength(byte[], byte[])</a></span> - Static method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util">KeyListEncoder</a></dt>
 <dd>

@@ -94,7 +94,7 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public class <a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.83">JSimpleDB</a>
+<pre>public class <a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.87">JSimpleDB</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 <div class="block">JSimpleDB Java persistence layer.
 
@@ -305,7 +305,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>JSimpleDB</h4>
-<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.125">JSimpleDB</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;classes)</pre>
+<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.137">JSimpleDB</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;classes)</pre>
 <div class="block">Create an instance using an initially empty, in-memory <a href="../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a>.
  Generates a database schema by introspecting the <code>classes</code>; schema version number <code>1</code> is assumed
  and a <a href="../../org/jsimpledb/DefaultStorageIdGenerator.html" title="class in org.jsimpledb"><code>DefaultStorageIdGenerator</code></a> is used to auto-generate storage ID's where necessary.
@@ -326,7 +326,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>JSimpleDB</h4>
-<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.139">JSimpleDB</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;classes)</pre>
+<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.151">JSimpleDB</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;classes)</pre>
 <div class="block">Create an instance using an initially empty, in-memory <a href="../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a>.
 
  <p>
@@ -349,7 +349,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabase</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.352">getDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.364">getDatabase</a>()</pre>
 <div class="block">Get the core API <a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> underlying this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>underlying <a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a></dd></dl>
 </li>
@@ -360,7 +360,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getConfiguredVersion</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.364">getConfiguredVersion</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.376">getConfiguredVersion</a>()</pre>
 <div class="block">Get the schema version that this instance was configured to use. This will either be a specific non-zero
  schema version number, or else zero, indicating that the highest schema version found in the database should
  be used.</div>
@@ -374,7 +374,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getActualVersion</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.388">getActualVersion</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.400">getActualVersion</a>()</pre>
 <div class="block">Get the schema version that this instance used for the most recently created transaction.
 
  <p>
@@ -400,7 +400,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getModelClass</h4>
-<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.401">getModelClass</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.413">getModelClass</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
 <div class="block">Get the Java model class of the given <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>.
  If <code>jobj</code> is an instance of a JSimpleDB-generated subclass of a user-supplied Java model class,
  this returns the original Java model class. Otherwise, it returns <code>obj</code>'s type.</div>
@@ -416,7 +416,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.437">createTransaction</a>(boolean&nbsp;allowNewSchema,
+<pre>public&nbsp;<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.449">createTransaction</a>(boolean&nbsp;allowNewSchema,
                              <a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</pre>
 <div class="block">Create a new transaction.
 
@@ -448,7 +448,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>createSnapshotTransaction</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.465">createSnapshotTransaction</a>(<a href="../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+<pre>public&nbsp;<a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.477">createSnapshotTransaction</a>(<a href="../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
                                              boolean&nbsp;allowNewSchema,
                                              <a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</pre>
 <div class="block">Create a new <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> based on the provided key/value store.
@@ -474,7 +474,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getSchemaModel</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.478">getSchemaModel</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.490">getSchemaModel</a>()</pre>
 <div class="block">Get the <a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema"><code>SchemaModel</code></a> associated with this instance, derived from the annotations on the scanned classes.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated schema model</dd></dl>
 </li>
@@ -485,7 +485,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getNameIndex</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/schema/NameIndex.html" title="class in org.jsimpledb.schema">NameIndex</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.496">getNameIndex</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/schema/NameIndex.html" title="class in org.jsimpledb.schema">NameIndex</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.508">getNameIndex</a>()</pre>
 <div class="block">Get a <a href="../../org/jsimpledb/schema/NameIndex.html" title="class in org.jsimpledb.schema"><code>NameIndex</code></a> based on <a href="../../org/jsimpledb/JSimpleDB.html#getSchemaModel()">this instance's schema model</a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>a name index on this instance's schema model</dd></dl>
 </li>
@@ -496,7 +496,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJClasses</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>,<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.509">getJClasses</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>,<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.521">getJClasses</a>()</pre>
 <div class="block">Get all <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a>'s associated with this instance, indexed by storage ID.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>read-only mapping from storage ID to <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a></dd></dl>
 </li>
@@ -507,7 +507,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJClassesByType</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;,<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.518">getJClassesByType</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;,<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.530">getJClassesByType</a>()</pre>
 <div class="block">Get all <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a>'s associated with this instance, indexed by Java model type.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>read-only mapping from Java model type to <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a></dd></dl>
 </li>
@@ -518,7 +518,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJClass</h4>
-<pre>public&nbsp;&lt;T&gt;&nbsp;<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.531">getJClass</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
+<pre>public&nbsp;&lt;T&gt;&nbsp;<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.543">getJClass</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
 <div class="block">Get the <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a> modeled by the given type.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - Java model type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - an annotated Java object model type</dd>
 <dt><span class="strong">Returns:</span></dt><dd>associated <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a></dd>
@@ -532,7 +532,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJClass</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.546">getJClass</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.558">getJClass</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
 <div class="block">Get the <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a> associated with the object ID.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd><a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a> instance</dd>
@@ -547,7 +547,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJClass</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.561">getJClass</a>(int&nbsp;storageId)</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.573">getJClass</a>(int&nbsp;storageId)</pre>
 <div class="block">Get the <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a> associated with the given storage ID.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - object type storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd><a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a> instance</dd>
@@ -561,7 +561,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJClasses</h4>
-<pre>public&nbsp;&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;? extends T&gt;&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.576">getJClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
+<pre>public&nbsp;&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;? extends T&gt;&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.588">getJClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
 <div class="block">Get all <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a>es which sub-type the given type.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - Java model type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - type restriction, or null for no restrction</dd>
 <dt><span class="strong">Returns:</span></dt><dd>list of <a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a>es whose type is <code>type</code> or a sub-type, ordered by storage ID</dd></dl>
@@ -573,7 +573,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>parseReferencePath</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/ReferencePath.html" title="class in org.jsimpledb">ReferencePath</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.612">parseReferencePath</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;startType,
+<pre>public&nbsp;<a href="../../org/jsimpledb/ReferencePath.html" title="class in org.jsimpledb">ReferencePath</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.624">parseReferencePath</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;startType,
                                <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;path)</pre>
 <div class="block">Parse a <a href="../../org/jsimpledb/ReferencePath.html" title="class in org.jsimpledb"><code>ReferencePath</code></a> in <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> form.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>startType</code> - starting Java type for the path</dd><dd><code>path</code> - dot-separated path of zero or more reference fields, followed by a target field</dd>
@@ -589,7 +589,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getReferencedObjects</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.634">getReferencedObjects</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDB.html#line.646">getReferencedObjects</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
 <div class="block">Utility method to get all of the objects directly referenced by a given object via any field.
 
  <p>

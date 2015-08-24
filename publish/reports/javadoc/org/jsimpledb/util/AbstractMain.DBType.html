@@ -94,7 +94,7 @@
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util">AbstractMain.BerkeleyDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.FoundationDBType.html" title="class in org.jsimpledb.util">AbstractMain.FoundationDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.LevelDBType.html" title="class in org.jsimpledb.util">AbstractMain.LevelDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.MemoryDBType.html" title="class in org.jsimpledb.util">AbstractMain.MemoryDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.MySQLDBType.html" title="class in org.jsimpledb.util">AbstractMain.MySQLDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util">AbstractMain.RaftDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util">AbstractMain.RocksDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util">AbstractMain.XMLDBType</a></dd>
+<dd><a href="../../../org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util">AbstractMain.ArrayDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util">AbstractMain.BerkeleyDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.FoundationDBType.html" title="class in org.jsimpledb.util">AbstractMain.FoundationDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.LevelDBType.html" title="class in org.jsimpledb.util">AbstractMain.LevelDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.MemoryDBType.html" title="class in org.jsimpledb.util">AbstractMain.MemoryDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.MySQLDBType.html" title="class in org.jsimpledb.util">AbstractMain.MySQLDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util">AbstractMain.RaftDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util">AbstractMain.RocksDBType</a>, <a href="../../../org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util">AbstractMain.XMLDBType</a></dd>
 </dl>
 <dl>
 <dt>Enclosing class:</dt>
@@ -102,7 +102,7 @@
 </dl>
 <hr>
 <br>
-<pre>protected abstract class <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.620">AbstractMain.DBType</a>&lt;T extends <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&gt;
+<pre>protected abstract class <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.633">AbstractMain.DBType</a>&lt;T extends <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&gt;
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 </li>
 </ul>
@@ -193,7 +193,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AbstractMain.DBType</h4>
-<pre>protected&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.624">AbstractMain.DBType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&gt;&nbsp;type)</pre>
+<pre>protected&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.637">AbstractMain.DBType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&gt;&nbsp;type)</pre>
 </li>
 </ul>
 </li>
@@ -210,7 +210,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>cast</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.628">cast</a>(<a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;db)</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.641">cast</a>(<a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;db)</pre>
 </li>
 </ul>
 <a name="createAtomicKVStore()">
@@ -219,7 +219,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>createAtomicKVStore</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.632">createAtomicKVStore</a>()</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.645">createAtomicKVStore</a>()</pre>
 </li>
 </ul>
 <a name="createKVDatabase()">
@@ -228,7 +228,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>createKVDatabase</h4>
-<pre>public abstract&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.636">createKVDatabase</a>()</pre>
+<pre>public abstract&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.649">createKVDatabase</a>()</pre>
 </li>
 </ul>
 <a name="startKVDatabase(org.jsimpledb.kv.KVDatabase)">
@@ -239,7 +239,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>startKVDatabase</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.638">startKVDatabase</a>(<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&nbsp;db)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.651">startKVDatabase</a>(<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&nbsp;db)</pre>
 </li>
 </ul>
 <a name="stopKVDatabase(org.jsimpledb.kv.KVDatabase)">
@@ -250,7 +250,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>stopKVDatabase</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.642">stopKVDatabase</a>(<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&nbsp;db)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.655">stopKVDatabase</a>(<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a>&nbsp;db)</pre>
 </li>
 </ul>
 <a name="getDescription()">
@@ -259,7 +259,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getDescription</h4>
-<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.646">getDescription</a>()</pre>
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.DBType.html#line.659">getDescription</a>()</pre>
 </li>
 </ul>
 </li>

@@ -479,13 +479,9 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneabl
 <ul class="blockList">
 <li class="blockList">
 <h4>deserialize</h4>
-<pre>public static&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Writes.html#line.255">deserialize</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)
+<pre>public static&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Writes.html#line.251">deserialize</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)
                           throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
-<div class="block">Deserialize an instance created by <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.
-
- <p>
- Any <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io"><code>IOException</code></a> thrown during iteration will be wrapped in a <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang"><code>RuntimeException</code></a>.
- An <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang"><code>IllegalArgumentException</code></a> is also possible during iteration if malformed input is detected.</div>
+<div class="block">Deserialize an instance created by <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>input</code> - input stream containing data from <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html#serialize(java.io.OutputStream)"><code>serialize()</code></a></dd>
 <dt><span class="strong">Returns:</span></dt><dd>deserialized instance</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -500,7 +496,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneabl
 <ul class="blockList">
 <li class="blockList">
 <h4>addTo</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Writes.html#line.291">addTo</a>(<a href="../../../../org/jsimpledb/util/SizeEstimator.html" title="class in org.jsimpledb.util">SizeEstimator</a>&nbsp;estimator)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Writes.html#line.287">addTo</a>(<a href="../../../../org/jsimpledb/util/SizeEstimator.html" title="class in org.jsimpledb.util">SizeEstimator</a>&nbsp;estimator)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/util/SizeEstimating.html#addTo(org.jsimpledb.util.SizeEstimator)">SizeEstimating</a></code></strong></div>
 <div class="block">Add the estimated size of this instance (in bytes) to the given estimator.</div>
 <dl>
@@ -515,7 +511,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneabl
 <ul class="blockList">
 <li class="blockList">
 <h4>clone</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Writes.html#line.314">clone</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Writes.html#line.310">clone</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -528,7 +524,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneabl
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Writes.html#line.329">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Writes.html#line.325">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>

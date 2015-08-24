@@ -99,13 +99,13 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>, <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a></dd>
+<dd><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>, <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>, <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public class <a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.53">MutableView</a>
 extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a>
-implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a></pre>
+implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>, <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="interface in org.jsimpledb.util">SizeEstimating</a></pre>
 <div class="block">Provides a mutable view of an underlying, read-only <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.
 
  <p>
@@ -189,28 +189,40 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#clone()">clone</a></strong>()</code>
+<div class="block">Clone this instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#decodeCounter(byte[])">decodeCounter</a></strong>(byte[]&nbsp;bytes)</code>
 <div class="block">Decode a counter value previously encoded by <a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)"><code>encodeCounter()</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#disableReadTracking()">disableReadTracking</a></strong>()</code>
 <div class="block">Disable read tracking and discard the <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> associated with this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#encodeCounter(long)">encodeCounter</a></strong>(long&nbsp;value)</code>
 <div class="block">Encode a counter value into a <code>byte[]</code> value suitable for use with <a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])"><code>decodeCounter()</code></a>
  and/or <a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)"><code>adjustCounter()</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#get(byte[])">get</a></strong>(byte[]&nbsp;key)</code>
 <div class="block">Get the value associated with the given key, if any.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html#getKVStore()">getKVStore</a></strong>()</code>
+<div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> associated with this instance.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -270,7 +282,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
-<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -323,13 +335,24 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getKVStore()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getKVStore</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.96">getKVStore</a>()</pre>
+<div class="block">Get the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> associated with this instance.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a></dd></dl>
+</li>
+</ul>
 <a name="getReads()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getReads</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.100">getReads</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.109">getReads</a>()</pre>
 <div class="block">Get the <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> associated with this instance.
 
  <p>
@@ -344,7 +367,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>getWrites</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.109">getWrites</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.118">getWrites</a>()</pre>
 <div class="block">Get the <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a> associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>writes recorded</dd></dl>
 </li>
@@ -355,7 +378,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>disableReadTracking</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.119">disableReadTracking</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.128">disableReadTracking</a>()</pre>
 <div class="block">Disable read tracking and discard the <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> associated with this instance.
 
  <p>
@@ -368,7 +391,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.126">get</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.135">get</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the value associated with the given key, if any.</div>
 <dl>
@@ -386,7 +409,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>getRange</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.152">getRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.161">getRange</a>(byte[]&nbsp;minKey,
                         byte[]&nbsp;maxKey,
                         boolean&nbsp;reverse)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">KVStore</a></code></strong></div>
@@ -426,7 +449,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>put</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.159">put</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.168">put</a>(byte[]&nbsp;key,
        byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#put(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Set the value associated with the given key.</div>
@@ -444,7 +467,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.173">remove</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.182">remove</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#remove(byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 <dl>
@@ -461,7 +484,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>removeRange</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.189">removeRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.198">removeRange</a>(byte[]&nbsp;minKey,
                byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#removeRange(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove all key/value pairs whose keys are in a given range.
@@ -491,7 +514,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>encodeCounter</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.209">encodeCounter</a>(long&nbsp;value)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.218">encodeCounter</a>(long&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)">KVStore</a></code></strong></div>
 <div class="block">Encode a counter value into a <code>byte[]</code> value suitable for use with <a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])"><code>decodeCounter()</code></a>
  and/or <a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)"><code>adjustCounter()</code></a>.</div>
@@ -510,7 +533,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>decodeCounter</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.214">decodeCounter</a>(byte[]&nbsp;bytes)</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.223">decodeCounter</a>(byte[]&nbsp;bytes)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])">KVStore</a></code></strong></div>
 <div class="block">Decode a counter value previously encoded by <a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)"><code>encodeCounter()</code></a>.</div>
 <dl>
@@ -528,7 +551,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>adjustCounter</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.219">adjustCounter</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.228">adjustCounter</a>(byte[]&nbsp;key,
                  long&nbsp;amount)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)">KVStore</a></code></strong></div>
 <div class="block">Adjust the counter at the given key by the given amount.
@@ -557,7 +580,7 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>addTo</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.260">addTo</a>(<a href="../../../../org/jsimpledb/util/SizeEstimator.html" title="class in org.jsimpledb.util">SizeEstimator</a>&nbsp;estimator)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.269">addTo</a>(<a href="../../../../org/jsimpledb/util/SizeEstimator.html" title="class in org.jsimpledb.util">SizeEstimator</a>&nbsp;estimator)</pre>
 <div class="block">Add the estimated size of this instance (in bytes) to the given estimator.
 
  <p>
@@ -568,13 +591,31 @@ implements <a href="../../../../org/jsimpledb/util/SizeEstimating.html" title="i
 <dt><span class="strong">Parameters:</span></dt><dd><code>estimator</code> - size estimator</dd></dl>
 </li>
 </ul>
+<a name="clone()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clone</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/MutableView.html" title="class in org.jsimpledb.kv.mvcc">MutableView</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.289">clone</a>()</pre>
+<div class="block">Clone this instance.
+
+ <p>
+ The clone will have the same underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>, but its own <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><code>Reads</code></a> and <a href="../../../../org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><code>Writes</code></a>,
+ which will themselves be cloned from this instance's copies.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>clone of this instance</dd></dl>
+</li>
+</ul>
 <a name="toString()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.271">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/MutableView.html#line.305">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>

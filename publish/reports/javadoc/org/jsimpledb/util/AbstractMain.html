@@ -35,7 +35,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../org/jsimpledb/util/AbstractIterationSet.html" title="class in org.jsimpledb.util"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../index.html?org/jsimpledb/util/AbstractMain.html" target="_top">Frames</a></li>
@@ -103,7 +103,7 @@
 </dl>
 <hr>
 <br>
-<pre>public abstract class <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.54">AbstractMain</a>
+<pre>public abstract class <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.56">AbstractMain</a>
 extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/main/MainClass.html?is-external=true" title="class or interface in org.dellroad.stuff.main">MainClass</a></pre>
 <div class="block">Support superclass for main entry point classes.</div>
 </li>
@@ -126,37 +126,41 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util">AbstractMain.BerkeleyDBType</a></strong></code>&nbsp;</td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util">AbstractMain.ArrayDBType</a></strong></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>protected class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util">AbstractMain.BerkeleyDBType</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a>&lt;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="type parameter in AbstractMain.DBType">T</a> extends <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&gt;</strong></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.FoundationDBType.html" title="class in org.jsimpledb.util">AbstractMain.FoundationDBType</a></strong></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.LevelDBType.html" title="class in org.jsimpledb.util">AbstractMain.LevelDBType</a></strong></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.MemoryDBType.html" title="class in org.jsimpledb.util">AbstractMain.MemoryDBType</a></strong></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.MySQLDBType.html" title="class in org.jsimpledb.util">AbstractMain.MySQLDBType</a></strong></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util">AbstractMain.RaftDBType</a></strong></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util">AbstractMain.RocksDBType</a></strong></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util">AbstractMain.XMLDBType</a></strong></code>&nbsp;</td>
 </tr>
@@ -182,6 +186,14 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <tr class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.html#allowNewSchema">allowNewSchema</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.html#arraydbDirectory">arraydbDirectory</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util">AbstractMain.ArrayDBType</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.html#arrayDBType">arrayDBType</a></strong></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
@@ -473,7 +485,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>memoryDBType</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.MemoryDBType.html" title="class in org.jsimpledb.util">AbstractMain.MemoryDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.61">memoryDBType</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.MemoryDBType.html" title="class in org.jsimpledb.util">AbstractMain.MemoryDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.63">memoryDBType</a></pre>
 </li>
 </ul>
 <a name="foundationDBType">
@@ -482,7 +494,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>foundationDBType</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.FoundationDBType.html" title="class in org.jsimpledb.util">AbstractMain.FoundationDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.62">foundationDBType</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.FoundationDBType.html" title="class in org.jsimpledb.util">AbstractMain.FoundationDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.64">foundationDBType</a></pre>
 </li>
 </ul>
 <a name="berkeleyDBType">
@@ -491,7 +503,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>berkeleyDBType</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util">AbstractMain.BerkeleyDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.63">berkeleyDBType</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util">AbstractMain.BerkeleyDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.65">berkeleyDBType</a></pre>
 </li>
 </ul>
 <a name="xmlDBType">
@@ -500,7 +512,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>xmlDBType</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util">AbstractMain.XMLDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.64">xmlDBType</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.XMLDBType.html" title="class in org.jsimpledb.util">AbstractMain.XMLDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.66">xmlDBType</a></pre>
 </li>
 </ul>
 <a name="levelDBType">
@@ -509,7 +521,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>levelDBType</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.LevelDBType.html" title="class in org.jsimpledb.util">AbstractMain.LevelDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.65">levelDBType</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.LevelDBType.html" title="class in org.jsimpledb.util">AbstractMain.LevelDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.67">levelDBType</a></pre>
 </li>
 </ul>
 <a name="rocksDBType">
@@ -518,7 +530,16 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>rocksDBType</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util">AbstractMain.RocksDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.66">rocksDBType</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.RocksDBType.html" title="class in org.jsimpledb.util">AbstractMain.RocksDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.68">rocksDBType</a></pre>
+</li>
+</ul>
+<a name="arrayDBType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>arrayDBType</h4>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util">AbstractMain.ArrayDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.69">arrayDBType</a></pre>
 </li>
 </ul>
 <a name="mySQLType">
@@ -527,7 +548,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>mySQLType</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.MySQLDBType.html" title="class in org.jsimpledb.util">AbstractMain.MySQLDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.67">mySQLType</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.MySQLDBType.html" title="class in org.jsimpledb.util">AbstractMain.MySQLDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.70">mySQLType</a></pre>
 </li>
 </ul>
 <a name="raftDBType">
@@ -536,7 +557,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftDBType</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util">AbstractMain.RaftDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.68">raftDBType</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.RaftDBType.html" title="class in org.jsimpledb.util">AbstractMain.RaftDBType</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.71">raftDBType</a></pre>
 </li>
 </ul>
 <a name="fdbClusterFile">
@@ -545,7 +566,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>fdbClusterFile</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.71">fdbClusterFile</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.74">fdbClusterFile</a></pre>
 </li>
 </ul>
 <a name="fdbKeyPrefix">
@@ -554,7 +575,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>fdbKeyPrefix</h4>
-<pre>protected&nbsp;byte[] <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.72">fdbKeyPrefix</a></pre>
+<pre>protected&nbsp;byte[] <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.75">fdbKeyPrefix</a></pre>
 </li>
 </ul>
 <a name="bdbDirectory">
@@ -563,7 +584,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>bdbDirectory</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.75">bdbDirectory</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.78">bdbDirectory</a></pre>
 </li>
 </ul>
 <a name="bdbDatabaseName">
@@ -572,7 +593,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>bdbDatabaseName</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.76">bdbDatabaseName</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.79">bdbDatabaseName</a></pre>
 </li>
 </ul>
 <a name="leveldbDirectory">
@@ -581,7 +602,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>leveldbDirectory</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.79">leveldbDirectory</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.82">leveldbDirectory</a></pre>
 </li>
 </ul>
 <a name="rocksdbDirectory">
@@ -590,7 +611,16 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>rocksdbDirectory</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.82">rocksdbDirectory</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.85">rocksdbDirectory</a></pre>
+</li>
+</ul>
+<a name="arraydbDirectory">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>arraydbDirectory</h4>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.88">arraydbDirectory</a></pre>
 </li>
 </ul>
 <a name="raftKVStore">
@@ -599,7 +629,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftKVStore</h4>
-<pre>protected&nbsp;<a href="../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.85">raftKVStore</a></pre>
+<pre>protected&nbsp;<a href="../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.91">raftKVStore</a></pre>
 </li>
 </ul>
 <a name="raftDirectory">
@@ -608,7 +638,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftDirectory</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.86">raftDirectory</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.92">raftDirectory</a></pre>
 </li>
 </ul>
 <a name="raftIdentity">
@@ -617,7 +647,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftIdentity</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.87">raftIdentity</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.93">raftIdentity</a></pre>
 </li>
 </ul>
 <a name="raftAddress">
@@ -626,7 +656,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftAddress</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.88">raftAddress</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.94">raftAddress</a></pre>
 </li>
 </ul>
 <a name="raftPort">
@@ -635,7 +665,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftPort</h4>
-<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.89">raftPort</a></pre>
+<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.95">raftPort</a></pre>
 </li>
 </ul>
 <a name="raftMinElectionTimeout">
@@ -644,7 +674,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftMinElectionTimeout</h4>
-<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.90">raftMinElectionTimeout</a></pre>
+<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.96">raftMinElectionTimeout</a></pre>
 </li>
 </ul>
 <a name="raftMaxElectionTimeout">
@@ -653,7 +683,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftMaxElectionTimeout</h4>
-<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.91">raftMaxElectionTimeout</a></pre>
+<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.97">raftMaxElectionTimeout</a></pre>
 </li>
 </ul>
 <a name="raftHeartbeatTimeout">
@@ -662,7 +692,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>raftHeartbeatTimeout</h4>
-<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.92">raftHeartbeatTimeout</a></pre>
+<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.98">raftHeartbeatTimeout</a></pre>
 </li>
 </ul>
 <a name="xmlFile">
@@ -671,7 +701,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>xmlFile</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.95">xmlFile</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.101">xmlFile</a></pre>
 </li>
 </ul>
 <a name="jdbcUrl">
@@ -680,7 +710,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>jdbcUrl</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.98">jdbcUrl</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.104">jdbcUrl</a></pre>
 </li>
 </ul>
 <a name="schemaVersion">
@@ -689,7 +719,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>schemaVersion</h4>
-<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.101">schemaVersion</a></pre>
+<pre>protected&nbsp;int <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.107">schemaVersion</a></pre>
 </li>
 </ul>
 <a name="schemaClasses">
@@ -698,7 +728,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>schemaClasses</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashSet.html?is-external=true" title="class or interface in java.util">HashSet</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt; <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.102">schemaClasses</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashSet.html?is-external=true" title="class or interface in java.util">HashSet</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt; <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.108">schemaClasses</a></pre>
 </li>
 </ul>
 <a name="fieldTypeClasses">
@@ -707,7 +737,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>fieldTypeClasses</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashSet.html?is-external=true" title="class or interface in java.util">HashSet</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;?&gt;&gt;&gt; <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.103">fieldTypeClasses</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashSet.html?is-external=true" title="class or interface in java.util">HashSet</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;?&gt;&gt;&gt; <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.109">fieldTypeClasses</a></pre>
 </li>
 </ul>
 <a name="allowNewSchema">
@@ -716,7 +746,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>allowNewSchema</h4>
-<pre>protected&nbsp;boolean <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.104">allowNewSchema</a></pre>
+<pre>protected&nbsp;boolean <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.110">allowNewSchema</a></pre>
 </li>
 </ul>
 <a name="dbTypes">
@@ -725,7 +755,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>dbTypes</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashSet.html?is-external=true" title="class or interface in java.util">HashSet</a>&lt;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a>&lt;?&gt;&gt; <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.106">dbTypes</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashSet.html?is-external=true" title="class or interface in java.util">HashSet</a>&lt;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a>&lt;?&gt;&gt; <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.112">dbTypes</a></pre>
 </li>
 </ul>
 <a name="dbType">
@@ -734,7 +764,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>dbType</h4>
-<pre>protected&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a>&lt;?&gt; <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.107">dbType</a></pre>
+<pre>protected&nbsp;<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a>&lt;?&gt; <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.113">dbType</a></pre>
 </li>
 </ul>
 <a name="kvdb">
@@ -743,7 +773,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>kvdb</h4>
-<pre>protected&nbsp;<a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.108">kvdb</a></pre>
+<pre>protected&nbsp;<a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.114">kvdb</a></pre>
 </li>
 </ul>
 <a name="databaseDescription">
@@ -752,7 +782,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>databaseDescription</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.109">databaseDescription</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.115">databaseDescription</a></pre>
 </li>
 </ul>
 <a name="verbose">
@@ -761,7 +791,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>verbose</h4>
-<pre>protected&nbsp;boolean <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.112">verbose</a></pre>
+<pre>protected&nbsp;boolean <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.118">verbose</a></pre>
 </li>
 </ul>
 <a name="readOnly">
@@ -770,7 +800,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>readOnly</h4>
-<pre>protected&nbsp;boolean <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.113">readOnly</a></pre>
+<pre>protected&nbsp;boolean <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.119">readOnly</a></pre>
 </li>
 </ul>
 <a name="allowAutoDemo">
@@ -779,7 +809,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockListLast">
 <li class="blockList">
 <h4>allowAutoDemo</h4>
-<pre>protected&nbsp;boolean <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.114">allowAutoDemo</a></pre>
+<pre>protected&nbsp;boolean <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.120">allowAutoDemo</a></pre>
 </li>
 </ul>
 </li>
@@ -796,7 +826,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AbstractMain</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.54">AbstractMain</a>()</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.56">AbstractMain</a>()</pre>
 </li>
 </ul>
 </li>
@@ -813,7 +843,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>parseOptions</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.122">parseOptions</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/ArrayDeque.html?is-external=true" title="class or interface in java.util">ArrayDeque</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;params)</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.128">parseOptions</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/ArrayDeque.html?is-external=true" title="class or interface in java.util">ArrayDeque</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;params)</pre>
 <div class="block">Parse command line options.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>params</code> - command line parameters</dd>
 <dt><span class="strong">Returns:</span></dt><dd>-1 to proceed, otherwise process exit value</dd></dl>
@@ -825,7 +855,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>getSchemaVersion</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.337">getSchemaVersion</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.349">getSchemaVersion</a>()</pre>
 </li>
 </ul>
 <a name="isAllowNewSchema()">
@@ -834,7 +864,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>isAllowNewSchema</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.341">isAllowNewSchema</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.353">isAllowNewSchema</a>()</pre>
 </li>
 </ul>
 <a name="isReadOnly()">
@@ -843,7 +873,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>isReadOnly</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.345">isReadOnly</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.357">isReadOnly</a>()</pre>
 </li>
 </ul>
 <a name="getDatabaseDescription()">
@@ -852,7 +882,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabaseDescription</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.349">getDatabaseDescription</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.361">getDatabaseDescription</a>()</pre>
 </li>
 </ul>
 <a name="getJSimpleDBFactory(org.jsimpledb.core.Database)">
@@ -861,7 +891,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>getJSimpleDBFactory</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.353">getJSimpleDBFactory</a>(<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;db)</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.365">getJSimpleDBFactory</a>(<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;db)</pre>
 </li>
 </ul>
 <a name="parseOption(java.lang.String, java.util.ArrayDeque)">
@@ -870,7 +900,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>parseOption</h4>
-<pre>protected&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.367">parseOption</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;option,
+<pre>protected&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.379">parseOption</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;option,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/ArrayDeque.html?is-external=true" title="class or interface in java.util">ArrayDeque</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;params)</pre>
 <div class="block">Subclass hook to parse unrecognized command line options.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>option</code> - command line option (starting with `-')</dd><dd><code>params</code> - subsequent command line parameters</dd>
@@ -883,7 +913,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>configureDemoMode</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.371">configureDemoMode</a>()</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.383">configureDemoMode</a>()</pre>
 </li>
 </ul>
 <a name="appendClasspath(java.lang.String)">
@@ -892,7 +922,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>appendClasspath</h4>
-<pre>protected&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.391">appendClasspath</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;path)</pre>
+<pre>protected&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.403">appendClasspath</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;path)</pre>
 <div class="block">Append path(s) to the classpath.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>path</code> - classpath path component</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if successful, false if an error occured</dd></dl>
@@ -904,7 +934,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>loadClass</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.473">loadClass</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;className)</pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.485">loadClass</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;className)</pre>
 <div class="block">Load a class.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>className</code> - class name</dd>
 <dt><span class="strong">Returns:</span></dt><dd>class with name <code>className</code></dd>
@@ -918,7 +948,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>startupKVDatabase</h4>
-<pre>protected&nbsp;<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.486">startupKVDatabase</a>()</pre>
+<pre>protected&nbsp;<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.498">startupKVDatabase</a>()</pre>
 <div class="block">Start the <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> based on the configured <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> and <a href="../../../org/jsimpledb/util/AbstractMain.html#fieldTypeClasses"><code>fieldTypeClasses</code></a> and return it.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>initialized database</dd></dl>
 </li>
@@ -929,7 +959,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>performTestTransaction</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.524">performTestTransaction</a>(<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;db,
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.536">performTestTransaction</a>(<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;db,
                           <a href="../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel)</pre>
 <div class="block">Perform a test transaction.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>db</code> - database</dd><dd><code>schemaModel</code> - schema model</dd></dl>
@@ -941,7 +971,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>performTestTransaction</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.540">performTestTransaction</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.552">performTestTransaction</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</pre>
 <div class="block">Perform a test transaction.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jdb</code> - database</dd></dl>
 </li>
@@ -952,7 +982,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>shutdownKVDatabase</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.553">shutdownKVDatabase</a>()</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.565">shutdownKVDatabase</a>()</pre>
 <div class="block">Shutdown the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>.</div>
 </li>
 </ul>
@@ -962,7 +992,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>getName</h4>
-<pre>protected abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.562">getName</a>()</pre>
+<pre>protected abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.574">getName</a>()</pre>
 </li>
 </ul>
 <a name="outputFlags(java.lang.String[][])">
@@ -971,7 +1001,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockListLast">
 <li class="blockList">
 <h4>outputFlags</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.569">outputFlags</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[][]&nbsp;subclassOpts)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.581">outputFlags</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[][]&nbsp;subclassOpts)</pre>
 <div class="block">Output usage message flag listing.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>subclassOpts</code> - array containing flag and description pairs</dd></dl>
 </li>
@@ -1003,7 +1033,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../org/jsimpledb/util/AbstractIterationSet.html" title="class in org.jsimpledb.util"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html" title="class in org.jsimpledb.util"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../org/jsimpledb/util/AbstractMain.ArrayDBType.html" title="class in org.jsimpledb.util"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../index.html?org/jsimpledb/util/AbstractMain.html" target="_top">Frames</a></li>

@@ -10,6 +10,7 @@ org.jsimpledb.demo
 org.jsimpledb.gui
 org.jsimpledb.index
 org.jsimpledb.kv
+org.jsimpledb.kv.array
 org.jsimpledb.kv.bdb
 org.jsimpledb.kv.fdb
 org.jsimpledb.kv.leveldb
