@@ -328,11 +328,49 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
           = new ConvertedNavigableMap<>(this.puts, byteConverter, byteConverter);
         final ConvertedNavigableMap<String, Long, byte[], Long> adjustsView
           = new ConvertedNavigableMap<>(this.adjusts, byteConverter, Converter.<Long>identity());
-        return this.getClass().getSimpleName()
-          + "[removes=" + this.removes
-          + ",puts=" + putsView
-          + (!this.adjusts.isEmpty() ? ",adjusts=" + adjustsView : "")
-          + "]";
+        final StringBuilder buf = new StringBuilder();
+        buf.append(this.getClass().getSimpleName())
+          .append("[removes=")
+          .append(this.removes);
+        if (!this.puts.isEmpty()) {
+            buf.append(",puts=");
+            this.appendEntries(buf, putsView);
+        }
+        if (!this.adjusts.isEmpty()) {
+            buf.append(",adjusts=");
+            this.appendEntries(buf, adjustsView);
+        }
+        buf.append("]");
+        return buf.toString();
+    }
+
+    private void appendEntries(StringBuilder buf, Map<String, ?> map) {
+        buf.append('{');
+        int index = 0;
+    entryLoop:
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            final String key = entry.getKey();
+            final Object val = entry.getValue();
+            switch (index++) {
+            case 0:
+                break;
+            case 32:
+                buf.append("...");
+                break entryLoop;
+            default:
+                buf.append(", ");
+                break;
+            }
+            buf.append(this.truncate(key, 32))
+              .append('=')
+              .append(this.truncate(String.valueOf(val), 32));
+        }
+    }
+
+    private String truncate(String s, int max) {
+        if (s == null || s.length() <= max)
+            return s;
+        return s.substring(0, max) + "...";
     }
 }
 
