@@ -30,6 +30,8 @@ import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.array.ArrayKVDatabase;
+import org.jsimpledb.kv.array.AtomicArrayKVStore;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
@@ -64,6 +66,7 @@ public abstract class AbstractMain extends MainClass {
     protected final XMLDBType xmlDBType = new XMLDBType();
     protected final LevelDBType levelDBType = new LevelDBType();
     protected final RocksDBType rocksDBType = new RocksDBType();
+    protected final ArrayDBType arrayDBType = new ArrayDBType();
     protected final MySQLDBType mySQLType = new MySQLDBType();
     protected final RaftDBType raftDBType = new RaftDBType();
 
@@ -80,6 +83,9 @@ public abstract class AbstractMain extends MainClass {
 
     // RocksDB config
     protected File rocksdbDirectory;
+
+    // ArrayKVDatabase config
+    protected File arraydbDirectory;
 
     // Raft config
     protected AtomicKVStore raftKVStore;
@@ -220,6 +226,12 @@ public abstract class AbstractMain extends MainClass {
                     this.usageError();
                 this.dbTypes.add(this.rocksDBType);
                 if (!this.createDirectory(this.rocksdbDirectory = new File(params.removeFirst())))
+                    return 1;
+            } else if (option.equals("--arraydb")) {
+                if (params.isEmpty())
+                    this.usageError();
+                this.dbTypes.add(this.arrayDBType);
+                if (!this.createDirectory(this.arraydbDirectory = new File(params.removeFirst())))
                     return 1;
             } else if (option.equals("--raft-dir")) {
                 if (params.isEmpty())
@@ -568,6 +580,7 @@ public abstract class AbstractMain extends MainClass {
      */
     protected void outputFlags(String[][] subclassOpts) {
         final String[][] baseOpts = new String[][] {
+            { "--arraydb directory",            "Use ArrayKVDatabase in specified directory" },
             { "--classpath, -cp path",          "Append to the classpath (useful with `java -jar ...')" },
             { "--fdb file",                     "Use FoundationDB with specified cluster file" },
             { "--fdb-prefix prefix",            "FoundationDB key prefix (hex or string)" },
@@ -775,6 +788,32 @@ public abstract class AbstractMain extends MainClass {
         @Override
         public String getDescription() {
             return "RocksDB " + AbstractMain.this.rocksdbDirectory.getName();
+        }
+    }
+
+    protected final class ArrayDBType extends DBType<ArrayKVDatabase> {
+
+        private ArrayDBType() {
+            super(ArrayKVDatabase.class);
+        }
+
+        @Override
+        public ArrayKVDatabase createKVDatabase() {
+            final ArrayKVDatabase arraydb = new ArrayKVDatabase();
+            arraydb.setKVStore(this.createAtomicKVStore());
+            return arraydb;
+        }
+
+        @Override
+        public AtomicArrayKVStore createAtomicKVStore() {
+            final AtomicArrayKVStore kvstore = new AtomicArrayKVStore();
+            kvstore.setDirectory(AbstractMain.this.arraydbDirectory);
+            return kvstore;
+        }
+
+        @Override
+        public String getDescription() {
+            return "ArrayDB " + AbstractMain.this.arraydbDirectory.getName();
         }
     }
 

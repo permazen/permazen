@@ -14,6 +14,10 @@
     <parameter name="berkeleyDirPrefix" value="BerkeleyDbJava"/>
     <parameter name="levelDbDirPrefix" value="LevelDbJava"/>
     <parameter name="rocksDbDirPrefix" value="RocksDbJava"/>
+    <parameter name="arrayDirPrefix" value="ArrayKVStore"/>
+    <parameter name="arrayCompactMaxDelay" value="3"/>
+    <parameter name="arrayCompactSpaceLowWater" value="200"/>
+    <parameter name="arrayCompactSpaceHighWater" value="500"/>
     <parameter name="raftDirPrefix" value="RaftDB"/>
     <parameter name="raftNumNodes" value="3"/>
     <parameter name="raftCommitTimeout" value="2500"/>
@@ -32,6 +36,7 @@
             <package name="org.jsimpledb.cli"/>
             <package name="org.jsimpledb.core"/>
             <package name="org.jsimpledb.kv"/>
+            <package name="org.jsimpledb.kv.array"/>
             <package name="org.jsimpledb.kv.mvcc"/>
             <package name="org.jsimpledb.kv.raft"/>
             <package name="org.jsimpledb.kv.raft.msg"/>

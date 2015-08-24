@@ -34,6 +34,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.jsimpledb.TestSupport;
+import org.jsimpledb.kv.array.ArrayKVDatabase;
+import org.jsimpledb.kv.array.AtomicArrayKVStore;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
@@ -80,6 +82,7 @@ public class KVDatabaseTest extends TestSupport {
     private BerkeleyKVDatabase bdbKV;
     private LevelDBKVDatabase leveldbKV;
     private RocksDBKVDatabase rocksdbKV;
+    private ArrayKVDatabase arrayKV;
     private RaftKVDatabase[] rafts;
     private TestNetwork[] raftNetworks;
     private File topRaftDir;
@@ -178,6 +181,33 @@ public class KVDatabaseTest extends TestSupport {
 
     @BeforeClass
     @Parameters({
+      "arrayDirPrefix",
+      "arrayCompactMaxDelay",
+      "arrayCompactSpaceLowWater",
+      "arrayCompactSpaceHighWater",
+    })
+    public void setArrayDirPrefix(@Optional String arrayDirPrefix,
+      @Optional("90") int compactMaxDelay,
+      @Optional("4096") int compactLowWater,
+      @Optional("1073741824") int compactHighWater) throws IOException {
+        if (arrayDirPrefix != null) {
+            final File dir = File.createTempFile(arrayDirPrefix, null);
+            Assert.assertTrue(dir.delete());
+            Assert.assertTrue(dir.mkdirs());
+            dir.deleteOnExit();
+            final AtomicArrayKVStore kvstore = new AtomicArrayKVStore();
+            kvstore.setDirectory(dir);
+            kvstore.setCompactMaxDelay(compactMaxDelay);
+            kvstore.setCompactLowWater(compactLowWater);
+            kvstore.setCompactHighWater(compactHighWater);
+            this.arrayKV = new ArrayKVDatabase();
+            this.arrayKV.setKVStore(kvstore);
+            this.arrayKV.start();
+        }
+    }
+
+    @BeforeClass
+    @Parameters({
         "raftDirPrefix",
         "raftNumNodes",
         "raftCommitTimeout",
@@ -269,6 +299,8 @@ public class KVDatabaseTest extends TestSupport {
             this.leveldbKV.stop();
         if (this.rocksdbKV != null)
             this.rocksdbKV.stop();
+        if (this.arrayKV != null)
+            this.arrayKV.stop();
         if (this.rafts != null) {
             for (RaftKVDatabase raft : this.rafts)
                 raft.stop();
@@ -299,6 +331,7 @@ public class KVDatabaseTest extends TestSupport {
         list.add(new Object[] { this.bdbKV });
         list.add(new Object[] { this.leveldbKV });
         list.add(new Object[] { this.rocksdbKV });
+        list.add(new Object[] { this.arrayKV });
         if (this.rafts != null)
             list.add(new Object[] { this.rafts[0] });
         for (Iterator<Object[]> i = list.iterator(); i.hasNext(); ) {
