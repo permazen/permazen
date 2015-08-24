@@ -24,10 +24,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -119,7 +121,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
     // Configuration state
     private File directory;
-    private ExecutorService executorService;
+    private ScheduledExecutorService scheduledExecutorService;
     private int compactMaxDelay = DEFAULT_COMPACTION_MAX_DELAY;
     private int compactLowWater = DEFAULT_COMPACTION_LOW_WATER;
     private int compactHighWater = DEFAULT_COMPACTION_HIGH_WATER;
@@ -143,7 +145,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     private ByteBuffer vals;
     private ArrayKVStore kvstore;
     private MutableView mods;
-    private Future<?> compactFuture;
+    private ScheduledFuture<?> compactFuture;
     private long firstModTimestamp;
 
 // Accessors
@@ -174,22 +176,21 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     /**
-     * Configure the {@link ExecutorService} used when performing background compaction.
+     * Configure the {@link ScheduledExecutorService} used to schedule background compaction.
      *
      * <p>
-     * If not explicitly configured, an {@link ExecutorService} will be created automatically during {@link #start}
-     * using {@link Executors#newSingleThreadExecutor} and shutdown by {@link #stop}. If explicitly configured here,
-     * the {@link ExecutorService} will not be shutdown by {@link #stop}.
+     * If not explicitly configured, a {@link ScheduledExecutorService} will be created automatically during {@link #start}
+     * using {@link Executors#newSingleThreadScheduledExecutor} and shutdown by {@link #stop} (if explicitly configured here,
+     * the configured {@link ScheduledExecutorService} will not be shutdown by {@link #stop}).
      *
-     * @param executorService executor service
+     * @param scheduledExecutorService schduled executor service, or null to have one created automatically
      * @throws IllegalStateException if this instance is already {@link #start}ed
-     * @throws IllegalArgumentException if {@code executorService} is null
      */
-    public void setExecutorService(ExecutorService executorService) {
+    public void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
         this.writeLock.lock();
         try {
             Preconditions.checkState(this.kvstore == null, "already started");
-            this.executorService = executorService;
+            this.scheduledExecutorService = scheduledExecutorService;
         } finally {
             this.writeLock.unlock();
         }
@@ -272,7 +273,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Sanity check
             assert this.compactFuture == null;
-            assert this.executorService == null;
+            assert this.scheduledExecutorService == null;
             assert !this.createdExecutorService;
             assert this.generation == 0;
             assert this.generationFile == null;
@@ -297,9 +298,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             Preconditions.checkState(this.directory != null, "no directory configured");
 
             // Create executor if needed
-            this.createdExecutorService = this.executorService == null;
+            this.createdExecutorService = this.scheduledExecutorService == null;
             if (this.createdExecutorService) {
-                this.executorService = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                     @Override
                     public Thread newThread(Runnable action) {
                         final Thread thread = new Thread(action);
@@ -349,10 +350,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                   final FileOutputStream keysOutput = new FileOutputStream(new File(this.directory, KEYS_FILE_NAME_BASE + 0));
                   final FileOutputStream valsOutput = new FileOutputStream(new File(this.directory, VALS_FILE_NAME_BASE + 0));
                   final ArrayKVWriter arrayWriter = new ArrayKVWriter(indxOutput, keysOutput, valsOutput)) {
+                    arrayWriter.flush();                                                        // avoid compiler warning
                     valsOutput.getChannel().force(false);
                     keysOutput.getChannel().force(false);
                     indxOutput.getChannel().force(false);
-                    arrayWriter.flush();                                                        // avoid compiler warning
                 }
 
                 // Create generation file
@@ -419,13 +420,12 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         }
                         writes.applyTo(this.mods);
                     }
-                    this.firstModTimestamp = System.nanoTime() | 1;                     // avoid zero value which is special
                 }
+                this.firstModTimestamp = System.nanoTime() | 1;                     // avoid zero value which is special
             }
 
             // Schedule compaction if necessary
-            if (this.isCompactionNeeded())
-                this.scheduleCompaction();
+            this.scheduleCompactionIfNecessary();
 
             // Done
             success = true;
@@ -464,19 +464,22 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         // Should hold write lock now
         assert this.lock.isWriteLockedByCurrentThread();
 
-        // Wait for compaction to complete (if any)
+        // Cancel compaction (if any) or wait for it to complete
         while (this.compactFuture != null) {
-            try {
-                this.compactionFinishedCondition.await();
-            } catch (InterruptedException e) {
-                throw new ArrayKVException("thread was interrupted while waiting for compaction to complete", e);
+            if (!this.compactFuture.cancel(false)) {
+                try {
+                    this.compactionFinishedCondition.await();
+                } catch (InterruptedException e) {
+                    this.log.warn("thread was interrupted while waiting for compaction to complete", e);
+                }
             }
+            this.compactFuture = null;
         }
 
         // Shut down executor - only if we created it
         if (this.createdExecutorService) {
-            this.executorService.shutdownNow();
-            this.executorService = null;
+            this.scheduledExecutorService.shutdownNow();
+            this.scheduledExecutorService = null;
             this.createdExecutorService = false;
         }
 
@@ -651,6 +654,12 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Block until compaction completes if size of outstanding modifications exceeds high water mark
             while (this.compactFuture != null && this.modsFileLength > this.compactHighWater) {
+
+                // If scheduled compaction is in the future, reschedule to be immediate
+                if (this.compactFuture.getDelay(TimeUnit.MILLISECONDS) > 0)
+                    this.scheduleCompaction(0);
+
+                // Wait for it to complete
                 try {
                     this.compactionFinishedCondition.await();
                 } catch (InterruptedException e) {
@@ -658,7 +667,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 }
             }
 
-            // Append mutations to uncompacted mods file
+            // Get mutations as a Writes object
             final Writes writes;
             if (mutations instanceof Writes)
                 writes = (Writes)mutations;
@@ -670,8 +679,15 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs())
                     writes.getAdjusts().put(entry.getKey(), entry.getValue());
             }
+
+            // Check for the trivial case where there are zero modifications
+            if (writes.isEmpty())
+                return;
+
+            // Append mutations to uncompacted mods file
             try {
                 writes.serialize(this.modsFileOutput);
+                this.modsFileOutput.flush();
             } catch (IOException e) {
                 try {
                     this.modsFileOutput.getChannel().truncate(this.modsFileLength);              // undo append
@@ -717,11 +733,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             if (this.firstModTimestamp == 0)
                 this.firstModTimestamp = System.nanoTime() | 1;                 // avoid zero value which is special
 
-            // Trigger compaction if necessary
-            if (this.isCompactionNeeded())
-                this.scheduleCompaction();
+            // Schedule compaction if necessary
+            this.scheduleCompactionIfNecessary();
 
-            // If we're not syncing, we're don
+            // If we're not syncing, we're done
             if (!sync)
                 return;
 
@@ -759,56 +774,73 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Sanity check
             Preconditions.checkState(this.kvstore != null, "not started");
+
+            // Is there anything to compact?
             if (this.modsFileLength == 0)
                 return null;
 
-            // Schedule new compaction unless already scheduled/running
-            if (this.compactFuture == null) {
-                this.compactFuture = this.executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            AtomicArrayKVStore.this.compact();
-                        } catch (Throwable t) {
-                            AtomicArrayKVStore.this.log.error("error during compaction", t);
-                        }
-                    }
-                });
-            }
-
-            // Done
-            return this.compactFuture;
+            // Schedule an immediate compaction
+            return this.scheduleCompaction(0);
         } finally {
             this.writeLock.unlock();
         }
     }
 
-    private boolean isCompactionNeeded() {
+    private ScheduledFuture<?> scheduleCompaction(long millis) {
 
         // Should hold write lock now
         assert this.lock.isWriteLockedByCurrentThread();
 
-        // Already scheduled?
-        if (this.compactFuture != null)
-            return false;
+        // Compare delay to existing future, if any
+        if (this.compactFuture != null) {
+
+            // If existing compation will happen sooner, nothing to do
+            final long existingMillis = this.compactFuture.getDelay(TimeUnit.MILLISECONDS);
+            if (existingMillis <= millis)
+                return this.compactFuture;
+
+            // Try to cancel existing compaction
+            if (!this.compactFuture.cancel(false))
+                return this.compactFuture;
+        }
+
+        // Schedule new compaction
+        this.compactFuture = this.scheduledExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    AtomicArrayKVStore.this.compact();
+                } catch (Throwable t) {
+                    AtomicArrayKVStore.this.log.error("error during compaction", t);
+                }
+            }
+        }, millis, TimeUnit.MILLISECONDS);
+
+        // Done
+        return this.compactFuture;
+    }
+
+    private void scheduleCompactionIfNecessary() {
+
+        // Should hold write lock now
+        assert this.lock.isWriteLockedByCurrentThread();
 
         // Is there anything to do?
         if (this.modsFileLength == 0)
-            return false;
+            return;
 
-        // Check space low-water
-        if (this.modsFileLength > this.compactLowWater)
-            return true;
+        // Check space low-water mark
+        if (this.modsFileLength > this.compactLowWater) {
+            this.scheduleCompaction(0);
+            return;
+        }
 
         // Check maximum compaction delay
         if (this.firstModTimestamp != 0) {
-            final long firstModAge = (System.nanoTime() - this.firstModTimestamp) / 1000000000L;   // convert ns -> sec
-            if (firstModAge >= this.compactMaxDelay)
-                return true;
+            final long firstModAgeMillis = (System.nanoTime() - this.firstModTimestamp) / 1000000L;     // convert ns -> ms
+            this.scheduleCompaction(firstModAgeMillis);
+            return;
         }
-
-        // Not yet
-        return false;
     }
 
     @SuppressWarnings("fallthrough")
