@@ -44,7 +44,7 @@ public class ArrayKVWriter implements Closeable {
      * @param keysOutput key data file output
      * @param valsOutput value data file output
      */
-    public ArrayKVWriter(OutputStream indxOutput, OutputStream keysOutput, OutputStream valsOutput) throws IOException {
+    public ArrayKVWriter(OutputStream indxOutput, OutputStream keysOutput, OutputStream valsOutput) {
         Preconditions.checkArgument(indxOutput != null, "null indxOutput");
         Preconditions.checkArgument(keysOutput != null, "null keysOutput");
         Preconditions.checkArgument(valsOutput != null, "null valsOutput");
@@ -55,6 +55,8 @@ public class ArrayKVWriter implements Closeable {
 
     /**
      * Get the number of bytes written so far to the index file.
+     *
+     * @return length of the index file
      */
     public int getIndxLength() {
         return this.nextIndex * 8;
@@ -62,6 +64,8 @@ public class ArrayKVWriter implements Closeable {
 
     /**
      * Get the number of bytes written so far to the key data file.
+     *
+     * @return length of the key data file
      */
     public int getKeysLength() {
         return this.keysLength;
@@ -69,6 +73,8 @@ public class ArrayKVWriter implements Closeable {
 
     /**
      * Get the number of bytes written so far to the value data file.
+     *
+     * @return length of the value data file
      */
     public int getValsLength() {
         return this.valsLength;
@@ -82,6 +88,7 @@ public class ArrayKVWriter implements Closeable {
      * @throws IllegalArgumentException if {@code key} is out of order (i.e., not strictly greater then the previous key)
      * @throws IllegalArgumentException if {@code key} or {@code val} is null
      * @throws IllegalStateException if either the key or data file would grow larger than 2<sup>31</sup>-1 bytes
+     * @throws IOException if an I/O error occurrs
      */
     public void writeKV(byte[] key, byte[] val) throws IOException {
 
@@ -145,6 +152,8 @@ public class ArrayKVWriter implements Closeable {
 
     /**
      * Flush all three outputs.
+     *
+     * @throws IOException if an I/O error occurrs
      */
     public void flush() throws IOException {
         this.indxOutput.flush();
@@ -154,6 +163,8 @@ public class ArrayKVWriter implements Closeable {
 
     /**
      * Close all three outputs.
+     *
+     * @throws IOException if an I/O error occurrs
      */
     @Override
     public void close() throws IOException {

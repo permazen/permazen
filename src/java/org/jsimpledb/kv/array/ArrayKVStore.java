@@ -16,7 +16,7 @@ import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 
 /**
- * A simple read-only {@link KVStore} based on a sorted array of key/value pairs.
+ * A simple read-only {@link org.jsimpledb.kv.KVStore} based on a sorted array of key/value pairs.
  *
  * <p>
  * Instances query three {@link ByteBuffer}s, one for the array index, one for the key data, and one for the value data.

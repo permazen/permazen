@@ -11,7 +11,7 @@ import org.jsimpledb.kv.mvcc.SnapshotKVTransaction;
 import org.jsimpledb.kv.mvcc.SnapshotVersion;
 
 /**
- * {@link org.jsimpledb.kv.KVDatabase} implementation based on a {@link ArrayAtomicKVStore}, providing concurrent transactions
+ * {@link org.jsimpledb.kv.KVDatabase} implementation based on a {@link AtomicArrayKVStore}, providing concurrent transactions
  * and linearizable ACID semantics.
  *
  * <p>
@@ -22,7 +22,7 @@ public class ArrayKVDatabase extends SnapshotKVDatabase {
 // Properties
 
     /**
-     * Configure the underlying {@link ArrayAtomicKVStore} used by this instance. Required property.
+     * Configure the underlying {@link AtomicArrayKVStore} used by this instance. Required property.
      *
      * @param kvstore underlying key/value store
      * @throws IllegalStateException if this instance is already {@link #start}ed

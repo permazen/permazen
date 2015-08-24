@@ -4,7 +4,7 @@
  */
 
 /**
- * A simple {@link KVStore} implementation based on a sorted array of key/value pairs.
+ * A simple {@link org.jsimpledb.kv.KVStore} implementation based on a sorted array of key/value pairs.
  *
  * <p>
  * Instances are optimized for relatively few writes and have minimal memory overhead.
