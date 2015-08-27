@@ -5,10 +5,15 @@
 
 package org.jsimpledb.kv.simple;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 
@@ -19,7 +24,9 @@ import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
+import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.mvcc.LockManager;
+import org.jsimpledb.kv.mvcc.Mutations;
 import org.jsimpledb.kv.util.KeyWatchTracker;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
@@ -39,7 +46,8 @@ import org.slf4j.LoggerFactory;
  * Instances wrap an underlying {@link KVStore} which provides persistence and from which committed data is read and written.
  * During a transaction, all mutations are recorded internally; if/when the transaction is committed, those mutations are
  * applied to the underlying {@link KVStore} all at once, and this operation is bracketed by calls to
- * {@link #preCommit preCommit()} and {@link #postCommit postCommit()}.
+ * {@link #preCommit preCommit()} and {@link #postCommit postCommit()}. If the underlying {@link KVStore}
+ * is a {@link AtomicKVStore}, then {@link AtomicKVStore#mutate AtomicKVStore.mutate()} is used.
  *
  * <p>
  * {@linkplain SimpleKVTransaction#watchKey Key watches} are supported.
@@ -231,6 +239,37 @@ public class SimpleKVDatabase implements KVDatabase {
      *  false if the underlying {@link KVStore} threw an exception during commit update
      */
     protected void postCommit(SimpleKVTransaction tx, boolean successful) {
+    }
+
+    /**
+     * Apply mutations to the underlying {@link KVStore}.
+     */
+    void applyMutations(final Iterable<Mutation> mutations) {
+        if (this.kv instanceof AtomicKVStore) {
+            ((AtomicKVStore)this.kv).mutate(new Mutations() {
+                @Override
+                public Iterable<Del> getRemoveRanges() {
+                    return Iterables.filter(mutations, Del.class);
+                }
+                @Override
+                public Iterable<Map.Entry<byte[], byte[]>> getPutPairs() {
+                    return Iterables.transform(Iterables.filter(mutations, Put.class),
+                      new Function<Put, Map.Entry<byte[], byte[]>>() {
+                        @Override
+                        public Map.Entry<byte[], byte[]> apply(Put put) {
+                            return new AbstractMap.SimpleEntry<byte[], byte[]>(put.getKey(), put.getValue());
+                        }
+                    });
+                }
+                @Override
+                public Iterable<Map.Entry<byte[], Long>> getAdjustPairs() {
+                    return Collections.<Map.Entry<byte[], Long>>emptySet();
+                }
+            }, true);
+        } else {
+            for (Mutation mutation : mutations)
+                mutation.apply(this.kv);
+        }
     }
 
     /**
@@ -547,8 +586,7 @@ public class SimpleKVDatabase implements KVDatabase {
         try {
 
             // Apply mutations
-            for (Mutation mutation : tx.mutations)
-                mutation.apply(this.kv);
+            this.applyMutations(tx.mutations);
             successful = true;
 
             // Trigger key watches
