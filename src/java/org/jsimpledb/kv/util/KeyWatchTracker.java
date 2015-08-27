@@ -146,9 +146,14 @@ public class KeyWatchTracker {
         for (KeyRange range : mutations.getRemoveRanges())
             result |= this.trigger(range);
         final EntryKeyFunction keyFunction = new EntryKeyFunction();
-        result |= this.trigger(Iterables.<Map.Entry<byte[], byte[]>, byte[]>transform(mutations.getPutPairs(), keyFunction));
-        result |= this.trigger(Iterables.<Map.Entry<byte[], Long>, byte[]>transform(mutations.getAdjustPairs(), keyFunction));
+        result |= this.trigger(this.applyEntryKeyFunction(mutations.getPutPairs(), keyFunction));
+        result |= this.trigger(this.applyEntryKeyFunction(mutations.getAdjustPairs(), keyFunction));
         return result;
+    }
+
+    // This method exists solely to bind the generic type parameters
+    private <E extends Map.Entry<byte[], ?>> Iterable<byte[]> applyEntryKeyFunction(Iterable<E> i, EntryKeyFunction keyFunction) {
+        return Iterables.<E, byte[]>transform(i, keyFunction);
     }
 
     /**

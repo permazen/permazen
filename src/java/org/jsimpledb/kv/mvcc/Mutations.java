@@ -23,7 +23,7 @@ public interface Mutations {
      *
      * @return key ranges removed
      */
-    Iterable<KeyRange> getRemoveRanges();
+    Iterable<? extends KeyRange> getRemoveRanges();
 
     /**
      * Get the written key/value pairs contained by this instance.
@@ -34,7 +34,7 @@ public interface Mutations {
      *
      * @return mapping from key to corresponding value
      */
-    Iterable<Map.Entry<byte[], byte[]>> getPutPairs();
+    Iterable<? extends Map.Entry<byte[], byte[]>> getPutPairs();
 
     /**
      * Get the counter adjustments contained by this instance.
@@ -45,6 +45,6 @@ public interface Mutations {
      *
      * @return mapping from key to corresponding counter adjustment
      */
-    Iterable<Map.Entry<byte[], Long>> getAdjustPairs();
+    Iterable<? extends Map.Entry<byte[], Long>> getAdjustPairs();
 }
 
