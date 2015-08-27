@@ -284,6 +284,11 @@ public class ValidationTest extends TestSupport {
         this.testNameThing(NameThing5.class);
     }
 
+    @Test
+    public void testNameThing6() {
+        this.testNameThing(NameThing5.class);
+    }
+
     private <T extends NameThing> void testNameThing(Class<T> type) {
 
         final JSimpleDB jdb = BasicTest.getJSimpleDB(type);
@@ -401,6 +406,16 @@ public class ValidationTest extends TestSupport {
     public abstract static class NameThing5 extends NameThing implements ValidateMe {
         public void validateMe() {
             throw new ValidationException(this, "sorry");
+        }
+    }
+
+// This class extends a class with only a @Validate method
+
+    @JSimpleClass
+    public abstract static class NameThing6 extends NameThing2 {
+        @Override
+        public void validateMe() {
+            super.validateMe();
         }
     }
 
