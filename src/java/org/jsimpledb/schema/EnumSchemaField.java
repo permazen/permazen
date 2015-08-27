@@ -5,8 +5,12 @@
 
 package org.jsimpledb.schema;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -88,8 +92,32 @@ public class EnumSchemaField extends SimpleSchemaField {
             return diffs;
         }
         final EnumSchemaField that = (EnumSchemaField)other;
-        if (!this.idents.equals(that.idents))
-            diffs.add("changed enum identifier list");          // TODO: refine
+        if (!this.idents.equals(that.idents)) {
+            final Diffs enumDiffs = new Diffs();
+            final TreeMap<String, Integer> thisOrdinals = new TreeMap<>();
+            final TreeMap<String, Integer> thatOrdinals = new TreeMap<>();
+            for (int i = 0; i < this.idents.size(); i++)
+                thisOrdinals.put(this.idents.get(i), i);
+            for (int i = 0; i < that.idents.size(); i++)
+                thatOrdinals.put(that.idents.get(i), i);
+            final PeekingIterator<String> thisIterator = Iterators.peekingIterator(thisOrdinals.keySet().iterator());
+            final PeekingIterator<String> thatIterator = Iterators.peekingIterator(thatOrdinals.keySet().iterator());
+            while (thisIterator.hasNext() || thatIterator.hasNext()) {
+                final String thisName = thisIterator.hasNext() ? thisIterator.peek() : null;
+                final String thatName = thatIterator.hasNext() ? thatIterator.peek() : null;
+                assert thisName != null || thatName != null;
+                final int diff = thisName == null ? 1 : thatName == null ? -1 : thisName.compareTo(thatName);
+                if (diff < 0)
+                    enumDiffs.add("added `" + thisName + "' (ordinal " + thisOrdinals.get(thisName) + ")");
+                else
+                    thatIterator.next();
+                if (diff > 0)
+                    enumDiffs.add("removed `" + thatName + "' (ordinal " + thatOrdinals.get(thatName) + ")");
+                else
+                    thisIterator.next();
+            }
+            diffs.add("changed enum identifier list", enumDiffs);
+        }
         return diffs;
     }
 
