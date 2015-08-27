@@ -80,7 +80,7 @@ public class SimpleKVDatabase implements KVDatabase {
     private long waitTimeout;
 
     /**
-     * Constructor. Uses an internal in-memory {@link KVStore} and the default wait and hold timeouts.
+     * Constructor. Uses an internal in-memory {@link NavigableMapKVStore} and the default wait and hold timeouts.
      */
     public SimpleKVDatabase() {
         this(new NavigableMapKVStore());
@@ -111,7 +111,7 @@ public class SimpleKVDatabase implements KVDatabase {
     /**
      * Primary constructor.
      *
-     * @param kv {@link KVStore} for the committed data, or null for an in-memory {@link KVStore}
+     * @param kv {@link KVStore} for the committed data, or null for an in-memory {@link NavigableMapKVStore}
      * @param waitTimeout how long a thread will wait for a lock before throwing {@link RetryTransactionException}
      *  in milliseconds, or zero for unlimited
      * @param holdTimeout how long a thread may hold a contestested lock before throwing {@link RetryTransactionException}
