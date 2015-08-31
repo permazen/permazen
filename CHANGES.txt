@@ -1,3 +1,7 @@
+Version Next
+
+    - Added Spring KVStoreHttpMessageConverter
+
 Version 1.3.1 Released August 24, 2015
 
     - Added read optimized, array-based key/value database

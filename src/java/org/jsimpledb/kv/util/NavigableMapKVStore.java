@@ -70,6 +70,15 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable {
         return this.map;
     }
 
+    /**
+     * Get the number of key/value pairs in this instance.
+     *
+     * @return size of this instance
+     */
+    public int size() {
+        return this.map.size();
+    }
+
 // KVStore
 
     @Override
