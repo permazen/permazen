@@ -5,16 +5,11 @@
 
 package org.jsimpledb.spring;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Iterator;
+import com.google.common.base.Preconditions;
 
-import org.jsimpledb.kv.KVPair;
-import org.jsimpledb.kv.util.KeyListEncoder;
+import java.io.IOException;
+
 import org.jsimpledb.kv.util.NavigableMapKVStore;
-import org.jsimpledb.util.ByteUtil;
-import org.jsimpledb.util.UnsignedIntEncoder;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -72,18 +67,9 @@ public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<Na
 // AbstractHttpMessageConverter
 
     @Override
-    protected Long getContentLength(NavigableMapKVStore kvstore, MediaType contentType) throws IOException {
-        long total = 0;
-        byte[] prev = null;
-        for (Iterator<KVPair> i = kvstore.getRange(null, null, false); i.hasNext(); ) {
-            final KVPair kv = i.next();
-            final byte[] key = kv.getKey();
-            final byte[] value = kv.getValue();
-            total += KeyListEncoder.writeLength(key, prev);
-            total += KeyListEncoder.writeLength(value, null);
-            prev = key;
-        }
-        return total;
+    protected Long getContentLength(NavigableMapKVStore kvstore, MediaType contentType) {
+        Preconditions.checkArgument(kvstore != null, "null kvstore");
+        return kvstore.encodedLength();
     }
 
     @Override
@@ -94,43 +80,19 @@ public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<Na
     @Override
     protected NavigableMapKVStore readInternal(Class<? extends NavigableMapKVStore> clazz, HttpInputMessage inputMessage)
       throws IOException {
-        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
-        final InputStream input = inputMessage.getBody();
-        int count = UnsignedIntEncoder.read(input);
-        byte[] prev = null;
-        for (int i = 0; i < count; i++) {
-            final byte[] key;
-            final byte[] value;
-            try {
-                key = KeyListEncoder.read(input, prev);
-                value = KeyListEncoder.read(input, null);
-            } catch (IllegalArgumentException e) {
-                throw new HttpMessageNotReadableException("invalid encoding key/value store", e);
-            }
-            if (prev != null && ByteUtil.compare(key, prev) <= 0) {
-                throw new HttpMessageNotReadableException("read out-of-order key "
-                  + ByteUtil.toString(key) + " <= " + ByteUtil.toString(prev));
-            }
-            kvstore.put(key, value);
-            prev = key;
+        final NavigableMapKVStore kvstore;
+        try {
+            kvstore = NavigableMapKVStore.decode(inputMessage.getBody());
+        } catch (IllegalArgumentException e) {
+            throw new HttpMessageNotReadableException("invalid encoding key/value store", e);
         }
         return clazz.cast(kvstore);
     }
 
     @Override
-    protected void writeInternal(NavigableMapKVStore kvstore, HttpOutputMessage outputMessage)
-      throws IOException {
-        final OutputStream output = outputMessage.getBody();
-        UnsignedIntEncoder.write(output, kvstore.size());
-        byte[] prev = null;
-        for (Iterator<KVPair> i = kvstore.getRange(null, null, false); i.hasNext(); ) {
-            final KVPair kv = i.next();
-            final byte[] key = kv.getKey();
-            final byte[] value = kv.getValue();
-            KeyListEncoder.write(output, key, prev);
-            KeyListEncoder.write(output, value, null);
-            prev = key;
-        }
+    protected void writeInternal(NavigableMapKVStore kvstore, HttpOutputMessage outputMessage) throws IOException {
+        Preconditions.checkArgument(kvstore != null, "null kvstore");
+        kvstore.encode(outputMessage.getBody());
     }
 }
 

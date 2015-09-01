@@ -9,6 +9,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -17,6 +20,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
+import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
  * Provides a {@link org.jsimpledb.kv.KVStore} view of an underlying
@@ -77,6 +81,74 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable {
      */
     public int size() {
         return this.map.size();
+    }
+
+// Encoding/Decoding
+
+    /**
+     * Determine the number of bytes that would be written by {@link #encode encode()}.
+     *
+     * @return encoded length of this instance
+     */
+    public long encodedLength() {
+        long total = UnsignedIntEncoder.encodeLength(this.size());
+        byte[] prev = null;
+        for (Iterator<KVPair> i = this.getRange(null, null, false); i.hasNext(); ) {
+            final KVPair kv = i.next();
+            final byte[] key = kv.getKey();
+            final byte[] value = kv.getValue();
+            total += KeyListEncoder.writeLength(key, prev);
+            total += KeyListEncoder.writeLength(value, null);
+            prev = key;
+        }
+        return total;
+    }
+
+    /**
+     * Encode this instance into bytes.
+     *
+     * @param output encoded output
+     * @throws IOException if an I/O error occurs
+     */
+    public void encode(OutputStream output) throws IOException {
+        Preconditions.checkArgument(output != null, "null output");
+        UnsignedIntEncoder.write(output, this.size());
+        byte[] prev = null;
+        for (Iterator<KVPair> i = this.getRange(null, null, false); i.hasNext(); ) {
+            final KVPair kv = i.next();
+            final byte[] key = kv.getKey();
+            final byte[] value = kv.getValue();
+            KeyListEncoder.write(output, key, prev);
+            KeyListEncoder.write(output, value, null);
+            prev = key;
+        }
+    }
+
+    /**
+     * Decode a {@link NavigableMapKVStore} previously encoded by {@link #encode encode()}.
+     *
+     * @param input encoded input
+     * @return decoded {@link NavigableMapKVStore}
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if {@code input} is invalid
+     * @throws IllegalArgumentException if {@code input} contains invalid content
+     */
+    public static NavigableMapKVStore decode(InputStream input) throws IOException {
+        Preconditions.checkArgument(input != null, "null input");
+        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
+        int count = UnsignedIntEncoder.read(input);
+        byte[] prev = null;
+        for (int i = 0; i < count; i++) {
+            final byte[] key = KeyListEncoder.read(input, prev);
+            final byte[] value = KeyListEncoder.read(input, null);
+            if (prev != null && ByteUtil.compare(key, prev) <= 0) {
+                throw new IllegalArgumentException("read out-of-order key "
+                  + ByteUtil.toString(key) + " <= " + ByteUtil.toString(prev));
+            }
+            kvstore.put(key, value);
+            prev = key;
+        }
+        return kvstore;
     }
 
 // KVStore
