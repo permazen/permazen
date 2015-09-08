@@ -189,7 +189,7 @@ public class JTransaction {
     final Transaction tx;
 
     private final ValidationMode validationMode;
-    private final ValidationListener validationListener = new ValidationListener();
+    private final DefaultValidationListener defaultValidationListener = new DefaultValidationListener();
     private final InternalCreateListener internalCreateListener = new InternalCreateListener();
     private final InternalDeleteListener internalDeleteListener = new InternalDeleteListener();
     private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
@@ -218,7 +218,7 @@ public class JTransaction {
 
         // Register listeners for @OnCreate and validation on creation
         if (this.jdb.hasOnCreateMethods
-          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresValidation))
+          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresDefaultValidation))
             this.tx.addCreateListener(this.internalCreateListener);
 
         // Register listeners for @OnDelete
@@ -238,14 +238,14 @@ public class JTransaction {
         // Register field change listeners to trigger validation of corresponding JSR 303 and uniqueness constraints
         if (validationMode == ValidationMode.AUTOMATIC) {
             for (JFieldInfo jfieldInfo : this.jdb.jfieldInfos.values()) {
-                if (jfieldInfo.isRequiresValidation())
-                    jfieldInfo.registerChangeListener(this.tx, new int[0], null, this.validationListener);
+                if (jfieldInfo.isRequiresDefaultValidation())
+                    jfieldInfo.registerChangeListener(this.tx, new int[0], null, this.defaultValidationListener);
             }
         }
 
         // Register listeners for @OnVersionChange and validation on upgrade
         if (this.jdb.hasOnVersionChangeMethods
-          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresValidation))
+          || (validationMode == ValidationMode.AUTOMATIC && this.jdb.anyJClassRequiresDefaultValidation))
             this.tx.addVersionChangeListener(this.internalVersionChangeListener);
     }
 
@@ -1547,12 +1547,9 @@ public class JTransaction {
                 Util.invoke(info.getMethod(), jobj);
 
             // Do uniqueness validation
-            for (JSimpleField jfield : Iterables.filter(jclass.jfields.values(), JSimpleField.class)) {
-
-                // Does this field have a uniqueness constraint?
-                if (!jfield.unique)
-                    continue;
+            for (JSimpleField jfield : jclass.uniqueConstraintFields) {
                 assert jfield.indexed;
+                assert jfield.unique;
 
                 // Get field's (core API) value
                 final Object value = this.tx.readSimpleField(id, jfield.storageId, false);
@@ -1598,7 +1595,7 @@ public class JTransaction {
         private <T> void doOnCreate(JClass<T> jclass, ObjId id) {
 
             // Enqueue for revalidation
-            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresValidation)
+            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresDefaultValidation)
                 JTransaction.this.revalidate(Collections.singleton(id));
 
             // Notify @OnCreate methods
@@ -1661,7 +1658,7 @@ public class JTransaction {
           int oldVersion, int newVersion, Map<Integer, Object> oldFieldValues) {
 
             // Enqueue for revalidation
-            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresValidation)
+            if (validationMode == ValidationMode.AUTOMATIC && jclass.requiresDefaultValidation)
                 JTransaction.this.revalidate(Collections.singleton(id));
 
             // Skip the rest if there are no @OnChange methods
@@ -1782,9 +1779,9 @@ public class JTransaction {
         }
     }
 
-// ValidationListener
+// DefaultValidationListener
 
-    private class ValidationListener implements AllChangesListener {
+    private class DefaultValidationListener implements AllChangesListener {
 
     // SimpleFieldChangeListener
 
@@ -1873,7 +1870,7 @@ public class JTransaction {
                 return;
             }
             final JField jfield = jclass.getJField(field.getStorageId(), JField.class);
-            if (jfield.requiresValidation)
+            if (jfield.requiresDefaultValidation)
                 JTransaction.this.revalidate(referrers);
         }
     }

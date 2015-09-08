@@ -29,7 +29,7 @@ abstract class JFieldInfo {
     final int storageId;
 
     private final HashSet<String> names = new HashSet<>();
-    private boolean requiresValidation;
+    private boolean requiresDefaultValidation;
 
     JFieldInfo(JField jfield) {
         Preconditions.checkArgument(jfield != null, "null jfield");
@@ -54,12 +54,12 @@ abstract class JFieldInfo {
     public abstract TypeToken<?> getTypeToken(Class<?> context);
 
     /**
-     * Determine whether any associated {@link JField} requires validation.
+     * Determine whether any associated {@link JField} requires default validation.
      *
-     * @return true any associated fields require validation, otherwise false
+     * @return true any associated fields require validation with the default validation group, otherwise false
      */
-    public boolean isRequiresValidation() {
-        return this.requiresValidation;
+    public boolean isRequiresDefaultValidation() {
+        return this.requiresDefaultValidation;
     }
 
     /**
@@ -93,7 +93,7 @@ abstract class JFieldInfo {
     void witness(JField jfield) {
         assert jfield.storageId == this.storageId;
         this.names.add(jfield.name);
-        this.requiresValidation |= jfield.requiresValidation;
+        this.requiresDefaultValidation |= jfield.requiresDefaultValidation;
     }
 
 // Object

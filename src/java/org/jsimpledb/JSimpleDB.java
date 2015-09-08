@@ -103,7 +103,7 @@ public class JSimpleDB {
     final boolean hasOnCreateMethods;
     final boolean hasOnDeleteMethods;
     final boolean hasOnVersionChangeMethods;
-    final boolean anyJClassRequiresValidation;
+    final boolean anyJClassRequiresDefaultValidation;
 
     volatile int actualVersion;
 
@@ -311,12 +311,12 @@ public class JSimpleDB {
         // Determine which JClass's have validation requirement(s) on creation
         for (JClass<?> jclass : this.jclasses.values())
             jclass.calculateValidationRequirement();
-        boolean anyValidation = false;
+        boolean anyDefaultValidation = false;
         for (JClass<?> jclass : this.jclasses.values()) {
-            if ((anyValidation |= jclass.requiresValidation))
+            if ((anyDefaultValidation |= jclass.requiresDefaultValidation))
                 break;
         }
-        this.anyJClassRequiresValidation = anyValidation;
+        this.anyJClassRequiresDefaultValidation = anyDefaultValidation;
 
         // Detect whether we have any @OnCreate, @OnDelete, and/or @OnVersionChange methods
         boolean anyOnCreateMethods = false;

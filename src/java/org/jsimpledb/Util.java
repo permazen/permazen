@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.Constraint;
+import javax.validation.groups.Default;
 
 import org.jsimpledb.annotation.Validate;
 
@@ -61,7 +62,7 @@ public final class Util {
     }
 
     /**
-     * Determine if instances of the given type require any validation.
+     * Determine if instances of the given type require any validation under the default validation group.
      *
      * <p>
      * This will be true if {@code type} or any of its declared methods has a JSR 303 (<i>public</i> methods only)
@@ -73,57 +74,122 @@ public final class Util {
      * @throws IllegalArgumentException if {@code type} is null
      * @see ValidationMode
      */
-    public static boolean requiresValidation(Class<?> type) {
+    public static boolean requiresDefaultValidation(Class<?> type) {
+
+        // Sanity check
         Preconditions.checkArgument(type != null, "null type");
-        if (Util.hasValidationAnnotation(type))
+
+        // Check for annotations on the class itself
+        if (Util.hasDefaultValidationAnnotation(type))
             return true;
+
+        // Check methods
         for (Method method : type.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(Validate.class)
-              || ((method.getModifiers() & Modifier.PUBLIC) != 0 && Util.hasValidationAnnotation(method)))
+
+            // Check for @Validate annotation
+            if (method.isAnnotationPresent(Validate.class))
+                return true;
+
+            // Check for JSR 303 annotation
+            if ((method.getModifiers() & Modifier.PUBLIC) != 0 && Util.requiresDefaultValidation(method))
                 return true;
         }
+
+        // Recurse on superclasses
         for (TypeToken<?> typeToken : TypeToken.of(type).getTypes()) {
             final Class<?> superType = typeToken.getRawType();
-            if (superType != type && Util.requiresValidation(superType))
+            if (superType != type && Util.requiresDefaultValidation(superType))
                 return true;
         }
+
+        // Done
         return false;
     }
 
     /**
-     * Determine if the given getter method, or any method it overrides, has a JSR 303 validation constraint.
+     * Determine if the given getter method, or any method it overrides, has a JSR 303 validation constraint
+     * applicable under the default validation group.
      *
      * @param method annotated method
      * @return true if {@code obj} has one or more JSR 303 annotations
      * @throws IllegalArgumentException if {@code method} is null
      */
-    public static boolean requiresValidation(Method method) {
+    public static boolean requiresDefaultValidation(Method method) {
         Preconditions.checkArgument(method != null, "null method");
+        final String methodName = method.getName();
+        final Class<?>[] paramTypes = method.getParameterTypes();
         for (TypeToken<?> typeToken : TypeToken.of(method.getDeclaringClass()).getTypes()) {
             final Class<?> superType = typeToken.getRawType();
             try {
-                method = superType.getMethod(method.getName(), method.getParameterTypes());
+                method = superType.getMethod(methodName, paramTypes);
             } catch (NoSuchMethodException e) {
                 continue;
             }
-            if (Util.hasValidationAnnotation(method))
+            if (Util.hasDefaultValidationAnnotation(method))
                 return true;
         }
         return false;
     }
 
     /**
-     * Determine whether the given object has any JSR 303 annotation(s).
+     * Determine whether the given object has any JSR 303 annotation(s) defining validation constraints in the default group.
      *
      * @param obj annotated element
-     * @return true if {@code obj} has one or more JSR 303 annotations
+     * @return true if {@code obj} has one or more JSR 303 default validation constraint annotations
      * @throws IllegalArgumentException if {@code obj} is null
      */
-    public static boolean hasValidationAnnotation(AnnotatedElement obj) {
+    public static boolean hasDefaultValidationAnnotation(AnnotatedElement obj) {
         Preconditions.checkArgument(obj != null, "null obj");
         for (Annotation annotation : obj.getAnnotations()) {
             final Class<?> annotationType = annotation.annotationType();
-            if (annotationType.isAnnotationPresent(Constraint.class))
+            if (!annotationType.isAnnotationPresent(Constraint.class))
+                continue;
+            final Class<?>[] groups;
+            try {
+                groups = (Class<?>[])annotation.getClass().getMethod("groups").invoke(annotation);
+            } catch (Exception e) {
+                return true;
+            }
+            if (groups == null || groups.length == 0)
+                return true;
+            return Util.isAnyGroupBeingValidated(groups, new Class<?>[] { Default.class });
+        }
+        return false;
+    }
+
+    /**
+     * Determine if a constraint whose {@code groups()} contain the given constraint group should be applied
+     * when validating with the given validation groups.
+     *
+     * @param constraintGroup validation group associated with a validation constraint
+     * @param validationGroups groups for which validation is being performed
+     * @return whether to apply the validation constraint
+     * @throws IllegalArgumentException if any null values are encountered
+     */
+    public static boolean isGroupBeingValidated(Class<?> constraintGroup, Class<?>[] validationGroups) {
+        Preconditions.checkArgument(constraintGroup != null, "null constraintGroup");
+        Preconditions.checkArgument(validationGroups != null, "null validationGroups");
+        for (Class<?> validationGroup : validationGroups) {
+            Preconditions.checkArgument(validationGroup != null, "null validationGroup");
+            if (constraintGroup.isAssignableFrom(validationGroup))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determine if a constraint whose {@code groups()} contain the given constraint groups should be applied
+     * when validating with the given validation groups.
+     *
+     * @param constraintGroups validation groups associated with a validation constraint
+     * @param validationGroups groups for which validation is being performed
+     * @return whether to apply the validation constraint
+     * @throws IllegalArgumentException if any null values are encountered
+     */
+    public static boolean isAnyGroupBeingValidated(Class<?>[] constraintGroups, Class<?>[] validationGroups) {
+        Preconditions.checkArgument(constraintGroups != null, "null constraintGroups");
+        for (Class<?> constraintGroup : constraintGroups) {
+            if (Util.isGroupBeingValidated(constraintGroup, validationGroups))
                 return true;
         }
         return false;

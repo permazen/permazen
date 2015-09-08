@@ -49,6 +49,7 @@ public class JClass<T> extends JSchemaObject {
     final TreeMap<String, JField> jfieldsByName = new TreeMap<>();
     final TreeMap<Integer, JCompositeIndex> jcompositeIndexes = new TreeMap<>();
     final TreeMap<String, JCompositeIndex> jcompositeIndexesByName = new TreeMap<>();
+    final ArrayList<JSimpleField> uniqueConstraintFields = new ArrayList<>();
 
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
@@ -57,7 +58,7 @@ public class JClass<T> extends JSchemaObject {
     ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
 
     int[] subtypeStorageIds;
-    boolean requiresValidation;
+    boolean requiresDefaultValidation;
 
     /**
      * Constructor.
@@ -192,6 +193,10 @@ public class JClass<T> extends JSchemaObject {
 
             // Add field
             this.addField(jfield);
+
+            // Remember unique constraint fields
+            if (jfield.unique)
+                this.uniqueConstraintFields.add(jfield);
         }
 
         // Scan for Set fields
@@ -336,9 +341,9 @@ public class JClass<T> extends JSchemaObject {
               + abstractMethods.values().toString().replaceAll("^\\[(.*)\\]$", "$1"));
         }
 
-        // Calculate which fields require validation
+        // Calculate which fields require default validation
         for (JField jfield : this.jfields.values())
-            jfield.calculateRequiresValidation();
+            jfield.calculateRequiresDefaultValidation();
     }
 
     void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {
@@ -392,13 +397,13 @@ public class JClass<T> extends JSchemaObject {
     void calculateValidationRequirement() {
 
         // Check for JSR 303 or @Validate annotations
-        if ((this.requiresValidation = Util.requiresValidation(this.type)))
+        if ((this.requiresDefaultValidation = Util.requiresDefaultValidation(this.type)))
             return;
 
         // Check for any uniqueness constraints
         for (JSimpleField jfield : Iterables.filter(this.jfields.values(), JSimpleField.class)) {
             if (jfield.unique) {
-                this.requiresValidation = true;
+                this.requiresDefaultValidation = true;
                 return;
             }
         }

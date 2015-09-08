@@ -293,7 +293,7 @@ public class ValidationTest extends TestSupport {
 
         final JSimpleDB jdb = BasicTest.getJSimpleDB(type);
 
-        // Transaction with validation disabled
+        // Transaction with validation enabled
         JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(jtx);
         try {

@@ -24,15 +24,15 @@ public abstract class JField extends JSchemaObject {
     final Method getter;
 
     JSchemaObject parent;
-    boolean requiresValidation;
+    boolean requiresDefaultValidation;
 
     JField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {
         super(jdb, name, storageId, description);
         this.getter = getter;
     }
 
-    void calculateRequiresValidation() {
-        this.requiresValidation = this.getter != null && Util.requiresValidation(this.getter);
+    void calculateRequiresDefaultValidation() {
+        this.requiresDefaultValidation = this.getter != null && Util.requiresDefaultValidation(this.getter);
     }
 
     @Override

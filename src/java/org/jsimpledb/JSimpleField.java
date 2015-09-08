@@ -170,9 +170,9 @@ public class JSimpleField extends JField {
     }
 
     @Override
-    void calculateRequiresValidation() {
-        super.calculateRequiresValidation();
-        this.requiresValidation |= this.unique;
+    void calculateRequiresDefaultValidation() {
+        super.calculateRequiresDefaultValidation();
+        this.requiresDefaultValidation |= this.unique;
     }
 
     void initialize(JSimpleDB jdb, SimpleSchemaField schemaField) {
