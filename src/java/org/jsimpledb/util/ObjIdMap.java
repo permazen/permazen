@@ -218,6 +218,17 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
         this.values[slot] = value;
     }
 
+    ObjId[] toKeysArray() {
+        final ObjId[] array = new ObjId[this.size];
+        int index = 0;
+        for (int slot = 0; slot < this.keys.length; slot++) {
+            final long value = this.keys[slot];
+            if (value != 0)
+                array[index++] = new ObjId(value);
+        }
+        return array;
+    }
+
 // Internal methods
 
     private V insert(long key, V value) {

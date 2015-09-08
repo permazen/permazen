@@ -123,6 +123,11 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
         this.map.clear();
     }
 
+    @Override
+    public ObjId[] toArray() {
+        return this.map.toKeysArray();
+    }
+
     /**
      * Produce a debug dump of this instance.
      */
