@@ -82,9 +82,11 @@ import org.jsimpledb.core.DeleteAction;
  * In {@link org.jsimpledb.ValidationMode#AUTOMATIC}, any upgraded {@link org.jsimpledb.JObject}s are automatically
  * added to the validation queue, so a uniqueness constraint added in a new schema version will be automatically verified
  * when any object is upgraded.
- * However, simpley adding, removing, or changing uniqueness constraints on an existing field doesn't force a schema
- * version change. Therefore, existing database objects that were previously valid could be in violation of a uniqueness
- * constraint that is added without one. To avoid this possibililty, change the schema version number as well.
+ *
+ * <p>
+ * Note however, that uniqueness constraints can be added or changed on a field without a schema version change.
+ * Therefore, after such changes, pre-existing database objects that were previously valid could become suddenly invalid.
+ * To avoid this possibililty, change the schema version number and update them manually.
  * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -203,12 +205,23 @@ public @interface JField {
      * Require this field's value to be unique among all database objects.
      *
      * <p>
+     * When set, this causes this field's value to be checked for uniqueness any time normal validation is
+     * performed on an object containing the field.
+     *
+     * <p>
+     * More precisely, a uniqueness constraint behaves like a
+     * validation constraint with {@code groups() = }<code>{ </code>{@link javax.validation.groups.Default}{@code .class,
+     * }{@link org.jsimpledb.UniquenessConstraints}{@code .class}<code> }</code>. Therefore, uniqueness constraints
+     * are included in default validation, but you can also validate <i>only</i> uniqueness constraints via
+     * {@link org.jsimpledb.JObject#revalidate myobj.revalidate(UniquenessConstraints.class)}.
+     *
+     * <p>
      * This property must be false for sub-fields of complex fields.
-     * </p>
      *
      * @return whether the field's value should be unique
      * @see #uniqueExclude
      * @see #uniqueExcludeNull
+     * @see org.jsimpledb.UniquenessConstraints
      */
     boolean unique() default false;
 

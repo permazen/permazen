@@ -21,7 +21,12 @@ import java.lang.annotation.Target;
  *
  * <p>
  * When validating an object, validation via {@link Validate &#64;Validate} methods occurs after JSR 303 validation, if any.
- * </p>
+ *
+ * <p>
+ * An optional list of validation {@link #groups} may be specified; if so, the annotated method will only be invoked when
+ * one or more of specified validation groups (or a superclass thereof) is being validated. In particular, if {@link #groups}
+ * is non-empty and does not contain a class that extends {@link javax.validation.groups.Default}, then the method will
+ * not be invoked by automatic validation.
  *
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
@@ -36,5 +41,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Validate {
+
+    /**
+     * Specify the validation group(s) for which the annotated method should be invoked.
+     *
+     * @return validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed
+     */
+    Class<?>[] groups() default {};
 }
 

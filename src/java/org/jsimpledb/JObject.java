@@ -110,15 +110,17 @@ public interface JObject {
      * <p>
      * The actual validation will occur either during {@link JTransaction#commit}
      * or at the next invocation of {@link JTransaction#validate}, whichever occurs first.
-     * </p>
+     * The specified validation groups, if any, will be used.
      *
+     * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws org.jsimpledb.core.StaleTransactionException
      *  if the transaction {@linkplain #getTransaction associated with this instance} is no longer usable
+     * @throws NullPointerException if {@code groups} is null
      */
-    void revalidate();
+    void revalidate(Class<?>... groups);
 
     /**
      * Update the schema version of this instance, if necessary, so that it matches the schema version

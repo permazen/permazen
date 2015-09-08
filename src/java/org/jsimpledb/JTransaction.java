@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,7 +28,12 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.groups.Default;
 
+import org.dellroad.stuff.validation.ValidationContext;
 import org.dellroad.stuff.validation.ValidationUtil;
 import org.jsimpledb.core.CoreIndex;
 import org.jsimpledb.core.CoreIndex2;
@@ -60,7 +66,7 @@ import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.util.AbstractKVNavigableSet;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.jsimpledb.util.ConvertedNavigableSet;
-import org.jsimpledb.util.ObjIdSet;
+import org.jsimpledb.util.ObjIdMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +106,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Validation</b>
  * <ul>
- *  <li>{@link #validate validate()} - Validate all objects in the validation queue</li>
+ *  <li>{@link #validate validate()} - Validate objects in the validation queue</li>
  *  <li>{@link #resetValidationQueue} - Clear the validation queue</li>
  * </ul>
  *
@@ -181,6 +187,9 @@ import org.slf4j.LoggerFactory;
 public class JTransaction {
 
     private static final ThreadLocal<JTransaction> CURRENT = new ThreadLocal<>();
+    private static final ValidatorFactory VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
+    private static final Class<?>[] DEFAULT_CLASS_ARRAY = { Default.class };
+    private static final Class<?>[] DEFAULT_AND_UNIQUENESS_CLASS_ARRAY = { Default.class, UniquenessConstraints.class };
     private static final int MAX_UNIQUE_CONFLICTORS = 5;
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -193,7 +202,7 @@ public class JTransaction {
     private final InternalCreateListener internalCreateListener = new InternalCreateListener();
     private final InternalDeleteListener internalDeleteListener = new InternalDeleteListener();
     private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
-    private final ObjIdSet validationQueue = new ObjIdSet();
+    private final ObjIdMap<Class<?>[]> validationQueue = new ObjIdMap<>();
     private final JObjectCache jobjectCache = new JObjectCache(this);
 
     private SnapshotJTransaction snapshotTransaction;
@@ -848,15 +857,17 @@ public class JTransaction {
      * </p>
      *
      * @param id ID of the object to revalidate
+     * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalStateException if transaction commit is already in progress
      * @throws DeletedObjectException if the object does not exist in this transaction
-     * @throws NullPointerException if {@code id} is null
+     * @throws IllegalArgumentException if either parameter is null
+     * @throws IllegalArgumentException if any group in {@code groups} is null
      */
-    public void revalidate(ObjId id) {
+    public void revalidate(ObjId id, Class<?>... groups) {
         if (!this.tx.exists(id))
             throw new DeletedObjectException(id);
-        this.revalidate(Collections.singleton(id));
+        this.revalidate(Collections.singleton(id), groups);
     }
 
     /**
@@ -872,13 +883,33 @@ public class JTransaction {
         this.validationQueue.clear();
     }
 
-    void revalidate(Collection<? extends ObjId> ids) {
+    private synchronized void revalidate(Collection<? extends ObjId> ids, Class<?>... groups) {
+
+        // Sanity checks
         if (!this.tx.isValid())
             throw new StaleTransactionException(this.tx);
+        Preconditions.checkArgument(groups != null, "null groups");
+        for (Class<?> group : groups)
+            Preconditions.checkArgument(group != null, "null group");
         if (this.validationMode == ValidationMode.DISABLED)
             return;
-        synchronized (this) {
-            this.validationQueue.addAll(ids);
+
+        // "Intern" default group array
+        if (groups.length == 0 || Arrays.equals(groups, DEFAULT_CLASS_ARRAY))
+            groups = DEFAULT_CLASS_ARRAY;
+
+        // Add to queue
+        for (ObjId id : ids) {
+            final Class<?>[] existingGroups = this.validationQueue.get(id);
+            if (existingGroups == null) {
+                this.validationQueue.put(id, groups);
+                continue;
+            }
+            if (existingGroups == groups)                                       // i.e., both are DEFAULT_CLASS_ARRAY
+                continue;
+            final HashSet<Class<?>> newGroups = new HashSet<>(Arrays.asList(existingGroups));
+            newGroups.addAll(Arrays.asList(groups));
+            this.validationQueue.put(id, newGroups.toArray(new Class<?>[newGroups.size()]));
         }
     }
 
@@ -1511,17 +1542,24 @@ public class JTransaction {
 
     @SuppressWarnings("unchecked")
     private void doValidate() {
+        final Validator validator = VALIDATOR_FACTORY.getValidator();
         while (true) {
 
-            // Get next object
+            // Pop next object to validate off the queue
             final ObjId id;
+            final Class<?>[] validationGroups;
             synchronized (this) {
-                final Iterator<ObjId> i = this.validationQueue.iterator();
+                final Iterator<Map.Entry<ObjId, Class<?>[]>> i = this.validationQueue.entrySet().iterator();
+                final Map.Entry<ObjId, Class<?>[]> entry;
                 try {
-                    id = i.next();
+                    entry = i.next();
                 } catch (NoSuchElementException e) {
                     return;
                 }
+                id = entry.getKey();
+                validationGroups = entry.getValue();
+                assert id != null;
+                assert validationGroups != null;
                 i.remove();
             }
 
@@ -1536,17 +1574,26 @@ public class JTransaction {
                 return;
 
             // Do JSR 303 validation
-            final Set<ConstraintViolation<JObject>> violations = ValidationUtil.validate(jobj);
+            final Set<ConstraintViolation<JObject>> violations
+              = new ValidationContext<JObject>(jobj, validationGroups).validate(validator);
             if (!violations.isEmpty()) {
                 throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
                   + this.jdb.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
             }
 
-            // Do @Validate validation
-            for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods)
-                Util.invoke(info.getMethod(), jobj);
+            // Do @Validate method validation
+            for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods) {
+                Class<?>[] methodGroups = info.getAnnotation().groups();
+                if (methodGroups.length == 0)
+                    methodGroups = DEFAULT_CLASS_ARRAY;
+                if (Util.isAnyGroupBeingValidated(methodGroups, validationGroups))
+                    Util.invoke(info.getMethod(), jobj);
+            }
 
             // Do uniqueness validation
+            if (jclass.uniqueConstraintFields.isEmpty()
+              || !Util.isAnyGroupBeingValidated(DEFAULT_AND_UNIQUENESS_CLASS_ARRAY, validationGroups))
+                continue;
             for (JSimpleField jfield : jclass.uniqueConstraintFields) {
                 assert jfield.indexed;
                 assert jfield.unique;

@@ -25,24 +25,30 @@ public enum ValidationMode {
     MANUAL,
 
     /**
-     * Objects are enqueued for validation automatically.
+     * Objects are enqueued for validation automatically (if necessary) when they are modified.
      *
      * <p>
-     * In this mode, objects are enqueued for validation whenever {@link JObject#revalidate} is invoked, or automatically when:
+     * In this mode, objects are enqueued for validation whenever {@link JObject#revalidate} is invoked; in addition,
+     * objects are enqueued for validation automatically as if by {@link JObject#revalidate} when:
      * <ul>
      *  <li>An instance is {@linkplain org.jsimpledb.JTransaction#create created}, and the Java model type (or any super-type)
      *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on itself or a public method</li>
      *  <li>An instance is {@linkplain org.jsimpledb.JObject#upgrade upgraded}, and the Java model type (or any super-type)
      *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on itself or a public method</li>
-     *  <li>A database field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
+     *  <li>An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
      * </ul>
      *
      * <p>
-     * Note that the presence of a {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on some method
-     * does <b>not</b> in itself result in automatic validation when any field changes. To achieve that, add an
-     * {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated method that invokes
+     * Note that the presence of a {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on a method
+     * does <b>not</b> in itself result in automatic validation when any field changes (it merely specifies an action
+     * to take when validation occurs). To trigger revalidation after field changes, add
+     * {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated method(s) that invoke
      * {@link org.jsimpledb.JObject#revalidate this.revalidate()}.
-     * </p>
+     *
+     * <p>
+     * Note that {@link #AUTOMATIC} enqueues as if by {@link JObject#revalidate}, i.e., the
+     * {@link javax.validation.groups.Default} validation group applies. Therefore, if a constraint has explicit {@code groups()},
+     * and none extend {@link javax.validation.groups.Default}, then it will not be applied automatically.
      */
     AUTOMATIC;
 }

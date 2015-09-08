@@ -106,7 +106,7 @@ class ClassGenerator<T> {
             JOBJECT_IS_SNAPSHOT_METHOD = JObject.class.getMethod("isSnapshot");
             JOBJECT_RECREATE_METHOD = JObject.class.getMethod("recreate");
             JOBJECT_UPGRADE_METHOD = JObject.class.getMethod("upgrade");
-            JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate");
+            JOBJECT_REVALIDATE_METHOD = JObject.class.getMethod("revalidate", Class[].class);
             JOBJECT_COPY_TO_METHOD = JObject.class.getMethod("copyTo",
               JTransaction.class, ObjId.class, CopyState.class, String[].class);
             JOBJECT_COPY_OUT_METHOD = JObject.class.getMethod("copyOut", String[].class);
@@ -126,7 +126,7 @@ class ClassGenerator<T> {
             RECREATE_METHOD = JTransaction.class.getMethod("recreate", JObject.class);
             GET_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("getSchemaVersion", ObjId.class);
             UPDATE_SCHEMA_VERSION_METHOD = JTransaction.class.getMethod("updateSchemaVersion", JObject.class);
-            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class);
+            REVALIDATE_METHOD = JTransaction.class.getMethod("revalidate", ObjId.class, Class[].class);
             COPY_TO_METHOD = JTransaction.class.getMethod("copyTo",
               JTransaction.class, JObject.class, ObjId.class, CopyState.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
@@ -398,6 +398,7 @@ class ClassGenerator<T> {
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, this.getClassName(), ID_FIELD_NAME, Type.getDescriptor(ObjId.class));
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
         this.emitInvoke(mv, REVALIDATE_METHOD);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
