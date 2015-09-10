@@ -5,7 +5,11 @@
 
 package org.jsimpledb;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
+
+import javax.validation.ValidatorFactory;
 
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
@@ -26,6 +30,7 @@ public class JSimpleDBFactory {
     private int schemaVersion;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Iterable<? extends Class<?>> modelClasses;
+    private ValidatorFactory validatorFactory;
 
     /**
      * Configure the Java model classes.
@@ -110,6 +115,20 @@ public class JSimpleDBFactory {
     }
 
     /**
+     * Configure a custom {@link ValidatorFactory} used to create {@link javax.validation.Validator}s
+     * for validation within transactions.
+     *
+     * @param validatorFactory factory for validators
+     * @return this instance
+     * @throws IllegalArgumentException if {@code validatorFactory} is null
+     */
+    public JSimpleDBFactory setValidatorFactory(ValidatorFactory validatorFactory) {
+        Preconditions.checkArgument(validatorFactory != null, "null validatorFactory");
+        this.validatorFactory = validatorFactory;
+        return this;
+    }
+
+    /**
      * Construct a {@link JSimpleDB} instance using this instance's configuration.
      *
      * @return newly created {@link JSimpleDB} database
@@ -124,7 +143,10 @@ public class JSimpleDBFactory {
             if (schemaVersion1 == 0)
                 schemaVersion1 = 1;
         }
-        return new JSimpleDB(database1, schemaVersion1, this.storageIdGenerator, this.modelClasses);
+        final JSimpleDB jdb = new JSimpleDB(database1, schemaVersion1, this.storageIdGenerator, this.modelClasses);
+        if (this.validatorFactory != null)
+            jdb.setValidatorFactory(this.validatorFactory);
+        return jdb;
     }
 }
 

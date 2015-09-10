@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
 import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.ObjId;
@@ -105,6 +108,8 @@ public class JSimpleDB {
     final boolean hasOnDeleteMethods;
     final boolean hasOnVersionChangeMethods;
     final boolean anyJClassRequiresDefaultValidation;
+
+    ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
     volatile int actualVersion;
 
@@ -642,6 +647,20 @@ public class JSimpleDB {
 
     ReferencePath parseReferencePath(Class<?> startType, String path, Boolean lastIsSubField) {
         return this.referencePathCache.get(startType, path, lastIsSubField);
+    }
+
+// Validation
+
+    /**
+     * Configure a custom {@link ValidatorFactory} used to create {@link javax.validation.Validator}s
+     * for validation within transactions.
+     *
+     * @param validatorFactory factory for validators
+     * @throws IllegalArgumentException if {@code validatorFactory} is null
+     */
+    public void setValidatorFactory(ValidatorFactory validatorFactory) {
+        Preconditions.checkArgument(validatorFactory != null, "null validatorFactory");
+        this.validatorFactory = validatorFactory;
     }
 
 // Misc utility

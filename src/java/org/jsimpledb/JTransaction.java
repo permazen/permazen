@@ -28,9 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import javax.validation.groups.Default;
 
 import org.dellroad.stuff.validation.ValidationContext;
@@ -187,7 +185,6 @@ import org.slf4j.LoggerFactory;
 public class JTransaction {
 
     private static final ThreadLocal<JTransaction> CURRENT = new ThreadLocal<>();
-    private static final ValidatorFactory VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
     private static final Class<?>[] DEFAULT_CLASS_ARRAY = { Default.class };
     private static final Class<?>[] DEFAULT_AND_UNIQUENESS_CLASS_ARRAY = { Default.class, UniquenessConstraints.class };
     private static final int MAX_UNIQUE_CONFLICTORS = 5;
@@ -1542,7 +1539,7 @@ public class JTransaction {
 
     @SuppressWarnings("unchecked")
     private void doValidate() {
-        final Validator validator = VALIDATOR_FACTORY.getValidator();
+        final Validator validator = this.jdb.validatorFactory.getValidator();
         while (true) {
 
             // Pop next object to validate off the queue
