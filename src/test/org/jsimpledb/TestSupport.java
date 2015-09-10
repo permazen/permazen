@@ -16,6 +16,11 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -79,6 +84,30 @@ public abstract class TestSupport {
     @Parameters("randomSeed")
     public void seedRandom(String randomSeed) {
         this.random = TestSupport.getRandom(randomSeed);
+    }
+
+    protected File createTempDirectory() throws IOException {
+        File file = File.createTempFile(this.getClass().getName(), "");
+        if (!file.delete())
+            throw new IOException("error deleting `" + file + "'");
+        if (!file.mkdir())
+            throw new IOException("error creating directory `" + file + "'");
+        return file;
+    }
+
+    protected void deleteDirectoryHierarchy(File root) throws IOException {
+        Files.walkFileTree(root.toPath(), new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     public static Random getRandom(String randomSeed) {

@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.array;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ForwardingFuture;
 
 import java.io.Closeable;
 import java.io.File;
@@ -18,8 +19,11 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -73,10 +77,14 @@ import org.slf4j.LoggerFactory;
  * of uncompacted changes when there is extremely high write volume.
  *
  * <p>
+ * "Hot" backups created in parallel with normal operation are supported via {@link #hotCopy hotCopy()}.
+ * Hard links are used (when available) to make this operation fast.
+ *
+ * <p>
  * The {@linkplain #setDirectory database directory} is a required configuration property.
  *
  * <p>
- * Key and value data each must not exceed 2GB total.
+ * Key and value data must not exceed 2GB (each separately).
  *
  * <p>
  * Instances may be stopped and (re)started multiple times.
@@ -117,7 +125,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private final ReentrantReadWriteLock.ReadLock readLock = this.lock.readLock();
     private final ReentrantReadWriteLock.WriteLock writeLock = this.lock.writeLock();
-    private final Condition compactionFinishedCondition = this.writeLock.newCondition();
+    private final Condition hotCopyFinishedCondition = this.writeLock.newCondition();
 
     // Configuration state
     private File directory;
@@ -145,8 +153,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     private ByteBuffer vals;
     private ArrayKVStore kvstore;
     private MutableView mods;
-    private ScheduledFuture<?> compactFuture;
+    private Compaction compaction;
     private long firstModTimestamp;
+    private int hotCopiesInProgress;
 
 // Accessors
 
@@ -272,7 +281,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             this.log.info("starting " + this);
 
             // Sanity check
-            assert this.compactFuture == null;
+            assert this.compaction == null;
             assert this.scheduledExecutorService == null;
             assert !this.createdExecutorService;
             assert this.generation == 0;
@@ -464,16 +473,41 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         // Should hold write lock now
         assert this.lock.isWriteLockedByCurrentThread();
 
-        // Cancel compaction (if any) or wait for it to complete
-        while (this.compactFuture != null) {
-            if (!this.compactFuture.cancel(false)) {
+        // Cancel compaction if possible, otherwise wait for it to complete
+        if (this.compaction != null && !this.compaction.cancel()) {
+
+            // Wait for compaction to complete
+            this.log.debug("waiting for in-progress compaction to complete before shutdown");
+            this.compaction.waitForCompletion();
+            this.log.debug("compaction completed, proceeding with shutdown");
+
+            // Check whether another thread invoked stop() while we were asleep
+            if (this.kvstore == null)
+                return;
+        }
+
+        // Wait for any in-progress hot copies to complete
+        if (this.hotCopiesInProgress > 0) {
+            this.log.debug("waiting for " + this.hotCopiesInProgress + " hot copies to complete before shutdown");
+            boolean interrupted = false;
+            do {
+
+                // Wait for hot copies to complete
                 try {
-                    this.compactionFinishedCondition.await();
+                    this.hotCopyFinishedCondition.await();
                 } catch (InterruptedException e) {
-                    this.log.warn("thread was interrupted while waiting for compaction to complete", e);
+                    this.log.warn("thread interrupted while waiting for "
+                      + this.hotCopiesInProgress + " hot copies to complete (ignoring)", e);
+                    interrupted = true;
                 }
-            }
-            this.compactFuture = null;
+
+                // Check whether another thread invoked stop() while we were asleep
+                if (this.kvstore == null)
+                    return;
+            } while (this.hotCopiesInProgress > 0);
+            if (interrupted)
+                Thread.currentThread().interrupt();
+            this.log.debug("hot copies completed, proceeding with shutdown");
         }
 
         // Shut down executor - only if we created it
@@ -619,7 +653,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         try {
             Preconditions.checkState(this.kvstore != null, "closed");
 
-            // Get oustanding modifications; if we are compacting, there are two sets of modifications
+            // Get outstanding modifications; if we are compacting, there are two sets of modifications
             final Writes writes1;
             if (this.mods.getKVStore() instanceof MutableView) {
                 final MutableView oldMods = (MutableView)this.mods.getKVStore();
@@ -653,18 +687,21 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             Preconditions.checkState(this.kvstore != null, "not started");
 
             // Block until compaction completes if size of outstanding modifications exceeds high water mark
-            while (this.compactFuture != null && this.modsFileLength > this.compactHighWater) {
+            while (this.compaction != null && this.modsFileLength > this.compactHighWater) {
 
                 // If scheduled compaction is in the future, reschedule to be immediate
-                if (this.compactFuture.getDelay(TimeUnit.MILLISECONDS) > 0)
+                if (this.compaction.getDelay() > 0)
                     this.scheduleCompaction(0);
 
                 // Wait for it to complete
-                try {
-                    this.compactionFinishedCondition.await();
-                } catch (InterruptedException e) {
-                    throw new ArrayKVException("thread was interrupted while waiting for compaction to complete", e);
-                }
+                this.log.debug("reached compaction high-water mark; waiting for in-progress compaction to complete"
+                  + " before applying mutation(s)");
+                this.compaction.waitForCompletion();
+                this.log.debug("compaction completed, proceeding with application of mutation(s)");
+
+                // Verify we are still open after giving up lock
+                if (this.kvstore == null)
+                    throw new ArrayKVException("k/v store was closed while waiting for compaction to complete");
             }
 
             // Get mutations as a Writes object
@@ -759,6 +796,98 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         }
     }
 
+// Hot Copy
+
+    /**
+     * Create a "hot" copy of this instance in the specified destination directory.
+     *
+     * <p>
+     * The {@code target} directory will be created if it does not exist; otherwise, it must be empty.
+     * Files are copied using {@linkplain Files#createLink hard links} when possible.
+     *
+     * <p>
+     * The hot copy operation proceeds in parallel with normal database activity, with the exception
+     * that a compaction operation must wait until there are no concurrent hot copies to complete.
+     *
+     * <p>
+     * The {@code target} directory is not fsync()'d by this method; the caller
+     * must perform that action to ensure durability if required.
+     *
+     * @param target destination directory
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if {@code target} exists and is not a directory or is non-empty
+     * @throws IllegalArgumentException if {@code target} is null
+     */
+    public void hotCopy(File target) throws IOException {
+
+        // Sanity check
+        Preconditions.checkArgument(target != null, "null target");
+        final Path dir = target.toPath();
+
+        // Create/verify directory
+        if (!Files.exists(dir))
+            Files.createDirectories(dir);
+        if (!Files.isDirectory(dir))
+            throw new IllegalArgumentException("target `" + dir + "' is not a directory");
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            for (Path path : stream)
+                throw new IllegalArgumentException("target `" + dir + "' is not empty");
+        }
+
+        // Increment hot copy counter - this prevents compaction from removing files while we're copying them
+        this.writeLock.lock();
+        try {
+
+            // Sanity check
+            Preconditions.checkState(this.kvstore != null, "not started");
+
+            // Bump counter
+            this.hotCopiesInProgress++;
+        } finally {
+            this.writeLock.unlock();
+        }
+        try {
+
+            // Logit
+            this.log.debug("started hot copy into " + target);
+
+            // Copy index, keys, and values files using hard links (if possible) as these files are read-only
+            final ArrayList<File> regularCopyFiles = new ArrayList<>(5);
+            for (File file : new File[] { this.indxFile, this.keysFile, this.valsFile }) {
+                try {
+                    Files.createLink(dir.resolve(file.getName()), file.toPath());
+                } catch (IOException | UnsupportedOperationException e) {
+                    regularCopyFiles.add(file);                      // fall back to normal copy
+                }
+            }
+
+            // Copy remaining files without using hard links
+            regularCopyFiles.add(this.modsFile);                     // it's ok if we copy a partial write
+            regularCopyFiles.add(this.generationFile);               // copy this one last
+            for (File file : regularCopyFiles)
+                Files.copy(file.toPath(), dir.resolve(file.getName()));
+        } finally {
+            this.writeLock.lock();
+            try {
+
+                // Sanity check
+                assert this.hotCopiesInProgress > 0;
+                assert this.kvstore != null;
+
+                // Logit
+                this.log.debug("completed hot copy into " + target);
+
+                // Decrement counter
+                this.hotCopiesInProgress--;
+
+                // Wakeup waiters
+                this.hotCopyFinishedCondition.signalAll();
+            } finally {
+                this.writeLock.unlock();
+            }
+        }
+    }
+
 // Compaction
 
     /**
@@ -786,38 +915,25 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         }
     }
 
-    private ScheduledFuture<?> scheduleCompaction(long millis) {
+    private Future<?> scheduleCompaction(long millis) {
 
         // Should hold write lock now
         assert this.lock.isWriteLockedByCurrentThread();
+        assert this.modsFileLength > 0;
 
-        // Compare delay to existing future, if any
-        if (this.compactFuture != null) {
-
-            // If existing compation will happen sooner, nothing to do
-            final long existingMillis = this.compactFuture.getDelay(TimeUnit.MILLISECONDS);
-            if (existingMillis <= millis)
-                return this.compactFuture;
-
-            // Try to cancel existing compaction
-            if (!this.compactFuture.cancel(false))
-                return this.compactFuture;
+        // (Re)schedule compaction if necessary
+        if (this.compaction == null || (this.compaction.getDelay() > millis && this.compaction.cancel())) {
+            assert this.compaction == null;
+            this.compaction = new Compaction(millis);
         }
 
-        // Schedule new compaction
-        this.compactFuture = this.scheduledExecutorService.schedule(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    AtomicArrayKVStore.this.compact();
-                } catch (Throwable t) {
-                    AtomicArrayKVStore.this.log.error("error during compaction", t);
-                }
-            }
-        }, millis, TimeUnit.MILLISECONDS);
-
         // Done
-        return this.compactFuture;
+        return new ForwardingFuture.SimpleForwardingFuture<Void>(this.compaction.getFuture()) {
+            @Override
+            public boolean cancel(boolean mayInterrupt) {               // disallow this operation
+                return false;
+            }
+        };
     }
 
     private void scheduleCompactionIfNecessary() {
@@ -844,7 +960,28 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
     @SuppressWarnings("fallthrough")
-    private void compact() throws IOException {
+    private void compact(final Compaction compaction) throws IOException {
+
+        // Sanity check
+        assert compaction != null;
+
+        // Handle cancel() race condition
+        this.writeLock.lock();
+        try {
+
+            // Were we canceled?
+            if (compaction != this.compaction)
+                return;
+
+            // Set now running - this prevents future cancel()'s
+            assert !compaction.isRunning();
+            assert !compaction.isCompleted();
+            compaction.setRunning();
+        } finally {
+            this.writeLock.unlock();
+        }
+
+        // Start compaction
         final long compactionStartTime;
         try {
 
@@ -855,13 +992,33 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             this.writeLock.lock();
             try {
 
-                // Mark start time and get uncompacted modifications
+                // Sanity checks
+                assert this.kvstore != null;
                 assert this.modsFileLength > 0;
+
+                // Mark start time and get uncompacted modifications
                 compactionStartTime = System.nanoTime();
                 writesToCompact = this.mods.getWrites();
 
                 // It's possible the uncompacted modifications are a no-op; if so, no compaction is necessary
                 if (writesToCompact.isEmpty()) {
+
+                    // Wait for any in-progress hot copies to complete
+                    while (this.hotCopiesInProgress > 0) {
+                        this.log.debug("waiting for " + this.hotCopiesInProgress
+                          + " hot copies to complete before completing (trivial) compaction");
+                        try {
+                            this.hotCopyFinishedCondition.await();
+                        } catch (InterruptedException e) {
+                            throw new ArrayKVException("thread was interrupted while waiting for "
+                              + this.hotCopiesInProgress + " hot copies to complete", e);
+                        }
+                        this.log.debug("hot copies completed, proceeding with completion of (trivial) compaction");
+                    }
+                    assert this.kvstore != null;
+                    assert this.modsFileLength > 0;
+
+                    // Discard outstanding mods
                     this.modsFileOutput.getChannel().truncate(0);
                     this.modsFileLength = 0;
                     this.modsFileSyncPoint = 0;
@@ -1039,7 +1196,22 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                             final float duration = (System.nanoTime() - compactionStartTime) / 1000000000f;
                             this.log.debug("compaction for generation " + this.generation + " -> " + (this.generation + 1)
                               + " finishing up with " + additionalModsLength + " bytes of new modifications after "
-                              + String.format("%.4s", duration) + " seconds");
+                              + String.format("%.4f", duration) + " seconds");
+                        }
+
+                        // Wait for any in-progress hot copies to complete
+                        while (this.hotCopiesInProgress > 0) {
+                            this.log.debug("waiting for " + this.hotCopiesInProgress
+                              + " hot copies to complete before completing compaction");
+                            try {
+                                this.hotCopyFinishedCondition.await();
+                            } catch (InterruptedException e) {
+                                throw new ArrayKVException("thread was interrupted while waiting for "
+                                  + this.hotCopiesInProgress + " hot copies to complete", e);
+                            }
+                            assert this.compaction == compaction;
+                            assert this.kvstore != null;
+                            this.log.debug("hot copies completed, proceeding with completion of compaction");
                         }
 
                         // Apply any changes that were made while we were unlocked and writing files
@@ -1134,7 +1306,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         if (this.log.isDebugEnabled()) {
                             final float duration = (System.nanoTime() - compactionStartTime) / 1000000000f;
                             this.log.debug("compaction for generation " + (newGeneration - 1) + " -> " + newGeneration
-                              + (success ? " succeeded" : " failed") + " in " + String.format("%.4s", duration) + " seconds");
+                              + (success ? " succeeded" : " failed") + " in " + String.format("%.4f", duration) + " seconds");
                         }
 
                         // Cleanup/undo on failure
@@ -1164,12 +1336,139 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 }
             }
         } finally {
-            this.compactFuture = null;
+
+            // Update state
             this.writeLock.lock();
             try {
-                this.compactionFinishedCondition.signalAll();
+                assert this.kvstore != null;
+                assert this.compaction == compaction;
+                compaction.setCompleted();
+                this.compaction = null;
             } finally {
                 this.writeLock.unlock();
+            }
+        }
+    }
+
+// Compaction
+
+    private class Compaction implements Runnable {
+
+        private final Condition completedCondition = AtomicArrayKVStore.this.writeLock.newCondition();
+        private final ScheduledFuture<Void> future;
+
+        private boolean running;
+        private boolean completed;
+
+        @SuppressWarnings("unchecked")
+        Compaction(long millis) {
+
+            // Sanity check
+            assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            Preconditions.checkState(AtomicArrayKVStore.this.compaction == null, "compaction already exists");
+
+            // Schedule
+            this.future = (ScheduledFuture<Void>)AtomicArrayKVStore.this.scheduledExecutorService.schedule(this,
+              millis, TimeUnit.MILLISECONDS);
+        }
+
+        /**
+         * Cancel this compaction.
+         *
+         * @return true if canceled, false if already running
+         */
+        public boolean cancel() {
+
+            // Sanity check
+            assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            Preconditions.checkState(this.future != null, "not scheduled");
+
+            // Already canceled?
+            if (AtomicArrayKVStore.this.compaction != this)
+                return false;
+
+            // Already running?
+            if (this.running)
+                return false;
+
+            // Attempt to cancel scheduled task
+            assert this.future != null;
+            this.future.cancel(false);
+
+            // Make this task do nothing even if it runs anyway
+            AtomicArrayKVStore.this.compaction = null;
+            return true;
+        }
+
+        /**
+         * Get delay until start.
+         *
+         * @return delay in milliseconds
+         */
+        public long getDelay() {
+
+            // Sanity check
+            assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            Preconditions.checkState(this.future != null, "not scheduled");
+
+            // Get delay
+            return Math.max(0, this.future.getDelay(TimeUnit.MILLISECONDS));
+        }
+
+        /**
+         * Wait for this compaction to complete.
+         */
+        public void waitForCompletion() {
+
+            // Sanity check
+            assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            Preconditions.checkState(this.running, "not running");
+
+            // Wait for completion
+            boolean interrupted = false;
+            while (!this.completed) {
+                try {
+                    this.completedCondition.await();
+                } catch (InterruptedException e) {
+                    AtomicArrayKVStore.this.log.warn(
+                      "thread was interrupted while waiting for compaction to complete (ignoring)", e);
+                    interrupted = true;
+                }
+            }
+            if (interrupted)
+                Thread.currentThread().interrupt();
+        }
+
+        public Future<Void> getFuture() {
+            return this.future;
+        }
+
+        public boolean isRunning() {
+            assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            return this.running;
+        }
+        public void setRunning() {
+            assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            this.running = true;
+        }
+
+        public boolean isCompleted() {
+            assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            return this.completed;
+        }
+        public void setCompleted() {
+            assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            this.completed = true;
+            this.completedCondition.signalAll();
+        }
+
+        @Override
+        public void run() {
+            assert !AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
+            try {
+                AtomicArrayKVStore.this.compact(this);
+            } catch (Throwable t) {
+                AtomicArrayKVStore.this.log.error("error during compaction", t);
             }
         }
     }
