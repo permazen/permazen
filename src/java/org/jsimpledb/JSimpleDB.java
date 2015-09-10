@@ -36,6 +36,7 @@ import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
+import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.schema.NameIndex;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.schema.SchemaObjectType;
@@ -453,6 +454,20 @@ public class JSimpleDB {
         final JTransaction jtx = new JTransaction(this, tx, validationMode);
         tx.addCallback(new CleanupCurrentCallback(jtx));
         return jtx;
+    }
+
+    /**
+     * Create a new, empty {@link SnapshotJTransaction} backed by a {@link NavigableMapKVStore}.
+     *
+     * <p>
+     * The returned {@link SnapshotJTransaction} does not support {@link SnapshotJTransaction#commit commit()} or
+     * {@link SnapshotJTransaction#rollback rollback()}, and can be used indefinitely.
+     *
+     * @param validationMode the {@link ValidationMode} to use for the snapshot transaction
+     * @return initially empty snapshot transaction
+     */
+    public SnapshotJTransaction createSnapshotTransaction(ValidationMode validationMode) {
+        return this.createSnapshotTransaction(new NavigableMapKVStore(), true, validationMode);
     }
 
     /**
