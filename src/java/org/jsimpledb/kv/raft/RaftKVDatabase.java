@@ -41,6 +41,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.dellroad.stuff.java.TimedWait;
+import org.dellroad.stuff.net.Network;
+import org.dellroad.stuff.net.TCPNetwork;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransactionException;
@@ -60,8 +62,6 @@ import org.jsimpledb.kv.raft.msg.MessageSwitch;
 import org.jsimpledb.kv.raft.msg.PingRequest;
 import org.jsimpledb.kv.raft.msg.PingResponse;
 import org.jsimpledb.kv.raft.msg.RequestVote;
-import org.jsimpledb.kv.raft.net.Network;
-import org.jsimpledb.kv.raft.net.TCPNetwork;
 import org.jsimpledb.kv.util.KeyWatchTracker;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.LongEncoder;

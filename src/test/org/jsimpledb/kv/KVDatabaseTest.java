@@ -42,7 +42,7 @@ import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
-import org.jsimpledb.kv.raft.net.TestNetwork;
+import org.jsimpledb.kv.raft.TestNetwork;
 import org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore;
 import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;

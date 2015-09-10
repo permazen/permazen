@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import org.dellroad.stuff.main.MainClass;
+import org.dellroad.stuff.net.TCPNetwork;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleDBFactory;
 import org.jsimpledb.ValidationMode;
@@ -39,7 +40,6 @@ import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
 import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
-import org.jsimpledb.kv.raft.net.TCPNetwork;
 import org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore;
 import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
