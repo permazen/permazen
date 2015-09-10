@@ -92,7 +92,7 @@ public abstract class AbstractMain extends MainClass {
     protected File raftDirectory;
     protected String raftIdentity;
     protected String raftAddress;
-    protected int raftPort = TCPNetwork.DEFAULT_TCP_PORT;
+    protected int raftPort = RaftKVDatabase.DEFAULT_TCP_PORT;
     protected int raftMinElectionTimeout = -1;
     protected int raftMaxElectionTimeout = -1;
     protected int raftHeartbeatTimeout = -1;
@@ -600,7 +600,7 @@ public abstract class AbstractMain extends MainClass {
             { "--raft-identity",                "Raft identity" },
             { "--raft-address address",         "Specify local Raft node's IP address" },
             { "--raft-port",                    "Specify local Raft node's TCP port (default "
-                                                  + TCPNetwork.DEFAULT_TCP_PORT + ")" },
+                                                  + RaftKVDatabase.DEFAULT_TCP_PORT + ")" },
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--rocksdb directory",            "Use RocksDB in specified directory" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
@@ -853,7 +853,7 @@ public abstract class AbstractMain extends MainClass {
         public RaftKVDatabase createKVDatabase() {
 
             // Setup network
-            final TCPNetwork network = new TCPNetwork();
+            final TCPNetwork network = new TCPNetwork(RaftKVDatabase.DEFAULT_TCP_PORT);
             try {
                 network.setListenAddress(AbstractMain.this.raftAddress != null ?
                   new InetSocketAddress(InetAddress.getByName(AbstractMain.this.raftAddress), AbstractMain.this.raftPort) :

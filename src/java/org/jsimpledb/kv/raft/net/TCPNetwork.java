@@ -29,17 +29,10 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Remote peers have the {@link String} form <code>IP-Address[:port]</code>. If the port is omitted,
- * {@link #DEFAULT_TCP_PORT} is assumed.
+ * the default port provided to the constructor is assumed.
  * </p>
  */
 public class TCPNetwork extends SelectorSupport implements Network {
-
-    /**
-     * Default TCP port ({@value #DEFAULT_TCP_PORT}).
-     *
-     * @see #getListenAddress
-     */
-    public static final int DEFAULT_TCP_PORT = 9660;
 
     /**
      * Default maximum number of simultaneous connections ({@value #DEFAULT_MAX_CONNECTIONS}).
@@ -79,8 +72,9 @@ public class TCPNetwork extends SelectorSupport implements Network {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final HashMap<String, Connection> connectionMap = new HashMap<>();
+    private final int defaultPort;
 
-    private InetSocketAddress listenAddress = new InetSocketAddress(DEFAULT_TCP_PORT);
+    private InetSocketAddress listenAddress;
     private int maxConnections = DEFAULT_MAX_CONNECTIONS;
     private long maxIdleTime = DEFAULT_MAX_IDLE_TIME;
     private long connectTimeout = DEFAULT_CONNECT_TIMEOUT;
@@ -91,6 +85,20 @@ public class TCPNetwork extends SelectorSupport implements Network {
     private ServerSocketChannel serverSocketChannel;
     private SelectionKey selectionKey;
     private ExecutorService executor;
+
+// Constructors
+
+    /**
+     * Constructor.
+     *
+     * @param defaultPort default TCP port when no port is explicitly proviced
+     * @throws IllegalArgumentException if {@code port} is invalid
+     */
+    public TCPNetwork(int defaultPort) {
+        Preconditions.checkArgument(defaultPort > 0 && defaultPort < 65536, "invalid default port " + defaultPort);
+        this.defaultPort = defaultPort;
+        this.listenAddress = new InetSocketAddress(this.defaultPort);
+    }
 
 // Public API
 
@@ -112,10 +120,10 @@ public class TCPNetwork extends SelectorSupport implements Network {
      * </p>
      *
      * <p>
-     * By default, instances listen on all interfaces on {@link #DEFAULT_TCP_PORT}.
+     * By default, instances listen on all interfaces on the defaul port configured in the constructor.
      * </p>
      *
-     * @param address listen address, or null to listen on all interfaces on {@link #DEFAULT_TCP_PORT}
+     * @param address listen address, or null to listen on all interfaces on the default port provided to the constructor
      * @throws IllegalArgumentException if {@code address} is null
      */
     public synchronized void setListenAddress(InetSocketAddress address) {
@@ -378,7 +386,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
 
         // Create peer
         final InetSocketAddress remote = (InetSocketAddress)socketChannel.socket().getRemoteSocketAddress();
-        final String peer = remote.getHostString() + (remote.getPort() != DEFAULT_TCP_PORT ? ":" + remote.getPort() : "");
+        final String peer = remote.getHostString() + (remote.getPort() != this.defaultPort ? ":" + remote.getPort() : "");
 
         // Are we already connected to this peer? If so (deterministically) choose which connection wins
         Connection connection = this.connectionMap.get(peer);
@@ -493,7 +501,7 @@ public class TCPNetwork extends SelectorSupport implements Network {
         InetSocketAddress socketAddress = null;
         try {
             socketAddress = new InetSocketAddress(
-              TCPNetwork.parseAddressPart(peer), TCPNetwork.parsePortPart(peer, DEFAULT_TCP_PORT));
+              TCPNetwork.parseAddressPart(peer), TCPNetwork.parsePortPart(peer, this.defaultPort));
         } catch (IllegalArgumentException e) {
             if (this.log.isTraceEnabled())
                 this.log.trace(this + " peer address `" + peer + "' is invalid", e);

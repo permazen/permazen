@@ -276,6 +276,11 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public static final int DEFAULT_COMMIT_TIMEOUT = 5000;                              // 5 seconds
 
+    /**
+     * Default TCP port ({@value #DEFAULT_TCP_PORT}) used to communicate with peers.
+     */
+    public static final int DEFAULT_TCP_PORT = 9660;
+
     // Internal constants
     static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
     static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;
@@ -305,7 +310,7 @@ public class RaftKVDatabase implements KVDatabase {
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
     // Configuration state
-    Network network = new TCPNetwork();
+    Network network = new TCPNetwork(DEFAULT_TCP_PORT);
     String identity;
     int minElectionTimeout = DEFAULT_MIN_ELECTION_TIMEOUT;
     int maxElectionTimeout = DEFAULT_MAX_ELECTION_TIMEOUT;
@@ -385,7 +390,7 @@ public class RaftKVDatabase implements KVDatabase {
      * Configure the {@link Network} to use for inter-node communication.
      *
      * <p>
-     * By default, a {@link TCPNetwork} instance is used.
+     * By default, a {@link TCPNetwork} instance communicating on {@link #DEFAULT_TCP_PORT} is used.
      *
      * @param network network implementation; must not be {@linkplain Network#start started}
      * @throws IllegalStateException if this instance is already started

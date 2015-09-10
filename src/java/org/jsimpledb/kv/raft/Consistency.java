@@ -7,6 +7,9 @@ package org.jsimpledb.kv.raft;
 
 /**
  * {@link RaftKVTransaction} supported consistency levels.
+ *
+ * @see RaftKVTransaction#setConsistency RaftKVTransaction.setConsistency()
+ * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
  */
 public enum Consistency {
 
