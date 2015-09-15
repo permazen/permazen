@@ -27,7 +27,7 @@ import org.jsimpledb.kv.KVPair;
  * queried key. Key data is prefix-compressed.
  *
  * <p>
- * Key and value data must each not exceed 2GB.
+ * Key and value data must not exceed 2GB (each separately).
  */
 public class ArrayKVStore extends AbstractKVStore {
 

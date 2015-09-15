@@ -18,7 +18,7 @@ import org.jsimpledb.util.ByteUtil;
  * Writes {@link ArrayKVStore} index, key, and value data, given a sorted sequence of key/value pairs.
  *
  * <p>
- * Key and value data must not exceed 2GB.
+ * Key and value data must not exceed 2GB (each separately).
  */
 public class ArrayKVWriter implements Closeable {
 
