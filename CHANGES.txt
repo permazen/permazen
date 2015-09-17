@@ -1,5 +1,6 @@
 Version Next
 
+    - Added FallbackKVDatabase in raft pacakge
     - Added Spring KVStoreHttpMessageConverter
     - Added "hot copy" backup operation to AtomicArrayKVStore
     - Added ability to configure custom ValidatorFactory
