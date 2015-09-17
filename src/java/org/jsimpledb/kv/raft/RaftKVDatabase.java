@@ -1122,20 +1122,42 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Create a new transaction.
      *
+     * <p>
+     * Equivalent to: {@link #createTransaction(boolean) createTransaction}{@code (false)}.
+     *
      * @throws IllegalStateException if this instance is not {@linkplain #start started} or in the process of shutting down
      */
     @Override
-    public synchronized RaftKVTransaction createTransaction() {
+    public RaftKVTransaction createTransaction() {
+        return this.createTransaction(false);
+    }
+
+    /**
+     * Create a new transaction with configurable snapshot basis.
+     *
+     * <p>
+     * Local transactions may be based either on the the most recent <i>committed</i> Raft data or the most recent
+     * <i>uncommitted</i> Raft data.
+     * The latter is less likely to encounter a read/write conflict on commit when using {@link Consistency#LINEARIZABLE},
+     * except in cases of high write contention.
+     * The former requires no network communication to commit when using {@link Consistency#EVENTUAL} and is therefore useful
+     * in situations when the leader may be unreachable.
+     *
+     * @param committed whether to base the transaction on committed or uncommitted local state
+     * @return newly created transaction
+     * @throws IllegalStateException if this instance is not {@linkplain #start started} or in the process of shutting down
+     */
+    public synchronized RaftKVTransaction createTransaction(boolean committed) {
 
         // Sanity check
         assert this.checkState();
         Preconditions.checkState(this.role != null, "not started");
         Preconditions.checkState(!this.shuttingDown, "shutting down");
 
-        // Base transaction on the most recent log entry. This is itself a form of optimistic locking: we assume that the
-        // most recent log entry has a high probability of being committed (in the Raft sense), which is of course required
-        // in order to commit any transaction based on it.
-        final MostRecentView view = new MostRecentView(this, false);
+        // Base transaction on the most recent log entry (if !committed). This is itself a form of optimistic locking: we assume
+        // that the most recent log entry has a high probability of being committed (in the Raft sense), which is of course
+        // required in order to commit any transaction based on it.
+        final MostRecentView view = new MostRecentView(this, committed);
 
         // Create transaction
         final RaftKVTransaction tx = new RaftKVTransaction(this,

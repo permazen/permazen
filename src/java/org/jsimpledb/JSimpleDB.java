@@ -36,6 +36,7 @@ import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.core.UnknownFieldException;
 import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
@@ -453,8 +454,44 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code validationMode} is null
      */
     public JTransaction createTransaction(boolean allowNewSchema, ValidationMode validationMode) {
+        return this.createTransaction(
+          this.db.createTransaction(this.getSchemaModel(), this.configuredVersion, allowNewSchema), validationMode);
+    }
+
+    /**
+     * Create a new transaction using an already-opened {@link KVTransaction}.
+     *
+     * <p>
+     * This does not invoke {@link JTransaction#setCurrent JTransaction.setCurrent()}: the caller is responsible
+     * for doing that if necessary. However, this method does arrange for
+     * {@link JTransaction#setCurrent JTransaction.setCurrent}{@code (null)} to be invoked as soon as the
+     * returned transaction is committed (or rolled back), assuming {@link JTransaction#getCurrent} returns the
+     * {@link JTransaction} returned here at that time.
+     * </p>
+     *
+     * @param kvt already opened key/value store transaction
+     * @param allowNewSchema whether creating a new schema version is allowed
+     * @param validationMode the {@link ValidationMode} to use for the new transaction
+     * @return the newly created transaction
+     * @throws org.jsimpledb.core.InvalidSchemaException if {@code schemaModel} does not match what's recorded in the
+     *  database for the schema version provided to the constructor
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
+     *  is not recorded in the database and {@code allowNewSchema} is false
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema version provided to the constructor
+     *  is not recorded in the database and {@code allowNewSchema} is true, but {@code schemaModel} is incompatible
+     *  with one or more previous schemas alread recorded in the database (i.e., the same storage ID is used
+     *  incompatibly between schema versions)
+     * @throws org.jsimpledb.core.InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws IllegalArgumentException if {@code kvt} or {@code validationMode} is null
+     */
+    public JTransaction createTransaction(KVTransaction kvt, boolean allowNewSchema, ValidationMode validationMode) {
+        return this.createTransaction(
+          this.db.createTransaction(kvt, this.getSchemaModel(), this.configuredVersion, allowNewSchema), validationMode);
+    }
+
+    private JTransaction createTransaction(Transaction tx, ValidationMode validationMode) {
+        assert tx != null;
         Preconditions.checkArgument(validationMode != null, "null validationMode");
-        final Transaction tx = this.db.createTransaction(this.getSchemaModel(), this.configuredVersion, allowNewSchema);
         this.actualVersion = tx.getSchema().getVersionNumber();
         final JTransaction jtx = new JTransaction(this, tx, validationMode);
         tx.addCallback(new CleanupCurrentCallback(jtx));
