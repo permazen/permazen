@@ -9,7 +9,7 @@ reads. As long as as a node is part of a majority, the state machine
 is fully operational.
 
 Here's how to set up a Raft key/value store with JSimpleDB using
-LevelDB as the local persistent store.
+AtomicArrayKVStore as the local persistent store.
 
 Let A, B, C, ... represent the nodes in the cluster. In this example
 the identity of A is "nodeA" and the IP address of A is "A.A.A.A".
@@ -29,7 +29,7 @@ or by using the `--raft-port' flag.
             --raft-dir ~/.raftX                     # Raft persistent state dir
             --raft-identity nodeX                   # Raft node identity
             --raft-address X.X.X.X                  # Raft node IP address
-            --leveldb ~/.raftX/kvstore              # Raft's local persistent store
+            --arraydb ~/.raftX/kvstore              # Raft's local persistent store
 
     Enter the "raft-status" command into the CLI running on each machine.
     It should show that the Raft cluster is in the unconfigured state:
