@@ -2,7 +2,15 @@
 SHORT TERM
 ==========
 
+- CLI:
+    - New command to dynamically change mode (key/value, core API, or JSimpleDB)
+    - New CLI flags:
+        - `--console-port': accept console telnet connections on port
+        - `--background': disable console on stdin/stdout, daemonize
+
 - LevelDB & RocksDB: ensure removeRange() doesn't sync() on each k/v pair
+
+- New RocksDB transaction support
 
 - Does JTransaction.getAll(UntypedJObject.class) work? queryIndex() ?
 
@@ -41,13 +49,6 @@ SHORT TERM
     - Make more modular/pluggable
 
 - Should you be able to create snapshot tx's from snapshot tx's ?
-
-MEDIUM TERM
-===========
-
-- New CLI flags:
-    - `--console-port': accept console telnet connections on port
-    - `--background': disable console on stdin/stdout, daemonize
 
 LONG TERM
 =========
