@@ -6,26 +6,34 @@
 package org.jsimpledb.kv.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.AbstractIterator;
 
+import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
 
+import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.LongEncoder;
 import org.jsimpledb.util.UnsignedIntEncoder;
 
 /**
- * Serializes a sequence of {@code byte[]} arrays, compressing common prefixes.
+ * Serializes a sequence of {@code byte[]} arrays, compressing consecutive common prefixes.
  *
  * <p>
- * Keys are encoded in one of two forms:
+ * Keys are encoded/decode by {@link #read read()} and {@link #write write()} in one of two forms:
  *  <ul>
  *  <li>{@code total-length bytes...}
  *  <li>{@code -prefix-length suffix-length suffix-bytes ...}
  *  </ul>
  * The first length ({@code total-length} or negative {@code prefix-length}) is encoded using {@link LongEncoder}.
  * The {@code suffix-length}, if present, is encoded using {@link UnsignedIntEncoder}.
+ *
+ * <p>
+ * Support for encoding and decoding an entire iteration of key/value pairs is supported via
+ * {@link #readPairs readPairs()} and {@link #writePairs writePairs()}.
  */
 public final class KeyListEncoder {
 
@@ -127,6 +135,108 @@ public final class KeyListEncoder {
 
         // Done
         return key;
+    }
+
+    /**
+     * Encode an iteration of key/value pairs.
+     *
+     * @param kvpairs key/value pair iteration
+     * @param output encoded output
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static void writePairs(Iterator<KVPair> kvpairs, OutputStream output) throws IOException {
+
+        // Sanity check
+        Preconditions.checkArgument(kvpairs != null, "null kvpairs");
+        Preconditions.checkArgument(output != null, "null output");
+
+        // Write pairs
+        byte[] prev = null;
+        while (kvpairs.hasNext()) {
+            final KVPair kv = kvpairs.next();
+            final byte[] key = kv.getKey();
+            final byte[] value = kv.getValue();
+            KeyListEncoder.write(output, key, prev);
+            KeyListEncoder.write(output, value, null);
+            prev = key;
+        }
+
+        // Write special terminator byte
+        output.write(0xff);
+    }
+
+    /**
+     * Determine the number of bytes that would be written by {@link #writePairs writePairs()}.
+     *
+     * @param kvpairs key/value pair iteration
+     * @return encoded length of this instance
+     * @throws IllegalArgumentException if {@code kvpairs} is null
+     */
+    public static long writePairsLength(Iterator<KVPair> kvpairs) {
+        long total = 1;
+        byte[] prev = null;
+        while (kvpairs.hasNext()) {
+            final KVPair kv = kvpairs.next();
+            final byte[] key = kv.getKey();
+            final byte[] value = kv.getValue();
+            total += KeyListEncoder.writeLength(key, prev);
+            total += KeyListEncoder.writeLength(value, null);
+            prev = key;
+        }
+        return total;
+    }
+
+    /**
+     * Decode an iteration of key/value pairs previously encoded by {@link #writePairs writePairs()}.
+     *
+     * <p>
+     * If an {@link IOException} occurs during iteration, the returned {@link Iterator} wraps it in a {@link RuntimeException}.
+     *
+     * <p>
+     * If invalid input is encountered during iteration, the returned {@link Iterator}
+     * will throw an {@link IllegalArgumentException}.
+     *
+     * @param input encoded input
+     * @return iteration of key/value pairs
+     * @throws IllegalArgumentException if {@code input} is null
+     */
+    public static Iterator<KVPair> readPairs(final InputStream input) {
+
+        // Sanity check
+        Preconditions.checkArgument(input != null, "null input");
+
+        // Decode
+        return new AbstractIterator<KVPair>() {
+
+            private final BufferedInputStream in = new BufferedInputStream(input, 1024);
+            private byte[] prev;
+
+            @Override
+            protected KVPair computeNext() {
+                try {
+
+                    // Check for terminator
+                    this.in.mark(1);
+                    final int b = in.read();
+                    if (b == -1)
+                        throw new EOFException("truncated input");
+                    if (b == 0xff)
+                        return endOfData();
+                    this.in.reset();
+
+                    // Read next k/v pair
+                    final byte[] key = KeyListEncoder.read(this.in, this.prev);
+                    final byte[] value = KeyListEncoder.read(this.in, null);
+                    this.prev = key;
+
+                    // Done
+                    return new KVPair(key, value);
+                } catch (IOException e) {
+                    throw new RuntimeException("I/O error during iteration", e);
+                }
+            }
+        };
     }
 
     private static int readSignedInt(InputStream input) throws IOException {

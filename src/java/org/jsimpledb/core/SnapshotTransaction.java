@@ -45,6 +45,15 @@ public class SnapshotTransaction extends Transaction {
 // Methods
 
     /**
+     * Get the underlying {@link KVStore} that holds this snapshot transaction's state.
+     *
+     * @return underlying {@link KVStore}
+     */
+    public KVStore getKVStore() {
+        return ((SnapshotKVTransaction)this.kvt).delegate();
+    }
+
+    /**
      * Delete all objects contained in this snapshot transaction.
      *
      * <p>

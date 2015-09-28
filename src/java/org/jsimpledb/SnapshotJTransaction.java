@@ -6,7 +6,6 @@
 package org.jsimpledb;
 
 import org.jsimpledb.core.SnapshotTransaction;
-import org.jsimpledb.core.Transaction;
 
 /**
  * A "snapshot" {@link JTransaction} that persists indefinitely.
@@ -34,8 +33,18 @@ import org.jsimpledb.core.Transaction;
  */
 public class SnapshotJTransaction extends JTransaction {
 
-    SnapshotJTransaction(JSimpleDB jdb, Transaction tx, ValidationMode validationMode) {
+    SnapshotJTransaction(JSimpleDB jdb, SnapshotTransaction tx, ValidationMode validationMode) {
         super(jdb, tx, validationMode);
+    }
+
+    /**
+     * Get the {@link SnapshotTransaction} associated with this instance.
+     *
+     * @return the associated core API snapshot transaction
+     */
+    @Override
+    public SnapshotTransaction getTransaction() {
+        return (SnapshotTransaction)this.tx;
     }
 
     /**

@@ -8,7 +8,11 @@ package org.jsimpledb.spring;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
+import java.util.Iterator;
 
+import org.jsimpledb.kv.KVPair;
+import org.jsimpledb.kv.KVStore;
+import org.jsimpledb.kv.util.KeyListEncoder;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
@@ -18,45 +22,34 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 
 /**
  * Spring {@link org.springframework.http.converter.HttpMessageConverter HttpMessageConverter}
- * capable of encoding and decoding a {@link NavigableMapKVStore}.
+ * capable of encoding and decoding a {@link KVStore}. The {@link KeyListEncoder} class is used
+ * to compress common prefixes of consecutive keys.
  *
  * <p>
- * This class can be used for a general purpose, schema-aware HTTP based RPC mechanism as follows:
- * <ul>
- *  <li>Create an empty {@link NavigableMapKVStore} to hold the object data</li>
- *  <li>Create an empty in-memory {@link org.jsimpledb.SnapshotJTransaction} backed by the {@link NavigableMapKVStore}
- *      via {@link org.jsimpledb.JSimpleDB#createSnapshotTransaction JSimpleDB.createSnapshotTransaction()}</li>
- *  <li>Populate the {@link org.jsimpledb.SnapshotJTransaction} with the objects you wish to transmit</li>
- *  <li>Use this class to serialize/deserialize the {@link NavigableMapKVStore} for transit</li>
- *  <li>On the receving side, recreate the {@link org.jsimpledb.SnapshotJTransaction} using the deserialized
- *      {@link NavigableMapKVStore} and
- *      {@link org.jsimpledb.JSimpleDB#createSnapshotTransaction JSimpleDB.createSnapshotTransaction()}</li>
- *  <li>Query for object data in the {@link org.jsimpledb.SnapshotJTransaction} using the usual methods,
- *      benefiting from index query support, automatic schema updates, etc.</li>
- * </ul>
+ * See {@link JObjectHttpMessageConverter} for a higher level API.
+ *
+ * @see SnapshotJTransactionHttpMessageConverter
+ * @see JObjectHttpMessageConverter
  */
-public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<NavigableMapKVStore> {
+public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<KVStore> {
 
     /**
      * Default MIME type supported by this instance: {@code application/x-jsimpledb-kvstore}.
-     *
-     * <p>
-     * Can be overridden in the constructor.
      */
     public static final MediaType DEFAULT_MIME_TYPE = new MediaType("application", "x-jsimpledb-kvstore");
 
     /**
-     * Construtor.
+     * Constructor.
      *
      * <p>
      * Configures this instance for the {@link #DEFAULT_MIME_TYPE}.
      */
     public KVStoreHttpMessageConverter() {
-        this(DEFAULT_MIME_TYPE);
+        super(DEFAULT_MIME_TYPE);
     }
 
     /**
-     * Construtor.
+     * Constructor.
      *
      * @param mimeTypes supported MIME type(s)
      */
@@ -67,32 +60,79 @@ public class KVStoreHttpMessageConverter extends AbstractHttpMessageConverter<Na
 // AbstractHttpMessageConverter
 
     @Override
-    protected Long getContentLength(NavigableMapKVStore kvstore, MediaType contentType) {
-        Preconditions.checkArgument(kvstore != null, "null kvstore");
-        return kvstore.encodedLength();
+    protected Long getContentLength(KVStore kvstore, MediaType mediaType) {
+        return KVStoreHttpMessageConverter.getKVStoreContentLength(kvstore);
     }
 
     @Override
     protected boolean supports(Class<?> clazz) {
-        return clazz == NavigableMapKVStore.class;
+        return clazz == KVStore.class || clazz == NavigableMapKVStore.class;
     }
 
     @Override
-    protected NavigableMapKVStore readInternal(Class<? extends NavigableMapKVStore> clazz, HttpInputMessage inputMessage)
-      throws IOException {
-        final NavigableMapKVStore kvstore;
-        try {
-            kvstore = NavigableMapKVStore.decode(inputMessage.getBody());
-        } catch (IllegalArgumentException e) {
-            throw new HttpMessageNotReadableException("invalid encoding key/value store", e);
-        }
+    protected KVStore readInternal(Class<? extends KVStore> clazz, HttpInputMessage input) throws IOException {
+        final NavigableMapKVStore kvstore = new NavigableMapKVStore();
+        KVStoreHttpMessageConverter.readKVStore(kvstore, input);
         return clazz.cast(kvstore);
     }
 
     @Override
-    protected void writeInternal(NavigableMapKVStore kvstore, HttpOutputMessage outputMessage) throws IOException {
+    protected void writeInternal(KVStore kvstore, HttpOutputMessage output) throws IOException {
+        KVStoreHttpMessageConverter.writeKVStore(kvstore, output);
+    }
+
+// Utility methods
+
+    /**
+     * Determine the content length of the given key/value store when encoded as payload.
+     *
+     * @param kvstore key/value store to encode
+     * @return payload content length
+     * @throws IllegalArgumentException if {@code kvstore} is null
+     */
+    public static Long getKVStoreContentLength(KVStore kvstore) {
         Preconditions.checkArgument(kvstore != null, "null kvstore");
-        kvstore.encode(outputMessage.getBody());
+        return KeyListEncoder.writePairsLength(kvstore.getRange(null, null, false));
+    }
+
+    /**
+     * Decode a key/value store HTTP payload.
+     *
+     * @param kvstore key/value store to populate from input
+     * @param input HTTP payload input
+     * @throws HttpMessageNotReadableException if {@code input} contains invalid content
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static void readKVStore(KVStore kvstore, HttpInputMessage input) throws IOException {
+        Preconditions.checkArgument(kvstore != null, "null kvstore");
+        Preconditions.checkArgument(input != null, "null input");
+        try {
+            for (Iterator<KVPair> i = KeyListEncoder.readPairs(input.getBody()); i.hasNext(); ) {
+                final KVPair kv = i.next();
+                kvstore.put(kv.getKey(), kv.getValue());
+            }
+        } catch (IllegalArgumentException e) {
+            throw new HttpMessageNotReadableException("invalid endoded key/value store", e);
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException)
+                throw (IOException)e.getCause();
+            throw e;
+        }
+    }
+
+    /**
+     * Encode a key/value store HTTP payload.
+     *
+     * @param kvstore key/value store to encode
+     * @param output HTTP payload output
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static void writeKVStore(KVStore kvstore, HttpOutputMessage output) throws IOException {
+        Preconditions.checkArgument(kvstore != null, "null kvstore");
+        Preconditions.checkArgument(output != null, "null output");
+        KeyListEncoder.writePairs(kvstore.getRange(null, null, false), output.getBody());
     }
 }
 

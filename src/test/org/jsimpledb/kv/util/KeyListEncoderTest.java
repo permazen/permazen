@@ -7,16 +7,18 @@ package org.jsimpledb.kv.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
 
 import org.jsimpledb.TestSupport;
+import org.jsimpledb.kv.KVPair;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class NavigableMapKVStoreTest extends TestSupport {
+public class KeyListEncoderTest extends TestSupport {
 
     @Test
     private void testEncodeDecode() throws Exception {
-        for (int i = 0; i < 1000; i++) {
+        for (int count = 0; count < 1000; count++) {
 
             // Populate k/v store with random data
             final NavigableMapKVStore original = new NavigableMapKVStore();
@@ -26,12 +28,22 @@ public class NavigableMapKVStoreTest extends TestSupport {
                 original.put(key, val);
             }
 
-            // Encode then decode
+            // Encode
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            final long length = original.encodedLength();
-            original.encode(buf);
+            final long length = KeyListEncoder.writePairsLength(original.getRange(null, null, false));
+            KeyListEncoder.writePairs(original.getRange(null, null, false), buf);
+
+            // Check length
             Assert.assertEquals(buf.size(), length);
-            final NavigableMapKVStore copy = NavigableMapKVStore.decode(new ByteArrayInputStream(buf.toByteArray()));
+
+            // Decode
+            final NavigableMapKVStore copy = new NavigableMapKVStore();
+            for (Iterator<KVPair> i = KeyListEncoder.readPairs(new ByteArrayInputStream(buf.toByteArray())); i.hasNext(); ) {
+                final KVPair kv = i.next();
+                copy.put(kv.getKey(), kv.getValue());
+            }
+
+            // Check same result
             Assert.assertEquals(copy.getNavigableMap(), original.getNavigableMap());
         }
     }
