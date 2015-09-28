@@ -111,7 +111,8 @@ public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessag
         KVStoreHttpMessageConverter.readKVStore(kvstore, input);
 
         // Create snapshot transaction
-        final SnapshotJTransaction jtx = jdb.createSnapshotTransaction(kvstore, true, ValidationMode.MANUAL);
+        final SnapshotJTransaction jtx = jdb.createSnapshotTransaction(kvstore, true,
+          validationGroups != null ? ValidationMode.MANUAL : ValidationMode.DISABLED);
 
         // Optionally validate
         if (validationGroups != null) {
