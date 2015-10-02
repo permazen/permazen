@@ -108,11 +108,6 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
     private static final int MIN_MMAP_LENGTH = 1024 * 1024;
 
-    // Flags used by compact() merge
-    private static final int MERGE_KV = 0x01;
-    private static final int MERGE_PUT = 0x02;
-    private static final int MERGE_ADJUST = 0x04;
-
     private static final String GENERATION_FILE_NAME = "gen";
     private static final String LOCK_FILE_NAME = "lockfile";
     private static final String INDX_FILE_NAME_BASE = "indx.";
@@ -1058,94 +1053,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                   final FileOutputStream valsOutput = new FileOutputStream(newValsFile);
                   final ArrayKVWriter arrayWriter = new ArrayKVWriter(indxOutput, keysOutput, valsOutput)) {
 
-                    // Initialize iterators
-                    final Iterator<KVPair> kvIterator = this.kvstore.getRange(null, null, false);
-                    final Iterator<KeyRange> removeIterator = writesToCompact.getRemoves().iterator();
-                    final Iterator<Map.Entry<byte[], byte[]>> putIterator = writesToCompact.getPuts().entrySet().iterator();
-                    final Iterator<Map.Entry<byte[], Long>> adjustIterator = writesToCompact.getAdjusts().entrySet().iterator();
-
-                    // Merge iterators and write the merged result to the ArrayKVWriter
-                    KVPair kv = kvIterator.hasNext() ? kvIterator.next() : null;
-                    KeyRange remove = removeIterator.hasNext() ? removeIterator.next() : null;
-                    Map.Entry<byte[], byte[]> put = putIterator.hasNext() ? putIterator.next() : null;
-                    Map.Entry<byte[], Long> adjust = adjustIterator.hasNext() ? adjustIterator.next() : null;
-                    while (true) {
-
-                        // Find the minimum key among remaining (a) key/value pairs, (b) puts, and (c) adjusts
-                        byte[] key = null;
-                        if (kv != null)
-                            key = kv.getKey();
-                        if (put != null && (key == null || ByteUtil.compare(put.getKey(), key) < 0))
-                            key = put.getKey();
-                        if (adjust != null && (key == null || ByteUtil.compare(adjust.getKey(), key) < 0))
-                            key = adjust.getKey();
-                        if (key == null)                                                        // we're done
-                            break;
-
-                        // Determine which inputs apply to the current key
-                        int inputs = 0;
-                        if (kv != null && Arrays.equals(kv.getKey(), key))
-                            inputs |= MERGE_KV;
-                        if (put != null && Arrays.equals(put.getKey(), key))
-                            inputs |= MERGE_PUT;
-                        if (adjust != null && Arrays.equals(adjust.getKey(), key))
-                            inputs |= MERGE_ADJUST;
-
-                        // Find the removal that applies to this next key, if any
-                        while (remove != null) {
-                            final byte[] removeMax = remove.getMax();
-                            if (removeMax != null && ByteUtil.compare(removeMax, key) <= 0) {
-                                remove = removeIterator.hasNext() ? removeIterator.next() : null;
-                                continue;
-                            }
-                            break;
-                        }
-                        final boolean removed = remove != null && ByteUtil.compare(remove.getMin(), key) <= 0;
-
-                        // Merge the applicable inputs
-                        switch (inputs) {
-                        case 0:                                                     // k/v store entry was removed
-                            break;
-                        case MERGE_KV:
-                            if (!removed)
-                                arrayWriter.writeKV(kv.getKey(), kv.getValue());
-                            break;
-                        case MERGE_PUT:
-                        case MERGE_PUT | MERGE_KV:
-                            arrayWriter.writeKV(put.getKey(), put.getValue());
-                            break;
-                        case MERGE_ADJUST:                                          // adjusted a non-existent value; ignore
-                            break;
-                        case MERGE_ADJUST | MERGE_KV:
-                            if (removed)                                            // adjusted a removed value; ignore
-                                break;
-                            // FALLTHROUGH
-                        case MERGE_ADJUST | MERGE_PUT:
-                        case MERGE_ADJUST | MERGE_PUT | MERGE_KV:
-                        {
-                            final byte[] encodedCount = (inputs & MERGE_PUT) != 0 ? put.getValue() : kv.getValue();
-                            final long counter;
-                            try {
-                                counter = this.kvstore.decodeCounter(encodedCount);
-                            } catch (IllegalArgumentException e) {
-                                break;
-                            }
-                            final byte[] value = this.kvstore.encodeCounter(counter + adjust.getValue());
-                            arrayWriter.writeKV(key, value);
-                            break;
-                        }
-                        default:
-                            throw new RuntimeException();
-                        }
-
-                        // Advance k/v, put, and/or adjust
-                        if ((inputs & MERGE_KV) != 0)
-                            kv = kvIterator.hasNext() ? kvIterator.next() : null;
-                        if ((inputs & MERGE_PUT) != 0)
-                            put = putIterator.hasNext() ? putIterator.next() : null;
-                        if ((inputs & MERGE_ADJUST) != 0)
-                            adjust = adjustIterator.hasNext() ? adjustIterator.next() : null;
-                    }
+                    // Write out merged key/value pairs
+                    arrayWriter.writeMerged(this.kvstore, this.kvstore.getRange(null, null, false), writesToCompact);
 
                     // Sync file data
                     arrayWriter.flush();
