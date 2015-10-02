@@ -140,9 +140,13 @@ public interface JObject {
     boolean upgrade();
 
     /**
-     * Copy this instance, and other instances it references, into a (possibly) different {@link JTransaction}.
-     * This is a more general method; see {@link #copyIn copyIn()} and {@link #copyOut copyOut()} for more common
-     * and specific use cases.
+     * Copy this instance, and other instances it references through the specified {@code refPaths} (if any), into a (possibly)
+     * different {@link JTransaction}. This is a more general method; see {@link #copyIn copyIn()} and {@link #copyOut copyOut()}
+     * for more common and specific use cases.
+     *
+     * <p>
+     * The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
+     * always copy at least this instance, and possibly others if {@code refPaths} is non-empty.
      *
      * <p>
      * This method will copy this object's fields into the object with ID {@code target} (or this instance's object ID if
@@ -204,7 +208,11 @@ public interface JObject {
     JObject copyTo(JTransaction dest, ObjId target, CopyState copyState, String... refPaths);
 
     /**
-     * Snapshot this instance and other instances it references.
+     * Snapshot this instance and other instances it references through the specified {@code refPaths} (if any).
+     *
+     * <p>
+     * The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
+     * always copy at least this instance, and possibly others if {@code refPaths} is non-empty.
      *
      * <p>
      * This method will copy this object and all of its fields, along with all other objects reachable through
@@ -238,7 +246,12 @@ public interface JObject {
     JObject copyOut(String... refPaths);
 
     /**
-     * Copy this instance and other instances it references into the transaction associated with the current thread.
+     * Copy this instance, and other instances it references through the specified {@code refPaths} (if any),
+     * into the transaction associated with the current thread.
+     *
+     * <p>
+     * The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
+     * always copy at least this instance, and possibly others if {@code refPaths} is non-empty.
      *
      * <p>
      * This method will copy this object and all of its fields, along with all other objects reachable through any of the
@@ -251,8 +264,8 @@ public interface JObject {
      *
      * <p>
      * Normally this method would only be invoked on a snapshot {@link JObject}.
+     * If this instance is a regular database {@link JObject}, then it is immediately returned unchanged.
      * The returned object will always be a regular database {@link JObject}.
-     * </p>
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:

@@ -54,14 +54,28 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
     /**
      * Constructor.
      *
+     * @param mediaTypes custom {@link MediaType}s supported by overriding subclasses
+     * @param jdb {@link JSimpleDB} instance
+     * @throws IllegalArgumentException if {@code jdb} is null
+     */
+    public JObjectHttpMessageConverter(JSimpleDB jdb, MediaType... mediaTypes) {
+        super(mediaTypes);
+        Preconditions.checkArgument(jdb != null, "null jdb");
+        this.jdb = jdb;
+    }
+
+    /**
+     * Constructor.
+     *
      * <p>
-     * Configures this instance for the {@link #DEFAULT_MIME_TYPE}.
+     * Configures this instance for the MIME types {@code application/x-jsimpledb-foo}, {@code application/x-jsimpledb-bar}, etc.
+     * where {@code foo}, {@code bar}, etc. are {@code jdb}'s object type names.
      *
      * @param jdb {@link JSimpleDB} instance
+     * @throws IllegalArgumentException if {@code jdb} is null
      */
     public JObjectHttpMessageConverter(JSimpleDB jdb) {
-        super(JObjectHttpMessageConverter.generateMediaTypes(jdb));
-        this.jdb = jdb;
+        this(jdb, JObjectHttpMessageConverter.generateMediaTypes(jdb));
     }
 
     /**
