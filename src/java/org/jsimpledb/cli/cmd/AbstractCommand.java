@@ -7,10 +7,12 @@ package org.jsimpledb.cli.cmd;
 
 import com.google.common.base.Preconditions;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.cli.ParamParser;
 import org.jsimpledb.parse.FieldTypeParser;
@@ -75,7 +77,7 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * Get command usage string.
      *
      * <p>
-     * The implementation in {@link Command} delegates to {@link ParamParser#getUsage ParamParser.getUsage()}.
+     * The implementation in {@link AbstractCommand} delegates to {@link ParamParser#getUsage ParamParser.getUsage()}.
      * </p>
      *
      * @return command usage string
@@ -95,13 +97,33 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * Get expanded help (typically multiple lines).
      *
      * <p>
-     * The implementation in {@link Command} delegates to {@link #getHelpSummary getHelpSummary()}.
+     * The implementation in {@link AbstractCommand} delegates to {@link #getHelpSummary getHelpSummary()}.
      * </p>
      *
      * @return detailed command description
      */
     public String getHelpDetail() {
         return this.getHelpSummary();
+    }
+
+    /**
+     * Get the {@link SessionMode}(s) supported by this instance.
+     *
+     * <p>
+     * The implementation in {@link AbstractCommand} introspects the {@link Command &#64;Command} annotation on
+     * this instance's class; if not present, an exception is thrown.
+     * </p>
+     *
+     * @return set of supported {@link SessionMode}s
+     */
+    public EnumSet<SessionMode> getSessionModes() {
+        final Command annotation = this.getClass().getAnnotation(Command.class);
+        if (annotation == null)
+            throw new UnsupportedOperationException("no @Command annotation found on " + this.getClass());
+        final EnumSet<SessionMode> set = EnumSet.noneOf(SessionMode.class);
+        for (SessionMode sessionMode : annotation.modes())
+            set.add(sessionMode);
+        return set;
     }
 
     /**

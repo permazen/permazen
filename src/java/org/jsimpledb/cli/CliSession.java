@@ -9,14 +9,12 @@ import com.google.common.base.Preconditions;
 
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
 import org.jsimpledb.cli.cmd.AbstractCommand;
-import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.cli.cmd.CompareSchemasCommand;
 import org.jsimpledb.cli.cmd.DeleteSchemaVersionCommand;
 import org.jsimpledb.cli.cmd.EvalCommand;
@@ -38,6 +36,7 @@ import org.jsimpledb.cli.cmd.RaftStepDownCommand;
 import org.jsimpledb.cli.cmd.SaveCommand;
 import org.jsimpledb.cli.cmd.SetAllowNewSchemaCommand;
 import org.jsimpledb.cli.cmd.SetSchemaVersionCommand;
+import org.jsimpledb.cli.cmd.SetSessionModeCommand;
 import org.jsimpledb.cli.cmd.SetValidationModeCommand;
 import org.jsimpledb.cli.cmd.ShowAllSchemasCommand;
 import org.jsimpledb.cli.cmd.ShowSchemaCommand;
@@ -184,15 +183,13 @@ public class CliSession extends ParseSession {
             SaveCommand.class,
             SetAllowNewSchemaCommand.class,
             SetSchemaVersionCommand.class,
+            SetSessionModeCommand.class,
             SetValidationModeCommand.class,
             ShowAllSchemasCommand.class,
             ShowSchemaCommand.class,
         };
-        for (Class<?> cl : commandClasses) {
-            final Command annotation = cl.getAnnotation(Command.class);
-            if (annotation != null && Arrays.asList(annotation.modes()).contains(this.getMode()))
-                this.registerCommand(cl);
-        }
+        for (Class<?> cl : commandClasses)
+            this.registerCommand(cl);
     }
 
     /**
@@ -209,6 +206,11 @@ public class CliSession extends ParseSession {
         if (!AbstractCommand.class.isAssignableFrom(cl))
             throw new IllegalArgumentException(cl + " does not subclass " + AbstractCommand.class.getName());
         final AbstractCommand command = this.instantiate(cl.asSubclass(AbstractCommand.class));
+        try {
+            command.getSessionModes();
+        } catch (UnsupportedOperationException e) {
+            throw new IllegalArgumentException(cl + " does not know it's supported session modes", e);
+        }
         this.commands.put(command.getName(), command);
     }
 

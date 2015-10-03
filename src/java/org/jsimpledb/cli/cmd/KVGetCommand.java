@@ -21,7 +21,7 @@ import org.jsimpledb.util.ByteUtil;
 public class KVGetCommand extends AbstractKVCommand {
 
     public KVGetCommand() {
-        super("kvget -s:cstrings -range:range key:bytes maxKey:bytes? limit:int?");
+        super("kvget -n:novals -s:cstrings -range:range key:bytes maxKey:bytes? limit:int?");
     }
 
     @Override
@@ -31,18 +31,20 @@ public class KVGetCommand extends AbstractKVCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Retrieves a single raw database key/value pair, or a range of key/value pairs, to the console. If `-range' is"
+        return "Retrieves a single raw database key/value pair, or a range of key/value pairs, to the console.\nIf `-range' is"
           + " not given, a single key/value pair is retrieved. Otherwise, `key' is the minimum key (inclusive) and `maxKey'"
           + " is the maximum key (exclusive) if given, otherwise there is no maximum key. `key' and `maxKey' may be given"
-          + " as hexadecimal strings or C-style doubly-quoted strings. The `limit' parameter limits the total number of"
-          + " key/value pairs displayed. By default, keys and values are displayed in hexadecimal with an ASCII decoding."
-          + " Use the `-s' flag to display keys and values directly as C-style doubly-quoted strings.";
+          + " as hexadecimal strings or C-style doubly-quoted strings.\nThe `limit' parameter limits the total number of"
+          + " key/value pairs displayed.\nBy default, keys and values are displayed in hexadecimal with an ASCII decoding;"
+          + " use the `-s' flag to display keys and values directly as C-style doubly-quoted strings.\nThe `-n' flag causes"
+          + " only keys (not values) to be displayed.";
     }
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean cstrings = params.containsKey("cstrings");
         final boolean range = params.containsKey("range");
+        final boolean novals = params.containsKey("novals");
         final byte[] key = (byte[])params.get("key");
         final byte[] maxKey = (byte[])params.get("maxKey");
         final Integer limit = (Integer)params.get("limit");
@@ -69,10 +71,12 @@ public class KVGetCommand extends AbstractKVCommand {
                         break;
                     if (cstrings) {
                         writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));
-                        writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));
+                        if (!novals)
+                            writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));
                     } else {
                         KVGetCommand.this.decode(writer, "K ", pair.getKey());
-                        KVGetCommand.this.decode(writer, "V ", pair.getValue());
+                        if (!novals)
+                            KVGetCommand.this.decode(writer, "V ", pair.getValue());
                     }
                     count++;
                 }

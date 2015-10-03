@@ -22,7 +22,7 @@ public class HelpCommand extends AbstractCommand {
     private final CliSession session;
 
     public HelpCommand(CliSession session) {
-        super("help command-or-function:cmdfunc?");
+        super("help -a:all command-or-function:cmdfunc?");
         this.session = session;
     }
 
@@ -33,7 +33,8 @@ public class HelpCommand extends AbstractCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Displays the list of known commands and functions, or help information about a specific command or function.";
+        return "Displays the list of known commands and functions, or help information about a specific command or function."
+          + "\nNormally only those appropriate for the current session mode are listed; use `-a' to show all.";
     }
 
     @Override
@@ -54,28 +55,38 @@ public class HelpCommand extends AbstractCommand {
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+        final boolean all = params.containsKey("all");
         final String name = (String)params.get("command-or-function");
+        final SessionMode sessionMode = session.getMode();
         return new CliSession.Action() {
             @Override
             public void run(CliSession session) throws Exception {
                 final PrintWriter writer = session.getWriter();
                 if (name == null) {
-                    writer.println("Available commands:");
-                    for (AbstractCommand availableCommand : session.getCommands().values())
-                        writer.println(String.format("%24s - %s", availableCommand.getName(), availableCommand.getHelpSummary()));
-                    writer.println("Available functions:");
-                    for (AbstractFunction availableFunction : session.getFunctions().values())
-                        writer.println(String.format("%24s - %s", availableFunction.getName(), availableFunction.getHelpSummary()));
+                    writer.println((all ? "All" : "Available") + " commands:");
+                    for (AbstractCommand command : session.getCommands().values()) {
+                        if (all || command.getSessionModes().contains(sessionMode))
+                            writer.println(String.format("%24s - %s", command.getName(), command.getHelpSummary()));
+                    }
+                    writer.println((all ? "All" : "Available") + " functions:");
+                    for (AbstractFunction function : session.getFunctions().values()) {
+                        if (all || function.getSessionModes().contains(sessionMode))
+                            writer.println(String.format("%24s - %s", function.getName(), function.getHelpSummary()));
+                    }
                 } else {
                     final AbstractCommand command = session.getCommands().get(name);
                     if (command != null) {
                         writer.println("Usage: " + command.getUsage());
                         writer.println(command.getHelpDetail());
+                        writer.println("Supported session modes: "
+                          + command.getSessionModes().toString().replaceAll("\\[(.*)\\]", "$1"));
                     }
                     final AbstractFunction function = session.getFunctions().get(name);
                     if (function != null) {
                         writer.println("Usage: " + function.getUsage());
                         writer.println(function.getHelpDetail());
+                        writer.println("Supported session modes: "
+                          + function.getSessionModes().toString().replaceAll("\\[(.*)\\]", "$1"));
                     }
                     if (command == null && function == null)
                         writer.println("No command or function named `" + name + "' exists.");

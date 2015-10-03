@@ -8,7 +8,9 @@ package org.jsimpledb.parse.func;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 
+import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
@@ -78,6 +80,26 @@ public abstract class AbstractFunction {
      */
     public String getHelpDetail() {
         return this.getHelpSummary();
+    }
+
+    /**
+     * Get the {@link SessionMode}(s) supported by this instance.
+     *
+     * <p>
+     * The implementation in {@link AbstractFunction} introspects the {@link Function &#64;Function} annotation on
+     * this instance's class; if not present, an exception is thrown.
+     * </p>
+     *
+     * @return set of supported {@link SessionMode}s
+     */
+    public EnumSet<SessionMode> getSessionModes() {
+        final Function annotation = this.getClass().getAnnotation(Function.class);
+        if (annotation == null)
+            throw new UnsupportedOperationException("no @Function annotation found on " + this.getClass());
+        final EnumSet<SessionMode> set = EnumSet.noneOf(SessionMode.class);
+        for (SessionMode sessionMode : annotation.modes())
+            set.add(sessionMode);
+        return set;
     }
 
 // Parsing

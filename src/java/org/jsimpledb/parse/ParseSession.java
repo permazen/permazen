@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedMap;
@@ -27,7 +26,6 @@ import org.jsimpledb.parse.func.CountFunction;
 import org.jsimpledb.parse.func.CreateFunction;
 import org.jsimpledb.parse.func.FilterFunction;
 import org.jsimpledb.parse.func.ForEachFunction;
-import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.parse.func.InvertFunction;
 import org.jsimpledb.parse.func.LimitFunction;
 import org.jsimpledb.parse.func.ListFunction;
@@ -144,11 +142,8 @@ public class ParseSession extends Session {
             UpgradeFunction.class,
             VersionFunction.class,
         };
-        for (Class<?> cl : functionClasses) {
-            final Function annotation = cl.getAnnotation(Function.class);
-            if (annotation != null && Arrays.asList(annotation.modes()).contains(this.getMode()))
-                this.registerFunction(cl);
-        }
+        for (Class<?> cl : functionClasses)
+            this.registerFunction(cl);
     }
 
     /**
@@ -165,6 +160,11 @@ public class ParseSession extends Session {
         if (!AbstractFunction.class.isAssignableFrom(cl))
             throw new IllegalArgumentException(cl + " does not subclass " + AbstractFunction.class.getName());
         final AbstractFunction function = this.instantiate(cl.asSubclass(AbstractFunction.class));
+        try {
+            function.getSessionModes();
+        } catch (UnsupportedOperationException e) {
+            throw new IllegalArgumentException(cl + " does not know it's supported session modes", e);
+        }
         this.functions.put(function.getName(), function);
     }
 

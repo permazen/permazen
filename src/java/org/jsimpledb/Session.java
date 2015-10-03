@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * This class is not thread safe.
+ * Instances are <b>not</b> thread safe.
  * </p>
  *
  * @see SessionMode
@@ -37,8 +37,8 @@ public class Session {
     private final KVDatabase kvdb;
     private final JSimpleDB jdb;
     private final Database db;
-    private SessionMode mode;
 
+    private SessionMode mode;
     private SchemaModel schemaModel;
     private ValidationMode validationMode;
     private NameIndex nameIndex;
@@ -106,6 +106,17 @@ public class Session {
      */
     public SessionMode getMode() {
         return this.mode;
+    }
+
+    /**
+     * Change this instance's {@link SessionMode}.
+     *
+     * @param mode new {@link SessionMode}
+     * @throws IllegalArgumentException if {@code mode} is null
+     */
+    public void setMode(SessionMode mode) {
+        Preconditions.checkNotNull(mode, "null mode");
+        this.mode = mode;
     }
 
     /**
@@ -447,9 +458,10 @@ public class Session {
 
     @SuppressWarnings("fallthrough")
     private boolean closeTransaction(boolean commit) {
+        final SessionMode currentMode = this.mode;
         try {
             Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");
-            switch (this.mode) {
+            switch (currentMode) {
             case JSIMPLEDB:
                 if (commit && !this.tx.isRollbackOnly())
                     JTransaction.getCurrent().commit();
@@ -477,7 +489,7 @@ public class Session {
             this.reportException(e);
             return false;
         } finally {
-            switch (this.mode) {
+            switch (currentMode) {
             case JSIMPLEDB:
                 JTransaction.setCurrent(null);
                 // FALLTHROUGH
