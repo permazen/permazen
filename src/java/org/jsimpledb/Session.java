@@ -113,9 +113,23 @@ public class Session {
      *
      * @param mode new {@link SessionMode}
      * @throws IllegalArgumentException if {@code mode} is null
+     * @throws IllegalArgumentException if {@code mode} requires a {@link JSimpleDB} (i.e., {@link SessionMode#JSIMPLEDB}),
+     *  or {@link Database} (i.e., {@link SessionMode#CORE_API}) instance, but none was provided at construction
      */
     public void setMode(SessionMode mode) {
         Preconditions.checkNotNull(mode, "null mode");
+        switch (mode) {
+        case KEY_VALUE:
+            break;
+        case CORE_API:
+            Preconditions.checkNotNull(this.db, "session is not configured with a Core API Database instance");
+            break;
+        case JSIMPLEDB:
+            Preconditions.checkNotNull(this.jdb, "session is not configured with a JSimpleDB instance");
+            break;
+        default:
+            throw new IllegalArgumentException("internal error");
+        }
         this.mode = mode;
     }
 
