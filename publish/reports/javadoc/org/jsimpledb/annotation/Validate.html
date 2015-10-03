@@ -60,11 +60,11 @@
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Required&nbsp;|&nbsp;</li>
-<li>Optional</li>
+<li><a href="#annotation_type_optional_element_summary">Optional</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Element</li>
+<li><a href="#annotation_type_element_detail">Element</a></li>
 </ul>
 </div>
 <a name="skip-navbar_top">
@@ -82,28 +82,88 @@
 <li class="blockList">
 <hr>
 <br>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true" title="class or interface in java.lang.annotation">@Retention</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/RetentionPolicy.html?is-external=true#RUNTIME" title="class or interface in java.lang.annotation">RUNTIME</a>)
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Documented.html?is-external=true" title="class or interface in java.lang.annotation">@Documented</a>
+<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Inherited.html?is-external=true" title="class or interface in java.lang.annotation">@Inherited</a>
+<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true" title="class or interface in java.lang.annotation">@Retention</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/RetentionPolicy.html?is-external=true#RUNTIME" title="class or interface in java.lang.annotation">RUNTIME</a>)
 <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Target.html?is-external=true" title="class or interface in java.lang.annotation">@Target</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Target.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/ElementType.html?is-external=true#METHOD" title="class or interface in java.lang.annotation">METHOD</a>)
-<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Documented.html?is-external=true" title="class or interface in java.lang.annotation">@Documented</a>
-public @interface <a href="../../../src-html/org/jsimpledb/annotation/Validate.html#line.38">Validate</a></pre>
+public @interface <a href="../../../src-html/org/jsimpledb/annotation/Validate.html#line.43">Validate</a></pre>
 <div class="block">Annotates a JSimpleDB model class method that should be invoked any time the associated model object is validated.
 
  <p>
  This annotation does not change when an object will be enqueued for validation. It only affects the behavior once validation
  of an instance is actually performed.
- </p>
 
  <p>
  When validating an object, validation via <a href="../../../org/jsimpledb/annotation/Validate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;Validate</code></a> methods occurs after JSR 303 validation, if any.
- </p>
+
+ <p>
+ An optional list of validation <a href="../../../org/jsimpledb/annotation/Validate.html#groups()"><code>groups()</code></a> may be specified; if so, the annotated method will only be invoked when
+ one or more of specified validation groups (or a superclass thereof) is being validated. In particular, if <a href="../../../org/jsimpledb/annotation/Validate.html#groups()"><code>groups()</code></a>
+ is non-empty and does not contain a class that extends <a href="https://docs.oracle.com/javaee/7/api/javax/validation/groups/Default.html?is-external=true" title="class or interface in javax.validation.groups"><code>Default</code></a>, then the method will
+ not be invoked by automatic validation.
 
  <p>
  The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
- If validation fails, the method should throw a <a href="../../../org/jsimpledb/ValidationException.html" title="class in org.jsimpledb"><code>ValidationException</code></a>.
- </p></div>
+ If validation fails, the method should throw a <a href="../../../org/jsimpledb/ValidationException.html" title="class in org.jsimpledb"><code>ValidationException</code></a>.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a>, 
-<a href="../../../org/jsimpledb/JObject.html#revalidate()"><code>JObject.revalidate()</code></a>, 
+<a href="../../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a>, 
 <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb"><code>ValidationMode</code></a></dd></dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== ANNOTATION TYPE OPTIONAL MEMBER SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="annotation_type_optional_element_summary">
+<!--   -->
+</a>
+<h3>Optional Element Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Optional Element Summary table, listing optional elements, and an explanation">
+<caption><span>Optional Elements</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Optional Element and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/annotation/Validate.html#groups()">groups</a></strong></code>
+<div class="block">Specify the validation group(s) for which the annotated method should be invoked.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ ANNOTATION TYPE MEMBER DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="annotation_type_element_detail">
+<!--   -->
+</a>
+<h3>Element Detail</h3>
+<a name="groups()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>groups</h4>
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;[]&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/Validate.html#line.50">groups</a></pre>
+<div class="block">Specify the validation group(s) for which the annotated method should be invoked.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>validation group(s) to use for validation; if empty, <a href="https://docs.oracle.com/javaee/7/api/javax/validation/groups/Default.html?is-external=true" title="class or interface in javax.validation.groups"><code>Default</code></a> is assumed</dd></dl>
+<dl>
+<dt>Default:</dt>
+<dd>{}</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 </li>
 </ul>
 </div>
@@ -154,11 +214,11 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/Validate.h
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Required&nbsp;|&nbsp;</li>
-<li>Optional</li>
+<li><a href="#annotation_type_optional_element_summary">Optional</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Element</li>
+<li><a href="#annotation_type_element_detail">Element</a></li>
 </ul>
 </div>
 <a name="skip-navbar_bottom">

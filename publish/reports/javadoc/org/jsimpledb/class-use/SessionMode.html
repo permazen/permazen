@@ -79,6 +79,18 @@
 <div class="block">Abstraction layer allowing access to a <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> using normal Java objects.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.cli.cmd">org.jsimpledb.cli.cmd</a></td>
+<td class="colLast">
+<div class="block">JSimpleDB CLI <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.parse.func">org.jsimpledb.parse.func</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>Function</code></a> used in a <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a>, including built-ins.</div>
+</td>
+</tr>
 </tbody>
 </table>
 </li>
@@ -112,6 +124,61 @@
 <td class="colLast"><span class="strong">SessionMode.</span><code><strong><a href="../../../org/jsimpledb/SessionMode.html#values()">values</a></strong>()</code>
 <div class="block">Returns an array containing the constants of this enum type, in
 the order they are declared.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../org/jsimpledb/package-summary.html">org.jsimpledb</a> with parameters of type <a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">Session.</span><code><strong><a href="../../../org/jsimpledb/Session.html#setMode(org.jsimpledb.SessionMode)">setMode</a></strong>(<a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&nbsp;mode)</code>
+<div class="block">Change this instance's <a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.cli.cmd">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a> in <a href="../../../org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a> that return types with arguments of type <a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;</code></td>
+<td class="colLast"><span class="strong">AbstractCommand.</span><code><strong><a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getSessionModes()">getSessionModes</a></strong>()</code>
+<div class="block">Get the <a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.parse.func">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a> in <a href="../../../org/jsimpledb/parse/func/package-summary.html">org.jsimpledb.parse.func</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../org/jsimpledb/parse/func/package-summary.html">org.jsimpledb.parse.func</a> that return types with arguments of type <a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;</code></td>
+<td class="colLast"><span class="strong">AbstractFunction.</span><code><strong><a href="../../../org/jsimpledb/parse/func/AbstractFunction.html#getSessionModes()">getSessionModes</a></strong>()</code>
+<div class="block">Get the <a href="../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.</div>
 </td>
 </tr>
 </tbody>

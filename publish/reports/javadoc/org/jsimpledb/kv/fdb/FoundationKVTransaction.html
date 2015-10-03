@@ -179,9 +179,9 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Transaction.html?is-external=true" title="class or interface in com.foundationdb">Transaction</a></code></td>
+<td class="colFirst"><code>com.foundationdb.Transaction</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html#getTransaction()">getTransaction</a></strong>()</code>
-<div class="block">Get the underlying <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Transaction.html?is-external=true" title="class or interface in com.foundationdb"><code>Transaction</code></a> associated with this instance.</div>
+<div class="block">Get the underlying <code>Transaction</code> associated with this instance.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -230,8 +230,8 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html#wrapException(com.foundationdb.FDBException)">wrapException</a></strong>(<a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/FDBException.html?is-external=true" title="class or interface in com.foundationdb">FDBException</a>&nbsp;e)</code>
-<div class="block">Wrap the given <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/FDBException.html?is-external=true" title="class or interface in com.foundationdb"><code>FDBException</code></a> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html#wrapException(com.foundationdb.FDBException)">wrapException</a></strong>(com.foundationdb.FDBException&nbsp;e)</code>
+<div class="block">Wrap the given <code>FDBException</code> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -277,8 +277,8 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockList">
 <li class="blockList">
 <h4>getTransaction</h4>
-<pre>public&nbsp;<a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Transaction.html?is-external=true" title="class or interface in com.foundationdb">Transaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVTransaction.html#line.71">getTransaction</a>()</pre>
-<div class="block">Get the underlying <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Transaction.html?is-external=true" title="class or interface in com.foundationdb"><code>Transaction</code></a> associated with this instance.</div>
+<pre>public&nbsp;com.foundationdb.Transaction&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVTransaction.html#line.71">getTransaction</a>()</pre>
+<div class="block">Get the underlying <code>Transaction</code> associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated transaction</dd></dl>
 </li>
 </ul>
@@ -640,8 +640,8 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <ul class="blockListLast">
 <li class="blockList">
 <h4>wrapException</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVTransaction.html#line.283">wrapException</a>(<a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/FDBException.html?is-external=true" title="class or interface in com.foundationdb">FDBException</a>&nbsp;e)</pre>
-<div class="block">Wrap the given <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/FDBException.html?is-external=true" title="class or interface in com.foundationdb"><code>FDBException</code></a> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVTransaction.html#line.283">wrapException</a>(com.foundationdb.FDBException&nbsp;e)</pre>
+<div class="block">Wrap the given <code>FDBException</code> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>e</code> - FoundationDB exception</dd>
 <dt><span class="strong">Returns:</span></dt><dd>appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a> with chained exception <code>e</code></dd>
 <dt><span class="strong">Throws:</span></dt>

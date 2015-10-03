@@ -103,6 +103,12 @@
 <div class="block">Classes for parsing Java expressions with JSimpleDB-specific extensions.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.spring">org.jsimpledb.spring</a></td>
+<td class="colLast">
+<div class="block">Spring Framework integration classes.</div>
+</td>
+</tr>
 </tbody>
 </table>
 </li>
@@ -152,13 +158,14 @@
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
 <td class="colLast"><span class="strong">JObject.</span><code><strong><a href="../../../org/jsimpledb/JObject.html#copyIn(java.lang.String...)">copyIn</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</code>
-<div class="block">Copy this instance and other instances it references into the transaction associated with the current thread.</div>
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any),
+ into the transaction associated with the current thread.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
 <td class="colLast"><span class="strong">JObject.</span><code><strong><a href="../../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)">copyOut</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</code>
-<div class="block">Snapshot this instance and other instances it references.</div>
+<div class="block">Snapshot this instance and other instances it references through the specified <code>refPaths</code> (if any).</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -177,7 +184,8 @@
             <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
             <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState,
             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</code>
-<div class="block">Copy this instance, and other instances it references, into a (possibly) different <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any), into a (possibly)
+ different <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -806,6 +814,62 @@
                                   <a href="../../../org/jsimpledb/JSimpleField.html" title="class in org.jsimpledb">JSimpleField</a>&nbsp;jfield)</code>
 <div class="block">Constructor.</div>
 </td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.spring">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a> in <a href="../../../org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a> that return <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
+<td class="colLast"><span class="strong">JObjectHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/JObjectHttpMessageConverter.html#readInternal(java.lang.Class, org.springframework.http.HttpInputMessage)">readInternal</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;type,
+                        <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/HttpInputMessage.html?is-external=true" title="class or interface in org.springframework.http">HttpInputMessage</a>&nbsp;input)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a> with parameters of type <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a></code></td>
+<td class="colLast"><span class="strong">JObjectHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/JObjectHttpMessageConverter.html#getContentLength(org.jsimpledb.JObject, org.springframework.http.MediaType)">getContentLength</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
+                                <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/MediaType.html?is-external=true" title="class or interface in org.springframework.http">MediaType</a>&nbsp;contentType)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/MediaType.html?is-external=true" title="class or interface in org.springframework.http">MediaType</a></code></td>
+<td class="colLast"><span class="strong">JObjectHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/JObjectHttpMessageConverter.html#getDefaultContentType(org.jsimpledb.JObject)">getDefaultContentType</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="strong">JObjectHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/JObjectHttpMessageConverter.html#writeInternal(org.jsimpledb.JObject, org.springframework.http.HttpOutputMessage)">writeInternal</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
+                          <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/HttpOutputMessage.html?is-external=true" title="class or interface in org.springframework.http">HttpOutputMessage</a>&nbsp;output)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Method parameters in <a href="../../../org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a> with type arguments of type <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
+<td class="colLast"><span class="strong">JObjectHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/JObjectHttpMessageConverter.html#readInternal(java.lang.Class, org.springframework.http.HttpInputMessage)">readInternal</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;type,
+                        <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/HttpInputMessage.html?is-external=true" title="class or interface in org.springframework.http">HttpInputMessage</a>&nbsp;input)</code>&nbsp;</td>
 </tr>
 </tbody>
 </table>

@@ -94,18 +94,22 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public final class <a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.30">KeyListEncoder</a>
+<pre>public final class <a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.38">KeyListEncoder</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
-<div class="block">Serializes a sequence of <code>byte[]</code> arrays, compressing common prefixes.
+<div class="block">Serializes a sequence of <code>byte[]</code> arrays, compressing consecutive common prefixes.
 
  <p>
- Keys are encoded in one of two forms:
+ Keys are encoded/decode by <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#read(java.io.InputStream, byte[])"><code>read()</code></a> and <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#write(java.io.OutputStream, byte[], byte[])"><code>write()</code></a> in one of two forms:
   <ul>
   <li><code>total-length bytes...</code>
   <li><code>-prefix-length suffix-length suffix-bytes ...</code>
   </ul>
  The first length (<code>total-length</code> or negative <code>prefix-length</code>) is encoded using <a href="../../../../org/jsimpledb/util/LongEncoder.html" title="class in org.jsimpledb.util"><code>LongEncoder</code></a>.
- The <code>suffix-length</code>, if present, is encoded using <a href="../../../../org/jsimpledb/util/UnsignedIntEncoder.html" title="class in org.jsimpledb.util"><code>UnsignedIntEncoder</code></a>.</div>
+ The <code>suffix-length</code>, if present, is encoded using <a href="../../../../org/jsimpledb/util/UnsignedIntEncoder.html" title="class in org.jsimpledb.util"><code>UnsignedIntEncoder</code></a>.
+
+ <p>
+ Support for encoding and decoding an entire iteration of key/value pairs is supported via
+ <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#readPairs(java.io.InputStream)"><code>readPairs()</code></a> and <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -132,6 +136,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#readPairs(java.io.InputStream)">readPairs</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)</code>
+<div class="block">Decode an iteration of key/value pairs previously encoded by <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#write(java.io.OutputStream, byte[], byte[])">write</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;out,
           byte[]&nbsp;key,
@@ -139,11 +149,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <div class="block">Write the next key, compressing its common prefix with the previous key (if any).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writeLength(byte[], byte[])">writeLength</a></strong>(byte[]&nbsp;key,
                       byte[]&nbsp;prev)</code>
 <div class="block">Calculate the number of bytes that would be required to write the next key via <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#write(java.io.OutputStream, byte[], byte[])"><code>write()</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)">writePairs</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvpairs,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;output)</code>
+<div class="block">Encode an iteration of key/value pairs.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairsLength(java.util.Iterator)">writePairsLength</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvpairs)</code>
+<div class="block">Determine the number of bytes that would be written by <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -174,7 +197,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>write</h4>
-<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.44">write</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;out,
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.52">write</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;out,
          byte[]&nbsp;key,
          byte[]&nbsp;prev)
                   throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
@@ -191,7 +214,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>writeLength</h4>
-<pre>public static&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.71">writeLength</a>(byte[]&nbsp;key,
+<pre>public static&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.79">writeLength</a>(byte[]&nbsp;key,
               byte[]&nbsp;prev)</pre>
 <div class="block">Calculate the number of bytes that would be required to write the next key via <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#write(java.io.OutputStream, byte[], byte[])"><code>write()</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - key to write</dd><dd><code>prev</code> - previous key, or null for none</dd>
@@ -203,10 +226,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <a name="read(java.io.InputStream, byte[])">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre>public static&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.96">read</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input,
+<pre>public static&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.104">read</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input,
           byte[]&nbsp;prev)
                    throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Read the next key.</div>
@@ -217,6 +240,57 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/EOFException.html?is-external=true" title="class or interface in java.io">EOFException</a></code> - if an unexpected EOF is encountered</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> is null</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> contains invalid data</dd></dl>
+</li>
+</ul>
+<a name="writePairs(java.util.Iterator, java.io.OutputStream)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writePairs</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.148">writePairs</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvpairs,
+              <a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;output)
+                       throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block">Encode an iteration of key/value pairs.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvpairs</code> - key/value pair iteration</dd><dd><code>output</code> - encoded output</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurs</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if either parameter is null</dd></dl>
+</li>
+</ul>
+<a name="writePairsLength(java.util.Iterator)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writePairsLength</h4>
+<pre>public static&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.176">writePairsLength</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvpairs)</pre>
+<div class="block">Determine the number of bytes that would be written by <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvpairs</code> - key/value pair iteration</dd>
+<dt><span class="strong">Returns:</span></dt><dd>encoded length of this instance</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>kvpairs</code> is null</dd></dl>
+</li>
+</ul>
+<a name="readPairs(java.io.InputStream)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>readPairs</h4>
+<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/KeyListEncoder.html#line.204">readPairs</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)</pre>
+<div class="block">Decode an iteration of key/value pairs previously encoded by <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.
+
+ <p>
+ If an <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io"><code>IOException</code></a> occurs during iteration, the returned <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a> wraps it in a <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang"><code>RuntimeException</code></a>.
+
+ <p>
+ If invalid input is encountered during iteration, the returned <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a>
+ will throw an <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang"><code>IllegalArgumentException</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>input</code> - encoded input</dd>
+<dt><span class="strong">Returns:</span></dt><dd>iteration of key/value pairs</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>input</code> is null</dd></dl>
 </li>
 </ul>
 </li>

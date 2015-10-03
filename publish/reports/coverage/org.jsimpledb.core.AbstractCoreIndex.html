@@ -65,14 +65,14 @@
   <td class="src"><pre class="src">&nbsp;<span class="comment">// Constructors</span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;24</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;25</td>  <td class="nbHitsCovered">&nbsp;8412</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> AbstractCoreIndex(Transaction tx, <span class="keyword">int</span> size, AbstractIndexView indexView) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;26</td>  <td class="nbHitsUncovered"><a title="Line 26: Conditional coverage 50% (1/2).">&nbsp;8412</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 26: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(tx != <span class="keyword">null</span>, <span class="string">"null tx"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsUncovered"><a title="Line 27: Conditional coverage 50% (1/2).">&nbsp;8412</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 27: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(indexView != <span class="keyword">null</span>, <span class="string">"null indexView"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered">&nbsp;8412</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.tx = tx;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;8412</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indexView = indexView;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsUncovered"><a title="Line 30: Conditional coverage 50% (1/2).">&nbsp;8412</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 30: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.indexView.fieldTypes.length != size)</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;25</td>  <td class="nbHitsCovered">&nbsp;8457</td>  <td class="src"><pre class="src">&nbsp;    <span class="keyword">protected</span> AbstractCoreIndex(Transaction tx, <span class="keyword">int</span> size, AbstractIndexView indexView) {</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;26</td>  <td class="nbHitsUncovered"><a title="Line 26: Conditional coverage 50% (1/2).">&nbsp;8457</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 26: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(tx != <span class="keyword">null</span>, <span class="string">"null tx"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;27</td>  <td class="nbHitsUncovered"><a title="Line 27: Conditional coverage 50% (1/2).">&nbsp;8457</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 27: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(indexView != <span class="keyword">null</span>, <span class="string">"null indexView"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;28</td>  <td class="nbHitsCovered">&nbsp;8457</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.tx = tx;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered">&nbsp;8457</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indexView = indexView;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;30</td>  <td class="nbHitsUncovered"><a title="Line 30: Conditional coverage 50% (1/2).">&nbsp;8457</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 30: Conditional coverage 50% (1/2).">        <span class="keyword">if</span> (<span class="keyword">this</span>.indexView.fieldTypes.length != size)</a></span></pre></td></tr>
 <tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsUncovered">&nbsp;0</td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"internal error: indexView has the wrong size"</span>);</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;8412</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;8457</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;33</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;34</td>  <td class="nbHits">&nbsp;</td>
@@ -126,6 +126,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 8/24/15 5:16 PM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 10/3/15 11:43 AM.</div>
 </body>
 </html>

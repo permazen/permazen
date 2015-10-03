@@ -24,7 +24,7 @@
 <span class="sourceLineNo">016</span>import org.jsimpledb.kv.KVPair;<a name="line.16"></a>
 <span class="sourceLineNo">017</span><a name="line.17"></a>
 <span class="sourceLineNo">018</span>/**<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * A simple read-only {@link KVStore} based on a sorted array of key/value pairs.<a name="line.19"></a>
+<span class="sourceLineNo">019</span> * A simple read-only {@link org.jsimpledb.kv.KVStore} based on a sorted array of key/value pairs.<a name="line.19"></a>
 <span class="sourceLineNo">020</span> *<a name="line.20"></a>
 <span class="sourceLineNo">021</span> * &lt;p&gt;<a name="line.21"></a>
 <span class="sourceLineNo">022</span> * Instances query three {@link ByteBuffer}s, one for the array index, one for the key data, and one for the value data.<a name="line.22"></a>
@@ -35,7 +35,7 @@
 <span class="sourceLineNo">027</span> * queried key. Key data is prefix-compressed.<a name="line.27"></a>
 <span class="sourceLineNo">028</span> *<a name="line.28"></a>
 <span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * Key and value data must each not exceed 2GB.<a name="line.30"></a>
+<span class="sourceLineNo">030</span> * Key and value data must not exceed 2GB (each separately).<a name="line.30"></a>
 <span class="sourceLineNo">031</span> */<a name="line.31"></a>
 <span class="sourceLineNo">032</span>public class ArrayKVStore extends AbstractKVStore {<a name="line.32"></a>
 <span class="sourceLineNo">033</span><a name="line.33"></a>

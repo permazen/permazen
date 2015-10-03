@@ -172,9 +172,9 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Database.html?is-external=true" title="class or interface in com.foundationdb">Database</a></code></td>
+<td class="colFirst"><code>com.foundationdb.Database</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#getDatabase()">getDatabase</a></strong>()</code>
-<div class="block">Get the underlying <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Database.html?is-external=true" title="class or interface in com.foundationdb"><code>Database</code></a> associated with this instance.</div>
+<div class="block">Get the underlying <code>Database</code> associated with this instance.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -184,9 +184,9 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/NetworkOptions.html?is-external=true" title="class or interface in com.foundationdb">NetworkOptions</a></code></td>
+<td class="colFirst"><code>com.foundationdb.NetworkOptions</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#getNetworkOptions()">getNetworkOptions</a></strong>()</code>
-<div class="block">Get the <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/NetworkOptions.html?is-external=true" title="class or interface in com.foundationdb"><code>NetworkOptions</code></a> associated with this instance.</div>
+<div class="block">Get the <code>NetworkOptions</code> associated with this instance.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -275,7 +275,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.53">FoundationKVDatabase</a>()</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/FDBException.html?is-external=true" title="class or interface in com.foundationdb">FDBException</a></code> - if <a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#API_VERSION"><code>API_VERSION</code></a> is not supported</dd></dl>
+<dd><code>com.foundationdb.FDBException</code> - if <a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#API_VERSION"><code>API_VERSION</code></a> is not supported</dd></dl>
 </li>
 </ul>
 </li>
@@ -292,8 +292,8 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getNetworkOptions</h4>
-<pre>public&nbsp;<a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/NetworkOptions.html?is-external=true" title="class or interface in com.foundationdb">NetworkOptions</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.62">getNetworkOptions</a>()</pre>
-<div class="block">Get the <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/NetworkOptions.html?is-external=true" title="class or interface in com.foundationdb"><code>NetworkOptions</code></a> associated with this instance.
+<pre>public&nbsp;com.foundationdb.NetworkOptions&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.62">getNetworkOptions</a>()</pre>
+<div class="block">Get the <code>NetworkOptions</code> associated with this instance.
  Options must be configured prior to <a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#start()"><code>start()</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>network options</dd></dl>
 </li>
@@ -310,7 +310,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  <p>
  By default, the default thread pool is used to execute the FoundationDB network.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>executor</code> - executor for networking activity</dd><dt><span class="strong">See Also:</span></dt><dd><a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/FDB.html?is-external=true#startNetwork(java.util.concurrent.Executor)" title="class or interface in com.foundationdb"><code>FDB.startNetwork()</code></a></dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>executor</code> - executor for networking activity</dd><dt><span class="strong">See Also:</span></dt><dd><code>FDB.startNetwork()</code></dd></dl>
 </li>
 </ul>
 <a name="setClusterFilePath(java.lang.String)">
@@ -371,9 +371,9 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabase</h4>
-<pre>public&nbsp;<a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Database.html?is-external=true" title="class or interface in com.foundationdb">Database</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.132">getDatabase</a>()</pre>
-<div class="block">Get the underlying <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Database.html?is-external=true" title="class or interface in com.foundationdb"><code>Database</code></a> associated with this instance.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>the associated <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Database.html?is-external=true" title="class or interface in com.foundationdb"><code>Database</code></a></dd>
+<pre>public&nbsp;com.foundationdb.Database&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.132">getDatabase</a>()</pre>
+<div class="block">Get the underlying <code>Database</code> associated with this instance.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the associated <code>Database</code></dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance has not yet been <a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#start()">started</a></dd></dl>
 </li>

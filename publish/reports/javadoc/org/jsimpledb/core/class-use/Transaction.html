@@ -156,13 +156,22 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></td>
+<td class="colLast"><span class="strong">Database.</span><code><strong><a href="../../../../org/jsimpledb/core/Database.html#createTransaction(org.jsimpledb.kv.KVTransaction, org.jsimpledb.schema.SchemaModel, int, boolean)">createTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;kvt,
+                                  <a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel,
+                                  int&nbsp;version,
+                                  boolean&nbsp;allowNewSchema)</code>
+<div class="block">Create a new <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> on this database using an already-opened <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> and specified schema.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></td>
 <td class="colLast"><span class="strong">Database.</span><code><strong><a href="../../../../org/jsimpledb/core/Database.html#createTransaction(org.jsimpledb.schema.SchemaModel, int, boolean)">createTransaction</a></strong>(<a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel,
                                   int&nbsp;version,
                                   boolean&nbsp;allowNewSchema)</code>
 <div class="block">Create a new <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> on this database and use the specified schema version to access objects and fields.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></td>
 <td class="colLast"><span class="strong">TransactionException.</span><code><strong><a href="../../../../org/jsimpledb/core/TransactionException.html#getTransaction()">getTransaction</a></strong>()</code>
 <div class="block">Get the associated transaction.</div>

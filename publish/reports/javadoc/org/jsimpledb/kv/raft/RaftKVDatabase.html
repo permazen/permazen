@@ -34,7 +34,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../org/jsimpledb/kv/raft/NonLeaderRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
 <li><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -314,6 +314,12 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <div class="block">Default minimum election timeout (750ms).</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_TCP_PORT">DEFAULT_TCP_PORT</a></strong></code>
+<div class="block">Default TCP port (9660) used to communicate with peers.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -353,219 +359,225 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#createTransaction(boolean)">createTransaction</a></strong>(boolean&nbsp;committed)</code>
+<div class="block">Create a new transaction with configurable snapshot basis.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getClusterId()">getClusterId</a></strong>()</code>
 <div class="block">Retrieve the unique 32-bit ID for this node's cluster.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCommitIndex()">getCommitIndex</a></strong>()</code>
 <div class="block">Get this instance's current commit index..</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCommitTimeout()">getCommitTimeout</a></strong>()</code>
 <div class="block">Get the configured default transaction commit timeout.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentConfig()">getCurrentConfig</a></strong>()</code>
 <div class="block">Retrieve the current cluster configuration as understood by this node.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentRole()">getCurrentRole</a></strong>()</code>
 <div class="block">Get this instance's current role: leadeer, follower, or candidate.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentTerm()">getCurrentTerm</a></strong>()</code>
 <div class="block">Get this instance's current term.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getHeartbeatTimeout()">getHeartbeatTimeout</a></strong>()</code>
 <div class="block">Get the configured heartbeat timeout.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getIdentity()">getIdentity</a></strong>()</code>
 <div class="block">Get this node's Raft identity.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getLastAppliedIndex()">getLastAppliedIndex</a></strong>()</code>
 <div class="block">Get this instance's last applied log entry index.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getLastAppliedTerm()">getLastAppliedTerm</a></strong>()</code>
 <div class="block">Get this instance's last applied log entry term.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getLogDirectory()">getLogDirectory</a></strong>()</code>
 <div class="block">Get the directory in which uncommitted log entries are stored.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getMaxElectionTimeout()">getMaxElectionTimeout</a></strong>()</code>
 <div class="block">Get the configured maximum election timeout.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getMaxTransactionDuration()">getMaxTransactionDuration</a></strong>()</code>
 <div class="block">Get the configured maximum supported duration for outstanding transactions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getMaxUnappliedLogMemory()">getMaxUnappliedLogMemory</a></strong>()</code>
 <div class="block">Get the configured maximum allowed memory used for unapplied log entries.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getMinElectionTimeout()">getMinElectionTimeout</a></strong>()</code>
 <div class="block">Get the configured minimum election timeout.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getOpenTransactions()">getOpenTransactions</a></strong>()</code>
 <div class="block">Get the set of open transactions associated with this database.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft">LogEntry</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getUnappliedLog()">getUnappliedLog</a></strong>()</code>
 <div class="block">Get the unapplied <a href="../../../../org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft"><code>LogEntry</code></a>s in this instance's Raft log.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getUnappliedLogMemoryUsage()">getUnappliedLogMemoryUsage</a></strong>()</code>
 <div class="block">Get the estimated total memory used by unapplied log entries.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#isClusterMember()">isClusterMember</a></strong>()</code>
 <div class="block">Determine whether this node thinks that it is part of its cluster, as determined by its
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentConfig()">current configuration</a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#isClusterMember(java.lang.String)">isClusterMember</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;node)</code>
 <div class="block">Determine whether this node thinks that the specified node is part of the cluster, as determined by its
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentConfig()">current configuration</a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#isConfigured()">isConfigured</a></strong>()</code>
 <div class="block">Determine whether this instance is configured.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#isFollowerProbingEnabled()">isFollowerProbingEnabled</a></strong>()</code>
 <div class="block">Determine whether follower probing prior to becoming a candidate is enabled.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setCommitTimeout(int)">setCommitTimeout</a></strong>(int&nbsp;timeout)</code>
 <div class="block">Configure the default transaction commit timeout.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setFollowerProbingEnabled(boolean)">setFollowerProbingEnabled</a></strong>(boolean&nbsp;followerProbingEnabled)</code>
 <div class="block">Configure whether followers should be required to probe for network connectivity with a majority of the
  cluster after an election timeout prior to becoming a candidate.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setHeartbeatTimeout(int)">setHeartbeatTimeout</a></strong>(int&nbsp;timeout)</code>
 <div class="block">Configure the heartbeat timeout.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setIdentity(java.lang.String)">setIdentity</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;identity)</code>
 <div class="block">Configure the Raft identity.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setKVStore(org.jsimpledb.kv.mvcc.AtomicKVStore)">setKVStore</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>
 <div class="block">Configure the <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> in which local persistent state is stored.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setLogDirectory(java.io.File)">setLogDirectory</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</code>
 <div class="block">Configure the directory in which uncommitted log entries are stored.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxElectionTimeout(int)">setMaxElectionTimeout</a></strong>(int&nbsp;timeout)</code>
 <div class="block">Configure the maximum election timeout.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxTransactionDuration(int)">setMaxTransactionDuration</a></strong>(int&nbsp;duration)</code>
 <div class="block">Configure the maximum supported duration for outstanding transactions.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxUnappliedLogMemory(long)">setMaxUnappliedLogMemory</a></strong>(long&nbsp;memory)</code>
 <div class="block">Configure the maximum allowed memory used for unapplied log entries.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setMinElectionTimeout(int)">setMinElectionTimeout</a></strong>(int&nbsp;timeout)</code>
 <div class="block">Configure the minimum election timeout.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setNetwork(org.jsimpledb.kv.raft.net.Network)">setNetwork</a></strong>(<a href="../../../../org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net">Network</a>&nbsp;network)</code>
-<div class="block">Configure the <a href="../../../../org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net"><code>Network</code></a> to use for inter-node communication.</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setNetwork(org.dellroad.stuff.net.Network)">setNetwork</a></strong>(<a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net">Network</a>&nbsp;network)</code>
+<div class="block">Configure the <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net"><code>Network</code></a> to use for inter-node communication.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
@@ -654,7 +666,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <a name="DEFAULT_COMMIT_TIMEOUT">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_COMMIT_TIMEOUT</h4>
 <pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.277">DEFAULT_COMMIT_TIMEOUT</a></pre>
@@ -662,6 +674,17 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setCommitTimeout(int)"><code>setCommitTimeout(int)</code></a>, 
 <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#setTimeout(long)"><code>RaftKVTransaction.setTimeout(long)</code></a>, 
 <a href="../../../../constant-values.html#org.jsimpledb.kv.raft.RaftKVDatabase.DEFAULT_COMMIT_TIMEOUT">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="DEFAULT_TCP_PORT">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_TCP_PORT</h4>
+<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.282">DEFAULT_TCP_PORT</a></pre>
+<div class="block">Default TCP port (9660) used to communicate with peers.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.raft.RaftKVDatabase.DEFAULT_TCP_PORT">Constant Field Values</a></dd></dl>
 </li>
 </ul>
 </li>
@@ -695,7 +718,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setKVStore</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.356">setKVStore</a>(<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.361">setKVStore</a>(<a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</pre>
 <div class="block">Configure the <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> in which local persistent state is stored.
 
  <p>
@@ -711,7 +734,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setLogDirectory</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.370">setLogDirectory</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.375">setLogDirectory</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</pre>
 <div class="block">Configure the directory in which uncommitted log entries are stored.
 
  <p>
@@ -727,23 +750,23 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getLogDirectory</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.380">getLogDirectory</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.385">getLogDirectory</a>()</pre>
 <div class="block">Get the directory in which uncommitted log entries are stored.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>configured log directory</dd></dl>
 </li>
 </ul>
-<a name="setNetwork(org.jsimpledb.kv.raft.net.Network)">
+<a name="setNetwork(org.dellroad.stuff.net.Network)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setNetwork</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.393">setNetwork</a>(<a href="../../../../org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net">Network</a>&nbsp;network)</pre>
-<div class="block">Configure the <a href="../../../../org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net"><code>Network</code></a> to use for inter-node communication.
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.398">setNetwork</a>(<a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net">Network</a>&nbsp;network)</pre>
+<div class="block">Configure the <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net"><code>Network</code></a> to use for inter-node communication.
 
  <p>
- By default, a <a href="../../../../org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net"><code>TCPNetwork</code></a> instance is used.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>network</code> - network implementation; must not be <a href="../../../../org/jsimpledb/kv/raft/net/Network.html#start(org.jsimpledb.kv.raft.net.Network.Handler)">started</a></dd>
+ By default, a <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/net/TCPNetwork.html?is-external=true" title="class or interface in org.dellroad.stuff.net"><code>TCPNetwork</code></a> instance communicating on <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_TCP_PORT"><code>DEFAULT_TCP_PORT</code></a> is used.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>network</code> - network implementation; must not be <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/net/Network.html?is-external=true#start(org.dellroad.stuff.net.Network.Handler)" title="class or interface in org.dellroad.stuff.net">started</a></dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is already started</dd></dl>
 </li>
@@ -754,7 +777,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setIdentity</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.407">setIdentity</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;identity)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.412">setIdentity</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;identity)</pre>
 <div class="block">Configure the Raft identity.
 
  <p>
@@ -770,7 +793,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getIdentity</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.417">getIdentity</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.422">getIdentity</a>()</pre>
 <div class="block">Get this node's Raft identity.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the unique identity of this node in its cluster</dd></dl>
 </li>
@@ -781,7 +804,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setMinElectionTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.438">setMinElectionTimeout</a>(int&nbsp;timeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.443">setMinElectionTimeout</a>(int&nbsp;timeout)</pre>
 <div class="block">Configure the minimum election timeout.
 
  <p>
@@ -805,7 +828,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getMinElectionTimeout</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.449">getMinElectionTimeout</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.454">getMinElectionTimeout</a>()</pre>
 <div class="block">Get the configured minimum election timeout.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>minimum election timeout in milliseconds</dd></dl>
 </li>
@@ -816,7 +839,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxElectionTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.463">setMaxElectionTimeout</a>(int&nbsp;timeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.468">setMaxElectionTimeout</a>(int&nbsp;timeout)</pre>
 <div class="block">Configure the maximum election timeout.
 
  <p>
@@ -833,7 +856,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getMaxElectionTimeout</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.474">getMaxElectionTimeout</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.479">getMaxElectionTimeout</a>()</pre>
 <div class="block">Get the configured maximum election timeout.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>maximum election timeout in milliseconds</dd></dl>
 </li>
@@ -844,7 +867,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setHeartbeatTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.491">setHeartbeatTimeout</a>(int&nbsp;timeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.496">setHeartbeatTimeout</a>(int&nbsp;timeout)</pre>
 <div class="block">Configure the heartbeat timeout.
 
  <p>
@@ -864,7 +887,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getHeartbeatTimeout</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.502">getHeartbeatTimeout</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.507">getHeartbeatTimeout</a>()</pre>
 <div class="block">Get the configured heartbeat timeout.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>heartbeat timeout in milliseconds</dd></dl>
 </li>
@@ -875,7 +898,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxTransactionDuration</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.523">setMaxTransactionDuration</a>(int&nbsp;duration)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.528">setMaxTransactionDuration</a>(int&nbsp;duration)</pre>
 <div class="block">Configure the maximum supported duration for outstanding transactions.
 
  <p>
@@ -898,7 +921,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getMaxTransactionDuration</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.533">getMaxTransactionDuration</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.538">getMaxTransactionDuration</a>()</pre>
 <div class="block">Get the configured maximum supported duration for outstanding transactions.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>maximum supported duration for outstanding transactions in milliseconds</dd></dl>
 </li>
@@ -909,7 +932,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxUnappliedLogMemory</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.557">setMaxUnappliedLogMemory</a>(long&nbsp;memory)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.562">setMaxUnappliedLogMemory</a>(long&nbsp;memory)</pre>
 <div class="block">Configure the maximum allowed memory used for unapplied log entries.
 
  <p>
@@ -935,7 +958,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getMaxUnappliedLogMemory</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.567">getMaxUnappliedLogMemory</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.572">getMaxUnappliedLogMemory</a>()</pre>
 <div class="block">Get the configured maximum allowed memory used for unapplied log entries.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>maximum allowed memory usage for cached applied log entries</dd></dl>
 </li>
@@ -946,7 +969,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setCommitTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.589">setCommitTimeout</a>(int&nbsp;timeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.594">setCommitTimeout</a>(int&nbsp;timeout)</pre>
 <div class="block">Configure the default transaction commit timeout.
 
  <p>
@@ -970,7 +993,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getCommitTimeout</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.599">getCommitTimeout</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.604">getCommitTimeout</a>()</pre>
 <div class="block">Get the configured default transaction commit timeout.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>transaction commit timeout in milliseconds, or zero for unlimited</dd></dl>
 </li>
@@ -981,7 +1004,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setFollowerProbingEnabled</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.615">setFollowerProbingEnabled</a>(boolean&nbsp;followerProbingEnabled)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.620">setFollowerProbingEnabled</a>(boolean&nbsp;followerProbingEnabled)</pre>
 <div class="block">Configure whether followers should be required to probe for network connectivity with a majority of the
  cluster after an election timeout prior to becoming a candidate.
 
@@ -999,7 +1022,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>isFollowerProbingEnabled</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.624">isFollowerProbingEnabled</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.629">isFollowerProbingEnabled</a>()</pre>
 <div class="block">Determine whether follower probing prior to becoming a candidate is enabled.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if follower probing is enabled, otherwise false</dd></dl>
 </li>
@@ -1010,7 +1033,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getClusterId</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.639">getClusterId</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.644">getClusterId</a>()</pre>
 <div class="block">Retrieve the unique 32-bit ID for this node's cluster.
 
  <p>
@@ -1025,7 +1048,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getCurrentConfig</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.658">getCurrentConfig</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.663">getCurrentConfig</a>()</pre>
 <div class="block">Retrieve the current cluster configuration as understood by this node.
 
  <p>
@@ -1046,7 +1069,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>isConfigured</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.671">isConfigured</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.676">isConfigured</a>()</pre>
 <div class="block">Determine whether this instance is configured.
 
  <p>
@@ -1061,7 +1084,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>isClusterMember</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.681">isClusterMember</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.686">isClusterMember</a>()</pre>
 <div class="block">Determine whether this node thinks that it is part of its cluster, as determined by its
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentConfig()">current configuration</a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is part of the cluster, otherwise false</dd></dl>
@@ -1073,7 +1096,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>isClusterMember</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.692">isClusterMember</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;node)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.697">isClusterMember</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;node)</pre>
 <div class="block">Determine whether this node thinks that the specified node is part of the cluster, as determined by its
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentConfig()">current configuration</a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>node</code> - node identity</dd>
@@ -1086,7 +1109,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getCurrentRole</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.701">getCurrentRole</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.706">getCurrentRole</a>()</pre>
 <div class="block">Get this instance's current role: leadeer, follower, or candidate.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>current <a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft"><code>Role</code></a>, or null if not running</dd></dl>
 </li>
@@ -1097,7 +1120,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getCurrentTerm</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.710">getCurrentTerm</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.715">getCurrentTerm</a>()</pre>
 <div class="block">Get this instance's current term.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>current term</dd></dl>
 </li>
@@ -1108,7 +1131,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getCommitIndex</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.719">getCommitIndex</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.724">getCommitIndex</a>()</pre>
 <div class="block">Get this instance's current commit index..</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>current commit index</dd></dl>
 </li>
@@ -1119,7 +1142,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getLastAppliedTerm</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.728">getLastAppliedTerm</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.733">getLastAppliedTerm</a>()</pre>
 <div class="block">Get this instance's last applied log entry term.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>last applied term</dd></dl>
 </li>
@@ -1130,7 +1153,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getLastAppliedIndex</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.737">getLastAppliedIndex</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.742">getLastAppliedIndex</a>()</pre>
 <div class="block">Get this instance's last applied log entry index.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>last applied index</dd></dl>
 </li>
@@ -1141,7 +1164,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getUnappliedLog</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft">LogEntry</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.749">getUnappliedLog</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft">LogEntry</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.754">getUnappliedLog</a>()</pre>
 <div class="block">Get the unapplied <a href="../../../../org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft"><code>LogEntry</code></a>s in this instance's Raft log.
 
  <p>
@@ -1155,7 +1178,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getUnappliedLogMemoryUsage</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.758">getUnappliedLogMemoryUsage</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.763">getUnappliedLogMemoryUsage</a>()</pre>
 <div class="block">Get the estimated total memory used by unapplied log entries.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>unapplied log entry memory usage</dd></dl>
 </li>
@@ -1166,7 +1189,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getOpenTransactions</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.773">getOpenTransactions</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.778">getOpenTransactions</a>()</pre>
 <div class="block">Get the set of open transactions associated with this database.
 
  <p>
@@ -1181,7 +1204,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <li class="blockList">
 <h4>start</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PostConstruct.html?is-external=true" title="class or interface in javax.annotation">@PostConstruct</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.786">start</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.791">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#start()">KVDatabase</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -1203,7 +1226,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKV
 <li class="blockList">
 <h4>stop</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PreDestroy.html?is-external=true" title="class or interface in javax.annotation">@PreDestroy</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.917">stop</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.922">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#stop()">KVDatabase</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -1221,11 +1244,36 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKV
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.1123">createTransaction</a>()</pre>
-<div class="block">Create a new transaction.</div>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.1131">createTransaction</a>()</pre>
+<div class="block">Create a new transaction.
+
+ <p>
+ Equivalent to: <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#createTransaction(boolean)"><code>createTransaction</code></a><code>(false)</code>.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is not <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#start()">started</a> or in the process of shutting down</dd></dl>
+</li>
+</ul>
+<a name="createTransaction(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.1150">createTransaction</a>(boolean&nbsp;committed)</pre>
+<div class="block">Create a new transaction with configurable snapshot basis.
+
+ <p>
+ Local transactions may be based either on the the most recent <i>committed</i> Raft data or the most recent
+ <i>uncommitted</i> Raft data.
+ The latter is less likely to encounter a read/write conflict on commit when using <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>Consistency.LINEARIZABLE</code></a>,
+ except in cases of high write contention.
+ The former requires no network communication to commit when using <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL"><code>Consistency.EVENTUAL</code></a> and is therefore useful
+ in situations when the leader may be unreachable.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>committed</code> - whether to base the transaction on committed or uncommitted local state</dd>
 <dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is not <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#start()">started</a> or in the process of shutting down</dd></dl>
@@ -1237,7 +1285,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKV
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.1608">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKVDatabase.html#line.1635">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -1270,7 +1318,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/RaftKV
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../org/jsimpledb/kv/raft/NonLeaderRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
 <li><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">

@@ -84,31 +84,39 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></td>
+<td class="colLast">
+<div class="block">Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html?is-external=true" title="class or interface in org.springframework.http.converter"><code>HttpMessageConverter</code></a> capable of
+ encoding and decoding one or more <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s contained in a <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> that is
+ backed by a <a href="../../../org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><code>NavigableMapKVStore</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/spring/JSimpleDBClassScanner.html" title="class in org.jsimpledb.spring">JSimpleDBClassScanner</a></td>
 <td class="colLast">
 <div class="block">Scans the classpath for types annotated as <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/spring/JSimpleDBExceptionTranslator.html" title="class in org.jsimpledb.spring">JSimpleDBExceptionTranslator</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB implementation of Spring's <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/dao/support/PersistenceExceptionTranslator.html?is-external=true" title="class or interface in org.springframework.dao.support"><code>PersistenceExceptionTranslator</code></a> interface.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/spring/JSimpleDBFieldTypeScanner.html" title="class in org.jsimpledb.spring">JSimpleDBFieldTypeScanner</a></td>
 <td class="colLast">
 <div class="block">Scans the classpath for types annotated as <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/spring/JSimpleDBNamespaceHandler.html" title="class in org.jsimpledb.spring">JSimpleDBNamespaceHandler</a></td>
 <td class="colLast">
 <div class="block">Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/beans/factory/xml/NamespaceHandler.html?is-external=true" title="class or interface in org.springframework.beans.factory.xml"><code>NamespaceHandler</code></a>
  for the <code>jsimpledb</code> XML namespace.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB implementation of Spring's
@@ -117,11 +125,18 @@
  annotation to perform transactions on a <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> database.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.TransactionSynchronizationCallback.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager.TransactionSynchronizationCallback</a></td>
 <td class="colLast">
 <div class="block">Adapter class that wraps a Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html?is-external=true" title="class or interface in org.springframework.transaction.support"><code>TransactionSynchronization</code></a> in the
  <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a> interface.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></td>
+<td class="colLast">
+<div class="block">Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html?is-external=true" title="class or interface in org.springframework.http.converter"><code>HttpMessageConverter</code></a>
+ capable of encoding and decoding a <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -132,6 +147,14 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></td>
+<td class="colLast">
+<div class="block">Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html?is-external=true" title="class or interface in org.springframework.http.converter"><code>HttpMessageConverter</code></a> capable of
+ encoding and decoding a graph of <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s contained in a <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> that is
+ backed by a <a href="../../../org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><code>NavigableMapKVStore</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/spring/SpringXMLKVDatabase.html" title="class in org.jsimpledb.spring">SpringXMLKVDatabase</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>XMLKVDatabase</code></a> that adds support for loading the default initial content from any Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/core/io/Resource.html?is-external=true" title="class or interface in org.springframework.core.io"><code>Resource</code></a>.</div>

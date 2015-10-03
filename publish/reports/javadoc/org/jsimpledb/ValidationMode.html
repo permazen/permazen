@@ -107,7 +107,7 @@
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang">Enum</a>&lt;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&gt;</pre>
 <div class="block">Configures whether and how objects are enqueued for validation in a <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a>, 
-<a href="../../org/jsimpledb/JObject.html#revalidate()"><code>JObject.revalidate()</code></a>, 
+<a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a>, 
 <a href="../../org/jsimpledb/annotation/Validate.html" title="annotation in org.jsimpledb.annotation"><code>Validate</code></a></dd></dl>
 </li>
 </ul>
@@ -128,7 +128,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?i
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><strong><a href="../../org/jsimpledb/ValidationMode.html#AUTOMATIC">AUTOMATIC</a></strong></code>
-<div class="block">Objects are enqueued for validation automatically.</div>
+<div class="block">Objects are enqueued for validation automatically (if necessary) when they are modified.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -138,7 +138,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?i
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><strong><a href="../../org/jsimpledb/ValidationMode.html#MANUAL">MANUAL</a></strong></code>
-<div class="block">Objects are enqueued for validation only when <a href="../../org/jsimpledb/JObject.html#revalidate()"><code>JObject.revalidate()</code></a> is explicitly invoked.</div>
+<div class="block">Objects are enqueued for validation only when <a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is explicitly invoked.</div>
 </td>
 </tr>
 </table>
@@ -205,7 +205,7 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>DISABLED</h4>
 <pre>public static final&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a> <a href="../../src-html/org/jsimpledb/ValidationMode.html#line.20">DISABLED</a></pre>
-<div class="block">Validation is disabled. No objects are enqueued for validation, even if <a href="../../org/jsimpledb/JObject.html#revalidate()"><code>JObject.revalidate()</code></a> is invoked.</div>
+<div class="block">Validation is disabled. No objects are enqueued for validation, even if <a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is invoked.</div>
 </li>
 </ul>
 <a name="MANUAL">
@@ -215,7 +215,7 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>MANUAL</h4>
 <pre>public static final&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a> <a href="../../src-html/org/jsimpledb/ValidationMode.html#line.25">MANUAL</a></pre>
-<div class="block">Objects are enqueued for validation only when <a href="../../org/jsimpledb/JObject.html#revalidate()"><code>JObject.revalidate()</code></a> is explicitly invoked.</div>
+<div class="block">Objects are enqueued for validation only when <a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is explicitly invoked.</div>
 </li>
 </ul>
 <a name="AUTOMATIC">
@@ -224,25 +224,31 @@ the order they are declared.</div>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AUTOMATIC</h4>
-<pre>public static final&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a> <a href="../../src-html/org/jsimpledb/ValidationMode.html#line.47">AUTOMATIC</a></pre>
-<div class="block">Objects are enqueued for validation automatically.
+<pre>public static final&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a> <a href="../../src-html/org/jsimpledb/ValidationMode.html#line.53">AUTOMATIC</a></pre>
+<div class="block">Objects are enqueued for validation automatically (if necessary) when they are modified.
 
  <p>
- In this mode, objects are enqueued for validation whenever <a href="../../org/jsimpledb/JObject.html#revalidate()"><code>JObject.revalidate()</code></a> is invoked, or automatically when:
+ In this mode, objects are enqueued for validation whenever <a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> is invoked; in addition,
+ objects are enqueued for validation automatically as if by <a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a> when:
  <ul>
   <li>An instance is <a href="../../org/jsimpledb/JTransaction.html#create(java.lang.Class)">created</a>, and the Java model type (or any super-type)
       has a JSR 303 or <a href="../../org/jsimpledb/annotation/Validate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;Validate</code></a> annotation on itself or a public method</li>
   <li>An instance is <a href="../../org/jsimpledb/JObject.html#upgrade()">upgraded</a>, and the Java model type (or any super-type)
       has a JSR 303 or <a href="../../org/jsimpledb/annotation/Validate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;Validate</code></a> annotation on itself or a public method</li>
-  <li>A database field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
+  <li>An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
  </ul>
 
  <p>
- Note that the presence of a <a href="../../org/jsimpledb/annotation/Validate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;Validate</code></a> annotation on some method
- does <b>not</b> in itself result in automatic validation when any field changes. To achieve that, add an
- <a href="../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a>-annotated method that invokes
- <a href="../../org/jsimpledb/JObject.html#revalidate()"><code>this.revalidate()</code></a>.
- </p></div>
+ Note that the presence of a <a href="../../org/jsimpledb/annotation/Validate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;Validate</code></a> annotation on a method
+ does <b>not</b> in itself result in automatic validation when any field changes (it merely specifies an action
+ to take when validation occurs). To trigger revalidation after field changes, add
+ <a href="../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a>-annotated method(s) that invoke
+ <a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>this.revalidate()</code></a>.
+
+ <p>
+ Note that <a href="../../org/jsimpledb/ValidationMode.html#AUTOMATIC"><code>AUTOMATIC</code></a> enqueues as if by <a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>JObject.revalidate(java.lang.Class&lt;?&gt;...)</code></a>, i.e., the
+ <a href="https://docs.oracle.com/javaee/7/api/javax/validation/groups/Default.html?is-external=true" title="class or interface in javax.validation.groups"><code>Default</code></a> validation group applies. Therefore, if a constraint has explicit <code>groups()</code>,
+ and none extend <a href="https://docs.oracle.com/javaee/7/api/javax/validation/groups/Default.html?is-external=true" title="class or interface in javax.validation.groups"><code>Default</code></a>, then it will not be applied automatically.</div>
 </li>
 </ul>
 </li>
@@ -259,7 +265,7 @@ the order they are declared.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>values</h4>
-<pre>public static&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>[]&nbsp;<a href="../../src-html/org/jsimpledb/ValidationMode.html#line.19">values</a>()</pre>
+<pre>public static&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>[]&nbsp;<a href="../../src-html/org/jsimpledb/ValidationMode.html#line.55">values</a>()</pre>
 <div class="block">Returns an array containing the constants of this enum type, in
 the order they are declared.  This method may be used to iterate
 over the constants as follows:
@@ -277,7 +283,7 @@ the order they are declared</dd></dl>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>valueOf</h4>
-<pre>public static&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;<a href="../../src-html/org/jsimpledb/ValidationMode.html#line.19">valueOf</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
+<pre>public static&nbsp;<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;<a href="../../src-html/org/jsimpledb/ValidationMode.html#line.55">valueOf</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
 <div class="block">Returns the enum constant of this type with the specified name.
 The string must match <i>exactly</i> an identifier used to declare an
 enum constant in this type.  (Extraneous whitespace characters are 

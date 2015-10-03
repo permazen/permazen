@@ -94,7 +94,7 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.array">org.jsimpledb.kv.array</a></td>
 <td class="colLast">
-<div class="block">A simple <code>KVStore</code> implementation based on a sorted array of key/value pairs.</div>
+<div class="block">A simple <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -175,6 +175,23 @@
 </tr>
 </tbody>
 </table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../org/jsimpledb/package-summary.html">org.jsimpledb</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></code></td>
+<td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../../org/jsimpledb/JSimpleDB.html#createTransaction(org.jsimpledb.kv.KVTransaction, boolean, org.jsimpledb.ValidationMode)">createTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;kvt,
+                                  boolean&nbsp;allowNewSchema,
+                                  <a href="../../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
+<div class="block">Create a new transaction using an already-opened <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>.</div>
+</td>
+</tr>
+</tbody>
+</table>
 </li>
 <li class="blockList"><a name="org.jsimpledb.core">
 <!--   -->
@@ -191,6 +208,24 @@
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#getKVTransaction()">getKVTransaction</a></strong>()</code>
 <div class="block">Get the underlying key/value store transaction.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></td>
+<td class="colLast"><span class="strong">Database.</span><code><strong><a href="../../../../org/jsimpledb/core/Database.html#createTransaction(org.jsimpledb.kv.KVTransaction, org.jsimpledb.schema.SchemaModel, int, boolean)">createTransaction</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;kvt,
+                                  <a href="../../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel,
+                                  int&nbsp;version,
+                                  boolean&nbsp;allowNewSchema)</code>
+<div class="block">Create a new <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> on this database using an already-opened <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> and specified schema.</div>
 </td>
 </tr>
 </tbody>
@@ -424,6 +459,45 @@
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></strong></code>
 <div class="block"><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> transaction.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a> that return <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
+<td class="colLast"><span class="strong">FallbackKVDatabase.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html#createTransaction()">createTransaction</a></strong>()</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">OverwriteMergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/OverwriteMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
+          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">NullMergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/NullMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
+          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">MergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/MergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
+          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst)</code>
+<div class="block">Merge data between databases.</div>
 </td>
 </tr>
 </tbody>

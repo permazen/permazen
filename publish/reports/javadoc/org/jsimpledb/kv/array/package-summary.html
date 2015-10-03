@@ -63,7 +63,7 @@
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;org.jsimpledb.kv.array</h1>
 <div class="docSummary">
-<div class="block">A simple <code>KVStore</code> implementation based on a sorted array of key/value pairs.</div>
+<div class="block">A simple <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.</div>
 </div>
 <p>See:&nbsp;<a href="#package_description">Description</a></p>
 </div>
@@ -80,14 +80,14 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></td>
 <td class="colLast">
-<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <code>ArrayAtomicKVStore</code>, providing concurrent transactions
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>AtomicArrayKVStore</code></a>, providing concurrent transactions
  and linearizable ACID semantics.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></td>
 <td class="colLast">
-<div class="block">A simple read-only <code>KVStore</code> based on a sorted array of key/value pairs.</div>
+<div class="block">A simple read-only <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> based on a sorted array of key/value pairs.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -133,13 +133,33 @@
 <!--   -->
 </a>
 <h2 title="Package org.jsimpledb.kv.array Description">Package org.jsimpledb.kv.array Description</h2>
-<div class="block">A simple <code>KVStore</code> implementation based on a sorted array of key/value pairs.
+<div class="block">A simple <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.
 
  <p>
  Instances are optimized for relatively few writes and have minimal memory overhead.
 
  <p>
- Key and value data must each not exceed 2GB.</div>
+ Key and value data must not exceed 2GB (each separately).
+
+ <b>File Format</b>
+
+ <p>
+ There are three files: index, keys, and values.
+
+ <p>
+ The index file contains zero or more index entries, which are pairs of big endian 32-bit values where the first value
+ in a pair describes the offset of the corresponding key in the keys file, while the second describes the offset of the
+ corresponding value in the values file. Index entries are sorted by key.
+
+ <p>
+ For index entries in a slot equal to zero mod 32, the 32-bit value is the absolute offset of the key, and this is called
+ a "base key"; otherwise, the first 8 bits are the length of the key's prefix matching the previous base key (from zero to 255),
+ while the remaining 24 bits are the offset from the beginning of the previous base key to the start of the suffix. In both
+ cases, the end of the key is the starting offset of the next key (or end of file).
+
+ <p>
+ For all index entries, the second 32-bit value is the absolute offset of the value in the values file.
+ The end of the value is the starting offset of the next value (or end of file).</div>
 </div>
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <div class="bottomNav"><a name="navbar_bottom">

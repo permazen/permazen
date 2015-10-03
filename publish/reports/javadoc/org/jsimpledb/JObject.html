@@ -130,13 +130,14 @@
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/JObject.html#copyIn(java.lang.String...)">copyIn</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</code>
-<div class="block">Copy this instance and other instances it references into the transaction associated with the current thread.</div>
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any),
+ into the transaction associated with the current thread.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)">copyOut</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</code>
-<div class="block">Snapshot this instance and other instances it references.</div>
+<div class="block">Snapshot this instance and other instances it references through the specified <code>refPaths</code> (if any).</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -145,7 +146,8 @@
             <a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
             <a href="../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState,
             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</code>
-<div class="block">Copy this instance, and other instances it references, into a (possibly) different <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any), into a (possibly)
+ different <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -193,7 +195,7 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../org/jsimpledb/JObject.html#revalidate()">revalidate</a></strong>()</code>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)">revalidate</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;groups)</code>
 <div class="block">Add this instance to the validation queue for validation in its associated transaction.</div>
 </td>
 </tr>
@@ -324,23 +326,25 @@
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated with this instance</a> is no longer usable</dd></dl>
 </li>
 </ul>
-<a name="revalidate()">
+<a name="revalidate(java.lang.Class...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>revalidate</h4>
-<pre>void&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.121">revalidate</a>()</pre>
+<pre>void&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.123">revalidate</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;groups)</pre>
 <div class="block">Add this instance to the validation queue for validation in its associated transaction.
 
  <p>
  The actual validation will occur either during <a href="../../org/jsimpledb/JTransaction.html#commit()"><code>JTransaction.commit()</code></a>
  or at the next invocation of <a href="../../org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a>, whichever occurs first.
- </p></div>
-<dl><dt><span class="strong">Throws:</span></dt>
+ The specified validation groups, if any, will be used.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>groups</code> - validation group(s) to use for validation; if empty, <a href="https://docs.oracle.com/javaee/7/api/javax/validation/groups/Default.html?is-external=true" title="class or interface in javax.validation.groups"><code>Default</code></a> is assumed</dd>
+<dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if this object does not exist in the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with this instance</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if transaction commit is already in progress</dd>
-<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated with this instance</a> is no longer usable</dd></dl>
+<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if the transaction <a href="../../org/jsimpledb/JObject.html#getTransaction()">associated with this instance</a> is no longer usable</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <code>groups</code> is null</dd></dl>
 </li>
 </ul>
 <a name="upgrade()">
@@ -349,7 +353,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>upgrade</h4>
-<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.138">upgrade</a>()</pre>
+<pre>boolean&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.140">upgrade</a>()</pre>
 <div class="block">Update the schema version of this instance, if necessary, so that it matches the schema version
  of its associated transaction.
 
@@ -369,13 +373,17 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>copyTo</h4>
-<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.202">copyTo</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.208">copyTo</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
              <a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
              <a href="../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState,
              <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
-<div class="block">Copy this instance, and other instances it references, into a (possibly) different <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.
- This is a more general method; see <a href="../../org/jsimpledb/JObject.html#copyIn(java.lang.String...)"><code>copyIn()</code></a> and <a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)"><code>copyOut()</code></a> for more common
- and specific use cases.
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any), into a (possibly)
+ different <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>. This is a more general method; see <a href="../../org/jsimpledb/JObject.html#copyIn(java.lang.String...)"><code>copyIn()</code></a> and <a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)"><code>copyOut()</code></a>
+ for more common and specific use cases.
+
+ <p>
+ The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
+ always copy at least this instance, and possibly others if <code>refPaths</code> is non-empty.
 
  <p>
  This method will copy this object's fields into the object with ID <code>target</code> (or this instance's object ID if
@@ -435,8 +443,12 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>copyOut</h4>
-<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.236">copyOut</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
-<div class="block">Snapshot this instance and other instances it references.
+<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.246">copyOut</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
+<div class="block">Snapshot this instance and other instances it references through the specified <code>refPaths</code> (if any).
+
+ <p>
+ The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
+ always copy at least this instance, and possibly others if <code>refPaths</code> is non-empty.
 
  <p>
  This method will copy this object and all of its fields, along with all other objects reachable through
@@ -472,8 +484,13 @@
 <ul class="blockListLast">
 <li class="blockList">
 <h4>copyIn</h4>
-<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.271">copyIn</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
-<div class="block">Copy this instance and other instances it references into the transaction associated with the current thread.
+<pre><a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JObject.html#line.286">copyIn</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</pre>
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any),
+ into the transaction associated with the current thread.
+
+ <p>
+ The "granularity" of the copy operation is one object, which includes all of the object's fields. This method will
+ always copy at least this instance, and possibly others if <code>refPaths</code> is non-empty.
 
  <p>
  This method will copy this object and all of its fields, along with all other objects reachable through any of the
@@ -486,8 +503,8 @@
 
  <p>
  Normally this method would only be invoked on a snapshot <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>.
+ If this instance is a regular database <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>, then it is immediately returned unchanged.
  The returned object will always be a regular database <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>.
- </p>
 
  <p>
  This is a convenience method, and is equivalent to invoking:

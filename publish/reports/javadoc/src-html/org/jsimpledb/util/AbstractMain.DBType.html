@@ -30,24 +30,24 @@
 <span class="sourceLineNo">022</span>import java.util.LinkedHashSet;<a name="line.22"></a>
 <span class="sourceLineNo">023</span><a name="line.23"></a>
 <span class="sourceLineNo">024</span>import org.dellroad.stuff.main.MainClass;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jsimpledb.JSimpleDB;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jsimpledb.JSimpleDBFactory;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jsimpledb.ValidationMode;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jsimpledb.annotation.JFieldType;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.jsimpledb.core.Database;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jsimpledb.core.FieldType;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.jsimpledb.core.Transaction;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.jsimpledb.kv.KVDatabase;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.jsimpledb.kv.array.ArrayKVDatabase;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.jsimpledb.kv.array.AtomicArrayKVStore;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.jsimpledb.kv.fdb.FoundationKVDatabase;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import org.jsimpledb.kv.mvcc.AtomicKVDatabase;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import org.jsimpledb.kv.mvcc.AtomicKVStore;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import org.jsimpledb.kv.raft.RaftKVDatabase;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import org.jsimpledb.kv.raft.net.TCPNetwork;<a name="line.42"></a>
+<span class="sourceLineNo">025</span>import org.dellroad.stuff.net.TCPNetwork;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jsimpledb.JSimpleDB;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jsimpledb.JSimpleDBFactory;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jsimpledb.ValidationMode;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jsimpledb.annotation.JFieldType;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jsimpledb.core.Database;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jsimpledb.core.FieldType;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jsimpledb.core.Transaction;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jsimpledb.kv.KVDatabase;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jsimpledb.kv.array.ArrayKVDatabase;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.jsimpledb.kv.array.AtomicArrayKVStore;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jsimpledb.kv.fdb.FoundationKVDatabase;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.jsimpledb.kv.mvcc.AtomicKVDatabase;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.jsimpledb.kv.mvcc.AtomicKVStore;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.jsimpledb.kv.raft.RaftKVDatabase;<a name="line.42"></a>
 <span class="sourceLineNo">043</span>import org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore;<a name="line.43"></a>
 <span class="sourceLineNo">044</span>import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;<a name="line.44"></a>
 <span class="sourceLineNo">045</span>import org.jsimpledb.kv.simple.SimpleKVDatabase;<a name="line.45"></a>
@@ -100,7 +100,7 @@
 <span class="sourceLineNo">092</span>    protected File raftDirectory;<a name="line.92"></a>
 <span class="sourceLineNo">093</span>    protected String raftIdentity;<a name="line.93"></a>
 <span class="sourceLineNo">094</span>    protected String raftAddress;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    protected int raftPort = TCPNetwork.DEFAULT_TCP_PORT;<a name="line.95"></a>
+<span class="sourceLineNo">095</span>    protected int raftPort = RaftKVDatabase.DEFAULT_TCP_PORT;<a name="line.95"></a>
 <span class="sourceLineNo">096</span>    protected int raftMinElectionTimeout = -1;<a name="line.96"></a>
 <span class="sourceLineNo">097</span>    protected int raftMaxElectionTimeout = -1;<a name="line.97"></a>
 <span class="sourceLineNo">098</span>    protected int raftHeartbeatTimeout = -1;<a name="line.98"></a>
@@ -608,7 +608,7 @@
 <span class="sourceLineNo">600</span>            { "--raft-identity",                "Raft identity" },<a name="line.600"></a>
 <span class="sourceLineNo">601</span>            { "--raft-address address",         "Specify local Raft node's IP address" },<a name="line.601"></a>
 <span class="sourceLineNo">602</span>            { "--raft-port",                    "Specify local Raft node's TCP port (default "<a name="line.602"></a>
-<span class="sourceLineNo">603</span>                                                  + TCPNetwork.DEFAULT_TCP_PORT + ")" },<a name="line.603"></a>
+<span class="sourceLineNo">603</span>                                                  + RaftKVDatabase.DEFAULT_TCP_PORT + ")" },<a name="line.603"></a>
 <span class="sourceLineNo">604</span>            { "--read-only, -ro",               "Disallow database modifications" },<a name="line.604"></a>
 <span class="sourceLineNo">605</span>            { "--rocksdb directory",            "Use RocksDB in specified directory" },<a name="line.605"></a>
 <span class="sourceLineNo">606</span>            { "--new-schema",                   "Allow recording of a new database schema version" },<a name="line.606"></a>
@@ -861,7 +861,7 @@
 <span class="sourceLineNo">853</span>        public RaftKVDatabase createKVDatabase() {<a name="line.853"></a>
 <span class="sourceLineNo">854</span><a name="line.854"></a>
 <span class="sourceLineNo">855</span>            // Setup network<a name="line.855"></a>
-<span class="sourceLineNo">856</span>            final TCPNetwork network = new TCPNetwork();<a name="line.856"></a>
+<span class="sourceLineNo">856</span>            final TCPNetwork network = new TCPNetwork(RaftKVDatabase.DEFAULT_TCP_PORT);<a name="line.856"></a>
 <span class="sourceLineNo">857</span>            try {<a name="line.857"></a>
 <span class="sourceLineNo">858</span>                network.setListenAddress(AbstractMain.this.raftAddress != null ?<a name="line.858"></a>
 <span class="sourceLineNo">859</span>                  new InetSocketAddress(InetAddress.getByName(AbstractMain.this.raftAddress), AbstractMain.this.raftPort) :<a name="line.859"></a>

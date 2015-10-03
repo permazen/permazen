@@ -98,13 +98,13 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.23">ArrayKVWriter</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.30">ArrayKVWriter</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a></pre>
 <div class="block">Writes <a href="../../../../org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>ArrayKVStore</code></a> index, key, and value data, given a sorted sequence of key/value pairs.
 
  <p>
- Key and value data must not exceed 2GB.</div>
+ Key and value data must not exceed 2GB (each separately).</div>
 </li>
 </ul>
 </div>
@@ -181,6 +181,14 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <div class="block">Write out the next key/value pair.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/ArrayKVWriter.html#writeMerged(org.jsimpledb.kv.KVStore, java.util.Iterator, org.jsimpledb.kv.mvcc.Mutations)">writeMerged</a></strong>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+                      <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvIterator,
+                      <a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)</code>
+<div class="block">Merge the given key/value pair iteration with the specified mutations and write out the merged combination.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -209,14 +217,11 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ArrayKVWriter</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.47">ArrayKVWriter</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;indxOutput,
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.59">ArrayKVWriter</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;indxOutput,
              <a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;keysOutput,
-             <a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;valsOutput)
-              throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+             <a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;valsOutput)</pre>
 <div class="block">Constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>indxOutput</code> - index file output</dd><dd><code>keysOutput</code> - key data file output</dd><dd><code>valsOutput</code> - value data file output</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>indxOutput</code> - index file output</dd><dd><code>keysOutput</code> - key data file output</dd><dd><code>valsOutput</code> - value data file output</dd></dl>
 </li>
 </ul>
 </li>
@@ -233,8 +238,9 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <ul class="blockList">
 <li class="blockList">
 <h4>getIndxLength</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.59">getIndxLength</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.73">getIndxLength</a>()</pre>
 <div class="block">Get the number of bytes written so far to the index file.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>length of the index file</dd></dl>
 </li>
 </ul>
 <a name="getKeysLength()">
@@ -243,8 +249,9 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeysLength</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.66">getKeysLength</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.82">getKeysLength</a>()</pre>
 <div class="block">Get the number of bytes written so far to the key data file.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>length of the key data file</dd></dl>
 </li>
 </ul>
 <a name="getValsLength()">
@@ -253,8 +260,9 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <ul class="blockList">
 <li class="blockList">
 <h4>getValsLength</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.73">getValsLength</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.91">getValsLength</a>()</pre>
 <div class="block">Get the number of bytes written so far to the value data file.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>length of the value data file</dd></dl>
 </li>
 </ul>
 <a name="writeKV(byte[], byte[])">
@@ -263,7 +271,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <ul class="blockList">
 <li class="blockList">
 <h4>writeKV</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.86">writeKV</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.105">writeKV</a>(byte[]&nbsp;key,
            byte[]&nbsp;val)
              throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Write out the next key/value pair.</div>
@@ -272,7 +280,31 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>key</code> is out of order (i.e., not strictly greater then the previous key)</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>key</code> or <code>val</code> is null</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if either the key or data file would grow larger than 2<sup>31</sup>-1 bytes</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurrs</dd></dl>
+</li>
+</ul>
+<a name="writeMerged(org.jsimpledb.kv.KVStore, java.util.Iterator, org.jsimpledb.kv.mvcc.Mutations)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writeMerged</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.175">writeMerged</a>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+               <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvIterator,
+               <a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)
+                 throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block">Merge the given key/value pair iteration with the specified mutations and write out the merged combination.
+ What's written is the result of the key/value iteration with the mutations applied.
+
+ <p>
+ The <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> parameter will only be used to invoke <a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)"><code>KVStore.encodeCounter()</code></a>
+ and <a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])"><code>KVStore.decodeCounter()</code></a> in order to handle counter adjustments.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvstore</code> - callback for encoding and decoding counter values</dd><dd><code>kvIterator</code> - key/value pairs - must be sorted in order</dd><dd><code>mutations</code> - mutations to apply</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any parameter is null</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>kvs</code> iterates out of order</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if either the key or data file would grow larger than 2<sup>31</sup>-1 bytes</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurrs</dd></dl>
 </li>
 </ul>
 <a name="flush()">
@@ -281,11 +313,11 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <ul class="blockList">
 <li class="blockList">
 <h4>flush</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.149">flush</a>()
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.283">flush</a>()
            throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Flush all three outputs.</div>
 <dl><dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurrs</dd></dl>
 </li>
 </ul>
 <a name="close()">
@@ -294,7 +326,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <ul class="blockListLast">
 <li class="blockList">
 <h4>close</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.159">close</a>()
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVWriter.html#line.295">close</a>()
            throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Close all three outputs.</div>
 <dl>
@@ -303,7 +335,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Closeable.
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/AutoCloseable.html?is-external=true#close()" title="class or interface in java.lang">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang">AutoCloseable</a></code></dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code></dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurrs</dd></dl>
 </li>
 </ul>
 </li>

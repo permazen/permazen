@@ -98,7 +98,7 @@
 </dl>
 <hr>
 <br>
-<pre>public abstract class <a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.27">AbstractFunction</a>
+<pre>public abstract class <a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.29">AbstractFunction</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Superclass of all <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a> functions.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>Function</code></a></dd></dl>
@@ -194,12 +194,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getSessionModes()">getSessionModes</a></strong>()</code>
+<div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getUsage()">getUsage</a></strong>()</code>
 <div class="block">Get function usage string.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr">Node</a>[]</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseExpressionParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.ParseContext, boolean, int, int, int)">parseExpressionParams</a></strong>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                                           <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
@@ -210,7 +216,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <div class="block">Parse some number of Java expression function arguments.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.ParseContext, boolean)">parseParams</a></strong>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                       <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
@@ -246,7 +252,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>log</h4>
-<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.29">log</a></pre>
+<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.31">log</a></pre>
 </li>
 </ul>
 <a name="spaceParser">
@@ -255,7 +261,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>spaceParser</h4>
-<pre>protected final&nbsp;<a href="../../../../org/jsimpledb/parse/SpaceParser.html" title="class in org.jsimpledb.parse">SpaceParser</a> <a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.30">spaceParser</a></pre>
+<pre>protected final&nbsp;<a href="../../../../org/jsimpledb/parse/SpaceParser.html" title="class in org.jsimpledb.parse">SpaceParser</a> <a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.32">spaceParser</a></pre>
 </li>
 </ul>
 <a name="name">
@@ -264,7 +270,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>name</h4>
-<pre>protected final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.31">name</a></pre>
+<pre>protected final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.33">name</a></pre>
 </li>
 </ul>
 </li>
@@ -281,7 +287,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AbstractFunction</h4>
-<pre>protected&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.40">AbstractFunction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
+<pre>protected&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.42">AbstractFunction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - function name</dd></dl>
 </li>
@@ -300,7 +306,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getName</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.52">getName</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.54">getName</a>()</pre>
 <div class="block">Get the name of this function.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>function name</dd></dl>
 </li>
@@ -311,7 +317,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getUsage</h4>
-<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.61">getUsage</a>()</pre>
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.63">getUsage</a>()</pre>
 <div class="block">Get function usage string. For example: <code>pow(base, exponent)</code>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>function usage string</dd></dl>
 </li>
@@ -322,7 +328,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getHelpSummary</h4>
-<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.68">getHelpSummary</a>()</pre>
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.70">getHelpSummary</a>()</pre>
 <div class="block">Get summarized help (typically a single line).</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>one line summarized description of this function</dd></dl>
 </li>
@@ -333,7 +339,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getHelpDetail</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.79">getHelpDetail</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.81">getHelpDetail</a>()</pre>
 <div class="block">Get expanded help (typically multiple lines). May refer to the <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getUsage()">usage string</a>.
 
  <p>
@@ -342,13 +348,29 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dl><dt><span class="strong">Returns:</span></dt><dd>detailed description of this function</dd></dl>
 </li>
 </ul>
+<a name="getSessionModes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSessionModes</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.95">getSessionModes</a>()</pre>
+<div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.
+
+ <p>
+ The implementation in <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func"><code>AbstractFunction</code></a> introspects the <a href="../../../../org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>&#64;Function</code></a> annotation on
+ this instance's class; if not present, an exception is thrown.
+ </p></div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>set of supported <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>s</dd></dl>
+</li>
+</ul>
 <a name="parseParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.ParseContext, boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>parseParams</h4>
-<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.99">parseParams</a>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.121">parseParams</a>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                  <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                  boolean&nbsp;complete)</pre>
 <div class="block">Parse function parameters.
@@ -369,7 +391,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>apply</h4>
-<pre>public abstract&nbsp;<a href="../../../../org/jsimpledb/parse/expr/Value.html" title="interface in org.jsimpledb.parse.expr">Value</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.109">apply</a>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+<pre>public abstract&nbsp;<a href="../../../../org/jsimpledb/parse/expr/Value.html" title="interface in org.jsimpledb.parse.expr">Value</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.131">apply</a>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
           <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;params)</pre>
 <div class="block">Evaluate this function. There will be a transaction open.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - parse session</dd><dd><code>params</code> - parsed parameters returned by <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.ParseContext, boolean)"><code>parseParams()</code></a></dd>
@@ -384,7 +406,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>parseExpressionParams</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr">Node</a>[]&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.125">parseExpressionParams</a>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr">Node</a>[]&nbsp;<a href="../../../../src-html/org/jsimpledb/parse/func/AbstractFunction.html#line.147">parseExpressionParams</a>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                            <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                            boolean&nbsp;complete,
                            int&nbsp;skippedArgs,

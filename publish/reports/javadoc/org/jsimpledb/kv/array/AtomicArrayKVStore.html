@@ -103,7 +103,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.84">AtomicArrayKVStore</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.92">AtomicArrayKVStore</a>
 extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a>
 implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></pre>
 <div class="block"><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> based on <a href="../../../../org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>ArrayKVStore</code></a> with background compaction.
@@ -126,10 +126,14 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
  of uncompacted changes when there is extremely high write volume.
 
  <p>
+ "Hot" backups created in parallel with normal operation are supported via <a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#hotCopy(java.io.File)"><code>hotCopy()</code></a>.
+ Hard links are used (when available) to make this operation fast.
+
+ <p>
  The <a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#setDirectory(java.io.File)">database directory</a> is a required configuration property.
 
  <p>
- Key and value data each must not exceed 2GB total.
+ Key and value data must not exceed 2GB (each separately).
 
  <p>
  Instances may be stopped and (re)started multiple times.</div>
@@ -261,87 +265,93 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#hotCopy(java.io.File)">hotCopy</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;target)</code>
+<div class="block">Create a "hot" copy of this instance in the specified destination directory.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">mutate</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
             boolean&nbsp;sync)</code>
 <div class="block">Apply a set of mutations to this instance atomically.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#put(byte[], byte[])">put</a></strong>(byte[]&nbsp;key,
       byte[]&nbsp;value)</code>
 <div class="block">Set the value associated with the given key.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#remove(byte[])">remove</a></strong>(byte[]&nbsp;key)</code>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#removeRange(byte[], byte[])">removeRange</a></strong>(byte[]&nbsp;minKey,
                       byte[]&nbsp;maxKey)</code>
 <div class="block">Remove all key/value pairs whose keys are in a given range.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;?&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#scheduleCompaction()">scheduleCompaction</a></strong>()</code>
 <div class="block">Schedule a new compaction cycle, unless there is one already scheduled or running, or there are no
  outstanding uncompacted modifications.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#setCompactHighWater(int)">setCompactHighWater</a></strong>(int&nbsp;compactHighWater)</code>
 <div class="block">Configure the compaction space high-water mark in bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#setCompactLowWater(int)">setCompactLowWater</a></strong>(int&nbsp;compactLowWater)</code>
 <div class="block">Configure the compaction space low-water mark in bytes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#setCompactMaxDelay(int)">setCompactMaxDelay</a></strong>(int&nbsp;compactMaxDelay)</code>
 <div class="block">Configure the compaction time maximum delay.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#setDirectory(java.io.File)">setDirectory</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</code>
 <div class="block">Configure the filesystem directory containing the database.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#setScheduledExecutorService(java.util.concurrent.ScheduledExecutorService)">setScheduledExecutorService</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ScheduledExecutorService</a>&nbsp;scheduledExecutorService)</code>
 <div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><code>ScheduledExecutorService</code></a> used to schedule background compaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#snapshot()">snapshot</a></strong>()</code>
 <div class="block">Acquire a read-only, snapshot view of this instance based on the current state.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
@@ -373,7 +383,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_COMPACTION_MAX_DELAY</h4>
-<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.89">DEFAULT_COMPACTION_MAX_DELAY</a></pre>
+<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.97">DEFAULT_COMPACTION_MAX_DELAY</a></pre>
 <div class="block">Default compaction maximum delay in seconds (90 seconds).</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.array.AtomicArrayKVStore.DEFAULT_COMPACTION_MAX_DELAY">Constant Field Values</a></dd></dl>
 </li>
@@ -384,7 +394,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_COMPACTION_LOW_WATER</h4>
-<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.94">DEFAULT_COMPACTION_LOW_WATER</a></pre>
+<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.102">DEFAULT_COMPACTION_LOW_WATER</a></pre>
 <div class="block">Default compaction space low-water mark in bytes (65536 bytes).</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.array.AtomicArrayKVStore.DEFAULT_COMPACTION_LOW_WATER">Constant Field Values</a></dd></dl>
 </li>
@@ -395,7 +405,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DEFAULT_COMPACTION_HIGH_WATER</h4>
-<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.99">DEFAULT_COMPACTION_HIGH_WATER</a></pre>
+<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.107">DEFAULT_COMPACTION_HIGH_WATER</a></pre>
 <div class="block">Default compaction space high-water mark in bytes (1073741824 bytes).</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.array.AtomicArrayKVStore.DEFAULT_COMPACTION_HIGH_WATER">Constant Field Values</a></dd></dl>
 </li>
@@ -414,7 +424,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AtomicArrayKVStore</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.84">AtomicArrayKVStore</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.92">AtomicArrayKVStore</a>()</pre>
 </li>
 </ul>
 </li>
@@ -431,7 +441,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>getDirectory</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.158">getDirectory</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.162">getDirectory</a>()</pre>
 <div class="block">Get the filesystem directory containing the database. If not set, this class functions as an im-memory store.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>database directory, or null for none</dd></dl>
 </li>
@@ -442,7 +452,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>setDirectory</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.168">setDirectory</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.172">setDirectory</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</pre>
 <div class="block">Configure the filesystem directory containing the database. If not set, this class functions as an im-memory store.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>directory</code> - database directory, or null for none</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -455,7 +465,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>setScheduledExecutorService</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.189">setScheduledExecutorService</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ScheduledExecutorService</a>&nbsp;scheduledExecutorService)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.193">setScheduledExecutorService</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html?is-external=true" title="class or interface in java.util.concurrent">ScheduledExecutorService</a>&nbsp;scheduledExecutorService)</pre>
 <div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html?is-external=true" title="class or interface in java.util.concurrent"><code>ScheduledExecutorService</code></a> used to schedule background compaction.
 
  <p>
@@ -473,7 +483,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompactMaxDelay</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.207">setCompactMaxDelay</a>(int&nbsp;compactMaxDelay)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.211">setCompactMaxDelay</a>(int&nbsp;compactMaxDelay)</pre>
 <div class="block">Configure the compaction time maximum delay. Compaction will be automatically triggered whenever there is any
  uncompacted modification older than this.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>compactMaxDelay</code> - compaction time maximum delay in seconds</dd>
@@ -488,7 +498,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompactLowWater</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.225">setCompactLowWater</a>(int&nbsp;compactLowWater)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.229">setCompactLowWater</a>(int&nbsp;compactLowWater)</pre>
 <div class="block">Configure the compaction space low-water mark in bytes.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>compactLowWater</code> - compaction space low-water mark in bytes</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -502,7 +512,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompactHighWater</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.247">setCompactHighWater</a>(int&nbsp;compactHighWater)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.251">setCompactHighWater</a>(int&nbsp;compactHighWater)</pre>
 <div class="block">Configure the compaction space high-water mark in bytes.
 
  <p>
@@ -521,7 +531,7 @@ implements <a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title=
 <li class="blockList">
 <h4>start</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PostConstruct.html?is-external=true" title="class or interface in javax.annotation">@PostConstruct</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.262">start</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.266">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#start()">AtomicKVStore</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -543,7 +553,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <li class="blockList">
 <h4>stop</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PreDestroy.html?is-external=true" title="class or interface in javax.annotation">@PreDestroy</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.446">stop</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.450">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#stop()">AtomicKVStore</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -565,7 +575,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.521">get</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.550">get</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#get(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the value associated with the given key, if any.</div>
 <dl>
@@ -583,7 +593,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>getAtLeast</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.532">getAtLeast</a>(byte[]&nbsp;minKey)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.561">getAtLeast</a>(byte[]&nbsp;minKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtLeast(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the key/value pair having the smallest key greater than or equal to the given minimum, if any.
 
@@ -606,7 +616,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>getAtMost</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.543">getAtMost</a>(byte[]&nbsp;maxKey)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.572">getAtMost</a>(byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getAtMost(byte[])">KVStore</a></code></strong></div>
 <div class="block">Get the key/value pair having the largest key strictly less than the given maximum, if any.
 
@@ -629,7 +639,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>getRange</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.554">getRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.583">getRange</a>(byte[]&nbsp;minKey,
                         byte[]&nbsp;maxKey,
                         boolean&nbsp;reverse)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#getRange(byte[], byte[], boolean)">KVStore</a></code></strong></div>
@@ -669,7 +679,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>put</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.565">put</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.594">put</a>(byte[]&nbsp;key,
        byte[]&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#put(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Set the value associated with the given key.</div>
@@ -687,7 +697,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.572">remove</a>(byte[]&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.601">remove</a>(byte[]&nbsp;key)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#remove(byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove the key/value pair with the given key, if it exists.</div>
 <dl>
@@ -704,7 +714,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>removeRange</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.579">removeRange</a>(byte[]&nbsp;minKey,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.608">removeRange</a>(byte[]&nbsp;minKey,
                byte[]&nbsp;maxKey)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#removeRange(byte[], byte[])">KVStore</a></code></strong></div>
 <div class="block">Remove all key/value pairs whose keys are in a given range.
@@ -734,7 +744,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>adjustCounter</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.586">adjustCounter</a>(byte[]&nbsp;key,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.615">adjustCounter</a>(byte[]&nbsp;key,
                  long&nbsp;amount)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)">KVStore</a></code></strong></div>
 <div class="block">Adjust the counter at the given key by the given amount.
@@ -763,7 +773,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>encodeCounter</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.593">encodeCounter</a>(long&nbsp;value)</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.622">encodeCounter</a>(long&nbsp;value)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)">KVStore</a></code></strong></div>
 <div class="block">Encode a counter value into a <code>byte[]</code> value suitable for use with <a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])"><code>decodeCounter()</code></a>
  and/or <a href="../../../../org/jsimpledb/kv/KVStore.html#adjustCounter(byte[], long)"><code>adjustCounter()</code></a>.</div>
@@ -782,7 +792,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>decodeCounter</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.604">decodeCounter</a>(byte[]&nbsp;bytes)</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.633">decodeCounter</a>(byte[]&nbsp;bytes)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVStore.html#decodeCounter(byte[])">KVStore</a></code></strong></div>
 <div class="block">Decode a counter value previously encoded by <a href="../../../../org/jsimpledb/kv/KVStore.html#encodeCounter(long)"><code>encodeCounter()</code></a>.</div>
 <dl>
@@ -800,7 +810,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>snapshot</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.617">snapshot</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.646">snapshot</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#snapshot()">AtomicKVStore</a></code></strong></div>
 <div class="block">Acquire a read-only, snapshot view of this instance based on the current state.
 
@@ -821,7 +831,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>mutate</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.647">mutate</a>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.676">mutate</a>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
           boolean&nbsp;sync)</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">AtomicKVStore</a></code></strong></div>
 <div class="block">Apply a set of mutations to this instance atomically.
@@ -844,13 +854,41 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <dt><span class="strong">Parameters:</span></dt><dd><code>mutations</code> - the mutations to apply</dd><dd><code>sync</code> - if true, caller requires that the changes be durably persisted</dd></dl>
 </li>
 </ul>
+<a name="hotCopy(java.io.File)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hotCopy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.816">hotCopy</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;target)
+             throws <a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block">Create a "hot" copy of this instance in the specified destination directory.
+
+ <p>
+ The <code>target</code> directory will be created if it does not exist; otherwise, it must be empty.
+ Files are copied using <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/file/Files.html?is-external=true#createLink(java.nio.file.Path, java.nio.file.Path)" title="class or interface in java.nio.file">hard links</a> when possible.
+
+ <p>
+ The hot copy operation proceeds in parallel with normal database activity, with the exception
+ that a compaction operation must wait until there are no concurrent hot copies to complete.
+
+ <p>
+ The <code>target</code> directory is not fsync()'d by this method; the caller
+ must perform that action to ensure durability if required.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>target</code> - destination directory</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurs</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>target</code> exists and is not a directory or is non-empty</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>target</code> is null</dd></dl>
+</li>
+</ul>
 <a name="scheduleCompaction()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>scheduleCompaction</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;?&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.771">scheduleCompaction</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;?&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.895">scheduleCompaction</a>()</pre>
 <div class="block">Schedule a new compaction cycle, unless there is one already scheduled or running, or there are no
  outstanding uncompacted modifications.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>a future for the completion of the next compaction cycle, or null if there are no uncompacted modifications</dd>
@@ -864,7 +902,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockList">
 <li class="blockList">
 <h4>finalize</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.1183">finalize</a>()
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.1391">finalize</a>()
                  throws <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a></pre>
 <div class="block">Finalize this instance. Invokes <a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#stop()"><code>stop()</code></a> to close any unclosed iterators.</div>
 <dl>
@@ -880,7 +918,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/Atomi
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.1194">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/AtomicArrayKVStore.html#line.1402">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>

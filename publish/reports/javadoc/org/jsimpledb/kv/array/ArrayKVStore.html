@@ -105,7 +105,7 @@
 <br>
 <pre>public class <a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVStore.html#line.32">ArrayKVStore</a>
 extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></pre>
-<div class="block">A simple read-only <code>KVStore</code> based on a sorted array of key/value pairs.
+<div class="block">A simple read-only <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> based on a sorted array of key/value pairs.
 
  <p>
  Instances query three <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true" title="class or interface in java.nio"><code>ByteBuffer</code></a>s, one for the array index, one for the key data, and one for the value data.
@@ -116,7 +116,7 @@ extends <a href="../../../../org/jsimpledb/kv/AbstractKVStore.html" title="class
  queried key. Key data is prefix-compressed.
 
  <p>
- Key and value data must each not exceed 2GB.</div>
+ Key and value data must not exceed 2GB (each separately).</div>
 </li>
 </ul>
 </div>

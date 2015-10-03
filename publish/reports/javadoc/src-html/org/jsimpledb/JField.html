@@ -32,15 +32,15 @@
 <span class="sourceLineNo">024</span>    final Method getter;<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
 <span class="sourceLineNo">026</span>    JSchemaObject parent;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    boolean requiresValidation;<a name="line.27"></a>
+<span class="sourceLineNo">027</span>    boolean requiresDefaultValidation;<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>
 <span class="sourceLineNo">029</span>    JField(JSimpleDB jdb, String name, int storageId, String description, Method getter) {<a name="line.29"></a>
 <span class="sourceLineNo">030</span>        super(jdb, name, storageId, description);<a name="line.30"></a>
 <span class="sourceLineNo">031</span>        this.getter = getter;<a name="line.31"></a>
 <span class="sourceLineNo">032</span>    }<a name="line.32"></a>
 <span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>    void calculateRequiresValidation() {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>        this.requiresValidation = this.getter != null &amp;&amp; Util.requiresValidation(this.getter);<a name="line.35"></a>
+<span class="sourceLineNo">034</span>    void calculateRequiresDefaultValidation() {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        this.requiresDefaultValidation = this.getter != null &amp;&amp; Util.requiresDefaultValidation(this.getter);<a name="line.35"></a>
 <span class="sourceLineNo">036</span>    }<a name="line.36"></a>
 <span class="sourceLineNo">037</span><a name="line.37"></a>
 <span class="sourceLineNo">038</span>    @Override<a name="line.38"></a>

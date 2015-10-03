@@ -115,19 +115,19 @@
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</a>&lt;byte[],<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a>&gt;&gt;</code></td>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</a>&lt;byte[],<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a>&gt;&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html#getAdjustPairs()">getAdjustPairs</a></strong>()</code>
 <div class="block">Get the counter adjustments contained by this instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</a>&lt;byte[],byte[]&gt;&gt;</code></td>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</a>&lt;byte[],byte[]&gt;&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html#getPutPairs()">getPutPairs</a></strong>()</code>
 <div class="block">Get the written key/value pairs contained by this instance.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;</code></td>
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html#getRemoveRanges()">getRemoveRanges</a></strong>()</code>
 <div class="block">Get the key ranges removals contained by this instance.</div>
 </td>
@@ -153,7 +153,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>getRemoveRanges</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Mutations.html#line.26">getRemoveRanges</a>()</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Mutations.html#line.26">getRemoveRanges</a>()</pre>
 <div class="block">Get the key ranges removals contained by this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>key ranges removed</dd></dl>
 </li>
@@ -164,7 +164,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>getPutPairs</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</a>&lt;byte[],byte[]&gt;&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Mutations.html#line.37">getPutPairs</a>()</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</a>&lt;byte[],byte[]&gt;&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Mutations.html#line.37">getPutPairs</a>()</pre>
 <div class="block">Get the written key/value pairs contained by this instance.
 
  <p>
@@ -179,7 +179,7 @@
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getAdjustPairs</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</a>&lt;byte[],<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a>&gt;&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Mutations.html#line.48">getAdjustPairs</a>()</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util">Map.Entry</a>&lt;byte[],<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a>&gt;&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/Mutations.html#line.48">getAdjustPairs</a>()</pre>
 <div class="block">Get the counter adjustments contained by this instance.
 
  <p>

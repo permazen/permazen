@@ -76,7 +76,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.array">org.jsimpledb.kv.array</a></td>
 <td class="colLast">
-<div class="block">A simple <code>KVStore</code> implementation based on a sorted array of key/value pairs.</div>
+<div class="block">A simple <a href="../../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -123,6 +123,14 @@
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">AtomicArrayKVStore.</span><code><strong><a href="../../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">mutate</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
             boolean&nbsp;sync)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">ArrayKVWriter.</span><code><strong><a href="../../../../../org/jsimpledb/kv/array/ArrayKVWriter.html#writeMerged(org.jsimpledb.kv.KVStore, java.util.Iterator, org.jsimpledb.kv.mvcc.Mutations)">writeMerged</a></strong>(<a href="../../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+                      <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvIterator,
+                      <a href="../../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)</code>
+<div class="block">Merge the given key/value pair iteration with the specified mutations and write out the merged combination.</div>
+</td>
 </tr>
 </tbody>
 </table>

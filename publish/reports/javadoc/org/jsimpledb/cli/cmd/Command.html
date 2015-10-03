@@ -82,10 +82,11 @@
 <li class="blockList">
 <hr>
 <br>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true" title="class or interface in java.lang.annotation">@Retention</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/RetentionPolicy.html?is-external=true#RUNTIME" title="class or interface in java.lang.annotation">RUNTIME</a>)
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Documented.html?is-external=true" title="class or interface in java.lang.annotation">@Documented</a>
+<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Inherited.html?is-external=true" title="class or interface in java.lang.annotation">@Inherited</a>
+<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true" title="class or interface in java.lang.annotation">@Retention</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/RetentionPolicy.html?is-external=true#RUNTIME" title="class or interface in java.lang.annotation">RUNTIME</a>)
 <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Target.html?is-external=true" title="class or interface in java.lang.annotation">@Target</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Target.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/ElementType.html?is-external=true#TYPE" title="class or interface in java.lang.annotation">TYPE</a>)
-<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Documented.html?is-external=true" title="class or interface in java.lang.annotation">@Documented</a>
-public @interface <a href="../../../../src-html/org/jsimpledb/cli/cmd/Command.html#line.29">Command</a></pre>
+public @interface <a href="../../../../src-html/org/jsimpledb/cli/cmd/Command.html#line.31">Command</a></pre>
 <div class="block">Java annotation for classes that define custom <a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> commands.
 
  <p>
@@ -138,7 +139,7 @@ public @interface <a href="../../../../src-html/org/jsimpledb/cli/cmd/Command.ht
 <ul class="blockListLast">
 <li class="blockList">
 <h4>modes</h4>
-<pre>public abstract&nbsp;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>[]&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/Command.html#line.36">modes</a></pre>
+<pre>public abstract&nbsp;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>[]&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/Command.html#line.38">modes</a></pre>
 <div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>s supported by the annotated <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>supported <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>s</dd></dl>
 <dl>

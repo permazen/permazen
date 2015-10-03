@@ -82,7 +82,7 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.array">org.jsimpledb.kv.array</a></td>
 <td class="colLast">
-<div class="block">A simple <code>KVStore</code> implementation based on a sorted array of key/value pairs.</div>
+<div class="block">A simple <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -240,6 +240,23 @@
 <td class="colLast"><span class="strong">ArrayKVStore.</span><code><strong><a href="../../../../org/jsimpledb/kv/array/ArrayKVStore.html#getRange(byte[], byte[], boolean)">getRange</a></strong>(byte[]&nbsp;minKey,
                 byte[]&nbsp;maxKey,
                 boolean&nbsp;reverse)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Method parameters in <a href="../../../../org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a> with type arguments of type <a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">ArrayKVWriter.</span><code><strong><a href="../../../../org/jsimpledb/kv/array/ArrayKVWriter.html#writeMerged(org.jsimpledb.kv.KVStore, java.util.Iterator, org.jsimpledb.kv.mvcc.Mutations)">writeMerged</a></strong>(<a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;kvstore,
+                      <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvIterator,
+                      <a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)</code>
+<div class="block">Merge the given key/value pair iteration with the specified mutations and write out the merged combination.</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -520,6 +537,12 @@
                 byte[]&nbsp;maxKey,
                 boolean&nbsp;reverse)</code>&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;</code></td>
+<td class="colLast"><span class="strong">KeyListEncoder.</span><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#readPairs(java.io.InputStream)">readPairs</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;input)</code>
+<div class="block">Decode an iteration of key/value pairs previously encoded by <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.</div>
+</td>
+</tr>
 </tbody>
 </table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
@@ -551,6 +574,28 @@
 <td class="colLast"><span class="strong">AbstractKVIterator.</span><code><strong><a href="../../../../org/jsimpledb/kv/util/AbstractKVIterator.html#doRemove(E, org.jsimpledb.kv.KVPair)">doRemove</a></strong>(<a href="../../../../org/jsimpledb/kv/util/AbstractKVIterator.html" title="type parameter in AbstractKVIterator">E</a>&nbsp;value,
                 <a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&nbsp;pair)</code>
 <div class="block">Remove the previously iterated value.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Method parameters in <a href="../../../../org/jsimpledb/kv/util/package-summary.html">org.jsimpledb.kv.util</a> with type arguments of type <a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><span class="strong">KeyListEncoder.</span><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)">writePairs</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvpairs,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;output)</code>
+<div class="block">Encode an iteration of key/value pairs.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><span class="strong">KeyListEncoder.</span><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairsLength(java.util.Iterator)">writePairsLength</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/KVPair.html" title="class in org.jsimpledb.kv">KVPair</a>&gt;&nbsp;kvpairs)</code>
+<div class="block">Determine the number of bytes that would be written by <a href="../../../../org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.</div>
 </td>
 </tr>
 </tbody>

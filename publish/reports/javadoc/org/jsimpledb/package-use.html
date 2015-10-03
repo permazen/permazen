@@ -92,27 +92,39 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.cli.cmd">org.jsimpledb.cli.cmd</a></td>
+<td class="colLast">
+<div class="block">JSimpleDB CLI <a href="../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.demo">org.jsimpledb.demo</a></td>
 <td class="colLast">
 <div class="block">Demonstration Java model classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.gui">org.jsimpledb.gui</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB Vaadin GUI generator classes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse">org.jsimpledb.parse</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB parsing related classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse.expr">org.jsimpledb.parse.expr</a></td>
 <td class="colLast">
 <div class="block">Classes for parsing Java expressions with JSimpleDB-specific extensions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.parse.func">org.jsimpledb.parse.func</a></td>
+<td class="colLast">
+<div class="block"><a href="../../org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>Function</code></a> used in a <a href="../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a>, including built-ins.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -331,6 +343,23 @@
 </tbody>
 </table>
 </li>
+<li class="blockList"><a name="org.jsimpledb.cli.cmd">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../org/jsimpledb/package-summary.html">org.jsimpledb</a> used by <a href="../../org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../org/jsimpledb/class-use/SessionMode.html#org.jsimpledb.cli.cmd">SessionMode</a>
+<div class="block"><a href="../../org/jsimpledb/Session.html" title="class in org.jsimpledb"><code>Session</code></a> modes.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
 <li class="blockList"><a name="org.jsimpledb.demo">
 <!--   -->
 </a>
@@ -449,6 +478,23 @@
 </tbody>
 </table>
 </li>
+<li class="blockList"><a name="org.jsimpledb.parse.func">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../org/jsimpledb/package-summary.html">org.jsimpledb</a> used by <a href="../../org/jsimpledb/parse/func/package-summary.html">org.jsimpledb.parse.func</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../org/jsimpledb/class-use/SessionMode.html#org.jsimpledb.parse.func">SessionMode</a>
+<div class="block"><a href="../../org/jsimpledb/Session.html" title="class in org.jsimpledb"><code>Session</code></a> modes.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
 <li class="blockList"><a name="org.jsimpledb.spring">
 <!--   -->
 </a>
@@ -459,13 +505,23 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colOne"><a href="../../org/jsimpledb/class-use/JObject.html#org.jsimpledb.spring">JObject</a>
+<div class="block">Interface implemented by <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> Java model objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="../../org/jsimpledb/class-use/JSimpleDB.html#org.jsimpledb.spring">JSimpleDB</a>
 <div class="block">JSimpleDB Java persistence layer.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../org/jsimpledb/class-use/JTransaction.html#org.jsimpledb.spring">JTransaction</a>
 <div class="block">A transaction associated with a <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../org/jsimpledb/class-use/SnapshotJTransaction.html#org.jsimpledb.spring">SnapshotJTransaction</a>
+<div class="block">A "snapshot" <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that persists indefinitely.</div>
 </td>
 </tr>
 <tr class="altColor">

@@ -98,11 +98,11 @@
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../org/jsimpledb/cli/cmd/AbstractKVCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractKVCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/AbstractRaftCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractRaftCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/CompareSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">CompareSchemasCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/DeleteSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">DeleteSchemaVersionCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd">EvalCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/HelpCommand.html" title="class in org.jsimpledb.cli.cmd">HelpCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/ImportCommand.html" title="class in org.jsimpledb.cli.cmd">ImportCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/InfoCommand.html" title="class in org.jsimpledb.cli.cmd">InfoCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/KVSaveCommand.html" title="class in org.jsimpledb.cli.cmd">KVSaveCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/LoadCommand.html" title="class in org.jsimpledb.cli.cmd">LoadCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/QuitCommand.html" title="class in org.jsimpledb.cli.cmd">QuitCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SaveCommand.html" title="class in org.jsimpledb.cli.cmd">SaveCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">SetAllowNewSchemaCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">ShowSchemaCommand</a></dd>
+<dd><a href="../../../../org/jsimpledb/cli/cmd/AbstractKVCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractKVCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/AbstractRaftCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractRaftCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/CompareSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">CompareSchemasCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/DeleteSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">DeleteSchemaVersionCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd">EvalCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/HelpCommand.html" title="class in org.jsimpledb.cli.cmd">HelpCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/ImportCommand.html" title="class in org.jsimpledb.cli.cmd">ImportCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/InfoCommand.html" title="class in org.jsimpledb.cli.cmd">InfoCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/KVSaveCommand.html" title="class in org.jsimpledb.cli.cmd">KVSaveCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/LoadCommand.html" title="class in org.jsimpledb.cli.cmd">LoadCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/QuitCommand.html" title="class in org.jsimpledb.cli.cmd">QuitCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SaveCommand.html" title="class in org.jsimpledb.cli.cmd">SaveCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">SetAllowNewSchemaCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a>, <a href="../../../../org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">ShowSchemaCommand</a></dd>
 </dl>
 <hr>
 <br>
-<pre>public abstract class <a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.31">AbstractCommand</a>
+<pre>public abstract class <a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.33">AbstractCommand</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;</pre>
 <div class="block">Superclass of all CLI commands.</div>
@@ -207,12 +207,18 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getSessionModes()">getSessionModes</a></strong>()</code>
+<div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getUsage()">getUsage</a></strong>()</code>
 <div class="block">Get command usage string.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#parse(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.ParseContext, boolean)">parse</a></strong>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
           <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
@@ -248,7 +254,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockList">
 <li class="blockList">
 <h4>log</h4>
-<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.33">log</a></pre>
+<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.35">log</a></pre>
 </li>
 </ul>
 <a name="name">
@@ -257,7 +263,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockList">
 <li class="blockList">
 <h4>name</h4>
-<pre>protected final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.34">name</a></pre>
+<pre>protected final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.36">name</a></pre>
 </li>
 </ul>
 <a name="paramParser">
@@ -266,7 +272,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockListLast">
 <li class="blockList">
 <h4>paramParser</h4>
-<pre>protected final&nbsp;<a href="../../../../org/jsimpledb/cli/ParamParser.html" title="class in org.jsimpledb.cli">ParamParser</a> <a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.35">paramParser</a></pre>
+<pre>protected final&nbsp;<a href="../../../../org/jsimpledb/cli/ParamParser.html" title="class in org.jsimpledb.cli">ParamParser</a> <a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.37">paramParser</a></pre>
 </li>
 </ul>
 </li>
@@ -283,7 +289,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AbstractCommand</h4>
-<pre>protected&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.44">AbstractCommand</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;spec)</pre>
+<pre>protected&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.46">AbstractCommand</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;spec)</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>spec</code> - <a href="../../../../org/jsimpledb/cli/ParamParser.html" title="class in org.jsimpledb.cli"><code>ParamParser</code></a> spec string, possibly containing custom type names (see <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getParser(java.lang.String)"><code>getParser()</code></a>)</dd></dl>
 </li>
@@ -302,7 +308,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockList">
 <li class="blockList">
 <h4>getName</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.70">getName</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.72">getName</a>()</pre>
 <div class="block">Get the name of this command.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>command name</dd></dl>
 </li>
@@ -313,11 +319,11 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockList">
 <li class="blockList">
 <h4>getUsage</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.83">getUsage</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.85">getUsage</a>()</pre>
 <div class="block">Get command usage string.
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> delegates to <a href="../../../../org/jsimpledb/cli/ParamParser.html#getUsage(java.lang.String)"><code>ParamParser.getUsage()</code></a>.
+ The implementation in <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a> delegates to <a href="../../../../org/jsimpledb/cli/ParamParser.html#getUsage(java.lang.String)"><code>ParamParser.getUsage()</code></a>.
  </p></div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>command usage string</dd></dl>
 </li>
@@ -328,7 +334,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockList">
 <li class="blockList">
 <h4>getHelpSummary</h4>
-<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.92">getHelpSummary</a>()</pre>
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.94">getHelpSummary</a>()</pre>
 <div class="block">Get summarized help (typically a single line).</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>one line command summary</dd></dl>
 </li>
@@ -339,13 +345,29 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockList">
 <li class="blockList">
 <h4>getHelpDetail</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.103">getHelpDetail</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.105">getHelpDetail</a>()</pre>
 <div class="block">Get expanded help (typically multiple lines).
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> delegates to <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getHelpSummary()"><code>getHelpSummary()</code></a>.
+ The implementation in <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a> delegates to <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getHelpSummary()"><code>getHelpSummary()</code></a>.
  </p></div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>detailed command description</dd></dl>
+</li>
+</ul>
+<a name="getSessionModes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSessionModes</h4>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.119">getSessionModes</a>()</pre>
+<div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.
+
+ <p>
+ The implementation in <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a> introspects the <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>&#64;Command</code></a> annotation on
+ this instance's class; if not present, an exception is thrown.
+ </p></div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>set of supported <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>s</dd></dl>
 </li>
 </ul>
 <a name="parse(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.ParseContext, boolean)">
@@ -354,7 +376,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockList">
 <li class="blockList">
 <h4>parse</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.122">parse</a>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.144">parse</a>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                       <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                       boolean&nbsp;complete)</pre>
 <div class="block">Parse command line and return command action.
@@ -378,7 +400,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockList">
 <li class="blockList">
 <h4>getAction</h4>
-<pre>public abstract&nbsp;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.137">getAction</a>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+<pre>public abstract&nbsp;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.159">getAction</a>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                           <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                           boolean&nbsp;complete,
                           <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</pre>
@@ -396,7 +418,7 @@ implements <a href="../../../../org/jsimpledb/parse/Parser.html" title="interfac
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getParser</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;?&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.151">getParser</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;typeName)</pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;?&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/cli/cmd/AbstractCommand.html#line.173">getParser</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;typeName)</pre>
 <div class="block">Convert parameter spec type name into a <a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse"><code>Parser</code></a>. Used for custom type names not supported by <a href="../../../../org/jsimpledb/cli/ParamParser.html" title="class in org.jsimpledb.cli"><code>ParamParser</code></a>.
 
  <p>

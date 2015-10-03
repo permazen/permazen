@@ -169,7 +169,8 @@
             <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
             <a href="../../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState,
             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;refPaths)</code>
-<div class="block">Copy this instance, and other instances it references, into a (possibly) different <a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any), into a (possibly)
+ different <a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -258,7 +259,8 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.core.ObjId)">revalidate</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../../org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.core.ObjId, java.lang.Class...)">revalidate</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                    <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;groups)</code>
 <div class="block">Add the given instance to the validation queue for validation, which will occur either at <a href="../../../../org/jsimpledb/JTransaction.html#commit()"><code>JTransaction.commit()</code></a> time
  or at the next invocation of <a href="../../../../org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a>, whichever occurs first.</div>
 </td>
@@ -1210,6 +1212,10 @@
                             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;string)</code>
 <div class="block">Generate an object ID for the given object type storage ID and string.</div>
 </td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>[]</code></td>
+<td class="colLast"><span class="strong">ObjIdSet.</span><code><strong><a href="../../../../org/jsimpledb/util/ObjIdSet.html#toArray()">toArray</a></strong>()</code>&nbsp;</td>
 </tr>
 </tbody>
 </table>

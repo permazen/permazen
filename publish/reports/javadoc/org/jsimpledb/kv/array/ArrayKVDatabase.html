@@ -105,7 +105,7 @@
 <br>
 <pre>public class <a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVDatabase.html#line.20">ArrayKVDatabase</a>
 extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></pre>
-<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <code>ArrayAtomicKVStore</code>, providing concurrent transactions
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>AtomicArrayKVStore</code></a>, providing concurrent transactions
  and linearizable ACID semantics.
 
  <p>
@@ -175,7 +175,7 @@ extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" titl
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/ArrayKVDatabase.html#setKVStore(org.jsimpledb.kv.array.AtomicArrayKVStore)">setKVStore</a></strong>(<a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a>&nbsp;kvstore)</code>
-<div class="block">Configure the underlying <code>ArrayAtomicKVStore</code> used by this instance.</div>
+<div class="block">Configure the underlying <a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>AtomicArrayKVStore</code></a> used by this instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -238,7 +238,7 @@ extends <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" titl
 <li class="blockList">
 <h4>setKVStore</h4>
 <pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/array/ArrayKVDatabase.html#line.30">setKVStore</a>(<a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a>&nbsp;kvstore)</pre>
-<div class="block">Configure the underlying <code>ArrayAtomicKVStore</code> used by this instance. Required property.</div>
+<div class="block">Configure the underlying <a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>AtomicArrayKVStore</code></a> used by this instance. Required property.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvstore</code> - underlying key/value store</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is already <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#start()"><code>SnapshotKVDatabase.start()</code></a>ed</dd></dl>

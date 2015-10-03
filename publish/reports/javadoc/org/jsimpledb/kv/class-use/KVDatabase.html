@@ -100,7 +100,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.array">org.jsimpledb.kv.array</a></td>
 <td class="colLast">
-<div class="block">A simple <code>KVStore</code> implementation based on a sorted array of key/value pairs.</div>
+<div class="block">A simple <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -376,7 +376,7 @@
 <tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></strong></code>
-<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <code>ArrayAtomicKVStore</code>, providing concurrent transactions
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <a href="../../../../org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>AtomicArrayKVStore</code></a>, providing concurrent transactions
  and linearizable ACID semantics.</div>
 </td>
 </tr>
@@ -505,8 +505,30 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a></strong></code>
+<div class="block">A partition-tolerant <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> that automatically migrates between a clustered <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>
+ and a local, non-clustered "emergency standalone mode" <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>, based on availability of the Raft cluster.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></strong></code>
 <div class="block">A distributed <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> based on the Raft consensus algorithm.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="strong">FallbackKVDatabase.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html#setStandaloneTarget(org.jsimpledb.kv.KVDatabase)">setStandaloneTarget</a></strong>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;standaloneKV)</code>
+<div class="block">Configure the local "standalone mode" <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> to be used when all <a href="../../../../org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft"><code>FallbackTarget</code></a>s are unavailable.</div>
 </td>
 </tr>
 </tbody>

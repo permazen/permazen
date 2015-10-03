@@ -178,18 +178,24 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#getKVStore()">getKVStore</a></strong>()</code>
+<div class="block">Get the underlying <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> that holds this snapshot transaction's state.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#isValid()">isValid</a></strong>()</code>
 <div class="block">Determine whether this transaction is still valid.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#reset()">reset</a></strong>()</code>
 <div class="block">Delete all objects contained in this snapshot transaction.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#rollback()">rollback</a></strong>()</code>
 <div class="block">Roll back this transaction.</div>
@@ -224,13 +230,24 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getKVStore()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getKVStore</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv">KVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.52">getKVStore</a>()</pre>
+<div class="block">Get the underlying <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> that holds this snapshot transaction's state.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>underlying <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a></dd></dl>
+</li>
+</ul>
 <a name="reset()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.54">reset</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.63">reset</a>()</pre>
 <div class="block">Delete all objects contained in this snapshot transaction.
 
  <p>
@@ -244,7 +261,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.74">commit</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.83">commit</a>()</pre>
 <div class="block">Commit this transaction.
 
  <p>
@@ -263,7 +280,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.88">rollback</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.97">rollback</a>()</pre>
 <div class="block">Roll back this transaction.
 
  <p>
@@ -282,7 +299,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <ul class="blockList">
 <li class="blockList">
 <h4>addCallback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.101">addCallback</a>(<a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a>&nbsp;callback)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.110">addCallback</a>(<a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a>&nbsp;callback)</pre>
 <div class="block">Register a transaction callback to be invoked when this transaction completes.
 
  <p>
@@ -301,7 +318,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isValid</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.114">isValid</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/SnapshotTransaction.html#line.123">isValid</a>()</pre>
 <div class="block">Determine whether this transaction is still valid.
 
  <p>

@@ -83,7 +83,6 @@
 <li><a href="org/jsimpledb/kv/mvcc/package-tree.html">org.jsimpledb.kv.mvcc</a>, </li>
 <li><a href="org/jsimpledb/kv/raft/package-tree.html">org.jsimpledb.kv.raft</a>, </li>
 <li><a href="org/jsimpledb/kv/raft/msg/package-tree.html">org.jsimpledb.kv.raft.msg</a>, </li>
-<li><a href="org/jsimpledb/kv/raft/net/package-tree.html">org.jsimpledb.kv.raft.net</a>, </li>
 <li><a href="org/jsimpledb/kv/rocksdb/package-tree.html">org.jsimpledb.kv.rocksdb</a>, </li>
 <li><a href="org/jsimpledb/kv/simple/package-tree.html">org.jsimpledb.kv.simple</a>, </li>
 <li><a href="org/jsimpledb/kv/sql/package-tree.html">org.jsimpledb.kv.sql</a>, </li>
@@ -273,6 +272,7 @@
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/SaveCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SaveCommand</span></a></li>
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SetAllowNewSchemaCommand</span></a></li>
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SetSchemaVersionCommand</span></a></li>
+<li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SetSessionModeCommand</span></a></li>
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SetValidationModeCommand</span></a></li>
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowAllSchemasCommand</span></a></li>
 <li type="circle">org.jsimpledb.cli.cmd.<a href="org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowSchemaCommand</span></a> (implements org.jsimpledb.cli.<a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>)</li>
@@ -333,6 +333,13 @@
 <li type="circle">org.jsimpledb.parse.func.<a href="org/jsimpledb/parse/func/VersionFunction.html" title="class in org.jsimpledb.parse.func"><span class="strong">VersionFunction</span></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li type="circle">org.springframework.http.converter.<a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/converter/AbstractHttpMessageConverter.html?is-external=true" title="class or interface in org.springframework.http.converter"><span class="strong">AbstractHttpMessageConverter</span></a>&lt;T&gt; (implements org.springframework.http.converter.<a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html?is-external=true" title="class or interface in org.springframework.http.converter">HttpMessageConverter</a>&lt;T&gt;)
+<ul>
+<li type="circle">org.jsimpledb.spring.<a href="org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring"><span class="strong">JObjectHttpMessageConverter</span></a></li>
+<li type="circle">org.jsimpledb.spring.<a href="org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring"><span class="strong">KVStoreHttpMessageConverter</span></a></li>
+<li type="circle">org.jsimpledb.spring.<a href="org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring"><span class="strong">SnapshotJTransactionHttpMessageConverter</span></a></li>
 </ul>
 </li>
 <li type="circle">org.jsimpledb.kv.util.<a href="org/jsimpledb/kv/util/AbstractKVIterator.html" title="class in org.jsimpledb.kv.util"><span class="strong">AbstractKVIterator</span></a>&lt;E&gt; (implements java.util.<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;E&gt;)</li>
@@ -592,6 +599,8 @@
 </ul>
 </li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/ExprParser.html" title="class in org.jsimpledb.parse.expr"><span class="strong">ExprParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft"><span class="strong">FallbackKVDatabase</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>)</li>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft"><span class="strong">FallbackTarget</span></a> (implements java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>)</li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/FieldSwitchAdapter.html" title="class in org.jsimpledb.core"><span class="strong">FieldSwitchAdapter</span></a>&lt;R&gt; (implements org.jsimpledb.core.<a href="org/jsimpledb/core/FieldSwitch.html" title="interface in org.jsimpledb.core">FieldSwitch</a>&lt;R&gt;)</li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><span class="strong">FieldType</span></a>&lt;T&gt; (implements java.util.<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;T&gt;)
 <ul>
@@ -732,11 +741,13 @@
 </ul>
 </li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/NavigableSets.html" title="class in org.jsimpledb.util"><span class="strong">NavigableSets</span></a></li>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/NullMergeStrategy.html" title="class in org.jsimpledb.kv.raft"><span class="strong">NullMergeStrategy</span></a> (implements org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft">MergeStrategy</a>)</li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><span class="strong">ObjId</span></a> (implements java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Comparable.html?is-external=true" title="class or interface in java.lang">Comparable</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/ObjIdBiMultiMap.html" title="class in org.jsimpledb.util"><span class="strong">ObjIdBiMultiMap</span></a></li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ObjIdParser.html" title="class in org.jsimpledb.parse"><span class="strong">ObjIdParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ObjInfo.html" title="class in org.jsimpledb.parse"><span class="strong">ObjInfo</span></a></li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ObjTypeParser.html" title="class in org.jsimpledb.parse"><span class="strong">ObjTypeParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft"><span class="strong">OverwriteMergeStrategy</span></a> (implements org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft">MergeStrategy</a>)</li>
 <li type="circle">org.jsimpledb.cli.<a href="org/jsimpledb/cli/ParamParser.html" title="class in org.jsimpledb.cli"><span class="strong">ParamParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.cli.<a href="org/jsimpledb/cli/ParamParser.Param.html" title="class in org.jsimpledb.cli"><span class="strong">ParamParser.Param</span></a></li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse"><span class="strong">ParseContext</span></a> (implements java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>)</li>
@@ -813,11 +824,6 @@
 </ul>
 </li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/Schemas.html" title="class in org.jsimpledb.core"><span class="strong">Schemas</span></a></li>
-<li type="circle">org.jsimpledb.kv.raft.net.<a href="org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net"><span class="strong">SelectorSupport</span></a>
-<ul>
-<li type="circle">org.jsimpledb.kv.raft.net.<a href="org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net"><span class="strong">TCPNetwork</span></a> (implements org.jsimpledb.kv.raft.net.<a href="org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net">Network</a>)</li>
-</ul>
-</li>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/Session.html" title="class in org.jsimpledb"><span class="strong">Session</span></a>
 <ul>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><span class="strong">ParseSession</span></a>
@@ -1044,15 +1050,13 @@
 </li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core"><span class="strong">ListFieldChangeListener</span></a></li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core"><span class="strong">MapFieldChangeListener</span></a></li>
+<li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft"><span class="strong">MergeStrategy</span></a></li>
 <li type="circle">org.jsimpledb.kv.raft.msg.<a href="org/jsimpledb/kv/raft/msg/MessageSwitch.html" title="interface in org.jsimpledb.kv.raft.msg"><span class="strong">MessageSwitch</span></a></li>
 <li type="circle">org.jsimpledb.kv.mvcc.<a href="org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc"><span class="strong">Mutations</span></a></li>
-<li type="circle">org.jsimpledb.kv.raft.net.<a href="org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net"><span class="strong">Network</span></a></li>
-<li type="circle">org.jsimpledb.kv.raft.net.<a href="org/jsimpledb/kv/raft/net/Network.Handler.html" title="interface in org.jsimpledb.kv.raft.net"><span class="strong">Network.Handler</span></a></li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr"><span class="strong">Node</span></a></li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse"><span class="strong">Parser</span></a>&lt;T&gt;</li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse"><span class="strong">ParseSession.Action</span></a></li>
 <li type="circle">org.jsimpledb.schema.<a href="org/jsimpledb/schema/SchemaFieldSwitch.html" title="interface in org.jsimpledb.schema"><span class="strong">SchemaFieldSwitch</span></a>&lt;R&gt;</li>
-<li type="circle">org.jsimpledb.kv.raft.net.<a href="org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html" title="interface in org.jsimpledb.kv.raft.net"><span class="strong">SelectorSupport.IOHandler</span></a></li>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><span class="strong">Session.Action</span></a></li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core"><span class="strong">SetFieldChangeListener</span></a></li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core"><span class="strong">SimpleFieldChangeListener</span></a></li>
@@ -1060,6 +1064,7 @@
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/StorageIdGenerator.html" title="interface in org.jsimpledb"><span class="strong">StorageIdGenerator</span></a></li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><span class="strong">Transaction.Callback</span></a></li>
 <li type="circle">org.jsimpledb.tuple.<a href="org/jsimpledb/tuple/Tuple.html" title="interface in org.jsimpledb.tuple"><span class="strong">Tuple</span></a></li>
+<li type="circle">org.jsimpledb.<a href="org/jsimpledb/UniquenessConstraints.html" title="interface in org.jsimpledb"><span class="strong">UniquenessConstraints</span></a></li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/Value.html" title="interface in org.jsimpledb.parse.expr"><span class="strong">Value</span></a>
 <ul>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/LValue.html" title="interface in org.jsimpledb.parse.expr"><span class="strong">LValue</span></a></li>

@@ -150,10 +150,24 @@ the order they are declared.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></code></td>
+<td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../org/jsimpledb/JSimpleDB.html#createSnapshotTransaction(org.jsimpledb.ValidationMode)">createSnapshotTransaction</a></strong>(<a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
+<div class="block">Create a new, empty <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> backed by a <a href="../../../org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><code>NavigableMapKVStore</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></code></td>
 <td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../org/jsimpledb/JSimpleDB.html#createTransaction(boolean, org.jsimpledb.ValidationMode)">createTransaction</a></strong>(boolean&nbsp;allowNewSchema,
                                   <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
 <div class="block">Create a new transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></code></td>
+<td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../org/jsimpledb/JSimpleDB.html#createTransaction(org.jsimpledb.kv.KVTransaction, boolean, org.jsimpledb.ValidationMode)">createTransaction</a></strong>(<a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;kvt,
+                                  boolean&nbsp;allowNewSchema,
+                                  <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
+<div class="block">Create a new transaction using an already-opened <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">

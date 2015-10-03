@@ -94,7 +94,7 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public class <a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.23">JSimpleDBFactory</a>
+<pre>public class <a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.27">JSimpleDBFactory</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Factory for <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> instances.
 
@@ -176,6 +176,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
  <a href="../../org/jsimpledb/annotation/JField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JField</code></a>, etc., annotations.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/JSimpleDBFactory.html#setValidatorFactory(javax.validation.ValidatorFactory)">setValidatorFactory</a></strong>(<a href="https://docs.oracle.com/javaee/7/api/javax/validation/ValidatorFactory.html?is-external=true" title="class or interface in javax.validation">ValidatorFactory</a>&nbsp;validatorFactory)</code>
+<div class="block">Configure a custom <a href="https://docs.oracle.com/javaee/7/api/javax/validation/ValidatorFactory.html?is-external=true" title="class or interface in javax.validation"><code>ValidatorFactory</code></a> used to create <a href="https://docs.oracle.com/javaee/7/api/javax/validation/Validator.html?is-external=true" title="class or interface in javax.validation"><code>Validator</code></a>s
+ for validation within transactions.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -204,7 +211,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>JSimpleDBFactory</h4>
-<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.23">JSimpleDBFactory</a>()</pre>
+<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.27">JSimpleDBFactory</a>()</pre>
 </li>
 </ul>
 </li>
@@ -221,7 +228,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setModelClasses</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.41">setModelClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;modelClasses)</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.46">setModelClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;modelClasses)</pre>
 <div class="block">Configure the Java model classes.
 
  <p>
@@ -238,7 +245,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setModelClasses</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.57">setModelClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;modelClasses)</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.62">setModelClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;modelClasses)</pre>
 <div class="block">Configure the Java model classes.
 
  <p>
@@ -254,7 +261,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setDatabase</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.71">setDatabase</a>(<a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;database)</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.76">setDatabase</a>(<a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;database)</pre>
 <div class="block">Configure the underlying <a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> for this instance.
 
  <p>
@@ -270,7 +277,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setSchemaVersion</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.89">setSchemaVersion</a>(int&nbsp;schemaVersion)</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.94">setSchemaVersion</a>(int&nbsp;schemaVersion)</pre>
 <div class="block">Configure the schema version number associated with the configured Java model classes.
 
  <p>
@@ -289,7 +296,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setStorageIdGenerator</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.107">setStorageIdGenerator</a>(<a href="../../org/jsimpledb/StorageIdGenerator.html" title="interface in org.jsimpledb">StorageIdGenerator</a>&nbsp;storageIdGenerator)</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.112">setStorageIdGenerator</a>(<a href="../../org/jsimpledb/StorageIdGenerator.html" title="interface in org.jsimpledb">StorageIdGenerator</a>&nbsp;storageIdGenerator)</pre>
 <div class="block">Configure the <a href="../../org/jsimpledb/StorageIdGenerator.html" title="interface in org.jsimpledb"><code>StorageIdGenerator</code></a> for auto-generating storage ID's when not explicitly
  specified in <a href="../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>,
  <a href="../../org/jsimpledb/annotation/JField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JField</code></a>, etc., annotations.
@@ -302,13 +309,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dt><span class="strong">Returns:</span></dt><dd>this instance</dd></dl>
 </li>
 </ul>
+<a name="setValidatorFactory(javax.validation.ValidatorFactory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setValidatorFactory</h4>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.125">setValidatorFactory</a>(<a href="https://docs.oracle.com/javaee/7/api/javax/validation/ValidatorFactory.html?is-external=true" title="class or interface in javax.validation">ValidatorFactory</a>&nbsp;validatorFactory)</pre>
+<div class="block">Configure a custom <a href="https://docs.oracle.com/javaee/7/api/javax/validation/ValidatorFactory.html?is-external=true" title="class or interface in javax.validation"><code>ValidatorFactory</code></a> used to create <a href="https://docs.oracle.com/javaee/7/api/javax/validation/Validator.html?is-external=true" title="class or interface in javax.validation"><code>Validator</code></a>s
+ for validation within transactions.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>validatorFactory</code> - factory for validators</dd>
+<dt><span class="strong">Returns:</span></dt><dd>this instance</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>validatorFactory</code> is null</dd></dl>
+</li>
+</ul>
 <a name="newJSimpleDB()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>newJSimpleDB</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.119">newJSimpleDB</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;<a href="../../src-html/org/jsimpledb/JSimpleDBFactory.html#line.138">newJSimpleDB</a>()</pre>
 <div class="block">Construct a <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> instance using this instance's configuration.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>newly created <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> database</dd>
 <dt><span class="strong">Throws:</span></dt>

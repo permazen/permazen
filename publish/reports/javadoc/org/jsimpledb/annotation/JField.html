@@ -85,7 +85,7 @@
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true" title="class or interface in java.lang.annotation">@Retention</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Retention.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/RetentionPolicy.html?is-external=true#RUNTIME" title="class or interface in java.lang.annotation">RUNTIME</a>)
 <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Target.html?is-external=true" title="class or interface in java.lang.annotation">@Target</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Target.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/ElementType.html?is-external=true#METHOD" title="class or interface in java.lang.annotation">METHOD</a>)
 <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Documented.html?is-external=true" title="class or interface in java.lang.annotation">@Documented</a>
-public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.93">JField</a></pre>
+public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.95">JField</a></pre>
 <div class="block">Java annotation for creating simple fields, including reference fields that refer to other Java model object types.
 
  <p>
@@ -154,9 +154,11 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
  In <a href="../../../org/jsimpledb/ValidationMode.html#AUTOMATIC"><code>ValidationMode.AUTOMATIC</code></a>, any upgraded <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s are automatically
  added to the validation queue, so a uniqueness constraint added in a new schema version will be automatically verified
  when any object is upgraded.
- However, simpley adding, removing, or changing uniqueness constraints on an existing field doesn't force a schema
- version change. Therefore, existing database objects that were previously valid could be in violation of a uniqueness
- constraint that is added without one. To avoid this possibililty, change the schema version number as well.
+
+ <p>
+ Note however, that uniqueness constraints can be added or changed on a field without a schema version change.
+ Therefore, after such changes, pre-existing database objects that were previously valid could become suddenly invalid.
+ To avoid this possibililty, change the schema version number and update them manually.
  </p></div>
 </li>
 </ul>
@@ -253,7 +255,7 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>name</h4>
-<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.108">name</a></pre>
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.110">name</a></pre>
 <div class="block">The name of this field.
 
  <p>
@@ -276,7 +278,7 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>type</h4>
-<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.140">type</a></pre>
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.142">type</a></pre>
 <div class="block">Optional override for the type of this field.
 
  <p>
@@ -315,7 +317,7 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>storageId</h4>
-<pre>public abstract&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.155">storageId</a></pre>
+<pre>public abstract&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.157">storageId</a></pre>
 <div class="block">Storage ID for this field. Value should be positive and unique within the contained class.
  If zero, the configured <a href="../../../org/jsimpledb/StorageIdGenerator.html" title="interface in org.jsimpledb"><code>StorageIdGenerator</code></a> will be consulted to auto-generate a value
  unless <a href="../../../org/jsimpledb/annotation/JSimpleClass.html#autogenFields()"><code>JSimpleClass.autogenFields()</code></a> is false (in which case an error occurs).</div>
@@ -336,7 +338,7 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>indexed</h4>
-<pre>public abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.171">indexed</a></pre>
+<pre>public abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.173">indexed</a></pre>
 <div class="block">Whether this field is indexed or not.
 
  <p>
@@ -360,7 +362,7 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>onDelete</h4>
-<pre>public abstract&nbsp;<a href="../../../org/jsimpledb/core/DeleteAction.html" title="enum in org.jsimpledb.core">DeleteAction</a>&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.185">onDelete</a></pre>
+<pre>public abstract&nbsp;<a href="../../../org/jsimpledb/core/DeleteAction.html" title="enum in org.jsimpledb.core">DeleteAction</a>&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.187">onDelete</a></pre>
 <div class="block">For reference fields, configure the behavior when the referred-to object is
  <a href="../../../org/jsimpledb/JObject.html#delete()">deleted</a>.
 
@@ -381,7 +383,7 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>cascadeDelete</h4>
-<pre>public abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.200">cascadeDelete</a></pre>
+<pre>public abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.202">cascadeDelete</a></pre>
 <div class="block">For reference fields, configure cascading behavior when the containing object is
  <a href="../../../org/jsimpledb/JObject.html#delete()">deleted</a>. If set to true, the referred-to object
  is automatically deleted as well.
@@ -403,14 +405,25 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>unique</h4>
-<pre>public abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.213">unique</a></pre>
+<pre>public abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.226">unique</a></pre>
 <div class="block">Require this field's value to be unique among all database objects.
 
  <p>
- This property must be false for sub-fields of complex fields.
- </p></div>
+ When set, this causes this field's value to be checked for uniqueness any time normal validation is
+ performed on an object containing the field.
+
+ <p>
+ More precisely, a uniqueness constraint behaves like a
+ validation constraint with <code>groups() = </code><code>{ </code><a href="https://docs.oracle.com/javaee/7/api/javax/validation/groups/Default.html?is-external=true" title="class or interface in javax.validation.groups"><code>Default</code></a><code>.class,
+ </code><a href="../../../org/jsimpledb/UniquenessConstraints.html" title="interface in org.jsimpledb"><code>UniquenessConstraints</code></a><code>.class</code><code> }</code>. Therefore, uniqueness constraints
+ are included in default validation, but you can also validate <i>only</i> uniqueness constraints via
+ <a href="../../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>myobj.revalidate(UniquenessConstraints.class)</code></a>.
+
+ <p>
+ This property must be false for sub-fields of complex fields.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether the field's value should be unique</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#uniqueExclude()"><code>uniqueExclude()</code></a>, 
-<a href="../../../org/jsimpledb/annotation/JField.html#uniqueExcludeNull()"><code>uniqueExcludeNull()</code></a></dd></dl>
+<a href="../../../org/jsimpledb/annotation/JField.html#uniqueExcludeNull()"><code>uniqueExcludeNull()</code></a>, 
+<a href="../../../org/jsimpledb/UniquenessConstraints.html" title="interface in org.jsimpledb"><code>UniquenessConstraints</code></a></dd></dl>
 <dl>
 <dt>Default:</dt>
 <dd>false</dd>
@@ -423,7 +436,7 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockList">
 <li class="blockList">
 <h4>uniqueExclude</h4>
-<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.233">uniqueExclude</a></pre>
+<pre>public abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.246">uniqueExclude</a></pre>
 <div class="block">Specify field value(s) which are excluded from the uniqueness constraint.
 
  <p>
@@ -450,7 +463,7 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/JField.htm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>uniqueExcludeNull</h4>
-<pre>public abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.246">uniqueExcludeNull</a></pre>
+<pre>public abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/annotation/JField.html#line.259">uniqueExcludeNull</a></pre>
 <div class="block">Specify that the null value is excluded from the uniqueness constraint.
 
  <p>

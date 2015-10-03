@@ -849,7 +849,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array"><span class="strong">ArrayKVDatabase</span></a> - Class in <a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a></dt>
 <dd>
-<div class="block"><a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <code>ArrayAtomicKVStore</code>, providing concurrent transactions
+<div class="block"><a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on a <a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>AtomicArrayKVStore</code></a>, providing concurrent transactions
  and linearizable ACID semantics.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#ArrayKVDatabase()">ArrayKVDatabase()</a></span> - Constructor for class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
@@ -868,7 +868,7 @@
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array"><span class="strong">ArrayKVStore</span></a> - Class in <a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a></dt>
 <dd>
-<div class="block">A simple read-only <code>KVStore</code> based on a sorted array of key/value pairs.</div>
+<div class="block">A simple read-only <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> based on a sorted array of key/value pairs.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#ArrayKVStore(java.nio.ByteBuffer, java.nio.ByteBuffer, java.nio.ByteBuffer)">ArrayKVStore(ByteBuffer, ByteBuffer, ByteBuffer)</a></span> - Constructor for class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
 <dd>
@@ -1315,6 +1315,10 @@
 <dd>
 <div class="block">Raft candidate role.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#canRead(java.lang.Class, org.springframework.http.MediaType)">canRead(Class&lt;?&gt;, MediaType)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#canWrite(java.lang.Class, org.springframework.http.MediaType)">canWrite(Class&lt;?&gt;, MediaType)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/XMLConstants.html#CASCADE_DELETE_ATTRIBUTE">CASCADE_DELETE_ATTRIBUTE</a></span> - Static variable in interface org.jsimpledb.schema.<a href="./org/jsimpledb/schema/XMLConstants.html" title="interface in org.jsimpledb.schema">XMLConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/MessageSwitch.html#caseAppendRequest(org.jsimpledb.kv.raft.msg.AppendRequest)">caseAppendRequest(AppendRequest)</a></span> - Method in interface org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/MessageSwitch.html" title="interface in org.jsimpledb.kv.raft.msg">MessageSwitch</a></dt>
@@ -1783,6 +1787,10 @@
 <dd>
 <div class="block">Verify the reference value is permitted by this instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#checkAvailability()">checkAvailability()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Perform an availability assessment of the underlying <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> associated with this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/AbstractValue.html#checkBoolean(org.jsimpledb.parse.ParseSession, java.lang.String)">checkBoolean(ParseSession, String)</a></span> - Method in class org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/AbstractValue.html" title="class in org.jsimpledb.parse.expr">AbstractValue</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/Value.html#checkBoolean(org.jsimpledb.parse.ParseSession, java.lang.String)">checkBoolean(ParseSession, String)</a></span> - Method in interface org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/Value.html" title="interface in org.jsimpledb.parse.expr">Value</a></dt>
@@ -1924,6 +1932,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html#clone()">clone()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util">NavigableMapKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/ParseContext.html#clone()">clone()</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a></dt>
@@ -1994,10 +2004,6 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotVersion.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotVersion.html" title="class in org.jsimpledb.kv.mvcc">SnapshotVersion</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html#close(java.lang.Throwable)">close(Throwable)</a></span> - Method in interface org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html" title="interface in org.jsimpledb.kv.raft.net">SelectorSupport.IOHandler</a></dt>
-<dd>
-<div class="block">Invoked when an exception is thrown by <a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html#serviceIO(java.nio.channels.SelectionKey)"><code>serviceIO()</code></a>.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVStore</a></dt>
 <dd>
 <div class="block">Close this instance.</div>
@@ -2242,14 +2248,6 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#configureDemoMode()">configureDemoMode()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#configureServerSocketChannel(java.nio.channels.ServerSocketChannel)">configureServerSocketChannel(ServerSocketChannel)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/channels/ServerSocketChannel.html?is-external=true" title="class or interface in java.nio.channels"><code>ServerSocketChannel</code></a> to be used by this instance.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#configureSocketChannel(java.nio.channels.SocketChannel)">configureSocketChannel(SocketChannel)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Configure a new <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/channels/SocketChannel.html?is-external=true" title="class or interface in java.nio.channels"><code>SocketChannel</code></a> to be used by this instance.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html#configureTransaction(org.jsimpledb.JTransaction, org.springframework.transaction.TransactionDefinition)">configureTransaction(JTransaction, TransactionDefinition)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager</a></dt>
 <dd>
 <div class="block">Configure a new transaction.</div>
@@ -2408,11 +2406,12 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JObject.html#copyIn(java.lang.String...)">copyIn(String...)</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
 <dd>
-<div class="block">Copy this instance and other instances it references into the transaction associated with the current thread.</div>
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any),
+ into the transaction associated with the current thread.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JObject.html#copyOut(java.lang.String...)">copyOut(String...)</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
 <dd>
-<div class="block">Snapshot this instance and other instances it references.</div>
+<div class="block">Snapshot this instance and other instances it references through the specified <code>refPaths</code> (if any).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/change/ChangeCopier.html#copyState">copyState</a></span> - Variable in class org.jsimpledb.change.<a href="./org/jsimpledb/change/ChangeCopier.html" title="class in org.jsimpledb.change">ChangeCopier</a></dt>
 <dd>&nbsp;</dd>
@@ -2430,7 +2429,8 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JObject.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.core.ObjId, org.jsimpledb.CopyState, java.lang.String...)">copyTo(JTransaction, ObjId, CopyState, String...)</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
 <dd>
-<div class="block">Copy this instance, and other instances it references, into a (possibly) different <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
+<div class="block">Copy this instance, and other instances it references through the specified <code>refPaths</code> (if any), into a (possibly)
+ different <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.JObject, org.jsimpledb.core.ObjId, org.jsimpledb.CopyState, java.lang.String...)">copyTo(JTransaction, JObject, ObjId, CopyState, String...)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
@@ -2634,11 +2634,6 @@
 <dd>
 <div class="block">Create an SQL statement that deletes the row associated with key <code>&#63;1</code>, if any.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#createSelectionKey(java.nio.channels.SelectableChannel, org.jsimpledb.kv.raft.net.SelectorSupport.IOHandler)">createSelectionKey(SelectableChannel, SelectorSupport.IOHandler)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Create a new <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/channels/SelectionKey.html?is-external=true" title="class or interface in java.nio.channels"><code>SelectionKey</code></a> by registering the given channel on the given <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/channels/Selector.html?is-external=true" title="class or interface in java.nio.channels"><code>Selector</code></a>
- and associating the specified <a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html" title="interface in org.jsimpledb.kv.raft.net"><code>SelectorSupport.IOHandler</code></a> to handle I/O ready conditions.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">createSnapshotKVTransaction(SnapshotVersion)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html#createSnapshotKVTransaction(org.jsimpledb.kv.mvcc.SnapshotVersion)">createSnapshotKVTransaction(SnapshotVersion)</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVDatabase</a></dt>
@@ -2656,6 +2651,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#createSnapshotTransaction()">createSnapshotTransaction()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
 <div class="block">Create an empty, in-memory "snapshot" transaction.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#createSnapshotTransaction(org.jsimpledb.ValidationMode)">createSnapshotTransaction(ValidationMode)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
+<dd>
+<div class="block">Create a new, empty <a href="./org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> backed by a <a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><code>NavigableMapKVStore</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#createSnapshotTransaction(org.jsimpledb.kv.KVStore, boolean, org.jsimpledb.ValidationMode)">createSnapshotTransaction(KVStore, boolean, ValidationMode)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
 <dd>
@@ -2703,9 +2702,17 @@
 <dd>
 <div class="block">Create a new <a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> on this database and use the specified schema version to access objects and fields.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/Database.html#createTransaction(org.jsimpledb.kv.KVTransaction, org.jsimpledb.schema.SchemaModel, int, boolean)">createTransaction(KVTransaction, SchemaModel, int, boolean)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a></dt>
+<dd>
+<div class="block">Create a new <a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> on this database using an already-opened <a href="./org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> and specified schema.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#createTransaction(boolean, org.jsimpledb.ValidationMode)">createTransaction(boolean, ValidationMode)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
 <dd>
 <div class="block">Create a new transaction.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#createTransaction(org.jsimpledb.kv.KVTransaction, boolean, org.jsimpledb.ValidationMode)">createTransaction(KVTransaction, boolean, ValidationMode)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
+<dd>
+<div class="block">Create a new transaction using an already-opened <a href="./org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
 <dd>&nbsp;</dd>
@@ -2723,9 +2730,15 @@
 <dd>
 <div class="block">Create a new transaction.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Create a new transaction.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#createTransaction(boolean)">createTransaction(boolean)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
+<dd>
+<div class="block">Create a new transaction with configurable snapshot basis.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.rocksdb.<a href="./org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a></dt>
 <dd>&nbsp;</dd>
@@ -2799,18 +2812,6 @@
 <dd>
 <div class="block">The name of a system property that can be set to override the default <code>DBFactory</code> logic.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#dbg(java.lang.Iterable)">dbg(Iterable&lt;? extends SelectionKey&gt;)</a></span> - Static method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Get a debug description of the given keys.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#dbg(java.nio.channels.SelectionKey)">dbg(SelectionKey)</a></span> - Static method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Get a debug description of the given key.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#dbgOps(int)">dbgOps(int)</a></span> - Static method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Get a debug description of the given I/O ops.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#dbType">dbType</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#dbTypes">dbTypes</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
@@ -2875,6 +2876,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/KVNavigableMap.html#decodeValue(org.jsimpledb.kv.KVPair)">decodeValue(KVPair)</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KVNavigableMap.html" title="class in org.jsimpledb.kv.util">KVNavigableMap</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#DEFAULT_CHECK_INTERVAL">DEFAULT_CHECK_INTERVAL</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Default check interval (2000ms).</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_COMMIT_TIMEOUT">DEFAULT_COMMIT_TIMEOUT</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Default transaction commit timeout (5000).</div>
@@ -2891,10 +2896,6 @@
 <dd>
 <div class="block">Default compaction maximum delay in seconds (90 seconds).</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#DEFAULT_CONNECT_TIMEOUT">DEFAULT_CONNECT_TIMEOUT</a></span> - Static variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Default connect timeout for outgoing connections (20000L milliseconds).</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#DEFAULT_DATABASE_NAME">DEFAULT_DATABASE_NAME</a></span> - Static variable in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>
 <div class="block">Default Berkeley DB database name ("JSimpleDB").</div>
@@ -2907,10 +2908,6 @@
 <dd>
 <div class="block">Default <a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html#getHoldTimeout()">hold timeout</a> in milliseconds (5000L).</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#DEFAULT_HOUSEKEEPING_INTERVAL">DEFAULT_HOUSEKEEPING_INTERVAL</a></span> - Static variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Default housekeeping interval (1000ms).</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/OpenTransactionInViewFilter.html#DEFAULT_JSIMPLEDB_BEAN_NAME">DEFAULT_JSIMPLEDB_BEAN_NAME</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/OpenTransactionInViewFilter.html" title="class in org.jsimpledb.spring">OpenTransactionInViewFilter</a></dt>
 <dd>
 <div class="block">The default name of the <a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> bean: <code>"jsimpledb"</code>.</div>
@@ -2919,30 +2916,13 @@
 <dd>
 <div class="block">Default key column name ("kv_key").</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#DEFAULT_MAX_CONNECTIONS">DEFAULT_MAX_CONNECTIONS</a></span> - Static variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Default maximum number of simultaneous connections (1000).</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MAX_ELECTION_TIMEOUT">DEFAULT_MAX_ELECTION_TIMEOUT</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Default maximum election timeout (1000ms).</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#DEFAULT_MAX_IDLE_TIME">DEFAULT_MAX_IDLE_TIME</a></span> - Static variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Default idle connection timeout (30000L milliseconds).</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#DEFAULT_MAX_MESSAGE_SIZE">DEFAULT_MAX_MESSAGE_SIZE</a></span> - Static variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Default maximum allowed size of an incoming message (33554432 bytes).</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/JObjectContainer.html#DEFAULT_MAX_OBJECTS">DEFAULT_MAX_OBJECTS</a></span> - Static variable in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></dt>
 <dd>
 <div class="block">Default maximum number of objects.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#DEFAULT_MAX_OUTPUT_QUEUE_SIZE">DEFAULT_MAX_OUTPUT_QUEUE_SIZE</a></span> - Static variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Default maximum allowed size of a connection's outgoing queue before we start dropping messages
- (67108864L bytes).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MAX_TRANSACTION_DURATION">DEFAULT_MAX_TRANSACTION_DURATION</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
@@ -2952,17 +2932,33 @@
 <dd>
 <div class="block">Default maximum supported applied log entry memory usage (104857600L bytes).</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#DEFAULT_MIME_TYPE">DEFAULT_MIME_TYPE</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Default MIME type supported by this instance: <code>application/x-jsimpledb-kvstore</code>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#DEFAULT_MIN_AVAILABLE_TIME">DEFAULT_MIN_AVAILABLE_TIME</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Default minimum available type (10000ms).</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_MIN_ELECTION_TIMEOUT">DEFAULT_MIN_ELECTION_TIMEOUT</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Default minimum election timeout (750ms).</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#DEFAULT_MIN_UNAVAILABLE_TIME">DEFAULT_MIN_UNAVAILABLE_TIME</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Default minimum unavailable type (30000ms).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_TABLE_NAME">DEFAULT_TABLE_NAME</a></span> - Static variable in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></dt>
 <dd>
 <div class="block">Default table name ("KV").</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#DEFAULT_TCP_PORT">DEFAULT_TCP_PORT</a></span> - Static variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_TCP_PORT">DEFAULT_TCP_PORT</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
-<div class="block">Default TCP port (9660).</div>
+<div class="block">Default TCP port (9660) used to communicate with peers.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#DEFAULT_TRANSACTION_TIMEOUT">DEFAULT_TRANSACTION_TIMEOUT</a></span> - Static variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Default transaction timeout for assessing availability (1000ms).</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html#DEFAULT_VALIDATION_MODE">DEFAULT_VALIDATION_MODE</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager</a></dt>
 <dd>
@@ -3545,6 +3541,19 @@
 <dd>
 <div class="block">Discard all outstanding key watches and fail them with the given exception.</div>
 </dd>
+<dt><a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft"><span class="strong">FallbackKVDatabase</span></a> - Class in <a href="./org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a></dt>
+<dd>
+<div class="block">A partition-tolerant <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> that automatically migrates between a clustered <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>
+ and a local, non-clustered "emergency standalone mode" <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>, based on availability of the Raft cluster.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html#FallbackKVDatabase()">FallbackKVDatabase()</a></span> - Constructor for class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft"><span class="strong">FallbackTarget</span></a> - Class in <a href="./org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a></dt>
+<dd>
+<div class="block">Represents one of the underlying <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>s managed by a <a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>FallbackKVDatabase</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#FallbackTarget()">FallbackTarget()</a></span> - Constructor for class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#fdbClusterFile">fdbClusterFile</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#fdbKeyPrefix">fdbKeyPrefix</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
@@ -3985,6 +3994,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a></dt>
@@ -4161,6 +4172,10 @@
 <dd>
 <div class="block">Get the change that occurred, already copied out of the transaction with a <a href="./org/jsimpledb/change/ChangeCopier.html" title="class in org.jsimpledb.change"><code>ChangeCopier</code></a>.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#getCheckInterval()">getCheckInterval()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Get the interval between availability checks.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/TypeContainer.html#getChildren(java.lang.Object)">getChildren(Object)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">TypeContainer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/TypeContainer.Node.html#getChilds()">getChilds()</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/TypeContainer.Node.html" title="class in org.jsimpledb.gui">TypeContainer.Node</a></dt>
@@ -4245,10 +4260,6 @@
 <dd>
 <div class="block">Get the schema version that this instance was configured to use.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#getConnectTimeout()">getConnectTimeout()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Get the outgoing connection timeout.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#getConsistency()">getConsistency()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
 <dd>
 <div class="block">Get the consistency level for this transaction.</div>
@@ -4265,6 +4276,12 @@
 <dd>
 <div class="block">Get the containing <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> associated with this instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#getContentLength(org.jsimpledb.JObject, org.springframework.http.MediaType)">getContentLength(JObject, MediaType)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#getContentLength(org.jsimpledb.kv.KVStore, org.springframework.http.MediaType)">getContentLength(KVStore, MediaType)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#getContentLength(org.jsimpledb.SnapshotJTransaction, org.springframework.http.MediaType)">getContentLength(SnapshotJTransaction, MediaType)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JEnumField.html#getConverter(org.jsimpledb.JTransaction)">getConverter(JTransaction)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JEnumField.html" title="class in org.jsimpledb">JEnumField</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JReferenceField.html#getConverter(org.jsimpledb.JTransaction)">getConverter(JTransaction)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JReferenceField.html" title="class in org.jsimpledb">JReferenceField</a></dt>
@@ -4319,7 +4336,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html#getDatabase()">getDatabase()</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a></dt>
 <dd>
-<div class="block">Get the underlying <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Database.html?is-external=true" title="class or interface in com.foundationdb"><code>Database</code></a> associated with this instance.</div>
+<div class="block">Get the underlying <code>Database</code> associated with this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#getDatabase()">getDatabase()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>
@@ -4363,6 +4380,8 @@
 <dd>
 <div class="block">Get the <code>RocksDB</code> underlying this instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#getDefaultContentType(org.jsimpledb.JObject)">getDefaultContentType(JObject)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBUtil.html#getDefaultDBFactory()">getDefaultDBFactory()</a></span> - Static method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBUtil.html" title="class in org.jsimpledb.kv.leveldb">LevelDBUtil</a></dt>
 <dd>
 <div class="block">Get the default <code>DBFactory</code>.</div>
@@ -4629,6 +4648,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html#getHelpDetail()">getHelpDetail()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getHelpDetail()">getHelpDetail()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getHelpDetail()">getHelpDetail()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html#getHelpDetail()">getHelpDetail()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a></dt>
@@ -4706,6 +4727,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">SetAllowNewSchemaCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -5072,6 +5095,10 @@
 <dd>
 <div class="block">Get the associated <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/SnapshotTransaction.html#getKVStore()">getKVStore()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a></dt>
+<dd>
+<div class="block">Get the underlying <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> that holds this snapshot transaction's state.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVPairIterator.html#getKVStore()">getKVStore()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVPairIterator.html" title="class in org.jsimpledb.kv">KVPairIterator</a></dt>
 <dd>
 <div class="block">Get the <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> associated with this instance.</div>
@@ -5086,6 +5113,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html#getKVStore()">getKVStore()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html" title="class in org.jsimpledb.kv.mvcc">SnapshotRefs</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#getKVStoreContentLength(org.jsimpledb.kv.KVStore)">getKVStoreContentLength(KVStore)</a></span> - Static method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Determine the content length of the given key/value store when encoded as payload.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#getKVTransaction()">getKVTransaction()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
 <div class="block">Get the underlying key/value store transaction.</div>
@@ -5146,10 +5177,6 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#getLineLimit()">getLineLimit()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#getListenAddress()">getListenAddress()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Get the <a href="https://docs.oracle.com/javase/7/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net"><code>InetSocketAddress</code></a> to which this instance is bound or will bind.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/LiteralNode.html#getLiteralValue()">getLiteralValue()</a></span> - Method in class org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/LiteralNode.html" title="class in org.jsimpledb.parse.expr">LiteralNode</a></dt>
 <dd>
 <div class="block">Get the literal value.</div>
@@ -5210,25 +5237,9 @@
 <dd>
 <div class="block">Get the maximum number of arguments allowed (inclusive).</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#getMaxConnections()">getMaxConnections()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Get the maximum number of allowed connections.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#getMaxElectionTimeout()">getMaxElectionTimeout()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Get the configured maximum election timeout.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#getMaxIdleTime()">getMaxIdleTime()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Get the maximum idle time for connections before automatically closing them down.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#getMaxMessageSize()">getMaxMessageSize()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Get the maximum allowed length for incoming messages.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#getMaxOutputQueueSize()">getMaxOutputQueueSize()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Get the maximum allowed size of the queue for outgoing messages.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#getMaxTransactionDuration()">getMaxTransactionDuration()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
@@ -5260,9 +5271,17 @@
 <dd>
 <div class="block">Get the minimum number of arguments allowed (inclusive).</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#getMinAvailableTime()">getMinAvailableTime()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Get the minimum amount of time after becoming available before allowing this instance to become unavailable again.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#getMinElectionTimeout()">getMinElectionTimeout()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Get the configured minimum election timeout.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#getMinUnavailableTime()">getMinUnavailableTime()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Get the minimum amount of time after becoming unavailable before allowing this instance to become available again.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#getMode()">getMode()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>
@@ -5352,7 +5371,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html#getNetworkOptions()">getNetworkOptions()</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a></dt>
 <dd>
-<div class="block">Get the <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/NetworkOptions.html?is-external=true" title="class or interface in com.foundationdb"><code>NetworkOptions</code></a> associated with this instance.</div>
+<div class="block">Get the <code>NetworkOptions</code> associated with this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/change/ListFieldReplace.html#getNewValue()">getNewValue()</a></span> - Method in class org.jsimpledb.change.<a href="./org/jsimpledb/change/ListFieldReplace.html" title="class in org.jsimpledb.change">ListFieldReplace</a></dt>
 <dd>
@@ -5571,6 +5590,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SaveCommand.html#getParser(java.lang.String)">getParser(String)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SaveCommand.html" title="class in org.jsimpledb.cli.cmd">SaveCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getParser(java.lang.String)">getParser(String)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getParser(java.lang.String)">getParser(String)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/ParamParser.html#getParser(java.lang.String)">getParser(String)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/ParamParser.html" title="class in org.jsimpledb.cli">ParamParser</a></dt>
@@ -5598,6 +5619,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#getPuts()">getPuts()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>
 <div class="block">Get the written key/value pairs contained by this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#getRaftKVDatabase()">getRaftKVDatabase()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Get the <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#getRange(byte[], byte[], boolean)">getRange(byte[], byte[], boolean)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
 <dd>&nbsp;</dd>
@@ -5662,6 +5687,11 @@
 <dt><span class="strong"><a href="./org/jsimpledb/core/ReferencedObjectException.html#getReferrer()">getReferrer()</a></span> - Method in exception org.jsimpledb.core.<a href="./org/jsimpledb/core/ReferencedObjectException.html" title="class in org.jsimpledb.core">ReferencedObjectException</a></dt>
 <dd>
 <div class="block">Get the ID of the object that still refers to the object that was to be deleted.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#getRejoinMergeStrategy()">getRejoinMergeStrategy()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Get the merge strategy to apply when transitioning from a lower priority database to this database
+ because our <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> cluster has become available.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Mutations.html#getRemoveRanges()">getRemoveRanges()</a></span> - Method in interface org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a></dt>
 <dd>
@@ -5784,6 +5814,14 @@
 <dt><span class="strong"><a href="./org/jsimpledb/cli/Console.html#getSession()">getSession()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli">Console</a></dt>
 <dd>
 <div class="block">Get the associated <a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractCommand.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></dt>
+<dd>
+<div class="block">Get the <a href="./org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/parse/func/AbstractFunction.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.parse.func.<a href="./org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func">AbstractFunction</a></dt>
+<dd>
+<div class="block">Get the <a href="./org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JSimpleField.html#getSetter()">getSetter()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleField.html" title="class in org.jsimpledb">JSimpleField</a></dt>
 <dd>
@@ -5982,7 +6020,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#getTransaction()">getTransaction()</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
 <dd>
-<div class="block">Get the underlying <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/Transaction.html?is-external=true" title="class or interface in com.foundationdb"><code>Transaction</code></a> associated with this instance.</div>
+<div class="block">Get the underlying <code>Transaction</code> associated with this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVTransactionException.html#getTransaction()">getTransaction()</a></span> - Method in exception org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></dt>
 <dd>
@@ -5992,6 +6030,10 @@
 <dd>
 <div class="block">Get the open <a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> currently associated with this instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/SnapshotJTransaction.html#getTransaction()">getTransaction()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></dt>
+<dd>
+<div class="block">Get the <a href="./org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a> associated with this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/OpenTransactionInViewFilter.html#getTransactionAttributes()">getTransactionAttributes()</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/OpenTransactionInViewFilter.html" title="class in org.jsimpledb.spring">OpenTransactionInViewFilter</a></dt>
 <dd>
 <div class="block">Get the transaction attributes.</div>
@@ -5999,6 +6041,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getTransactionConfig()">getTransactionConfig()</a></span> - Method in class org.jsimpledb.kv.bdb.<a href="./org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></dt>
 <dd>
 <div class="block">Get the default <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>TransactionConfig</code></a> to be used by this instance.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#getTransactionTimeout()">getTransactionTimeout()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Get the interval between availability checks.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/CommitRequest.html#getTxId()">getTxId()</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/CommitRequest.html" title="class in org.jsimpledb.kv.raft.msg">CommitRequest</a></dt>
 <dd>&nbsp;</dd>
@@ -6063,6 +6109,11 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#getUnappliedLogMemoryUsage()">getUnappliedLogMemoryUsage()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Get the estimated total memory used by unapplied log entries.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#getUnavailableMergeStrategy()">getUnavailableMergeStrategy()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Get the merge strategy to apply when transitioning from this database to a lower priority database
+ because our <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> cluster has become unavailable.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html#getUnrefCloseable()">getUnrefCloseable()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html" title="class in org.jsimpledb.kv.mvcc">SnapshotRefs</a></dt>
 <dd>
@@ -6316,10 +6367,6 @@
 </a>
 <h2 class="title">H</h2>
 <dl>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/Network.Handler.html#handle(java.lang.String, java.nio.ByteBuffer)">handle(String, ByteBuffer)</a></span> - Method in interface org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/Network.Handler.html" title="interface in org.jsimpledb.kv.raft.net">Network.Handler</a></dt>
-<dd>
-<div class="block">Handle an incoming message from a remote peer.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/JObjectContainer.html#handleChange(org.jsimpledb.change.Change)">handleChange(Change&lt;T&gt;)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></dt>
 <dd>
 <div class="block">Apply the given change to this container, if applicable.</div>
@@ -6371,6 +6418,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/SessionMode.html#hasCoreAPI()">hasCoreAPI()</a></span> - Method in enum org.jsimpledb.<a href="./org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a></dt>
 <dd>
 <div class="block">Determine whether the core API (e.g., <a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a>) is available in this mode.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/Util.html#hasDefaultValidationAnnotation(java.lang.reflect.AnnotatedElement)">hasDefaultValidationAnnotation(AnnotatedElement)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
+<dd>
+<div class="block">Determine whether the given object has any JSR 303 annotation(s) defining validation constraints in the default group.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/CollectionField.html#hasDefaultValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">hasDefaultValue(Transaction, ObjId)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/CollectionField.html" title="class in org.jsimpledb.core">CollectionField</a></dt>
 <dd>&nbsp;</dd>
@@ -6504,10 +6555,6 @@
 <dd>
 <div class="block">Implemented by heavenly bodies that can have other heavenly bodies as satellites.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/Util.html#hasValidationAnnotation(java.lang.reflect.AnnotatedElement)">hasValidationAnnotation(AnnotatedElement)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
-<dd>
-<div class="block">Determine whether the given object has any JSR 303 annotation(s).</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html#hasWeirdWrap()">hasWeirdWrap()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli">TelnetConsole.ForwardingTerminal</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractNavigableMap.html#headMap(K)">headMap(K)</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractNavigableMap.html" title="class in org.jsimpledb.util">AbstractNavigableMap</a></dt>
@@ -6540,6 +6587,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/HorizontalLine.html#HorizontalLine(float)">HorizontalLine(float)</a></span> - Constructor for class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/HorizontalLine.html" title="class in org.jsimpledb.gui">HorizontalLine</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html#hotCopy(java.io.File)">hotCopy(File)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array">AtomicArrayKVStore</a></dt>
+<dd>
+<div class="block">Create a "hot" copy of this instance in the specified destination directory.</div>
+</dd>
 </dl>
 <a name="_I_">
 <!--   -->
@@ -6807,6 +6858,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html#isAnsiSupported()">isAnsiSupported()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli">TelnetConsole.ForwardingTerminal</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/Util.html#isAnyGroupBeingValidated(java.lang.Class[], java.lang.Class[])">isAnyGroupBeingValidated(Class&lt;?&gt;[], Class&lt;?&gt;[])</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
+<dd>
+<div class="block">Determine if a constraint whose <code>groups()</code> contain the given constraint groups should be applied
+ when validating with the given validation groups.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JSimpleDBClassScanner.html#isCandidateComponent(org.springframework.beans.factory.annotation.AnnotatedBeanDefinition)">isCandidateComponent(AnnotatedBeanDefinition)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JSimpleDBClassScanner.html" title="class in org.jsimpledb.spring">JSimpleDBClassScanner</a></dt>
 <dd>
 <div class="block">Determine if the given bean definition is a possible search candidate.</div>
@@ -6909,6 +6965,11 @@
 <dd>
 <div class="block">Determine whether this instance is "full", i.e., contains all keys.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/Util.html#isGroupBeingValidated(java.lang.Class, java.lang.Class[])">isGroupBeingValidated(Class&lt;?&gt;, Class&lt;?&gt;[])</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
+<dd>
+<div class="block">Determine if a constraint whose <code>groups()</code> contain the given constraint group should be applied
+ when validating with the given validation groups.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/BoundType.html#isInclusive()">isInclusive()</a></span> - Method in enum org.jsimpledb.util.<a href="./org/jsimpledb/util/BoundType.html" title="enum in org.jsimpledb.util">BoundType</a></dt>
 <dd>
 <div class="block">Get a <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Boolean.html?is-external=true" title="class or interface in java.lang"><code>Boolean</code></a> corresponding to this instance: true for <a href="./org/jsimpledb/util/BoundType.html#INCLUSIVE"><code>BoundType.INCLUSIVE</code></a>,
@@ -7002,10 +7063,6 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/TypeContainer.html#isRoot(java.lang.Object)">isRoot(Object)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">TypeContainer</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#isServiceThread()">isServiceThread()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Determine whether the current thread is this instance's service thread.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRange.html#isSingleKey()">isSingleKey()</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a></dt>
 <dd>
 <div class="block">Determine whether this instance contains exactly one key.</div>
@@ -7287,6 +7344,20 @@
 <dd>
 <div class="block">Constructor for editing an existing object.</div>
 </dd>
+<dt><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring"><span class="strong">JObjectHttpMessageConverter</span></a> - Class in <a href="./org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a></dt>
+<dd>
+<div class="block">Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html?is-external=true" title="class or interface in org.springframework.http.converter"><code>HttpMessageConverter</code></a> capable of
+ encoding and decoding one or more <a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s contained in a <a href="./org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> that is
+ backed by a <a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><code>NavigableMapKVStore</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#JObjectHttpMessageConverter(org.jsimpledb.JSimpleDB, org.springframework.http.MediaType...)">JObjectHttpMessageConverter(JSimpleDB, MediaType...)</a></span> - Constructor for class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#JObjectHttpMessageConverter(org.jsimpledb.JSimpleDB)">JObjectHttpMessageConverter(JSimpleDB)</a></span> - Constructor for class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 <dt><a href="./org/jsimpledb/gui/JObjectTable.html" title="class in org.jsimpledb.gui"><span class="strong">JObjectTable</span></a> - Class in <a href="./org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a></dt>
 <dd>
 <div class="block">Table showing all objects of a certain type, backed by an <a href="./org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a>.</div>
@@ -7485,7 +7556,7 @@
 </dd>
 <dt><a href="./org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util"><span class="strong">KeyListEncoder</span></a> - Class in <a href="./org/jsimpledb/kv/util/package-summary.html">org.jsimpledb.kv.util</a></dt>
 <dd>
-<div class="block">Serializes a sequence of <code>byte[]</code> arrays, compressing common prefixes.</div>
+<div class="block">Serializes a sequence of <code>byte[]</code> arrays, compressing consecutive common prefixes.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><span class="strong">KeyRange</span></a> - Class in <a href="./org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a></dt>
 <dd>
@@ -7665,6 +7736,19 @@
 <dt><a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><span class="strong">KVStore</span></a> - Interface in <a href="./org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a></dt>
 <dd>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
+</dd>
+<dt><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring"><span class="strong">KVStoreHttpMessageConverter</span></a> - Class in <a href="./org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a></dt>
+<dd>
+<div class="block">Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html?is-external=true" title="class or interface in org.springframework.http.converter"><code>HttpMessageConverter</code></a>
+ capable of encoding and decoding a <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#KVStoreHttpMessageConverter()">KVStoreHttpMessageConverter()</a></span> - Constructor for class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#KVStoreHttpMessageConverter(org.springframework.http.MediaType...)">KVStoreHttpMessageConverter(MediaType...)</a></span> - Constructor for class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Constructor.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><span class="strong">KVTransaction</span></a> - Interface in <a href="./org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a></dt>
 <dd>
@@ -7899,7 +7983,9 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#log">log</a></span> - Variable in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#log">log</a></span> - Variable in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html#log">log</a></span> - Variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#log">log</a></span> - Variable in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html#log">log</a></span> - Variable in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></dt>
 <dd>&nbsp;</dd>
@@ -8131,6 +8217,18 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#memoryDBType">memoryDBType</a></span> - Variable in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/MergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge(KVTransaction, KVTransaction)</a></span> - Method in interface org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft">MergeStrategy</a></dt>
+<dd>
+<div class="block">Merge data between databases.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/NullMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge(KVTransaction, KVTransaction)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/NullMergeStrategy.html" title="class in org.jsimpledb.kv.raft">NullMergeStrategy</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/OverwriteMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge(KVTransaction, KVTransaction)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft">OverwriteMergeStrategy</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/raft/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft"><span class="strong">MergeStrategy</span></a> - Interface in <a href="./org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a></dt>
+<dd>
+<div class="block">Merge strategy used by a <a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>FallbackKVDatabase</code></a> when migrating from one underlying database to another.</div>
+</dd>
 <dt><a href="./org/jsimpledb/kv/raft/msg/Message.html" title="class in org.jsimpledb.kv.raft.msg"><span class="strong">Message</span></a> - Class in <a href="./org/jsimpledb/kv/raft/msg/package-summary.html">org.jsimpledb.kv.raft.msg</a></dt>
 <dd>
 <div class="block">Support superclass for Raft messages.</div>
@@ -8154,6 +8252,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/MethodInvokeNode.html#MethodInvokeNode(org.jsimpledb.parse.expr.Node, java.lang.String, java.util.List)">MethodInvokeNode(Node, String, List&lt;Node&gt;)</a></span> - Constructor for class org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/MethodInvokeNode.html" title="class in org.jsimpledb.parse.expr">MethodInvokeNode</a></dt>
 <dd>
 <div class="block">Constructor for instance method invocation.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#MIME_TYPE">MIME_TYPE</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></dt>
+<dd>
+<div class="block">MIME type supported by this class: <code>application/x-jsimpledb-snapshot-transaction</code>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRange.html#min">min</a></span> - Variable in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a></dt>
 <dd>
@@ -8336,14 +8438,6 @@
 <dd>
 <div class="block">Adjustment applied to multi-byte encoded negative values before encoding.</div>
 </dd>
-<dt><a href="./org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net"><span class="strong">Network</span></a> - Interface in <a href="./org/jsimpledb/kv/raft/net/package-summary.html">org.jsimpledb.kv.raft.net</a></dt>
-<dd>
-<div class="block">Abstraction layer representing "the network", over which we communicate with other nodes.</div>
-</dd>
-<dt><a href="./org/jsimpledb/kv/raft/net/Network.Handler.html" title="interface in org.jsimpledb.kv.raft.net"><span class="strong">Network.Handler</span></a> - Interface in <a href="./org/jsimpledb/kv/raft/net/package-summary.html">org.jsimpledb.kv.raft.net</a></dt>
-<dd>
-<div class="block">Callback interface used by <a href="./org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net"><code>Network</code></a> implementations.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/ErrorCodes.html#NETWORK_ALREADY_SETUP">NETWORK_ALREADY_SETUP</a></span> - Static variable in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/ErrorCodes.html" title="class in org.jsimpledb.kv.fdb">ErrorCodes</a></dt>
 <dd>
 <div class="block">Network can be configured only once.</div>
@@ -8410,6 +8504,12 @@
  and adds a "Null" button that sets the value to null.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/NullableField.html#NullableField(com.vaadin.ui.Field)">NullableField(Field&lt;T&gt;)</a></span> - Constructor for class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/NullableField.html" title="class in org.jsimpledb.gui">NullableField</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/kv/raft/NullMergeStrategy.html" title="class in org.jsimpledb.kv.raft"><span class="strong">NullMergeStrategy</span></a> - Class in <a href="./org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a></dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/raft/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft"><code>MergeStrategy</code></a> that does nothing, i.e., it leaves the destination database unmodified.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/NullMergeStrategy.html#NullMergeStrategy()">NullMergeStrategy()</a></span> - Constructor for class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/NullMergeStrategy.html" title="class in org.jsimpledb.kv.raft">NullMergeStrategy</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/core/NullSafeType.html" title="class in org.jsimpledb.core"><span class="strong">NullSafeType</span></a>&lt;<a href="./org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt; - Class in <a href="./org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a></dt>
 <dd>
@@ -8735,7 +8835,7 @@
 </dd>
 <dt><a href="./org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a> - package org.jsimpledb.kv.array</dt>
 <dd>
-<div class="block">A simple <code>KVStore</code> implementation based on a sorted array of key/value pairs.</div>
+<div class="block">A simple <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/bdb/package-summary.html">org.jsimpledb.kv.bdb</a> - package org.jsimpledb.kv.bdb</dt>
 <dd>
@@ -8760,10 +8860,6 @@
 <dt><a href="./org/jsimpledb/kv/raft/msg/package-summary.html">org.jsimpledb.kv.raft.msg</a> - package org.jsimpledb.kv.raft.msg</dt>
 <dd>
 <div class="block">Raft inter-node messages.</div>
-</dd>
-<dt><a href="./org/jsimpledb/kv/raft/net/package-summary.html">org.jsimpledb.kv.raft.net</a> - package org.jsimpledb.kv.raft.net</dt>
-<dd>
-<div class="block">Networking classes used by Raft.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a> - package org.jsimpledb.kv.rocksdb</dt>
 <dd>
@@ -8817,14 +8913,16 @@
 <dd>
 <div class="block">Output usage message flag listing.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/Network.Handler.html#outputQueueEmpty(java.lang.String)">outputQueueEmpty(String)</a></span> - Method in interface org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/Network.Handler.html" title="interface in org.jsimpledb.kv.raft.net">Network.Handler</a></dt>
-<dd>
-<div class="block">Receive notification that a remote peer's output queue has transitioned from a non empty state to an empty state</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRange.html#overlaps(org.jsimpledb.kv.KeyRange)">overlaps(KeyRange)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a></dt>
 <dd>
 <div class="block">Determine if this key range overlaps the specified key range.</div>
 </dd>
+<dt><a href="./org/jsimpledb/kv/raft/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft"><span class="strong">OverwriteMergeStrategy</span></a> - Class in <a href="./org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a></dt>
+<dd>
+<div class="block"><a href="./org/jsimpledb/kv/raft/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft"><code>MergeStrategy</code></a> that completely overwrites the destination database with the content of the source database.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/OverwriteMergeStrategy.html#OverwriteMergeStrategy()">OverwriteMergeStrategy()</a></span> - Constructor for class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft">OverwriteMergeStrategy</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <a name="_P_">
 <!--   -->
@@ -8909,10 +9007,6 @@
 <dd>
 <div class="block">Decode a hexadecimal <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> into a <code>byte[]</code> array.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#parseAddressPart(java.lang.String)">parseAddressPart(String)</a></span> - Static method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Parse out the address part of an address that has an optional colon plus TCP port number suffix.</div>
-</dd>
 <dt><a href="./org/jsimpledb/parse/util/ParseCastFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">ParseCastFunction</span></a>&lt;<a href="./org/jsimpledb/parse/util/ParseCastFunction.html" title="type parameter in ParseCastFunction">T</a>&gt; - Class in <a href="./org/jsimpledb/parse/util/package-summary.html">org.jsimpledb.parse.util</a></dt>
 <dd>
 <div class="block">Parsing specific subclass of <a href="./org/jsimpledb/util/CastFunction.html" title="class in org.jsimpledb.util"><code>CastFunction</code></a> that throws <a href="./org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><code>EvalException</code></a>s instead of <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/ClassCastException.html?is-external=true" title="class or interface in java.lang"><code>ClassCastException</code></a>s.</div>
@@ -8979,10 +9073,6 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/func/SimpleFunction.html#parseParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.ParseContext, boolean)">parseParams(ParseSession, ParseContext, boolean)</a></span> - Method in class org.jsimpledb.parse.func.<a href="./org/jsimpledb/parse/func/SimpleFunction.html" title="class in org.jsimpledb.parse.func">SimpleFunction</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#parsePortPart(java.lang.String, int)">parsePortPart(String, int)</a></span> - Static method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Parse out the port part of an address that has an optional colon plus TCP port number suffix.</div>
-</dd>
 <dt><a href="./org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse"><span class="strong">Parser</span></a>&lt;<a href="./org/jsimpledb/parse/Parser.html" title="type parameter in Parser">T</a>&gt; - Interface in <a href="./org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></dt>
 <dd>
 <div class="block">Generic parsing interface.</div>
@@ -9533,6 +9623,16 @@
 <dd>
 <div class="block">Read an <code>int</code> as four big-endian bytes.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#readInternal(java.lang.Class, org.springframework.http.HttpInputMessage)">readInternal(Class&lt;? extends JObject&gt;, HttpInputMessage)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#readInternal(java.lang.Class, org.springframework.http.HttpInputMessage)">readInternal(Class&lt;? extends KVStore&gt;, HttpInputMessage)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#readInternal(java.lang.Class, org.springframework.http.HttpInputMessage)">readInternal(Class&lt;? extends SnapshotJTransaction&gt;, HttpInputMessage)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#readKVStore(org.jsimpledb.kv.KVStore, org.springframework.http.HttpInputMessage)">readKVStore(KVStore, HttpInputMessage)</a></span> - Static method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Decode a key/value store HTTP payload.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)">readListField(ObjId, int, boolean)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
 <div class="block">Access a <a href="./org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> associated with an object, optionally updating the object's schema version.</div>
@@ -9563,6 +9663,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/core/ReadOnlyTransactionException.html#ReadOnlyTransactionException(org.jsimpledb.core.Transaction)">ReadOnlyTransactionException(Transaction)</a></span> - Constructor for exception org.jsimpledb.core.<a href="./org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></dt>
 <dd>
 <div class="block">Constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyListEncoder.html#readPairs(java.io.InputStream)">readPairs(InputStream)</a></span> - Static method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util">KeyListEncoder</a></dt>
+<dd>
+<div class="block">Decode an iteration of key/value pairs previously encoded by <a href="./org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">Reads</span></a> - Class in <a href="./org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></dt>
 <dd>
@@ -9891,13 +9995,14 @@
 <dd>
 <div class="block">Constructor.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/Util.html#requiresValidation(java.lang.Class)">requiresValidation(Class&lt;?&gt;)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/Util.html#requiresDefaultValidation(java.lang.Class)">requiresDefaultValidation(Class&lt;?&gt;)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
 <dd>
-<div class="block">Determine if instances of the given type require any validation.</div>
+<div class="block">Determine if instances of the given type require any validation under the default validation group.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/Util.html#requiresValidation(java.lang.reflect.Method)">requiresValidation(Method)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/Util.html#requiresDefaultValidation(java.lang.reflect.Method)">requiresDefaultValidation(Method)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/Util.html" title="class in org.jsimpledb">Util</a></dt>
 <dd>
-<div class="block">Determine if the given getter method, or any method it overrides, has a JSR 303 validation constraint.</div>
+<div class="block">Determine if the given getter method, or any method it overrides, has a JSR 303 validation constraint
+ applicable under the default validation group.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html#reset()">reset()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli">TelnetConsole.ForwardingTerminal</a></dt>
 <dd>&nbsp;</dd>
@@ -9956,11 +10061,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/RetryTransactionException.html#RetryTransactionException(org.jsimpledb.kv.KVTransaction, java.lang.String, java.lang.Throwable)">RetryTransactionException(KVTransaction, String, Throwable)</a></span> - Constructor for exception org.jsimpledb.kv.<a href="./org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv">RetryTransactionException</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JObject.html#revalidate()">revalidate()</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JObject.html#revalidate(java.lang.Class...)">revalidate(Class&lt;?&gt;...)</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
 <dd>
 <div class="block">Add this instance to the validation queue for validation in its associated transaction.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.core.ObjId)">revalidate(ObjId)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#revalidate(org.jsimpledb.core.ObjId, java.lang.Class...)">revalidate(ObjId, Class&lt;?&gt;...)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Add the given instance to the validation queue for validation, which will occur either at <a href="./org/jsimpledb/JTransaction.html#commit()"><code>JTransaction.commit()</code></a> time
  or at the next invocation of <a href="./org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a>, whichever occurs first.</div>
@@ -10238,27 +10343,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#seekLower(byte[])">seekLower(byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#selectFor(java.nio.channels.SelectionKey, int, boolean)">selectFor(SelectionKey, int, boolean)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Enable or disable listening for the specified I/O operation(s).</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/MainPanel.html#selectObject(org.jsimpledb.core.ObjId)">selectObject(ObjId)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/MainPanel.html" title="class in org.jsimpledb.gui">MainPanel</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net"><span class="strong">SelectorSupport</span></a> - Class in <a href="./org/jsimpledb/kv/raft/net/package-summary.html">org.jsimpledb.kv.raft.net</a></dt>
-<dd>
-<div class="block">Support superclass for classes that perform activity based on <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/channels/SelectableChannel.html?is-external=true" title="class or interface in java.nio.channels"><code>SelectableChannel</code></a> asynchronous I/O notifications.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#SelectorSupport()">SelectorSupport()</a></span> - Constructor for class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html" title="interface in org.jsimpledb.kv.raft.net"><span class="strong">SelectorSupport.IOHandler</span></a> - Interface in <a href="./org/jsimpledb/kv/raft/net/package-summary.html">org.jsimpledb.kv.raft.net</a></dt>
-<dd>
-<div class="block">Callback interface used by <a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net"><code>SelectorSupport</code></a>.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/Network.html#send(java.lang.String, java.nio.ByteBuffer)">send(String, ByteBuffer)</a></span> - Method in interface org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net">Network</a></dt>
-<dd>
-<div class="block">Send (or enqueue for sending) a message to a remote peer.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#send(java.lang.String, java.nio.ByteBuffer)">send(String, ByteBuffer)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#serialize(java.io.OutputStream)">serialize(OutputStream)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
@@ -10283,22 +10368,6 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#serializedLength()">serializedLength()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>
 <div class="block">Calculate the number of bytes required to serialize this instance via <a href="./org/jsimpledb/kv/mvcc/Writes.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#serviceCleanup()">serviceCleanup()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Perform shutdown cleanups.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#serviceCleanup()">serviceCleanup()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#serviceHousekeeping()">serviceHousekeeping()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Perform housekeeping.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#serviceHousekeeping()">serviceHousekeeping()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html#serviceIO(java.nio.channels.SelectionKey)">serviceIO(SelectionKey)</a></span> - Method in interface org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.IOHandler.html" title="interface in org.jsimpledb.kv.raft.net">SelectorSupport.IOHandler</a></dt>
-<dd>
-<div class="block">Handle ready I/O.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/Console.html#session">session</a></span> - Variable in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli">Console</a></dt>
 <dd>&nbsp;</dd>
@@ -10379,6 +10448,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/ReferenceSchemaField.html#setCascadeDelete(boolean)">setCascadeDelete(boolean)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/ReferenceSchemaField.html" title="class in org.jsimpledb.schema">ReferenceSchemaField</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#setCheckInterval(int)">setCheckInterval(int)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Configure the interval between availability checks.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/TypeContainer.html#setChildrenAllowed(java.lang.Object, boolean)">setChildrenAllowed(Object, boolean)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">TypeContainer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/ant/SchemaGeneratorTask.html#setClasspath(org.apache.tools.ant.types.Path)">setClasspath(Path)</a></span> - Method in class org.jsimpledb.ant.<a href="./org/jsimpledb/ant/SchemaGeneratorTask.html" title="class in org.jsimpledb.ant">SchemaGeneratorTask</a></dt>
@@ -10409,8 +10482,6 @@
 <dd>
 <div class="block">Configure the compression type.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#setConnectTimeout(long)">setConnectTimeout(long)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#setConsistency(org.jsimpledb.kv.raft.Consistency)">setConsistency(Consistency)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
 <dd>
 <div class="block">Set the consistency level for this transaction.</div>
@@ -10488,6 +10559,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/ant/SchemaGeneratorTask.html#setFailOnError(boolean)">setFailOnError(boolean)</a></span> - Method in class org.jsimpledb.ant.<a href="./org/jsimpledb/ant/SchemaGeneratorTask.html" title="class in org.jsimpledb.ant">SchemaGeneratorTask</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html#setFallbackTargets(java.util.List)">setFallbackTargets(List&lt;? extends FallbackTarget&gt;)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a></dt>
+<dd>
+<div class="block">Configure the underlying <a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft"><code>FallbackTarget</code></a>(s).</div>
+</dd>
 <dt><a href="./org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><span class="strong">SetField</span></a>&lt;<a href="./org/jsimpledb/core/SetField.html" title="type parameter in SetField">E</a>&gt; - Class in <a href="./org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a></dt>
 <dd>
 <div class="block">Set field.</div>
@@ -10559,10 +10634,6 @@
 <dd>
 <div class="block">Set the hold timeout for this instance.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#setHousekeepingInterval(int)">setHousekeepingInterval(int)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Set the housekeeping interval.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setIdentity(java.lang.String)">setIdentity(String)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the Raft identity.</div>
@@ -10613,7 +10684,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html#setKVStore(org.jsimpledb.kv.array.AtomicArrayKVStore)">setKVStore(AtomicArrayKVStore)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></dt>
 <dd>
-<div class="block">Configure the underlying <code>ArrayAtomicKVStore</code> used by this instance.</div>
+<div class="block">Configure the underlying <a href="./org/jsimpledb/kv/array/AtomicArrayKVStore.html" title="class in org.jsimpledb.kv.array"><code>AtomicArrayKVStore</code></a> used by this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html#setKVStore(org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore)">setKVStore(LevelDBAtomicKVStore)</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVDatabase</a></dt>
 <dd>
@@ -10633,10 +10704,6 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#setLineLimit(int)">setLineLimit(int)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#setListenAddress(java.net.InetSocketAddress)">setListenAddress(InetSocketAddress)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>
-<div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/java/net/InetSocketAddress.html?is-external=true" title="class or interface in java.net"><code>InetSocketAddress</code></a> to which this instance should bind.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setLogDirectory(java.io.File)">setLogDirectory(File)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the directory in which uncommitted log entries are stored.</div>
@@ -10647,16 +10714,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/ant/SchemaGeneratorTask.html#setMatchNames(boolean)">setMatchNames(boolean)</a></span> - Method in class org.jsimpledb.ant.<a href="./org/jsimpledb/ant/SchemaGeneratorTask.html" title="class in org.jsimpledb.ant">SchemaGeneratorTask</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#setMaxConnections(int)">setMaxConnections(int)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxElectionTimeout(int)">setMaxElectionTimeout(int)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the maximum election timeout.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#setMaxIdleTime(long)">setMaxIdleTime(long)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#setMaxMessageSize(int)">setMaxMessageSize(int)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/JObjectContainer.html#setMaxObjects(int)">setMaxObjects(int)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></dt>
 <dd>
 <div class="block">Configure the maximum number of objects.</div>
@@ -10665,8 +10726,6 @@
 <dd>
 <div class="block">Configure the maximum number of open files.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#setMaxOutputQueueSize(long)">setMaxOutputQueueSize(long)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setMaxTransactionDuration(int)">setMaxTransactionDuration(int)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the maximum supported duration for outstanding transactions.</div>
@@ -10675,12 +10734,24 @@
 <dd>
 <div class="block">Configure the maximum allowed memory used for unapplied log entries.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#setMinAvailableTime(int)">setMinAvailableTime(int)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Configure the minimum amount of time after becoming available before allowing this instance to become unavailable again.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setMinElectionTimeout(int)">setMinElectionTimeout(int)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the minimum election timeout.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#setMinUnavailableTime(int)">setMinUnavailableTime(int)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Configure the minimum amount of time after becoming unavailable before allowing this instance to become available again.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/ant/SchemaGeneratorTask.html#setMode(java.lang.String)">setMode(String)</a></span> - Method in class org.jsimpledb.ant.<a href="./org/jsimpledb/ant/SchemaGeneratorTask.html" title="class in org.jsimpledb.ant">SchemaGeneratorTask</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/Session.html#setMode(org.jsimpledb.SessionMode)">setMode(SessionMode)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
+<dd>
+<div class="block">Change this instance's <a href="./org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JSimpleDBFactory.html#setModelClasses(java.lang.Iterable)">setModelClasses(Iterable&lt;? extends Class&lt;?&gt;&gt;)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a></dt>
 <dd>
 <div class="block">Configure the Java model classes.</div>
@@ -10693,9 +10764,9 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/AbstractSchemaItem.html#setName(java.lang.String)">setName(String)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/AbstractSchemaItem.html" title="class in org.jsimpledb.schema">AbstractSchemaItem</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setNetwork(org.jsimpledb.kv.raft.net.Network)">setNetwork(Network)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#setNetwork(org.dellroad.stuff.net.Network)">setNetwork(Network)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>
-<div class="block">Configure the <a href="./org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net"><code>Network</code></a> to use for inter-node communication.</div>
+<div class="block">Configure the <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net"><code>Network</code></a> to use for inter-node communication.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KVPairIterator.html#setNextTarget(byte[])">setNextTarget(byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KVPairIterator.html" title="class in org.jsimpledb.kv">KVPairIterator</a></dt>
 <dd>
@@ -10729,6 +10800,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/TypeContainer.html#setParent(java.lang.Object, java.lang.Object)">setParent(Object, Object)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">TypeContainer</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#setRaftKVDatabase(org.jsimpledb.kv.raft.RaftKVDatabase)">setRaftKVDatabase(RaftKVDatabase)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Set the <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">setReadOnly(boolean)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
 <div class="block">Enable or disaable read-only mode.</div>
@@ -10742,6 +10817,11 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Reads.html#setReads(org.jsimpledb.kv.KeyRanges)">setReads(KeyRanges)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Reads.html" title="class in org.jsimpledb.kv.mvcc">Reads</a></dt>
 <dd>
 <div class="block">Set the ranges of keys read.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#setRejoinMergeStrategy(org.jsimpledb.kv.raft.MergeStrategy)">setRejoinMergeStrategy(MergeStrategy)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Configure the merge strategy to apply when transitioning from a lower priority database to this database
+ because our <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> cluster has become available again.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/Writes.html#setRemoves(org.jsimpledb.kv.KeyRanges)">setRemoves(KeyRanges)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc">Writes</a></dt>
 <dd>
@@ -10779,6 +10859,14 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html#SetSchemaVersionCommand()">SetSchemaVersionCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SetSessionModeCommand</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#SetSessionModeCommand()">SetSessionModeCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html#setStandaloneTarget(org.jsimpledb.kv.KVDatabase)">setStandaloneTarget(KVDatabase)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a></dt>
+<dd>
+<div class="block">Configure the local "standalone mode" <a href="./org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> to be used when all <a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft"><code>FallbackTarget</code></a>s are unavailable.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/AbstractSchemaItem.html#setStorageId(int)">setStorageId(int)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/AbstractSchemaItem.html" title="class in org.jsimpledb.schema">AbstractSchemaItem</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JSimpleDBFactory.html#setStorageIdGenerator(org.jsimpledb.StorageIdGenerator)">setStorageIdGenerator(StorageIdGenerator)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a></dt>
@@ -10829,16 +10917,33 @@
 <dd>
 <div class="block">Configure a custom default <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>TransactionConfig</code></a> to be used by this instance for transactions.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#setTransactionTimeout(int)">setTransactionTimeout(int)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Configure the transaction timeout used to determine database availability.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/JObjectContainer.html#setType(java.lang.Class)">setType(Class&lt;T&gt;)</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></dt>
 <dd>
 <div class="block">Change the type restriction associated with this instance.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/SimpleSchemaField.html#setType(java.lang.String)">setType(String)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/SimpleSchemaField.html" title="class in org.jsimpledb.schema">SimpleSchemaField</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackTarget.html#setUnavailableMergeStrategy(org.jsimpledb.kv.raft.MergeStrategy)">setUnavailableMergeStrategy(MergeStrategy)</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackTarget.html" title="class in org.jsimpledb.kv.raft">FallbackTarget</a></dt>
+<dd>
+<div class="block">Configure the merge strategy to apply when transitioning from this database to a lower priority database
+ because our <a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> cluster has become unavailable.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html#setValidateBeforeCommit(boolean)">setValidateBeforeCommit(boolean)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager</a></dt>
 <dd>
 <div class="block">Configure whether to invoke <a href="./org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a> just prior to commit (and prior to any
  synchronization callbacks).</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#setValidationGroups(java.lang.Class...)">setValidationGroups(Class&lt;?&gt;...)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Set validation groups used to validate all incoming objects.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#setValidationGroups(java.lang.Class...)">setValidationGroups(Class&lt;?&gt;...)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Set validation groups used to validate all incoming objects.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#setValidationMode(org.jsimpledb.ValidationMode)">setValidationMode(ValidationMode)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>&nbsp;</dd>
@@ -10854,6 +10959,16 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#SetValidationModeCommand()">SetValidationModeCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#setValidatorFactory(javax.validation.ValidatorFactory)">setValidatorFactory(ValidatorFactory)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
+<dd>
+<div class="block">Configure a custom <a href="https://docs.oracle.com/javaee/7/api/javax/validation/ValidatorFactory.html?is-external=true" title="class or interface in javax.validation"><code>ValidatorFactory</code></a> used to create <a href="https://docs.oracle.com/javaee/7/api/javax/validation/Validator.html?is-external=true" title="class or interface in javax.validation"><code>Validator</code></a>s
+ for validation within transactions.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/JSimpleDBFactory.html#setValidatorFactory(javax.validation.ValidatorFactory)">setValidatorFactory(ValidatorFactory)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDBFactory.html" title="class in org.jsimpledb">JSimpleDBFactory</a></dt>
+<dd>
+<div class="block">Configure a custom <a href="https://docs.oracle.com/javaee/7/api/javax/validation/ValidatorFactory.html?is-external=true" title="class or interface in javax.validation"><code>ValidatorFactory</code></a> used to create <a href="https://docs.oracle.com/javaee/7/api/javax/validation/Validator.html?is-external=true" title="class or interface in javax.validation"><code>Validator</code></a>s
+ for validation within transactions.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/SimpleField.html#setValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, T)">setValue(Transaction, ObjId, T)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core">SimpleField</a></dt>
 <dd>
 <div class="block">Set the value of this field in the given object.</div>
@@ -11014,6 +11129,10 @@
 <dd>
 <div class="block">Determine the number of individual <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s contained in this instance.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html#size()">size()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util">NavigableMapKVStore</a></dt>
+<dd>
+<div class="block">Get the number of key/value pairs in this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractIterationSet.html#size()">size()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractIterationSet.html" title="class in org.jsimpledb.util">AbstractIterationSet</a></dt>
 <dd>
 <div class="block">Calculate size.</div>
@@ -11099,6 +11218,16 @@
 <dt><a href="./org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><span class="strong">SnapshotJTransaction</span></a> - Class in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
 <dd>
 <div class="block">A "snapshot" <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> that persists indefinitely.</div>
+</dd>
+<dt><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring"><span class="strong">SnapshotJTransactionHttpMessageConverter</span></a> - Class in <a href="./org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a></dt>
+<dd>
+<div class="block">Spring <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/converter/HttpMessageConverter.html?is-external=true" title="class or interface in org.springframework.http.converter"><code>HttpMessageConverter</code></a> capable of
+ encoding and decoding a graph of <a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s contained in a <a href="./org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> that is
+ backed by a <a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><code>NavigableMapKVStore</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#SnapshotJTransactionHttpMessageConverter(org.jsimpledb.JSimpleDB)">SnapshotJTransactionHttpMessageConverter(JSimpleDB)</a></span> - Constructor for class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Constructor.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">SnapshotKVDatabase</span></a> - Class in <a href="./org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></dt>
 <dd>
@@ -11255,15 +11384,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/Network.html#start(org.jsimpledb.kv.raft.net.Network.Handler)">start(Network.Handler)</a></span> - Method in interface org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net">Network</a></dt>
-<dd>
-<div class="block">Start this instance.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Start this instance.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#start(org.jsimpledb.kv.raft.net.Network.Handler)">start(Network.Handler)</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#start()">start()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>&nbsp;</dd>
@@ -11319,15 +11440,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/Network.html#stop()">stop()</a></span> - Method in interface org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net">Network</a></dt>
-<dd>
-<div class="block">Stop this instance.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Stop this instance.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#stop()">stop()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>&nbsp;</dd>
@@ -11395,6 +11508,12 @@
 <dd>
 <div class="block">Success.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#supports(java.lang.Class)">supports(Class&lt;?&gt;)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#supports(java.lang.Class)">supports(Class&lt;?&gt;)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#supports(java.lang.Class)">supports(Class&lt;?&gt;)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/NavigableSets.html#symmetricDifference(java.util.NavigableSet, java.util.NavigableSet)">symmetricDifference(NavigableSet&lt;E&gt;, NavigableSet&lt;E&gt;)</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/NavigableSets.html" title="class in org.jsimpledb.util">NavigableSets</a></dt>
 <dd>
 <div class="block">Create a read-only view of the symmetric difference of two <a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s that have a consistent sort order.</div>
@@ -11418,12 +11537,6 @@
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractNavigableSet.html#tailSet(E)">tailSet(E)</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util">AbstractNavigableSet</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractNavigableSet.html#tailSet(E, boolean)">tailSet(E, boolean)</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util">AbstractNavigableSet</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net"><span class="strong">TCPNetwork</span></a> - Class in <a href="./org/jsimpledb/kv/raft/net/package-summary.html">org.jsimpledb.kv.raft.net</a></dt>
-<dd>
-<div class="block"><a href="./org/jsimpledb/kv/raft/net/Network.html" title="interface in org.jsimpledb.kv.raft.net"><code>Network</code></a> implementation based on TCP sockets.</div>
-</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#TCPNetwork()">TCPNetwork()</a></span> - Constructor for class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/cli/TelnetConsole.html" title="class in org.jsimpledb.cli"><span class="strong">TelnetConsole</span></a> - Class in <a href="./org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a></dt>
 <dd>
@@ -11479,6 +11592,8 @@
 <dd>
 <div class="block">Overridden in <a href="./org/jsimpledb/util/AbstractIterationSet.html" title="class in org.jsimpledb.util"><code>AbstractIterationSet</code></a> to minimize the use of <a href="./org/jsimpledb/util/AbstractIterationSet.html#size()"><code>size()</code></a>.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/util/ObjIdSet.html#toArray()">toArray()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ObjIdSet.html" title="class in org.jsimpledb.util">ObjIdSet</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractKVCommand.html#toCString(byte[])">toCString(byte[])</a></span> - Static method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractKVCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractKVCommand</a></dt>
 <dd>
 <div class="block">Convert a <code>byte[]</code> array into a double-quoted C-string representation, surrounded by double quotes,
@@ -11620,7 +11735,9 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/RequestVote.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg">RequestVote</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/TCPNetwork.html" title="class in org.jsimpledb.kv.raft.net">TCPNetwork</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/NullMergeStrategy.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/NullMergeStrategy.html" title="class in org.jsimpledb.kv.raft">NullMergeStrategy</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/OverwriteMergeStrategy.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft">OverwriteMergeStrategy</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html#toString()">toString()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a></dt>
 <dd>&nbsp;</dd>
@@ -11938,6 +12055,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/util/UniqueIterator.html#UniqueIterator(java.util.Iterator, java.util.Comparator)">UniqueIterator(Iterator&lt;? extends E&gt;, Comparator&lt;? super E&gt;)</a></span> - Constructor for class org.jsimpledb.util.<a href="./org/jsimpledb/util/UniqueIterator.html" title="class in org.jsimpledb.util">UniqueIterator</a></dt>
 <dd>
 <div class="block">Constructor.</div>
+</dd>
+<dt><a href="./org/jsimpledb/UniquenessConstraints.html" title="interface in org.jsimpledb"><span class="strong">UniquenessConstraints</span></a> - Interface in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
+<dd>
+<div class="block">JSR 303 validation group for JSimpleDB uniqueness constraints.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/ErrorCodes.html#UNKNOWN_ERROR">UNKNOWN_ERROR</a></span> - Static variable in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/ErrorCodes.html" title="class in org.jsimpledb.kv.fdb">ErrorCodes</a></dt>
 <dd>
@@ -12367,10 +12488,6 @@ the order they are declared.</div>
 </a>
 <h2 class="title">W</h2>
 <dl>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html#wakeup()">wakeup()</a></span> - Method in class org.jsimpledb.kv.raft.net.<a href="./org/jsimpledb/kv/raft/net/SelectorSupport.html" title="class in org.jsimpledb.kv.raft.net">SelectorSupport</a></dt>
-<dd>
-<div class="block">Wakeup the service thread.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/ErrorCodes.html#WATCHES_DISABLED">WATCHES_DISABLED</a></span> - Static variable in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/ErrorCodes.html" title="class in org.jsimpledb.kv.fdb">ErrorCodes</a></dt>
 <dd>
 <div class="block">Disabling read your writes also disables watches.</div>
@@ -12433,7 +12550,7 @@ the order they are declared.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html#wrapException(com.foundationdb.FDBException)">wrapException(FDBException)</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></dt>
 <dd>
-<div class="block">Wrap the given <a href="https://foundationdb.com/key-value-store/documentation/javadoc/com/foundationdb/FDBException.html?is-external=true" title="class or interface in com.foundationdb"><code>FDBException</code></a> in the appropriate <a href="./org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
+<div class="block">Wrap the given <code>FDBException</code> in the appropriate <a href="./org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html#wrapException(org.jsimpledb.kv.mvcc.SnapshotKVTransaction, java.lang.RuntimeException)">wrapException(SnapshotKVTransaction, RuntimeException)</a></span> - Method in class org.jsimpledb.kv.leveldb.<a href="./org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVDatabase</a></dt>
 <dd>&nbsp;</dd>
@@ -12541,9 +12658,19 @@ the order they are declared.</div>
 <dd>
 <div class="block">Write an <code>int</code> as four big-endian bytes.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#writeInternal(org.jsimpledb.JObject, org.springframework.http.HttpOutputMessage)">writeInternal(JObject, HttpOutputMessage)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#writeInternal(org.jsimpledb.kv.KVStore, org.springframework.http.HttpOutputMessage)">writeInternal(KVStore, HttpOutputMessage)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#writeInternal(org.jsimpledb.SnapshotJTransaction, org.springframework.http.HttpOutputMessage)">writeInternal(SnapshotJTransaction, HttpOutputMessage)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#writeKV(byte[], byte[])">writeKV(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
 <dd>
 <div class="block">Write out the next key/value pair.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#writeKVStore(org.jsimpledb.kv.KVStore, org.springframework.http.HttpOutputMessage)">writeKVStore(KVStore, HttpOutputMessage)</a></span> - Static method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Encode a key/value store HTTP payload.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyListEncoder.html#writeLength(byte[], byte[])">writeLength(byte[], byte[])</a></span> - Static method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util">KeyListEncoder</a></dt>
 <dd>
@@ -12552,6 +12679,18 @@ the order they are declared.</div>
 <dt><span class="strong"><a href="./org/jsimpledb/util/ByteUtil.html#writeLong(org.jsimpledb.util.ByteWriter, long)">writeLong(ByteWriter, long)</a></span> - Static method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ByteUtil.html" title="class in org.jsimpledb.util">ByteUtil</a></dt>
 <dd>
 <div class="block">Write a <code>long</code> as eight big-endian bytes.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVWriter.html#writeMerged(org.jsimpledb.kv.KVStore, java.util.Iterator, org.jsimpledb.kv.mvcc.Mutations)">writeMerged(KVStore, Iterator&lt;KVPair&gt;, Mutations)</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array">ArrayKVWriter</a></dt>
+<dd>
+<div class="block">Merge the given key/value pair iteration with the specified mutations and write out the merged combination.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)">writePairs(Iterator&lt;KVPair&gt;, OutputStream)</a></span> - Static method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util">KeyListEncoder</a></dt>
+<dd>
+<div class="block">Encode an iteration of key/value pairs.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyListEncoder.html#writePairsLength(java.util.Iterator)">writePairsLength(Iterator&lt;KVPair&gt;)</a></span> - Static method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyListEncoder.html" title="class in org.jsimpledb.kv.util">KeyListEncoder</a></dt>
+<dd>
+<div class="block">Determine the number of bytes that would be written by <a href="./org/jsimpledb/kv/util/KeyListEncoder.html#writePairs(java.util.Iterator, java.io.OutputStream)"><code>writePairs()</code></a>.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/mvcc/Writes.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">Writes</span></a> - Class in <a href="./org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a></dt>
 <dd>

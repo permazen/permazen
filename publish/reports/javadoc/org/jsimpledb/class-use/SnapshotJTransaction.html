@@ -79,6 +79,12 @@
 <div class="block">Abstraction layer allowing access to a <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> using normal Java objects.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.spring">org.jsimpledb.spring</a></td>
+<td class="colLast">
+<div class="block">Spring Framework integration classes.</div>
+</td>
+</tr>
 </tbody>
 </table>
 </li>
@@ -111,9 +117,67 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></code></td>
+<td class="colLast"><span class="strong">JSimpleDB.</span><code><strong><a href="../../../org/jsimpledb/JSimpleDB.html#createSnapshotTransaction(org.jsimpledb.ValidationMode)">createSnapshotTransaction</a></strong>(<a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
+<div class="block">Create a new, empty <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> backed by a <a href="../../../org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><code>NavigableMapKVStore</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></code></td>
 <td class="colLast"><span class="strong">JTransaction.</span><code><strong><a href="../../../org/jsimpledb/JTransaction.html#getSnapshotTransaction()">getSnapshotTransaction</a></strong>()</code>
 <div class="block">Get the default <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> associated with this instance.</div>
 </td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.spring">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a> in <a href="../../../org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a> that return <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></code></td>
+<td class="colLast"><span class="strong">SnapshotJTransactionHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#readInternal(java.lang.Class, org.springframework.http.HttpInputMessage)">readInternal</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a>&gt;&nbsp;clazz,
+                        <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/HttpInputMessage.html?is-external=true" title="class or interface in org.springframework.http">HttpInputMessage</a>&nbsp;input)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a> with parameters of type <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a></code></td>
+<td class="colLast"><span class="strong">SnapshotJTransactionHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#getContentLength(org.jsimpledb.SnapshotJTransaction, org.springframework.http.MediaType)">getContentLength</a></strong>(<a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a>&nbsp;jtx,
+                                <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/MediaType.html?is-external=true" title="class or interface in org.springframework.http">MediaType</a>&nbsp;contentType)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="strong">SnapshotJTransactionHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#writeInternal(org.jsimpledb.SnapshotJTransaction, org.springframework.http.HttpOutputMessage)">writeInternal</a></strong>(<a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a>&nbsp;jtx,
+                          <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/HttpOutputMessage.html?is-external=true" title="class or interface in org.springframework.http">HttpOutputMessage</a>&nbsp;output)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Method parameters in <a href="../../../org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a> with type arguments of type <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a></code></td>
+<td class="colLast"><span class="strong">SnapshotJTransactionHttpMessageConverter.</span><code><strong><a href="../../../org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#readInternal(java.lang.Class, org.springframework.http.HttpInputMessage)">readInternal</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;? extends <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">SnapshotJTransaction</a>&gt;&nbsp;clazz,
+                        <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/http/HttpInputMessage.html?is-external=true" title="class or interface in org.springframework.http">HttpInputMessage</a>&nbsp;input)</code>&nbsp;</td>
 </tr>
 </tbody>
 </table>

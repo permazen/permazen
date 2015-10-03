@@ -103,7 +103,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.46">ParseSession</a>
+<pre>public class <a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.44">ParseSession</a>
 extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></pre>
 <div class="block">A <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpledb"><code>Session</code></a> with support for parsing Java expressions.</div>
 </li>
@@ -250,7 +250,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.<a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></h3>
-<code><a href="../../../org/jsimpledb/Session.html#getDatabase()">getDatabase</a>, <a href="../../../org/jsimpledb/Session.html#getDatabaseDescription()">getDatabaseDescription</a>, <a href="../../../org/jsimpledb/Session.html#getJSimpleDB()">getJSimpleDB</a>, <a href="../../../org/jsimpledb/Session.html#getJTransaction()">getJTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getKVDatabase()">getKVDatabase</a>, <a href="../../../org/jsimpledb/Session.html#getKVTransaction()">getKVTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getMode()">getMode</a>, <a href="../../../org/jsimpledb/Session.html#getNameIndex()">getNameIndex</a>, <a href="../../../org/jsimpledb/Session.html#getSchemaModel()">getSchemaModel</a>, <a href="../../../org/jsimpledb/Session.html#getSchemaVersion()">getSchemaVersion</a>, <a href="../../../org/jsimpledb/Session.html#getTransaction()">getTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getValidationMode()">getValidationMode</a>, <a href="../../../org/jsimpledb/Session.html#isAllowNewSchema()">isAllowNewSchema</a>, <a href="../../../org/jsimpledb/Session.html#isReadOnly()">isReadOnly</a>, <a href="../../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)">performSessionAction</a>, <a href="../../../org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)">performSessionActionWithCurrentTransaction</a>, <a href="../../../org/jsimpledb/Session.html#reportException(java.lang.Exception)">reportException</a>, <a href="../../../org/jsimpledb/Session.html#setAllowNewSchema(boolean)">setAllowNewSchema</a>, <a href="../../../org/jsimpledb/Session.html#setDatabaseDescription(java.lang.String)">setDatabaseDescription</a>, <a href="../../../org/jsimpledb/Session.html#setReadOnly(boolean)">setReadOnly</a>, <a href="../../../org/jsimpledb/Session.html#setRollbackOnly()">setRollbackOnly</a>, <a href="../../../org/jsimpledb/Session.html#setSchemaModel(org.jsimpledb.schema.SchemaModel)">setSchemaModel</a>, <a href="../../../org/jsimpledb/Session.html#setSchemaVersion(int)">setSchemaVersion</a>, <a href="../../../org/jsimpledb/Session.html#setValidationMode(org.jsimpledb.ValidationMode)">setValidationMode</a></code></li>
+<code><a href="../../../org/jsimpledb/Session.html#getDatabase()">getDatabase</a>, <a href="../../../org/jsimpledb/Session.html#getDatabaseDescription()">getDatabaseDescription</a>, <a href="../../../org/jsimpledb/Session.html#getJSimpleDB()">getJSimpleDB</a>, <a href="../../../org/jsimpledb/Session.html#getJTransaction()">getJTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getKVDatabase()">getKVDatabase</a>, <a href="../../../org/jsimpledb/Session.html#getKVTransaction()">getKVTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getMode()">getMode</a>, <a href="../../../org/jsimpledb/Session.html#getNameIndex()">getNameIndex</a>, <a href="../../../org/jsimpledb/Session.html#getSchemaModel()">getSchemaModel</a>, <a href="../../../org/jsimpledb/Session.html#getSchemaVersion()">getSchemaVersion</a>, <a href="../../../org/jsimpledb/Session.html#getTransaction()">getTransaction</a>, <a href="../../../org/jsimpledb/Session.html#getValidationMode()">getValidationMode</a>, <a href="../../../org/jsimpledb/Session.html#isAllowNewSchema()">isAllowNewSchema</a>, <a href="../../../org/jsimpledb/Session.html#isReadOnly()">isReadOnly</a>, <a href="../../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)">performSessionAction</a>, <a href="../../../org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)">performSessionActionWithCurrentTransaction</a>, <a href="../../../org/jsimpledb/Session.html#reportException(java.lang.Exception)">reportException</a>, <a href="../../../org/jsimpledb/Session.html#setAllowNewSchema(boolean)">setAllowNewSchema</a>, <a href="../../../org/jsimpledb/Session.html#setDatabaseDescription(java.lang.String)">setDatabaseDescription</a>, <a href="../../../org/jsimpledb/Session.html#setMode(org.jsimpledb.SessionMode)">setMode</a>, <a href="../../../org/jsimpledb/Session.html#setReadOnly(boolean)">setReadOnly</a>, <a href="../../../org/jsimpledb/Session.html#setRollbackOnly()">setRollbackOnly</a>, <a href="../../../org/jsimpledb/Session.html#setSchemaModel(org.jsimpledb.schema.SchemaModel)">setSchemaModel</a>, <a href="../../../org/jsimpledb/Session.html#setSchemaVersion(int)">setSchemaVersion</a>, <a href="../../../org/jsimpledb/Session.html#setValidationMode(org.jsimpledb.ValidationMode)">setValidationMode</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -279,7 +279,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <ul class="blockList">
 <li class="blockList">
 <h4>ParseSession</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.60">ParseSession</a>(<a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb)</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.58">ParseSession</a>(<a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb)</pre>
 <div class="block">Constructor for <a href="../../../org/jsimpledb/SessionMode.html#KEY_VALUE"><code>SessionMode.KEY_VALUE</code></a> mode.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kvdb</code> - key/value database</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -292,7 +292,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <ul class="blockList">
 <li class="blockList">
 <h4>ParseSession</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.71">ParseSession</a>(<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;db)</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.69">ParseSession</a>(<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;db)</pre>
 <div class="block">Constructor for <a href="../../../org/jsimpledb/SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a> mode.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>db</code> - core database</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -305,7 +305,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ParseSession</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.82">ParseSession</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.80">ParseSession</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</pre>
 <div class="block">Constructor for <a href="../../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a> mode.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jdb</code> - database</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -326,7 +326,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <ul class="blockList">
 <li class="blockList">
 <h4>getImports</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.98">getImports</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.96">getImports</a>()</pre>
 <div class="block">Get currently configured Java imports.
 
  <p>
@@ -341,7 +341,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <ul class="blockList">
 <li class="blockList">
 <h4>getFunctions</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func">AbstractFunction</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.107">getFunctions</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func">AbstractFunction</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.105">getFunctions</a>()</pre>
 <div class="block">Get the <a href="../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func"><code>AbstractFunction</code></a>s registered with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>registered functions indexed by name</dd></dl>
 </li>
@@ -352,7 +352,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <ul class="blockList">
 <li class="blockList">
 <h4>getVars</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jsimpledb/parse/expr/Value.html" title="interface in org.jsimpledb.parse.expr">Value</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.116">getVars</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jsimpledb/parse/expr/Value.html" title="interface in org.jsimpledb.parse.expr">Value</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.114">getVars</a>()</pre>
 <div class="block">Get all variables set on this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>variables indexed by name</dd></dl>
 </li>
@@ -363,7 +363,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <ul class="blockList">
 <li class="blockList">
 <h4>registerStandardFunctions</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.125">registerStandardFunctions</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.123">registerStandardFunctions</a>()</pre>
 <div class="block">Register the standard built-in functions such as <code>all()</code>, <code>foreach()</code>, etc.</div>
 </li>
 </ul>
@@ -373,7 +373,7 @@ extends <a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpl
 <ul class="blockList">
 <li class="blockList">
 <h4>registerFunction</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.164">registerFunction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;cl)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/parse/ParseSession.html#line.159">registerFunction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;cl)</pre>
 <div class="block">Create an instance of the specified class and register it as an <a href="../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func"><code>AbstractFunction</code></a>.
  as appropriate. The class must have a public constructor taking either a single <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a> parameter
  or no parameters; they will be tried in that order.</div>

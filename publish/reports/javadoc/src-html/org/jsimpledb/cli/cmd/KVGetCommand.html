@@ -29,7 +29,7 @@
 <span class="sourceLineNo">021</span>public class KVGetCommand extends AbstractKVCommand {<a name="line.21"></a>
 <span class="sourceLineNo">022</span><a name="line.22"></a>
 <span class="sourceLineNo">023</span>    public KVGetCommand() {<a name="line.23"></a>
-<span class="sourceLineNo">024</span>        super("kvget -s:cstrings -range:range key:bytes maxKey:bytes? limit:int?");<a name="line.24"></a>
+<span class="sourceLineNo">024</span>        super("kvget -n:novals -s:cstrings -range:range key:bytes maxKey:bytes? limit:int?");<a name="line.24"></a>
 <span class="sourceLineNo">025</span>    }<a name="line.25"></a>
 <span class="sourceLineNo">026</span><a name="line.26"></a>
 <span class="sourceLineNo">027</span>    @Override<a name="line.27"></a>
@@ -39,74 +39,78 @@
 <span class="sourceLineNo">031</span><a name="line.31"></a>
 <span class="sourceLineNo">032</span>    @Override<a name="line.32"></a>
 <span class="sourceLineNo">033</span>    public String getHelpDetail() {<a name="line.33"></a>
-<span class="sourceLineNo">034</span>        return "Retrieves a single raw database key/value pair, or a range of key/value pairs, to the console. If `-range' is"<a name="line.34"></a>
+<span class="sourceLineNo">034</span>        return "Retrieves a single raw database key/value pair, or a range of key/value pairs, to the console.\nIf `-range' is"<a name="line.34"></a>
 <span class="sourceLineNo">035</span>          + " not given, a single key/value pair is retrieved. Otherwise, `key' is the minimum key (inclusive) and `maxKey'"<a name="line.35"></a>
 <span class="sourceLineNo">036</span>          + " is the maximum key (exclusive) if given, otherwise there is no maximum key. `key' and `maxKey' may be given"<a name="line.36"></a>
-<span class="sourceLineNo">037</span>          + " as hexadecimal strings or C-style doubly-quoted strings. The `limit' parameter limits the total number of"<a name="line.37"></a>
-<span class="sourceLineNo">038</span>          + " key/value pairs displayed. By default, keys and values are displayed in hexadecimal with an ASCII decoding."<a name="line.38"></a>
-<span class="sourceLineNo">039</span>          + " Use the `-s' flag to display keys and values directly as C-style doubly-quoted strings.";<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    }<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>    @Override<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map&lt;String, Object&gt; params) {<a name="line.43"></a>
-<span class="sourceLineNo">044</span>        final boolean cstrings = params.containsKey("cstrings");<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        final boolean range = params.containsKey("range");<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        final byte[] key = (byte[])params.get("key");<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        final byte[] maxKey = (byte[])params.get("maxKey");<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        final Integer limit = (Integer)params.get("limit");<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        if (maxKey != null &amp;&amp; !range)<a name="line.49"></a>
-<span class="sourceLineNo">050</span>            throw new ParseException(ctx, "`-range' must be specified to retrieve a range of keys");<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        return new CliSession.Action() {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>            @Override<a name="line.52"></a>
-<span class="sourceLineNo">053</span>            public void run(CliSession session) throws Exception {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>                final PrintWriter writer = session.getWriter();<a name="line.54"></a>
-<span class="sourceLineNo">055</span>                final KVTransaction kvt = session.getKVTransaction();<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>                // Handle single key<a name="line.57"></a>
-<span class="sourceLineNo">058</span>                if (!range) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>                    final byte[] value = kvt.get(key);<a name="line.59"></a>
-<span class="sourceLineNo">060</span>                    writer.println(value != null &amp;&amp; cstrings ? AbstractKVCommand.toCString(value) : ByteUtil.toString(value));<a name="line.60"></a>
-<span class="sourceLineNo">061</span>                    return;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>                }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>                // Handle range of keys<a name="line.64"></a>
-<span class="sourceLineNo">065</span>                long count = 0;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>                for (Iterator&lt;KVPair&gt; i = kvt.getRange(key, maxKey, false); i.hasNext(); ) {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>                    final KVPair pair = i.next();<a name="line.67"></a>
-<span class="sourceLineNo">068</span>                    if (limit != null &amp;&amp; count &gt;= limit)<a name="line.68"></a>
-<span class="sourceLineNo">069</span>                        break;<a name="line.69"></a>
-<span class="sourceLineNo">070</span>                    if (cstrings) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>                        writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));<a name="line.71"></a>
-<span class="sourceLineNo">072</span>                        writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));<a name="line.72"></a>
-<span class="sourceLineNo">073</span>                    } else {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>                        KVGetCommand.this.decode(writer, "K ", pair.getKey());<a name="line.74"></a>
-<span class="sourceLineNo">075</span>                        KVGetCommand.this.decode(writer, "V ", pair.getValue());<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                    }<a name="line.76"></a>
-<span class="sourceLineNo">077</span>                    count++;<a name="line.77"></a>
-<span class="sourceLineNo">078</span>                }<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                writer.println("Displayed " + count + " key/value pairs");<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            }<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        };<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>    private void decode(PrintWriter writer, String prefix, byte[] value) {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        for (int i = 0; i &lt; value.length; i += 32) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            writer.print(prefix);<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            for (int j = 0; j &lt; 32; j++) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                writer.print(i + j &lt; value.length ? String.format("%02x", value[i + j] &amp; 0xff) : "  ");<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                if (j % 4 == 3)<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                    writer.print(' ');<a name="line.90"></a>
-<span class="sourceLineNo">091</span>            }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>            writer.print("   ");<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            for (int j = 0; j &lt; 32 &amp;&amp; i + j &lt; value.length; j++) {<a name="line.93"></a>
-<span class="sourceLineNo">094</span>                final int ch = value[i + j];<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                writer.print(i + j &lt; value.length ? (ch &lt; 0x20 || ch &gt; 0x7f ? '.' : (char)ch) : ' ');<a name="line.95"></a>
-<span class="sourceLineNo">096</span>            }<a name="line.96"></a>
-<span class="sourceLineNo">097</span>            writer.println();<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        }<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
-<span class="sourceLineNo">100</span>}<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">037</span>          + " as hexadecimal strings or C-style doubly-quoted strings.\nThe `limit' parameter limits the total number of"<a name="line.37"></a>
+<span class="sourceLineNo">038</span>          + " key/value pairs displayed.\nBy default, keys and values are displayed in hexadecimal with an ASCII decoding;"<a name="line.38"></a>
+<span class="sourceLineNo">039</span>          + " use the `-s' flag to display keys and values directly as C-style doubly-quoted strings.\nThe `-n' flag causes"<a name="line.39"></a>
+<span class="sourceLineNo">040</span>          + " only keys (not values) to be displayed.";<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    }<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    @Override<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map&lt;String, Object&gt; params) {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        final boolean cstrings = params.containsKey("cstrings");<a name="line.45"></a>
+<span class="sourceLineNo">046</span>        final boolean range = params.containsKey("range");<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        final boolean novals = params.containsKey("novals");<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        final byte[] key = (byte[])params.get("key");<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        final byte[] maxKey = (byte[])params.get("maxKey");<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        final Integer limit = (Integer)params.get("limit");<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        if (maxKey != null &amp;&amp; !range)<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            throw new ParseException(ctx, "`-range' must be specified to retrieve a range of keys");<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        return new CliSession.Action() {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>            @Override<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            public void run(CliSession session) throws Exception {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                final PrintWriter writer = session.getWriter();<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                final KVTransaction kvt = session.getKVTransaction();<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>                // Handle single key<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                if (!range) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                    final byte[] value = kvt.get(key);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                    writer.println(value != null &amp;&amp; cstrings ? AbstractKVCommand.toCString(value) : ByteUtil.toString(value));<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                    return;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>                // Handle range of keys<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                long count = 0;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                for (Iterator&lt;KVPair&gt; i = kvt.getRange(key, maxKey, false); i.hasNext(); ) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                    final KVPair pair = i.next();<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                    if (limit != null &amp;&amp; count &gt;= limit)<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                        break;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                    if (cstrings) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                        writer.println("K " + AbstractKVCommand.toCString(pair.getKey()));<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                        if (!novals)<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                            writer.println("V " + AbstractKVCommand.toCString(pair.getValue()));<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                    } else {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                        KVGetCommand.this.decode(writer, "K ", pair.getKey());<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                        if (!novals)<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                            KVGetCommand.this.decode(writer, "V ", pair.getValue());<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                    }<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                    count++;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                writer.println("Displayed " + count + " key/value pairs");<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            }<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        };<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    private void decode(PrintWriter writer, String prefix, byte[] value) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        for (int i = 0; i &lt; value.length; i += 32) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            writer.print(prefix);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            for (int j = 0; j &lt; 32; j++) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                writer.print(i + j &lt; value.length ? String.format("%02x", value[i + j] &amp; 0xff) : "  ");<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                if (j % 4 == 3)<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                    writer.print(' ');<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            }<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            writer.print("   ");<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            for (int j = 0; j &lt; 32 &amp;&amp; i + j &lt; value.length; j++) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                final int ch = value[i + j];<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                writer.print(i + j &lt; value.length ? (ch &lt; 0x20 || ch &gt; 0x7f ? '.' : (char)ch) : ' ');<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            }<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            writer.println();<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        }<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    }<a name="line.103"></a>
+<span class="sourceLineNo">104</span>}<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
 
 
 

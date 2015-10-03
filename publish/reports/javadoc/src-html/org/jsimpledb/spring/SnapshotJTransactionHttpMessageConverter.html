@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.<a name="line.3"></a>
+<span class="sourceLineNo">004</span> */<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>package org.jsimpledb.spring;<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>import com.google.common.base.Preconditions;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import java.io.IOException;<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>import org.dellroad.stuff.validation.ValidationUtil;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.jsimpledb.JObject;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.jsimpledb.JSimpleDB;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jsimpledb.SnapshotJTransaction;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jsimpledb.ValidationException;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jsimpledb.ValidationMode;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jsimpledb.kv.util.NavigableMapKVStore;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.springframework.http.HttpInputMessage;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.springframework.http.HttpOutputMessage;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.springframework.http.MediaType;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.springframework.http.converter.AbstractHttpMessageConverter;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.springframework.http.converter.HttpMessageNotReadableException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * Spring {@link org.springframework.http.converter.HttpMessageConverter HttpMessageConverter} capable of<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * encoding and decoding a graph of {@link JObject}s contained in a {@link SnapshotJTransaction} that is<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * backed by a {@link NavigableMapKVStore}.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * The MIME type used is {@code application/x-jsimpledb-snapshot-transaction}.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * Validation of all incoming objects is supported; see {@link #setValidationGroups setValidationGroups()}.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * @see JObjectHttpMessageConverter<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * @see KVStoreHttpMessageConverter<a name="line.37"></a>
+<span class="sourceLineNo">038</span> */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessageConverter&lt;SnapshotJTransaction&gt; {<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    /**<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * MIME type supported by this class: {@code application/x-jsimpledb-snapshot-transaction}.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * &lt;p&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * Can be overridden in the constructor.<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    public static final MediaType MIME_TYPE = new MediaType("application", "x-jsimpledb-snapshot-transaction");<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>    private final JSimpleDB jdb;<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    private Class&lt;?&gt;[] validationGroups;<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * Constructor.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @param jdb {@link JSimpleDB} instance defining the convertible types<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public SnapshotJTransactionHttpMessageConverter(JSimpleDB jdb) {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        super(MIME_TYPE);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        Preconditions.checkArgument(jdb != null, "null jdb");<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        this.jdb = jdb;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * Set validation groups used to validate all incoming objects.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * &lt;p&gt;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * If set to null, no validation is performed. Otherwise, all incoming objects in the transaction are validated,<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * using the specified validation groups, or {@link javax.validation.groups.Default} if an empty is specified.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     *<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * &lt;p&gt;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * By default, this is null.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     *<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     *  if null, no validation is performed<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    public void setValidationGroups(Class&lt;?&gt;... groups) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        this.validationGroups = groups;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>// AbstractHttpMessageConverter<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    @Override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    protected Long getContentLength(SnapshotJTransaction jtx, MediaType contentType) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        return KVStoreHttpMessageConverter.getKVStoreContentLength(jtx.getTransaction().getKVStore());<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    @Override<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    protected boolean supports(Class&lt;?&gt; clazz) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        return clazz == SnapshotJTransaction.class;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    @Override<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    protected SnapshotJTransaction readInternal(Class&lt;? extends SnapshotJTransaction&gt; clazz, HttpInputMessage input)<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      throws IOException {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        return clazz.cast(SnapshotJTransactionHttpMessageConverter.readSnapshotTransaction(this.jdb, input, this.validationGroups));<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    @Override<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    protected void writeInternal(SnapshotJTransaction jtx, HttpOutputMessage output) throws IOException {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        KVStoreHttpMessageConverter.writeKVStore(jtx.getTransaction().getKVStore(), output);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>// Utility methods<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    static SnapshotJTransaction readSnapshotTransaction(JSimpleDB jdb, HttpInputMessage input, Class&lt;?&gt;[] validationGroups)<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      throws IOException {<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>        // Decode key/value store<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        final NavigableMapKVStore kvstore = new NavigableMapKVStore();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        KVStoreHttpMessageConverter.readKVStore(kvstore, input);<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>        // Create snapshot transaction<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        final SnapshotJTransaction jtx = jdb.createSnapshotTransaction(kvstore, true,<a name="line.114"></a>
+<span class="sourceLineNo">115</span>          validationGroups != null ? ValidationMode.MANUAL : ValidationMode.DISABLED);<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>        // Optionally validate<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        if (validationGroups != null) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            for (JObject jobj : jtx.getAll(JObject.class))<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                jobj.revalidate(validationGroups);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            try {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                jtx.validate();<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            } catch (ValidationException e) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                throw new HttpMessageNotReadableException("incoming object graph failed validation: "<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                  + ValidationUtil.describe(e.getViolations()));<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            }<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        }<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>        // Done<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        return jtx;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>}<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
