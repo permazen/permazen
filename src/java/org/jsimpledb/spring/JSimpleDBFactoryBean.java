@@ -14,6 +14,7 @@ import org.jsimpledb.StorageIdGenerator;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
@@ -22,7 +23,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
 
     private KVDatabase kvstore;
-    private int schemaVersion = -1;
+    private int schemaVersion;
     private StorageIdGenerator storageIdGenerator = new DefaultStorageIdGenerator();
     private Iterable<? extends Class<?>> modelClasses;
     private Iterable<? extends Class<? extends FieldType<?>>> fieldTypeClasses;
@@ -54,8 +55,6 @@ class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
     @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
-        Preconditions.checkState(this.kvstore != null, "no kvstore configured");
-        Preconditions.checkState(this.schemaVersion != -1, "no schemaVersion configured");
         Preconditions.checkState(this.modelClasses != null, "no modelClasss configured");
     }
 
@@ -69,16 +68,24 @@ class JSimpleDBFactoryBean extends AbstractFactoryBean<JSimpleDB> {
     @Override
     protected JSimpleDB createInstance() {
 
-        // Build and configure database
-        final Database db = new Database(this.kvstore);
+        // Apply defaults
+        KVDatabase kvstore1 = this.kvstore;
+        int schemaVersion1 = this.schemaVersion;
+        if (kvstore1 == null) {
+            kvstore1 = new SimpleKVDatabase();
+            if (schemaVersion1 == 0)
+                schemaVersion1 = 1;
+        }
+        final Database db = new Database(kvstore1);
+
+        // Add custom field types
         if (this.fieldTypeClasses != null)
             db.getFieldTypeRegistry().addClasses(this.fieldTypeClasses);
 
         // Build JSimpleDB
-        final JSimpleDBFactory factory = new JSimpleDBFactory();
-        return factory
+        return new JSimpleDBFactory()
           .setDatabase(db)
-          .setSchemaVersion(this.schemaVersion)
+          .setSchemaVersion(schemaVersion1)
           .setStorageIdGenerator(this.storageIdGenerator)
           .setModelClasses(this.modelClasses)
           .newJSimpleDB();

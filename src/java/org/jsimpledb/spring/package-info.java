@@ -72,9 +72,10 @@
  * <tr>
  *  <td>{@code kvstore}</td>
  *  <td>Bean reference</td>
- *  <td>Yes</td>
+ *  <td>No</td>
  *  <td>The underlying key/value store database. This should be the name of a Spring bean that implements
- *      the {@link org.jsimpledb.kv.KVDatabase} interface</td>
+ *      the {@link org.jsimpledb.kv.KVDatabase} interface. If unset, defaults to a new
+ *      {@link org.jsimpledb.kv.simple.SimpleKVDatabase} instance.</td>
  * </tr>
  * <tr>
  *  <td>{@code schema-version}</td>
