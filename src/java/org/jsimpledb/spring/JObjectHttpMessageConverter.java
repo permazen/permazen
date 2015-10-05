@@ -105,7 +105,7 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
 
     @Override
     public boolean canRead(Class<?> target, MediaType mediaType) {
-        if (!this.canRead(mediaType))
+        if (mediaType == null || !this.canRead(mediaType))
             return false;
         final JClass<?> jclass = this.findJClass(mediaType);
         if (jclass == null)
@@ -115,7 +115,7 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
 
     @Override
     public boolean canWrite(Class<?> target, MediaType mediaType) {
-        if (!this.canWrite(mediaType))
+        if (mediaType == null || !this.canWrite(mediaType))
             return false;
         final JClass<?> jclass = this.findJClass(mediaType);
         if (jclass == null)
