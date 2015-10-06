@@ -6,7 +6,6 @@
 package org.jsimpledb.spring;
 
 import org.jsimpledb.JSimpleDB;
-import org.jsimpledb.kv.KVDatabase;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -33,23 +32,13 @@ class JSimpleDBBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
-        // Get KVDatabase bean name
-        if (!element.hasAttribute(KVSTORE_ATTRIBUTE)) {
-            parserContext.getReaderContext().fatal("<" + element.getTagName() + "> beans must have a \""
-              + KVSTORE_ATTRIBUTE + "\" attribute containing the name of a bean of type " + KVDatabase.class.getName(),
-              parserContext.extractSource(element));
-            return;
-        }
-        builder.addPropertyReference("KVStore", element.getAttribute(KVSTORE_ATTRIBUTE));
+        // Get KVDatabase bean name (optional)
+        if (element.hasAttribute(KVSTORE_ATTRIBUTE))
+            builder.addPropertyReference("KVStore", element.getAttribute(KVSTORE_ATTRIBUTE));
 
-        // Get schema version
-        if (!element.hasAttribute(SCHEMA_VERSION_ATTRIBUTE)) {
-            parserContext.getReaderContext().fatal("<" + element.getTagName() + "> beans must have a \""
-              + SCHEMA_VERSION_ATTRIBUTE + "\" attribute containing the database schema version",
-              parserContext.extractSource(element));
-            return;
-        }
-        builder.addPropertyValue("schemaVersion", element.getAttribute(SCHEMA_VERSION_ATTRIBUTE));
+        // Get schema version (optional)
+        if (element.hasAttribute(SCHEMA_VERSION_ATTRIBUTE))
+            builder.addPropertyValue("schemaVersion", element.getAttribute(SCHEMA_VERSION_ATTRIBUTE));
 
         // Get storage ID generator bean name (optional)
         final boolean autogenStorageIds = !element.hasAttribute(AUTO_GENERATE_STORAGE_IDS_ATTRIBUTE)
