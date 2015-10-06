@@ -28,7 +28,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
  * backed by a {@link NavigableMapKVStore}.
  *
  * <p>
- * The MIME type used is {@code application/x-jsimpledb-snapshot-transaction}.
+ * The MIME type used is {@code application/x-jsimpledb-transaction}.
  *
  * <p>
  * Validation of all incoming objects is supported; see {@link #setValidationGroups setValidationGroups()}.
@@ -39,12 +39,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 public class SnapshotJTransactionHttpMessageConverter extends AbstractHttpMessageConverter<SnapshotJTransaction> {
 
     /**
-     * MIME type supported by this class: {@code application/x-jsimpledb-snapshot-transaction}.
+     * MIME type supported by this class: {@code application/x-jsimpledb-transaction}.
      *
      * <p>
      * Can be overridden in the constructor.
      */
-    public static final MediaType MIME_TYPE = new MediaType("application", "x-jsimpledb-snapshot-transaction");
+    public static final MediaType MIME_TYPE = new MediaType("application", "x-jsimpledb-transaction");
 
     private final JSimpleDB jdb;
 
