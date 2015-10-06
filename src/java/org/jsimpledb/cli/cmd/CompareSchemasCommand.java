@@ -28,7 +28,7 @@ public class CompareSchemasCommand extends AbstractCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final int version1 = (Integer)params.get("version1");
         final int version2 = (Integer)params.get("version2");
-        return new CliSession.Action() {
+        return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final Schema schema1 = session.getTransaction().getSchemas().getVersions().get(version1);

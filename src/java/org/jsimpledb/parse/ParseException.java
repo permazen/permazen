@@ -16,11 +16,15 @@ public class ParseException extends RuntimeException {
     private final ParseContext ctx;
 
     public ParseException(ParseContext ctx) {
-        this(ctx, null);
+        this(ctx, null, null);
     }
 
     public ParseException(ParseContext ctx, String message) {
         this(ctx, message, null);
+    }
+
+    public ParseException(ParseContext ctx, Throwable cause) {
+        this(ctx, null, cause);
     }
 
     public ParseException(ParseContext ctx, String message, Throwable cause) {

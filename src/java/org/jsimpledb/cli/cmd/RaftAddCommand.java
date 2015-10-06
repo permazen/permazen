@@ -14,7 +14,7 @@ import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
 
 @Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
-public class RaftAddCommand extends AbstractRaftCommand {
+public class RaftAddCommand extends AbstractTransactionRaftCommand {
 
     public RaftAddCommand() {
         super("raft-add identity address");
@@ -40,7 +40,7 @@ public class RaftAddCommand extends AbstractRaftCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final String identity = (String)params.get("identity");
         final String address = (String)params.get("address");
-        return new RaftAction() {
+        return new RaftTransactionAction() {
             @Override
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
                 tx.setConsistency(Consistency.UNCOMMITTED);

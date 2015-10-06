@@ -39,14 +39,13 @@ public class RaftStatusCommand extends AbstractRaftCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return new RaftAction() {
             @Override
-            protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
-                session.setRollbackOnly();
-                RaftStatusCommand.this.displayStatus(session.getWriter(), tx, tx.getKVDatabase());
+            protected void run(CliSession session, RaftKVDatabase db) throws Exception {
+                RaftStatusCommand.this.displayStatus(session.getWriter(), db);
             }
         };
     }
 
-    private void displayStatus(PrintWriter writer, RaftKVTransaction tx, RaftKVDatabase db) {
+    private void displayStatus(PrintWriter writer, RaftKVDatabase db) {
 
         // Configuration info
         writer.println();
@@ -186,7 +185,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println(String.format("%1s %-6s %-10s %-5s %-12s %-8s %-8s %s",
           "", "--", "-----", "----", "-----------", "----", "------", "-------------"));
         for (RaftKVTransaction tx2 : db.getOpenTransactions()) {
-            writer.println(String.format("%1s %-6d %-10s %-5s %-12s %-8s %-8s %s", tx2 == tx ? "*" : "", tx2.getTxId(),
+            writer.println(String.format("  %-6d %-10s %-5s %-12s %-8s %-8s %s", tx2.getTxId(),
               tx2.getState(), tx2.isReadOnly() ? "R/O" : "R/W", tx2.getConsistency(), tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
               tx2.getState().compareTo(TxState.COMMIT_WAITING) >= 0 ? tx2.getCommitIndex() + "t" + tx2.getCommitTerm() : "",
               this.describe(tx2.getConfigChange())));

@@ -33,11 +33,14 @@ import org.jsimpledb.cli.cmd.RaftRemoveCommand;
 import org.jsimpledb.cli.cmd.RaftStartElectionCommand;
 import org.jsimpledb.cli.cmd.RaftStatusCommand;
 import org.jsimpledb.cli.cmd.RaftStepDownCommand;
+import org.jsimpledb.cli.cmd.RegisterCommandCommand;
+import org.jsimpledb.cli.cmd.RegisterFunctionCommand;
 import org.jsimpledb.cli.cmd.SaveCommand;
 import org.jsimpledb.cli.cmd.SetAllowNewSchemaCommand;
 import org.jsimpledb.cli.cmd.SetSchemaVersionCommand;
 import org.jsimpledb.cli.cmd.SetSessionModeCommand;
 import org.jsimpledb.cli.cmd.SetValidationModeCommand;
+import org.jsimpledb.cli.cmd.SetVerboseCommand;
 import org.jsimpledb.cli.cmd.ShowAllSchemasCommand;
 import org.jsimpledb.cli.cmd.ShowSchemaCommand;
 import org.jsimpledb.cli.func.DumpFunction;
@@ -180,11 +183,14 @@ public class CliSession extends ParseSession {
             RaftStartElectionCommand.class,
             RaftStatusCommand.class,
             RaftStepDownCommand.class,
+            RegisterCommandCommand.class,
+            RegisterFunctionCommand.class,
             SaveCommand.class,
             SetAllowNewSchemaCommand.class,
             SetSchemaVersionCommand.class,
             SetSessionModeCommand.class,
             SetValidationModeCommand.class,
+            SetVerboseCommand.class,
             ShowAllSchemasCommand.class,
             ShowSchemaCommand.class,
         };
@@ -198,11 +204,12 @@ public class CliSession extends ParseSession {
      * or no parameters; they will be tried in that order.
      *
      * @param cl command class
+     * @return the newly instantiated command
      * @throws IllegalArgumentException if {@code cl} has no suitable constructor
      * @throws IllegalArgumentException if {@code cl} instantiation fails
      * @throws IllegalArgumentException if {@code cl} does not subclass {@link AbstractCommand}
      */
-    public void registerCommand(Class<?> cl) {
+    public AbstractCommand registerCommand(Class<?> cl) {
         if (!AbstractCommand.class.isAssignableFrom(cl))
             throw new IllegalArgumentException(cl + " does not subclass " + AbstractCommand.class.getName());
         final AbstractCommand command = this.instantiate(cl.asSubclass(AbstractCommand.class));
@@ -212,6 +219,7 @@ public class CliSession extends ParseSession {
             throw new IllegalArgumentException(cl + " does not know it's supported session modes", e);
         }
         this.commands.put(command.getName(), command);
+        return command;
     }
 
     private <T> T instantiate(Class<T> cl) {
@@ -254,55 +262,54 @@ public class CliSession extends ParseSession {
 // Action
 
     /**
-     * Perform the given action within a new transaction associated with this instance.
+     * Perform the given action in the context of this session.
      *
      * <p>
-     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
-     * and then false returned.
+     * This is a {@link CliSession}-specific overload of
+     * {@link Session#performSessionAction Session.performSessionAction()}; see that method for details.
      *
-     * @param action action to perform
-     * @return true if {@code action} completed successfully, false if the transaction could not be created
+     * @param action action to perform, possibly within a transaction
+     * @return true if {@code action} completed successfully, false if a transaction could not be created
      *  or {@code action} threw an exception
      * @throws IllegalArgumentException if {@code action} is null
-     * @throws IllegalStateException if there is already an open transaction associated with this instance
      */
     public boolean performCliSessionAction(final Action action) {
-        return this.performSessionAction(new Session.Action() {
-            @Override
-            public void run(Session session) throws Exception {
-                action.run((CliSession)session);
-            }
-        });
+        return this.performSessionAction(this.wrap(action));
     }
 
     /**
-     * Associate the current {@link org.jsimpledb.JTransaction} with this instance while performing the given action.
+     * Associate the current {@link org.jsimpledb.JTransaction} with this instance, if not already associated,
+     * while performing the given action.
      *
      * <p>
-     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
-     * and then false returned.
-     *
-     * <p>
-     * There must be a {@link org.jsimpledb.JTransaction} open and
-     * {@linkplain org.jsimpledb.JTransaction#getCurrent associated with the current thread}.
-     * It will be left open when this method returns.
-     *
-     * <p>
-     * This method safely handles re-entrant invocation.
+     * This is a {@link CliSession}-specific overload of
+     * {@link Session#performSessionActionWithCurrentTransaction Session.performSessionActionWithCurrentTransaction()};
+     * see that method for details.
      *
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if {@code action} threw an exception
-     * @throws IllegalArgumentException if {@code action} is null
-     * @throws IllegalStateException if there is already an open transaction associated with this instance
+     * @throws IllegalStateException if there is a different open transaction already associated with this instance
      * @throws IllegalStateException if this instance is not in mode {@link org.jsimpledb.SessionMode#JSIMPLEDB}
+     * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean performCliSessionActionWithCurrentTransaction(final Action action) {
-        return this.performSessionActionWithCurrentTransaction(new Session.Action() {
+        return this.performSessionActionWithCurrentTransaction(this.wrap(action));
+    }
+
+    private Session.Action wrap(final Action action) {
+        return action instanceof TransactionalAction ?
+          new Session.TransactionalAction() {
             @Override
             public void run(Session session) throws Exception {
                 action.run((CliSession)session);
             }
-        });
+          } :
+          new Session.Action() {
+            @Override
+            public void run(Session session) throws Exception {
+                action.run((CliSession)session);
+            }
+          };
     }
 
     /**
@@ -319,6 +326,12 @@ public class CliSession extends ParseSession {
          * @throws Exception if an error occurs
          */
         void run(CliSession session) throws Exception;
+    }
+
+    /**
+     * Tagging interface indicating an {@link Action} that requires there to be an open transaction.
+     */
+    public interface TransactionalAction extends Action {
     }
 }
 

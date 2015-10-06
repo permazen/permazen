@@ -11,7 +11,6 @@ import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.raft.LeaderRole;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
-import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
 
 @Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
@@ -37,22 +36,21 @@ public class RaftStepDownCommand extends AbstractRaftCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return new RaftAction() {
             @Override
-            protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
-                session.setRollbackOnly();
-                RaftStepDownCommand.this.stepDown(session, tx.getKVDatabase());
+            protected void run(CliSession session, RaftKVDatabase db) throws Exception {
+
+                // Get current role, which must be leader
+                final LeaderRole leader;
+                try {
+                    leader = (LeaderRole)db.getCurrentRole();
+                } catch (ClassCastException e) {
+                    throw new Exception("current role is not leader; try `raft-status' for more info");
+                }
+
+                // Step down
+                session.getWriter().println("Stepping down as Raft cluster leader");
+                leader.stepDown();
             }
         };
-    }
-
-    private void stepDown(CliSession session, RaftKVDatabase db) throws Exception {
-        final LeaderRole leader;
-        try {
-            leader = (LeaderRole)db.getCurrentRole();
-        } catch (ClassCastException e) {
-            throw new Exception("current role is not leader; try `raft-status' for more info");
-        }
-        session.getWriter().println("Stepping down as Raft cluster leader");
-        leader.stepDown();
     }
 }
 

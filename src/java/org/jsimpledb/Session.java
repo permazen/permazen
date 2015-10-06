@@ -319,24 +319,26 @@ public class Session {
 // Transactions
 
     /**
-     * Associate the current {@link JTransaction} with this instance while performing the given action.
+     * Associate the current {@link JTransaction} with this instance, if not already associated, while performing the given action.
      *
      * <p>
      * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
      * and then false returned.
      *
      * <p>
-     * There must be a {@link JTransaction} open and {@linkplain JTransaction#getCurrent associated with the current thread}.
-     * It will be left open when this method returns.
+     * This instance must be in {@link SessionMode#JSIMPLEDB}, there must be a {@link JTransaction} open and
+     * {@linkplain JTransaction#getCurrent associated with the current thread}, and this instance must not already
+     * have a different {@link JTransaction} associated with it (it may already have the same {@link JTransaction}
+     * associated with it). The {@link JTransaction} will be left open when this method returns.
      *
      * <p>
      * This method safely handles re-entrant invocation.
      *
      * @param action action to perform
      * @return true if {@code action} completed successfully, false if {@code action} threw an exception
-     * @throws IllegalArgumentException if {@code action} is null
-     * @throws IllegalStateException if there is already an open transaction associated with this instance
+     * @throws IllegalStateException if there is a different open transaction already associated with this instance
      * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
+     * @throws IllegalArgumentException if {@code action} is null
      */
     public boolean performSessionActionWithCurrentTransaction(Action action) {
 
@@ -347,6 +349,8 @@ public class Session {
         // Check for re-entrant invocation, otherwise verify no other transaction is associated
         final Transaction currentTx = JTransaction.getCurrent().getTransaction();
         final KVTransaction currentKVT = currentTx.getKVTransaction();
+
+        // Determine whether to join existing or create new
         final boolean associate;
         if (this.tx == null && this.kvt == null)
             associate = true;
@@ -375,24 +379,43 @@ public class Session {
     }
 
     /**
-     * Perform the given action within a new transaction associated with this instance.
+     * Perform the given action in the context of this session.
      *
      * <p>
-     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}
-     * and then false returned.
+     * If {@code action} is a {@link TransactionalAction}, and there is no transaction currently associated with this instance,
+     * a new transaction will be created, held open while {@code action} executes, then committed. Otherwise, {@code action}
+     * is just executed directly.
      *
-     * @param action action to perform
-     * @return true if {@code action} completed successfully, false if the transaction could not be created
+     * <p>
+     * In either case, if {@code action} throws an {@link Exception}, it will be caught and handled by
+     * {@link #reportException reportException()} and then false returned.
+     *
+     * <p>
+     * In either case, if there is already a transaction currently associated with this instance, it is left open
+     * while {@code action} executes and upon return.
+     *
+     * @param action action to perform, possibly within a transaction
+     * @return true if {@code action} completed successfully, false if a transaction could not be created
      *  or {@code action} threw an exception
      * @throws IllegalArgumentException if {@code action} is null
-     * @throws IllegalStateException if there is already an open transaction associated with this instance
      */
     public boolean performSessionAction(Action action) {
 
         // Sanity check
         Preconditions.checkArgument(action != null, "null action");
 
-        // Perform action within new transaction
+        // Transaction already open or non-transactional action? If so, just use it.
+        if (this.kvt != null || !(action instanceof TransactionalAction)) {
+            try {
+                action.run(this);
+                return true;
+            } catch (Exception e) {
+                this.reportException(e);
+                return false;
+            }
+        }
+
+        // Perform transactional action within a newly created transaction
         try {
             if (!this.openTransaction())
                 return false;
@@ -414,9 +437,18 @@ public class Session {
     }
 
     /**
+     * Determine whether there is a transaction already associated with this instance.
+     *
+     * @return true if a transaction is already open
+     */
+    public boolean isTransactionOpen() {
+        return this.kvt != null;
+    }
+
+    /**
      * Mark the current transaction to be rolled back.
      *
-     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked
+     * @throws IllegalStateException if there is no transaction associated with this instance
      */
     public void setRollbackOnly() {
         Preconditions.checkState(this.kvt != null, "no transaction is open in this session");
@@ -543,6 +575,12 @@ public class Session {
          * @throws Exception if an error occurs
          */
         void run(Session session) throws Exception;
+    }
+
+    /**
+     * Tagging interface indicating an {@link Action} that requires there to be an open transaction.
+     */
+    public interface TransactionalAction extends Action {
     }
 }
 

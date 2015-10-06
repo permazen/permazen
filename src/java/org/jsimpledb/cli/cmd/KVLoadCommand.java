@@ -43,7 +43,7 @@ public class KVLoadCommand extends AbstractKVCommand {
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final File file = (File)params.get("file.xml");
-        return new CliSession.Action() {
+        return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final int count;

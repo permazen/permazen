@@ -43,7 +43,7 @@ public class LoadCommand extends AbstractCommand {
         final File file = (File)params.get("file.xml");
 
         // Return import action
-        return new CliSession.Action() {
+        return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final int count;

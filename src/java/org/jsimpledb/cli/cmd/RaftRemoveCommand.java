@@ -14,7 +14,7 @@ import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
 
 @Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
-public class RaftRemoveCommand extends AbstractRaftCommand {
+public class RaftRemoveCommand extends AbstractTransactionRaftCommand {
 
     public RaftRemoveCommand() {
         super("raft-remove identity");
@@ -35,7 +35,7 @@ public class RaftRemoveCommand extends AbstractRaftCommand {
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final String identity = (String)params.get("identity");
-        return new RaftAction() {
+        return new RaftTransactionAction() {
             @Override
             protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
                 tx.setConsistency(Consistency.UNCOMMITTED);

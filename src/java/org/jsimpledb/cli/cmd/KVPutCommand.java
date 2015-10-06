@@ -36,7 +36,7 @@ public class KVPutCommand extends AbstractKVCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final byte[] key = (byte[])params.get("key");
         final byte[] value = (byte[])params.get("value");
-        return new CliSession.Action() {
+        return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final PrintWriter writer = session.getWriter();

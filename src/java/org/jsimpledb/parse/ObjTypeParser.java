@@ -31,7 +31,25 @@ import org.jsimpledb.schema.SchemaObjectType;
 public class ObjTypeParser implements Parser<ObjType> {
 
     @Override
-    public ObjType parse(ParseSession session, ParseContext ctx, boolean complete) {
+    public ObjType parse(ParseSession session, final ParseContext ctx, final boolean complete) {
+        final ObjType[] result = new ObjType[1];
+        final Exception[] exception = new Exception[1];
+        session.performParseSessionAction(new ParseSession.TransactionalAction() {
+            @Override
+            public void run(ParseSession session) throws Exception {
+                try {
+                    result[0] = ObjTypeParser.this.parseInTransaction(session, ctx, complete);
+                } catch (ParseException e) {
+                    exception[0] = e;
+                }
+            }
+        });
+        if (exception[0] != null || result[0] == null)
+            throw exception[0] instanceof ParseException ? (ParseException)exception[0] : new ParseException(ctx, exception[0]);
+        return result[0];
+    }
+
+    private ObjType parseInTransaction(ParseSession session, final ParseContext ctx, final boolean complete) {
 
         // Try to parse as an integer
         final Transaction tx = session.getTransaction();

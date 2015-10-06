@@ -33,7 +33,6 @@ public class QuitCommand extends AbstractCommand implements CliSession.Action {
     @Override
     public void run(CliSession session) throws Exception {
         session.setDone(true);
-        session.setRollbackOnly();
         session.getWriter().println("Bye");
     }
 }

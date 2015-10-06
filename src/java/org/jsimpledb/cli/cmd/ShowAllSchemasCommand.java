@@ -32,7 +32,7 @@ public class ShowAllSchemasCommand extends AbstractCommand {
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final boolean xml = params.containsKey("xml");
-        return new CliSession.Action() {
+        return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 for (Map.Entry<Integer, Schema> entry : session.getTransaction().getSchemas().getVersions().entrySet()) {

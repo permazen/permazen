@@ -6,8 +6,8 @@
 package org.jsimpledb.cli.cmd;
 
 import org.jsimpledb.cli.CliSession;
-import org.jsimpledb.kv.KVTransaction;
-import org.jsimpledb.kv.raft.RaftKVTransaction;
+import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.raft.RaftKVDatabase;
 
 public abstract class AbstractRaftCommand extends AbstractCommand {
 
@@ -19,13 +19,13 @@ public abstract class AbstractRaftCommand extends AbstractCommand {
 
         @Override
         public final void run(CliSession session) throws Exception {
-            final KVTransaction kvt = session.getKVTransaction();
-            if (!(kvt instanceof RaftKVTransaction))
+            final KVDatabase db = session.getKVDatabase();
+            if (!(db instanceof RaftKVDatabase))
                 throw new Exception("key/value store is not Raft");
-            this.run(session, (RaftKVTransaction)kvt);
+            this.run(session, (RaftKVDatabase)db);
         }
 
-        protected abstract void run(CliSession session, RaftKVTransaction tx) throws Exception;
+        protected abstract void run(CliSession session, RaftKVDatabase db) throws Exception;
     }
 }
 

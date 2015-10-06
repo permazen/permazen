@@ -50,7 +50,7 @@ public class KVGetCommand extends AbstractKVCommand {
         final Integer limit = (Integer)params.get("limit");
         if (maxKey != null && !range)
             throw new ParseException(ctx, "`-range' must be specified to retrieve a range of keys");
-        return new CliSession.Action() {
+        return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final PrintWriter writer = session.getWriter();

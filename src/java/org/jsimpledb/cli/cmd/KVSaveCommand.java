@@ -53,7 +53,7 @@ public class KVSaveCommand extends AbstractCommand {
         final Integer limit = (Integer)params.get("limit");
 
         // Return action
-        return new CliSession.Action() {
+        return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);

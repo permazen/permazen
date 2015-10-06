@@ -11,7 +11,6 @@ import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.raft.NonLeaderRole;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
-import org.jsimpledb.kv.raft.RaftKVTransaction;
 import org.jsimpledb.parse.ParseContext;
 
 @Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
@@ -36,22 +35,21 @@ public class RaftStartElectionCommand extends AbstractRaftCommand {
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return new RaftAction() {
             @Override
-            protected void run(CliSession session, RaftKVTransaction tx) throws Exception {
-                session.setRollbackOnly();
-                RaftStartElectionCommand.this.startElection(session, tx.getKVDatabase());
+            protected void run(CliSession session, RaftKVDatabase db) throws Exception {
+
+                // Get current role, which must not be leader
+                final NonLeaderRole role;
+                try {
+                    role = (NonLeaderRole)db.getCurrentRole();
+                } catch (ClassCastException e) {
+                    throw new Exception("current role is not follower or candidate; try `raft-status' for more info");
+                }
+
+                // Trigger an election
+                session.getWriter().println("Triggering early Raft election");
+                role.startElection();
             }
         };
-    }
-
-    private void startElection(CliSession session, RaftKVDatabase db) throws Exception {
-        final NonLeaderRole role;
-        try {
-            role = (NonLeaderRole)db.getCurrentRole();
-        } catch (ClassCastException e) {
-            throw new Exception("current role is not follower or candidate; try `raft-status' for more info");
-        }
-        session.getWriter().println("Triggering early Raft election");
-        role.startElection();
     }
 }
 

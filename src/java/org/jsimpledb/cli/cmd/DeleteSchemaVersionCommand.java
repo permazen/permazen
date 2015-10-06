@@ -31,7 +31,7 @@ public class DeleteSchemaVersionCommand extends AbstractCommand {
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         final int version = (Integer)params.get("version");
-        return new CliSession.Action() {
+        return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
                 final boolean deleted = session.getTransaction().deleteSchemaVersion(version);

@@ -221,7 +221,6 @@ public class Console {
                 final boolean ok = this.session.performCliSessionAction(new CliSession.Action() {
                     @Override
                     public void run(CliSession session) {
-                        session.setRollbackOnly();
                         try {
                             actions.addAll(Console.this.commandListParser.parse(session, ctx, false));
                         } catch (ParseException e) {
@@ -258,10 +257,10 @@ public class Console {
     }
 
     /**
-     * Parse the given command(s) within a transaction.
+     * Parse the given command(s).
      *
      * @param text command input
-     * @return command actions, or null if there is an error during the transaction
+     * @return command actions, or null if there was an error during parsing
      * @throws ParseException if {@code text} cannot be parsed
      * @throws IllegalArgumentException if {@code text} is null
      */
@@ -272,7 +271,6 @@ public class Console {
         return this.session.performCliSessionAction(new CliSession.Action() {
             @Override
             public void run(CliSession session) {
-                session.setRollbackOnly();
                 actions.addAll(commandListParser.parse(session, ctx, false));
             }
         }) ? actions : null;
@@ -290,21 +288,9 @@ public class Console {
 
         @Override
         public int complete(final String buffer, final int cursor, final List<CharSequence> candidates) {
-            final int[] result = new int[1];
-            Console.this.session.performCliSessionAction(new CliSession.Action() {
-                @Override
-                public void run(CliSession session) {
-                    session.setRollbackOnly();
-                    result[0] = ConsoleCompleter.this.completeInTransaction(session, buffer, cursor, candidates);
-                }
-            });
-            return result[0];
-        }
-
-        private int completeInTransaction(CliSession session, String buffer, int cursor, List<CharSequence> candidates) {
             final ParseContext ctx = new ParseContext(this.lineBuffer + buffer.substring(0, cursor));
             try {
-                Console.this.commandListParser.parse(session, ctx, true);
+                Console.this.commandListParser.parse(Console.this.session, ctx, true);
             } catch (ParseException e) {
                 String prefix = "";
                 int index = ctx.getIndex();
@@ -316,7 +302,7 @@ public class Console {
                 try {
                     Console.this.console.println();
                     Console.this.console.println("Error: got exception calculating command line completions");
-                    e.printStackTrace(session.getWriter());
+                    e.printStackTrace(Console.this.session.getWriter());
                 } catch (IOException e2) {
                     // ignore
                 }
