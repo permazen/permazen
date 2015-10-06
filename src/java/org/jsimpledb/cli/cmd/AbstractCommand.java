@@ -130,7 +130,7 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * Parse command line and return command action.
      *
      * <p>
-     * The implementation in {@link ParamParser} parses the parameters and delegates to {@link #getAction} with the result.
+     * The implementation in {@link AbstractCommand} parses the parameters and delegates to {@link #getAction} with the result.
      * </p>
      *
      * @param session CLI session
@@ -162,8 +162,8 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.
      *
      * <p>
-     * The implementation in {@link ParamParser} supports all {@link org.jsimpledb.core.FieldType}s registered with the database,
-     * {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID
+     * The implementation in {@link AbstractCommand} supports all {@link org.jsimpledb.core.FieldType}s registered with the
+     * database, {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID
      * (returns {@link org.jsimpledb.core.ObjId}).
      * </p>
      *
