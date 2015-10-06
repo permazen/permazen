@@ -34,15 +34,16 @@ public class ShowSchemaCommand extends AbstractCommand implements CliSession.Act
     public void run(CliSession session) throws Exception {
 
         // Get schema model
-        final SchemaModel schemaModel = session.getSchemaModel();
+        final SchemaModel schemaModel = InfoCommand.getSchemaModel(session);
         if (schemaModel == null) {
             session.getWriter().println("No schema is defined yet");
             return;
         }
 
-        // Print it out
-        if (session.getSchemaVersion() != 0)
-            session.getWriter().println("=== Schema version " + session.getSchemaVersion() + " ===");
+        // Print it out with version (if known)
+        final int schemaVersion = InfoCommand.getSchemaVersion(session);
+        if (schemaVersion != 0)
+            session.getWriter().println("=== Schema version " + schemaVersion + " ===");
         session.getWriter().println(schemaModel.toString().replaceAll("^<.xml[^>]+>\\n", ""));
     }
 }

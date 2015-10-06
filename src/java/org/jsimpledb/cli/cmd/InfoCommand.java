@@ -12,6 +12,7 @@ import org.jsimpledb.SessionMode;
 import org.jsimpledb.ValidationMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.schema.SchemaModel;
 
 @Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class InfoCommand extends AbstractCommand implements CliSession.Action {
@@ -37,14 +38,36 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
         final PrintWriter writer = session.getWriter();
         writer.println("  CLI Mode: " + session.getMode());
         writer.println("  Database: " + session.getDatabaseDescription());
-        writer.println("  Schema Model: " + (session.getSchemaModel() != null ? "defined" : "undefined"));
-        writer.println("  Schema Version: " + (session.getSchemaVersion() != 0 ? session.getSchemaVersion() : "undefined"));
-        if (session.getMode().hasJSimpleDB()) {
+        writer.println("  Access Mode: " + (session.isReadOnly() ? "Read-Only" : "Read/Write"));
+        if (session.getMode().equals(SessionMode.KEY_VALUE))
+            return;
+        final int schemaVersion = InfoCommand.getSchemaVersion(session);
+        writer.println("  Schema Version: " + (schemaVersion != 0 ? schemaVersion : "Undefined"));
+        final SchemaModel schemaModel = InfoCommand.getSchemaModel(session);
+        writer.println("  Schema Model: "
+          + (schemaModel != null ? schemaModel.getSchemaObjectTypes().size() + " object type(s)" : "Undefined"));
+        writer.println("  New Schema Allowed: " + (session.isAllowNewSchema() ? "Yes" : "No"));
+        if (session.getJSimpleDB() != null) {
             writer.println("  Validation Mode: " + (session.getValidationMode() != null ?
               session.getValidationMode() : ValidationMode.AUTOMATIC));
         }
-        writer.println("  New Schema Allowed: " + (session.isAllowNewSchema() ? "yes" : "no"));
-        writer.println("  Access Mode: " + (session.isReadOnly() ? "read-only" : "read/write"));
+    }
+
+    static int getSchemaVersion(CliSession session) {
+        int schemaVersion = session.getSchemaVersion();
+        if (schemaVersion == 0 && session.getJSimpleDB() != null) {
+            schemaVersion = session.getJSimpleDB().getActualVersion();
+            if (schemaVersion == 0)
+                schemaVersion = session.getJSimpleDB().getConfiguredVersion();
+        }
+        return schemaVersion;
+    }
+
+    static SchemaModel getSchemaModel(CliSession session) {
+        SchemaModel schemaModel = session.getSchemaModel();
+        if (schemaModel == null && session.getJSimpleDB() != null)
+            schemaModel = session.getJSimpleDB().getSchemaModel();
+        return schemaModel;
     }
 }
 
