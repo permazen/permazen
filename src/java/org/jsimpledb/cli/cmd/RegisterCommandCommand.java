@@ -26,7 +26,7 @@ public class RegisterCommandCommand extends AbstractCommand {
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
-        final Node expr = (Node)params.get("expr");
+        final Node expr = (Node)params.get("class");
         return new CliSession.Action() {
             @Override
             public void run(CliSession session) throws Exception {
