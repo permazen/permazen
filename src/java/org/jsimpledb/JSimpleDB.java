@@ -614,6 +614,23 @@ public class JSimpleDB {
     }
 
     /**
+     * Find the most specific {@link JClass} for which the give type is a sub-type of the corresponding Java model type.
+     *
+     * @param type (sub)type of some Java object model type
+     * @param <T> Java model type or subtype thereof
+     * @return narrowest {@link JClass} whose Java object model type is a supertype of {@code type}, or null if none found
+     */
+    @SuppressWarnings("unchecked")
+    public <T> JClass<? super T> findJClass(Class<T> type) {
+        for (Class<? super T> superType = type; superType != null; superType = superType.getSuperclass()) {
+            final JClass<?> jclass = this.jclassesByType.get(superType);
+            if (jclass != null)
+                return (JClass<? super T>)jclass;
+        }
+        return null;
+    }
+
+    /**
      * Get the {@link JClass} associated with the object ID.
      *
      * @param id object ID
