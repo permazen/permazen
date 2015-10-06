@@ -54,35 +54,44 @@ import org.slf4j.LoggerFactory;
  * JSimpleDB is a Java persistence solution built on three layers of abstraction:
  *  <ul>
  *  <li>At the bottom layer is a simple {@code byte[]} <b>key/value</b> database represented by the
- *      {@link org.jsimpledb.kv.KVDatabase} class. {@linkplain org.jsimpledb.kv.KVTransaction Transactions} are supported
- *      at this layer and there are several available {@link org.jsimpledb.kv.KVDatabase} implementations.</li>
+ *      {@link org.jsimpledb.kv.KVDatabase} class. Transactions are supported at this layer and are accessed
+ *      through the {@link org.jsimpledb.kv.KVTransaction} interface.
+ *      There are several available {@link org.jsimpledb.kv.KVDatabase} implementations.</li>
  *  <li>On top of that sits the <b>core API</b> layer, which provides a rigourous database abstraction on top of the
  *      key/value store. It supports simple fields of any atomic Java type, as well as list, set, and map complex fields,
  *      tightly controlled schema versioning, simple and composite indexes, and lifecycle and change notifications.
- *      It is not Java-specific or explicitly object-oriented. The core API is provided via the {@link Database} class.</li>
+ *      It is not Java-specific or explicitly object-oriented. The core API is accessed through the {@link Database}
+ *      and {@link org.jsimpledb.core.Transaction} classes.</li>
  *  <li>The top layer is a Java-centric, type safe, object-oriented persistence layer for Java applications.
- *      This {@link JSimpleDB} class represents an instance of the top layer.  It sits on top of the core API layer
- *      and provides a fully type-safe Java view of a {@link Database}, where all access is through user-supplied
- *      Java model classes (and {@link JTransaction}). Database types and fields, as well as listener methods,
- *      are all declared using {@linkplain org.jsimpledb.annotation Java annotations}. {@link JSimpleDB} also provides
- *      automatic incremental JSR 303 validation.</li>
+ *      It sits on top of the core API layer and provides a fully type-safe Java view of a core API {@link Transaction},
+ *      where all access is through user-supplied Java model classes. Database types and fields, and Java listener methods
+ *      are all declared using {@linkplain org.jsimpledb.annotation Java annotations}. Incremental JSR 303 validation is supported.
+ *      The {@link JSimpleDB} class represents an instance of this top layer database, and {@link JTransaction}
+ *      represents the corresonding transactions.</li>
  *  </ul>
  *
  * <p>
- * User-provided Java model classes are typically abstract and declare database fields as abstract Java bean methods.
- * {@link JSimpleDB} generates concrete subclasses at runtime, and these runtime classes will implement the {@link JObject}
- * interface. The corresponding Java model objects are stateless; all database field state is derived from whichever
- * {@link JTransaction} is {@linkplain JTransaction#getCurrent associated with the current thread}.
+ * User-provided Java model classes database fields as abstract Java bean property methods.
+ * {@link JSimpleDB} generates concrete subclasses at runtime. These runtime classes implement the abstract methods as
+ * well as the {@link JObject} interface.
+ * A Java model class instance is associated with a specific {@link JTransaction}, and all of its database field
+ * state derives from that the underlying key/value {@link org.jsimpledb.kv.KVTransaction}.
  *
  * <p>
- * All {@link JObject}s are associated with a specific transaction, and unique for their {@link ObjId} in that transaction.
+ * All Java model class instances have a unique {@link ObjId} which represents database identity. {@link JSimpleDB}
+ * guarantees that at most one Java model class instance instance will exist for any given transaction and {@link ObjId}.
  *
  * <p>
- * Normal transactions are created via {@link #createTransaction createTransaction()}. "Snapshot" transactions are
- * special transactions that are "detached" from the database and can persist indefinitely. See
+ * Normal database transactions are created via {@link #createTransaction createTransaction()}. "Snapshot" transactions are
+ * in-memory transactions that are detached from the database and may persist indefinitely. Their purpose is to hold a
+ * snapshot of some (user-defined) portion of the database content for use outside of a regular transaction. Otherwise,
+ * they function like normal transactions, with support for index queries, listener callbacks, etc. See
  * {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()},
- * {@link JTransaction#getSnapshotTransaction}, and the methods {@link JObject#copyOut JObject.copyOut} and
+ * {@link JTransaction#getSnapshotTransaction}, {@link JObject#copyOut JObject.copyOut}, and
  * {@link JObject#copyIn JObject.copyIn}.
+ *
+ * <p>
+ * Instances of this class are usually created using a {@link JSimpleDBFactory}.
  *
  * @see JObject
  * @see JTransaction
@@ -170,9 +179,9 @@ public class JSimpleDB {
      * @throws IllegalArgumentException if {@code database} or {@code classes} is null
      * @throws IllegalArgumentException if {@code version} is not greater than zero
      * @throws IllegalArgumentException if {@code classes} contains a null class or a class with invalid annotation(s)
-     * @throws InvalidSchemaException if the schema implied by {@code classes} is invalid
+     * @throws org.jsimpledb.core.InvalidSchemaException if the schema implied by {@code classes} is invalid
      */
-    JSimpleDB(Database database, int version, StorageIdGenerator storageIdGenerator, Iterable<? extends Class<?>> classes) {
+    public JSimpleDB(Database database, int version, StorageIdGenerator storageIdGenerator, Iterable<? extends Class<?>> classes) {
 
         // Initialize
         Preconditions.checkArgument(database != null, "null database");
