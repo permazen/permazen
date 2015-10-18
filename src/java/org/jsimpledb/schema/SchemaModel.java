@@ -118,6 +118,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * @throws InvalidSchemaException if the XML input or decoded {@link SchemaModel} is invalid
      */
     public static SchemaModel fromXML(InputStream input) throws IOException {
+        Preconditions.checkNotNull(input, "null input");
         final SchemaModel schemaModel = new SchemaModel();
         try {
             final XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(input);
@@ -194,7 +195,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * @throws IllegalArgumentException if {@code that} is null
      */
     public boolean isCompatibleWith(SchemaModel that) {
-        Preconditions.checkArgument(that != null, "null that");
+        Preconditions.checkNotNull(that, "null that");
         if (!this.schemaObjectTypes.keySet().equals(that.schemaObjectTypes.keySet()))
             return false;
         for (int storageId : this.schemaObjectTypes.keySet()) {
@@ -210,7 +211,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
 
     @Override
     public Diffs differencesFrom(SchemaModel that) {
-        Preconditions.checkArgument(that != null, "null that");
+        Preconditions.checkNotNull(that, "null that");
         final Diffs diffs = new Diffs();
         final NavigableSet<Integer> allObjectTypeIds = NavigableSets.union(
           this.schemaObjectTypes.navigableKeySet(), that.schemaObjectTypes.navigableKeySet());
