@@ -7,6 +7,8 @@ package org.jsimpledb.parse.expr;
 
 import com.google.common.base.Preconditions;
 
+import org.jsimpledb.JObject;
+import org.jsimpledb.core.ObjId;
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -50,6 +52,23 @@ public class VarValue extends AbstractLValue {
     @Override
     public void set(ParseSession session, Value value) {
         Preconditions.checkArgument(value != null, "null value");
+
+        // Add special hack to "refresh" JObjects into the session's transaction
+        if (value instanceof ConstValue) {
+            final Object obj = value.get(null);
+            if (obj instanceof JObject && ((JObject)obj).getTransaction().equals(session.getJTransaction())) {
+                final ObjId id = ((JObject)obj).getObjId();
+                value = new AbstractValue() {
+                    @Override
+                    public Object get(ParseSession session) {
+                        return session.getJTransaction().getJObject(id);
+                    }
+                };
+            }
+
+        }
+
+        // Save value
         session.getVars().put(this.name, value);
     }
 }
