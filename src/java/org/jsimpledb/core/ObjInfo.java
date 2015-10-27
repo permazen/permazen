@@ -34,7 +34,7 @@ class ObjInfo {
         this.id = id;
         final byte[] value = tx.kvt.get(this.id.getBytes());
         if (value == null)
-            throw new DeletedObjectException(this.id);
+            throw new DeletedObjectException(tx, this.id);
         final ByteReader reader = new ByteReader(value);
         final int metaDataVersion = UnsignedIntEncoder.read(reader);
         if (metaDataVersion != META_DATA_VERSION)

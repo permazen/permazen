@@ -863,7 +863,7 @@ public class JTransaction {
      */
     public void revalidate(ObjId id, Class<?>... groups) {
         if (!this.tx.exists(id))
-            throw new DeletedObjectException(id);
+            throw new DeletedObjectException(this.getTransaction(), id);
         this.revalidate(Collections.singleton(id), groups);
     }
 
