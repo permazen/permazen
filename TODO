@@ -6,7 +6,6 @@ SHORT TERM
     - New CLI flags:
         - `--console-port': accept console telnet connections on port
         - `--background': disable console on stdin/stdout, daemonize
-    - Fix stale JObjects in variables bug (see DetachedObjectTest)
 
 - LevelDB & RocksDB: ensure removeRange() doesn't sync() on each k/v pair
 
