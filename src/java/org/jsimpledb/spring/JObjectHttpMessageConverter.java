@@ -85,6 +85,11 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
     }
 
     @Override
+    public boolean canRead(Class<?> clazz, MediaType mediaType) {
+        return super.canRead(mediaType);
+    }
+
+    @Override
     protected boolean supports(Class<?> target) {
         return this.jdb.findJClass(target) != null;
     }
