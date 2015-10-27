@@ -248,6 +248,7 @@ public class ExprParseTest extends TestSupport {
                4 & 7 | 6 << 5 >>> 2 << 1 >>> 2 + 6 * 3 - 7 / 2 ^ 99 },
             { "(null)",
               null },
+            { "System.out.println(\"foobar\")", null }
 
         //CHECKSTYLE ON: SimplifyBooleanExpression
 

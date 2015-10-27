@@ -21,8 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 
 import org.dellroad.stuff.java.Primitive;
@@ -258,10 +256,14 @@ public class BaseExprParser implements Parser<Node> {
                 if (node instanceof IdentNode) {
 
                     // Keep parsing identifiers as long as we can; after each identifier, try to resolve a class name
-                    final TreeMap<Integer, Class<?>> classes = new TreeMap<>();
+                    final ArrayList<Integer> indexList = new ArrayList<>();
+                    final ArrayList<Class<?>> classList = new ArrayList<>();
+                    final ArrayList<String> memberList = new ArrayList<>();
                     String idents = ((IdentNode)node).getName();
                     while (true) {
-                        classes.put(ctx.getIndex(), session.resolveClass(idents));
+                        classList.add(session.resolveClass(idents));
+                        indexList.add(ctx.getIndex());
+                        memberList.add(member);
                         final Matcher matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")");
                         if (matcher == null)
                             break;
@@ -270,10 +272,10 @@ public class BaseExprParser implements Parser<Node> {
                     }
 
                     // Use the longest class name resolved, if any
-                    for (Map.Entry<Integer, Class<?>> entry : classes.descendingMap().entrySet()) {
-                        if (entry.getValue() != null) {
-                            cl = entry.getValue();
-                            ctx.setIndex(entry.getKey());
+                    for (int i = classList.size() - 1; i >= 0; i--) {
+                        if ((cl = classList.get(i)) != null) {
+                            ctx.setIndex(indexList.get(i));
+                            member = memberList.get(i);
                             break;
                         }
                     }
