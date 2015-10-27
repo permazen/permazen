@@ -2380,7 +2380,7 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         if (this.kvt.get(id.getBytes()) == null)
-            throw new DeletedObjectException(id);
+            throw new DeletedObjectException(this, id);
 
         // Perform mutation
         return this.mutateAndNotify(mutation);
