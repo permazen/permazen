@@ -1,6 +1,7 @@
 Version Next
 
     - Fixed a couple of expression parser bugs
+    - Improved CLI behavior when errors occur
 
 Version 1.3.2 Released October 3, 2015
 
