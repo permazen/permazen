@@ -136,6 +136,7 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
 
     @Override
     protected void writeInternal(JObject jobj, HttpOutputMessage output) throws IOException {
+        output.getHeaders().setContentType(this.getDefaultContentType(jobj));
         KVStoreHttpMessageConverter.writeKVStore(jobj.getTransaction().getTransaction().getKVTransaction(), output);
     }
 }
