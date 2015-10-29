@@ -257,6 +257,14 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/AbstractTable.html#AbstractTable(java.lang.String)">AbstractTable(String)</a></span> - Constructor for class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/AbstractTable.html" title="class in org.jsimpledb.gui">AbstractTable</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">AbstractTransactionRaftCommand</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.html#AbstractTransactionRaftCommand(java.lang.String)">AbstractTransactionRaftCommand(String)</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractTransactionRaftCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">AbstractTransactionRaftCommand.RaftTransactionAction</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html#AbstractTransactionRaftCommand.RaftTransactionAction()">AbstractTransactionRaftCommand.RaftTransactionAction()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in org.jsimpledb.cli.cmd">AbstractTransactionRaftCommand.RaftTransactionAction</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/gui/AbstractUI.html" title="class in org.jsimpledb.gui"><span class="strong">AbstractUI</span></a> - Class in <a href="./org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a></dt>
 <dd>
 <div class="block">Superclass of the various <a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui"><code>UI</code></a>s that constitute the GUI.</div>
@@ -1317,8 +1325,6 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#canRead(java.lang.Class, org.springframework.http.MediaType)">canRead(Class&lt;?&gt;, MediaType)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#canWrite(java.lang.Class, org.springframework.http.MediaType)">canWrite(Class&lt;?&gt;, MediaType)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/XMLConstants.html#CASCADE_DELETE_ATTRIBUTE">CASCADE_DELETE_ATTRIBUTE</a></span> - Static variable in interface org.jsimpledb.schema.<a href="./org/jsimpledb/schema/XMLConstants.html" title="interface in org.jsimpledb.schema">XMLConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/MessageSwitch.html#caseAppendRequest(org.jsimpledb.kv.raft.msg.AppendRequest)">caseAppendRequest(AppendRequest)</a></span> - Method in interface org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/MessageSwitch.html" title="interface in org.jsimpledb.kv.raft.msg">MessageSwitch</a></dt>
@@ -1905,15 +1911,15 @@
 <dd>
 <div class="block">Represents one CLI console session.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#CliSession(org.jsimpledb.kv.KVDatabase, java.io.PrintWriter)">CliSession(KVDatabase, PrintWriter)</a></span> - Constructor for class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#CliSession(org.jsimpledb.kv.KVDatabase, java.io.PrintWriter, org.jsimpledb.cli.Console)">CliSession(KVDatabase, PrintWriter, Console)</a></span> - Constructor for class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>
 <div class="block">Constructor for <a href="./org/jsimpledb/SessionMode.html#KEY_VALUE"><code>SessionMode.KEY_VALUE</code></a> mode.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#CliSession(org.jsimpledb.core.Database, java.io.PrintWriter)">CliSession(Database, PrintWriter)</a></span> - Constructor for class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#CliSession(org.jsimpledb.core.Database, java.io.PrintWriter, org.jsimpledb.cli.Console)">CliSession(Database, PrintWriter, Console)</a></span> - Constructor for class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>
 <div class="block">Constructor for <a href="./org/jsimpledb/SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a> mode.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#CliSession(org.jsimpledb.JSimpleDB, java.io.PrintWriter)">CliSession(JSimpleDB, PrintWriter)</a></span> - Constructor for class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#CliSession(org.jsimpledb.JSimpleDB, java.io.PrintWriter, org.jsimpledb.cli.Console)">CliSession(JSimpleDB, PrintWriter, Console)</a></span> - Constructor for class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>
 <div class="block">Constructor for <a href="./org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a> mode.</div>
 </dd>
@@ -1921,6 +1927,10 @@
 <dd>
 <div class="block">Callback interface used by <a href="./org/jsimpledb/cli/CliSession.html#performCliSessionAction(org.jsimpledb.cli.CliSession.Action)"><code>CliSession.performCliSessionAction()</code></a>
  and <a href="./org/jsimpledb/cli/CliSession.html#performCliSessionActionWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)"><code>CliSession.performCliSessionActionWithCurrentTransaction()</code></a>.</div>
+</dd>
+<dt><a href="./org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli"><span class="strong">CliSession.TransactionalAction</span></a> - Interface in <a href="./org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a></dt>
+<dd>
+<div class="block">Tagging interface indicating an <a href="./org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli"><code>CliSession.Action</code></a> that requires there to be an open transaction.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/CopyState.html#clone()">clone()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a></dt>
 <dd>&nbsp;</dd>
@@ -3023,6 +3033,10 @@
 <dd>
 <div class="block">Constructor.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/DeletedObjectException.html#DeletedObjectException(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">DeletedObjectException(Transaction, ObjId)</a></span> - Constructor for exception org.jsimpledb.core.<a href="./org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 <dt><a href="./org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><span class="strong">DeleteListener</span></a> - Interface in <a href="./org/jsimpledb/core/package-summary.html">org.jsimpledb.core</a></dt>
 <dd>
 <div class="block">Listener interface for notifications that an object is about to be deleted.</div>
@@ -3703,6 +3717,10 @@
 <dd>
 <div class="block">Find the instance in the given <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> type that matches this instance in both name and ordinal value, if any.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#findJClass(java.lang.Class)">findJClass(Class&lt;T&gt;)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
+<dd>
+<div class="block">Find the most specific <a href="./org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a> for which the give type is a sub-type of the corresponding Java model type.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRanges.html#findKey(byte[])">findKey(byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dt>
 <dd>
 <div class="block">Find the contiguous <a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>(s) within this instance containing, or adjacent to, the given key.</div>
@@ -3988,6 +4006,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RaftStepDownCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RaftStepDownCommand.html" title="class in org.jsimpledb.cli.cmd">RaftStepDownCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RegisterCommandCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RegisterCommandCommand.html" title="class in org.jsimpledb.cli.cmd">RegisterCommandCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html" title="class in org.jsimpledb.cli.cmd">RegisterFunctionCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SaveCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SaveCommand.html" title="class in org.jsimpledb.cli.cmd">SaveCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">SetAllowNewSchemaCommand</a></dt>
@@ -3997,6 +4019,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetVerboseCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetVerboseCommand.html" title="class in org.jsimpledb.cli.cmd">SetVerboseCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -4263,6 +4287,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html#getConsistency()">getConsistency()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a></dt>
 <dd>
 <div class="block">Get the consistency level for this transaction.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#getConsole()">getConsole()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dd>
+<div class="block">Get the associated <a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli"><code>Console</code></a>, if any.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/Console.html#getConsoleReader()">getConsoleReader()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli">Console</a></dt>
 <dd>
@@ -4722,6 +4750,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RaftStepDownCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RaftStepDownCommand.html" title="class in org.jsimpledb.cli.cmd">RaftStepDownCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RegisterCommandCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RegisterCommandCommand.html" title="class in org.jsimpledb.cli.cmd">RegisterCommandCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html" title="class in org.jsimpledb.cli.cmd">RegisterFunctionCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SaveCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SaveCommand.html" title="class in org.jsimpledb.cli.cmd">SaveCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">SetAllowNewSchemaCommand</a></dt>
@@ -4731,6 +4763,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetVerboseCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetVerboseCommand.html" title="class in org.jsimpledb.cli.cmd">SetVerboseCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -7086,6 +7120,10 @@
 <dd>
 <div class="block">Determine whether we believe this follower is "synchronized".</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/Session.html#isTransactionOpen()">isTransactionOpen()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
+<dd>
+<div class="block">Determine whether there is a transaction already associated with this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/SnapshotTransaction.html#isValid()">isValid()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a></dt>
 <dd>
 <div class="block">Determine whether this transaction is still valid.</div>
@@ -7350,10 +7388,6 @@
  encoding and decoding one or more <a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s contained in a <a href="./org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> that is
  backed by a <a href="./org/jsimpledb/kv/util/NavigableMapKVStore.html" title="class in org.jsimpledb.kv.util"><code>NavigableMapKVStore</code></a>.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#JObjectHttpMessageConverter(org.jsimpledb.JSimpleDB, org.springframework.http.MediaType...)">JObjectHttpMessageConverter(JSimpleDB, MediaType...)</a></span> - Constructor for class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
-<dd>
-<div class="block">Constructor.</div>
-</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#JObjectHttpMessageConverter(org.jsimpledb.JSimpleDB)">JObjectHttpMessageConverter(JSimpleDB)</a></span> - Constructor for class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
 <dd>
 <div class="block">Constructor.</div>
@@ -7399,6 +7433,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#JSimpleDB(java.lang.Class...)">JSimpleDB(Class&lt;?&gt;...)</a></span> - Constructor for class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
 <dd>
 <div class="block">Create an instance using an initially empty, in-memory <a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a>.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/JSimpleDB.html#JSimpleDB(org.jsimpledb.core.Database, int, org.jsimpledb.StorageIdGenerator, java.lang.Iterable)">JSimpleDB(Database, int, StorageIdGenerator, Iterable&lt;? extends Class&lt;?&gt;&gt;)</a></span> - Constructor for class org.jsimpledb.<a href="./org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></dt>
+<dd>
+<div class="block">Primary constructor.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/OpenTransactionInViewFilter.html#JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER">JSIMPLEDB_ALLOW_NEW_SCHEMA_PARAMETER</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/OpenTransactionInViewFilter.html" title="class in org.jsimpledb.spring">OpenTransactionInViewFilter</a></dt>
 <dd>
@@ -8255,7 +8293,7 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html#MIME_TYPE">MIME_TYPE</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SnapshotJTransactionHttpMessageConverter.html" title="class in org.jsimpledb.spring">SnapshotJTransactionHttpMessageConverter</a></dt>
 <dd>
-<div class="block">MIME type supported by this class: <code>application/x-jsimpledb-snapshot-transaction</code>.</div>
+<div class="block">MIME type supported by this class: <code>application/x-jsimpledb-transaction</code>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRange.html#min">min</a></span> - Variable in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a></dt>
 <dd>
@@ -9015,7 +9053,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/Console.html#parseCommand(java.lang.String)">parseCommand(String)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli">Console</a></dt>
 <dd>
-<div class="block">Parse the given command(s) within a transaction.</div>
+<div class="block">Parse the given command(s).</div>
 </dd>
 <dt><a href="./org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse"><span class="strong">ParseContext</span></a> - Class in <a href="./org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></dt>
 <dd>
@@ -9030,6 +9068,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/parse/ParseException.html#ParseException(org.jsimpledb.parse.ParseContext)">ParseException(ParseContext)</a></span> - Constructor for exception org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseException.html" title="class in org.jsimpledb.parse">ParseException</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/ParseException.html#ParseException(org.jsimpledb.parse.ParseContext, java.lang.String)">ParseException(ParseContext, String)</a></span> - Constructor for exception org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseException.html" title="class in org.jsimpledb.parse">ParseException</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/parse/ParseException.html#ParseException(org.jsimpledb.parse.ParseContext, java.lang.Throwable)">ParseException(ParseContext, Throwable)</a></span> - Constructor for exception org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseException.html" title="class in org.jsimpledb.parse">ParseException</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/ParseException.html#ParseException(org.jsimpledb.parse.ParseContext, java.lang.String, java.lang.Throwable)">ParseException(ParseContext, String, Throwable)</a></span> - Constructor for exception org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseException.html" title="class in org.jsimpledb.parse">ParseException</a></dt>
 <dd>&nbsp;</dd>
@@ -9102,6 +9142,10 @@
 <div class="block">Callback interface used by <a href="./org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.performParseSessionAction()</code></a>
  and <a href="./org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)"><code>ParseSession.performParseSessionActionWithCurrentTransaction()</code></a>.</div>
 </dd>
+<dt><a href="./org/jsimpledb/parse/ParseSession.TransactionalAction.html" title="interface in org.jsimpledb.parse"><span class="strong">ParseSession.TransactionalAction</span></a> - Interface in <a href="./org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></dt>
+<dd>
+<div class="block">Tagging interface indicating an <a href="./org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse"><code>ParseSession.Action</code></a> that requires there to be an open transaction.</div>
+</dd>
 <dt><a href="./org/jsimpledb/parse/ParseUtil.html" title="class in org.jsimpledb.parse"><span class="strong">ParseUtil</span></a> - Class in <a href="./org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></dt>
 <dd>
 <div class="block">Parsing utility routines.</div>
@@ -9140,27 +9184,29 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#performCliSessionAction(org.jsimpledb.cli.CliSession.Action)">performCliSessionAction(CliSession.Action)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>
-<div class="block">Perform the given action within a new transaction associated with this instance.</div>
+<div class="block">Perform the given action in the context of this session.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#performCliSessionActionWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)">performCliSessionActionWithCurrentTransaction(CliSession.Action)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
 <dd>
-<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
+<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance, if not already associated,
+ while performing the given action.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionAction(ParseSession.Action)</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></dt>
 <dd>
-<div class="block">Perform the given action within a new transaction associated with this instance.</div>
+<div class="block">Perform the given action in the context of this session.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionActionWithCurrentTransaction(ParseSession.Action)</a></span> - Method in class org.jsimpledb.parse.<a href="./org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></dt>
 <dd>
-<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
+<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance, if not already associated,
+ while performing the given action.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)">performSessionAction(Session.Action)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>
-<div class="block">Perform the given action within a new transaction associated with this instance.</div>
+<div class="block">Perform the given action in the context of this session.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)">performSessionActionWithCurrentTransaction(Session.Action)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>
-<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
+<div class="block">Associate the current <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance, if not already associated, while performing the given action.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/AbstractMain.html#performTestTransaction(org.jsimpledb.core.Database, org.jsimpledb.schema.SchemaModel)">performTestTransaction(Database, SchemaModel)</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/AbstractMain.html" title="class in org.jsimpledb.util">AbstractMain</a></dt>
 <dd>
@@ -9777,6 +9823,10 @@
 <dd>
 <div class="block">Create an instance of the specified class and register it as a <a href="./org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a>.</div>
 </dd>
+<dt><a href="./org/jsimpledb/cli/cmd/RegisterCommandCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">RegisterCommandCommand</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RegisterCommandCommand.html#RegisterCommandCommand()">RegisterCommandCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RegisterCommandCommand.html" title="class in org.jsimpledb.cli.cmd">RegisterCommandCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/AnnotatedClassScanner.html#registerDefaultFilters()">registerDefaultFilters()</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/AnnotatedClassScanner.html" title="class in org.jsimpledb.spring">AnnotatedClassScanner</a></dt>
 <dd>
 <div class="block">Register default include/exclude filters.</div>
@@ -9785,6 +9835,10 @@
 <dd>
 <div class="block">Create an instance of the specified class and register it as an <a href="./org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func"><code>AbstractFunction</code></a>.</div>
 </dd>
+<dt><a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">RegisterFunctionCommand</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html#RegisterFunctionCommand()">RegisterFunctionCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html" title="class in org.jsimpledb.cli.cmd">RegisterFunctionCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JTransaction.html#registerJObject(org.jsimpledb.JObject)">registerJObject(JObject)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></dt>
 <dd>
 <div class="block">Ensure the given <a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> is registered in its associated transaction's object cache.</div>
@@ -10172,6 +10226,10 @@
 <dd>
 <div class="block">Constructor.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html#ROOT_OBJECT_ID_PARAMETER_NAME">ROOT_OBJECT_ID_PARAMETER_NAME</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JObjectHttpMessageConverter.html" title="class in org.jsimpledb.spring">JObjectHttpMessageConverter</a></dt>
+<dd>
+<div class="block">Name of the object ID parameter incluced in the MIME type.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/gui/TypeContainer.html#rootItemIds()">rootItemIds()</a></span> - Method in class org.jsimpledb.gui.<a href="./org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">TypeContainer</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/expr/AbstractValue.html#rshift(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.expr.Value)">rshift(ParseSession, Value)</a></span> - Method in class org.jsimpledb.parse.expr.<a href="./org/jsimpledb/parse/expr/AbstractValue.html" title="class in org.jsimpledb.parse.expr">AbstractValue</a></dt>
@@ -10186,7 +10244,11 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractRaftCommand.RaftAction.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractRaftCommand.RaftAction.html" title="class in org.jsimpledb.cli.cmd">AbstractRaftCommand.RaftAction</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractRaftCommand.RaftAction.html#run(org.jsimpledb.cli.CliSession, org.jsimpledb.kv.raft.RaftKVTransaction)">run(CliSession, RaftKVTransaction)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractRaftCommand.RaftAction.html" title="class in org.jsimpledb.cli.cmd">AbstractRaftCommand.RaftAction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractRaftCommand.RaftAction.html#run(org.jsimpledb.cli.CliSession, org.jsimpledb.kv.raft.RaftKVDatabase)">run(CliSession, RaftKVDatabase)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractRaftCommand.RaftAction.html" title="class in org.jsimpledb.cli.cmd">AbstractRaftCommand.RaftAction</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html#run(org.jsimpledb.cli.CliSession, org.jsimpledb.kv.raft.RaftKVDatabase)">run(CliSession, RaftKVDatabase)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in org.jsimpledb.cli.cmd">AbstractTransactionRaftCommand.RaftTransactionAction</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html#run(org.jsimpledb.cli.CliSession, org.jsimpledb.kv.raft.RaftKVTransaction)">run(CliSession, RaftKVTransaction)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in org.jsimpledb.cli.cmd">AbstractTransactionRaftCommand.RaftTransactionAction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/InfoCommand.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/InfoCommand.html" title="class in org.jsimpledb.cli.cmd">InfoCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -10391,6 +10453,10 @@
 <dd>
 <div class="block">Callback interface used by <a href="./org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)"><code>Session.performSessionAction()</code></a>
  and <a href="./org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
+</dd>
+<dt><a href="./org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb"><span class="strong">Session.TransactionalAction</span></a> - Interface in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
+<dd>
+<div class="block">Tagging interface indicating an <a href="./org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><code>Session.Action</code></a> that requires there to be an open transaction.</div>
 </dd>
 <dt><a href="./org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><span class="strong">SessionMode</span></a> - Enum in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
 <dd>
@@ -10984,6 +11050,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/schema/MapSchemaField.html#setValueField(org.jsimpledb.schema.SimpleSchemaField)">setValueField(SimpleSchemaField)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/MapSchemaField.html" title="class in org.jsimpledb.schema">MapSchemaField</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#setVerbose(boolean)">setVerbose(boolean)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/cli/cmd/SetVerboseCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SetVerboseCommand</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetVerboseCommand.html#SetVerboseCommand()">SetVerboseCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetVerboseCommand.html" title="class in org.jsimpledb.cli.cmd">SetVerboseCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/ant/SchemaGeneratorTask.html#setVerifiedProperty(java.lang.String)">setVerifiedProperty(String)</a></span> - Method in class org.jsimpledb.ant.<a href="./org/jsimpledb/ant/SchemaGeneratorTask.html" title="class in org.jsimpledb.ant">SchemaGeneratorTask</a></dt>
 <dd>&nbsp;</dd>

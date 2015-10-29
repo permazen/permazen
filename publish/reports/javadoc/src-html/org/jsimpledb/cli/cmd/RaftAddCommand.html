@@ -22,7 +22,7 @@
 <span class="sourceLineNo">014</span>import org.jsimpledb.parse.ParseContext;<a name="line.14"></a>
 <span class="sourceLineNo">015</span><a name="line.15"></a>
 <span class="sourceLineNo">016</span>@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })<a name="line.16"></a>
-<span class="sourceLineNo">017</span>public class RaftAddCommand extends AbstractRaftCommand {<a name="line.17"></a>
+<span class="sourceLineNo">017</span>public class RaftAddCommand extends AbstractTransactionRaftCommand {<a name="line.17"></a>
 <span class="sourceLineNo">018</span><a name="line.18"></a>
 <span class="sourceLineNo">019</span>    public RaftAddCommand() {<a name="line.19"></a>
 <span class="sourceLineNo">020</span>        super("raft-add identity address");<a name="line.20"></a>
@@ -38,9 +38,9 @@
 <span class="sourceLineNo">030</span>        return "This command adds a new node to the Raft cluster. The new node's identity and address (in the form"<a name="line.30"></a>
 <span class="sourceLineNo">031</span>          + " IPAddress[:port]) must be provided. This command can also be used to change the known address of a node"<a name="line.31"></a>
 <span class="sourceLineNo">032</span>          + " already in the cluster as recorded in the cluster configuration (the node must also be restarted with the"<a name="line.32"></a>
-<span class="sourceLineNo">033</span>          + "  new address if its address actually needs to change). This command may be run from any cluster node."<a name="line.33"></a>
+<span class="sourceLineNo">033</span>          + " new address if its address actually needs to change). This command may be run from any cluster node."<a name="line.33"></a>
 <span class="sourceLineNo">034</span>          + "\n\nThis command is also used to initialize an unconfigured node. This creates a new cluster with the"<a name="line.34"></a>
-<span class="sourceLineNo">035</span>          + "local node as the first and only member. In this usage, the local node's identity and address must be given;"<a name="line.35"></a>
+<span class="sourceLineNo">035</span>          + " local node as the first and only member. In this usage, the local node's identity and address must be given;"<a name="line.35"></a>
 <span class="sourceLineNo">036</span>          + " for unconfigured nodes, this is the only allowed usage of this command.";<a name="line.36"></a>
 <span class="sourceLineNo">037</span>    }<a name="line.37"></a>
 <span class="sourceLineNo">038</span><a name="line.38"></a>
@@ -48,7 +48,7 @@
 <span class="sourceLineNo">040</span>    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map&lt;String, Object&gt; params) {<a name="line.40"></a>
 <span class="sourceLineNo">041</span>        final String identity = (String)params.get("identity");<a name="line.41"></a>
 <span class="sourceLineNo">042</span>        final String address = (String)params.get("address");<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        return new RaftAction() {<a name="line.43"></a>
+<span class="sourceLineNo">043</span>        return new RaftTransactionAction() {<a name="line.43"></a>
 <span class="sourceLineNo">044</span>            @Override<a name="line.44"></a>
 <span class="sourceLineNo">045</span>            protected void run(CliSession session, RaftKVTransaction tx) throws Exception {<a name="line.45"></a>
 <span class="sourceLineNo">046</span>                tx.setConsistency(Consistency.UNCOMMITTED);<a name="line.46"></a>

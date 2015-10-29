@@ -138,7 +138,7 @@
 <span class="sourceLineNo">130</span>     * Parse command line and return command action.<a name="line.130"></a>
 <span class="sourceLineNo">131</span>     *<a name="line.131"></a>
 <span class="sourceLineNo">132</span>     * &lt;p&gt;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * The implementation in {@link ParamParser} parses the parameters and delegates to {@link #getAction} with the result.<a name="line.133"></a>
+<span class="sourceLineNo">133</span>     * The implementation in {@link AbstractCommand} parses the parameters and delegates to {@link #getAction} with the result.<a name="line.133"></a>
 <span class="sourceLineNo">134</span>     * &lt;/p&gt;<a name="line.134"></a>
 <span class="sourceLineNo">135</span>     *<a name="line.135"></a>
 <span class="sourceLineNo">136</span>     * @param session CLI session<a name="line.136"></a>
@@ -170,8 +170,8 @@
 <span class="sourceLineNo">162</span>     * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.<a name="line.162"></a>
 <span class="sourceLineNo">163</span>     *<a name="line.163"></a>
 <span class="sourceLineNo">164</span>     * &lt;p&gt;<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     * The implementation in {@link ParamParser} supports all {@link org.jsimpledb.core.FieldType}s registered with the database,<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID<a name="line.166"></a>
+<span class="sourceLineNo">165</span>     * The implementation in {@link AbstractCommand} supports all {@link org.jsimpledb.core.FieldType}s registered with the<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * database, {@code type} for an object type name (returns {@link Integer}), and {@code objid} for an object ID<a name="line.166"></a>
 <span class="sourceLineNo">167</span>     * (returns {@link org.jsimpledb.core.ObjId}).<a name="line.167"></a>
 <span class="sourceLineNo">168</span>     * &lt;/p&gt;<a name="line.168"></a>
 <span class="sourceLineNo">169</span>     *<a name="line.169"></a>

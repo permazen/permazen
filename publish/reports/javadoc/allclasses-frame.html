@@ -27,6 +27,7 @@
 <li><a href="org/jsimpledb/cli/cmd/AbstractRaftCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">AbstractRaftCommand</a></li>
 <li><a href="org/jsimpledb/schema/AbstractSchemaItem.html" title="class in org.jsimpledb.schema" target="classFrame">AbstractSchemaItem</a></li>
 <li><a href="org/jsimpledb/gui/AbstractTable.html" title="class in org.jsimpledb.gui" target="classFrame">AbstractTable</a></li>
+<li><a href="org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">AbstractTransactionRaftCommand</a></li>
 <li><a href="org/jsimpledb/gui/AbstractUI.html" title="class in org.jsimpledb.gui" target="classFrame">AbstractUI</a></li>
 <li><a href="org/jsimpledb/parse/expr/AbstractValue.html" title="class in org.jsimpledb.parse.expr" target="classFrame">AbstractValue</a></li>
 <li><a href="org/jsimpledb/util/AbstractXMLStreaming.html" title="class in org.jsimpledb.util" target="classFrame">AbstractXMLStreaming</a></li>
@@ -73,6 +74,7 @@
 <li><a href="org/jsimpledb/change/ChangeSwitch.html" title="interface in org.jsimpledb.change" target="classFrame"><i>ChangeSwitch</i></a></li>
 <li><a href="org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli" target="classFrame">CliSession</a></li>
 <li><a href="org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli" target="classFrame"><i>CliSession.Action</i></a></li>
+<li><a href="org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli" target="classFrame"><i>CliSession.TransactionalAction</i></a></li>
 <li><a href="org/jsimpledb/kv/util/CloseableForwardingKVStore.html" title="class in org.jsimpledb.kv.util" target="classFrame">CloseableForwardingKVStore</a></li>
 <li><a href="org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv" target="classFrame"><i>CloseableKVStore</i></a></li>
 <li><a href="org/jsimpledb/util/CloseableTracker.html" title="class in org.jsimpledb.util" target="classFrame">CloseableTracker</a></li>
@@ -328,6 +330,7 @@
 <li><a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse" target="classFrame"><i>Parser</i></a></li>
 <li><a href="org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse" target="classFrame">ParseSession</a></li>
 <li><a href="org/jsimpledb/parse/ParseSession.Action.html" title="interface in org.jsimpledb.parse" target="classFrame"><i>ParseSession.Action</i></a></li>
+<li><a href="org/jsimpledb/parse/ParseSession.TransactionalAction.html" title="interface in org.jsimpledb.parse" target="classFrame"><i>ParseSession.TransactionalAction</i></a></li>
 <li><a href="org/jsimpledb/parse/ParseUtil.html" title="class in org.jsimpledb.parse" target="classFrame">ParseUtil</a></li>
 <li><a href="org/jsimpledb/parse/ParseUtil.HasNamePredicate.html" title="class in org.jsimpledb.parse" target="classFrame">ParseUtil.HasNamePredicate</a></li>
 <li><a href="org/jsimpledb/kv/raft/msg/PingRequest.html" title="class in org.jsimpledb.kv.raft.msg" target="classFrame">PingRequest</a></li>
@@ -360,6 +363,8 @@
 <li><a href="org/jsimpledb/core/ReferenceFieldType.html" title="class in org.jsimpledb.core" target="classFrame">ReferenceFieldType</a></li>
 <li><a href="org/jsimpledb/ReferencePath.html" title="class in org.jsimpledb" target="classFrame">ReferencePath</a></li>
 <li><a href="org/jsimpledb/schema/ReferenceSchemaField.html" title="class in org.jsimpledb.schema" target="classFrame">ReferenceSchemaField</a></li>
+<li><a href="org/jsimpledb/cli/cmd/RegisterCommandCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">RegisterCommandCommand</a></li>
+<li><a href="org/jsimpledb/cli/cmd/RegisterFunctionCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">RegisterFunctionCommand</a></li>
 <li><a href="org/jsimpledb/parse/expr/RelationalExprParser.html" title="class in org.jsimpledb.parse.expr" target="classFrame">RelationalExprParser</a></li>
 <li><a href="org/jsimpledb/kv/raft/msg/RequestVote.html" title="class in org.jsimpledb.kv.raft.msg" target="classFrame">RequestVote</a></li>
 <li><a href="org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv" target="classFrame">RetryTransactionException</a></li>
@@ -385,6 +390,7 @@
 <li><a href="org/jsimpledb/core/Schemas.html" title="class in org.jsimpledb.core" target="classFrame">Schemas</a></li>
 <li><a href="org/jsimpledb/Session.html" title="class in org.jsimpledb" target="classFrame">Session</a></li>
 <li><a href="org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb" target="classFrame"><i>Session.Action</i></a></li>
+<li><a href="org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb" target="classFrame"><i>Session.TransactionalAction</i></a></li>
 <li><a href="org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb" target="classFrame">SessionMode</a></li>
 <li><a href="org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">SetAllowNewSchemaCommand</a></li>
 <li><a href="org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core" target="classFrame">SetField</a></li>
@@ -397,6 +403,7 @@
 <li><a href="org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">SetSchemaVersionCommand</a></li>
 <li><a href="org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">SetSessionModeCommand</a></li>
 <li><a href="org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">SetValidationModeCommand</a></li>
+<li><a href="org/jsimpledb/cli/cmd/SetVerboseCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">SetVerboseCommand</a></li>
 <li><a href="org/jsimpledb/parse/expr/ShiftExprParser.html" title="class in org.jsimpledb.parse.expr" target="classFrame">ShiftExprParser</a></li>
 <li><a href="org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">ShowAllSchemasCommand</a></li>
 <li><a href="org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd" target="classFrame">ShowSchemaCommand</a></li>

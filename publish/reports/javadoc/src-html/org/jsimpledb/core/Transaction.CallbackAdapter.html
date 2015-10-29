@@ -2388,7 +2388,7 @@
 <span class="sourceLineNo">2380</span>        if (this.stale)<a name="line.2380"></a>
 <span class="sourceLineNo">2381</span>            throw new StaleTransactionException(this);<a name="line.2381"></a>
 <span class="sourceLineNo">2382</span>        if (this.kvt.get(id.getBytes()) == null)<a name="line.2382"></a>
-<span class="sourceLineNo">2383</span>            throw new DeletedObjectException(id);<a name="line.2383"></a>
+<span class="sourceLineNo">2383</span>            throw new DeletedObjectException(this, id);<a name="line.2383"></a>
 <span class="sourceLineNo">2384</span><a name="line.2384"></a>
 <span class="sourceLineNo">2385</span>        // Perform mutation<a name="line.2385"></a>
 <span class="sourceLineNo">2386</span>        return this.mutateAndNotify(mutation);<a name="line.2386"></a>

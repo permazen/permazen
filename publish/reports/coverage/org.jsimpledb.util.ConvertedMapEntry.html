@@ -73,13 +73,13 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;28</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    ConvertedMapEntry(Converter&lt;K, WK&gt; keyConverter, Converter&lt;V, WV&gt; valueConverter, Map.Entry&lt;WK, WV&gt; wentry) {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered"><a title="Line 29: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;498994</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 29: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">        <span class="keyword">super</span>(wentry.getKey() != <span class="keyword">null</span> ? keyConverter.reverse().convert(wentry.getKey()) : <span class="keyword">null</span>,</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;29</td>  <td class="nbHitsCovered"><a title="Line 29: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;527899</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 29: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">        <span class="keyword">super</span>(wentry.getKey() != <span class="keyword">null</span> ? keyConverter.reverse().convert(wentry.getKey()) : <span class="keyword">null</span>,</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;30</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;          wentry.getValue() != <span class="keyword">null</span> ? valueConverter.reverse().convert(wentry.getValue()) : <span class="keyword">null</span>);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsCovered">&nbsp;498994</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyConverter = keyConverter;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;498994</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.valueConverter = valueConverter;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;33</td>  <td class="nbHitsCovered">&nbsp;498994</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.wentry = wentry;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;34</td>  <td class="nbHitsCovered">&nbsp;498994</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;31</td>  <td class="nbHitsCovered">&nbsp;527899</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.keyConverter = keyConverter;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;32</td>  <td class="nbHitsCovered">&nbsp;527899</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.valueConverter = valueConverter;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;33</td>  <td class="nbHitsCovered">&nbsp;527899</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.wentry = wentry;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;34</td>  <td class="nbHitsCovered">&nbsp;527899</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;35</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;36</td>  <td class="nbHits">&nbsp;</td>
@@ -100,8 +100,8 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;45</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> K getKey() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;46</td>  <td class="nbHitsCovered">&nbsp;498024</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> WK key = <span class="keyword">this</span>.wentry.getKey();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered"><a title="Line 47: Conditional coverage 100% (2/2).">&nbsp;498024</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 47: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> key != <span class="keyword">null</span> ? <span class="keyword">this</span>.keyConverter.reverse().convert(key) : <span class="keyword">null</span>;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;46</td>  <td class="nbHitsCovered">&nbsp;526929</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> WK key = <span class="keyword">this</span>.wentry.getKey();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;47</td>  <td class="nbHitsCovered"><a title="Line 47: Conditional coverage 100% (2/2).">&nbsp;526929</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 47: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> key != <span class="keyword">null</span> ? <span class="keyword">this</span>.keyConverter.reverse().convert(key) : <span class="keyword">null</span>;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;48</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;49</td>  <td class="nbHits">&nbsp;</td>
@@ -110,8 +110,8 @@
   <td class="src"><pre class="src">&nbsp;    @Override</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;51</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">public</span> V getValue() {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;52</td>  <td class="nbHitsCovered">&nbsp;498034</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> WV value = <span class="keyword">this</span>.wentry.getValue();</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;53</td>  <td class="nbHitsCovered"><a title="Line 53: Conditional coverage 100% (2/2).">&nbsp;498034</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 53: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> value != <span class="keyword">null</span> ? <span class="keyword">this</span>.valueConverter.reverse().convert(value) : <span class="keyword">null</span>;</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;52</td>  <td class="nbHitsCovered">&nbsp;526939</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">final</span> WV value = <span class="keyword">this</span>.wentry.getValue();</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;53</td>  <td class="nbHitsCovered"><a title="Line 53: Conditional coverage 100% (2/2).">&nbsp;526939</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 53: Conditional coverage 100% (2/2).">        <span class="keyword">return</span> value != <span class="keyword">null</span> ? <span class="keyword">this</span>.valueConverter.reverse().convert(value) : <span class="keyword">null</span>;</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;54</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;55</td>  <td class="nbHits">&nbsp;</td>
@@ -130,6 +130,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 10/3/15 11:44 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 10/29/15 5:22 PM.</div>
 </body>
 </html>

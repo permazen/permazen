@@ -208,7 +208,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/Console.html#parseCommand(java.lang.String)">parseCommand</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</code>
-<div class="block">Parse the given command(s) within a transaction.</div>
+<div class="block">Parse the given command(s).</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -410,10 +410,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>parseCommand</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/cli/Console.html#line.268">parseCommand</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</pre>
-<div class="block">Parse the given command(s) within a transaction.</div>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/cli/Console.html#line.267">parseCommand</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</pre>
+<div class="block">Parse the given command(s).</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>text</code> - command input</dd>
-<dt><span class="strong">Returns:</span></dt><dd>command actions, or null if there is an error during the transaction</dd>
+<dt><span class="strong">Returns:</span></dt><dd>command actions, or null if there was an error during parsing</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/parse/ParseException.html" title="class in org.jsimpledb.parse">ParseException</a></code> - if <code>text</code> cannot be parsed</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>text</code> is null</dd></dl>

@@ -61,7 +61,7 @@
 <span class="sourceLineNo">053</span>        final Integer limit = (Integer)params.get("limit");<a name="line.53"></a>
 <span class="sourceLineNo">054</span><a name="line.54"></a>
 <span class="sourceLineNo">055</span>        // Return action<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        return new CliSession.Action() {<a name="line.56"></a>
+<span class="sourceLineNo">056</span>        return new CliSession.TransactionalAction() {<a name="line.56"></a>
 <span class="sourceLineNo">057</span>            @Override<a name="line.57"></a>
 <span class="sourceLineNo">058</span>            public void run(CliSession session) throws Exception {<a name="line.58"></a>
 <span class="sourceLineNo">059</span>                final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);<a name="line.59"></a>

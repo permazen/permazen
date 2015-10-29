@@ -135,6 +135,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
  and <a href="../../org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)"><code>Session.performSessionActionWithCurrentTransaction()</code></a>.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb">Session.TransactionalAction</a></strong></code>
+<div class="block">Tagging interface indicating an <a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><code>Session.Action</code></a> that requires there to be an open transaction.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -284,55 +290,61 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)">performSessionAction</a></strong>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</code>
-<div class="block">Perform the given action within a new transaction associated with this instance.</div>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#isTransactionOpen()">isTransactionOpen</a></strong>()</code>
+<div class="block">Determine whether there is a transaction already associated with this instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)">performSessionActionWithCurrentTransaction</a></strong>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</code>
-<div class="block">Associate the current <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)">performSessionAction</a></strong>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</code>
+<div class="block">Perform the given action in the context of this session.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#performSessionActionWithCurrentTransaction(org.jsimpledb.Session.Action)">performSessionActionWithCurrentTransaction</a></strong>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</code>
+<div class="block">Associate the current <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance, if not already associated, while performing the given action.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#reportException(java.lang.Exception)">reportException</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</code>
 <div class="block">Handle an exception thrown during an invocation of <a href="../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)"><code>performSessionAction()</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setAllowNewSchema(boolean)">setAllowNewSchema</a></strong>(boolean&nbsp;allowNewSchema)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setDatabaseDescription(java.lang.String)">setDatabaseDescription</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;databaseDescription)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setMode(org.jsimpledb.SessionMode)">setMode</a></strong>(<a href="../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&nbsp;mode)</code>
 <div class="block">Change this instance's <a href="../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setReadOnly(boolean)">setReadOnly</a></strong>(boolean&nbsp;readOnly)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setRollbackOnly()">setRollbackOnly</a></strong>()</code>
 <div class="block">Mark the current transaction to be rolled back.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setSchemaModel(org.jsimpledb.schema.SchemaModel)">setSchemaModel</a></strong>(<a href="../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema">SchemaModel</a>&nbsp;schemaModel)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setSchemaVersion(int)">setSchemaVersion</a></strong>(int&nbsp;schemaVersion)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Session.html#setValidationMode(org.jsimpledb.ValidationMode)">setValidationMode</a></strong>(<a href="../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>&nbsp;</td>
 </tr>
@@ -697,25 +709,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>performSessionActionWithCurrentTransaction</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.341">performSessionActionWithCurrentTransaction</a>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</pre>
-<div class="block">Associate the current <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.343">performSessionActionWithCurrentTransaction</a>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</pre>
+<div class="block">Associate the current <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance, if not already associated, while performing the given action.
 
  <p>
  If <code>action</code> throws an <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang"><code>Exception</code></a>, it will be caught and handled by <a href="../../org/jsimpledb/Session.html#reportException(java.lang.Exception)"><code>reportException()</code></a>
  and then false returned.
 
  <p>
- There must be a <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> open and <a href="../../org/jsimpledb/JTransaction.html#getCurrent()">associated with the current thread</a>.
- It will be left open when this method returns.
+ This instance must be in <a href="../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a>, there must be a <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> open and
+ <a href="../../org/jsimpledb/JTransaction.html#getCurrent()">associated with the current thread</a>, and this instance must not already
+ have a different <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> associated with it (it may already have the same <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
+ associated with it). The <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> will be left open when this method returns.
 
  <p>
  This method safely handles re-entrant invocation.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - action to perform</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if <code>action</code> completed successfully, false if <code>action</code> threw an exception</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>action</code> is null</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if there is already an open transaction associated with this instance</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is not in mode <a href="../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a></dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if there is a different open transaction already associated with this instance</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is not in mode <a href="../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a></dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>action</code> is null</dd></dl>
 </li>
 </ul>
 <a name="performSessionAction(org.jsimpledb.Session.Action)">
@@ -724,18 +738,37 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>performSessionAction</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.390">performSessionAction</a>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</pre>
-<div class="block">Perform the given action within a new transaction associated with this instance.
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.402">performSessionAction</a>(<a href="../../org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb">Session.Action</a>&nbsp;action)</pre>
+<div class="block">Perform the given action in the context of this session.
 
  <p>
- If <code>action</code> throws an <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang"><code>Exception</code></a>, it will be caught and handled by <a href="../../org/jsimpledb/Session.html#reportException(java.lang.Exception)"><code>reportException()</code></a>
- and then false returned.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - action to perform</dd>
-<dt><span class="strong">Returns:</span></dt><dd>true if <code>action</code> completed successfully, false if the transaction could not be created
+ If <code>action</code> is a <a href="../../org/jsimpledb/Session.TransactionalAction.html" title="interface in org.jsimpledb"><code>Session.TransactionalAction</code></a>, and there is no transaction currently associated with this instance,
+ a new transaction will be created, held open while <code>action</code> executes, then committed. Otherwise, <code>action</code>
+ is just executed directly.
+
+ <p>
+ In either case, if <code>action</code> throws an <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang"><code>Exception</code></a>, it will be caught and handled by
+ <a href="../../org/jsimpledb/Session.html#reportException(java.lang.Exception)"><code>reportException()</code></a> and then false returned.
+
+ <p>
+ In either case, if there is already a transaction currently associated with this instance, it is left open
+ while <code>action</code> executes and upon return.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - action to perform, possibly within a transaction</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if <code>action</code> completed successfully, false if a transaction could not be created
   or <code>action</code> threw an exception</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>action</code> is null</dd>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if there is already an open transaction associated with this instance</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>action</code> is null</dd></dl>
+</li>
+</ul>
+<a name="isTransactionOpen()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isTransactionOpen</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.444">isTransactionOpen</a>()</pre>
+<div class="block">Determine whether there is a transaction already associated with this instance.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if a transaction is already open</dd></dl>
 </li>
 </ul>
 <a name="setRollbackOnly()">
@@ -744,10 +777,10 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>setRollbackOnly</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.421">setRollbackOnly</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Session.html#line.453">setRollbackOnly</a>()</pre>
 <div class="block">Mark the current transaction to be rolled back.</div>
 <dl><dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if <a href="../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)"><code>performSessionAction()</code></a> is not currently being invoked</dd></dl>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if there is no transaction associated with this instance</dd></dl>
 </li>
 </ul>
 </li>

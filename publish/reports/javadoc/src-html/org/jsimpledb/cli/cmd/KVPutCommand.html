@@ -44,7 +44,7 @@
 <span class="sourceLineNo">036</span>    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map&lt;String, Object&gt; params) {<a name="line.36"></a>
 <span class="sourceLineNo">037</span>        final byte[] key = (byte[])params.get("key");<a name="line.37"></a>
 <span class="sourceLineNo">038</span>        final byte[] value = (byte[])params.get("value");<a name="line.38"></a>
-<span class="sourceLineNo">039</span>        return new CliSession.Action() {<a name="line.39"></a>
+<span class="sourceLineNo">039</span>        return new CliSession.TransactionalAction() {<a name="line.39"></a>
 <span class="sourceLineNo">040</span>            @Override<a name="line.40"></a>
 <span class="sourceLineNo">041</span>            public void run(CliSession session) throws Exception {<a name="line.41"></a>
 <span class="sourceLineNo">042</span>                final PrintWriter writer = session.getWriter();<a name="line.42"></a>

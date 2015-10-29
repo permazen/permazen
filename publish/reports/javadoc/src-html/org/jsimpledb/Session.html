@@ -327,233 +327,271 @@
 <span class="sourceLineNo">319</span>// Transactions<a name="line.319"></a>
 <span class="sourceLineNo">320</span><a name="line.320"></a>
 <span class="sourceLineNo">321</span>    /**<a name="line.321"></a>
-<span class="sourceLineNo">322</span>     * Associate the current {@link JTransaction} with this instance while performing the given action.<a name="line.322"></a>
+<span class="sourceLineNo">322</span>     * Associate the current {@link JTransaction} with this instance, if not already associated, while performing the given action.<a name="line.322"></a>
 <span class="sourceLineNo">323</span>     *<a name="line.323"></a>
 <span class="sourceLineNo">324</span>     * &lt;p&gt;<a name="line.324"></a>
 <span class="sourceLineNo">325</span>     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}<a name="line.325"></a>
 <span class="sourceLineNo">326</span>     * and then false returned.<a name="line.326"></a>
 <span class="sourceLineNo">327</span>     *<a name="line.327"></a>
 <span class="sourceLineNo">328</span>     * &lt;p&gt;<a name="line.328"></a>
-<span class="sourceLineNo">329</span>     * There must be a {@link JTransaction} open and {@linkplain JTransaction#getCurrent associated with the current thread}.<a name="line.329"></a>
-<span class="sourceLineNo">330</span>     * It will be left open when this method returns.<a name="line.330"></a>
-<span class="sourceLineNo">331</span>     *<a name="line.331"></a>
-<span class="sourceLineNo">332</span>     * &lt;p&gt;<a name="line.332"></a>
-<span class="sourceLineNo">333</span>     * This method safely handles re-entrant invocation.<a name="line.333"></a>
-<span class="sourceLineNo">334</span>     *<a name="line.334"></a>
-<span class="sourceLineNo">335</span>     * @param action action to perform<a name="line.335"></a>
-<span class="sourceLineNo">336</span>     * @return true if {@code action} completed successfully, false if {@code action} threw an exception<a name="line.336"></a>
-<span class="sourceLineNo">337</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.337"></a>
-<span class="sourceLineNo">338</span>     * @throws IllegalStateException if there is already an open transaction associated with this instance<a name="line.338"></a>
-<span class="sourceLineNo">339</span>     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}<a name="line.339"></a>
-<span class="sourceLineNo">340</span>     */<a name="line.340"></a>
-<span class="sourceLineNo">341</span>    public boolean performSessionActionWithCurrentTransaction(Action action) {<a name="line.341"></a>
-<span class="sourceLineNo">342</span><a name="line.342"></a>
-<span class="sourceLineNo">343</span>        // Sanity check<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        Preconditions.checkArgument(action != null, "null action");<a name="line.344"></a>
-<span class="sourceLineNo">345</span>        Preconditions.checkArgument(SessionMode.JSIMPLEDB.equals(this.mode), "session is not in JSimpleDB mode");<a name="line.345"></a>
-<span class="sourceLineNo">346</span><a name="line.346"></a>
-<span class="sourceLineNo">347</span>        // Check for re-entrant invocation, otherwise verify no other transaction is associated<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        final Transaction currentTx = JTransaction.getCurrent().getTransaction();<a name="line.348"></a>
-<span class="sourceLineNo">349</span>        final KVTransaction currentKVT = currentTx.getKVTransaction();<a name="line.349"></a>
-<span class="sourceLineNo">350</span>        final boolean associate;<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        if (this.tx == null &amp;&amp; this.kvt == null)<a name="line.351"></a>
-<span class="sourceLineNo">352</span>            associate = true;<a name="line.352"></a>
-<span class="sourceLineNo">353</span>        else if (this.tx == currentTx &amp;&amp; this.kvt == currentKVT)<a name="line.353"></a>
-<span class="sourceLineNo">354</span>            associate = false;<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        else<a name="line.355"></a>
-<span class="sourceLineNo">356</span>            throw new IllegalStateException("a different transaction is already open in this session");<a name="line.356"></a>
-<span class="sourceLineNo">357</span><a name="line.357"></a>
-<span class="sourceLineNo">358</span>        // Perform action<a name="line.358"></a>
-<span class="sourceLineNo">359</span>        if (associate) {<a name="line.359"></a>
-<span class="sourceLineNo">360</span>            this.tx = currentTx;<a name="line.360"></a>
-<span class="sourceLineNo">361</span>            this.kvt = currentKVT;<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        }<a name="line.362"></a>
-<span class="sourceLineNo">363</span>        try {<a name="line.363"></a>
-<span class="sourceLineNo">364</span>            action.run(this);<a name="line.364"></a>
-<span class="sourceLineNo">365</span>            return true;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>        } catch (Exception e) {<a name="line.366"></a>
-<span class="sourceLineNo">367</span>            this.reportException(e);<a name="line.367"></a>
-<span class="sourceLineNo">368</span>            return false;<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        } finally {<a name="line.369"></a>
-<span class="sourceLineNo">370</span>            if (associate) {<a name="line.370"></a>
-<span class="sourceLineNo">371</span>                this.tx = null;<a name="line.371"></a>
-<span class="sourceLineNo">372</span>                this.kvt = null;<a name="line.372"></a>
-<span class="sourceLineNo">373</span>            }<a name="line.373"></a>
-<span class="sourceLineNo">374</span>        }<a name="line.374"></a>
-<span class="sourceLineNo">375</span>    }<a name="line.375"></a>
-<span class="sourceLineNo">376</span><a name="line.376"></a>
-<span class="sourceLineNo">377</span>    /**<a name="line.377"></a>
-<span class="sourceLineNo">378</span>     * Perform the given action within a new transaction associated with this instance.<a name="line.378"></a>
-<span class="sourceLineNo">379</span>     *<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     * &lt;p&gt;<a name="line.380"></a>
-<span class="sourceLineNo">381</span>     * If {@code action} throws an {@link Exception}, it will be caught and handled by {@link #reportException reportException()}<a name="line.381"></a>
-<span class="sourceLineNo">382</span>     * and then false returned.<a name="line.382"></a>
+<span class="sourceLineNo">329</span>     * This instance must be in {@link SessionMode#JSIMPLEDB}, there must be a {@link JTransaction} open and<a name="line.329"></a>
+<span class="sourceLineNo">330</span>     * {@linkplain JTransaction#getCurrent associated with the current thread}, and this instance must not already<a name="line.330"></a>
+<span class="sourceLineNo">331</span>     * have a different {@link JTransaction} associated with it (it may already have the same {@link JTransaction}<a name="line.331"></a>
+<span class="sourceLineNo">332</span>     * associated with it). The {@link JTransaction} will be left open when this method returns.<a name="line.332"></a>
+<span class="sourceLineNo">333</span>     *<a name="line.333"></a>
+<span class="sourceLineNo">334</span>     * &lt;p&gt;<a name="line.334"></a>
+<span class="sourceLineNo">335</span>     * This method safely handles re-entrant invocation.<a name="line.335"></a>
+<span class="sourceLineNo">336</span>     *<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * @param action action to perform<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     * @return true if {@code action} completed successfully, false if {@code action} threw an exception<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     * @throws IllegalStateException if there is a different open transaction already associated with this instance<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.341"></a>
+<span class="sourceLineNo">342</span>     */<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    public boolean performSessionActionWithCurrentTransaction(Action action) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span><a name="line.344"></a>
+<span class="sourceLineNo">345</span>        // Sanity check<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        Preconditions.checkArgument(action != null, "null action");<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        Preconditions.checkArgument(SessionMode.JSIMPLEDB.equals(this.mode), "session is not in JSimpleDB mode");<a name="line.347"></a>
+<span class="sourceLineNo">348</span><a name="line.348"></a>
+<span class="sourceLineNo">349</span>        // Check for re-entrant invocation, otherwise verify no other transaction is associated<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        final Transaction currentTx = JTransaction.getCurrent().getTransaction();<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        final KVTransaction currentKVT = currentTx.getKVTransaction();<a name="line.351"></a>
+<span class="sourceLineNo">352</span><a name="line.352"></a>
+<span class="sourceLineNo">353</span>        // Determine whether to join existing or create new<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        final boolean associate;<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        if (this.tx == null &amp;&amp; this.kvt == null)<a name="line.355"></a>
+<span class="sourceLineNo">356</span>            associate = true;<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        else if (this.tx == currentTx &amp;&amp; this.kvt == currentKVT)<a name="line.357"></a>
+<span class="sourceLineNo">358</span>            associate = false;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        else<a name="line.359"></a>
+<span class="sourceLineNo">360</span>            throw new IllegalStateException("a different transaction is already open in this session");<a name="line.360"></a>
+<span class="sourceLineNo">361</span><a name="line.361"></a>
+<span class="sourceLineNo">362</span>        // Perform action<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        if (associate) {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            this.tx = currentTx;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>            this.kvt = currentKVT;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        }<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        try {<a name="line.367"></a>
+<span class="sourceLineNo">368</span>            action.run(this);<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            return true;<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        } catch (Exception e) {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>            this.reportException(e);<a name="line.371"></a>
+<span class="sourceLineNo">372</span>            return false;<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        } finally {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            if (associate) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>                this.tx = null;<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                this.kvt = null;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>            }<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        }<a name="line.378"></a>
+<span class="sourceLineNo">379</span>    }<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>    /**<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     * Perform the given action in the context of this session.<a name="line.382"></a>
 <span class="sourceLineNo">383</span>     *<a name="line.383"></a>
-<span class="sourceLineNo">384</span>     * @param action action to perform<a name="line.384"></a>
-<span class="sourceLineNo">385</span>     * @return true if {@code action} completed successfully, false if the transaction could not be created<a name="line.385"></a>
-<span class="sourceLineNo">386</span>     *  or {@code action} threw an exception<a name="line.386"></a>
-<span class="sourceLineNo">387</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.387"></a>
-<span class="sourceLineNo">388</span>     * @throws IllegalStateException if there is already an open transaction associated with this instance<a name="line.388"></a>
-<span class="sourceLineNo">389</span>     */<a name="line.389"></a>
-<span class="sourceLineNo">390</span>    public boolean performSessionAction(Action action) {<a name="line.390"></a>
-<span class="sourceLineNo">391</span><a name="line.391"></a>
-<span class="sourceLineNo">392</span>        // Sanity check<a name="line.392"></a>
-<span class="sourceLineNo">393</span>        Preconditions.checkArgument(action != null, "null action");<a name="line.393"></a>
-<span class="sourceLineNo">394</span><a name="line.394"></a>
-<span class="sourceLineNo">395</span>        // Perform action within new transaction<a name="line.395"></a>
-<span class="sourceLineNo">396</span>        try {<a name="line.396"></a>
-<span class="sourceLineNo">397</span>            if (!this.openTransaction())<a name="line.397"></a>
-<span class="sourceLineNo">398</span>                return false;<a name="line.398"></a>
-<span class="sourceLineNo">399</span>            boolean success = false;<a name="line.399"></a>
-<span class="sourceLineNo">400</span>            this.rollbackOnly = false;<a name="line.400"></a>
-<span class="sourceLineNo">401</span>            try {<a name="line.401"></a>
-<span class="sourceLineNo">402</span>                action.run(this);<a name="line.402"></a>
-<span class="sourceLineNo">403</span>                success = true;<a name="line.403"></a>
-<span class="sourceLineNo">404</span>            } finally {<a name="line.404"></a>
-<span class="sourceLineNo">405</span>                success &amp;= this.closeTransaction(success &amp;&amp; !this.rollbackOnly);<a name="line.405"></a>
-<span class="sourceLineNo">406</span>            }<a name="line.406"></a>
-<span class="sourceLineNo">407</span>            return success;<a name="line.407"></a>
-<span class="sourceLineNo">408</span>        } catch (Exception e) {<a name="line.408"></a>
-<span class="sourceLineNo">409</span>            this.reportException(e);<a name="line.409"></a>
-<span class="sourceLineNo">410</span>            return false;<a name="line.410"></a>
-<span class="sourceLineNo">411</span>        } finally {<a name="line.411"></a>
-<span class="sourceLineNo">412</span>            this.tx = null;<a name="line.412"></a>
-<span class="sourceLineNo">413</span>        }<a name="line.413"></a>
-<span class="sourceLineNo">414</span>    }<a name="line.414"></a>
-<span class="sourceLineNo">415</span><a name="line.415"></a>
-<span class="sourceLineNo">416</span>    /**<a name="line.416"></a>
-<span class="sourceLineNo">417</span>     * Mark the current transaction to be rolled back.<a name="line.417"></a>
-<span class="sourceLineNo">418</span>     *<a name="line.418"></a>
-<span class="sourceLineNo">419</span>     * @throws IllegalStateException if {@link #performSessionAction performSessionAction()} is not currently being invoked<a name="line.419"></a>
-<span class="sourceLineNo">420</span>     */<a name="line.420"></a>
-<span class="sourceLineNo">421</span>    public void setRollbackOnly() {<a name="line.421"></a>
-<span class="sourceLineNo">422</span>        Preconditions.checkState(this.kvt != null, "no transaction is open in this session");<a name="line.422"></a>
-<span class="sourceLineNo">423</span>        this.rollbackOnly = true;<a name="line.423"></a>
-<span class="sourceLineNo">424</span>    }<a name="line.424"></a>
-<span class="sourceLineNo">425</span><a name="line.425"></a>
-<span class="sourceLineNo">426</span>    private boolean openTransaction() {<a name="line.426"></a>
-<span class="sourceLineNo">427</span>        try {<a name="line.427"></a>
-<span class="sourceLineNo">428</span><a name="line.428"></a>
-<span class="sourceLineNo">429</span>            // Sanity check<a name="line.429"></a>
-<span class="sourceLineNo">430</span>            Preconditions.checkState(this.tx == null &amp;&amp; this.kvt == null, "a transaction is already open in this session");<a name="line.430"></a>
-<span class="sourceLineNo">431</span><a name="line.431"></a>
-<span class="sourceLineNo">432</span>            // Open transaction at the appropriate level<a name="line.432"></a>
-<span class="sourceLineNo">433</span>            switch (this.mode) {<a name="line.433"></a>
-<span class="sourceLineNo">434</span>            case KEY_VALUE:<a name="line.434"></a>
-<span class="sourceLineNo">435</span>                this.kvt = this.kvdb.createTransaction();<a name="line.435"></a>
-<span class="sourceLineNo">436</span>                break;<a name="line.436"></a>
-<span class="sourceLineNo">437</span>            case CORE_API:<a name="line.437"></a>
-<span class="sourceLineNo">438</span>                this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema);<a name="line.438"></a>
-<span class="sourceLineNo">439</span>                this.kvt = this.tx.getKVTransaction();<a name="line.439"></a>
-<span class="sourceLineNo">440</span>                break;<a name="line.440"></a>
-<span class="sourceLineNo">441</span>            case JSIMPLEDB:<a name="line.441"></a>
-<span class="sourceLineNo">442</span>                Preconditions.checkState(!Session.isCurrentJTransaction(),<a name="line.442"></a>
-<span class="sourceLineNo">443</span>                  "a JSimpleDB transaction is already open in the current thread");<a name="line.443"></a>
-<span class="sourceLineNo">444</span>                final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,<a name="line.444"></a>
-<span class="sourceLineNo">445</span>                  validationMode != null ? validationMode : ValidationMode.AUTOMATIC);<a name="line.445"></a>
-<span class="sourceLineNo">446</span>                JTransaction.setCurrent(jtx);<a name="line.446"></a>
-<span class="sourceLineNo">447</span>                this.tx = jtx.getTransaction();<a name="line.447"></a>
-<span class="sourceLineNo">448</span>                this.kvt = this.tx.getKVTransaction();<a name="line.448"></a>
-<span class="sourceLineNo">449</span>                break;<a name="line.449"></a>
-<span class="sourceLineNo">450</span>            default:<a name="line.450"></a>
-<span class="sourceLineNo">451</span>                assert false;<a name="line.451"></a>
-<span class="sourceLineNo">452</span>                break;<a name="line.452"></a>
-<span class="sourceLineNo">453</span>            }<a name="line.453"></a>
-<span class="sourceLineNo">454</span><a name="line.454"></a>
-<span class="sourceLineNo">455</span>            // Update schema model and version (if appropriate)<a name="line.455"></a>
-<span class="sourceLineNo">456</span>            if (this.tx != null) {<a name="line.456"></a>
-<span class="sourceLineNo">457</span>                final Schema schema = this.tx.getSchema();<a name="line.457"></a>
-<span class="sourceLineNo">458</span>                this.setSchemaModel(schema.getSchemaModel());<a name="line.458"></a>
-<span class="sourceLineNo">459</span>                this.setSchemaVersion(schema.getVersionNumber());<a name="line.459"></a>
-<span class="sourceLineNo">460</span>                this.tx.setReadOnly(this.readOnly);<a name="line.460"></a>
-<span class="sourceLineNo">461</span>            }<a name="line.461"></a>
-<span class="sourceLineNo">462</span><a name="line.462"></a>
-<span class="sourceLineNo">463</span>            // Done<a name="line.463"></a>
-<span class="sourceLineNo">464</span>            return true;<a name="line.464"></a>
-<span class="sourceLineNo">465</span>        } catch (Exception e) {<a name="line.465"></a>
-<span class="sourceLineNo">466</span>            this.tx = null;<a name="line.466"></a>
-<span class="sourceLineNo">467</span>            this.kvt = null;<a name="line.467"></a>
-<span class="sourceLineNo">468</span>            this.reportException(e);<a name="line.468"></a>
-<span class="sourceLineNo">469</span>            return false;<a name="line.469"></a>
-<span class="sourceLineNo">470</span>        }<a name="line.470"></a>
-<span class="sourceLineNo">471</span>    }<a name="line.471"></a>
-<span class="sourceLineNo">472</span><a name="line.472"></a>
-<span class="sourceLineNo">473</span>    @SuppressWarnings("fallthrough")<a name="line.473"></a>
-<span class="sourceLineNo">474</span>    private boolean closeTransaction(boolean commit) {<a name="line.474"></a>
-<span class="sourceLineNo">475</span>        final SessionMode currentMode = this.mode;<a name="line.475"></a>
-<span class="sourceLineNo">476</span>        try {<a name="line.476"></a>
-<span class="sourceLineNo">477</span>            Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");<a name="line.477"></a>
-<span class="sourceLineNo">478</span>            switch (currentMode) {<a name="line.478"></a>
-<span class="sourceLineNo">479</span>            case JSIMPLEDB:<a name="line.479"></a>
-<span class="sourceLineNo">480</span>                if (commit &amp;&amp; !this.tx.isRollbackOnly())<a name="line.480"></a>
-<span class="sourceLineNo">481</span>                    JTransaction.getCurrent().commit();<a name="line.481"></a>
-<span class="sourceLineNo">482</span>                else<a name="line.482"></a>
-<span class="sourceLineNo">483</span>                    JTransaction.getCurrent().rollback();<a name="line.483"></a>
+<span class="sourceLineNo">384</span>     * &lt;p&gt;<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * If {@code action} is a {@link TransactionalAction}, and there is no transaction currently associated with this instance,<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * a new transaction will be created, held open while {@code action} executes, then committed. Otherwise, {@code action}<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     * is just executed directly.<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     *<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     * &lt;p&gt;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     * In either case, if {@code action} throws an {@link Exception}, it will be caught and handled by<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * {@link #reportException reportException()} and then false returned.<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     *<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * &lt;p&gt;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     * In either case, if there is already a transaction currently associated with this instance, it is left open<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     * while {@code action} executes and upon return.<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     *<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     * @param action action to perform, possibly within a transaction<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     * @return true if {@code action} completed successfully, false if a transaction could not be created<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     *  or {@code action} threw an exception<a name="line.399"></a>
+<span class="sourceLineNo">400</span>     * @throws IllegalArgumentException if {@code action} is null<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     */<a name="line.401"></a>
+<span class="sourceLineNo">402</span>    public boolean performSessionAction(Action action) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>        // Sanity check<a name="line.404"></a>
+<span class="sourceLineNo">405</span>        Preconditions.checkArgument(action != null, "null action");<a name="line.405"></a>
+<span class="sourceLineNo">406</span><a name="line.406"></a>
+<span class="sourceLineNo">407</span>        // Transaction already open or non-transactional action? If so, just use it.<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        if (this.kvt != null || !(action instanceof TransactionalAction)) {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            try {<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                action.run(this);<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                return true;<a name="line.411"></a>
+<span class="sourceLineNo">412</span>            } catch (Exception e) {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                this.reportException(e);<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                return false;<a name="line.414"></a>
+<span class="sourceLineNo">415</span>            }<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        }<a name="line.416"></a>
+<span class="sourceLineNo">417</span><a name="line.417"></a>
+<span class="sourceLineNo">418</span>        // Perform transactional action within a newly created transaction<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        try {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>            if (!this.openTransaction())<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                return false;<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            boolean success = false;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>            this.rollbackOnly = false;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>            try {<a name="line.424"></a>
+<span class="sourceLineNo">425</span>                action.run(this);<a name="line.425"></a>
+<span class="sourceLineNo">426</span>                success = true;<a name="line.426"></a>
+<span class="sourceLineNo">427</span>            } finally {<a name="line.427"></a>
+<span class="sourceLineNo">428</span>                success &amp;= this.closeTransaction(success &amp;&amp; !this.rollbackOnly);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>            }<a name="line.429"></a>
+<span class="sourceLineNo">430</span>            return success;<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        } catch (Exception e) {<a name="line.431"></a>
+<span class="sourceLineNo">432</span>            this.reportException(e);<a name="line.432"></a>
+<span class="sourceLineNo">433</span>            return false;<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        } finally {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>            this.tx = null;<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        }<a name="line.436"></a>
+<span class="sourceLineNo">437</span>    }<a name="line.437"></a>
+<span class="sourceLineNo">438</span><a name="line.438"></a>
+<span class="sourceLineNo">439</span>    /**<a name="line.439"></a>
+<span class="sourceLineNo">440</span>     * Determine whether there is a transaction already associated with this instance.<a name="line.440"></a>
+<span class="sourceLineNo">441</span>     *<a name="line.441"></a>
+<span class="sourceLineNo">442</span>     * @return true if a transaction is already open<a name="line.442"></a>
+<span class="sourceLineNo">443</span>     */<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    public boolean isTransactionOpen() {<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        return this.kvt != null;<a name="line.445"></a>
+<span class="sourceLineNo">446</span>    }<a name="line.446"></a>
+<span class="sourceLineNo">447</span><a name="line.447"></a>
+<span class="sourceLineNo">448</span>    /**<a name="line.448"></a>
+<span class="sourceLineNo">449</span>     * Mark the current transaction to be rolled back.<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     *<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     * @throws IllegalStateException if there is no transaction associated with this instance<a name="line.451"></a>
+<span class="sourceLineNo">452</span>     */<a name="line.452"></a>
+<span class="sourceLineNo">453</span>    public void setRollbackOnly() {<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        Preconditions.checkState(this.kvt != null, "no transaction is open in this session");<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        this.rollbackOnly = true;<a name="line.455"></a>
+<span class="sourceLineNo">456</span>    }<a name="line.456"></a>
+<span class="sourceLineNo">457</span><a name="line.457"></a>
+<span class="sourceLineNo">458</span>    private boolean openTransaction() {<a name="line.458"></a>
+<span class="sourceLineNo">459</span>        try {<a name="line.459"></a>
+<span class="sourceLineNo">460</span><a name="line.460"></a>
+<span class="sourceLineNo">461</span>            // Sanity check<a name="line.461"></a>
+<span class="sourceLineNo">462</span>            Preconditions.checkState(this.tx == null &amp;&amp; this.kvt == null, "a transaction is already open in this session");<a name="line.462"></a>
+<span class="sourceLineNo">463</span><a name="line.463"></a>
+<span class="sourceLineNo">464</span>            // Open transaction at the appropriate level<a name="line.464"></a>
+<span class="sourceLineNo">465</span>            switch (this.mode) {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>            case KEY_VALUE:<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                this.kvt = this.kvdb.createTransaction();<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                break;<a name="line.468"></a>
+<span class="sourceLineNo">469</span>            case CORE_API:<a name="line.469"></a>
+<span class="sourceLineNo">470</span>                this.tx = this.db.createTransaction(this.schemaModel, this.schemaVersion, this.allowNewSchema);<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                this.kvt = this.tx.getKVTransaction();<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                break;<a name="line.472"></a>
+<span class="sourceLineNo">473</span>            case JSIMPLEDB:<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                Preconditions.checkState(!Session.isCurrentJTransaction(),<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                  "a JSimpleDB transaction is already open in the current thread");<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                  this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC);<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                JTransaction.setCurrent(jtx);<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                this.tx = jtx.getTransaction();<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                this.kvt = this.tx.getKVTransaction();<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                break;<a name="line.481"></a>
+<span class="sourceLineNo">482</span>            default:<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                assert false;<a name="line.483"></a>
 <span class="sourceLineNo">484</span>                break;<a name="line.484"></a>
-<span class="sourceLineNo">485</span>            case CORE_API:<a name="line.485"></a>
-<span class="sourceLineNo">486</span>                if (commit &amp;&amp; !this.tx.isRollbackOnly())<a name="line.486"></a>
-<span class="sourceLineNo">487</span>                    this.tx.commit();<a name="line.487"></a>
-<span class="sourceLineNo">488</span>                else<a name="line.488"></a>
-<span class="sourceLineNo">489</span>                    this.tx.rollback();<a name="line.489"></a>
-<span class="sourceLineNo">490</span>                break;<a name="line.490"></a>
-<span class="sourceLineNo">491</span>            case KEY_VALUE:<a name="line.491"></a>
-<span class="sourceLineNo">492</span>                if (commit)<a name="line.492"></a>
-<span class="sourceLineNo">493</span>                    this.kvt.commit();<a name="line.493"></a>
-<span class="sourceLineNo">494</span>                else<a name="line.494"></a>
-<span class="sourceLineNo">495</span>                    this.kvt.rollback();<a name="line.495"></a>
-<span class="sourceLineNo">496</span>                break;<a name="line.496"></a>
-<span class="sourceLineNo">497</span>            default:<a name="line.497"></a>
-<span class="sourceLineNo">498</span>                assert false;<a name="line.498"></a>
-<span class="sourceLineNo">499</span>                break;<a name="line.499"></a>
-<span class="sourceLineNo">500</span>            }<a name="line.500"></a>
-<span class="sourceLineNo">501</span>            return true;<a name="line.501"></a>
-<span class="sourceLineNo">502</span>        } catch (Exception e) {<a name="line.502"></a>
-<span class="sourceLineNo">503</span>            this.reportException(e);<a name="line.503"></a>
-<span class="sourceLineNo">504</span>            return false;<a name="line.504"></a>
-<span class="sourceLineNo">505</span>        } finally {<a name="line.505"></a>
-<span class="sourceLineNo">506</span>            switch (currentMode) {<a name="line.506"></a>
-<span class="sourceLineNo">507</span>            case JSIMPLEDB:<a name="line.507"></a>
-<span class="sourceLineNo">508</span>                JTransaction.setCurrent(null);<a name="line.508"></a>
-<span class="sourceLineNo">509</span>                // FALLTHROUGH<a name="line.509"></a>
-<span class="sourceLineNo">510</span>            case CORE_API:<a name="line.510"></a>
-<span class="sourceLineNo">511</span>                this.tx = null;<a name="line.511"></a>
-<span class="sourceLineNo">512</span>                // FALLTHROUGH<a name="line.512"></a>
-<span class="sourceLineNo">513</span>            case KEY_VALUE:<a name="line.513"></a>
-<span class="sourceLineNo">514</span>                this.kvt = null;<a name="line.514"></a>
-<span class="sourceLineNo">515</span>                // FALLTHROUGH<a name="line.515"></a>
-<span class="sourceLineNo">516</span>            default:<a name="line.516"></a>
-<span class="sourceLineNo">517</span>                break;<a name="line.517"></a>
-<span class="sourceLineNo">518</span>            }<a name="line.518"></a>
-<span class="sourceLineNo">519</span>        }<a name="line.519"></a>
-<span class="sourceLineNo">520</span>    }<a name="line.520"></a>
-<span class="sourceLineNo">521</span><a name="line.521"></a>
-<span class="sourceLineNo">522</span>    private static boolean isCurrentJTransaction() {<a name="line.522"></a>
-<span class="sourceLineNo">523</span>        try {<a name="line.523"></a>
-<span class="sourceLineNo">524</span>            JTransaction.getCurrent();<a name="line.524"></a>
-<span class="sourceLineNo">525</span>            return true;<a name="line.525"></a>
-<span class="sourceLineNo">526</span>        } catch (IllegalStateException e) {<a name="line.526"></a>
-<span class="sourceLineNo">527</span>            return false;<a name="line.527"></a>
-<span class="sourceLineNo">528</span>        }<a name="line.528"></a>
-<span class="sourceLineNo">529</span>    }<a name="line.529"></a>
-<span class="sourceLineNo">530</span><a name="line.530"></a>
-<span class="sourceLineNo">531</span>// Action<a name="line.531"></a>
-<span class="sourceLineNo">532</span><a name="line.532"></a>
-<span class="sourceLineNo">533</span>    /**<a name="line.533"></a>
-<span class="sourceLineNo">534</span>     * Callback interface used by {@link Session#performSessionAction Session.performSessionAction()}<a name="line.534"></a>
-<span class="sourceLineNo">535</span>     * and {@link Session#performSessionActionWithCurrentTransaction Session.performSessionActionWithCurrentTransaction()}.<a name="line.535"></a>
-<span class="sourceLineNo">536</span>     */<a name="line.536"></a>
-<span class="sourceLineNo">537</span>    public interface Action {<a name="line.537"></a>
-<span class="sourceLineNo">538</span><a name="line.538"></a>
-<span class="sourceLineNo">539</span>        /**<a name="line.539"></a>
-<span class="sourceLineNo">540</span>         * Perform some action using the given {@link Session} while a transaction is open.<a name="line.540"></a>
-<span class="sourceLineNo">541</span>         *<a name="line.541"></a>
-<span class="sourceLineNo">542</span>         * @param session session with open transaction<a name="line.542"></a>
-<span class="sourceLineNo">543</span>         * @throws Exception if an error occurs<a name="line.543"></a>
-<span class="sourceLineNo">544</span>         */<a name="line.544"></a>
-<span class="sourceLineNo">545</span>        void run(Session session) throws Exception;<a name="line.545"></a>
-<span class="sourceLineNo">546</span>    }<a name="line.546"></a>
-<span class="sourceLineNo">547</span>}<a name="line.547"></a>
-<span class="sourceLineNo">548</span><a name="line.548"></a>
+<span class="sourceLineNo">485</span>            }<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>            // Update schema model and version (if appropriate)<a name="line.487"></a>
+<span class="sourceLineNo">488</span>            if (this.tx != null) {<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                final Schema schema = this.tx.getSchema();<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                this.setSchemaModel(schema.getSchemaModel());<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                this.setSchemaVersion(schema.getVersionNumber());<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                this.tx.setReadOnly(this.readOnly);<a name="line.492"></a>
+<span class="sourceLineNo">493</span>            }<a name="line.493"></a>
+<span class="sourceLineNo">494</span><a name="line.494"></a>
+<span class="sourceLineNo">495</span>            // Done<a name="line.495"></a>
+<span class="sourceLineNo">496</span>            return true;<a name="line.496"></a>
+<span class="sourceLineNo">497</span>        } catch (Exception e) {<a name="line.497"></a>
+<span class="sourceLineNo">498</span>            this.tx = null;<a name="line.498"></a>
+<span class="sourceLineNo">499</span>            this.kvt = null;<a name="line.499"></a>
+<span class="sourceLineNo">500</span>            this.reportException(e);<a name="line.500"></a>
+<span class="sourceLineNo">501</span>            return false;<a name="line.501"></a>
+<span class="sourceLineNo">502</span>        }<a name="line.502"></a>
+<span class="sourceLineNo">503</span>    }<a name="line.503"></a>
+<span class="sourceLineNo">504</span><a name="line.504"></a>
+<span class="sourceLineNo">505</span>    @SuppressWarnings("fallthrough")<a name="line.505"></a>
+<span class="sourceLineNo">506</span>    private boolean closeTransaction(boolean commit) {<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        final SessionMode currentMode = this.mode;<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        try {<a name="line.508"></a>
+<span class="sourceLineNo">509</span>            Preconditions.checkState(this.tx != null || this.kvt != null, "no transaction");<a name="line.509"></a>
+<span class="sourceLineNo">510</span>            switch (currentMode) {<a name="line.510"></a>
+<span class="sourceLineNo">511</span>            case JSIMPLEDB:<a name="line.511"></a>
+<span class="sourceLineNo">512</span>                if (commit &amp;&amp; !this.tx.isRollbackOnly())<a name="line.512"></a>
+<span class="sourceLineNo">513</span>                    JTransaction.getCurrent().commit();<a name="line.513"></a>
+<span class="sourceLineNo">514</span>                else<a name="line.514"></a>
+<span class="sourceLineNo">515</span>                    JTransaction.getCurrent().rollback();<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                break;<a name="line.516"></a>
+<span class="sourceLineNo">517</span>            case CORE_API:<a name="line.517"></a>
+<span class="sourceLineNo">518</span>                if (commit &amp;&amp; !this.tx.isRollbackOnly())<a name="line.518"></a>
+<span class="sourceLineNo">519</span>                    this.tx.commit();<a name="line.519"></a>
+<span class="sourceLineNo">520</span>                else<a name="line.520"></a>
+<span class="sourceLineNo">521</span>                    this.tx.rollback();<a name="line.521"></a>
+<span class="sourceLineNo">522</span>                break;<a name="line.522"></a>
+<span class="sourceLineNo">523</span>            case KEY_VALUE:<a name="line.523"></a>
+<span class="sourceLineNo">524</span>                if (commit)<a name="line.524"></a>
+<span class="sourceLineNo">525</span>                    this.kvt.commit();<a name="line.525"></a>
+<span class="sourceLineNo">526</span>                else<a name="line.526"></a>
+<span class="sourceLineNo">527</span>                    this.kvt.rollback();<a name="line.527"></a>
+<span class="sourceLineNo">528</span>                break;<a name="line.528"></a>
+<span class="sourceLineNo">529</span>            default:<a name="line.529"></a>
+<span class="sourceLineNo">530</span>                assert false;<a name="line.530"></a>
+<span class="sourceLineNo">531</span>                break;<a name="line.531"></a>
+<span class="sourceLineNo">532</span>            }<a name="line.532"></a>
+<span class="sourceLineNo">533</span>            return true;<a name="line.533"></a>
+<span class="sourceLineNo">534</span>        } catch (Exception e) {<a name="line.534"></a>
+<span class="sourceLineNo">535</span>            this.reportException(e);<a name="line.535"></a>
+<span class="sourceLineNo">536</span>            return false;<a name="line.536"></a>
+<span class="sourceLineNo">537</span>        } finally {<a name="line.537"></a>
+<span class="sourceLineNo">538</span>            switch (currentMode) {<a name="line.538"></a>
+<span class="sourceLineNo">539</span>            case JSIMPLEDB:<a name="line.539"></a>
+<span class="sourceLineNo">540</span>                JTransaction.setCurrent(null);<a name="line.540"></a>
+<span class="sourceLineNo">541</span>                // FALLTHROUGH<a name="line.541"></a>
+<span class="sourceLineNo">542</span>            case CORE_API:<a name="line.542"></a>
+<span class="sourceLineNo">543</span>                this.tx = null;<a name="line.543"></a>
+<span class="sourceLineNo">544</span>                // FALLTHROUGH<a name="line.544"></a>
+<span class="sourceLineNo">545</span>            case KEY_VALUE:<a name="line.545"></a>
+<span class="sourceLineNo">546</span>                this.kvt = null;<a name="line.546"></a>
+<span class="sourceLineNo">547</span>                // FALLTHROUGH<a name="line.547"></a>
+<span class="sourceLineNo">548</span>            default:<a name="line.548"></a>
+<span class="sourceLineNo">549</span>                break;<a name="line.549"></a>
+<span class="sourceLineNo">550</span>            }<a name="line.550"></a>
+<span class="sourceLineNo">551</span>        }<a name="line.551"></a>
+<span class="sourceLineNo">552</span>    }<a name="line.552"></a>
+<span class="sourceLineNo">553</span><a name="line.553"></a>
+<span class="sourceLineNo">554</span>    private static boolean isCurrentJTransaction() {<a name="line.554"></a>
+<span class="sourceLineNo">555</span>        try {<a name="line.555"></a>
+<span class="sourceLineNo">556</span>            JTransaction.getCurrent();<a name="line.556"></a>
+<span class="sourceLineNo">557</span>            return true;<a name="line.557"></a>
+<span class="sourceLineNo">558</span>        } catch (IllegalStateException e) {<a name="line.558"></a>
+<span class="sourceLineNo">559</span>            return false;<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        }<a name="line.560"></a>
+<span class="sourceLineNo">561</span>    }<a name="line.561"></a>
+<span class="sourceLineNo">562</span><a name="line.562"></a>
+<span class="sourceLineNo">563</span>// Action<a name="line.563"></a>
+<span class="sourceLineNo">564</span><a name="line.564"></a>
+<span class="sourceLineNo">565</span>    /**<a name="line.565"></a>
+<span class="sourceLineNo">566</span>     * Callback interface used by {@link Session#performSessionAction Session.performSessionAction()}<a name="line.566"></a>
+<span class="sourceLineNo">567</span>     * and {@link Session#performSessionActionWithCurrentTransaction Session.performSessionActionWithCurrentTransaction()}.<a name="line.567"></a>
+<span class="sourceLineNo">568</span>     */<a name="line.568"></a>
+<span class="sourceLineNo">569</span>    public interface Action {<a name="line.569"></a>
+<span class="sourceLineNo">570</span><a name="line.570"></a>
+<span class="sourceLineNo">571</span>        /**<a name="line.571"></a>
+<span class="sourceLineNo">572</span>         * Perform some action using the given {@link Session} while a transaction is open.<a name="line.572"></a>
+<span class="sourceLineNo">573</span>         *<a name="line.573"></a>
+<span class="sourceLineNo">574</span>         * @param session session with open transaction<a name="line.574"></a>
+<span class="sourceLineNo">575</span>         * @throws Exception if an error occurs<a name="line.575"></a>
+<span class="sourceLineNo">576</span>         */<a name="line.576"></a>
+<span class="sourceLineNo">577</span>        void run(Session session) throws Exception;<a name="line.577"></a>
+<span class="sourceLineNo">578</span>    }<a name="line.578"></a>
+<span class="sourceLineNo">579</span><a name="line.579"></a>
+<span class="sourceLineNo">580</span>    /**<a name="line.580"></a>
+<span class="sourceLineNo">581</span>     * Tagging interface indicating an {@link Action} that requires there to be an open transaction.<a name="line.581"></a>
+<span class="sourceLineNo">582</span>     */<a name="line.582"></a>
+<span class="sourceLineNo">583</span>    public interface TransactionalAction extends Action {<a name="line.583"></a>
+<span class="sourceLineNo">584</span>    }<a name="line.584"></a>
+<span class="sourceLineNo">585</span>}<a name="line.585"></a>
+<span class="sourceLineNo">586</span><a name="line.586"></a>
 
 
 

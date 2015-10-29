@@ -58,7 +58,7 @@
 <span class="sourceLineNo">050</span>        final Integer limit = (Integer)params.get("limit");<a name="line.50"></a>
 <span class="sourceLineNo">051</span>        if (maxKey != null &amp;&amp; !range)<a name="line.51"></a>
 <span class="sourceLineNo">052</span>            throw new ParseException(ctx, "`-range' must be specified to retrieve a range of keys");<a name="line.52"></a>
-<span class="sourceLineNo">053</span>        return new CliSession.Action() {<a name="line.53"></a>
+<span class="sourceLineNo">053</span>        return new CliSession.TransactionalAction() {<a name="line.53"></a>
 <span class="sourceLineNo">054</span>            @Override<a name="line.54"></a>
 <span class="sourceLineNo">055</span>            public void run(CliSession session) throws Exception {<a name="line.55"></a>
 <span class="sourceLineNo">056</span>                final PrintWriter writer = session.getWriter();<a name="line.56"></a>

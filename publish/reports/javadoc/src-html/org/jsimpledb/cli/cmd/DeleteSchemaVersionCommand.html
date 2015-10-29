@@ -39,7 +39,7 @@
 <span class="sourceLineNo">031</span>    @Override<a name="line.31"></a>
 <span class="sourceLineNo">032</span>    public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map&lt;String, Object&gt; params) {<a name="line.32"></a>
 <span class="sourceLineNo">033</span>        final int version = (Integer)params.get("version");<a name="line.33"></a>
-<span class="sourceLineNo">034</span>        return new CliSession.Action() {<a name="line.34"></a>
+<span class="sourceLineNo">034</span>        return new CliSession.TransactionalAction() {<a name="line.34"></a>
 <span class="sourceLineNo">035</span>            @Override<a name="line.35"></a>
 <span class="sourceLineNo">036</span>            public void run(CliSession session) throws Exception {<a name="line.36"></a>
 <span class="sourceLineNo">037</span>                final boolean deleted = session.getTransaction().deleteSchemaVersion(version);<a name="line.37"></a>

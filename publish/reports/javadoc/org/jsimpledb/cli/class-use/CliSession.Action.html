@@ -94,6 +94,21 @@
 <!--   -->
 </a>
 <h3>Uses of <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a> in <a href="../../../../org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing subinterfaces, and an explanation">
+<caption><span>Subinterfaces of <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a> in <a href="../../../../org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Interface and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/CliSession.TransactionalAction.html" title="interface in org.jsimpledb.cli">CliSession.TransactionalAction</a></strong></code>
+<div class="block">Tagging interface indicating an <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli"><code>CliSession.Action</code></a> that requires there to be an open transaction.</div>
+</td>
+</tr>
+</tbody>
+</table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
 <caption><span>Methods in <a href="../../../../org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a> that return <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
@@ -129,7 +144,7 @@
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;</code></td>
 <td class="colLast"><span class="strong">Console.</span><code><strong><a href="../../../../org/jsimpledb/cli/Console.html#parseCommand(java.lang.String)">parseCommand</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</code>
-<div class="block">Parse the given command(s) within a transaction.</div>
+<div class="block">Parse the given command(s).</div>
 </td>
 </tr>
 </tbody>
@@ -144,13 +159,14 @@
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">CliSession.</span><code><strong><a href="../../../../org/jsimpledb/cli/CliSession.html#performCliSessionAction(org.jsimpledb.cli.CliSession.Action)">performCliSessionAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;action)</code>
-<div class="block">Perform the given action within a new transaction associated with this instance.</div>
+<div class="block">Perform the given action in the context of this session.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">CliSession.</span><code><strong><a href="../../../../org/jsimpledb/cli/CliSession.html#performCliSessionActionWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)">performCliSessionActionWithCurrentTransaction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;action)</code>
-<div class="block">Associate the current <a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance while performing the given action.</div>
+<div class="block">Associate the current <a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance, if not already associated,
+ while performing the given action.</div>
 </td>
 </tr>
 </tbody>
@@ -185,14 +201,18 @@
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/AbstractRaftCommand.RaftAction.html" title="class in org.jsimpledb.cli.cmd">AbstractRaftCommand.RaftAction</a></strong></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>class&nbsp;</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/InfoCommand.html" title="class in org.jsimpledb.cli.cmd">InfoCommand</a></strong></code>&nbsp;</td>
+<td class="colFirst"><code>protected class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.RaftTransactionAction.html" title="class in org.jsimpledb.cli.cmd">AbstractTransactionRaftCommand.RaftTransactionAction</a></strong></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/QuitCommand.html" title="class in org.jsimpledb.cli.cmd">QuitCommand</a></strong></code>&nbsp;</td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/InfoCommand.html" title="class in org.jsimpledb.cli.cmd">InfoCommand</a></strong></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/QuitCommand.html" title="class in org.jsimpledb.cli.cmd">QuitCommand</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">ShowSchemaCommand</a></strong></code>&nbsp;</td>
 </tr>
@@ -221,166 +241,187 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
-<td class="colLast"><span class="strong">SetValidationModeCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+<td class="colLast"><span class="strong">SetVerboseCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/SetVerboseCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
+<td class="colLast"><span class="strong">SetValidationModeCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                  <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
+                  boolean&nbsp;complete,
+                  <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">SetSessionModeCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">SetSchemaVersionCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">SetAllowNewSchemaCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">SaveCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/SaveCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
+<td class="colLast"><span class="strong">RegisterFunctionCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/RegisterFunctionCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                  <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
+                  boolean&nbsp;complete,
+                  <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
+</tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
+<td class="colLast"><span class="strong">RegisterCommandCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/RegisterCommandCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                  <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
+                  boolean&nbsp;complete,
+                  <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">RaftStepDownCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/RaftStepDownCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">RaftStatusCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/RaftStatusCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">RaftStartElectionCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/RaftStartElectionCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">RaftRemoveCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/RaftRemoveCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">RaftAddCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/RaftAddCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">QuitCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/QuitCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">LoadCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/LoadCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">KVSaveCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/KVSaveCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">KVRemoveCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/KVRemoveCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">KVPutCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/KVPutCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">KVLoadCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/KVLoadCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">KVGetCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/KVGetCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">InfoCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/InfoCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">ImportCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/ImportCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">HelpCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/HelpCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">EvalCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">DeleteSchemaVersionCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/DeleteSchemaVersionCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">CompareSchemasCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/CompareSchemasCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
                   boolean&nbsp;complete,
                   <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">AbstractCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
                   <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,
@@ -389,7 +430,7 @@
 <div class="block">Process command line parameters and return action.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
 <td class="colLast"><span class="strong">AbstractCommand.</span><code><strong><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#parse(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.ParseContext, boolean)">parse</a></strong>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
           <a href="../../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;ctx,

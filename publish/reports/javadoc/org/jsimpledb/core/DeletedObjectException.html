@@ -144,6 +144,12 @@ extends <a href="../../../org/jsimpledb/core/DatabaseException.html" title="clas
 <div class="block">Constructor.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colOne"><code><strong><a href="../../../org/jsimpledb/core/DeletedObjectException.html#DeletedObjectException(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">DeletedObjectException</a></strong>(<a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
+                                            <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Constructor.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -197,12 +203,24 @@ extends <a href="../../../org/jsimpledb/core/DatabaseException.html" title="clas
 <a name="DeletedObjectException(org.jsimpledb.core.ObjId)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DeletedObjectException</h4>
 <pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/core/DeletedObjectException.html#line.21">DeletedObjectException</a>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - the ID of the object that was not found</dd></dl>
+</li>
+</ul>
+<a name="DeletedObjectException(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DeletedObjectException</h4>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/core/DeletedObjectException.html#line.32">DeletedObjectException</a>(<a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
+                      <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<div class="block">Constructor.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - the transaction within which this exception was generated</dd><dd><code>id</code> - the ID of the object that was not found</dd></dl>
 </li>
 </ul>
 </li>
@@ -219,7 +237,7 @@ extends <a href="../../../org/jsimpledb/core/DatabaseException.html" title="clas
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getId</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/DeletedObjectException.html#line.31">getId</a>()</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/DeletedObjectException.html#line.42">getId</a>()</pre>
 <div class="block">Get the ID of the object that could not be accessed.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>deleted object's ID</dd></dl>
 </li>

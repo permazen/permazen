@@ -236,9 +236,10 @@
  <tr>
   <td><code>kvstore</code></td>
   <td>Bean reference</td>
-  <td>Yes</td>
+  <td>No</td>
   <td>The underlying key/value store database. This should be the name of a Spring bean that implements
-      the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface</td>
+      the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface. If unset, defaults to a new
+      <a href="../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a> instance.</td>
  </tr>
  <tr>
   <td><code>schema-version</code></td>

@@ -85,7 +85,7 @@
 <span class="sourceLineNo">077</span><a name="line.77"></a>
 <span class="sourceLineNo">078</span>    @Override<a name="line.78"></a>
 <span class="sourceLineNo">079</span>    protected void doInTransaction(final Runnable action) {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>        this.session.performParseSessionAction(new ParseSession.Action() {<a name="line.80"></a>
+<span class="sourceLineNo">080</span>        this.session.performParseSessionAction(new ParseSession.TransactionalAction() {<a name="line.80"></a>
 <span class="sourceLineNo">081</span>            @Override<a name="line.81"></a>
 <span class="sourceLineNo">082</span>            public void run(ParseSession session) {<a name="line.82"></a>
 <span class="sourceLineNo">083</span>                action.run();<a name="line.83"></a>
@@ -95,7 +95,7 @@
 <span class="sourceLineNo">087</span><a name="line.87"></a>
 <span class="sourceLineNo">088</span>    @Override<a name="line.88"></a>
 <span class="sourceLineNo">089</span>    protected void doInCurrentTransaction(final Runnable action) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        this.session.performParseSessionActionWithCurrentTransaction(new ParseSession.Action() {<a name="line.90"></a>
+<span class="sourceLineNo">090</span>        this.session.performParseSessionActionWithCurrentTransaction(new ParseSession.TransactionalAction() {<a name="line.90"></a>
 <span class="sourceLineNo">091</span>            @Override<a name="line.91"></a>
 <span class="sourceLineNo">092</span>            public void run(ParseSession session) {<a name="line.92"></a>
 <span class="sourceLineNo">093</span>                action.run();<a name="line.93"></a>

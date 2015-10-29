@@ -219,75 +219,75 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;107</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Sanity checks</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;108</td>  <td class="nbHitsUncovered"><a title="Line 108: Conditional coverage 50% (1/2).">&nbsp;12826</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 108: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(key != <span class="keyword">null</span>, <span class="string">"null key"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;109</td>  <td class="nbHitsUncovered"><a title="Line 109: Conditional coverage 50% (1/2).">&nbsp;12826</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 109: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(val != <span class="keyword">null</span>, <span class="string">"null value"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;110</td>  <td class="nbHitsUncovered"><a title="Line 110: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;12826</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 110: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkArgument(<span class="keyword">this</span>.prevKey == <span class="keyword">null</span> || ByteUtil.compare(key, <span class="keyword">this</span>.prevKey) &gt; 0, <span class="string">"key &lt;= previous key"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;111</td>  <td class="nbHitsUncovered"><a title="Line 111: Conditional coverage 50% (1/2).">&nbsp;12826</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 111: Conditional coverage 50% (1/2).">        Preconditions.checkState((<span class="keyword">this</span>.nextIndex * 8) + 8 &gt; 0, <span class="string">"too much index data"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;112</td>  <td class="nbHitsUncovered"><a title="Line 112: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;12826</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 112: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkState(<span class="keyword">this</span>.keysLength == 0 || <span class="keyword">this</span>.keysLength + key.length &gt; 0, <span class="string">"too much key data"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;113</td>  <td class="nbHitsUncovered"><a title="Line 113: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;12826</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 113: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkState(<span class="keyword">this</span>.valsLength == 0 || <span class="keyword">this</span>.valsLength + val.length &gt; 0, <span class="string">"too much value data"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;108</td>  <td class="nbHitsUncovered"><a title="Line 108: Conditional coverage 50% (1/2).">&nbsp;12653</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 108: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(key != <span class="keyword">null</span>, <span class="string">"null key"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;109</td>  <td class="nbHitsUncovered"><a title="Line 109: Conditional coverage 50% (1/2).">&nbsp;12653</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 109: Conditional coverage 50% (1/2).">        Preconditions.checkArgument(val != <span class="keyword">null</span>, <span class="string">"null value"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;110</td>  <td class="nbHitsUncovered"><a title="Line 110: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;12653</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 110: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkArgument(<span class="keyword">this</span>.prevKey == <span class="keyword">null</span> || ByteUtil.compare(key, <span class="keyword">this</span>.prevKey) &gt; 0, <span class="string">"key &lt;= previous key"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;111</td>  <td class="nbHitsUncovered"><a title="Line 111: Conditional coverage 50% (1/2).">&nbsp;12653</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 111: Conditional coverage 50% (1/2).">        Preconditions.checkState((<span class="keyword">this</span>.nextIndex * 8) + 8 &gt; 0, <span class="string">"too much index data"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;112</td>  <td class="nbHitsUncovered"><a title="Line 112: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;12653</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 112: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkState(<span class="keyword">this</span>.keysLength == 0 || <span class="keyword">this</span>.keysLength + key.length &gt; 0, <span class="string">"too much key data"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;113</td>  <td class="nbHitsUncovered"><a title="Line 113: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">&nbsp;12653</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 113: Conditional coverage 75% (3/4) [each condition: 100%, 50%].">        Preconditions.checkState(<span class="keyword">this</span>.valsLength == 0 || <span class="keyword">this</span>.valsLength + val.length &gt; 0, <span class="string">"too much value data"</span>);</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;114</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;115</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Write key index entry and data</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;116</td>  <td class="nbHitsCovered"><a title="Line 116: Conditional coverage 100% (2/2).">&nbsp;12826</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 116: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> ((<span class="keyword">this</span>.nextIndex &amp; 0x1f) == 0) {</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;116</td>  <td class="nbHitsCovered"><a title="Line 116: Conditional coverage 100% (2/2).">&nbsp;12653</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 116: Conditional coverage 100% (2/2).">        <span class="keyword">if</span> ((<span class="keyword">this</span>.nextIndex &amp; 0x1f) == 0) {</a></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;117</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;118</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Write a base key index entry every 32 entries</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;119</td>  <td class="nbHitsCovered">&nbsp;1003</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.writeIndxValue(<span class="keyword">this</span>.keysLength);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;120</td>  <td class="nbHitsCovered">&nbsp;1003</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.baseKeyOffset = <span class="keyword">this</span>.keysLength;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;121</td>  <td class="nbHitsCovered">&nbsp;1003</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.baseKey = key;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;119</td>  <td class="nbHitsCovered">&nbsp;1006</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.writeIndxValue(<span class="keyword">this</span>.keysLength);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;120</td>  <td class="nbHitsCovered">&nbsp;1006</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.baseKeyOffset = <span class="keyword">this</span>.keysLength;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;121</td>  <td class="nbHitsCovered">&nbsp;1006</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.baseKey = key;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;122</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;123</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Write key data</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;124</td>  <td class="nbHitsCovered">&nbsp;1003</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.keysOutput.write(key);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;125</td>  <td class="nbHitsCovered">&nbsp;1003</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.keysLength += key.length;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;124</td>  <td class="nbHitsCovered">&nbsp;1006</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.keysOutput.write(key);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;125</td>  <td class="nbHitsCovered">&nbsp;1006</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.keysLength += key.length;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;126</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        } <span class="keyword">else</span> {</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;127</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;128</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Match maximal prefix of most recent base key, up to 255 bytes</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;129</td>  <td class="nbHitsCovered">&nbsp;11823</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> maxPrefixLength = Math.min(Math.min(<span class="keyword">this</span>.baseKey.length, key.length), 0xff);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;130</td>  <td class="nbHitsCovered">&nbsp;11823</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">int</span> prefixLength = 0;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;131</td>  <td class="nbHitsCovered"><a title="Line 131: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;12327</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 131: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">            <span class="keyword">while</span> (prefixLength &lt; maxPrefixLength &amp;&amp; key[prefixLength] == <span class="keyword">this</span>.baseKey[prefixLength])</a></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;132</td>  <td class="nbHitsCovered">&nbsp;504</td>  <td class="src"><pre class="src">&nbsp;                prefixLength++;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;133</td>  <td class="nbHitsCovered">&nbsp;11823</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> suffixLength = key.length - prefixLength;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;134</td>  <td class="nbHitsUncovered"><a title="Line 134: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;11823</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 134: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">assert</span> suffixLength &gt; 0;</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;129</td>  <td class="nbHitsCovered">&nbsp;11647</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> maxPrefixLength = Math.min(Math.min(<span class="keyword">this</span>.baseKey.length, key.length), 0xff);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;130</td>  <td class="nbHitsCovered">&nbsp;11647</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">int</span> prefixLength = 0;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;131</td>  <td class="nbHitsCovered"><a title="Line 131: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">&nbsp;12215</a></td>  <td class="src"><pre class="src">&nbsp;<a title="Line 131: Conditional coverage 100% (4/4) [each condition: 100%, 100%].">            <span class="keyword">while</span> (prefixLength &lt; maxPrefixLength &amp;&amp; key[prefixLength] == <span class="keyword">this</span>.baseKey[prefixLength])</a></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;132</td>  <td class="nbHitsCovered">&nbsp;568</td>  <td class="src"><pre class="src">&nbsp;                prefixLength++;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;133</td>  <td class="nbHitsCovered">&nbsp;11647</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> suffixLength = key.length - prefixLength;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;134</td>  <td class="nbHitsUncovered"><a title="Line 134: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">&nbsp;11647</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 134: Conditional coverage 50% (2/4) [each condition: 50%, 50%].">            <span class="keyword">assert</span> suffixLength &gt; 0;</a></span></pre></td></tr>
 <tr>  <td class="numLine">&nbsp;135</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;136</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Write encoded { base key prefix length, offset to key suffix }</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;137</td>  <td class="nbHitsCovered">&nbsp;11823</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> suffixRelativeOffset = <span class="keyword">this</span>.keysLength - <span class="keyword">this</span>.baseKeyOffset;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;138</td>  <td class="nbHitsUncovered"><a title="Line 138: Conditional coverage 50% (1/2).">&nbsp;11823</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 138: Conditional coverage 50% (1/2).">            Preconditions.checkState((suffixRelativeOffset &amp; 0xff000000) == 0, <span class="string">"key(s) too long"</span>);</a></span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;139</td>  <td class="nbHitsCovered">&nbsp;11823</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.writeIndxValue(prefixLength &lt;&lt; 24 | suffixRelativeOffset);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;137</td>  <td class="nbHitsCovered">&nbsp;11647</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">final</span> <span class="keyword">int</span> suffixRelativeOffset = <span class="keyword">this</span>.keysLength - <span class="keyword">this</span>.baseKeyOffset;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;138</td>  <td class="nbHitsUncovered"><a title="Line 138: Conditional coverage 50% (1/2).">&nbsp;11647</a></td>  <td class="src"><pre class="src"><span class="srcUncovered">&nbsp;<a title="Line 138: Conditional coverage 50% (1/2).">            Preconditions.checkState((suffixRelativeOffset &amp; 0xff000000) == 0, <span class="string">"key(s) too long"</span>);</a></span></pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;139</td>  <td class="nbHitsCovered">&nbsp;11647</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.writeIndxValue(prefixLength &lt;&lt; 24 | suffixRelativeOffset);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;140</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;141</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;            <span class="comment">// Write key data - suffix only</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;142</td>  <td class="nbHitsCovered">&nbsp;11823</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.keysOutput.write(key, prefixLength, suffixLength);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;143</td>  <td class="nbHitsCovered">&nbsp;11823</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.keysLength += suffixLength;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;142</td>  <td class="nbHitsCovered">&nbsp;11647</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.keysOutput.write(key, prefixLength, suffixLength);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;143</td>  <td class="nbHitsCovered">&nbsp;11647</td>  <td class="src"><pre class="src">&nbsp;            <span class="keyword">this</span>.keysLength += suffixLength;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;144</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;145</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;146</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Write value index entry</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;147</td>  <td class="nbHitsCovered">&nbsp;12826</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.writeIndxValue(<span class="keyword">this</span>.valsLength);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;147</td>  <td class="nbHitsCovered">&nbsp;12653</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.writeIndxValue(<span class="keyword">this</span>.valsLength);</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;148</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;149</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Write value data</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;150</td>  <td class="nbHitsCovered">&nbsp;12826</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.valsOutput.write(val);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;151</td>  <td class="nbHitsCovered">&nbsp;12826</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.valsLength += val.length;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;150</td>  <td class="nbHitsCovered">&nbsp;12653</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.valsOutput.write(val);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;151</td>  <td class="nbHitsCovered">&nbsp;12653</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.valsLength += val.length;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;152</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;153</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;        <span class="comment">// Update state</span></pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;154</td>  <td class="nbHitsCovered">&nbsp;12826</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.prevKey = key;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;155</td>  <td class="nbHitsCovered">&nbsp;12826</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.nextIndex++;</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;156</td>  <td class="nbHitsCovered">&nbsp;12826</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;154</td>  <td class="nbHitsCovered">&nbsp;12653</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.prevKey = key;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;155</td>  <td class="nbHitsCovered">&nbsp;12653</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.nextIndex++;</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;156</td>  <td class="nbHitsCovered">&nbsp;12653</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;157</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;158</td>  <td class="nbHits">&nbsp;</td>
@@ -460,11 +460,11 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;271</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;    <span class="keyword">private</span> <span class="keyword">void</span> writeIndxValue(<span class="keyword">int</span> offset) <span class="keyword">throws</span> IOException {</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;272</td>  <td class="nbHitsCovered">&nbsp;25652</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indxOutput.write(offset &gt;&gt; 24);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;273</td>  <td class="nbHitsCovered">&nbsp;25652</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indxOutput.write(offset &gt;&gt; 16);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;274</td>  <td class="nbHitsCovered">&nbsp;25652</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indxOutput.write(offset &gt;&gt; 8);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;275</td>  <td class="nbHitsCovered">&nbsp;25652</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indxOutput.write(offset);</pre></td></tr>
-<tr>  <td class="numLineCover">&nbsp;276</td>  <td class="nbHitsCovered">&nbsp;25652</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;272</td>  <td class="nbHitsCovered">&nbsp;25306</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indxOutput.write(offset &gt;&gt; 24);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;273</td>  <td class="nbHitsCovered">&nbsp;25306</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indxOutput.write(offset &gt;&gt; 16);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;274</td>  <td class="nbHitsCovered">&nbsp;25306</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indxOutput.write(offset &gt;&gt; 8);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;275</td>  <td class="nbHitsCovered">&nbsp;25306</td>  <td class="src"><pre class="src">&nbsp;        <span class="keyword">this</span>.indxOutput.write(offset);</pre></td></tr>
+<tr>  <td class="numLineCover">&nbsp;276</td>  <td class="nbHitsCovered">&nbsp;25306</td>  <td class="src"><pre class="src">&nbsp;    }</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;277</td>  <td class="nbHits">&nbsp;</td>
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 <tr>  <td class="numLine">&nbsp;278</td>  <td class="nbHits">&nbsp;</td>
@@ -512,6 +512,6 @@
   <td class="src"><pre class="src">&nbsp;</pre></td></tr>
 </table>
 
-<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 10/3/15 11:43 AM.</div>
+<div class="footer">Report generated by <a href="http://cobertura.sourceforge.net/" target="_top">Cobertura</a> 2.1.1 on 10/29/15 5:22 PM.</div>
 </body>
 </html>
