@@ -900,7 +900,7 @@ public abstract class AbstractMain extends MainClass {
 
         @Override
         public String getDescription() {
-            return "Raft " + AbstractMain.this.raftDirectory.getName();
+            return "Raft " + (AbstractMain.this.raftDirectory != null ? AbstractMain.this.raftDirectory.getName() : "?");
         }
     }
 }
