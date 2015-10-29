@@ -474,7 +474,7 @@ public class Session {
                 Preconditions.checkState(!Session.isCurrentJTransaction(),
                   "a JSimpleDB transaction is already open in the current thread");
                 final JTransaction jtx = this.jdb.createTransaction(this.allowNewSchema,
-                  validationMode != null ? validationMode : ValidationMode.AUTOMATIC);
+                  this.validationMode != null ? this.validationMode : ValidationMode.AUTOMATIC);
                 JTransaction.setCurrent(jtx);
                 this.tx = jtx.getTransaction();
                 this.kvt = this.tx.getKVTransaction();

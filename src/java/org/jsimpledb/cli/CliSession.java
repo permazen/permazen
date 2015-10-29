@@ -55,6 +55,7 @@ import org.jsimpledb.parse.ParseSession;
  */
 public class CliSession extends ParseSession {
 
+    private final Console console;
     private final PrintWriter writer;
     private final TreeMap<String, AbstractCommand> commands = new TreeMap<>();
 
@@ -68,42 +69,57 @@ public class CliSession extends ParseSession {
      * Constructor for {@link org.jsimpledb.SessionMode#KEY_VALUE} mode.
      *
      * @param kvdb key/value database
-     * @param writer console output
-     * @throws IllegalArgumentException if either parameter is null
+     * @param writer CLI output
+     * @param console associated console if any, otherwise null
+     * @throws IllegalArgumentException if {@code kvdb} or {@code writer} is null
      */
-    public CliSession(KVDatabase kvdb, PrintWriter writer) {
+    public CliSession(KVDatabase kvdb, PrintWriter writer, Console console) {
         super(kvdb);
         Preconditions.checkArgument(writer != null, "null writer");
         this.writer = writer;
+        this.console = console;
     }
 
     /**
      * Constructor for {@link org.jsimpledb.SessionMode#CORE_API} mode.
      *
      * @param db core database
-     * @param writer console output
-     * @throws IllegalArgumentException if either parameter is null
+     * @param writer CLI output
+     * @param console associated console if any, otherwise null
+     * @throws IllegalArgumentException if {@code db} or {@code writer} is null
      */
-    public CliSession(Database db, PrintWriter writer) {
+    public CliSession(Database db, PrintWriter writer, Console console) {
         super(db);
         Preconditions.checkArgument(writer != null, "null writer");
         this.writer = writer;
+        this.console = console;
     }
 
     /**
      * Constructor for {@link org.jsimpledb.SessionMode#JSIMPLEDB} mode.
      *
      * @param jdb database
-     * @param writer console output
-     * @throws IllegalArgumentException if either parameter is null
+     * @param writer CLI output
+     * @param console associated console if any, otherwise null
+     * @throws IllegalArgumentException if {@code jdb} or {@code writer} is null
      */
-    public CliSession(JSimpleDB jdb, PrintWriter writer) {
+    public CliSession(JSimpleDB jdb, PrintWriter writer, Console console) {
         super(jdb);
         Preconditions.checkArgument(writer != null, "null writer");
         this.writer = writer;
+        this.console = console;
     }
 
 // Accessors
+
+    /**
+     * Get the associated {@link Console}, if any.
+     *
+     * @return associated {@link Console}, or null if there is no console associated with this instance
+     */
+    public Console getConsole() {
+        return this.console;
+    }
 
     /**
      * Get the output {@link PrintWriter} for this CLI session.
