@@ -31,6 +31,7 @@ import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.array.ArrayKVDatabase;
 import org.jsimpledb.kv.array.AtomicArrayKVStore;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
@@ -533,15 +534,13 @@ public abstract class AbstractMain extends MainClass {
      * @param db database
      * @param schemaModel schema model
      */
-    protected void performTestTransaction(Database db, SchemaModel schemaModel) {
-        final Transaction tx;
-        try {
-            db.createTransaction(schemaModel, this.schemaVersion, this.allowNewSchema).commit();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("unable to create transaction: " + (e.getMessage() != null ? e.getMessage() : e), e);
-        }
+    protected void performTestTransaction(final Database db, final SchemaModel schemaModel) {
+        this.performTestTransaction(new Runnable() {
+            @Override
+            public void run() {
+                db.createTransaction(schemaModel, AbstractMain.this.schemaVersion, AbstractMain.this.allowNewSchema).commit();
+            }
+        });
     }
 
     /**
@@ -549,13 +548,33 @@ public abstract class AbstractMain extends MainClass {
      *
      * @param jdb database
      */
-    protected void performTestTransaction(JSimpleDB jdb) {
-        try {
-            jdb.createTransaction(this.allowNewSchema, ValidationMode.AUTOMATIC).commit();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("unable to create transaction: " + (e.getMessage() != null ? e.getMessage() : e), e);
+    protected void performTestTransaction(final JSimpleDB jdb) {
+        this.performTestTransaction(new Runnable() {
+            @Override
+            public void run() {
+                jdb.createTransaction(AbstractMain.this.allowNewSchema, ValidationMode.AUTOMATIC).commit();
+            }
+        });
+    }
+
+    private void performTestTransaction(Runnable test) {
+        for (int attempts = 0; true; attempts++) {
+            final Transaction tx;
+            try {
+                test.run();
+            } catch (RetryTransactionException e) {
+                if (attempts == 5)
+                    throw e;
+                try {
+                    Thread.sleep(20 << attempts);
+                } catch (InterruptedException e2) {
+                    // ignore
+                }
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException("unable to create transaction: " + (e.getMessage() != null ? e.getMessage() : e), e);
+            }
         }
     }
 
