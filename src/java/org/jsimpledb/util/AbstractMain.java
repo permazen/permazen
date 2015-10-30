@@ -29,9 +29,7 @@ import org.jsimpledb.ValidationMode;
 import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
-import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.KVDatabase;
-import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.array.ArrayKVDatabase;
 import org.jsimpledb.kv.array.AtomicArrayKVStore;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
@@ -558,23 +556,10 @@ public abstract class AbstractMain extends MainClass {
     }
 
     private void performTestTransaction(Runnable test) {
-        for (int attempts = 0; true; attempts++) {
-            final Transaction tx;
-            try {
-                test.run();
-            } catch (RetryTransactionException e) {
-                if (attempts == 5)
-                    throw e;
-                try {
-                    Thread.sleep(20 << attempts);
-                } catch (InterruptedException e2) {
-                    // ignore
-                }
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new RuntimeException("unable to create transaction: " + (e.getMessage() != null ? e.getMessage() : e), e);
-            }
+        try {
+            test.run();
+        } catch (Exception e) {
+            this.log.warn("test transaction failed: " + (e.getMessage() != null ? e.getMessage() : e), e);
         }
     }
 
