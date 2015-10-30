@@ -116,6 +116,7 @@ public abstract class AbstractMain extends MainClass {
     // Misc
     protected boolean verbose;
     protected boolean readOnly;
+    protected boolean noTestTx;
     protected boolean allowAutoDemo = true;
 
     /**
@@ -136,6 +137,8 @@ public abstract class AbstractMain extends MainClass {
                 return 0;
             } else if (option.equals("-ro") || option.equals("--read-only"))
                 this.readOnly = true;
+            else if (option.equals("--no-test-tx"))
+                this.noTestTx = true;
             else if (option.equals("-cp") || option.equals("--classpath")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -556,8 +559,12 @@ public abstract class AbstractMain extends MainClass {
     }
 
     private void performTestTransaction(Runnable test) {
+        if (this.noTestTx)
+            return;
+        this.log.debug("performing test transaction...");
         try {
             test.run();
+            this.log.debug("test transaction succeeded");
         } catch (Exception e) {
             this.log.warn("test transaction failed: " + (e.getMessage() != null ? e.getMessage() : e), e);
         }
@@ -608,6 +615,7 @@ public abstract class AbstractMain extends MainClass {
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--rocksdb directory",            "Use RocksDB in specified directory" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
+            { "--no-test-tx",                   "Don't perform a test transaction at startup" },
             { "--xml file",                     "Use the specified XML flat file database" },
             { "--schema-version, -v num",       "Specify database schema version (default highest recorded)" },
             { "--model-pkg package",            "Scan for @JSimpleClass model classes under Java package (=> JSimpleDB mode)" },
