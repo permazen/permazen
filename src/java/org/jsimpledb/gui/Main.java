@@ -116,9 +116,6 @@ public class Main extends AbstractMain implements GUIConfig {
             // Create JSimpleDB instance
             this.jdb = this.getJSimpleDBFactory(db).newJSimpleDB();
 
-            // Perform test transaction
-            this.performTestTransaction(jdb);
-
             // Create web server with Spring application context
             this.server = new Server(this.port);
             final WebAppContext context = new WebAppContext();

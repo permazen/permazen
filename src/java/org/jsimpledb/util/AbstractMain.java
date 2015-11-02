@@ -23,9 +23,7 @@ import java.util.LinkedHashSet;
 
 import org.dellroad.stuff.main.MainClass;
 import org.dellroad.stuff.net.TCPNetwork;
-import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JSimpleDBFactory;
-import org.jsimpledb.ValidationMode;
 import org.jsimpledb.annotation.JFieldType;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
@@ -44,7 +42,6 @@ import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.kv.sql.MySQLKVDatabase;
-import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.spring.JSimpleDBClassScanner;
 import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -116,7 +113,6 @@ public abstract class AbstractMain extends MainClass {
     // Misc
     protected boolean verbose;
     protected boolean readOnly;
-    protected boolean noTestTx;
     protected boolean allowAutoDemo = true;
 
     /**
@@ -137,8 +133,6 @@ public abstract class AbstractMain extends MainClass {
                 return 0;
             } else if (option.equals("-ro") || option.equals("--read-only"))
                 this.readOnly = true;
-            else if (option.equals("--no-test-tx"))
-                this.noTestTx = true;
             else if (option.equals("-cp") || option.equals("--classpath")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -530,47 +524,6 @@ public abstract class AbstractMain extends MainClass {
     }
 
     /**
-     * Perform a test transaction.
-     *
-     * @param db database
-     * @param schemaModel schema model
-     */
-    protected void performTestTransaction(final Database db, final SchemaModel schemaModel) {
-        this.performTestTransaction(new Runnable() {
-            @Override
-            public void run() {
-                db.createTransaction(schemaModel, AbstractMain.this.schemaVersion, AbstractMain.this.allowNewSchema).commit();
-            }
-        });
-    }
-
-    /**
-     * Perform a test transaction.
-     *
-     * @param jdb database
-     */
-    protected void performTestTransaction(final JSimpleDB jdb) {
-        this.performTestTransaction(new Runnable() {
-            @Override
-            public void run() {
-                jdb.createTransaction(AbstractMain.this.allowNewSchema, ValidationMode.AUTOMATIC).commit();
-            }
-        });
-    }
-
-    private void performTestTransaction(Runnable test) {
-        if (this.noTestTx)
-            return;
-        this.log.debug("performing test transaction...");
-        try {
-            test.run();
-            this.log.debug("test transaction succeeded");
-        } catch (Exception e) {
-            this.log.warn("test transaction failed: " + (e.getMessage() != null ? e.getMessage() : e), e);
-        }
-    }
-
-    /**
      * Shutdown the {@link KVDatabase}.
      */
     protected void shutdownKVDatabase() {
@@ -615,7 +568,6 @@ public abstract class AbstractMain extends MainClass {
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--rocksdb directory",            "Use RocksDB in specified directory" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
-            { "--no-test-tx",                   "Don't perform a test transaction at startup" },
             { "--xml file",                     "Use the specified XML flat file database" },
             { "--schema-version, -v num",       "Specify database schema version (default highest recorded)" },
             { "--model-pkg package",            "Scan for @JSimpleClass model classes under Java package (=> JSimpleDB mode)" },

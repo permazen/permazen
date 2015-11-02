@@ -134,21 +134,6 @@ public class Main extends AbstractMain {
             this.mode = SessionMode.CORE_API;
         }
 
-        // Perform test transaction
-        switch (this.mode) {
-        case KEY_VALUE:
-            break;
-        case CORE_API:
-            this.performTestTransaction(db, schemaModel);
-            break;
-        case JSIMPLEDB:
-            this.performTestTransaction(jdb);
-            break;
-        default:
-            assert false;
-            break;
-        }
-
         // Set up console
         final Console console;
         switch (this.mode) {
