@@ -1457,7 +1457,9 @@ public class JTransaction {
     /**
      * Roll back this transaction.
      *
-     * @throws StaleTransactionException if this transaction is no longer usable
+     * <p>
+     * This method may be invoked at any time, even after a previous invocation of
+     * {@link #commit} or {@link #rollback}, in which case the invocation will be ignored.
      */
     public void rollback() {
         this.tx.rollback();

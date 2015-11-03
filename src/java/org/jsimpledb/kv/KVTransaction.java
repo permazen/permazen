@@ -121,7 +121,7 @@ public interface KVTransaction extends KVStore {
     void commit();
 
     /**
-     * Cancel this transaction.
+     * Cancel this transaction, if not already canceled.
      *
      * <p>
      * After this method returns, this instance is no longer usable.
@@ -129,6 +129,7 @@ public interface KVTransaction extends KVStore {
      * <p>
      * This method may be invoked at any time, even after a previous invocation of
      * {@link #commit} or {@link #rollback}, in which case the invocation will be ignored.
+     * In particular, this method should <b>not</b> throw {@link StaleTransactionException}.
      */
     void rollback();
 

@@ -372,13 +372,15 @@ public class Transaction {
     /**
      * Roll back this transaction.
      *
-     * @throws StaleTransactionException if this transaction is no longer usable
+     * <p>
+     * This method may be invoked at any time, even after a previous invocation of
+     * {@link #commit} or {@link #rollback}, in which case the invocation will be ignored.
      */
     public synchronized void rollback() {
 
         // Sanity check
         if (this.stale)
-            throw new StaleTransactionException(this);
+            return;
         this.stale = true;
         if (this.log.isTraceEnabled())
             this.log.trace("rollback() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);

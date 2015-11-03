@@ -1,6 +1,7 @@
 Version Next
 
     - Eliminate the CLI test transaction
+    - Don't throw StaleTransactionException from rollback()
 
 Version 1.3.3 Released October 29, 2015
 
