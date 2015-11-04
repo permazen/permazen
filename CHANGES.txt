@@ -1,7 +1,8 @@
 Version Next
 
-    - Eliminate the CLI test transaction
-    - Don't throw StaleTransactionException from rollback()
+    - Eliminated the CLI test transaction on startup
+    - Require all rollback() methods to not throw StaleTransactionException
+    - Fixed possibly corrupting race condition in SimpleKVDatabase
 
 Version 1.3.3 Released October 29, 2015
 

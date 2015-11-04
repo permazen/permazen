@@ -353,6 +353,9 @@ public class SimpleKVDatabase implements KVDatabase {
             }
         }
 
+        // Get read lock
+        this.getLock(tx, originalMinKey, null, false);
+
         // Find whichever is first: a transaction Put, or an underlying store entry not covered by a transaction Delete
         SortedSet<Mutation> mutations = tx.mutations;
         while (true) {
@@ -364,27 +367,20 @@ public class SimpleKVDatabase implements KVDatabase {
             final KVPair entry = this.kv.getAtLeast(minKey);
 
             // Handle the case where neither is found
-            if (mutation == null && entry == null) {
-                this.getLock(tx, originalMinKey, null, false);
+            if (mutation == null && entry == null)
                 return null;
-            }
 
             // Check for whether mutation or kvstore wins (i.e., which is first)
             if (mutation != null && (entry == null || mutation.compareTo(entry.getKey()) <= 0)) {
                 if (mutation instanceof Del) {
-                    if ((minKey = mutation.getMax()) == null) {
-                        this.getLock(tx, originalMinKey, null, false);
+                    if ((minKey = mutation.getMax()) == null)
                         return null;
-                    }
                     continue;
                 }
                 final Put put = (Put)mutation;
-                this.getLock(tx, originalMinKey, ByteUtil.getNextKey(put.getKey()), false);
                 return new KVPair(put.getKey(), put.getValue());
-            } else {
-                this.getLock(tx, originalMinKey, ByteUtil.getNextKey(entry.getKey()), false);
+            } else
                 return entry;
-            }
         }
     }
 
@@ -394,8 +390,8 @@ public class SimpleKVDatabase implements KVDatabase {
         this.checkUsable(tx);
         this.checkState(tx);
 
-        // Save original max key for locking purposes
-        final byte[] originalMaxKey = maxKey;
+        // Get read lock
+        this.getLock(tx, ByteUtil.EMPTY, maxKey, false);
 
         // Find whichever is first: a transaction addition, or an underlying store entry not covered by a transaction deletion
         SortedSet<Mutation> mutations = tx.mutations;
@@ -405,30 +401,23 @@ public class SimpleKVDatabase implements KVDatabase {
             if (maxKey != null)
                 mutations = mutations.headSet(Mutation.key(maxKey));
             final Mutation mutation = !mutations.isEmpty() ? mutations.last() : null;
-            final KVPair entry = this.kv.getAtMost(maxKey);
+            final KVPair entry = this.kv.getAtMost(maxKey);             // XXX BUG - not locked yet
 
             // Handle the case where neither is found
-            if (mutation == null && entry == null) {
-                this.getLock(tx, ByteUtil.EMPTY, originalMaxKey, false);
+            if (mutation == null && entry == null)
                 return null;
-            }
 
             // Check for whether mutation or kvstore wins (i.e., which is first)
             if (mutation != null && (entry == null || mutation.compareTo(entry.getKey()) >= 0)) {
                 if (mutation instanceof Del) {
-                    if ((maxKey = mutation.getMin()) == null) {
-                        this.getLock(tx, ByteUtil.EMPTY, originalMaxKey, false);
+                    if ((maxKey = mutation.getMin()) == null)
                         return null;
-                    }
                     continue;
                 }
                 final Put put = (Put)mutation;
-                this.getLock(tx, put.getKey(), originalMaxKey, false);
                 return new KVPair(put.getKey(), put.getValue());
-            } else {
-                this.getLock(tx, entry.getKey(), originalMaxKey, false);
+            } else
                 return entry;
-            }
         }
     }
 
