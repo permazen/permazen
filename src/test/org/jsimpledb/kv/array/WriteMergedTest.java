@@ -11,8 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 import org.jsimpledb.TestSupport;
-import org.jsimpledb.kv.KeyRanges;
-import org.jsimpledb.kv.mvcc.Writes;
+import org.jsimpledb.kv.mvcc.MutableView;
 import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.testng.Assert;
@@ -31,17 +30,17 @@ public class WriteMergedTest extends TestSupport {
         kvstore.put(ByteUtil.parse("0002"), ByteUtil.parse("dddd"));
 
         // Setup mutations
-        final Writes writes = new Writes();
-        writes.getPuts().put(ByteUtil.parse("000101"), ByteUtil.parse("eeee"));
-        writes.getPuts().put(ByteUtil.parse("000102"), ByteUtil.parse("ffff"));
-        writes.setRemoves(new KeyRanges(ByteUtil.parse("0001"), ByteUtil.parse("0002")));
+        final MutableView view = new MutableView(kvstore);
+        view.put(ByteUtil.parse("000101"), ByteUtil.parse("eeee"));
+        view.put(ByteUtil.parse("000102"), ByteUtil.parse("ffff"));
+        view.removeRange(ByteUtil.parse("0001"), ByteUtil.parse("0002"));
 
         // Merge
         final ByteArrayOutputStream indxBuf = new ByteArrayOutputStream();
         final ByteArrayOutputStream keysBuf = new ByteArrayOutputStream();
         final ByteArrayOutputStream valsBuf = new ByteArrayOutputStream();
         final ArrayKVWriter writer = new ArrayKVWriter(indxBuf, keysBuf, valsBuf);
-        writer.writeMerged(kvstore, kvstore.getRange(null, null, false), writes);
+        writer.writeMerged(kvstore, kvstore.getRange(null, null, false), view.getWrites());
         writer.close();
         final ArrayKVStore actual = new ArrayKVStore(
           ByteBuffer.wrap(indxBuf.toByteArray()),
@@ -49,7 +48,10 @@ public class WriteMergedTest extends TestSupport {
           ByteBuffer.wrap(valsBuf.toByteArray()));
 
         // Verify result
-        writes.applyTo(kvstore);
+        Assert.assertEquals(
+          Lists.newArrayList(actual.getRange(null, null, false)).toString(),
+          Lists.newArrayList(view.getRange(null, null, false)).toString());
+        view.getWrites().applyTo(kvstore);
         Assert.assertEquals(
           Lists.newArrayList(actual.getRange(null, null, false)).toString(),
           Lists.newArrayList(kvstore.getRange(null, null, false)).toString());
