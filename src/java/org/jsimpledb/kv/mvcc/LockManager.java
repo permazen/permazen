@@ -16,6 +16,7 @@ import java.util.TreeSet;
 
 import org.dellroad.stuff.java.Predicate;
 import org.dellroad.stuff.java.TimedWait;
+import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.ByteUtil;
 
 /**
@@ -202,6 +203,28 @@ public class LockManager {
 
             // Done
             return LockResult.SUCCESS;
+        }
+    }
+
+    /**
+     * Determine if the given lock owner holds a lock on the specified range.
+     *
+     * @param owner lock owner
+     * @param minKey minimum key (inclusive); must not be null
+     * @param maxKey maximum key (exclusive), or null for no maximum
+     * @param write if range must be write locked; if false, may be either read or write locked
+     * @return true if the range is locked for writes by {@code owner}
+     */
+    public boolean isLocked(LockOwner owner, byte[] minKey, byte[] maxKey, boolean write) {
+        synchronized (this.lockObject) {
+            Preconditions.checkArgument(owner != null, "null owner");
+            KeyRanges ranges = new KeyRanges(minKey, maxKey);
+            for (Lock lock : owner.locks) {
+                if (write && !lock.write)
+                    continue;
+                ranges = ranges.remove(lock);
+            }
+            return ranges.isEmpty();
         }
     }
 

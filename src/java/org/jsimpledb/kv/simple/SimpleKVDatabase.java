@@ -567,11 +567,25 @@ public class SimpleKVDatabase implements KVDatabase {
             throw new StaleTransactionException(tx);
         tx.stale = true;
 
+        // Sanity check locking here before releasing locks
+        boolean allMutationsWereLocked = true;
+        boolean assertionsEnabled = false;
+        assert assertionsEnabled = true;
+        if (assertionsEnabled) {
+            for (Mutation mutation : tx.mutations) {
+                if (!this.lockManager.isLocked(tx.lockOwner, mutation.getMin(), mutation.getMax(), true)) {
+                    allMutationsWereLocked = false;
+                    break;
+                }
+            }
+        }
+
         // Release all locks
         if (!this.lockManager.release(tx.lockOwner)) {
             throw new TransactionTimeoutException(tx,
               "transaction taking too long: hold timeout of " + this.lockManager.getHoldTimeout() + "ms has expired");
         }
+        assert allMutationsWereLocked;
 
         // Check subclass state
         this.checkState(tx);
