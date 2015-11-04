@@ -849,6 +849,8 @@ public class KVDatabaseTest extends TestSupport {
                 this.doTest();
                 this.result = "success";
             } catch (Throwable t) {
+                if (t instanceof Error)
+                    KVDatabaseTest.this.log.error("error thrown by test", t);
                 this.result = t.getClass().getSimpleName();
             } finally {
                 this.log("result = " + this.result);
