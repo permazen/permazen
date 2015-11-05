@@ -4,6 +4,7 @@ Version Next
     - Require all rollback() methods to not throw StaleTransactionException
     - Fixed possibly corrupting race condition in SimpleKVDatabase
     - Improved and better documented Raft tx consistency levels
+    - Allow mutations within read-only transactions
 
 Version 1.3.3 Released October 29, 2015
 

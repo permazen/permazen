@@ -490,8 +490,6 @@ public class JTransaction {
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws org.jsimpledb.core.ReadOnlyTransactionException if {@code dest}'s underlying transaction
-     *  is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if any path in {@code refPaths} is invalid
      * @throws IllegalArgumentException if any parameter is null
      * @see JObject#copyTo JObject.copyTo()
@@ -607,8 +605,6 @@ public class JTransaction {
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema version corresponding to an object in
      *  {@code jobjs} is not identical in this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
-     * @throws org.jsimpledb.core.ReadOnlyTransactionException if {@code dest}'s underlying transaction
-     *  is {@linkplain Transaction#setReadOnly set read-only}
      * @throws IllegalArgumentException if {@code dest} or {@code jobjs} is null
      * @see #copyTo(JTransaction, JObject, ObjId, CopyState, String[])
      */
@@ -750,8 +746,6 @@ public class JTransaction {
      * @param <T> Java model type
      * @return newly created instance
      * @throws IllegalArgumentException if {@code type} is not a known Java object model type
-     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
-     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(Class<T> type) {
@@ -765,8 +759,6 @@ public class JTransaction {
      * @param <T> Java model type
      * @return newly created instance
      * @throws IllegalArgumentException if {@code jclass} is not valid for this instance
-     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
-     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public <T> T create(JClass<T> jclass) {
@@ -786,8 +778,6 @@ public class JTransaction {
      * @throws org.jsimpledb.core.ReferencedObjectException if the object is referenced by some other object
      *  through a reference field configured for {@link org.jsimpledb.core.DeleteAction#EXCEPTION}
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
-     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean delete(JObject jobj) {
@@ -836,8 +826,6 @@ public class JTransaction {
      * @param jobj the object to recreate
      * @return true if the object was recreated, false if the object already existed
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
-     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean recreate(JObject jobj) {
@@ -945,8 +933,6 @@ public class JTransaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the object's type
-     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
-     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws NullPointerException if {@code jobj} is null
      */
     public boolean updateSchemaVersion(JObject jobj) {
@@ -1007,8 +993,6 @@ public class JTransaction {
      * @param value new value for the field
      * @param updateVersion true to first automatically update the object's schema version, false to not change it
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws org.jsimpledb.core.ReadOnlyTransactionException if the underlying transaction is
-     *  {@linkplain Transaction#setReadOnly set read-only}
      * @throws DeletedObjectException if {@code jobj} does not exist in this transaction
      * @throws UnknownFieldException if no {@link JSimpleField} corresponding to {@code storageId} exists
      * @throws TypeNotInSchemaVersionException if {@code updateVersion} is true but {@code jobj} has a type

@@ -18,15 +18,15 @@ import java.lang.annotation.Target;
  * Note that there is a subtle distinction between (a) the creation of database objects in the database, and
  * (b) the instantiation of Java model objects that represent database objects (i.e., {@link org.jsimpledb.JObject}s).
  * These two events do not necessarily always occur at the same time. Methods that are annotated with
- * {@link OnCreate &#64;OnCreate} are invoked only for event (a). In particular, Java model objects are often
- * instantiated to represent database objects that may not actually exist in the database.
+ * {@link OnCreate &#64;OnCreate} are invoked only for event (a). In particular, Java model objects are frequently
+ * instantiated to represent database objects that already exist in the database. Also, it's possible for a Java model
+ * object to be instantiated when no corresponding database object exists in the database (e.g., via
+ * {@link org.jsimpledb.JTransaction#getJObject(org.jsimpledb.core.ObjId)}).
  * </p>
  *
  * <p>
  * As a consequence, for any database fields that require default initialization, this initialization should be
- * performed not in a Java constructor but rather in an {@link OnCreate &#64;OnCreate}-annotated method. Otherwise,
- * {@link org.jsimpledb.core.DeletedObjectException}s (and {@link org.jsimpledb.core.ReadOnlyTransactionException}s
- * within read-only transactions) may unexpectedly occur.
+ * performed not in a Java constructor but rather in an {@link OnCreate &#64;OnCreate}-annotated method.
  * </p>
  *
  * <p>

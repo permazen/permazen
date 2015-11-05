@@ -356,7 +356,10 @@ public class Transaction {
         // Commit KVTransaction and trigger after completion callbacks
         failedCallback = null;
         try {
-            this.kvt.commit();
+            if (this.readOnly)
+                this.kvt.rollback();
+            else
+                this.kvt.commit();
             for (Callback callback : this.callbacks) {
                 failedCallback = callback;
                 callback.afterCommit();
@@ -439,8 +442,11 @@ public class Transaction {
     }
 
     /**
-     * Enable or disaable read-only mode. When in read-only mode, all mutating operations will fail with
-     * a {@link ReadOnlyTransactionException}.
+     * Enable or disaable read-only mode.
+     *
+     * <p>
+     * Read-only transactions allow mutations, but all changes are discarded on {@link #commit},
+     * as if {@link #rollback} were invoked. Registered {@link #Callback}s are still processed normally.
      *
      * @param readOnly read-only setting
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -535,7 +541,6 @@ public class Transaction {
      * @return true if the object did not exist and was created, false if the object already existed
      * @throws UnknownTypeException if {@code id} does not correspond to a known object type in this transaction's schema version
      * @throws IllegalArgumentException if {@code id} is null
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public boolean create(ObjId id) {
@@ -556,7 +561,6 @@ public class Transaction {
      * @throws UnknownTypeException if {@code id} does not correspond to a known object type in the specified schema version
      * @throws IllegalArgumentException if {@code id} is null
      * @throws IllegalArgumentException if {@code versionNumber} is invalid or unknown
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized boolean create(ObjId id, int versionNumber) {
@@ -590,7 +594,6 @@ public class Transaction {
      * @param storageId object type storage ID
      * @return object id of newly created object
      * @throws UnknownTypeException if {@code storageId} does not correspond to a known object type in this transaction's schema
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public ObjId create(int storageId) {
@@ -610,7 +613,6 @@ public class Transaction {
      * @return object id of newly created object
      * @throws UnknownTypeException if {@code storageId} does not correspond to a known object type in the specified schema version
      * @throws IllegalArgumentException if {@code versionNumber} is invalid or unknown
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized ObjId create(int storageId, int versionNumber) {
@@ -672,8 +674,6 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
 
         // Write object meta-data and update object info cache
         ObjInfo.write(this, id, versionNumber, false);
@@ -734,7 +734,6 @@ public class Transaction {
      * @throws ReferencedObjectException if the object is referenced by some other object
      *  through a reference field configured for {@link DeleteAction#EXCEPTION}
      * @throws IllegalArgumentException if {@code id} is null
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      */
     public synchronized boolean delete(ObjId id) {
@@ -743,8 +742,6 @@ public class Transaction {
         Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
 
         // Get object info
         try {
@@ -931,7 +928,6 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code source} and {@code target} specify different object types
      * @throws IllegalArgumentException if any parameter is null
      * @throws IllegalArgumentException if any {@code source} and {@code target} have different object types
-     * @throws ReadOnlyTransactionException if {@code dest} has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
      * @throws SchemaMismatchException if the schema version associated with {@code source} differs between
      *  this transaction and {@code dest}
@@ -960,8 +956,6 @@ public class Transaction {
             // Sanity check
             if (dest.stale)
                 throw new StaleTransactionException(dest);
-            if (dest.readOnly)
-                throw new ReadOnlyTransactionException(dest);
 
             // Copy fields
             return dest.mutateAndNotify(new Mutation<Boolean>() {
@@ -1163,7 +1157,6 @@ public class Transaction {
      * @param id object ID of the object to delete
      * @return true if the object schema version was changed, otherwise false
      * @throws StaleTransactionException if this transaction is no longer usable
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws IllegalArgumentException if {@code id} is null
@@ -1177,8 +1170,6 @@ public class Transaction {
         Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, false);
@@ -1212,8 +1203,6 @@ public class Transaction {
         // Sanity check
         assert this.schemas.getVersion(targetVersion.versionNumber) == targetVersion;
         Preconditions.checkArgument(newVersion != oldVersion, "object already at version");
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
 
         // Get old and new types
         final ObjType oldType = info.getObjType();
@@ -1798,8 +1787,6 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(id != null, "null id");
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
 
         // Get object info
         final ObjInfo info = this.getObjectInfo(id, updateVersion);
@@ -1841,8 +1828,6 @@ public class Transaction {
         Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
 
         // Optimize away non-change
         if (offset == 0)
@@ -2371,7 +2356,6 @@ public class Transaction {
      *
      * @param id object containing the mutated field; will be validated
      * @param mutation change to apply
-     * @throws ReadOnlyTransactionException if this transaction has been {@linkplain #setReadOnly set read-only}
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code id} is null
      */
@@ -2393,8 +2377,6 @@ public class Transaction {
         // Validate transaction
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.readOnly)
-            throw new ReadOnlyTransactionException(this);
 
         // If re-entrant invocation, we're already set up
         if (this.pendingNotifications.get() != null)

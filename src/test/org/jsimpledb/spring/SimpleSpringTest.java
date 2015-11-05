@@ -10,7 +10,6 @@ import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.core.ReadOnlyTransactionException;
 import org.jsimpledb.core.StaleTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.Assert;
@@ -40,12 +39,8 @@ public class SimpleSpringTest extends SpringTest {
         }
 
         // Test read-only transaction
-        try {
-            bean.testSetNameReadOnly(p1, "foo");
-            assert false;
-        } catch (ReadOnlyTransactionException e) {
-            // expected
-        }
+        bean.testSetNameReadOnly(p1, "SomeOtherNameBesidesSmith");
+        Assert.assertEquals(bean.testGetName(p1), "Smith");
     }
 
     @Test

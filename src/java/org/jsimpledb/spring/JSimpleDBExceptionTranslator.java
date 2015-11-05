@@ -7,7 +7,6 @@ package org.jsimpledb.spring;
 
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.InvalidSchemaException;
-import org.jsimpledb.core.ReadOnlyTransactionException;
 import org.jsimpledb.core.ReferencedObjectException;
 import org.jsimpledb.core.RollbackOnlyTransactionException;
 import org.jsimpledb.core.SchemaMismatchException;
@@ -37,7 +36,7 @@ public class JSimpleDBExceptionTranslator implements PersistenceExceptionTransla
             final DeletedObjectException e = (DeletedObjectException)e0;
             return new EmptyResultDataAccessException("object " + e.getId() + " not found", 1, e);
         }
-        if (e0 instanceof InvalidSchemaException || e0 instanceof ReadOnlyTransactionException)
+        if (e0 instanceof InvalidSchemaException)
             return new InvalidDataAccessResourceUsageException(null, e0);
         if (e0 instanceof ReferencedObjectException)
             return new DataIntegrityViolationException(null, e0);
