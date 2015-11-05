@@ -170,6 +170,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
             throw new CannotCreateTransactionException("error configuring JSimpleDB transaction", e);
         } finally {
             if (!succeeded) {
+                JTransaction.setCurrent(null);
                 try {
                     jtx.rollback();
                 } catch (DatabaseException e) {
