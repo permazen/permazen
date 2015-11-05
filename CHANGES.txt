@@ -3,6 +3,7 @@ Version Next
     - Eliminated the CLI test transaction on startup
     - Require all rollback() methods to not throw StaleTransactionException
     - Fixed possibly corrupting race condition in SimpleKVDatabase
+    - Improved and better documented Raft tx consistency levels
 
 Version 1.3.3 Released October 29, 2015
 
