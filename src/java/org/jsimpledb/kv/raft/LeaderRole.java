@@ -660,41 +660,21 @@ public class LeaderRole extends Role {
         assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.COMMIT_READY);
 
-        // Check for conflict when LINEARIZABLE
-        if (tx.getConsistency().equals(Consistency.LINEARIZABLE)) {
-            final String error = this.checkConflicts(tx.getBaseTerm(), tx.getBaseIndex(), tx.getMutableView().getReads());
-            if (error != null) {
-                if (this.log.isDebugEnabled())
-                    this.debug("local transaction " + tx + " failed due to conflict: " + error);
-                throw new RetryTransactionException(tx, error);
-            }
-        } else {
-            if (this.log.isTraceEnabled())
-                this.trace("not checking for conflicts in " + tx.getConsistency() + " transaction " + tx);
+        // Check for conflicts
+        final String error = this.checkConflicts(tx.getBaseTerm(), tx.getBaseIndex(), tx.getMutableView().getReads());
+        if (error != null) {
+            if (this.log.isDebugEnabled())
+                this.debug("local transaction " + tx + " failed due to conflict: " + error);
+            throw new RetryTransactionException(tx, error);
         }
 
         // Handle read-only vs. read-write transaction
         if (readOnly) {
-
-            // Set commit term and index depending on consistency level
-            switch (tx.getConsistency()) {
-            case UNCOMMITTED:
-                if (this.log.isTraceEnabled())
-                    this.trace("trivial commit for UNCOMMITTED " + tx);
-                this.raft.succeed(tx);
-                return;
-            case EVENTUAL:
+            if (this.leaseTimeout != null && this.leaseTimeout.offsetFromNow() > 0)
                 this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
-                return;
-            case LINEARIZABLE:
-                if (this.leaseTimeout != null && this.leaseTimeout.offsetFromNow() > 0)
-                    this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
-                else
-                    this.advanceReadyTransaction(tx, this.raft.getLastLogTerm(), this.raft.getLastLogIndex());
-                return;
-            default:
-                throw new RuntimeException("internal error");
-            }
+            else
+                this.advanceReadyTransaction(tx, this.raft.getLastLogTerm(), this.raft.getLastLogIndex());
+            return;
         } else {
 
             // If a config change is involved, check whether we can safely apply it

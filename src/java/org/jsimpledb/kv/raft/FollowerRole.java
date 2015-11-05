@@ -382,27 +382,22 @@ public class FollowerRole extends NonLeaderRole {
             return;
         }
 
-        // Gather reads data, but only if transaction is LINEARIZABLE; otherwise, we don't send them
-        final ByteBuffer readsData;
-        if (tx.getConsistency().equals(Consistency.LINEARIZABLE)) {
+        // Serialize reads into buffer
+        assert !readOnly || tx.getConsistency().isGuaranteesUpToDateReads();
+        final Reads reads = tx.getMutableView().getReads();
+        final long readsDataSize = reads.serializedLength();
+        if (readsDataSize != (int)readsDataSize)
+            throw new KVTransactionException(tx, "transaction read information exceeds maximum length");
+        final ByteBuffer readsData = Util.allocateByteBuffer((int)readsDataSize);
+        try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {
+            reads.serialize(output);
+        } catch (IOException e) {
+            throw new RuntimeException("unexpected exception", e);
+        }
+        assert !readsData.hasRemaining();
+        readsData.flip();
 
-            // Serialize reads into buffer
-            final Reads reads = tx.getMutableView().getReads();
-            final long readsDataSize = reads.serializedLength();
-            if (readsDataSize != (int)readsDataSize)
-                throw new KVTransactionException(tx, "transaction read information exceeds maximum length");
-            readsData = Util.allocateByteBuffer((int)readsDataSize);
-            try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {
-                reads.serialize(output);
-            } catch (IOException e) {
-                throw new RuntimeException("unexpected exception", e);
-            }
-            assert !readsData.hasRemaining();
-            readsData.flip();
-        } else
-            readsData = null;
-
-        // Gather writes data (i.e., mutations), but only if transaction is not read-only
+        // Gather writes data (i.e., mutations), but only if transaction contains mutations
         ByteBuffer mutationData = null;
         if (!readOnly) {
 

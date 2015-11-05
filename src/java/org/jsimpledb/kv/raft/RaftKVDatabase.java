@@ -1123,51 +1123,48 @@ public class RaftKVDatabase implements KVDatabase {
      * Create a new transaction.
      *
      * <p>
-     * Equivalent to: {@link #createTransaction(boolean) createTransaction}{@code (false)}.
+     * Equivalent to: {@link #createTransaction(Consistency) createTransaction}{@code (}{@link Consistency#LINEARIZABLE}{@code )}.
      *
      * @throws IllegalStateException if this instance is not {@linkplain #start started} or in the process of shutting down
      */
     @Override
     public RaftKVTransaction createTransaction() {
-        return this.createTransaction(false);
+        return this.createTransaction(Consistency.LINEARIZABLE);
     }
 
     /**
-     * Create a new transaction with configurable snapshot basis.
+     * Create a new transaction with the specified consistency.
      *
      * <p>
-     * Local transactions may be based either on the the most recent <i>committed</i> Raft data or the most recent
-     * <i>uncommitted</i> Raft data.
-     * The latter is less likely to encounter a read/write conflict on commit when using {@link Consistency#LINEARIZABLE},
-     * except in cases of high write contention.
-     * The former requires no network communication to commit when using {@link Consistency#EVENTUAL} and is therefore useful
-     * in situations when the leader may be unreachable.
+     * Transactions that wish to use {@link Consistency#EVENTUAL_FAST} must be created using this method,
+     * because the log entry on which the transaction is based is determined at creation time.
      *
-     * @param committed whether to base the transaction on committed or uncommitted local state
+     * @param consistency consistency level
      * @return newly created transaction
+     * @throws IllegalArgumentException if {@code consistency} is null
      * @throws IllegalStateException if this instance is not {@linkplain #start started} or in the process of shutting down
      */
-    public synchronized RaftKVTransaction createTransaction(boolean committed) {
+    public synchronized RaftKVTransaction createTransaction(Consistency consistency) {
 
         // Sanity check
         assert this.checkState();
+        Preconditions.checkState(consistency != null, "null consistency");
         Preconditions.checkState(this.role != null, "not started");
         Preconditions.checkState(!this.shuttingDown, "shutting down");
 
         // Base transaction on the most recent log entry (if !committed). This is itself a form of optimistic locking: we assume
         // that the most recent log entry has a high probability of being committed (in the Raft sense), which is of course
         // required in order to commit any transaction based on it.
-        final MostRecentView view = new MostRecentView(this, committed);
+        final MostRecentView view = new MostRecentView(this, consistency.isBasedOnCommittedLogEntry());
 
         // Create transaction
         final RaftKVTransaction tx = new RaftKVTransaction(this,
           view.getTerm(), view.getIndex(), view.getSnapshot(), view.getView());
+        tx.setConsistency(consistency);
+        tx.setTimeout(this.commitTimeout);
         if (this.log.isDebugEnabled())
             this.debug("created new transaction " + tx);
         this.openTransactions.put(tx.getTxId(), tx);
-
-        // Set default commit timeout
-        tx.setTimeout(this.commitTimeout);
 
         // Done
         return tx;

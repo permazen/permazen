@@ -346,21 +346,16 @@ public class FallbackKVDatabase implements KVDatabase {
             if (this.log.isDebugEnabled())
                 this.log.debug("starting " + desc + " using " + mergeStrategy);
 
-            // Create source transaction
+            // Create source transaction. Note the combination of read-only and EVENTUAL_FAST is important, because this
+            // guarantees that the transaction will generate no network traffic (and not require any majority) on commit().
             final KVTransaction src;
-            if (currKV instanceof RaftKVDatabase)
-                src = ((RaftKVDatabase)currKV).createTransaction(true);    // using committed and EVENTUAL avoids network traffic
-            else
+            if (currKV instanceof RaftKVDatabase) {
+                src = ((RaftKVDatabase)currKV).createTransaction(Consistency.EVENTUAL_FAST);
+                ((RaftKVTransaction)src).setReadOnly(true);
+            } else
                 src = currKV.createTransaction();
             boolean srcCommitted = false;
             try {
-
-                // Special configuration for Raft source transactions to avoid network traffic
-                if (src instanceof RaftKVTransaction) {
-                    final RaftKVTransaction tx = (RaftKVTransaction)src;
-                    tx.setConsistency(Consistency.EVENTUAL);
-                    tx.setReadOnly(true);
-                }
 
                 // Create destination transaction
                 final KVTransaction dst = bestKV.createTransaction();

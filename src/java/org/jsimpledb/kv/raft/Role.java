@@ -255,20 +255,18 @@ public abstract class Role {
         // Determine whether transaction is truly read-only
         final boolean readOnly = tx.isReadOnly() || (writes.isEmpty() && configChange == null);
 
-        // No need to talk to leader for read-only transactions unless LINEARIZABLE
-        if (readOnly) {
-            switch (tx.getConsistency()) {
-            case UNCOMMITTED:
-                if (this.log.isTraceEnabled())
-                    this.trace("trivial commit for read-only, UNCOMMITTED " + tx);
-                this.raft.succeed(tx);
-                return;
-            case EVENTUAL:
-                this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
-                return;
-            default:
-                break;
-            }
+        // Check whether we can commit the transaction immediately
+        if (readOnly && !tx.getConsistency().isWaitsForLogEntryToBeCommitted()) {               // i.e., UNCOMMITTED
+            if (this.log.isTraceEnabled())
+                this.trace("trivial commit for read-only, " + tx.getConsistency() + " " + tx);
+            this.raft.succeed(tx);
+            return;
+        }
+
+        // Check whether we don't need to bother talking to the leader
+        if (readOnly && !tx.getConsistency().isGuaranteesUpToDateReads()) {                     // i.e., EVENTUAL, EVENTUAL_FAST
+            this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
+            return;
         }
 
         // Requires leader communication - let subclass handle it
@@ -278,6 +276,9 @@ public abstract class Role {
     /**
      * Check a transaction that is ready to be committed (in the {@link TxState#COMMIT_READY} state)
      * and requires communication with the leader.
+     *
+     * <p>
+     * This will not be invoked unless the transaction is read/write or the consistency level provides up-to-date reads.
      *
      * @param tx the transaction
      * @param readOnly if transaction is read-only
@@ -289,6 +290,8 @@ public abstract class Role {
      * Advance a transaction from the {@link TxState#COMMIT_READY} state to the {@link TxState#COMMIT_WAITING} state.
      *
      * @param tx the transaction
+     * @param commitTerm term of log entry that must be committed before the transaction may succeed
+     * @param commitIndex index of log entry that must be committed before the transaction may succeed
      */
     void advanceReadyTransaction(RaftKVTransaction tx, long commitTerm, long commitIndex) {
 
