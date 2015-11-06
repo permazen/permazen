@@ -446,7 +446,7 @@ public class Transaction {
      *
      * <p>
      * Read-only transactions allow mutations, but all changes are discarded on {@link #commit},
-     * as if {@link #rollback} were invoked. Registered {@link #Callback}s are still processed normally.
+     * as if {@link #rollback} were invoked. Registered {@link Callback}s are still processed normally.
      *
      * @param readOnly read-only setting
      * @throws StaleTransactionException if this transaction is no longer usable
