@@ -256,7 +256,7 @@ public abstract class Role {
         final boolean readOnly = tx.isReadOnly() || (writes.isEmpty() && configChange == null);
 
         // Check whether we can commit the transaction immediately
-        if (readOnly && !tx.getConsistency().isWaitsForLogEntryToBeCommitted()) {               // i.e., UNCOMMITTED
+        if (readOnly && !tx.getConsistency().isWaitsForLogEntryToBeCommitted()) {           // i.e., UNCOMMITTED
             if (this.log.isTraceEnabled())
                 this.trace("trivial commit for read-only, " + tx.getConsistency() + " " + tx);
             this.raft.succeed(tx);
@@ -264,7 +264,7 @@ public abstract class Role {
         }
 
         // Check whether we don't need to bother talking to the leader
-        if (readOnly && !tx.getConsistency().isGuaranteesUpToDateReads()) {                     // i.e., EVENTUAL, EVENTUAL_FAST
+        if (readOnly && !tx.getConsistency().isGuaranteesUpToDateReads()) {                 // i.e., EVENTUAL, EVENTUAL_COMMITTED
             this.advanceReadyTransaction(tx, tx.getBaseTerm(), tx.getBaseIndex());
             return;
         }

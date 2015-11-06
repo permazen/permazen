@@ -25,7 +25,7 @@ public enum Consistency {
      *
      * <p>
      * Transactions see a consistent, view of the database that is either already committed or likely to be committed soon.
-     * This is the same as {@link #EVENTUAL_FAST}, but with the additional (unlikely) possibility that the view that the
+     * This is the same as {@link #EVENTUAL_COMMITTED}, but with the additional (unlikely) possibility that the view that the
      * transaction sees may never actually get committed; this can only happen if there is a Raft leadership change
      * during the transaction.
      *
@@ -41,7 +41,7 @@ public enum Consistency {
     UNCOMMITTED(false, false, false),
 
     /**
-     * Fast committed eventual consistency.
+     * Committed eventual consistency.
      *
      * <p>
      * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.
@@ -66,10 +66,10 @@ public enum Consistency {
      * <p>
      * In Raft terms, transactions are based on the latest committed log entry, and up-to-date reads are not guaranteed.
      */
-    EVENTUAL_FAST(true, false, false),
+    EVENTUAL_COMMITTED(true, false, false),
 
     /**
-     * Committed eventual consistency.
+     * Eventual consistency.
      *
      * <p>
      * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.

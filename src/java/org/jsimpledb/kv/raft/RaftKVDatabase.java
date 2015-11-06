@@ -1136,7 +1136,7 @@ public class RaftKVDatabase implements KVDatabase {
      * Create a new transaction with the specified consistency.
      *
      * <p>
-     * Transactions that wish to use {@link Consistency#EVENTUAL_FAST} must be created using this method,
+     * Transactions that wish to use {@link Consistency#EVENTUAL_COMMITTED} must be created using this method,
      * because the log entry on which the transaction is based is determined at creation time.
      *
      * @param consistency consistency level
