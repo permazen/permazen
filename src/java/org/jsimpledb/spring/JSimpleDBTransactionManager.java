@@ -7,7 +7,9 @@ package org.jsimpledb.spring;
 
 import com.google.common.base.Preconditions;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JTransaction;
@@ -16,6 +18,8 @@ import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
+import org.jsimpledb.kv.raft.Consistency;
+import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -39,7 +43,40 @@ import org.springframework.transaction.support.TransactionSynchronization;
  * <p>
  * Properly integrates with {@link JTransaction#getCurrent JTransaction.getCurrent()} to participate in
  * existing transactions when appropriate.
- * </p>
+ *
+ * <p>
+ * For {@link RaftKVDatabase} underlying key/value stores, configurable {@link Consistency} levels are supported.
+ * Although the mapping between Spring's defined isolation levels and {@link RaftKVDatabase} consistency levels
+ * is only semantically approximate, all consistency levels made available by using the following values:
+ *
+ * <div style="margin-left: 20px;">
+ * <table border="1" cellpadding="3" cellspacing="0" summary="Isolation Level Mapping">
+ * <tr style="bgcolor:#ccffcc">
+ *  <th align="left">Spring isolation level</th>
+ *  <th align="left">{@link RaftKVDatabase} consistency level</th>
+ * </tr>
+ * <tr>
+ *  <td>{@link TransactionDefinition#ISOLATION_DEFAULT}</td>
+ *  <td>{@link Consistency#LINEARIZABLE}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@link TransactionDefinition#ISOLATION_SERIALIZABLE}</td>
+ *  <td>{@link Consistency#LINEARIZABLE}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@link TransactionDefinition#ISOLATION_REPEATABLE_READ}</td>
+ *  <td>{@link Consistency#EVENTUAL}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@link TransactionDefinition#ISOLATION_READ_COMMITTED}</td>
+ *  <td>{@link Consistency#EVENTUAL_COMMITTED}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@link TransactionDefinition#ISOLATION_READ_UNCOMMITTED}</td>
+ *  <td>{@link Consistency#UNCOMMITTED}</td>
+ * </tr>
+ * </table>
+ * </div>
  *
  * @see org.jsimpledb.spring
  */
@@ -152,10 +189,30 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         if (tx.getJTransaction() != null)
             throw new TransactionUsageException("there is already a transaction associated with the current thread");
 
+        // Map transaction options
+        final Map<String, Object> options = new HashMap<>();
+        if (this.jdb.getDatabase().getKVDatabase() instanceof RaftKVDatabase) {
+            switch (txDef.getIsolationLevel()) {
+            case TransactionDefinition.ISOLATION_READ_UNCOMMITTED:
+                options.put(RaftKVDatabase.OPTION_CONSISTENCY, Consistency.UNCOMMITTED);
+                break;
+            case TransactionDefinition.ISOLATION_READ_COMMITTED:
+                options.put(RaftKVDatabase.OPTION_CONSISTENCY, Consistency.EVENTUAL_COMMITTED);
+                break;
+            case TransactionDefinition.ISOLATION_REPEATABLE_READ:
+                options.put(RaftKVDatabase.OPTION_CONSISTENCY, Consistency.EVENTUAL);
+                break;
+            case TransactionDefinition.ISOLATION_SERIALIZABLE:
+            default:
+                options.put(RaftKVDatabase.OPTION_CONSISTENCY, Consistency.LINEARIZABLE);
+                break;
+            }
+        }
+
         // Create JSimpleDB transaction
         final JTransaction jtx;
         try {
-            jtx = this.jdb.createTransaction(this.allowNewSchema, this.validationMode);
+            jtx = this.jdb.createTransaction(this.allowNewSchema, this.validationMode, options);
         } catch (DatabaseException e) {
             throw new CannotCreateTransactionException("error creating new JSimpleDB transaction", e);
         }

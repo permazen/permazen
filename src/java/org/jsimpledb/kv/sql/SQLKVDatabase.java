@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
 import java.sql.SQLTimeoutException;
 import java.sql.SQLTransientException;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -190,6 +191,11 @@ public class SQLKVDatabase implements KVDatabase {
 
     @Override
     public void stop() {
+    }
+
+    @Override
+    public SQLKVTransaction createTransaction(Map<String, ?> options) {
+        return this.createTransaction();                                            // no options supported yet
     }
 
     /**

@@ -187,6 +187,11 @@ public class SimpleKVDatabase implements KVDatabase {
     }
 
     @Override
+    public SimpleKVTransaction createTransaction(Map<String, ?> options) {
+        return this.createTransaction();                                            // no options supported yet
+    }
+
+    @Override
     public synchronized SimpleKVTransaction createTransaction() {
         return new SimpleKVTransaction(this, this.waitTimeout);
     }

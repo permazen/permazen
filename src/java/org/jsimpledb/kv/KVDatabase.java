@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv;
 
+import java.util.Map;
+
 /**
  * A transactional database with a simple key/value API.
  *
@@ -45,5 +47,15 @@ public interface KVDatabase {
      * @throws IllegalStateException if this instance is not {@link #start}ed
      */
     KVTransaction createTransaction();
+
+    /**
+     * Create a new transaction with the specified options.
+     *
+     * @param options optional transaction options; may be null
+     * @return newly created transaction
+     * @throws KVDatabaseException if an unexpected error occurs
+     * @throws IllegalStateException if this instance is not {@link #start}ed
+     */
+    KVTransaction createTransaction(Map<String, ?> options);
 }
 

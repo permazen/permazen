@@ -281,6 +281,11 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public static final int DEFAULT_TCP_PORT = 9660;
 
+    /**
+     * Option key for {@link #createTransaction(Map)}. Value should be a {@link Consistency}.
+     */
+    public static final String OPTION_CONSISTENCY = "consistency";
+
     // Internal constants
     static final int MAX_SNAPSHOT_TRANSMIT_AGE = (int)TimeUnit.SECONDS.toMillis(90);    // 90 seconds
     static final int MAX_SLOW_FOLLOWER_APPLY_DELAY_HEARTBEATS = 10;
@@ -1130,6 +1135,17 @@ public class RaftKVDatabase implements KVDatabase {
     @Override
     public RaftKVTransaction createTransaction() {
         return this.createTransaction(Consistency.LINEARIZABLE);
+    }
+
+    @Override
+    public RaftKVTransaction createTransaction(Map<String, ?> options) {
+        Consistency consistency = null;
+        try {
+            consistency = (Consistency)options.get(OPTION_CONSISTENCY);
+        } catch (Exception e) {
+            // ignore
+        }
+        return this.createTransaction(consistency != null ? consistency : Consistency.LINEARIZABLE);
     }
 
     /**

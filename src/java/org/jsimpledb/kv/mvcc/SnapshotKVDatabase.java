@@ -17,7 +17,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.jsimpledb.kv.KVDatabase;
-import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.util.KeyWatchTracker;
@@ -144,13 +143,18 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         }
     }
 
+    @Override
+    public SnapshotKVTransaction createTransaction(Map<String, ?> options) {
+        return this.createTransaction();                                            // no options supported yet
+    }
+
     /**
      * Create a new transaction.
      *
      * @throws IllegalStateException if not {@link #start}ed or {@link #stop}ing
      */
     @Override
-    public synchronized KVTransaction createTransaction() {
+    public synchronized SnapshotKVTransaction createTransaction() {
 
         // Sanity check
         Preconditions.checkState(this.started, "not started");

@@ -17,6 +17,7 @@ import com.sleepycat.je.TransactionConfig;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -269,6 +270,11 @@ public class BerkeleyKVDatabase implements KVDatabase {
     }
 
 // KVDatabase
+
+    @Override
+    public BerkeleyKVTransaction createTransaction(Map<String, ?> options) {
+        return this.createTransaction();                                            // no options supported yet
+    }
 
     @Override
     public synchronized BerkeleyKVTransaction createTransaction() {

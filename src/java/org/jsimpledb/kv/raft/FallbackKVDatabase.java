@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -223,7 +224,12 @@ public class FallbackKVDatabase implements KVDatabase {
     }
 
     @Override
-    public synchronized KVTransaction createTransaction() {
+    public FallbackKVTransaction createTransaction(Map<String, ?> options) {
+        return this.createTransaction();                                            // no options supported yet
+    }
+
+    @Override
+    public synchronized FallbackKVTransaction createTransaction() {
 
         // Sanity check
         Preconditions.checkState(this.started, "not started");

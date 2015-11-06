@@ -7,6 +7,8 @@ package org.jsimpledb.kv.util;
 
 import com.google.common.base.Preconditions;
 
+import java.util.Map;
+
 import org.jsimpledb.kv.KVDatabase;
 
 /**
@@ -66,6 +68,11 @@ public class PrefixKVDatabase implements KVDatabase {
 
     @Override
     public void stop() {
+    }
+
+    @Override
+    public PrefixKVTransaction createTransaction(Map<String, ?> options) {
+        return this.createTransaction();                                            // no options supported yet
     }
 
     @Override

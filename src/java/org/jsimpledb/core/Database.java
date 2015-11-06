@@ -187,6 +187,38 @@ public class Database {
     }
 
     /**
+     * Create a new transaction.
+     *
+     * <p>
+     * Convenience method; equivalent to:
+     *  <blockquote><pre>
+     *  createTransaction(schemaModel, version, allowNewSchema, null);
+     *  </pre></blockquote>
+     *
+     * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
+     * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
+     * @param allowNewSchema whether creating a new schema version is allowed
+     * @return newly created transaction
+     * @throws IllegalArgumentException if {@code version} is less than zero
+     * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
+     * @throws SchemaMismatchException if {@code schemaModel} does not match schema version {@code version}
+     *  as recorded in the database
+     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database
+     *  and {@code allowNewSchema} is false
+     * @throws SchemaMismatchException if schema version {@code version} is not recorded in the database,
+     *  {@code allowNewSchema} is true, but {@code schemaModel} is incompatible with one or more other schemas
+     *  already recorded in the database (i.e., the same storage ID is used inconsistently between schema versions)
+     * @throws SchemaMismatchException
+     *  if the database is uninitialized and {@code version == 0} or {@code schemaModel} is null
+     * @throws InconsistentDatabaseException if inconsistent or invalid meta-data is detected in the database
+     * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
+     * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance
+     */
+    public Transaction createTransaction(SchemaModel schemaModel, int version, boolean allowNewSchema) {
+        return this.createTransaction(schemaModel, version, allowNewSchema, null);
+    }
+
+    /**
      * Create a new {@link Transaction} on this database and use the specified schema version to access objects and fields.
      *
      * <p>
@@ -282,6 +314,7 @@ public class Database {
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
      * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
      * @param allowNewSchema whether creating a new schema version is allowed
+     * @param kvoptions optional {@link KVDatabase}-specific transaction options; may be null
      * @return newly created transaction
      * @throws IllegalArgumentException if {@code version} is less than zero
      * @throws InvalidSchemaException if {@code schemaModel} is invalid (i.e., does not pass validation checks)
@@ -298,8 +331,8 @@ public class Database {
      * @throws InconsistentDatabaseException if an uninitialized database is encountered but the database is not empty
      * @throws IllegalStateException if no underlying {@link KVDatabase} has been configured for this instance
      */
-    public Transaction createTransaction(SchemaModel schemaModel, int version, boolean allowNewSchema) {
-        final KVTransaction kvt = this.kvdb.createTransaction();
+    public Transaction createTransaction(SchemaModel schemaModel, int version, boolean allowNewSchema, Map<String, ?> kvoptions) {
+        final KVTransaction kvt = this.kvdb.createTransaction(kvoptions);
         boolean success = false;
         try {
             final Transaction tx = this.createTransaction(kvt, schemaModel, version, allowNewSchema);

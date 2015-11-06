@@ -11,6 +11,7 @@ import com.foundationdb.FDBException;
 import com.foundationdb.NetworkOptions;
 import com.google.common.base.Preconditions;
 
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
@@ -158,6 +159,11 @@ public class FoundationKVDatabase implements KVDatabase {
             return;
         this.fdb.stopNetwork();
         this.database = null;
+    }
+
+    @Override
+    public FoundationKVTransaction createTransaction(Map<String, ?> options) {
+        return this.createTransaction();                                            // no options supported yet
     }
 
     @Override
