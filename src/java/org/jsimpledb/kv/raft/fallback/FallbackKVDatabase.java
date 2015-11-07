@@ -3,11 +3,12 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.raft;
+package org.jsimpledb.kv.raft.fallback;
 
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -19,24 +20,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.raft.Consistency;
+import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.RaftKVTransaction;
+import org.jsimpledb.kv.raft.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * A partition-tolerant {@link KVDatabase} that automatically migrates between a clustered {@link RaftKVDatabase}
- * and a local, non-clustered "emergency standalone mode" {@link KVDatabase}, based on availability of the Raft cluster.
+ * and a local, non-clustered "standalone mode" {@link KVDatabase}, based on availability of the Raft cluster.
  *
  * <p>
  * A {@link RaftKVDatabase} requires that the local node be part of a cluster majority, otherwise, transactions
  * cannot commit (even read-only ones) and application progress halts. This class adds partition tolerance to
- * a {@link RaftKVDatabase}, by having a local {@link KVDatabase} that can be used when the cluster is unavailable.
+ * a {@link RaftKVDatabase}, by maintaining a separate private "standalone mode" {@link KVDatabase} that can be used
+ * in lieu of the normal {@link RaftKVDatabase} when the Raft cluster is unavailable.
  *
  * <p>
- * Instances transparently and automatically switch over to the "standalone mode" {@link KVDatabase} when they determine
- * that the {@link RaftKVDatabase} is unavailable. If/when availability is been restored, the local node rejoins the
- * {@link RaftKVDatabase} cluster. In both cases, a configurable {@link MergeStrategy} is used to migrate the data.
- * In the fallback operation, the most up-to-date committed version of the Raft database is migrated; reading this
- * information does not require communication with the rest of the cluster and therefore is possible during a partition.
+ * Instances transparently and automatically switch over to standalone mode {@link KVDatabase} when they determine
+ * that the {@link RaftKVDatabase} is unavailable.
+ *
+ * <p>
+ * Of course, this sacrifices consistency. To address that, a configurable {@link MergeStrategy} is used to migrate the data
+ * When switching between normal mode and standalone mode. The {@link MergeStrategy} is given read-only access to the
+ * database being switched away from, and read-write access to the database being switched to; when switching away from
+ * the {@link RaftKVDatabase}, {@link Consistency#EVENTUAL_COMMITTED} is used to eliminate the requirement for
+ * communication with the rest of the cluster.
  *
  * <p>
  * Although more exotic, instances support migrating between multiple {@link RaftKVDatabase}s in a prioritized list.
@@ -83,10 +93,22 @@ public class FallbackKVDatabase implements KVDatabase {
     }
 
     /**
-     * Configure the underlying {@link FallbackTarget}(s).
+     * Configure a single {@link FallbackTarget}.
+     *
+     * @param target fallback target
+     * @throws IllegalArgumentException if {@code target} is null
+     * @throws IllegalArgumentException if any target does not have a {@link RaftKVDatabase} configured
+     * @throws IllegalStateException if this instance is already started
+     */
+    public synchronized void setFallbackTarget(FallbackTarget target) {
+        this.setFallbackTargets(Collections.singletonList(target));
+    }
+
+    /**
+     * Configure multiple {@link FallbackTarget}(s).
      *
      * <p>
-     * If multiple {@link FallbackTarget}s are provided, they should be ordered in order of increasing preference.
+     * Targets should be sorted in order of increasing preference.
      *
      * @param targets targets in order of increasing preference
      * @throws IllegalArgumentException if {@code targets} is null

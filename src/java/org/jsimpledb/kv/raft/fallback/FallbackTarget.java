@@ -3,13 +3,15 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.raft;
+package org.jsimpledb.kv.raft.fallback;
 
 import com.google.common.base.Preconditions;
 
 import java.util.concurrent.ScheduledFuture;
 
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.Timestamp;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +20,16 @@ import org.slf4j.LoggerFactory;
  * Represents one of the underlying {@link RaftKVDatabase}s managed by a {@link FallbackKVDatabase}.
  *
  * <p>
- * Instances must be configured with the {@link RaftKVDatabase} and several parameters used to determine
- * cluster availability and enforce hysteresis; see {@link #setCheckInterval setCheckInterval()},
- * {@link #setCheckInterval setCheckInterval()},
+ * Instances must at least be configured with the associated {@link RaftKVDatabase}; all other properties have defaults.
+ *
+ * Two {@link MergeStrategy}s are configured to handle switching into
+ * (see {@link #setUnavailableMergeStrategy setUnavailableMergeStrategy()}) and out of
+ * (see {@link #setRejoinMergeStrategy setRejoinMergeStrategy()}) standalone mode.
  *
  * <p>
- * All properties are required.
+ * Other parameters configure how cluster availability is determined and enforce hysteresis; see
+ * {@link #setTransactionTimeout setTransactionTimeout()}, {@link #setCheckInterval setCheckInterval()},
+ * {@link #setMinAvailableTime setMinAvailableTime()}, and {@link #setMinUnavailableTime setMinUnavailableTime()}.
  */
 public class FallbackTarget implements Cloneable {
 
@@ -247,7 +253,7 @@ public class FallbackTarget implements Cloneable {
      *
      * <p>
      * The implementation in {@link FallbackTarget} determines availability by attempting to commit a read-only,
-     * {@link Consistency#LINEARIZABLE} transaction within the configured maximum timeout.
+     * {@link org.jsimpledb.kv.raft.Consistency#LINEARIZABLE} transaction within the configured maximum timeout.
      *
      * @return true if database is available, false otherwise
      */

@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.raft;
+package org.jsimpledb.kv.raft.fallback;
 
 import java.util.Iterator;
 
@@ -23,7 +23,11 @@ public class OverwriteMergeStrategy implements MergeStrategy {
             final KVPair pair = i.next();
             dst.put(pair.getKey(), pair.getValue());
         }
-        Util.closeIfPossible(i);
+        try {
+            ((AutoCloseable)i).close();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @Override

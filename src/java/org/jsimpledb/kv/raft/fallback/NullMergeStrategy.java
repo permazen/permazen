@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.raft;
+package org.jsimpledb.kv.raft.fallback;
 
 import org.jsimpledb.kv.KVTransaction;
 
