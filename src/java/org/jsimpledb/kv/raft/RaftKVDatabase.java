@@ -800,12 +800,12 @@ public class RaftKVDatabase implements KVDatabase {
         if (this.role != null)
             return;
         Preconditions.checkState(!this.shuttingDown, "shutdown in progress");
-        Preconditions.checkState(this.logDir != null, "no log directory configured");
-        Preconditions.checkState(this.kv != null, "no local persistence key/value store configured");
-        Preconditions.checkState(this.network != null, "no network configured");
+        Preconditions.checkState(this.logDir != null, "no Raft log directory configured");
+        Preconditions.checkState(this.kv != null, "no Raft local persistence key/value store configured");
+        Preconditions.checkState(this.network != null, "no Raft network configured");
         Preconditions.checkState(this.minElectionTimeout <= this.maxElectionTimeout, "minElectionTimeout > maxElectionTimeout");
         Preconditions.checkState(this.heartbeatTimeout < this.minElectionTimeout, "heartbeatTimeout >= minElectionTimeout");
-        Preconditions.checkState(this.identity != null, "no identity configured");
+        Preconditions.checkState(this.identity != null, "no Raft identity configured");
 
         // Log
         if (this.log.isDebugEnabled())
