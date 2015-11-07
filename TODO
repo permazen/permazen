@@ -6,6 +6,7 @@ SHORT TERM
     - New CLI flags:
         - `--console-port': accept console telnet connections on port
         - `--background': disable console on stdin/stdout, daemonize
+            - Requires native code
 
 - LevelDB & RocksDB: ensure removeRange() doesn't sync() on each k/v pair
 
@@ -52,8 +53,6 @@ LONG TERM
 - Add a network accessible API for KVDatabase
     - New "over the network" KVDatabase client
         - Includes server-side classes as well for embeddability
-    - New CLI flag:
-        - `--client-port': accept client TCP connections
 
 - Add expression predicates to reference paths, e.g.:
     "friend[this.name.length() > 3].name"
@@ -74,6 +73,8 @@ LONG TERM
     - Aggregate functions
         - min(), max(), avg(), sum(), etc.
         - See http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html
+
+- Expression parser Java 8 lamda syntax support
 
 - CLI
     - New console "expr" input mode
