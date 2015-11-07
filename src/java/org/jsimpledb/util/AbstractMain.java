@@ -16,6 +16,7 @@ import java.net.URLClassLoader;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -55,49 +56,10 @@ public abstract class AbstractMain extends MainClass {
     private static final File DEMO_SUBDIR = new File("demo-classes");
     private static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
 
-    // These are like an Enum<DBType>
-    protected final MemoryDBType memoryDBType = new MemoryDBType();
-    protected final FoundationDBType foundationDBType = new FoundationDBType();
-    protected final BerkeleyDBType berkeleyDBType = new BerkeleyDBType();
-    protected final XMLDBType xmlDBType = new XMLDBType();
-    protected final LevelDBType levelDBType = new LevelDBType();
-    protected final RocksDBType rocksDBType = new RocksDBType();
-    protected final ArrayDBType arrayDBType = new ArrayDBType();
-    protected final MySQLDBType mySQLType = new MySQLDBType();
-    protected final RaftDBType raftDBType = new RaftDBType();
-
-    // FDB config
-    protected String fdbClusterFile;
-    protected byte[] fdbKeyPrefix;
-
-    // BDB config
-    protected File bdbDirectory;
-    protected String bdbDatabaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
-
-    // LevelDB config
-    protected File leveldbDirectory;
-
-    // RocksDB config
-    protected File rocksdbDirectory;
-
-    // ArrayKVDatabase config
-    protected File arraydbDirectory;
-
-    // Raft config
-    protected AtomicKVStore raftKVStore;
-    protected File raftDirectory;
-    protected String raftIdentity;
-    protected String raftAddress;
-    protected int raftPort = RaftKVDatabase.DEFAULT_TCP_PORT;
-    protected int raftMinElectionTimeout = -1;
-    protected int raftMaxElectionTimeout = -1;
-    protected int raftHeartbeatTimeout = -1;
-
-    // XML config
-    protected File xmlFile;
-
-    // MySQL config
-    protected String jdbcUrl;
+    // DBTypes that have multiple config flags
+    protected FoundationDBType foundationDBType;
+    protected BerkeleyDBType berkeleyDBType;
+    protected RaftDBType raftDBType;
 
     // Schema
     protected int schemaVersion;
@@ -105,7 +67,6 @@ public abstract class AbstractMain extends MainClass {
     protected HashSet<Class<? extends FieldType<?>>> fieldTypeClasses;
     protected boolean allowNewSchema;
 
-    protected HashSet<DBType<?>> dbTypes = new HashSet<>();
     protected DBType<?> dbType;
     protected KVDatabase kvdb;
     protected String databaseDescription;
@@ -124,6 +85,7 @@ public abstract class AbstractMain extends MainClass {
     public int parseOptions(ArrayDeque<String> params) {
 
         // Parse options
+        final ArrayList<DBType<?>> dbTypes = new ArrayList<>();
         final LinkedHashSet<String> modelPackages = new LinkedHashSet<>();
         final LinkedHashSet<String> typePackages = new LinkedHashSet<>();
         while (!params.isEmpty() && params.peekFirst().startsWith("-")) {
@@ -170,109 +132,142 @@ public abstract class AbstractMain extends MainClass {
                 this.allowNewSchema = true;
                 this.allowAutoDemo = false;
             } else if (option.equals("--mem"))
-                this.dbTypes.add(this.memoryDBType);
+                dbTypes.add(new MemoryDBType());
             else if (option.equals("--fdb-prefix")) {
                 if (params.isEmpty())
                     this.usageError();
-                final String value = params.removeFirst();
-                try {
-                    this.fdbKeyPrefix = ByteUtil.parse(value);
-                } catch (IllegalArgumentException e) {
-                    this.fdbKeyPrefix = value.getBytes(Charset.forName("UTF-8"));
+                if (this.foundationDBType == null) {
+                    System.err.println(this.getName() + ": `--fdb' must appear before `" + option + "'");
+                    return 1;
                 }
-                if (this.fdbKeyPrefix.length > 0)
+                final String value = params.removeFirst();
+                byte[] prefix;
+                try {
+                    prefix = ByteUtil.parse(value);
+                } catch (IllegalArgumentException e) {
+                    prefix = value.getBytes(Charset.forName("UTF-8"));
+                }
+                if (prefix.length > 0)
                     this.allowAutoDemo = false;
+                this.foundationDBType.setPrefix(prefix);
             } else if (option.equals("--fdb")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.dbTypes.add(this.foundationDBType);
-                this.fdbClusterFile = params.removeFirst();
-                if (!new File(this.fdbClusterFile).exists()) {
-                    System.err.println(this.getName() + ": file `" + this.fdbClusterFile + "' does not exist");
+                final String clusterFile = params.removeFirst();
+                if (!new File(clusterFile).exists()) {
+                    System.err.println(this.getName() + ": file `" + clusterFile + "' does not exist");
                     return 1;
                 }
+                this.foundationDBType = new FoundationDBType(clusterFile);
+                dbTypes.add(this.foundationDBType);
             } else if (option.equals("--xml")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.dbTypes.add(this.xmlDBType);
-                this.xmlFile = new File(params.removeFirst());
+                dbTypes.add(new XMLDBType(new File(params.removeFirst())));
             } else if (option.equals("--bdb")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.dbTypes.add(this.berkeleyDBType);
-                if (!this.createDirectory(this.bdbDirectory = new File(params.removeFirst())))
+                final File dir = new File(params.removeFirst());
+                if (!this.createDirectory(dir))
                     return 1;
+                this.berkeleyDBType = new BerkeleyDBType(dir);
+                dbTypes.add(this.berkeleyDBType);
             } else if (option.equals("--bdb-database")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.bdbDatabaseName = params.removeFirst();
+                if (this.berkeleyDBType == null) {
+                    System.err.println(this.getName() + ": `--bdb' must appear before `" + option + "'");
+                    return 1;
+                }
+                this.berkeleyDBType.setDatabaseName(params.removeFirst());
             } else if (option.equals("--mysql")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.jdbcUrl = params.removeFirst();
-                this.dbTypes.add(this.mySQLType);
+                dbTypes.add(new MySQLDBType(params.removeFirst()));
             } else if (option.equals("--leveldb")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.dbTypes.add(this.levelDBType);
-                if (!this.createDirectory(this.leveldbDirectory = new File(params.removeFirst())))
+                final File dir = new File(params.removeFirst());
+                if (!this.createDirectory(dir))
                     return 1;
+                dbTypes.add(new LevelDBType(dir));
             } else if (option.equals("--rocksdb")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.dbTypes.add(this.rocksDBType);
-                if (!this.createDirectory(this.rocksdbDirectory = new File(params.removeFirst())))
+                final File dir = new File(params.removeFirst());
+                if (!this.createDirectory(dir))
                     return 1;
+                dbTypes.add(new RocksDBType(dir));
             } else if (option.equals("--arraydb")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.dbTypes.add(this.arrayDBType);
-                if (!this.createDirectory(this.arraydbDirectory = new File(params.removeFirst())))
+                final File dir = new File(params.removeFirst());
+                if (!this.createDirectory(dir))
                     return 1;
-            } else if (option.equals("--raft-dir")) {
+                dbTypes.add(new ArrayDBType(dir));
+            } else if (option.equals("--raft") || option.equals("--raft-dir")) {            // --raft-dir is backward compat.
                 if (params.isEmpty())
                     this.usageError();
-                this.dbTypes.add(this.raftDBType);
-                if (!this.createDirectory(this.raftDirectory = new File(params.removeFirst())))
+                final File dir = new File(params.removeFirst());
+                if (!this.createDirectory(dir))
                     return 1;
+                this.raftDBType = new RaftDBType(dir);
+                dbTypes.add(this.raftDBType);
             } else if (option.matches("--raft-((min|max)-election|heartbeat)-timeout")) {
                 if (params.isEmpty())
                     this.usageError();
+                if (this.raftDBType == null) {
+                    System.err.println(this.getName() + ": `--raft' must appear before `" + option + "'");
+                    return 1;
+                }
                 final String tstring = params.removeFirst();
                 final int timeout;
                 try {
                     timeout = Integer.parseInt(tstring);
                 } catch (Exception e) {
-                    System.err.println(this.getName() + ": timeout value `" + tstring + "': " + e.getMessage());
+                    System.err.println(this.getName() + ": invalid timeout value `" + tstring + "': " + e.getMessage());
                     return 1;
                 }
                 if (option.equals("--raft-min-election-timeout"))
-                    this.raftMinElectionTimeout = timeout;
+                    this.raftDBType.setMinElectionTimeout(timeout);
                 else if (option.equals("--raft-max-election-timeout"))
-                    this.raftMaxElectionTimeout = timeout;
+                    this.raftDBType.setMaxElectionTimeout(timeout);
                 else if (option.equals("--raft-heartbeat-timeout"))
-                    this.raftHeartbeatTimeout = timeout;
+                    this.raftDBType.setHeartbeatTimeout(timeout);
                 else
                     throw new RuntimeException("internal error");
             } else if (option.equals("--raft-identity")) {
                 if (params.isEmpty())
                     this.usageError();
-                this.dbTypes.add(this.raftDBType);
-                this.raftIdentity = params.removeFirst();
+                if (this.raftDBType == null) {
+                    System.err.println(this.getName() + ": `--raft' must appear before `" + option + "'");
+                    return 1;
+                }
+                this.raftDBType.setIdentity(params.removeFirst());
             } else if (option.equals("--raft-address")) {
                 if (params.isEmpty())
                     this.usageError();
+                if (this.raftDBType == null) {
+                    System.err.println(this.getName() + ": `--raft' must appear before `" + option + "'");
+                    return 1;
+                }
                 final String address = params.removeFirst();
-                this.raftAddress = TCPNetwork.parseAddressPart(address);
-                this.raftPort = TCPNetwork.parsePortPart(address, this.raftPort);
+                this.raftDBType.setAddress(TCPNetwork.parseAddressPart(address));
+                this.raftDBType.setPort(TCPNetwork.parsePortPart(address, this.raftDBType.getPort()));
             } else if (option.equals("--raft-port")) {
                 if (params.isEmpty())
                     this.usageError();
+                if (this.raftDBType == null) {
+                    System.err.println(this.getName() + ": `--raft' must appear before `" + option + "'");
+                    return 1;
+                }
                 final String portString = params.removeFirst();
-                if ((this.raftPort = TCPNetwork.parsePortPart("x:" + portString, -1)) == -1) {
+                final int port = TCPNetwork.parsePortPart("x:" + portString, -1);
+                if (port == -1) {
                     System.err.println(this.getName() + ": invalid TCP port `" + portString + "'");
                     return 1;
                 }
+                this.raftDBType.setPort(port);
             } else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
@@ -286,32 +281,52 @@ public abstract class AbstractMain extends MainClass {
         if (!modelPackages.isEmpty() || !typePackages.isEmpty())
             this.allowAutoDemo = false;
 
+        // Pull out local store k/v type for Raft
+        if (this.raftDBType != null) {
+            final int raftIndex = dbTypes.indexOf(this.raftDBType);
+            if (raftIndex == dbTypes.size() - 1) {
+                System.err.println(this.getName() + ": Raft raft requires an additional peristent store"
+                  + " to be used for private local storage, specified after `--raft'; use one of `--arraydb', etc.");
+                return 1;
+            }
+            final DBType<?> localStorageDBType = dbTypes.remove(raftIndex + 1);
+            if (!localStorageDBType.canBeRaftLocalStorage()) {
+                System.err.println(this.getName() + ": incompatible key/value database `" + localStorageDBType.getDescription()
+                  + "' for Raft local storage");
+                return 1;
+            }
+            this.raftDBType.setLocalStorageDBType(localStorageDBType);
+        }
+
         // Check database choice(s)
-        switch (this.dbTypes.size()) {
+        switch (dbTypes.size()) {
         case 0:
-            if (this.allowAutoDemo && DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists())
-                this.configureDemoMode();
-            else {
-                System.err.println(this.getName() + ": no key/value store specified; use one of `--mysql', etc.");
+            if (this.allowAutoDemo && DEMO_XML_FILE.exists() && DEMO_SUBDIR.exists()) {
+
+                // Configure database
+                System.err.println(this.getName() + ": auto-configuring use of demo database `" + DEMO_XML_FILE + "'");
+                if (dbTypes.isEmpty())
+                    dbTypes.add(new XMLDBType(DEMO_XML_FILE));
+
+                // Add demo subdirectory to class path
+                this.appendClasspath(DEMO_SUBDIR.toString());
+
+                // Scan classes
+                this.scanModelClasses("org.jsimpledb.demo");
+            } else {
+                System.err.println(this.getName() + ": no key/value store specified; use one of `--arraydb', etc.");
                 this.usageError();
                 return 1;
             }
             break;
         case 1:
-            if (this.dbTypes.contains(this.raftDBType)) {
-                System.err.println(this.getName() + ": Raft requires a local peristent store; use one of `--mysql', etc.");
-                this.usageError();
-                return 1;
-            }
             break;
         default:
-            if (this.dbTypes.size() > 2 || !this.dbTypes.contains(this.raftDBType)) {
-                System.err.println(this.getName() + ": multiple key/value stores configured; choose only one");
-                this.usageError();
-                return 1;
-            }
-            break;
+            System.err.println(this.getName() + ": more than one key/value store was specified");
+            this.usageError();
+            return 1;
         }
+        this.dbType = dbTypes.get(0);
 
         // Scan for model and type classes
         final LinkedHashSet<String> emptyPackages = new LinkedHashSet<>();
@@ -374,20 +389,6 @@ public abstract class AbstractMain extends MainClass {
      */
     protected boolean parseOption(String option, ArrayDeque<String> params) {
         return false;
-    }
-
-    protected void configureDemoMode() {
-
-        // Configure database
-        System.err.println(this.getName() + ": auto-configuring use of demo database `" + DEMO_XML_FILE + "'");
-        this.dbTypes.add(this.xmlDBType);
-        this.xmlFile = DEMO_XML_FILE;
-
-        // Add demo subdirectory to class path
-        this.appendClasspath(DEMO_SUBDIR.toString());
-
-        // Scan classes
-        this.scanModelClasses("org.jsimpledb.demo");
     }
 
     /**
@@ -493,14 +494,6 @@ public abstract class AbstractMain extends MainClass {
      */
     protected Database startupKVDatabase() {
 
-        // Raft requires a separate AtomicKVStore to be configured first
-        final boolean raft = this.dbTypes.remove(this.raftDBType);
-        this.dbType = this.dbTypes.iterator().next();
-        if (raft) {
-            this.raftKVStore = dbType.createAtomicKVStore();
-            this.dbType = this.raftDBType;
-        }
-
         // Create and start up database
         this.kvdb = this.dbType.createKVDatabase();
         this.databaseDescription = this.dbType.getDescription();
@@ -554,7 +547,7 @@ public abstract class AbstractMain extends MainClass {
             { "--leveldb directory",            "Use LevelDB in specified directory" },
             { "--mem",                          "Use an empty in-memory database (default)" },
             { "--mysql URL",                    "Use MySQL with the given JDBC URL" },
-            { "--raft-dir directory",           "Raft local persistence directory" },
+            { "--raft directory",               "Use Raft in specified directory" },
             { "--raft-min-election-timeout",    "Raft minimum election timeout in ms (default "
                                                   + RaftKVDatabase.DEFAULT_MIN_ELECTION_TIMEOUT + ")" },
             { "--raft-max-election-timeout",    "Raft maximum election timeout in ms (default "
@@ -620,12 +613,16 @@ public abstract class AbstractMain extends MainClass {
             db.stop();
         }
 
+        public boolean canBeRaftLocalStorage() {
+            return true;
+        }
+
         public abstract String getDescription();
     }
 
     protected final class MemoryDBType extends DBType<SimpleKVDatabase> {
 
-        private MemoryDBType() {
+        protected MemoryDBType() {
             super(SimpleKVDatabase.class);
         }
 
@@ -642,70 +639,90 @@ public abstract class AbstractMain extends MainClass {
 
     protected final class FoundationDBType extends DBType<FoundationKVDatabase> {
 
-        private FoundationDBType() {
+        private final String clusterFile;
+        private byte[] prefix;
+
+        protected FoundationDBType(String clusterFile) {
             super(FoundationKVDatabase.class);
+            this.clusterFile = clusterFile;
+        }
+
+        public void setPrefix(byte[] prefix) {
+            this.prefix = prefix;
         }
 
         @Override
         public FoundationKVDatabase createKVDatabase() {
             final FoundationKVDatabase fdb = new FoundationKVDatabase();
-            fdb.setClusterFilePath(AbstractMain.this.fdbClusterFile);
-            fdb.setKeyPrefix(AbstractMain.this.fdbKeyPrefix);
+            fdb.setClusterFilePath(this.clusterFile);
+            fdb.setKeyPrefix(prefix);
             return fdb;
         }
 
         @Override
         public String getDescription() {
-            String desc = "FoundationDB " + new File(AbstractMain.this.fdbClusterFile).getName();
-            if (AbstractMain.this.fdbKeyPrefix != null)
-                desc += " [0x" + ByteUtil.toString(AbstractMain.this.fdbKeyPrefix) + "]";
+            String desc = "FoundationDB " + new File(this.clusterFile).getName();
+            if (this.prefix != null)
+                desc += " [0x" + ByteUtil.toString(this.prefix) + "]";
             return desc;
         }
     }
 
     protected final class BerkeleyDBType extends DBType<BerkeleyKVDatabase> {
 
-        private BerkeleyDBType() {
+        private final File dir;
+        private String databaseName = BerkeleyKVDatabase.DEFAULT_DATABASE_NAME;
+
+        protected BerkeleyDBType(File dir) {
             super(BerkeleyKVDatabase.class);
+            this.dir = dir;
+        }
+
+        public void setDatabaseName(String databaseName) {
+            this.databaseName = databaseName;
         }
 
         @Override
         public BerkeleyKVDatabase createKVDatabase() {
             final BerkeleyKVDatabase bdb = new BerkeleyKVDatabase();
-            bdb.setDirectory(AbstractMain.this.bdbDirectory);
-            bdb.setDatabaseName(AbstractMain.this.bdbDatabaseName);
-//            if (AbstractMain.this.readOnly)
-//                bdb.setDatabaseConfig(bdb.getDatabaseConfig().setReadOnly(true));
+            bdb.setDirectory(this.dir);
+            bdb.setDatabaseName(this.databaseName);
             return bdb;
         }
 
         @Override
         public String getDescription() {
-            return "BerkeleyDB " + AbstractMain.this.bdbDirectory.getName();
+            return "BerkeleyDB " + this.dir.getName();
         }
     }
 
     protected final class XMLDBType extends DBType<XMLKVDatabase> {
 
-        private XMLDBType() {
+        private final File xmlFile;
+
+        protected XMLDBType(File xmlFile) {
             super(XMLKVDatabase.class);
+            this.xmlFile = xmlFile;
         }
 
         @Override
         public XMLKVDatabase createKVDatabase() {
-            return new XMLKVDatabase(AbstractMain.this.xmlFile);
+            return new XMLKVDatabase(this.xmlFile);
         }
 
         @Override
         public String getDescription() {
-            return "XML DB " + AbstractMain.this.xmlFile.getName();
+            return "XML DB " + this.xmlFile.getName();
         }
     }
 
     protected final class LevelDBType extends DBType<LevelDBKVDatabase> {
 
-        private LevelDBType() {
+        private final File dir;
+
+        protected LevelDBType(File dir) {
             super(LevelDBKVDatabase.class);
+            this.dir = dir;
         }
 
         @Override
@@ -718,21 +735,24 @@ public abstract class AbstractMain extends MainClass {
         @Override
         public LevelDBAtomicKVStore createAtomicKVStore() {
             final LevelDBAtomicKVStore kvstore = new LevelDBAtomicKVStore();
-            kvstore.setDirectory(AbstractMain.this.leveldbDirectory);
+            kvstore.setDirectory(this.dir);
             kvstore.setCreateIfMissing(true);
             return kvstore;
         }
 
         @Override
         public String getDescription() {
-            return "LevelDB " + AbstractMain.this.leveldbDirectory.getName();
+            return "LevelDB " + this.dir.getName();
         }
     }
 
     protected final class RocksDBType extends DBType<RocksDBKVDatabase> {
 
-        private RocksDBType() {
+        private final File dir;
+
+        protected RocksDBType(File dir) {
             super(RocksDBKVDatabase.class);
+            this.dir = dir;
         }
 
         @Override
@@ -745,20 +765,23 @@ public abstract class AbstractMain extends MainClass {
         @Override
         public RocksDBAtomicKVStore createAtomicKVStore() {
             final RocksDBAtomicKVStore kvstore = new RocksDBAtomicKVStore();
-            kvstore.setDirectory(AbstractMain.this.rocksdbDirectory);
+            kvstore.setDirectory(this.dir);
             return kvstore;
         }
 
         @Override
         public String getDescription() {
-            return "RocksDB " + AbstractMain.this.rocksdbDirectory.getName();
+            return "RocksDB " + this.dir.getName();
         }
     }
 
     protected final class ArrayDBType extends DBType<ArrayKVDatabase> {
 
-        private ArrayDBType() {
+        private final File dir;
+
+        protected ArrayDBType(File dir) {
             super(ArrayKVDatabase.class);
+            this.dir = dir;
         }
 
         @Override
@@ -771,20 +794,23 @@ public abstract class AbstractMain extends MainClass {
         @Override
         public AtomicArrayKVStore createAtomicKVStore() {
             final AtomicArrayKVStore kvstore = new AtomicArrayKVStore();
-            kvstore.setDirectory(AbstractMain.this.arraydbDirectory);
+            kvstore.setDirectory(this.dir);
             return kvstore;
         }
 
         @Override
         public String getDescription() {
-            return "ArrayDB " + AbstractMain.this.arraydbDirectory.getName();
+            return "ArrayDB " + this.dir.getName();
         }
     }
 
     protected final class MySQLDBType extends DBType<MySQLKVDatabase> {
 
-        private MySQLDBType() {
+        private final String jdbcUrl;
+
+        protected MySQLDBType(String jdbcUrl) {
             super(MySQLKVDatabase.class);
+            this.jdbcUrl = jdbcUrl;
         }
 
         @Override
@@ -797,7 +823,7 @@ public abstract class AbstractMain extends MainClass {
                 throw new RuntimeException("can't load MySQL driver class `" + MYSQL_DRIVER_CLASS_NAME + "'", e);
             }
             final MySQLKVDatabase mysql = new MySQLKVDatabase();
-            mysql.setDataSource(new DriverManagerDataSource(AbstractMain.this.jdbcUrl));
+            mysql.setDataSource(new DriverManagerDataSource(this.jdbcUrl));
             return mysql;
         }
 
@@ -809,43 +835,79 @@ public abstract class AbstractMain extends MainClass {
 
     protected final class RaftDBType extends DBType<RaftKVDatabase> {
 
-        private RaftDBType() {
+        private final File directory;
+        private final RaftKVDatabase raft = new RaftKVDatabase();
+
+        private DBType<?> localStorageDBType;
+        private String address;
+        private int port = RaftKVDatabase.DEFAULT_TCP_PORT;
+
+        protected RaftDBType(File directory) {
             super(RaftKVDatabase.class);
+            this.directory = directory;
+            this.raft.setLogDirectory(this.directory);
         }
 
         @Override
         public RaftKVDatabase createKVDatabase() {
 
+            // Set up Raft local storage
+            this.raft.setKVStore(this.localStorageDBType.createAtomicKVStore());
+
             // Setup network
             final TCPNetwork network = new TCPNetwork(RaftKVDatabase.DEFAULT_TCP_PORT);
             try {
-                network.setListenAddress(AbstractMain.this.raftAddress != null ?
-                  new InetSocketAddress(InetAddress.getByName(AbstractMain.this.raftAddress), AbstractMain.this.raftPort) :
-                  new InetSocketAddress(AbstractMain.this.raftPort));
+                network.setListenAddress(this.address != null ?
+                  new InetSocketAddress(InetAddress.getByName(this.address), this.port) : new InetSocketAddress(this.port));
             } catch (UnknownHostException e) {
-                throw new RuntimeException("can't resolve address `" + AbstractMain.this.raftAddress + "'", e);
+                throw new RuntimeException("can't resolve address `" + this.address + "'", e);
             }
-
-            // Set up Raft DB
-            final RaftKVDatabase raft = new RaftKVDatabase();
-            raft.setLogDirectory(AbstractMain.this.raftDirectory);
-            raft.setKVStore(AbstractMain.this.raftKVStore);
-            raft.setNetwork(network);
-            raft.setIdentity(AbstractMain.this.raftIdentity);
-            if (AbstractMain.this.raftMinElectionTimeout != -1)
-                raft.setMinElectionTimeout(AbstractMain.this.raftMinElectionTimeout);
-            if (AbstractMain.this.raftMaxElectionTimeout != -1)
-                raft.setMaxElectionTimeout(AbstractMain.this.raftMaxElectionTimeout);
-            if (AbstractMain.this.raftHeartbeatTimeout != -1)
-                raft.setHeartbeatTimeout(AbstractMain.this.raftHeartbeatTimeout);
+            this.raft.setNetwork(network);
 
             // Done
-            return raft;
+            return this.raft;
+        }
+
+        public void setLocalStorageDBType(DBType<?> localStorageDBType) {
+            this.localStorageDBType = localStorageDBType;
+        }
+
+        public void setIdentity(String identity) {
+            this.raft.setIdentity(identity);
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        public int getPort() {
+            return this.port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+        public void setMinElectionTimeout(int minElectionTimeout) {
+            this.raft.setMinElectionTimeout(minElectionTimeout);
+        }
+
+        public void setMaxElectionTimeout(int maxElectionTimeout) {
+            this.raft.setMaxElectionTimeout(maxElectionTimeout);
+        }
+
+        public void setHeartbeatTimeout(int heartbeatTimeout) {
+            this.raft.setHeartbeatTimeout(heartbeatTimeout);
+        }
+
+        @Override
+        public boolean canBeRaftLocalStorage() {
+            return false;
         }
 
         @Override
         public String getDescription() {
-            return "Raft " + (AbstractMain.this.raftDirectory != null ? AbstractMain.this.raftDirectory.getName() : "?");
+            return "Raft " + (this.directory != null ? this.directory.getName() : "?");
         }
     }
 }
