@@ -38,6 +38,11 @@ import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
 import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.fallback.FallbackKVDatabase;
+import org.jsimpledb.kv.raft.fallback.FallbackTarget;
+import org.jsimpledb.kv.raft.fallback.MergeStrategy;
+import org.jsimpledb.kv.raft.fallback.NullMergeStrategy;
+import org.jsimpledb.kv.raft.fallback.OverwriteMergeStrategy;
 import org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore;
 import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
@@ -60,6 +65,7 @@ public abstract class AbstractMain extends MainClass {
     protected FoundationDBType foundationDBType;
     protected BerkeleyDBType berkeleyDBType;
     protected RaftDBType raftDBType;
+    protected FallbackDBType fallbackDBType;
 
     // Schema
     protected int schemaVersion;
@@ -86,6 +92,8 @@ public abstract class AbstractMain extends MainClass {
 
         // Parse options
         final ArrayList<DBType<?>> dbTypes = new ArrayList<>();
+        String raftFallbackUnavailableMergeClassName = OverwriteMergeStrategy.class.getName();
+        String raftFallbackRejoinMergeClassName = NullMergeStrategy.class.getName();
         final LinkedHashSet<String> modelPackages = new LinkedHashSet<>();
         final LinkedHashSet<String> typePackages = new LinkedHashSet<>();
         while (!params.isEmpty() && params.peekFirst().startsWith("-")) {
@@ -268,6 +276,54 @@ public abstract class AbstractMain extends MainClass {
                     return 1;
                 }
                 this.raftDBType.setPort(port);
+            } else if (option.equals("--raft-fallback")) {
+                if (this.fallbackDBType != null) {
+                    System.err.println(this.getName() + ": duplicate `" + option + "' flag");
+                    return 1;
+                }
+                this.fallbackDBType = new FallbackDBType();
+                dbTypes.add(this.fallbackDBType);
+            } else if (option.matches("--raft-fallback-(check-(interval|timeout)|min-(un)?available)")) {
+                if (params.isEmpty())
+                    this.usageError();
+                if (this.fallbackDBType == null) {
+                    System.err.println(this.getName() + ": `--raft-fallback' must appear before `" + option + "'");
+                    return 1;
+                }
+                final String tstring = params.removeFirst();
+                final int millis;
+                try {
+                    millis = Integer.parseInt(tstring);
+                } catch (Exception e) {
+                    System.err.println(this.getName() + ": invalid milliseconds value `" + tstring + "': " + e.getMessage());
+                    return 1;
+                }
+                if (option.equals("--raft-fallback-check-interval"))
+                    this.fallbackDBType.getFallbackTarget().setCheckInterval(millis);
+                else if (option.equals("--raft-fallback-check-timeout"))
+                    this.fallbackDBType.getFallbackTarget().setTransactionTimeout(millis);
+                else if (option.equals("--raft-fallback-min-available"))
+                    this.fallbackDBType.getFallbackTarget().setMinAvailableTime(millis);
+                else if (option.equals("--raft-fallback-min-unavailable"))
+                    this.fallbackDBType.getFallbackTarget().setMinUnavailableTime(millis);
+                else
+                    throw new RuntimeException("internal error");
+            } else if (option.equals("--raft-fallback-unavailable-merge")) {
+                if (params.isEmpty())
+                    this.usageError();
+                if (this.fallbackDBType == null) {
+                    System.err.println(this.getName() + ": `--raft-fallback' must appear before `" + option + "'");
+                    return 1;
+                }
+                raftFallbackUnavailableMergeClassName = params.removeFirst();
+            } else if (option.equals("--raft-fallback-rejoin-merge")) {
+                if (params.isEmpty())
+                    this.usageError();
+                if (this.fallbackDBType == null) {
+                    System.err.println(this.getName() + ": `--raft-fallback' must appear before `" + option + "'");
+                    return 1;
+                }
+                raftFallbackRejoinMergeClassName = params.removeFirst();
             } else if (option.equals("--"))
                 break;
             else if (!this.parseOption(option, params)) {
@@ -280,6 +336,23 @@ public abstract class AbstractMain extends MainClass {
         // Additional logic post-processing of options
         if (!modelPackages.isEmpty() || !typePackages.isEmpty())
             this.allowAutoDemo = false;
+
+        // Pull out standalone k/v type for Raft fallback
+        if (this.fallbackDBType != null) {
+            final int fallbackIndex = dbTypes.indexOf(this.fallbackDBType);
+            if (fallbackIndex == dbTypes.size() - 1) {
+                System.err.println(this.getName() + ": Raft fallback mode requires an additional peristent store"
+                  + " to be used for standalone mode, specified after `--raft-fallback'; use one of `--arraydb', etc.");
+                return 1;
+            }
+            final DBType<?> standaloneDBType = dbTypes.remove(fallbackIndex + 1);
+            if (!standaloneDBType.canBeFallbackStandalone()) {
+                System.err.println(this.getName() + ": incompatible key/value database `" + standaloneDBType.getDescription()
+                  + "' for Raft fallback standalone mode");
+                return 1;
+            }
+            this.fallbackDBType.setStandaloneDBType(standaloneDBType);
+        }
 
         // Pull out local store k/v type for Raft
         if (this.raftDBType != null) {
@@ -296,6 +369,34 @@ public abstract class AbstractMain extends MainClass {
                 return 1;
             }
             this.raftDBType.setLocalStorageDBType(localStorageDBType);
+        }
+
+        // Pull out Raft k/v type for Raft fallback
+        if (this.fallbackDBType != null) {
+            if (this.raftDBType == null) {
+                System.err.println(this.getName() + ": Raft fallback mode requires a configured Raft database; use `--raft', etc.");
+                return 1;
+            }
+            this.fallbackDBType.setRaftDBType(this.raftDBType);
+            dbTypes.remove(this.raftDBType);
+        }
+
+        // Resolve fallback merge strategy class names (do this here so we benefit from any `--classpath' additions)
+        if (this.fallbackDBType != null) {
+            final String[] classNames = new String[] { raftFallbackUnavailableMergeClassName, raftFallbackRejoinMergeClassName };
+            final MergeStrategy[] mergeStrategies = new MergeStrategy[2];
+            for (int i = 0; i < 2; i++) {
+                try {
+                    mergeStrategies[i] = (MergeStrategy)this.loadClass(classNames[i]).newInstance();
+                } catch (Exception e) {
+                    System.err.println(this.getName() + ": invalid Raft fallback merge strategy `"
+                      + classNames[i] + "': " + e.getMessage());
+                    this.usageError();
+                    return 1;
+                }
+            }
+            this.fallbackDBType.getFallbackTarget().setUnavailableMergeStrategy(mergeStrategies[0]);
+            this.fallbackDBType.getFallbackTarget().setRejoinMergeStrategy(mergeStrategies[1]);
         }
 
         // Check database choice(s)
@@ -558,6 +659,19 @@ public abstract class AbstractMain extends MainClass {
             { "--raft-address address",         "Specify local Raft node's IP address" },
             { "--raft-port",                    "Specify local Raft node's TCP port (default "
                                                   + RaftKVDatabase.DEFAULT_TCP_PORT + ")" },
+            { "--raft-fallback",                "Use Raft fallback database" },
+            { "--raft-fallback-check-interval", "Specify Raft fallback check interval in milliseconds (default "
+                                                  + FallbackTarget.DEFAULT_CHECK_INTERVAL + ")" },
+            { "--raft-fallback-min-available",  "Specify Raft fallback min available time in milliseconds (default "
+                                                  + FallbackTarget.DEFAULT_MIN_AVAILABLE_TIME + ")" },
+            { "--raft-fallback-min-unavailable", "Specify Raft fallback min unavailable time in milliseconds (default "
+                                                  + FallbackTarget.DEFAULT_MIN_UNAVAILABLE_TIME + ")" },
+            { "--raft-fallback-check-timeout",  "Specify Raft fallback availability check TX timeout in milliseconds (default "
+                                                  + FallbackTarget.DEFAULT_TRANSACTION_TIMEOUT + ")" },
+            { "--raft-fallback-unavailable-merge", "Specify Raft fallback unavailable merge strategy class name (default `"
+                                                  + OverwriteMergeStrategy.class.getName() + "')" },
+            { "--raft-fallback-rejoin-merge",   "Specify Raft fallback rejoin merge strategy class name (default `"
+                                                  + NullMergeStrategy.class.getName() + "')" },
             { "--read-only, -ro",               "Disallow database modifications" },
             { "--rocksdb directory",            "Use RocksDB in specified directory" },
             { "--new-schema",                   "Allow recording of a new database schema version" },
@@ -611,6 +725,10 @@ public abstract class AbstractMain extends MainClass {
 
         public void stopKVDatabase(T db) {
             db.stop();
+        }
+
+        public boolean canBeFallbackStandalone() {
+            return true;
         }
 
         public boolean canBeRaftLocalStorage() {
@@ -906,8 +1024,61 @@ public abstract class AbstractMain extends MainClass {
         }
 
         @Override
+        public boolean canBeFallbackStandalone() {
+            return false;
+        }
+
+        @Override
         public String getDescription() {
             return "Raft " + (this.directory != null ? this.directory.getName() : "?");
+        }
+    }
+
+    protected final class FallbackDBType extends DBType<FallbackKVDatabase> {
+
+        private final FallbackTarget fallbackTarget = new FallbackTarget();
+
+        private RaftDBType raftDBType;
+        private DBType<?> standaloneDBType;
+
+        protected FallbackDBType() {
+            super(FallbackKVDatabase.class);
+        }
+
+        @Override
+        public FallbackKVDatabase createKVDatabase() {
+            this.fallbackTarget.setRaftKVDatabase(this.raftDBType.createKVDatabase());
+            final FallbackKVDatabase fallback = new FallbackKVDatabase();
+            fallback.setFallbackTarget(this.fallbackTarget);
+            fallback.setStandaloneTarget(this.standaloneDBType.createKVDatabase());
+            return fallback;
+        }
+
+        public void setStandaloneDBType(DBType<?> standaloneDBType) {
+            this.standaloneDBType = standaloneDBType;
+        }
+
+        public void setRaftDBType(RaftDBType raftDBType) {
+            this.raftDBType = raftDBType;
+        }
+
+        public FallbackTarget getFallbackTarget() {
+            return this.fallbackTarget;
+        }
+
+        @Override
+        public boolean canBeRaftLocalStorage() {
+            return false;
+        }
+
+        @Override
+        public boolean canBeFallbackStandalone() {
+            return false;
+        }
+
+        @Override
+        public String getDescription() {
+            return this.raftDBType.getDescription() + " with fallback " + this.standaloneDBType.getDescription();
         }
     }
 }
