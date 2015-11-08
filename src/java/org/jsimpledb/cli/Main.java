@@ -220,6 +220,11 @@ public class Main extends AbstractMain {
           { "--kv-mode",                "Force key/value mode" },
           { "--command, -c command",    "Execute the given command and then exit (may be repeated)" },
         });
+        System.err.println("Exactly one key/value database type must be configured; optional flags must"
+          + " follow the main flag for the key/value database.");
+        System.err.println("Raft requires its own separate key/value store, which should be specified after the Raft options.");
+        System.err.println("For Raft fallback, specify Raft followed by the Raft key/value store, then Raft fallback, followed"
+          + " by the fallback key/value store.");
     }
 
     public static void main(String[] args) throws Exception {
