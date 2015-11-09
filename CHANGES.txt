@@ -6,6 +6,7 @@ Version Next
     - Improved and better documented Raft tx consistency levels
     - Added support for Raft consistency levels in Spring TX manager
     - Allow mutations within read-only transactions
+    - Bug fixes and improvements relating to Raft fallback support
 
 Version 1.3.3 Released October 29, 2015
 
