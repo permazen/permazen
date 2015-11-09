@@ -302,5 +302,12 @@ public class FallbackTarget implements Cloneable {
             throw new RuntimeException(e);
         }
     }
+
+// Object
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[raft=" + this.raft + "]";
+    }
 }
 

@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.raft.Consistency;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.kv.raft.RaftKVTransaction;
@@ -65,8 +66,8 @@ public class FallbackKVDatabase implements KVDatabase {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     // Configured state
+    private final ArrayList<FallbackTarget> targets = new ArrayList<>();
     private KVDatabase standaloneKV;
-    private ArrayList<FallbackTarget> targets;
 
     // Runtime state
     private boolean migrating;
@@ -80,6 +81,15 @@ public class FallbackKVDatabase implements KVDatabase {
 // Methods
 
     /**
+     * Get the configured "standalone mode" {@link KVDatabase} to be used when all {@link FallbackTarget}s are unavailable.
+     *
+     * @return "standalone mode" database
+     */
+    public synchronized KVDatabase getStandaloneTarget() {
+        return this.standaloneKV;
+    }
+
+    /**
      * Configure the local "standalone mode" {@link KVDatabase} to be used when all {@link FallbackTarget}s are unavailable.
      *
      * @param standaloneKV "standalone mode" database
@@ -90,6 +100,30 @@ public class FallbackKVDatabase implements KVDatabase {
         Preconditions.checkArgument(standaloneKV != null, "null standaloneKV");
         Preconditions.checkState(!this.started, "already started");
         this.standaloneKV = standaloneKV;
+    }
+
+    /**
+     * Get most preferred {@link FallbackTarget}.
+     *
+     * <p>
+     * Targets will be sorted in order of increasing preference.
+     *
+     * @return top fallback target, or null if none are configured yet
+     */
+    public synchronized FallbackTarget getFallbackTarget() {
+        return !this.targets.isEmpty() ? this.targets.get(this.targets.size() - 1) : null;
+    }
+
+    /**
+     * Get the {@link FallbackTarget}(s).
+     *
+     * <p>
+     * Targets will be sorted in order of increasing preference.
+     *
+     * @return immutable list of one or more fallback targets
+     */
+    public synchronized List<FallbackTarget> getFallbackTargets() {
+        return Collections.unmodifiableList(this.targets);
     }
 
     /**
@@ -121,11 +155,11 @@ public class FallbackKVDatabase implements KVDatabase {
         Preconditions.checkArgument(targets != null, "null targets");
         Preconditions.checkArgument(!targets.isEmpty(), "empty targets");
         Preconditions.checkState(!this.started, "already started");
-        this.targets = new ArrayList<>(targets.size());
+        this.targets.clear();
         for (FallbackTarget target : targets) {
             Preconditions.checkArgument(target != null, "null target");
-            target = target.clone();
             Preconditions.checkArgument(target.getRaftKVDatabase() != null, "target with no database configured");
+            this.targets.add(target.clone());
         }
     }
 
@@ -143,15 +177,19 @@ public class FallbackKVDatabase implements KVDatabase {
         Preconditions.checkState(this.targets != null, "no targets configured");
         try {
 
+            // Logging
+            if (this.log.isDebugEnabled())
+                this.log.info("starting up " + this);
+
             // Create executor
             this.executor = Executors.newScheduledThreadPool(this.targets.size(), new ExecutorThreadFactory());
 
             // Start underlying databases
+            this.standaloneKV.start();
             for (FallbackTarget target : this.targets)
                 target.getRaftKVDatabase().start();
 
-            // Start periodic checks
-            final int currentStartCount = this.startCount;
+            // Start periodic availability checks
             for (FallbackTarget target : this.targets) {
                 target.future = this.executor.scheduleWithFixedDelay(
                   new AvailabilityCheckTask(target), 0, target.getCheckInterval(), TimeUnit.MILLISECONDS);
@@ -190,6 +228,10 @@ public class FallbackKVDatabase implements KVDatabase {
 
         // Sanity check
         assert Thread.holdsLock(this);
+
+        // Logging
+        if (this.log.isDebugEnabled())
+            this.log.info("shutting down " + this);
 
         // Wait for migration to complete
         if (this.migrating) {
@@ -240,6 +282,11 @@ public class FallbackKVDatabase implements KVDatabase {
                 this.log.warn("error stopping database target " + target + " (ignoring)", e);
             }
         }
+        try {
+            this.standaloneKV.stop();
+        } catch (Exception e) {
+            this.log.warn("error stopping fallback database " + this.standaloneKV + " (ignoring)", e);
+        }
 
         // Done
         this.started = false;
@@ -265,6 +312,15 @@ public class FallbackKVDatabase implements KVDatabase {
         return new FallbackKVTransaction(this, tx, this.migrationCount);
     }
 
+// Object
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName()
+          + "[standalone=" + this.standaloneKV
+          + ",targets=" + this.targets + "]";
+    }
+
 // Package methods
 
     boolean isMigrating() {
@@ -286,6 +342,10 @@ public class FallbackKVDatabase implements KVDatabase {
                 return;
         }
 
+        // Logging
+        if (this.log.isTraceEnabled())
+            this.log.trace("performing availability check for " + target);
+
         // Perform check
         boolean available = false;
         try {
@@ -305,8 +365,10 @@ public class FallbackKVDatabase implements KVDatabase {
             // Any state change?
             if (available == target.available)
                 return;
+            if (this.log.isTraceEnabled())
+                this.log.trace(target + " is now " + (target.available ? "" : "un") + "available");
 
-            // Enforce hysteresis
+            // Enforce hysteresis: don't change state unless sufficient time has past since last state change
             if (target.lastChangeTimestamp != null) {
                 final int minDelay = target.available ? target.getMinAvailableTime() : target.getMinUnavailableTime();
                 if (target.lastChangeTimestamp.offsetFromNow() + minDelay > 0) {
@@ -318,7 +380,7 @@ public class FallbackKVDatabase implements KVDatabase {
                 }
             }
 
-            // Change state and schedule migration
+            // Update availability and schedule an immediate migration check
             this.log.info(target + " has become " + (available ? "" : "un") + "available");
             target.available = available;
             target.lastChangeTimestamp = new Timestamp();
@@ -337,6 +399,10 @@ public class FallbackKVDatabase implements KVDatabase {
             // Check for shutdown race condition
             if (!this.started || startCount != this.startCount)
                 return;
+
+            // Logging
+            if (this.log.isTraceEnabled())
+                this.log.trace("performing migration check");
 
             // Allow only one migration at a time
             if (this.migrating)
@@ -359,79 +425,71 @@ public class FallbackKVDatabase implements KVDatabase {
             // Start migration
             this.migrating = true;
         }
-        final String desc = "migration from " + currTarget + " (index " + currIndex + ") to "
-          + bestTarget + " (index " + bestIndex + ")";
-        Throwable error = null;
         try {
-
-            // Gather info
-            final KVDatabase currKV = currTarget != null ? currTarget.getRaftKVDatabase() : this.standaloneKV;
-            final KVDatabase bestKV = bestTarget != null ? bestTarget.getRaftKVDatabase() : this.standaloneKV;
-            final MergeStrategy mergeStrategy = bestIndex < currIndex ?
-              currTarget.getUnavailableMergeStrategy() : bestTarget.getRejoinMergeStrategy();
-
-            // Logit
-            if (this.log.isDebugEnabled())
-                this.log.debug("starting " + desc + " using " + mergeStrategy);
-
-            // Create source transaction. Note the combination of read-only and EVENTUAL_COMMITTED is important, because this
-            // guarantees that the transaction will generate no network traffic (and not require any majority) on commit().
-            final KVTransaction src;
-            if (currKV instanceof RaftKVDatabase) {
-                src = ((RaftKVDatabase)currKV).createTransaction(Consistency.EVENTUAL_COMMITTED);
-                ((RaftKVTransaction)src).setReadOnly(true);
-            } else
-                src = currKV.createTransaction();
-            boolean srcCommitted = false;
+            final String desc = "migration from "
+              + (currIndex != -1 ? "fallback target #" + currIndex : "standalone database")
+              + " to "
+              + (bestIndex != -1 ? "fallback target #" + bestIndex : "standalone database");
             try {
 
-                // Create destination transaction
-                final KVTransaction dst = bestKV.createTransaction();
-                boolean dstCommitted = false;
+                // Gather info
+                final KVDatabase currKV = currTarget != null ? currTarget.getRaftKVDatabase() : this.standaloneKV;
+                final KVDatabase bestKV = bestTarget != null ? bestTarget.getRaftKVDatabase() : this.standaloneKV;
+                final MergeStrategy mergeStrategy = bestIndex < currIndex ?
+                  currTarget.getUnavailableMergeStrategy() : bestTarget.getRejoinMergeStrategy();
+
+                // Logit
+                this.log.info("starting fallback " + desc + " using " + mergeStrategy);
+
+                // Create source transaction. Note the combination of read-only and EVENTUAL_COMMITTED is important, because this
+                // guarantees that the transaction will generate no network traffic (and not require any majority) on commit().
+                final KVTransaction src;
+                if (currKV instanceof RaftKVDatabase) {
+                    src = ((RaftKVDatabase)currKV).createTransaction(Consistency.EVENTUAL_COMMITTED);
+                    ((RaftKVTransaction)src).setReadOnly(true);
+                } else
+                    src = currKV.createTransaction();
+                boolean srcCommitted = false;
                 try {
 
-                    // Perform merge
-                    mergeStrategy.merge(src, dst);
+                    // Create destination transaction
+                    final KVTransaction dst = bestKV.createTransaction();
+                    boolean dstCommitted = false;
+                    try {
 
-                    // Commit transactions
-                    src.commit();
-                    srcCommitted = true;
-                    dst.commit();
-                    dstCommitted = true;
+                        // Perform merge
+                        mergeStrategy.merge(src, dst);
+
+                        // Commit transactions
+                        src.commit();
+                        srcCommitted = true;
+                        dst.commit();
+                        dstCommitted = true;
+
+                        // Redirect new transactions
+                        this.log.info(desc + " succeeded");
+                        synchronized (this) {
+                            this.currentTargetIndex = bestIndex;
+                            this.migrationCount++;
+                        }
+                    } finally {
+                        if (!dstCommitted)
+                            dst.rollback();
+                    }
                 } finally {
-                    if (!dstCommitted)
-                        dst.rollback();
+                    if (!srcCommitted)
+                        src.rollback();
                 }
-            } catch (Error e) {
-                error = e;
-                throw e;
-            } catch (RuntimeException e) {
-                error = e;
-                throw e;
+            } catch (RetryTransactionException e) {
+                this.log.info(desc + " failed (will try again later): " + e);
             } catch (Throwable t) {
-                error = t;
-                throw new RuntimeException(t);
-            } finally {
-                if (!srcCommitted)
-                    src.rollback();
+                this.log.error(desc + " failed", t);
             }
         } finally {
-
-            // Finish up
             synchronized (this) {
-                if (error == null) {
-                    this.currentTargetIndex = bestIndex;
-                    this.migrationCount++;
-                }
                 this.migrating = false;
                 this.notifyAll();
             }
-
-            // Logit
-            if (error != null)
-                this.log.error(desc + " failed", error);
-            else if (this.log.isDebugEnabled())
-                this.log.debug(desc + " succeeded");
         }
     }
 

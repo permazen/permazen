@@ -15,7 +15,12 @@ import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.util.ForwardingKVStore;
 
-class FallbackKVTransaction extends ForwardingKVStore implements KVTransaction {
+/**
+ * A {@link KVTransaction} associated with a {@link FallbackKVDatabase}.
+ *
+ * @see FallbackKVDatabase
+ */
+public class FallbackKVTransaction extends ForwardingKVStore implements KVTransaction {
 
     private final FallbackKVDatabase db;
     private final KVTransaction kvt;
@@ -30,6 +35,16 @@ class FallbackKVTransaction extends ForwardingKVStore implements KVTransaction {
     }
 
 // ForwardingKVStore
+
+    /**
+     * Get the underlying transaction, which will be associated with either one of the fallback
+     * databases, or the standalone mode database.
+     *
+     * @return underlying transaction
+     */
+    public KVTransaction getKVTransaction() {
+        return this.kvt;
+    }
 
     @Override
     protected KVStore delegate() {
