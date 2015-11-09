@@ -8,6 +8,7 @@ package org.jsimpledb.cli.cmd;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.fallback.FallbackKVDatabase;
 
 public abstract class AbstractRaftCommand extends AbstractCommand {
 
@@ -20,9 +21,14 @@ public abstract class AbstractRaftCommand extends AbstractCommand {
         @Override
         public final void run(CliSession session) throws Exception {
             final KVDatabase db = session.getKVDatabase();
-            if (!(db instanceof RaftKVDatabase))
-                throw new Exception("key/value store is not Raft");
-            this.run(session, (RaftKVDatabase)db);
+            final RaftKVDatabase raftKV;
+            if (db instanceof RaftKVDatabase)
+                raftKV = (RaftKVDatabase)db;
+            else if (db instanceof FallbackKVDatabase)
+                raftKV = ((FallbackKVDatabase)db).getFallbackTarget().getRaftKVDatabase();
+            else
+                throw new Exception("key/value store is not Raft or Raft fallback");
+            this.run(session, raftKV);
         }
 
         protected abstract void run(CliSession session, RaftKVDatabase db) throws Exception;
