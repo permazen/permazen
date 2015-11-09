@@ -116,6 +116,20 @@ public class Timestamp implements Comparable<Timestamp> {
         return Timestamp.now() - this.millis >= 0;
     }
 
+    /**
+     * Determine whether this timestamp is so far in the past that it is in danger of rolling over to the future
+     * as time continues to move forward.
+     *
+     * <p>
+     * This returns true if this timestamp is within 5% of the roll-over point relative to the current time.
+     * This would represent a time approximately 22.8 days in the past.
+     *
+     * @return true if this timestamp's offset is dangerously negative
+     */
+    public boolean isRolloverDanger() {
+        return this.offsetFromNow() <= (int)(Integer.MIN_VALUE * 0.95f);
+    }
+
 // Internal methods
 
     private static int now() {

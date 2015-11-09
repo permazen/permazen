@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
 
@@ -37,6 +38,9 @@ import org.jsimpledb.kv.raft.msg.RequestVote;
  * Raft leader role.
  */
 public class LeaderRole extends Role {
+
+    // Timestamp scrub interval
+    private static final int TIMESTAMP_SCRUB_INTERVAL = 24 * 60 * 60 * 1000;            // once a day
 
     // Our followers
     private final HashMap<String, Follower> followerMap = new HashMap<>();
@@ -67,6 +71,12 @@ public class LeaderRole extends Role {
         @Override
         public void run() {
             LeaderRole.this.checkApplyEntries();
+        }
+    });
+    private final Timer timestampScrubTimer = new Timer(this.raft, "scrub timestamps", new Service(this, "scrub timestamps") {
+        @Override
+        public void run() {
+            LeaderRole.this.scrubTimestamps();
         }
     });
 
@@ -111,6 +121,9 @@ public class LeaderRole extends Role {
      * <p>
      * Until it hears from a majority of followers, a leader will not have a lease timeout established yet.
      * In that case this method returns null.
+     *
+     * <p>
+     * This method may also return null if a previous lease timeout has gotten very stale (e.g., isolated leader).
      *
      * @return this leader's lease timeout, or null if none is established yet
      */
@@ -160,6 +173,9 @@ public class LeaderRole extends Role {
         // Start check apply timer
         if (!this.raft.raftLog.isEmpty())
             this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
+
+        // Start timestamp scrub timer
+        this.timestampScrubTimer.timeoutAfter(TIMESTAMP_SCRUB_INTERVAL);
     }
 
     @Override
@@ -168,6 +184,7 @@ public class LeaderRole extends Role {
         for (Follower follower : this.followerMap.values())
             follower.cleanup();
         this.checkApplyTimer.cancel();
+        this.timestampScrubTimer.cancel();
     }
 
 // Service
@@ -391,6 +408,38 @@ public class LeaderRole extends Role {
                     timeouts.clear();
                 }
             }
+        }
+    }
+
+    /**
+     * Scrub timestamps to avoid roll-over.
+     *
+     * <p>
+     * This should be invoked periodically, e.g., once a day.
+     */
+    private void scrubTimestamps() {
+        if (this.log.isTraceEnabled())
+            this.trace("scrubbing timestamps");
+        for (Follower follower : this.followerMap.values()) {
+            final Timestamp leaderTimestamp = follower.getLeaderTimestamp();
+            if (leaderTimestamp != null && leaderTimestamp.isRolloverDanger()) {
+                if (this.log.isDebugEnabled())
+                    this.debug("scrubbing " + follower + " leader timestamp " + leaderTimestamp);
+                follower.setLeaderTimestamp(null);
+            }
+            for (Iterator<Timestamp> i = follower.getCommitLeaseTimeouts().iterator(); i.hasNext(); ) {
+                final Timestamp leaseTimestamp = i.next();
+                if (leaseTimestamp.isRolloverDanger()) {
+                    if (this.log.isDebugEnabled())
+                        this.debug("scrubbing " + follower + " commit lease timestamp " + leaseTimestamp);
+                    i.remove();
+                }
+            }
+        }
+        if (this.leaseTimeout != null && this.leaseTimeout.isRolloverDanger()) {
+            if (this.log.isDebugEnabled())
+                this.debug("scrubbing leader lease timestamp " + this.leaseTimeout);
+            this.leaseTimeout = null;
         }
     }
 
@@ -938,6 +987,7 @@ public class LeaderRole extends Role {
             assert follower.getLeaderCommit() <= this.raft.commitIndex;
             assert follower.getUpdateTimer().isRunning() || follower.getSnapshotTransmit() != null;
         }
+        assert this.timestampScrubTimer.isRunning();
         return true;
     }
 
