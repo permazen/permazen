@@ -180,7 +180,7 @@ public class Session {
      * @throws IllegalStateException if this instance is not in mode {@link SessionMode#CORE_API} or {@link SessionMode#JSIMPLEDB}
      */
     public Transaction getTransaction() {
-        Preconditions.checkState(this.mode.hasCoreAPI(), "core API not available in " + this.mode);
+        Preconditions.checkState(this.mode.hasCoreAPI(), "core API not available in " + this.mode + " mode");
         Preconditions.checkState(this.tx != null, "no transaction is currently associated with this session");
         return this.tx;
     }
@@ -196,7 +196,7 @@ public class Session {
      * @throws IllegalStateException if this instance is not in mode {@link SessionMode#JSIMPLEDB}
      */
     public JTransaction getJTransaction() {
-        Preconditions.checkState(this.mode.hasJSimpleDB(), "JSimpleDB not available in " + this.mode);
+        Preconditions.checkState(this.mode.hasJSimpleDB(), "JSimpleDB not available in " + this.mode + " mode");
         return JTransaction.getCurrent();
     }
 

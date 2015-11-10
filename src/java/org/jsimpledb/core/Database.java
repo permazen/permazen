@@ -491,7 +491,7 @@ public class Database {
 
             // Initialize database
             formatVersion = CURRENT_FORMAT_VERSION;
-            this.log.info("detected an uninitialized database; initializing with format version " + formatVersion);
+            this.log.info("detected an uninitialized database; initializing now (format version " + formatVersion + ")");
             final ByteWriter writer = new ByteWriter();
             UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
             kvstore.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
