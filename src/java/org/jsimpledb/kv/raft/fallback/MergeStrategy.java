@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.raft.fallback;
 
+import java.util.Date;
+
 import org.jsimpledb.kv.KVTransaction;
 
 /**
@@ -17,7 +19,8 @@ public interface MergeStrategy {
      *
      * @param src read-only view into the database being migrated away from
      * @param dst read-write transaction open on the database being migrated to
+     * @param lastActiveTime time that {@code dst} was last active, or null if never
      */
-    void merge(KVTransaction src, KVTransaction dst);
+    void merge(KVTransaction src, KVTransaction dst, Date lastActiveTime);
 }
 

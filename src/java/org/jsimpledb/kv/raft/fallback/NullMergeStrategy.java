@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.raft.fallback;
 
+import java.util.Date;
+
 import org.jsimpledb.kv.KVTransaction;
 
 /**
@@ -13,13 +15,13 @@ import org.jsimpledb.kv.KVTransaction;
 public class NullMergeStrategy implements MergeStrategy {
 
     @Override
-    public void merge(KVTransaction src, KVTransaction dst) {
+    public void merge(KVTransaction src, KVTransaction dst, Date lastActiveTime) {
         // do nothing
     }
 
     @Override
     public String toString() {
-        return "null merge strategy";
+        return "Null";
     }
 }
 

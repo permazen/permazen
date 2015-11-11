@@ -7,8 +7,16 @@ package org.jsimpledb.kv.raft.fallback;
 
 import com.google.common.base.Preconditions;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -18,6 +26,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.RetryTransactionException;
@@ -62,11 +71,14 @@ import org.slf4j.LoggerFactory;
 public class FallbackKVDatabase implements KVDatabase {
 
     private static final int MIGRATION_CHECK_INTERVAL = 1000;                   // every 1 second
+    private static final int STATE_FILE_COOKIE = 0xe2bd1a96;
+    private static final int CURRENT_FORMAT_VERSION = 1;
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     // Configured state
     private final ArrayList<FallbackTarget> targets = new ArrayList<>();
+    private File stateFile;
     private KVDatabase standaloneKV;
 
     // Runtime state
@@ -77,8 +89,34 @@ public class FallbackKVDatabase implements KVDatabase {
     private int startCount;
     private boolean started;
     private int currentTargetIndex;
+    private Date lastStandaloneActiveTime;
 
 // Methods
+
+    /**
+     * Get this instance's persistent state file.
+     *
+     * @return file for persistent state
+     */
+    public synchronized File getStateFile() {
+        return this.stateFile;
+    }
+
+    /**
+     * Configure this instance's persistent state file.
+     *
+     * <p>
+     * Required property.
+     *
+     * @param stateFile file for persistent state
+     * @throws IllegalArgumentException if {@code stateFile} is null
+     * @throws IllegalStateException if this instance is already started
+     */
+    public synchronized void setStateFile(File stateFile) {
+        Preconditions.checkArgument(stateFile != null, "null stateFile");
+        Preconditions.checkState(!this.started, "already started");
+        this.stateFile = stateFile;
+    }
 
     /**
      * Get the configured "standalone mode" {@link KVDatabase} to be used when all {@link FallbackTarget}s are unavailable.
@@ -120,10 +158,13 @@ public class FallbackKVDatabase implements KVDatabase {
      * <p>
      * Targets will be sorted in order of increasing preference.
      *
-     * @return immutable list of one or more fallback targets
+     * @return list of one or more fallback targets; the returned list is a snapshot-in-time copy of each target
      */
     public synchronized List<FallbackTarget> getFallbackTargets() {
-        return Collections.unmodifiableList(this.targets);
+        final ArrayList<FallbackTarget> result = new ArrayList<>(this.targets);
+        for (int i = 0; i < result.size(); i++)
+            result.set(i, result.get(i).clone());
+        return result;
     }
 
     /**
@@ -163,6 +204,24 @@ public class FallbackKVDatabase implements KVDatabase {
         }
     }
 
+    /**
+     * Get the index of the currently active database.
+     *
+     * @return index into fallback target list, or -1 for standalone mode
+     */
+    public synchronized int getCurrentTargetIndex() {
+        return this.currentTargetIndex;
+    }
+
+    /**
+     * Get the last time the standalone database was active.
+     *
+     * @return last active time of the standalone database, or null if never active
+     */
+    public synchronized Date getLastStandaloneActiveTime() {
+        return this.lastStandaloneActiveTime;
+    }
+
 // KVDatabase
 
     @Override
@@ -174,6 +233,7 @@ public class FallbackKVDatabase implements KVDatabase {
         this.startCount++;
 
         // Sanity check
+        Preconditions.checkState(this.stateFile != null, "no state file configured");
         Preconditions.checkState(this.targets != null, "no targets configured");
         try {
 
@@ -202,6 +262,15 @@ public class FallbackKVDatabase implements KVDatabase {
             }
             this.currentTargetIndex = this.targets.size() - 1;
             this.migrationCount = 0;
+
+            // Read state file, if present
+            if (this.stateFile.exists()) {
+                try {
+                    this.readStateFile();
+                } catch (IOException e) {
+                    throw new RuntimeException("error reading persistent state file " + this.stateFile, e);
+                }
+            }
 
             // Set up periodic migration checks
             this.migrationCheckFuture = this.executor.scheduleWithFixedDelay(
@@ -362,23 +431,13 @@ public class FallbackKVDatabase implements KVDatabase {
             if (!this.started || startCount != this.startCount)
                 return;
 
+            // Prevent timestamp roll-over
+            if (target.lastChangeTimestamp != null && target.lastChangeTimestamp.isRolloverDanger())
+                target.lastChangeTimestamp = null;
+
             // Any state change?
             if (available == target.available)
                 return;
-            if (this.log.isTraceEnabled())
-                this.log.trace(target + " is now " + (target.available ? "" : "un") + "available");
-
-            // Enforce hysteresis: don't change state unless sufficient time has past since last state change
-            if (target.lastChangeTimestamp != null) {
-                final int minDelay = target.available ? target.getMinAvailableTime() : target.getMinUnavailableTime();
-                if (target.lastChangeTimestamp.offsetFromNow() + minDelay > 0) {
-                    if (this.log.isTraceEnabled()) {
-                        this.log.trace(target + " is " + (target.available ? "" : "un") + "available, but minimum delay of "
-                          + minDelay + "ms has not yet elapsed");
-                    }
-                    return;
-                }
-            }
 
             // Update availability and schedule an immediate migration check
             this.log.info(target + " has become " + (available ? "" : "un") + "available");
@@ -410,8 +469,31 @@ public class FallbackKVDatabase implements KVDatabase {
 
             // Get the highest priority (i.e., best choice) database that is currently available
             bestIndex = this.targets.size() - 1;
-            while (bestIndex >= 0 && !this.targets.get(bestIndex).available)
+            while (bestIndex >= 0) {
+                final FallbackTarget target = this.targets.get(bestIndex);
+
+                // Enforce hysteresis: don't change state unless sufficient time has past since target's last state change
+                final boolean previousAvailable = bestIndex >= this.currentTargetIndex;
+                final boolean currentAvailable = target.available;
+                final int timeSinceChange = target.lastChangeTimestamp != null ?
+                  -target.lastChangeTimestamp.offsetFromNow() : Integer.MAX_VALUE;
+                final boolean hysteresisAvailable;
+                if (currentAvailable)
+                    hysteresisAvailable = previousAvailable || timeSinceChange >= target.getMinAvailableTime();
+                else
+                    hysteresisAvailable = previousAvailable && timeSinceChange < target.getMinUnavailableTime();
+                if (this.log.isTraceEnabled()) {
+                    this.log.trace(target + " availability: previous=" + previousAvailable + ", current=" + currentAvailable
+                      + ", hysteresis=" + hysteresisAvailable);
+                }
+
+                // If this target is available, use it
+                if (hysteresisAvailable)
+                    break;
+
+                // Try next best one
                 bestIndex--;
+            }
 
             // Already there?
             currIndex = this.currentTargetIndex;
@@ -435,6 +517,7 @@ public class FallbackKVDatabase implements KVDatabase {
                 // Gather info
                 final KVDatabase currKV = currTarget != null ? currTarget.getRaftKVDatabase() : this.standaloneKV;
                 final KVDatabase bestKV = bestTarget != null ? bestTarget.getRaftKVDatabase() : this.standaloneKV;
+                final Date lastActiveTime = bestTarget != null ? bestTarget.lastActiveTime : this.lastStandaloneActiveTime;
                 final MergeStrategy mergeStrategy = bestIndex < currIndex ?
                   currTarget.getUnavailableMergeStrategy() : bestTarget.getRejoinMergeStrategy();
 
@@ -457,8 +540,11 @@ public class FallbackKVDatabase implements KVDatabase {
                     boolean dstCommitted = false;
                     try {
 
+                        // Get timestamp
+                        final Date currentTime = new Date();
+
                         // Perform merge
-                        mergeStrategy.merge(src, dst);
+                        mergeStrategy.merge(src, dst, lastActiveTime);
 
                         // Commit transactions
                         src.commit();
@@ -469,9 +555,14 @@ public class FallbackKVDatabase implements KVDatabase {
                         // Redirect new transactions
                         this.log.info(desc + " succeeded");
                         synchronized (this) {
+                            if (currTarget != null)
+                                currTarget.lastActiveTime = currentTime;
+                            else
+                                this.lastStandaloneActiveTime = currentTime;
                             this.currentTargetIndex = bestIndex;
                             this.migrationCount++;
                         }
+
                     } finally {
                         if (!dstCommitted)
                             dst.rollback();
@@ -489,6 +580,78 @@ public class FallbackKVDatabase implements KVDatabase {
             synchronized (this) {
                 this.migrating = false;
                 this.notifyAll();
+            }
+        }
+
+        // Update state file
+        try {
+            this.writeStateFile();
+        } catch (IOException e) {
+            this.log.error("error writing state to state file " + this.stateFile, e);
+        }
+    }
+
+    private void readStateFile() throws IOException {
+
+        // Sanity check
+        assert Thread.holdsLock(this);
+
+        // Read data
+        final int targetIndex;
+        final long standaloneActiveTime;
+        final long[] lastActiveTimes;
+        try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(this.stateFile)))) {
+            final int cookie = input.readInt();
+            if (cookie != STATE_FILE_COOKIE)
+                throw new IOException("invalid state file " + this.stateFile + " (incorrect header)");
+            final int formatVersion = input.readInt();
+            switch (formatVersion) {
+            case CURRENT_FORMAT_VERSION:
+                break;
+            default:
+                throw new IOException("invalid state file " + this.stateFile + " format version (expecting "
+                  + CURRENT_FORMAT_VERSION + ", found " + formatVersion + ")");
+            }
+            final int numTargets = input.readInt();
+            if (numTargets != this.targets.size()) {
+                this.log.warn("state file " + this.stateFile + " lists " + numTargets + " != " + this.targets.size()
+                  + ", assuming configuration change and ignoring file");
+                return;
+            }
+            targetIndex = input.readInt();
+            if (targetIndex < -1 || targetIndex >= this.targets.size())
+                throw new IOException("invalid state file " + this.stateFile + " target index " + targetIndex);
+            standaloneActiveTime = input.readLong();
+            lastActiveTimes = new long[numTargets];
+            for (int i = 0; i < numTargets; i++)
+                lastActiveTimes[i] = input.readLong();
+        }
+
+        // Apply data
+        this.currentTargetIndex = targetIndex;
+        for (int i = 0; i < this.targets.size(); i++) {
+            final FallbackTarget target = this.targets.get(i);
+            target.lastActiveTime = lastActiveTimes[i] != 0 ? new Date(lastActiveTimes[i]) : null;
+        }
+        this.lastStandaloneActiveTime = standaloneActiveTime != 0 ? new Date(standaloneActiveTime) : null;
+    }
+
+    private void writeStateFile() throws IOException {
+
+        // Sanity check
+        assert Thread.holdsLock(this);
+
+        // Write data
+        try (DataOutputStream output = new DataOutputStream(
+          new BufferedOutputStream(new AtomicUpdateFileOutputStream(this.stateFile)))) {
+            output.writeInt(STATE_FILE_COOKIE);
+            output.writeInt(CURRENT_FORMAT_VERSION);
+            output.writeInt(this.targets.size());
+            output.writeInt(this.currentTargetIndex);
+            output.writeLong(this.lastStandaloneActiveTime != null ? this.lastStandaloneActiveTime.getTime() : 0);
+            for (int i = 0; i < this.targets.size(); i++) {
+                final FallbackTarget target = this.targets.get(i);
+                output.writeLong(target.lastActiveTime != null ? target.lastActiveTime.getTime() : 0);
             }
         }
     }

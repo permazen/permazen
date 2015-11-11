@@ -5,6 +5,7 @@
 
 package org.jsimpledb.kv.raft.fallback;
 
+import java.util.Date;
 import java.util.Iterator;
 
 import org.jsimpledb.kv.KVPair;
@@ -16,7 +17,7 @@ import org.jsimpledb.kv.KVTransaction;
 public class OverwriteMergeStrategy implements MergeStrategy {
 
     @Override
-    public void merge(KVTransaction src, KVTransaction dst) {
+    public void merge(KVTransaction src, KVTransaction dst, Date lastActiveTime) {
         dst.removeRange(null, null);
         final Iterator<KVPair> i = src.getRange(null, null, false);
         while (i.hasNext()) {
@@ -32,7 +33,7 @@ public class OverwriteMergeStrategy implements MergeStrategy {
 
     @Override
     public String toString() {
-        return "overwrite merge strategy";
+        return "Overwrite";
     }
 }
 

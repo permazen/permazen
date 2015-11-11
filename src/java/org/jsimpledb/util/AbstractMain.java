@@ -277,11 +277,18 @@ public abstract class AbstractMain extends MainClass {
                 }
                 this.raftDBType.setPort(port);
             } else if (option.equals("--raft-fallback")) {
+                if (params.isEmpty())
+                    this.usageError();
                 if (this.fallbackDBType != null) {
                     System.err.println(this.getName() + ": duplicate `" + option + "' flag");
                     return 1;
                 }
-                this.fallbackDBType = new FallbackDBType();
+                final File stateFile = new File(params.removeFirst());
+                if (stateFile.exists() && !stateFile.isFile()) {
+                    System.err.println(this.getName() + ": file `" + stateFile + "' is not a regular file");
+                    return 1;
+                }
+                this.fallbackDBType = new FallbackDBType(stateFile);
                 dbTypes.add(this.fallbackDBType);
             } else if (option.matches("--raft-fallback-(check-(interval|timeout)|min-(un)?available)")) {
                 if (params.isEmpty())
@@ -659,7 +666,7 @@ public abstract class AbstractMain extends MainClass {
             { "--raft-address address",         "Specify local Raft node's IP address" },
             { "--raft-port",                    "Specify local Raft node's TCP port (default "
                                                   + RaftKVDatabase.DEFAULT_TCP_PORT + ")" },
-            { "--raft-fallback",                "Use Raft fallback database" },
+            { "--raft-fallback statefile",      "Use Raft fallback database with specified state file" },
             { "--raft-fallback-check-interval", "Specify Raft fallback check interval in milliseconds (default "
                                                   + FallbackTarget.DEFAULT_CHECK_INTERVAL + ")" },
             { "--raft-fallback-min-available",  "Specify Raft fallback min available time in milliseconds (default "
@@ -1037,18 +1044,21 @@ public abstract class AbstractMain extends MainClass {
     protected final class FallbackDBType extends DBType<FallbackKVDatabase> {
 
         private final FallbackTarget fallbackTarget = new FallbackTarget();
+        private final File stateFile;
 
         private RaftDBType raftDBType;
         private DBType<?> standaloneDBType;
 
-        protected FallbackDBType() {
+        protected FallbackDBType(File stateFile) {
             super(FallbackKVDatabase.class);
+            this.stateFile = stateFile;
         }
 
         @Override
         public FallbackKVDatabase createKVDatabase() {
             this.fallbackTarget.setRaftKVDatabase(this.raftDBType.createKVDatabase());
             final FallbackKVDatabase fallback = new FallbackKVDatabase();
+            fallback.setStateFile(this.stateFile);
             fallback.setFallbackTarget(this.fallbackTarget);
             fallback.setStandaloneTarget(this.standaloneDBType.createKVDatabase());
             return fallback;
@@ -1078,7 +1088,7 @@ public abstract class AbstractMain extends MainClass {
 
         @Override
         public String getDescription() {
-            return this.raftDBType.getDescription() + " with fallback " + this.standaloneDBType.getDescription();
+            return this.raftDBType.getDescription() + ", fallback " + this.standaloneDBType.getDescription();
         }
     }
 }

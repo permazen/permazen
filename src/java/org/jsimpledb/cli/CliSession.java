@@ -29,6 +29,7 @@ import org.jsimpledb.cli.cmd.KVSaveCommand;
 import org.jsimpledb.cli.cmd.LoadCommand;
 import org.jsimpledb.cli.cmd.QuitCommand;
 import org.jsimpledb.cli.cmd.RaftAddCommand;
+import org.jsimpledb.cli.cmd.RaftFallbackStatusCommand;
 import org.jsimpledb.cli.cmd.RaftRemoveCommand;
 import org.jsimpledb.cli.cmd.RaftStartElectionCommand;
 import org.jsimpledb.cli.cmd.RaftStatusCommand;
@@ -195,6 +196,7 @@ public class CliSession extends ParseSession {
             LoadCommand.class,
             QuitCommand.class,
             RaftAddCommand.class,
+            RaftFallbackStatusCommand.class,
             RaftRemoveCommand.class,
             RaftStartElectionCommand.class,
             RaftStatusCommand.class,

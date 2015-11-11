@@ -7,6 +7,7 @@ package org.jsimpledb.kv.raft.fallback;
 
 import com.google.common.base.Preconditions;
 
+import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 
 import org.jsimpledb.kv.KVTransaction;
@@ -65,6 +66,7 @@ public class FallbackTarget implements Cloneable {
 
     // Runtime state
     boolean available;
+    Date lastActiveTime;
     Timestamp lastChangeTimestamp;
     ScheduledFuture<?> future;
 
@@ -76,6 +78,8 @@ public class FallbackTarget implements Cloneable {
     private int minUnavailableTime = DEFAULT_MIN_UNAVAILABLE_TIME;
     private MergeStrategy unavailableMergeStrategy = new OverwriteMergeStrategy();
     private MergeStrategy rejoinMergeStrategy = new NullMergeStrategy();
+
+// Configuration State
 
     /**
      * Get the {@link RaftKVDatabase}.
@@ -236,6 +240,38 @@ public class FallbackTarget implements Cloneable {
         Preconditions.checkArgument(strategy != null, "null strategy");
         this.rejoinMergeStrategy = strategy;
     }
+
+// Runtime State
+
+    /**
+     * Get the current availability of this target.
+     *
+     * @return true if this target is currently available, otherwise false
+     */
+    public boolean isAvailable() {
+        return this.available;
+    }
+
+    /**
+     * Get the time of the last change in availability of this target, if known.
+     *
+     * @return time this target's availability last changed, or null if unknown or no change has occurred
+     */
+    public Date getLastChangeTime() {
+        return this.lastChangeTimestamp != null ?
+          new Date(System.currentTimeMillis() + this.lastChangeTimestamp.offsetFromNow()) : null;
+    }
+
+    /**
+     * Get the last time this target was the active database.
+     *
+     * @return last active time of this target, or null if never active
+     */
+    public Date getLastActiveTime() {
+        return this.lastActiveTime;
+    }
+
+// Subclass Methods
 
     /**
      * Perform an availability assessment of the underlying {@link RaftKVDatabase} associated with this instance.
