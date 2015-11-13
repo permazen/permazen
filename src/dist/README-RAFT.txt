@@ -25,7 +25,7 @@ or by using the `--raft-port' flag.
     "X" with the appropriate letter (A, B, C, ...):
 
         $ java -jar jsimpledb-cli.jar
-            --kv-mode                               # Run CLI in key/value mode
+            --kv-mode                               # Start CLI in key/value mode
             --raft-dir ~/.raftX                     # Raft persistent state dir
             --raft-identity nodeX                   # Raft node identity
             --raft-address X.X.X.X                  # Raft node IP address
@@ -65,7 +65,7 @@ or by using the `--raft-port' flag.
     After adding each node, "raft-status" should show it as a
     member of the cluster.
 
-    If an error occurs, double check your IP addresses and/or TCP ports.
+    If an error occurs, double check your node names, IP addresses and/or TCP ports.
 
   5. Check updated Raft status on any node at any time:
 
@@ -94,5 +94,5 @@ or by using the `--raft-port' flag.
         null
 
   8. Disconnect any minority of nodes and verify that the remaining majority
-     is still fully functiona, can commit transactions, etc.
+     is still fully functional, can commit transactions, etc.
 
