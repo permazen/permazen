@@ -86,12 +86,20 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.raft.fallback">org.jsimpledb.kv.raft.fallback</a></td>
+<td class="colLast">
+<div class="block">A partition-tolerant <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> that automatically migrates between a clustered
+ <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> and a private non-clustered "standalone mode"
+ <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>, based on availability of the Raft cluster.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.raft.msg">org.jsimpledb.kv.raft.msg</a></td>
 <td class="colLast">
 <div class="block">Raft inter-node messages.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.util">org.jsimpledb.util</a></td>
 <td class="colLast">
 <div class="block">General utility classes used with JSimpleDB.</div>
@@ -137,23 +145,13 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><a href="../../../../org/jsimpledb/kv/raft/class-use/FallbackTarget.html#org.jsimpledb.kv.raft">FallbackTarget</a>
-<div class="block">Represents one of the underlying <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>s managed by a <a href="../../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>FallbackKVDatabase</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/kv/raft/class-use/Follower.html#org.jsimpledb.kv.raft">Follower</a>
 <div class="block">Contains information maintained by leaders about followers.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/kv/raft/class-use/LogEntry.html#org.jsimpledb.kv.raft">LogEntry</a>
 <div class="block">Represents one unapplied Raft log entry.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><a href="../../../../org/jsimpledb/kv/raft/class-use/MergeStrategy.html#org.jsimpledb.kv.raft">MergeStrategy</a>
-<div class="block">Merge strategy used by a <a href="../../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>FallbackKVDatabase</code></a> when migrating from one underlying database to another.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -186,6 +184,23 @@
 <tr class="altColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/kv/raft/class-use/TxState.html#org.jsimpledb.kv.raft">TxState</a>
 <div class="block"><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVTransaction</code></a> states.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.raft.fallback">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a> used by <a href="../../../../org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/raft/class-use/RaftKVDatabase.html#org.jsimpledb.kv.raft.fallback">RaftKVDatabase</a>
+<div class="block">A distributed <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> based on the Raft consensus algorithm.</div>
 </td>
 </tr>
 </tbody>

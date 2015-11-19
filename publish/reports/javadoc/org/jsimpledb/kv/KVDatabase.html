@@ -86,11 +86,11 @@
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a>, <a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>, <a href="../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft">FallbackKVDatabase</a>, <a href="../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a>, <a href="../../../org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVDatabase</a>, <a href="../../../org/jsimpledb/kv/sql/MySQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">MySQLKVDatabase</a>, <a href="../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util">PrefixKVDatabase</a>, <a href="../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a>, <a href="../../../org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a>, <a href="../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a>, <a href="../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a>, <a href="../../../org/jsimpledb/spring/SpringXMLKVDatabase.html" title="class in org.jsimpledb.spring">SpringXMLKVDatabase</a>, <a href="../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a>, <a href="../../../org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple">XMLKVDatabase</a></dd>
+<dd><a href="../../../org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a>, <a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>, <a href="../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVDatabase</a>, <a href="../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a>, <a href="../../../org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVDatabase</a>, <a href="../../../org/jsimpledb/kv/sql/MySQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">MySQLKVDatabase</a>, <a href="../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util">PrefixKVDatabase</a>, <a href="../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft">RaftKVDatabase</a>, <a href="../../../org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a>, <a href="../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a>, <a href="../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVDatabase</a>, <a href="../../../org/jsimpledb/spring/SpringXMLKVDatabase.html" title="class in org.jsimpledb.spring">SpringXMLKVDatabase</a>, <a href="../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a>, <a href="../../../org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple">XMLKVDatabase</a></dd>
 </dl>
 <hr>
 <br>
-<pre>public interface <a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.13">KVDatabase</a></pre>
+<pre>public interface <a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.15">KVDatabase</a></pre>
 <div class="block">A transactional database with a simple key/value API.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a></dd></dl>
 </li>
@@ -118,12 +118,18 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</code>
+<div class="block">Create a new transaction with the specified options.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
@@ -150,7 +156,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.28">start</a>()</pre>
+<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.30">start</a>()</pre>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
  <p>
@@ -168,7 +174,7 @@
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.36">stop</a>()</pre>
+<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.38">stop</a>()</pre>
 <div class="block">Stop this instance.
 
  <p>
@@ -178,12 +184,27 @@
 <a name="createTransaction()">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre><a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.49">createTransaction</a>()</pre>
+<div class="block">Create a new transaction.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/kv/KVDatabaseException.html" title="class in org.jsimpledb.kv">KVDatabaseException</a></code> - if an unexpected error occurs</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is not <a href="../../../org/jsimpledb/kv/KVDatabase.html#start()"><code>start()</code></a>ed</dd></dl>
+</li>
+</ul>
+<a name="createTransaction(java.util.Map)">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre><a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.47">createTransaction</a>()</pre>
-<div class="block">Create a new transaction.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd>
+<pre><a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVDatabase.html#line.59">createTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</pre>
+<div class="block">Create a new transaction with the specified options.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - optional transaction options; may be null</dd>
+<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/kv/KVDatabaseException.html" title="class in org.jsimpledb.kv">KVDatabaseException</a></code> - if an unexpected error occurs</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is not <a href="../../../org/jsimpledb/kv/KVDatabase.html#start()"><code>start()</code></a>ed</dd></dl>

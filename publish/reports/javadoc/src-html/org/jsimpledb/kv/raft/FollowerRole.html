@@ -390,624 +390,619 @@
 <span class="sourceLineNo">382</span>            return;<a name="line.382"></a>
 <span class="sourceLineNo">383</span>        }<a name="line.383"></a>
 <span class="sourceLineNo">384</span><a name="line.384"></a>
-<span class="sourceLineNo">385</span>        // Gather reads data, but only if transaction is LINEARIZABLE; otherwise, we don't send them<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        final ByteBuffer readsData;<a name="line.386"></a>
-<span class="sourceLineNo">387</span>        if (tx.getConsistency().equals(Consistency.LINEARIZABLE)) {<a name="line.387"></a>
-<span class="sourceLineNo">388</span><a name="line.388"></a>
-<span class="sourceLineNo">389</span>            // Serialize reads into buffer<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            final Reads reads = tx.getMutableView().getReads();<a name="line.390"></a>
-<span class="sourceLineNo">391</span>            final long readsDataSize = reads.serializedLength();<a name="line.391"></a>
-<span class="sourceLineNo">392</span>            if (readsDataSize != (int)readsDataSize)<a name="line.392"></a>
-<span class="sourceLineNo">393</span>                throw new KVTransactionException(tx, "transaction read information exceeds maximum length");<a name="line.393"></a>
-<span class="sourceLineNo">394</span>            readsData = Util.allocateByteBuffer((int)readsDataSize);<a name="line.394"></a>
-<span class="sourceLineNo">395</span>            try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>                reads.serialize(output);<a name="line.396"></a>
-<span class="sourceLineNo">397</span>            } catch (IOException e) {<a name="line.397"></a>
-<span class="sourceLineNo">398</span>                throw new RuntimeException("unexpected exception", e);<a name="line.398"></a>
-<span class="sourceLineNo">399</span>            }<a name="line.399"></a>
-<span class="sourceLineNo">400</span>            assert !readsData.hasRemaining();<a name="line.400"></a>
-<span class="sourceLineNo">401</span>            readsData.flip();<a name="line.401"></a>
-<span class="sourceLineNo">402</span>        } else<a name="line.402"></a>
-<span class="sourceLineNo">403</span>            readsData = null;<a name="line.403"></a>
-<span class="sourceLineNo">404</span><a name="line.404"></a>
-<span class="sourceLineNo">405</span>        // Gather writes data (i.e., mutations), but only if transaction is not read-only<a name="line.405"></a>
-<span class="sourceLineNo">406</span>        ByteBuffer mutationData = null;<a name="line.406"></a>
-<span class="sourceLineNo">407</span>        if (!readOnly) {<a name="line.407"></a>
-<span class="sourceLineNo">408</span><a name="line.408"></a>
-<span class="sourceLineNo">409</span>            // Serialize mutations into a temporary file (but do not close or durably persist yet)<a name="line.409"></a>
-<span class="sourceLineNo">410</span>            final Writes writes = tx.getMutableView().getWrites();<a name="line.410"></a>
-<span class="sourceLineNo">411</span>            final File file = new File(this.raft.logDir,<a name="line.411"></a>
-<span class="sourceLineNo">412</span>              String.format("%s%019d%s", RaftKVDatabase.TX_FILE_PREFIX, tx.getTxId(), RaftKVDatabase.TEMP_FILE_SUFFIX));<a name="line.412"></a>
-<span class="sourceLineNo">413</span>            final FileWriter fileWriter;<a name="line.413"></a>
+<span class="sourceLineNo">385</span>        // Serialize reads into buffer<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        assert !readOnly || tx.getConsistency().isGuaranteesUpToDateReads();<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        final Reads reads = tx.getMutableView().getReads();<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        final long readsDataSize = reads.serializedLength();<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        if (readsDataSize != (int)readsDataSize)<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            throw new KVTransactionException(tx, "transaction read information exceeds maximum length");<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        final ByteBuffer readsData = Util.allocateByteBuffer((int)readsDataSize);<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        try (ByteBufferOutputStream output = new ByteBufferOutputStream(readsData)) {<a name="line.392"></a>
+<span class="sourceLineNo">393</span>            reads.serialize(output);<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        } catch (IOException e) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            throw new RuntimeException("unexpected exception", e);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        }<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        assert !readsData.hasRemaining();<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        readsData.flip();<a name="line.398"></a>
+<span class="sourceLineNo">399</span><a name="line.399"></a>
+<span class="sourceLineNo">400</span>        // Gather writes data (i.e., mutations), but only if transaction contains mutations<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        ByteBuffer mutationData = null;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        if (!readOnly) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>            // Serialize mutations into a temporary file (but do not close or durably persist yet)<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            final Writes writes = tx.getMutableView().getWrites();<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            final File file = new File(this.raft.logDir,<a name="line.406"></a>
+<span class="sourceLineNo">407</span>              String.format("%s%019d%s", RaftKVDatabase.TX_FILE_PREFIX, tx.getTxId(), RaftKVDatabase.TEMP_FILE_SUFFIX));<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            final FileWriter fileWriter;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            try {<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                fileWriter = new FileWriter(file);<a name="line.410"></a>
+<span class="sourceLineNo">411</span>            } catch (IOException e) {<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);<a name="line.412"></a>
+<span class="sourceLineNo">413</span>            }<a name="line.413"></a>
 <span class="sourceLineNo">414</span>            try {<a name="line.414"></a>
-<span class="sourceLineNo">415</span>                fileWriter = new FileWriter(file);<a name="line.415"></a>
-<span class="sourceLineNo">416</span>            } catch (IOException e) {<a name="line.416"></a>
-<span class="sourceLineNo">417</span>                throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);<a name="line.417"></a>
-<span class="sourceLineNo">418</span>            }<a name="line.418"></a>
-<span class="sourceLineNo">419</span>            try {<a name="line.419"></a>
-<span class="sourceLineNo">420</span>                LogEntry.writeData(fileWriter, new LogEntry.Data(writes, tx.getConfigChange()));<a name="line.420"></a>
-<span class="sourceLineNo">421</span>                fileWriter.flush();<a name="line.421"></a>
-<span class="sourceLineNo">422</span>            } catch (IOException e) {<a name="line.422"></a>
-<span class="sourceLineNo">423</span>                fileWriter.getFile().delete();<a name="line.423"></a>
-<span class="sourceLineNo">424</span>                Util.closeIfPossible(fileWriter);<a name="line.424"></a>
-<span class="sourceLineNo">425</span>                throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);<a name="line.425"></a>
-<span class="sourceLineNo">426</span>            }<a name="line.426"></a>
-<span class="sourceLineNo">427</span><a name="line.427"></a>
-<span class="sourceLineNo">428</span>            // Load serialized writes from file<a name="line.428"></a>
-<span class="sourceLineNo">429</span>            final long writeLength = fileWriter.getLength();<a name="line.429"></a>
-<span class="sourceLineNo">430</span>            try {<a name="line.430"></a>
-<span class="sourceLineNo">431</span>                mutationData = Util.readFile(fileWriter.getFile(), writeLength);<a name="line.431"></a>
-<span class="sourceLineNo">432</span>            } catch (IOException e) {<a name="line.432"></a>
-<span class="sourceLineNo">433</span>                fileWriter.getFile().delete();<a name="line.433"></a>
-<span class="sourceLineNo">434</span>                Util.closeIfPossible(fileWriter);<a name="line.434"></a>
-<span class="sourceLineNo">435</span>                throw new KVTransactionException(tx, "error reading transaction mutations from temporary file", e);<a name="line.435"></a>
-<span class="sourceLineNo">436</span>            }<a name="line.436"></a>
+<span class="sourceLineNo">415</span>                LogEntry.writeData(fileWriter, new LogEntry.Data(writes, tx.getConfigChange()));<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                fileWriter.flush();<a name="line.416"></a>
+<span class="sourceLineNo">417</span>            } catch (IOException e) {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>                fileWriter.getFile().delete();<a name="line.418"></a>
+<span class="sourceLineNo">419</span>                Util.closeIfPossible(fileWriter);<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);<a name="line.420"></a>
+<span class="sourceLineNo">421</span>            }<a name="line.421"></a>
+<span class="sourceLineNo">422</span><a name="line.422"></a>
+<span class="sourceLineNo">423</span>            // Load serialized writes from file<a name="line.423"></a>
+<span class="sourceLineNo">424</span>            final long writeLength = fileWriter.getLength();<a name="line.424"></a>
+<span class="sourceLineNo">425</span>            try {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>                mutationData = Util.readFile(fileWriter.getFile(), writeLength);<a name="line.426"></a>
+<span class="sourceLineNo">427</span>            } catch (IOException e) {<a name="line.427"></a>
+<span class="sourceLineNo">428</span>                fileWriter.getFile().delete();<a name="line.428"></a>
+<span class="sourceLineNo">429</span>                Util.closeIfPossible(fileWriter);<a name="line.429"></a>
+<span class="sourceLineNo">430</span>                throw new KVTransactionException(tx, "error reading transaction mutations from temporary file", e);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>            }<a name="line.431"></a>
+<span class="sourceLineNo">432</span><a name="line.432"></a>
+<span class="sourceLineNo">433</span>            // Record pending commit write with temporary file<a name="line.433"></a>
+<span class="sourceLineNo">434</span>            final PendingWrite pendingWrite = new PendingWrite(tx, fileWriter);<a name="line.434"></a>
+<span class="sourceLineNo">435</span>            this.pendingWrites.put(tx.getTxId(), pendingWrite);<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        }<a name="line.436"></a>
 <span class="sourceLineNo">437</span><a name="line.437"></a>
-<span class="sourceLineNo">438</span>            // Record pending commit write with temporary file<a name="line.438"></a>
-<span class="sourceLineNo">439</span>            final PendingWrite pendingWrite = new PendingWrite(tx, fileWriter);<a name="line.439"></a>
-<span class="sourceLineNo">440</span>            this.pendingWrites.put(tx.getTxId(), pendingWrite);<a name="line.440"></a>
-<span class="sourceLineNo">441</span>        }<a name="line.441"></a>
-<span class="sourceLineNo">442</span><a name="line.442"></a>
-<span class="sourceLineNo">443</span>        // Record pending request<a name="line.443"></a>
-<span class="sourceLineNo">444</span>        this.pendingRequests.put(tx.getTxId(), new PendingRequest(tx));<a name="line.444"></a>
-<span class="sourceLineNo">445</span><a name="line.445"></a>
-<span class="sourceLineNo">446</span>        // Send commit request to leader<a name="line.446"></a>
-<span class="sourceLineNo">447</span>        final CommitRequest msg = new CommitRequest(this.raft.clusterId, this.raft.identity, this.leader,<a name="line.447"></a>
-<span class="sourceLineNo">448</span>          this.raft.currentTerm, tx.getTxId(), tx.getBaseTerm(), tx.getBaseIndex(), readsData, mutationData);<a name="line.448"></a>
-<span class="sourceLineNo">449</span>        if (this.log.isTraceEnabled())<a name="line.449"></a>
-<span class="sourceLineNo">450</span>            this.trace("sending " + msg + " to \"" + this.leader + "\" for " + tx);<a name="line.450"></a>
-<span class="sourceLineNo">451</span>        if (!this.raft.sendMessage(msg))<a name="line.451"></a>
-<span class="sourceLineNo">452</span>            throw new RetryTransactionException(tx, "error sending commit request to leader");<a name="line.452"></a>
-<span class="sourceLineNo">453</span>    }<a name="line.453"></a>
-<span class="sourceLineNo">454</span><a name="line.454"></a>
-<span class="sourceLineNo">455</span>    @Override<a name="line.455"></a>
-<span class="sourceLineNo">456</span>    void cleanupForTransaction(RaftKVTransaction tx) {<a name="line.456"></a>
-<span class="sourceLineNo">457</span>        this.pendingRequests.remove(tx.getTxId());<a name="line.457"></a>
-<span class="sourceLineNo">458</span>        final PendingWrite pendingWrite = this.pendingWrites.remove(tx.getTxId());<a name="line.458"></a>
-<span class="sourceLineNo">459</span>        if (pendingWrite != null)<a name="line.459"></a>
-<span class="sourceLineNo">460</span>            pendingWrite.cleanup();<a name="line.460"></a>
-<span class="sourceLineNo">461</span>        this.commitLeaderLeaseTimeoutMap.remove(tx.getTxId());<a name="line.461"></a>
-<span class="sourceLineNo">462</span>    }<a name="line.462"></a>
+<span class="sourceLineNo">438</span>        // Record pending request<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        this.pendingRequests.put(tx.getTxId(), new PendingRequest(tx));<a name="line.439"></a>
+<span class="sourceLineNo">440</span><a name="line.440"></a>
+<span class="sourceLineNo">441</span>        // Send commit request to leader<a name="line.441"></a>
+<span class="sourceLineNo">442</span>        final CommitRequest msg = new CommitRequest(this.raft.clusterId, this.raft.identity, this.leader,<a name="line.442"></a>
+<span class="sourceLineNo">443</span>          this.raft.currentTerm, tx.getTxId(), tx.getBaseTerm(), tx.getBaseIndex(), readsData, mutationData);<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        if (this.log.isTraceEnabled())<a name="line.444"></a>
+<span class="sourceLineNo">445</span>            this.trace("sending " + msg + " to \"" + this.leader + "\" for " + tx);<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        if (!this.raft.sendMessage(msg))<a name="line.446"></a>
+<span class="sourceLineNo">447</span>            throw new RetryTransactionException(tx, "error sending commit request to leader");<a name="line.447"></a>
+<span class="sourceLineNo">448</span>    }<a name="line.448"></a>
+<span class="sourceLineNo">449</span><a name="line.449"></a>
+<span class="sourceLineNo">450</span>    @Override<a name="line.450"></a>
+<span class="sourceLineNo">451</span>    void cleanupForTransaction(RaftKVTransaction tx) {<a name="line.451"></a>
+<span class="sourceLineNo">452</span>        this.pendingRequests.remove(tx.getTxId());<a name="line.452"></a>
+<span class="sourceLineNo">453</span>        final PendingWrite pendingWrite = this.pendingWrites.remove(tx.getTxId());<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        if (pendingWrite != null)<a name="line.454"></a>
+<span class="sourceLineNo">455</span>            pendingWrite.cleanup();<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        this.commitLeaderLeaseTimeoutMap.remove(tx.getTxId());<a name="line.456"></a>
+<span class="sourceLineNo">457</span>    }<a name="line.457"></a>
+<span class="sourceLineNo">458</span><a name="line.458"></a>
+<span class="sourceLineNo">459</span>// Messages<a name="line.459"></a>
+<span class="sourceLineNo">460</span><a name="line.460"></a>
+<span class="sourceLineNo">461</span>    @Override<a name="line.461"></a>
+<span class="sourceLineNo">462</span>    boolean mayAdvanceCurrentTerm(Message msg) {<a name="line.462"></a>
 <span class="sourceLineNo">463</span><a name="line.463"></a>
-<span class="sourceLineNo">464</span>// Messages<a name="line.464"></a>
-<span class="sourceLineNo">465</span><a name="line.465"></a>
-<span class="sourceLineNo">466</span>    @Override<a name="line.466"></a>
-<span class="sourceLineNo">467</span>    boolean mayAdvanceCurrentTerm(Message msg) {<a name="line.467"></a>
-<span class="sourceLineNo">468</span><a name="line.468"></a>
-<span class="sourceLineNo">469</span>        // Deny vote if we have heard from our leader within the minimum election timeout (dissertation, section 4.2.3)<a name="line.469"></a>
-<span class="sourceLineNo">470</span>        if (msg instanceof RequestVote<a name="line.470"></a>
-<span class="sourceLineNo">471</span>          &amp;&amp; this.lastLeaderMessageTime != null<a name="line.471"></a>
-<span class="sourceLineNo">472</span>          &amp;&amp; this.lastLeaderMessageTime.offsetFromNow() &gt; -this.raft.minElectionTimeout)<a name="line.472"></a>
-<span class="sourceLineNo">473</span>            return false;<a name="line.473"></a>
-<span class="sourceLineNo">474</span><a name="line.474"></a>
-<span class="sourceLineNo">475</span>        // OK<a name="line.475"></a>
-<span class="sourceLineNo">476</span>        return true;<a name="line.476"></a>
-<span class="sourceLineNo">477</span>    }<a name="line.477"></a>
-<span class="sourceLineNo">478</span><a name="line.478"></a>
-<span class="sourceLineNo">479</span>    @Override<a name="line.479"></a>
-<span class="sourceLineNo">480</span>    void caseAppendRequest(AppendRequest msg) {<a name="line.480"></a>
-<span class="sourceLineNo">481</span><a name="line.481"></a>
-<span class="sourceLineNo">482</span>        // Cancel probing<a name="line.482"></a>
-<span class="sourceLineNo">483</span>        if (this.probeTimestamps != null) {<a name="line.483"></a>
-<span class="sourceLineNo">484</span>            if (this.log.isDebugEnabled())<a name="line.484"></a>
-<span class="sourceLineNo">485</span>                this.debug("heard from leader before we probed a majority, reverting back to normal follower");<a name="line.485"></a>
-<span class="sourceLineNo">486</span>            this.probeTimestamps = null;<a name="line.486"></a>
-<span class="sourceLineNo">487</span>        }<a name="line.487"></a>
-<span class="sourceLineNo">488</span>        final Timestamp now = new Timestamp();<a name="line.488"></a>
-<span class="sourceLineNo">489</span><a name="line.489"></a>
-<span class="sourceLineNo">490</span>        // Record new cluster ID if we haven't done so already<a name="line.490"></a>
-<span class="sourceLineNo">491</span>        if (this.raft.clusterId == 0)<a name="line.491"></a>
-<span class="sourceLineNo">492</span>            this.raft.joinCluster(msg.getClusterId());<a name="line.492"></a>
-<span class="sourceLineNo">493</span><a name="line.493"></a>
-<span class="sourceLineNo">494</span>        // Record leader<a name="line.494"></a>
-<span class="sourceLineNo">495</span>        if (!msg.getSenderId().equals(this.leader)) {<a name="line.495"></a>
-<span class="sourceLineNo">496</span>            if (this.leader != null &amp;&amp; !this.leader.equals(msg.getSenderId())) {<a name="line.496"></a>
-<span class="sourceLineNo">497</span>                this.error("detected a conflicting leader in " + msg + " (previous leader was \"" + this.leader<a name="line.497"></a>
-<span class="sourceLineNo">498</span>                  + "\") - should never happen; possible inconsistent cluster configuration (mine: " + this.raft.currentConfig<a name="line.498"></a>
-<span class="sourceLineNo">499</span>                  + ")");<a name="line.499"></a>
-<span class="sourceLineNo">500</span>            }<a name="line.500"></a>
-<span class="sourceLineNo">501</span>            this.leader = msg.getSenderId();<a name="line.501"></a>
-<span class="sourceLineNo">502</span>            this.leaderAddress = this.raft.returnAddress;<a name="line.502"></a>
-<span class="sourceLineNo">503</span>            this.leaderLeaseTimeout = null;<a name="line.503"></a>
-<span class="sourceLineNo">504</span>            if (this.log.isDebugEnabled())<a name="line.504"></a>
-<span class="sourceLineNo">505</span>                this.debug("updated leader to \"" + this.leader + "\" at " + this.leaderAddress);<a name="line.505"></a>
-<span class="sourceLineNo">506</span>            this.raft.requestService(this.checkReadyTransactionsService);     // allows COMMIT_READY transactions to be sent<a name="line.506"></a>
-<span class="sourceLineNo">507</span>        }<a name="line.507"></a>
-<span class="sourceLineNo">508</span><a name="line.508"></a>
-<span class="sourceLineNo">509</span>        // Get message info<a name="line.509"></a>
-<span class="sourceLineNo">510</span>        final long leaderCommitIndex = msg.getLeaderCommit();<a name="line.510"></a>
-<span class="sourceLineNo">511</span>        final long leaderPrevTerm = msg.getPrevLogTerm();<a name="line.511"></a>
-<span class="sourceLineNo">512</span>        final long leaderPrevIndex = msg.getPrevLogIndex();<a name="line.512"></a>
-<span class="sourceLineNo">513</span>        final long logTerm = msg.getLogEntryTerm();<a name="line.513"></a>
-<span class="sourceLineNo">514</span>        final long logIndex = leaderPrevIndex + 1;<a name="line.514"></a>
-<span class="sourceLineNo">515</span><a name="line.515"></a>
-<span class="sourceLineNo">516</span>        // Update timestamp last heard from leader<a name="line.516"></a>
-<span class="sourceLineNo">517</span>        this.lastLeaderMessageTime = new Timestamp();<a name="line.517"></a>
-<span class="sourceLineNo">518</span><a name="line.518"></a>
-<span class="sourceLineNo">519</span>        // Update leader's lease timeout<a name="line.519"></a>
-<span class="sourceLineNo">520</span>        if (msg.getLeaderLeaseTimeout() != null<a name="line.520"></a>
-<span class="sourceLineNo">521</span>          &amp;&amp; (this.leaderLeaseTimeout == null || msg.getLeaderLeaseTimeout().compareTo(this.leaderLeaseTimeout) &gt; 0)) {<a name="line.521"></a>
-<span class="sourceLineNo">522</span>            if (this.log.isTraceEnabled())<a name="line.522"></a>
-<span class="sourceLineNo">523</span>                this.trace("advancing leader lease timeout " + this.leaderLeaseTimeout + " -&gt; " + msg.getLeaderLeaseTimeout());<a name="line.523"></a>
-<span class="sourceLineNo">524</span>            this.leaderLeaseTimeout = msg.getLeaderLeaseTimeout();<a name="line.524"></a>
-<span class="sourceLineNo">525</span>            this.raft.requestService(this.checkWaitingTransactionsService);<a name="line.525"></a>
-<span class="sourceLineNo">526</span>        }<a name="line.526"></a>
-<span class="sourceLineNo">527</span><a name="line.527"></a>
-<span class="sourceLineNo">528</span>        // If a snapshot install is in progress, cancel it<a name="line.528"></a>
-<span class="sourceLineNo">529</span>        if (this.snapshotReceive != null) {<a name="line.529"></a>
-<span class="sourceLineNo">530</span>            if (this.log.isDebugEnabled())<a name="line.530"></a>
-<span class="sourceLineNo">531</span>                this.debug("rec'd " + msg + " during in-progress " + this.snapshotReceive + "; aborting snapshot install");<a name="line.531"></a>
-<span class="sourceLineNo">532</span>            this.raft.discardFlipFloppedStateMachine();<a name="line.532"></a>
-<span class="sourceLineNo">533</span>            this.snapshotReceive = null;<a name="line.533"></a>
-<span class="sourceLineNo">534</span>            this.updateElectionTimer();<a name="line.534"></a>
-<span class="sourceLineNo">535</span>        }<a name="line.535"></a>
-<span class="sourceLineNo">536</span><a name="line.536"></a>
-<span class="sourceLineNo">537</span>        // Restart election timeout (if running)<a name="line.537"></a>
-<span class="sourceLineNo">538</span>        if (this.electionTimer.isRunning())<a name="line.538"></a>
-<span class="sourceLineNo">539</span>            this.restartElectionTimer();<a name="line.539"></a>
-<span class="sourceLineNo">540</span><a name="line.540"></a>
-<span class="sourceLineNo">541</span>        // Get my last log entry's index and term<a name="line.541"></a>
-<span class="sourceLineNo">542</span>        long lastLogTerm = this.raft.getLastLogTerm();<a name="line.542"></a>
-<span class="sourceLineNo">543</span>        long lastLogIndex = this.raft.getLastLogIndex();<a name="line.543"></a>
-<span class="sourceLineNo">544</span><a name="line.544"></a>
-<span class="sourceLineNo">545</span>        // Check whether our previous log entry term matches that of leader; if not, or it doesn't exist, request fails<a name="line.545"></a>
-<span class="sourceLineNo">546</span>        // Note: if log entry index is prior to my last applied log entry index, Raft guarantees that term must match<a name="line.546"></a>
-<span class="sourceLineNo">547</span>        if (leaderPrevIndex &gt;= this.raft.lastAppliedIndex<a name="line.547"></a>
-<span class="sourceLineNo">548</span>          &amp;&amp; (leaderPrevIndex &gt; lastLogIndex || leaderPrevTerm != this.raft.getLogTermAtIndex(leaderPrevIndex))) {<a name="line.548"></a>
-<span class="sourceLineNo">549</span>            if (this.log.isDebugEnabled())<a name="line.549"></a>
-<span class="sourceLineNo">550</span>                this.debug("rejecting " + msg + " because previous log entry doesn't match");<a name="line.550"></a>
-<span class="sourceLineNo">551</span>            this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.551"></a>
-<span class="sourceLineNo">552</span>              this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));<a name="line.552"></a>
-<span class="sourceLineNo">553</span>            return;<a name="line.553"></a>
-<span class="sourceLineNo">554</span>        }<a name="line.554"></a>
-<span class="sourceLineNo">555</span><a name="line.555"></a>
-<span class="sourceLineNo">556</span>        // Check whether the message actually contains a log entry we can append; if so, append it<a name="line.556"></a>
-<span class="sourceLineNo">557</span>        boolean success = true;<a name="line.557"></a>
-<span class="sourceLineNo">558</span>        if (leaderPrevIndex &gt;= this.raft.lastAppliedIndex &amp;&amp; !msg.isProbe()) {<a name="line.558"></a>
-<span class="sourceLineNo">559</span><a name="line.559"></a>
-<span class="sourceLineNo">560</span>            // Check for a conflicting (i.e., never committed, then overwritten) log entry that we need to clear away first<a name="line.560"></a>
-<span class="sourceLineNo">561</span>            if (logIndex &lt;= lastLogIndex &amp;&amp; this.raft.getLogTermAtIndex(logIndex) != msg.getLogEntryTerm()) {<a name="line.561"></a>
-<span class="sourceLineNo">562</span><a name="line.562"></a>
-<span class="sourceLineNo">563</span>                // Delete conflicting log entry, and all entries that follow it, from the log<a name="line.563"></a>
-<span class="sourceLineNo">564</span>                final int startListIndex = (int)(logIndex - this.raft.lastAppliedIndex - 1);<a name="line.564"></a>
-<span class="sourceLineNo">565</span>                final List&lt;LogEntry&gt; conflictList = this.raft.raftLog.subList(startListIndex, this.raft.raftLog.size());<a name="line.565"></a>
-<span class="sourceLineNo">566</span>                for (LogEntry logEntry : conflictList) {<a name="line.566"></a>
-<span class="sourceLineNo">567</span>                    if (this.log.isDebugEnabled())<a name="line.567"></a>
-<span class="sourceLineNo">568</span>                        this.debug("deleting log entry " + logEntry + " overrwritten by " + msg);<a name="line.568"></a>
-<span class="sourceLineNo">569</span>                    if (!logEntry.getFile().delete())<a name="line.569"></a>
-<span class="sourceLineNo">570</span>                        this.error("failed to delete log file " + logEntry.getFile());<a name="line.570"></a>
+<span class="sourceLineNo">464</span>        // Deny vote if we have heard from our leader within the minimum election timeout (dissertation, section 4.2.3)<a name="line.464"></a>
+<span class="sourceLineNo">465</span>        if (msg instanceof RequestVote<a name="line.465"></a>
+<span class="sourceLineNo">466</span>          &amp;&amp; this.lastLeaderMessageTime != null<a name="line.466"></a>
+<span class="sourceLineNo">467</span>          &amp;&amp; this.lastLeaderMessageTime.offsetFromNow() &gt; -this.raft.minElectionTimeout)<a name="line.467"></a>
+<span class="sourceLineNo">468</span>            return false;<a name="line.468"></a>
+<span class="sourceLineNo">469</span><a name="line.469"></a>
+<span class="sourceLineNo">470</span>        // OK<a name="line.470"></a>
+<span class="sourceLineNo">471</span>        return true;<a name="line.471"></a>
+<span class="sourceLineNo">472</span>    }<a name="line.472"></a>
+<span class="sourceLineNo">473</span><a name="line.473"></a>
+<span class="sourceLineNo">474</span>    @Override<a name="line.474"></a>
+<span class="sourceLineNo">475</span>    void caseAppendRequest(AppendRequest msg) {<a name="line.475"></a>
+<span class="sourceLineNo">476</span><a name="line.476"></a>
+<span class="sourceLineNo">477</span>        // Cancel probing<a name="line.477"></a>
+<span class="sourceLineNo">478</span>        if (this.probeTimestamps != null) {<a name="line.478"></a>
+<span class="sourceLineNo">479</span>            if (this.log.isDebugEnabled())<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                this.debug("heard from leader before we probed a majority, reverting back to normal follower");<a name="line.480"></a>
+<span class="sourceLineNo">481</span>            this.probeTimestamps = null;<a name="line.481"></a>
+<span class="sourceLineNo">482</span>        }<a name="line.482"></a>
+<span class="sourceLineNo">483</span>        final Timestamp now = new Timestamp();<a name="line.483"></a>
+<span class="sourceLineNo">484</span><a name="line.484"></a>
+<span class="sourceLineNo">485</span>        // Record new cluster ID if we haven't done so already<a name="line.485"></a>
+<span class="sourceLineNo">486</span>        if (this.raft.clusterId == 0)<a name="line.486"></a>
+<span class="sourceLineNo">487</span>            this.raft.joinCluster(msg.getClusterId());<a name="line.487"></a>
+<span class="sourceLineNo">488</span><a name="line.488"></a>
+<span class="sourceLineNo">489</span>        // Record leader<a name="line.489"></a>
+<span class="sourceLineNo">490</span>        if (!msg.getSenderId().equals(this.leader)) {<a name="line.490"></a>
+<span class="sourceLineNo">491</span>            if (this.leader != null &amp;&amp; !this.leader.equals(msg.getSenderId())) {<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                this.error("detected a conflicting leader in " + msg + " (previous leader was \"" + this.leader<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                  + "\") - should never happen; possible inconsistent cluster configuration (mine: " + this.raft.currentConfig<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                  + ")");<a name="line.494"></a>
+<span class="sourceLineNo">495</span>            }<a name="line.495"></a>
+<span class="sourceLineNo">496</span>            this.leader = msg.getSenderId();<a name="line.496"></a>
+<span class="sourceLineNo">497</span>            this.leaderAddress = this.raft.returnAddress;<a name="line.497"></a>
+<span class="sourceLineNo">498</span>            this.leaderLeaseTimeout = null;<a name="line.498"></a>
+<span class="sourceLineNo">499</span>            if (this.log.isDebugEnabled())<a name="line.499"></a>
+<span class="sourceLineNo">500</span>                this.debug("updated leader to \"" + this.leader + "\" at " + this.leaderAddress);<a name="line.500"></a>
+<span class="sourceLineNo">501</span>            this.raft.requestService(this.checkReadyTransactionsService);     // allows COMMIT_READY transactions to be sent<a name="line.501"></a>
+<span class="sourceLineNo">502</span>        }<a name="line.502"></a>
+<span class="sourceLineNo">503</span><a name="line.503"></a>
+<span class="sourceLineNo">504</span>        // Get message info<a name="line.504"></a>
+<span class="sourceLineNo">505</span>        final long leaderCommitIndex = msg.getLeaderCommit();<a name="line.505"></a>
+<span class="sourceLineNo">506</span>        final long leaderPrevTerm = msg.getPrevLogTerm();<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        final long leaderPrevIndex = msg.getPrevLogIndex();<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        final long logTerm = msg.getLogEntryTerm();<a name="line.508"></a>
+<span class="sourceLineNo">509</span>        final long logIndex = leaderPrevIndex + 1;<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>        // Update timestamp last heard from leader<a name="line.511"></a>
+<span class="sourceLineNo">512</span>        this.lastLeaderMessageTime = new Timestamp();<a name="line.512"></a>
+<span class="sourceLineNo">513</span><a name="line.513"></a>
+<span class="sourceLineNo">514</span>        // Update leader's lease timeout<a name="line.514"></a>
+<span class="sourceLineNo">515</span>        if (msg.getLeaderLeaseTimeout() != null<a name="line.515"></a>
+<span class="sourceLineNo">516</span>          &amp;&amp; (this.leaderLeaseTimeout == null || msg.getLeaderLeaseTimeout().compareTo(this.leaderLeaseTimeout) &gt; 0)) {<a name="line.516"></a>
+<span class="sourceLineNo">517</span>            if (this.log.isTraceEnabled())<a name="line.517"></a>
+<span class="sourceLineNo">518</span>                this.trace("advancing leader lease timeout " + this.leaderLeaseTimeout + " -&gt; " + msg.getLeaderLeaseTimeout());<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            this.leaderLeaseTimeout = msg.getLeaderLeaseTimeout();<a name="line.519"></a>
+<span class="sourceLineNo">520</span>            this.raft.requestService(this.checkWaitingTransactionsService);<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        }<a name="line.521"></a>
+<span class="sourceLineNo">522</span><a name="line.522"></a>
+<span class="sourceLineNo">523</span>        // If a snapshot install is in progress, cancel it<a name="line.523"></a>
+<span class="sourceLineNo">524</span>        if (this.snapshotReceive != null) {<a name="line.524"></a>
+<span class="sourceLineNo">525</span>            if (this.log.isDebugEnabled())<a name="line.525"></a>
+<span class="sourceLineNo">526</span>                this.debug("rec'd " + msg + " during in-progress " + this.snapshotReceive + "; aborting snapshot install");<a name="line.526"></a>
+<span class="sourceLineNo">527</span>            this.raft.discardFlipFloppedStateMachine();<a name="line.527"></a>
+<span class="sourceLineNo">528</span>            this.snapshotReceive = null;<a name="line.528"></a>
+<span class="sourceLineNo">529</span>            this.updateElectionTimer();<a name="line.529"></a>
+<span class="sourceLineNo">530</span>        }<a name="line.530"></a>
+<span class="sourceLineNo">531</span><a name="line.531"></a>
+<span class="sourceLineNo">532</span>        // Restart election timeout (if running)<a name="line.532"></a>
+<span class="sourceLineNo">533</span>        if (this.electionTimer.isRunning())<a name="line.533"></a>
+<span class="sourceLineNo">534</span>            this.restartElectionTimer();<a name="line.534"></a>
+<span class="sourceLineNo">535</span><a name="line.535"></a>
+<span class="sourceLineNo">536</span>        // Get my last log entry's index and term<a name="line.536"></a>
+<span class="sourceLineNo">537</span>        long lastLogTerm = this.raft.getLastLogTerm();<a name="line.537"></a>
+<span class="sourceLineNo">538</span>        long lastLogIndex = this.raft.getLastLogIndex();<a name="line.538"></a>
+<span class="sourceLineNo">539</span><a name="line.539"></a>
+<span class="sourceLineNo">540</span>        // Check whether our previous log entry term matches that of leader; if not, or it doesn't exist, request fails<a name="line.540"></a>
+<span class="sourceLineNo">541</span>        // Note: if log entry index is prior to my last applied log entry index, Raft guarantees that term must match<a name="line.541"></a>
+<span class="sourceLineNo">542</span>        if (leaderPrevIndex &gt;= this.raft.lastAppliedIndex<a name="line.542"></a>
+<span class="sourceLineNo">543</span>          &amp;&amp; (leaderPrevIndex &gt; lastLogIndex || leaderPrevTerm != this.raft.getLogTermAtIndex(leaderPrevIndex))) {<a name="line.543"></a>
+<span class="sourceLineNo">544</span>            if (this.log.isDebugEnabled())<a name="line.544"></a>
+<span class="sourceLineNo">545</span>                this.debug("rejecting " + msg + " because previous log entry doesn't match");<a name="line.545"></a>
+<span class="sourceLineNo">546</span>            this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.546"></a>
+<span class="sourceLineNo">547</span>              this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));<a name="line.547"></a>
+<span class="sourceLineNo">548</span>            return;<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        }<a name="line.549"></a>
+<span class="sourceLineNo">550</span><a name="line.550"></a>
+<span class="sourceLineNo">551</span>        // Check whether the message actually contains a log entry we can append; if so, append it<a name="line.551"></a>
+<span class="sourceLineNo">552</span>        boolean success = true;<a name="line.552"></a>
+<span class="sourceLineNo">553</span>        if (leaderPrevIndex &gt;= this.raft.lastAppliedIndex &amp;&amp; !msg.isProbe()) {<a name="line.553"></a>
+<span class="sourceLineNo">554</span><a name="line.554"></a>
+<span class="sourceLineNo">555</span>            // Check for a conflicting (i.e., never committed, then overwritten) log entry that we need to clear away first<a name="line.555"></a>
+<span class="sourceLineNo">556</span>            if (logIndex &lt;= lastLogIndex &amp;&amp; this.raft.getLogTermAtIndex(logIndex) != msg.getLogEntryTerm()) {<a name="line.556"></a>
+<span class="sourceLineNo">557</span><a name="line.557"></a>
+<span class="sourceLineNo">558</span>                // Delete conflicting log entry, and all entries that follow it, from the log<a name="line.558"></a>
+<span class="sourceLineNo">559</span>                final int startListIndex = (int)(logIndex - this.raft.lastAppliedIndex - 1);<a name="line.559"></a>
+<span class="sourceLineNo">560</span>                final List&lt;LogEntry&gt; conflictList = this.raft.raftLog.subList(startListIndex, this.raft.raftLog.size());<a name="line.560"></a>
+<span class="sourceLineNo">561</span>                for (LogEntry logEntry : conflictList) {<a name="line.561"></a>
+<span class="sourceLineNo">562</span>                    if (this.log.isDebugEnabled())<a name="line.562"></a>
+<span class="sourceLineNo">563</span>                        this.debug("deleting log entry " + logEntry + " overrwritten by " + msg);<a name="line.563"></a>
+<span class="sourceLineNo">564</span>                    if (!logEntry.getFile().delete())<a name="line.564"></a>
+<span class="sourceLineNo">565</span>                        this.error("failed to delete log file " + logEntry.getFile());<a name="line.565"></a>
+<span class="sourceLineNo">566</span>                }<a name="line.566"></a>
+<span class="sourceLineNo">567</span>                try {<a name="line.567"></a>
+<span class="sourceLineNo">568</span>                    this.raft.logDirChannel.force(true);<a name="line.568"></a>
+<span class="sourceLineNo">569</span>                } catch (IOException e) {<a name="line.569"></a>
+<span class="sourceLineNo">570</span>                    this.warn("errory fsync()'ing log directory " + this.raft.logDir, e);<a name="line.570"></a>
 <span class="sourceLineNo">571</span>                }<a name="line.571"></a>
-<span class="sourceLineNo">572</span>                try {<a name="line.572"></a>
-<span class="sourceLineNo">573</span>                    this.raft.logDirChannel.force(true);<a name="line.573"></a>
-<span class="sourceLineNo">574</span>                } catch (IOException e) {<a name="line.574"></a>
-<span class="sourceLineNo">575</span>                    this.warn("errory fsync()'ing log directory " + this.raft.logDir, e);<a name="line.575"></a>
-<span class="sourceLineNo">576</span>                }<a name="line.576"></a>
-<span class="sourceLineNo">577</span>                conflictList.clear();<a name="line.577"></a>
-<span class="sourceLineNo">578</span><a name="line.578"></a>
-<span class="sourceLineNo">579</span>                // Rebuild current config<a name="line.579"></a>
-<span class="sourceLineNo">580</span>                this.raft.currentConfig = this.raft.buildCurrentConfig();<a name="line.580"></a>
+<span class="sourceLineNo">572</span>                conflictList.clear();<a name="line.572"></a>
+<span class="sourceLineNo">573</span><a name="line.573"></a>
+<span class="sourceLineNo">574</span>                // Rebuild current config<a name="line.574"></a>
+<span class="sourceLineNo">575</span>                this.raft.currentConfig = this.raft.buildCurrentConfig();<a name="line.575"></a>
+<span class="sourceLineNo">576</span><a name="line.576"></a>
+<span class="sourceLineNo">577</span>                // Update last log entry info<a name="line.577"></a>
+<span class="sourceLineNo">578</span>                lastLogTerm = this.raft.getLastLogTerm();<a name="line.578"></a>
+<span class="sourceLineNo">579</span>                lastLogIndex = this.raft.getLastLogIndex();<a name="line.579"></a>
+<span class="sourceLineNo">580</span>            }<a name="line.580"></a>
 <span class="sourceLineNo">581</span><a name="line.581"></a>
-<span class="sourceLineNo">582</span>                // Update last log entry info<a name="line.582"></a>
-<span class="sourceLineNo">583</span>                lastLogTerm = this.raft.getLastLogTerm();<a name="line.583"></a>
-<span class="sourceLineNo">584</span>                lastLogIndex = this.raft.getLastLogIndex();<a name="line.584"></a>
-<span class="sourceLineNo">585</span>            }<a name="line.585"></a>
-<span class="sourceLineNo">586</span><a name="line.586"></a>
-<span class="sourceLineNo">587</span>            // Append the new log entry - if we don't already have it<a name="line.587"></a>
-<span class="sourceLineNo">588</span>            if (logIndex &gt; lastLogIndex) {<a name="line.588"></a>
-<span class="sourceLineNo">589</span>                assert logIndex == lastLogIndex + 1;<a name="line.589"></a>
-<span class="sourceLineNo">590</span>                LogEntry logEntry = null;<a name="line.590"></a>
-<span class="sourceLineNo">591</span>                do {<a name="line.591"></a>
-<span class="sourceLineNo">592</span><a name="line.592"></a>
-<span class="sourceLineNo">593</span>                    // If message contains no data, we expect to get the data from the corresponding transaction<a name="line.593"></a>
-<span class="sourceLineNo">594</span>                    final ByteBuffer mutationData = msg.getMutationData();<a name="line.594"></a>
-<span class="sourceLineNo">595</span>                    if (mutationData == null) {<a name="line.595"></a>
-<span class="sourceLineNo">596</span><a name="line.596"></a>
-<span class="sourceLineNo">597</span>                        // Find the matching pending commit write<a name="line.597"></a>
-<span class="sourceLineNo">598</span>                        final PendingWrite pendingWrite;<a name="line.598"></a>
-<span class="sourceLineNo">599</span>                        try {<a name="line.599"></a>
-<span class="sourceLineNo">600</span>                            pendingWrite = Iterables.find(this.pendingWrites.values(), new Predicate&lt;PendingWrite&gt;() {<a name="line.600"></a>
-<span class="sourceLineNo">601</span>                                @Override<a name="line.601"></a>
-<span class="sourceLineNo">602</span>                                public boolean apply(PendingWrite pendingWrite) {<a name="line.602"></a>
-<span class="sourceLineNo">603</span>                                    final RaftKVTransaction tx = pendingWrite.getTx();<a name="line.603"></a>
-<span class="sourceLineNo">604</span>                                    return tx.getState().equals(TxState.COMMIT_WAITING)<a name="line.604"></a>
-<span class="sourceLineNo">605</span>                                      &amp;&amp; tx.getCommitTerm() == logTerm &amp;&amp; tx.getCommitIndex() == logIndex;<a name="line.605"></a>
-<span class="sourceLineNo">606</span>                                }<a name="line.606"></a>
-<span class="sourceLineNo">607</span>                            });<a name="line.607"></a>
-<span class="sourceLineNo">608</span>                        } catch (NoSuchElementException e) {<a name="line.608"></a>
-<span class="sourceLineNo">609</span>                            if (this.log.isDebugEnabled()) {<a name="line.609"></a>
-<span class="sourceLineNo">610</span>                                this.debug("rec'd " + msg + " but no read-write transaction matching commit "<a name="line.610"></a>
-<span class="sourceLineNo">611</span>                                  + logIndex + "t" + logTerm + " found; rejecting");<a name="line.611"></a>
-<span class="sourceLineNo">612</span>                            }<a name="line.612"></a>
-<span class="sourceLineNo">613</span>                            break;<a name="line.613"></a>
-<span class="sourceLineNo">614</span>                        }<a name="line.614"></a>
-<span class="sourceLineNo">615</span><a name="line.615"></a>
-<span class="sourceLineNo">616</span>                        // Commit's writes are no longer pending<a name="line.616"></a>
-<span class="sourceLineNo">617</span>                        final RaftKVTransaction tx = pendingWrite.getTx();<a name="line.617"></a>
-<span class="sourceLineNo">618</span>                        this.pendingWrites.remove(tx.getTxId());<a name="line.618"></a>
-<span class="sourceLineNo">619</span><a name="line.619"></a>
-<span class="sourceLineNo">620</span>                        // Close and durably persist the associated temporary file<a name="line.620"></a>
-<span class="sourceLineNo">621</span>                        try {<a name="line.621"></a>
-<span class="sourceLineNo">622</span>                            pendingWrite.getFileWriter().close();<a name="line.622"></a>
-<span class="sourceLineNo">623</span>                        } catch (IOException e) {<a name="line.623"></a>
-<span class="sourceLineNo">624</span>                            this.error("error closing temporary transaction file for " + tx, e);<a name="line.624"></a>
-<span class="sourceLineNo">625</span>                            pendingWrite.cleanup();<a name="line.625"></a>
-<span class="sourceLineNo">626</span>                            break;<a name="line.626"></a>
-<span class="sourceLineNo">627</span>                        }<a name="line.627"></a>
-<span class="sourceLineNo">628</span><a name="line.628"></a>
-<span class="sourceLineNo">629</span>                        // Append a new log entry using temporary file<a name="line.629"></a>
-<span class="sourceLineNo">630</span>                        try {<a name="line.630"></a>
-<span class="sourceLineNo">631</span>                            logEntry = this.raft.appendLogEntry(logTerm,<a name="line.631"></a>
-<span class="sourceLineNo">632</span>                              new NewLogEntry(tx, pendingWrite.getFileWriter().getFile()));<a name="line.632"></a>
-<span class="sourceLineNo">633</span>                        } catch (Exception e) {<a name="line.633"></a>
-<span class="sourceLineNo">634</span>                            this.error("error appending new log entry for " + tx, e);<a name="line.634"></a>
-<span class="sourceLineNo">635</span>                            pendingWrite.cleanup();<a name="line.635"></a>
-<span class="sourceLineNo">636</span>                            break;<a name="line.636"></a>
-<span class="sourceLineNo">637</span>                        }<a name="line.637"></a>
-<span class="sourceLineNo">638</span><a name="line.638"></a>
-<span class="sourceLineNo">639</span>                        // Debug<a name="line.639"></a>
-<span class="sourceLineNo">640</span>                        if (this.log.isDebugEnabled()) {<a name="line.640"></a>
-<span class="sourceLineNo">641</span>                            this.debug("now waiting for commit of " + tx.getCommitIndex() + "t" + tx.getCommitTerm()<a name="line.641"></a>
-<span class="sourceLineNo">642</span>                              + " to commit " + tx);<a name="line.642"></a>
-<span class="sourceLineNo">643</span>                        }<a name="line.643"></a>
-<span class="sourceLineNo">644</span>                    } else {<a name="line.644"></a>
-<span class="sourceLineNo">645</span><a name="line.645"></a>
-<span class="sourceLineNo">646</span>                        // Append new log entry normally using the data from the request<a name="line.646"></a>
-<span class="sourceLineNo">647</span>                        try {<a name="line.647"></a>
-<span class="sourceLineNo">648</span>                            logEntry = this.raft.appendLogEntry(logTerm, new NewLogEntry(this.raft, mutationData));<a name="line.648"></a>
-<span class="sourceLineNo">649</span>                        } catch (Exception e) {<a name="line.649"></a>
-<span class="sourceLineNo">650</span>                            this.error("error appending new log entry", e);<a name="line.650"></a>
-<span class="sourceLineNo">651</span>                            break;<a name="line.651"></a>
-<span class="sourceLineNo">652</span>                        }<a name="line.652"></a>
-<span class="sourceLineNo">653</span>                    }<a name="line.653"></a>
-<span class="sourceLineNo">654</span>                } while (false);<a name="line.654"></a>
-<span class="sourceLineNo">655</span><a name="line.655"></a>
-<span class="sourceLineNo">656</span>                // Start/stop election timer as needed<a name="line.656"></a>
-<span class="sourceLineNo">657</span>                if (logEntry != null &amp;&amp; logEntry.getConfigChange() != null)<a name="line.657"></a>
-<span class="sourceLineNo">658</span>                    this.updateElectionTimer();<a name="line.658"></a>
-<span class="sourceLineNo">659</span><a name="line.659"></a>
-<span class="sourceLineNo">660</span>                // Success?<a name="line.660"></a>
-<span class="sourceLineNo">661</span>                success = logEntry != null;<a name="line.661"></a>
-<span class="sourceLineNo">662</span><a name="line.662"></a>
-<span class="sourceLineNo">663</span>                // Update last log entry info<a name="line.663"></a>
-<span class="sourceLineNo">664</span>                lastLogTerm = this.raft.getLastLogTerm();<a name="line.664"></a>
-<span class="sourceLineNo">665</span>                lastLogIndex = this.raft.getLastLogIndex();<a name="line.665"></a>
-<span class="sourceLineNo">666</span>            }<a name="line.666"></a>
-<span class="sourceLineNo">667</span>        }<a name="line.667"></a>
-<span class="sourceLineNo">668</span><a name="line.668"></a>
-<span class="sourceLineNo">669</span>        // Update my commit index<a name="line.669"></a>
-<span class="sourceLineNo">670</span>        final long newCommitIndex = Math.min(Math.max(leaderCommitIndex, this.raft.commitIndex), lastLogIndex);<a name="line.670"></a>
-<span class="sourceLineNo">671</span>        if (newCommitIndex &gt; this.raft.commitIndex) {<a name="line.671"></a>
-<span class="sourceLineNo">672</span>            if (this.log.isDebugEnabled())<a name="line.672"></a>
-<span class="sourceLineNo">673</span>                this.debug("updating leader commit index from " + this.raft.commitIndex + " -&gt; " + newCommitIndex);<a name="line.673"></a>
-<span class="sourceLineNo">674</span>            this.raft.commitIndex = newCommitIndex;<a name="line.674"></a>
-<span class="sourceLineNo">675</span>            this.raft.requestService(this.checkWaitingTransactionsService);<a name="line.675"></a>
-<span class="sourceLineNo">676</span>            this.raft.requestService(this.applyCommittedLogEntriesService);<a name="line.676"></a>
-<span class="sourceLineNo">677</span>            this.raft.requestService(this.triggerKeyWatchesService);<a name="line.677"></a>
-<span class="sourceLineNo">678</span>        }<a name="line.678"></a>
-<span class="sourceLineNo">679</span><a name="line.679"></a>
-<span class="sourceLineNo">680</span>        // Debug<a name="line.680"></a>
-<span class="sourceLineNo">681</span>        if (this.log.isTraceEnabled()) {<a name="line.681"></a>
-<span class="sourceLineNo">682</span>            this.trace("my updated follower state: "<a name="line.682"></a>
-<span class="sourceLineNo">683</span>              + "term=" + this.raft.currentTerm<a name="line.683"></a>
-<span class="sourceLineNo">684</span>              + " commitIndex=" + this.raft.commitIndex<a name="line.684"></a>
-<span class="sourceLineNo">685</span>              + " leaderLeaseTimeout=" + this.leaderLeaseTimeout<a name="line.685"></a>
-<span class="sourceLineNo">686</span>              + " lastApplied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm<a name="line.686"></a>
-<span class="sourceLineNo">687</span>              + " log=" + this.raft.raftLog);<a name="line.687"></a>
-<span class="sourceLineNo">688</span>        }<a name="line.688"></a>
-<span class="sourceLineNo">689</span><a name="line.689"></a>
-<span class="sourceLineNo">690</span>        // Send reply<a name="line.690"></a>
-<span class="sourceLineNo">691</span>        if (success) {<a name="line.691"></a>
-<span class="sourceLineNo">692</span>            this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.692"></a>
-<span class="sourceLineNo">693</span>              this.raft.currentTerm, msg.getLeaderTimestamp(), true, msg.isProbe() ? logIndex - 1 : logIndex,<a name="line.693"></a>
-<span class="sourceLineNo">694</span>              this.raft.getLastLogIndex()));<a name="line.694"></a>
-<span class="sourceLineNo">695</span>        } else {<a name="line.695"></a>
-<span class="sourceLineNo">696</span>            this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.696"></a>
-<span class="sourceLineNo">697</span>              this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));<a name="line.697"></a>
-<span class="sourceLineNo">698</span>        }<a name="line.698"></a>
-<span class="sourceLineNo">699</span>    }<a name="line.699"></a>
-<span class="sourceLineNo">700</span><a name="line.700"></a>
-<span class="sourceLineNo">701</span>    @Override<a name="line.701"></a>
-<span class="sourceLineNo">702</span>    void caseCommitResponse(CommitResponse msg) {<a name="line.702"></a>
+<span class="sourceLineNo">582</span>            // Append the new log entry - if we don't already have it<a name="line.582"></a>
+<span class="sourceLineNo">583</span>            if (logIndex &gt; lastLogIndex) {<a name="line.583"></a>
+<span class="sourceLineNo">584</span>                assert logIndex == lastLogIndex + 1;<a name="line.584"></a>
+<span class="sourceLineNo">585</span>                LogEntry logEntry = null;<a name="line.585"></a>
+<span class="sourceLineNo">586</span>                do {<a name="line.586"></a>
+<span class="sourceLineNo">587</span><a name="line.587"></a>
+<span class="sourceLineNo">588</span>                    // If message contains no data, we expect to get the data from the corresponding transaction<a name="line.588"></a>
+<span class="sourceLineNo">589</span>                    final ByteBuffer mutationData = msg.getMutationData();<a name="line.589"></a>
+<span class="sourceLineNo">590</span>                    if (mutationData == null) {<a name="line.590"></a>
+<span class="sourceLineNo">591</span><a name="line.591"></a>
+<span class="sourceLineNo">592</span>                        // Find the matching pending commit write<a name="line.592"></a>
+<span class="sourceLineNo">593</span>                        final PendingWrite pendingWrite;<a name="line.593"></a>
+<span class="sourceLineNo">594</span>                        try {<a name="line.594"></a>
+<span class="sourceLineNo">595</span>                            pendingWrite = Iterables.find(this.pendingWrites.values(), new Predicate&lt;PendingWrite&gt;() {<a name="line.595"></a>
+<span class="sourceLineNo">596</span>                                @Override<a name="line.596"></a>
+<span class="sourceLineNo">597</span>                                public boolean apply(PendingWrite pendingWrite) {<a name="line.597"></a>
+<span class="sourceLineNo">598</span>                                    final RaftKVTransaction tx = pendingWrite.getTx();<a name="line.598"></a>
+<span class="sourceLineNo">599</span>                                    return tx.getState().equals(TxState.COMMIT_WAITING)<a name="line.599"></a>
+<span class="sourceLineNo">600</span>                                      &amp;&amp; tx.getCommitTerm() == logTerm &amp;&amp; tx.getCommitIndex() == logIndex;<a name="line.600"></a>
+<span class="sourceLineNo">601</span>                                }<a name="line.601"></a>
+<span class="sourceLineNo">602</span>                            });<a name="line.602"></a>
+<span class="sourceLineNo">603</span>                        } catch (NoSuchElementException e) {<a name="line.603"></a>
+<span class="sourceLineNo">604</span>                            if (this.log.isDebugEnabled()) {<a name="line.604"></a>
+<span class="sourceLineNo">605</span>                                this.debug("rec'd " + msg + " but no read-write transaction matching commit "<a name="line.605"></a>
+<span class="sourceLineNo">606</span>                                  + logIndex + "t" + logTerm + " found; rejecting");<a name="line.606"></a>
+<span class="sourceLineNo">607</span>                            }<a name="line.607"></a>
+<span class="sourceLineNo">608</span>                            break;<a name="line.608"></a>
+<span class="sourceLineNo">609</span>                        }<a name="line.609"></a>
+<span class="sourceLineNo">610</span><a name="line.610"></a>
+<span class="sourceLineNo">611</span>                        // Commit's writes are no longer pending<a name="line.611"></a>
+<span class="sourceLineNo">612</span>                        final RaftKVTransaction tx = pendingWrite.getTx();<a name="line.612"></a>
+<span class="sourceLineNo">613</span>                        this.pendingWrites.remove(tx.getTxId());<a name="line.613"></a>
+<span class="sourceLineNo">614</span><a name="line.614"></a>
+<span class="sourceLineNo">615</span>                        // Close and durably persist the associated temporary file<a name="line.615"></a>
+<span class="sourceLineNo">616</span>                        try {<a name="line.616"></a>
+<span class="sourceLineNo">617</span>                            pendingWrite.getFileWriter().close();<a name="line.617"></a>
+<span class="sourceLineNo">618</span>                        } catch (IOException e) {<a name="line.618"></a>
+<span class="sourceLineNo">619</span>                            this.error("error closing temporary transaction file for " + tx, e);<a name="line.619"></a>
+<span class="sourceLineNo">620</span>                            pendingWrite.cleanup();<a name="line.620"></a>
+<span class="sourceLineNo">621</span>                            break;<a name="line.621"></a>
+<span class="sourceLineNo">622</span>                        }<a name="line.622"></a>
+<span class="sourceLineNo">623</span><a name="line.623"></a>
+<span class="sourceLineNo">624</span>                        // Append a new log entry using temporary file<a name="line.624"></a>
+<span class="sourceLineNo">625</span>                        try {<a name="line.625"></a>
+<span class="sourceLineNo">626</span>                            logEntry = this.raft.appendLogEntry(logTerm,<a name="line.626"></a>
+<span class="sourceLineNo">627</span>                              new NewLogEntry(tx, pendingWrite.getFileWriter().getFile()));<a name="line.627"></a>
+<span class="sourceLineNo">628</span>                        } catch (Exception e) {<a name="line.628"></a>
+<span class="sourceLineNo">629</span>                            this.error("error appending new log entry for " + tx, e);<a name="line.629"></a>
+<span class="sourceLineNo">630</span>                            pendingWrite.cleanup();<a name="line.630"></a>
+<span class="sourceLineNo">631</span>                            break;<a name="line.631"></a>
+<span class="sourceLineNo">632</span>                        }<a name="line.632"></a>
+<span class="sourceLineNo">633</span><a name="line.633"></a>
+<span class="sourceLineNo">634</span>                        // Debug<a name="line.634"></a>
+<span class="sourceLineNo">635</span>                        if (this.log.isDebugEnabled()) {<a name="line.635"></a>
+<span class="sourceLineNo">636</span>                            this.debug("now waiting for commit of " + tx.getCommitIndex() + "t" + tx.getCommitTerm()<a name="line.636"></a>
+<span class="sourceLineNo">637</span>                              + " to commit " + tx);<a name="line.637"></a>
+<span class="sourceLineNo">638</span>                        }<a name="line.638"></a>
+<span class="sourceLineNo">639</span>                    } else {<a name="line.639"></a>
+<span class="sourceLineNo">640</span><a name="line.640"></a>
+<span class="sourceLineNo">641</span>                        // Append new log entry normally using the data from the request<a name="line.641"></a>
+<span class="sourceLineNo">642</span>                        try {<a name="line.642"></a>
+<span class="sourceLineNo">643</span>                            logEntry = this.raft.appendLogEntry(logTerm, new NewLogEntry(this.raft, mutationData));<a name="line.643"></a>
+<span class="sourceLineNo">644</span>                        } catch (Exception e) {<a name="line.644"></a>
+<span class="sourceLineNo">645</span>                            this.error("error appending new log entry", e);<a name="line.645"></a>
+<span class="sourceLineNo">646</span>                            break;<a name="line.646"></a>
+<span class="sourceLineNo">647</span>                        }<a name="line.647"></a>
+<span class="sourceLineNo">648</span>                    }<a name="line.648"></a>
+<span class="sourceLineNo">649</span>                } while (false);<a name="line.649"></a>
+<span class="sourceLineNo">650</span><a name="line.650"></a>
+<span class="sourceLineNo">651</span>                // Start/stop election timer as needed<a name="line.651"></a>
+<span class="sourceLineNo">652</span>                if (logEntry != null &amp;&amp; logEntry.getConfigChange() != null)<a name="line.652"></a>
+<span class="sourceLineNo">653</span>                    this.updateElectionTimer();<a name="line.653"></a>
+<span class="sourceLineNo">654</span><a name="line.654"></a>
+<span class="sourceLineNo">655</span>                // Success?<a name="line.655"></a>
+<span class="sourceLineNo">656</span>                success = logEntry != null;<a name="line.656"></a>
+<span class="sourceLineNo">657</span><a name="line.657"></a>
+<span class="sourceLineNo">658</span>                // Update last log entry info<a name="line.658"></a>
+<span class="sourceLineNo">659</span>                lastLogTerm = this.raft.getLastLogTerm();<a name="line.659"></a>
+<span class="sourceLineNo">660</span>                lastLogIndex = this.raft.getLastLogIndex();<a name="line.660"></a>
+<span class="sourceLineNo">661</span>            }<a name="line.661"></a>
+<span class="sourceLineNo">662</span>        }<a name="line.662"></a>
+<span class="sourceLineNo">663</span><a name="line.663"></a>
+<span class="sourceLineNo">664</span>        // Update my commit index<a name="line.664"></a>
+<span class="sourceLineNo">665</span>        final long newCommitIndex = Math.min(Math.max(leaderCommitIndex, this.raft.commitIndex), lastLogIndex);<a name="line.665"></a>
+<span class="sourceLineNo">666</span>        if (newCommitIndex &gt; this.raft.commitIndex) {<a name="line.666"></a>
+<span class="sourceLineNo">667</span>            if (this.log.isDebugEnabled())<a name="line.667"></a>
+<span class="sourceLineNo">668</span>                this.debug("updating leader commit index from " + this.raft.commitIndex + " -&gt; " + newCommitIndex);<a name="line.668"></a>
+<span class="sourceLineNo">669</span>            this.raft.commitIndex = newCommitIndex;<a name="line.669"></a>
+<span class="sourceLineNo">670</span>            this.raft.requestService(this.checkWaitingTransactionsService);<a name="line.670"></a>
+<span class="sourceLineNo">671</span>            this.raft.requestService(this.applyCommittedLogEntriesService);<a name="line.671"></a>
+<span class="sourceLineNo">672</span>            this.raft.requestService(this.triggerKeyWatchesService);<a name="line.672"></a>
+<span class="sourceLineNo">673</span>        }<a name="line.673"></a>
+<span class="sourceLineNo">674</span><a name="line.674"></a>
+<span class="sourceLineNo">675</span>        // Debug<a name="line.675"></a>
+<span class="sourceLineNo">676</span>        if (this.log.isTraceEnabled()) {<a name="line.676"></a>
+<span class="sourceLineNo">677</span>            this.trace("my updated follower state: "<a name="line.677"></a>
+<span class="sourceLineNo">678</span>              + "term=" + this.raft.currentTerm<a name="line.678"></a>
+<span class="sourceLineNo">679</span>              + " commitIndex=" + this.raft.commitIndex<a name="line.679"></a>
+<span class="sourceLineNo">680</span>              + " leaderLeaseTimeout=" + this.leaderLeaseTimeout<a name="line.680"></a>
+<span class="sourceLineNo">681</span>              + " lastApplied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm<a name="line.681"></a>
+<span class="sourceLineNo">682</span>              + " log=" + this.raft.raftLog);<a name="line.682"></a>
+<span class="sourceLineNo">683</span>        }<a name="line.683"></a>
+<span class="sourceLineNo">684</span><a name="line.684"></a>
+<span class="sourceLineNo">685</span>        // Send reply<a name="line.685"></a>
+<span class="sourceLineNo">686</span>        if (success) {<a name="line.686"></a>
+<span class="sourceLineNo">687</span>            this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.687"></a>
+<span class="sourceLineNo">688</span>              this.raft.currentTerm, msg.getLeaderTimestamp(), true, msg.isProbe() ? logIndex - 1 : logIndex,<a name="line.688"></a>
+<span class="sourceLineNo">689</span>              this.raft.getLastLogIndex()));<a name="line.689"></a>
+<span class="sourceLineNo">690</span>        } else {<a name="line.690"></a>
+<span class="sourceLineNo">691</span>            this.raft.sendMessage(new AppendResponse(this.raft.clusterId, this.raft.identity, msg.getSenderId(),<a name="line.691"></a>
+<span class="sourceLineNo">692</span>              this.raft.currentTerm, msg.getLeaderTimestamp(), false, this.raft.lastAppliedIndex, this.raft.getLastLogIndex()));<a name="line.692"></a>
+<span class="sourceLineNo">693</span>        }<a name="line.693"></a>
+<span class="sourceLineNo">694</span>    }<a name="line.694"></a>
+<span class="sourceLineNo">695</span><a name="line.695"></a>
+<span class="sourceLineNo">696</span>    @Override<a name="line.696"></a>
+<span class="sourceLineNo">697</span>    void caseCommitResponse(CommitResponse msg) {<a name="line.697"></a>
+<span class="sourceLineNo">698</span><a name="line.698"></a>
+<span class="sourceLineNo">699</span>        // Find transaction<a name="line.699"></a>
+<span class="sourceLineNo">700</span>        final RaftKVTransaction tx = this.raft.openTransactions.get(msg.getTxId());<a name="line.700"></a>
+<span class="sourceLineNo">701</span>        if (tx == null)                                                                 // must have been rolled back locally<a name="line.701"></a>
+<span class="sourceLineNo">702</span>            return;<a name="line.702"></a>
 <span class="sourceLineNo">703</span><a name="line.703"></a>
-<span class="sourceLineNo">704</span>        // Find transaction<a name="line.704"></a>
-<span class="sourceLineNo">705</span>        final RaftKVTransaction tx = this.raft.openTransactions.get(msg.getTxId());<a name="line.705"></a>
-<span class="sourceLineNo">706</span>        if (tx == null)                                                                 // must have been rolled back locally<a name="line.706"></a>
+<span class="sourceLineNo">704</span>        // Sanity check transaction state<a name="line.704"></a>
+<span class="sourceLineNo">705</span>        if (!tx.getState().equals(TxState.COMMIT_READY)) {<a name="line.705"></a>
+<span class="sourceLineNo">706</span>            this.warn("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");<a name="line.706"></a>
 <span class="sourceLineNo">707</span>            return;<a name="line.707"></a>
-<span class="sourceLineNo">708</span><a name="line.708"></a>
-<span class="sourceLineNo">709</span>        // Sanity check transaction state<a name="line.709"></a>
-<span class="sourceLineNo">710</span>        if (!tx.getState().equals(TxState.COMMIT_READY)) {<a name="line.710"></a>
-<span class="sourceLineNo">711</span>            this.warn("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");<a name="line.711"></a>
+<span class="sourceLineNo">708</span>        }<a name="line.708"></a>
+<span class="sourceLineNo">709</span>        if (this.pendingRequests.remove(tx.getTxId()) == null) {<a name="line.709"></a>
+<span class="sourceLineNo">710</span>            if (this.log.isDebugEnabled())<a name="line.710"></a>
+<span class="sourceLineNo">711</span>                this.debug("rec'd " + msg + " for " + tx + " not expecting a response; ignoring");<a name="line.711"></a>
 <span class="sourceLineNo">712</span>            return;<a name="line.712"></a>
 <span class="sourceLineNo">713</span>        }<a name="line.713"></a>
-<span class="sourceLineNo">714</span>        if (this.pendingRequests.remove(tx.getTxId()) == null) {<a name="line.714"></a>
-<span class="sourceLineNo">715</span>            if (this.log.isDebugEnabled())<a name="line.715"></a>
-<span class="sourceLineNo">716</span>                this.debug("rec'd " + msg + " for " + tx + " not expecting a response; ignoring");<a name="line.716"></a>
-<span class="sourceLineNo">717</span>            return;<a name="line.717"></a>
-<span class="sourceLineNo">718</span>        }<a name="line.718"></a>
+<span class="sourceLineNo">714</span><a name="line.714"></a>
+<span class="sourceLineNo">715</span>        // Check result<a name="line.715"></a>
+<span class="sourceLineNo">716</span>        if (this.log.isTraceEnabled())<a name="line.716"></a>
+<span class="sourceLineNo">717</span>            this.trace("rec'd " + msg + " for " + tx);<a name="line.717"></a>
+<span class="sourceLineNo">718</span>        if (msg.isSuccess()) {<a name="line.718"></a>
 <span class="sourceLineNo">719</span><a name="line.719"></a>
-<span class="sourceLineNo">720</span>        // Check result<a name="line.720"></a>
-<span class="sourceLineNo">721</span>        if (this.log.isTraceEnabled())<a name="line.721"></a>
-<span class="sourceLineNo">722</span>            this.trace("rec'd " + msg + " for " + tx);<a name="line.722"></a>
-<span class="sourceLineNo">723</span>        if (msg.isSuccess()) {<a name="line.723"></a>
-<span class="sourceLineNo">724</span><a name="line.724"></a>
-<span class="sourceLineNo">725</span>            // Update transaction<a name="line.725"></a>
-<span class="sourceLineNo">726</span>            this.advanceReadyTransaction(tx, msg.getCommitTerm(), msg.getCommitIndex());<a name="line.726"></a>
-<span class="sourceLineNo">727</span><a name="line.727"></a>
-<span class="sourceLineNo">728</span>            // Track leader lease timeout we must wait for, if any<a name="line.728"></a>
-<span class="sourceLineNo">729</span>            if (msg.getCommitLeaderLeaseTimeout() != null)<a name="line.729"></a>
-<span class="sourceLineNo">730</span>                this.commitLeaderLeaseTimeoutMap.put(tx.getTxId(), msg.getCommitLeaderLeaseTimeout());<a name="line.730"></a>
-<span class="sourceLineNo">731</span>        } else<a name="line.731"></a>
-<span class="sourceLineNo">732</span>            this.raft.fail(tx, new RetryTransactionException(tx, msg.getErrorMessage()));<a name="line.732"></a>
-<span class="sourceLineNo">733</span>    }<a name="line.733"></a>
-<span class="sourceLineNo">734</span><a name="line.734"></a>
-<span class="sourceLineNo">735</span>    @Override<a name="line.735"></a>
-<span class="sourceLineNo">736</span>    void caseInstallSnapshot(InstallSnapshot msg) {<a name="line.736"></a>
-<span class="sourceLineNo">737</span><a name="line.737"></a>
-<span class="sourceLineNo">738</span>        // Restart election timer (if running)<a name="line.738"></a>
-<span class="sourceLineNo">739</span>        if (this.electionTimer.isRunning())<a name="line.739"></a>
-<span class="sourceLineNo">740</span>            this.restartElectionTimer();<a name="line.740"></a>
-<span class="sourceLineNo">741</span><a name="line.741"></a>
-<span class="sourceLineNo">742</span>        // Sanity check that our log is not going backwards<a name="line.742"></a>
-<span class="sourceLineNo">743</span>        if (msg.getSnapshotIndex() &lt; this.raft.commitIndex) {<a name="line.743"></a>
-<span class="sourceLineNo">744</span>            this.warn("rec'd " + msg + " with retrograde index " + msg.getSnapshotIndex()<a name="line.744"></a>
-<span class="sourceLineNo">745</span>              + " &lt; my commit index " + this.raft.commitIndex + ", ignoring");<a name="line.745"></a>
-<span class="sourceLineNo">746</span>            return;<a name="line.746"></a>
-<span class="sourceLineNo">747</span>        }<a name="line.747"></a>
-<span class="sourceLineNo">748</span><a name="line.748"></a>
-<span class="sourceLineNo">749</span>        // Do we have an existing install?<a name="line.749"></a>
-<span class="sourceLineNo">750</span>        boolean startNewInstall = false;<a name="line.750"></a>
-<span class="sourceLineNo">751</span>        if (this.snapshotReceive != null) {<a name="line.751"></a>
-<span class="sourceLineNo">752</span><a name="line.752"></a>
-<span class="sourceLineNo">753</span>            // Does the message not match?<a name="line.753"></a>
-<span class="sourceLineNo">754</span>            if (!this.snapshotReceive.matches(msg)) {<a name="line.754"></a>
-<span class="sourceLineNo">755</span><a name="line.755"></a>
-<span class="sourceLineNo">756</span>                // If the message is NOT the first one in a new install, ignore it<a name="line.756"></a>
-<span class="sourceLineNo">757</span>                if (msg.getPairIndex() != 0) {<a name="line.757"></a>
-<span class="sourceLineNo">758</span>                    if (this.log.isDebugEnabled())<a name="line.758"></a>
-<span class="sourceLineNo">759</span>                        this.debug("rec'd " + msg + " which doesn't match in-progress " + this.snapshotReceive + "; ignoring");<a name="line.759"></a>
-<span class="sourceLineNo">760</span>                    return;<a name="line.760"></a>
-<span class="sourceLineNo">761</span>                }<a name="line.761"></a>
-<span class="sourceLineNo">762</span><a name="line.762"></a>
-<span class="sourceLineNo">763</span>                // The message is the first one in a new install, so discard the existing install<a name="line.763"></a>
-<span class="sourceLineNo">764</span>                if (this.log.isDebugEnabled()) {<a name="line.764"></a>
-<span class="sourceLineNo">765</span>                    this.debug("rec'd initial " + msg + " with in-progress " + this.snapshotReceive<a name="line.765"></a>
-<span class="sourceLineNo">766</span>                      + "; aborting previous install");<a name="line.766"></a>
-<span class="sourceLineNo">767</span>                }<a name="line.767"></a>
-<span class="sourceLineNo">768</span>                startNewInstall = true;<a name="line.768"></a>
-<span class="sourceLineNo">769</span>            }<a name="line.769"></a>
-<span class="sourceLineNo">770</span>        } else {<a name="line.770"></a>
-<span class="sourceLineNo">771</span><a name="line.771"></a>
-<span class="sourceLineNo">772</span>            // If the message is NOT the first one in a new install, ignore it<a name="line.772"></a>
-<span class="sourceLineNo">773</span>            if (msg.getPairIndex() != 0) {<a name="line.773"></a>
-<span class="sourceLineNo">774</span>                if (this.log.isDebugEnabled())<a name="line.774"></a>
-<span class="sourceLineNo">775</span>                    this.debug("rec'd non-initial " + msg + " with no in-progress snapshot install; ignoring");<a name="line.775"></a>
-<span class="sourceLineNo">776</span>                return;<a name="line.776"></a>
-<span class="sourceLineNo">777</span>            }<a name="line.777"></a>
-<span class="sourceLineNo">778</span>        }<a name="line.778"></a>
-<span class="sourceLineNo">779</span><a name="line.779"></a>
-<span class="sourceLineNo">780</span>        // Get snapshot term and index<a name="line.780"></a>
-<span class="sourceLineNo">781</span>        final long term = msg.getSnapshotTerm();<a name="line.781"></a>
-<span class="sourceLineNo">782</span>        final long index = msg.getSnapshotIndex();<a name="line.782"></a>
-<span class="sourceLineNo">783</span><a name="line.783"></a>
-<span class="sourceLineNo">784</span>        // Set up new install if necessary<a name="line.784"></a>
-<span class="sourceLineNo">785</span>        if (this.snapshotReceive == null || startNewInstall) {<a name="line.785"></a>
-<span class="sourceLineNo">786</span>            assert msg.getPairIndex() == 0;<a name="line.786"></a>
-<span class="sourceLineNo">787</span>            if (this.raft.discardFlipFloppedStateMachine())<a name="line.787"></a>
-<span class="sourceLineNo">788</span>                this.warn("detected left-over content in flip-flopped state machine; discarding");<a name="line.788"></a>
-<span class="sourceLineNo">789</span>            this.updateElectionTimer();<a name="line.789"></a>
-<span class="sourceLineNo">790</span>            this.snapshotReceive = new SnapshotReceive(PrefixKVStore.create(this.raft.kv,<a name="line.790"></a>
-<span class="sourceLineNo">791</span>              this.raft.getFlipFloppedStateMachinePrefix()), term, index, msg.getSnapshotConfig());<a name="line.791"></a>
-<span class="sourceLineNo">792</span>            if (this.log.isDebugEnabled()) {<a name="line.792"></a>
-<span class="sourceLineNo">793</span>                this.debug("starting new snapshot install from \"" + msg.getSenderId()<a name="line.793"></a>
-<span class="sourceLineNo">794</span>                  + "\" of " + index + "t" + term + " with config " + msg.getSnapshotConfig());<a name="line.794"></a>
-<span class="sourceLineNo">795</span>            }<a name="line.795"></a>
-<span class="sourceLineNo">796</span>        }<a name="line.796"></a>
-<span class="sourceLineNo">797</span>        assert this.snapshotReceive.matches(msg);<a name="line.797"></a>
-<span class="sourceLineNo">798</span><a name="line.798"></a>
-<span class="sourceLineNo">799</span>        // Apply next chunk of key/value pairs<a name="line.799"></a>
-<span class="sourceLineNo">800</span>        if (this.log.isDebugEnabled())<a name="line.800"></a>
-<span class="sourceLineNo">801</span>            this.debug("applying " + msg + " to " + this.snapshotReceive);<a name="line.801"></a>
-<span class="sourceLineNo">802</span>        try {<a name="line.802"></a>
-<span class="sourceLineNo">803</span>            this.snapshotReceive.applyNextChunk(msg.getData());<a name="line.803"></a>
-<span class="sourceLineNo">804</span>        } catch (Exception e) {<a name="line.804"></a>
-<span class="sourceLineNo">805</span>            this.error("error applying snapshot to key/value store; aborting snapshot install", e);<a name="line.805"></a>
-<span class="sourceLineNo">806</span>            this.snapshotReceive = null;<a name="line.806"></a>
-<span class="sourceLineNo">807</span>            this.raft.discardFlipFloppedStateMachine();<a name="line.807"></a>
-<span class="sourceLineNo">808</span>            this.updateElectionTimer();<a name="line.808"></a>
-<span class="sourceLineNo">809</span>            return;<a name="line.809"></a>
-<span class="sourceLineNo">810</span>        }<a name="line.810"></a>
-<span class="sourceLineNo">811</span><a name="line.811"></a>
-<span class="sourceLineNo">812</span>        // If that was the last chunk, finalize persistent state<a name="line.812"></a>
-<span class="sourceLineNo">813</span>        if (msg.isLastChunk()) {<a name="line.813"></a>
-<span class="sourceLineNo">814</span>            final Map&lt;String, String&gt; snapshotConfig = this.snapshotReceive.getSnapshotConfig();<a name="line.814"></a>
-<span class="sourceLineNo">815</span>            if (this.log.isDebugEnabled()) {<a name="line.815"></a>
-<span class="sourceLineNo">816</span>                this.debug("snapshot install from \"" + msg.getSenderId() + "\" of "<a name="line.816"></a>
-<span class="sourceLineNo">817</span>                  + index + "t" + term + " with config " + snapshotConfig + " complete");<a name="line.817"></a>
-<span class="sourceLineNo">818</span>            }<a name="line.818"></a>
-<span class="sourceLineNo">819</span>            this.snapshotReceive = null;<a name="line.819"></a>
-<span class="sourceLineNo">820</span>            this.raft.flipFlopStateMachine(term, index, snapshotConfig);<a name="line.820"></a>
-<span class="sourceLineNo">821</span>            this.updateElectionTimer();<a name="line.821"></a>
-<span class="sourceLineNo">822</span>        }<a name="line.822"></a>
-<span class="sourceLineNo">823</span>    }<a name="line.823"></a>
-<span class="sourceLineNo">824</span><a name="line.824"></a>
-<span class="sourceLineNo">825</span>    @Override<a name="line.825"></a>
-<span class="sourceLineNo">826</span>    void caseRequestVote(RequestVote msg) {<a name="line.826"></a>
-<span class="sourceLineNo">827</span><a name="line.827"></a>
-<span class="sourceLineNo">828</span>        // Record new cluster ID if we haven't done so already<a name="line.828"></a>
-<span class="sourceLineNo">829</span>        if (this.raft.clusterId == 0)<a name="line.829"></a>
-<span class="sourceLineNo">830</span>            this.raft.joinCluster(msg.getClusterId());<a name="line.830"></a>
-<span class="sourceLineNo">831</span><a name="line.831"></a>
-<span class="sourceLineNo">832</span>        // Did we already vote for somebody else?<a name="line.832"></a>
-<span class="sourceLineNo">833</span>        final String peer = msg.getSenderId();<a name="line.833"></a>
-<span class="sourceLineNo">834</span>        if (this.votedFor != null &amp;&amp; !this.votedFor.equals(peer)) {<a name="line.834"></a>
-<span class="sourceLineNo">835</span>            if (this.log.isDebugEnabled())<a name="line.835"></a>
-<span class="sourceLineNo">836</span>                this.debug("rec'd " + msg + "; rejected because we already voted for \"" + this.votedFor + "\"");<a name="line.836"></a>
-<span class="sourceLineNo">837</span>            return;<a name="line.837"></a>
-<span class="sourceLineNo">838</span>        }<a name="line.838"></a>
-<span class="sourceLineNo">839</span><a name="line.839"></a>
-<span class="sourceLineNo">840</span>        // Verify that we are allowed to vote for this peer<a name="line.840"></a>
-<span class="sourceLineNo">841</span>        if (msg.getLastLogTerm() &lt; this.raft.getLastLogTerm()<a name="line.841"></a>
-<span class="sourceLineNo">842</span>          || (msg.getLastLogTerm() == this.raft.getLastLogTerm() &amp;&amp; msg.getLastLogIndex() &lt; this.raft.getLastLogIndex())) {<a name="line.842"></a>
-<span class="sourceLineNo">843</span>            if (this.log.isDebugEnabled()) {<a name="line.843"></a>
-<span class="sourceLineNo">844</span>                this.debug("rec'd " + msg + "; rejected because their log " + msg.getLastLogIndex() + "t"<a name="line.844"></a>
-<span class="sourceLineNo">845</span>                  + msg.getLastLogTerm() + " loses to ours " + this.raft.getLastLogIndex() + "t" + this.raft.getLastLogTerm());<a name="line.845"></a>
-<span class="sourceLineNo">846</span>            }<a name="line.846"></a>
-<span class="sourceLineNo">847</span>            return;<a name="line.847"></a>
-<span class="sourceLineNo">848</span>        }<a name="line.848"></a>
-<span class="sourceLineNo">849</span><a name="line.849"></a>
-<span class="sourceLineNo">850</span>        // Persist our vote for this peer (if not already persisted)<a name="line.850"></a>
-<span class="sourceLineNo">851</span>        if (this.votedFor == null) {<a name="line.851"></a>
+<span class="sourceLineNo">720</span>            // Update transaction<a name="line.720"></a>
+<span class="sourceLineNo">721</span>            this.advanceReadyTransaction(tx, msg.getCommitTerm(), msg.getCommitIndex());<a name="line.721"></a>
+<span class="sourceLineNo">722</span><a name="line.722"></a>
+<span class="sourceLineNo">723</span>            // Track leader lease timeout we must wait for, if any<a name="line.723"></a>
+<span class="sourceLineNo">724</span>            if (msg.getCommitLeaderLeaseTimeout() != null)<a name="line.724"></a>
+<span class="sourceLineNo">725</span>                this.commitLeaderLeaseTimeoutMap.put(tx.getTxId(), msg.getCommitLeaderLeaseTimeout());<a name="line.725"></a>
+<span class="sourceLineNo">726</span>        } else<a name="line.726"></a>
+<span class="sourceLineNo">727</span>            this.raft.fail(tx, new RetryTransactionException(tx, msg.getErrorMessage()));<a name="line.727"></a>
+<span class="sourceLineNo">728</span>    }<a name="line.728"></a>
+<span class="sourceLineNo">729</span><a name="line.729"></a>
+<span class="sourceLineNo">730</span>    @Override<a name="line.730"></a>
+<span class="sourceLineNo">731</span>    void caseInstallSnapshot(InstallSnapshot msg) {<a name="line.731"></a>
+<span class="sourceLineNo">732</span><a name="line.732"></a>
+<span class="sourceLineNo">733</span>        // Restart election timer (if running)<a name="line.733"></a>
+<span class="sourceLineNo">734</span>        if (this.electionTimer.isRunning())<a name="line.734"></a>
+<span class="sourceLineNo">735</span>            this.restartElectionTimer();<a name="line.735"></a>
+<span class="sourceLineNo">736</span><a name="line.736"></a>
+<span class="sourceLineNo">737</span>        // Sanity check that our log is not going backwards<a name="line.737"></a>
+<span class="sourceLineNo">738</span>        if (msg.getSnapshotIndex() &lt; this.raft.commitIndex) {<a name="line.738"></a>
+<span class="sourceLineNo">739</span>            this.warn("rec'd " + msg + " with retrograde index " + msg.getSnapshotIndex()<a name="line.739"></a>
+<span class="sourceLineNo">740</span>              + " &lt; my commit index " + this.raft.commitIndex + ", ignoring");<a name="line.740"></a>
+<span class="sourceLineNo">741</span>            return;<a name="line.741"></a>
+<span class="sourceLineNo">742</span>        }<a name="line.742"></a>
+<span class="sourceLineNo">743</span><a name="line.743"></a>
+<span class="sourceLineNo">744</span>        // Do we have an existing install?<a name="line.744"></a>
+<span class="sourceLineNo">745</span>        boolean startNewInstall = false;<a name="line.745"></a>
+<span class="sourceLineNo">746</span>        if (this.snapshotReceive != null) {<a name="line.746"></a>
+<span class="sourceLineNo">747</span><a name="line.747"></a>
+<span class="sourceLineNo">748</span>            // Does the message not match?<a name="line.748"></a>
+<span class="sourceLineNo">749</span>            if (!this.snapshotReceive.matches(msg)) {<a name="line.749"></a>
+<span class="sourceLineNo">750</span><a name="line.750"></a>
+<span class="sourceLineNo">751</span>                // If the message is NOT the first one in a new install, ignore it<a name="line.751"></a>
+<span class="sourceLineNo">752</span>                if (msg.getPairIndex() != 0) {<a name="line.752"></a>
+<span class="sourceLineNo">753</span>                    if (this.log.isDebugEnabled())<a name="line.753"></a>
+<span class="sourceLineNo">754</span>                        this.debug("rec'd " + msg + " which doesn't match in-progress " + this.snapshotReceive + "; ignoring");<a name="line.754"></a>
+<span class="sourceLineNo">755</span>                    return;<a name="line.755"></a>
+<span class="sourceLineNo">756</span>                }<a name="line.756"></a>
+<span class="sourceLineNo">757</span><a name="line.757"></a>
+<span class="sourceLineNo">758</span>                // The message is the first one in a new install, so discard the existing install<a name="line.758"></a>
+<span class="sourceLineNo">759</span>                if (this.log.isDebugEnabled()) {<a name="line.759"></a>
+<span class="sourceLineNo">760</span>                    this.debug("rec'd initial " + msg + " with in-progress " + this.snapshotReceive<a name="line.760"></a>
+<span class="sourceLineNo">761</span>                      + "; aborting previous install");<a name="line.761"></a>
+<span class="sourceLineNo">762</span>                }<a name="line.762"></a>
+<span class="sourceLineNo">763</span>                startNewInstall = true;<a name="line.763"></a>
+<span class="sourceLineNo">764</span>            }<a name="line.764"></a>
+<span class="sourceLineNo">765</span>        } else {<a name="line.765"></a>
+<span class="sourceLineNo">766</span><a name="line.766"></a>
+<span class="sourceLineNo">767</span>            // If the message is NOT the first one in a new install, ignore it<a name="line.767"></a>
+<span class="sourceLineNo">768</span>            if (msg.getPairIndex() != 0) {<a name="line.768"></a>
+<span class="sourceLineNo">769</span>                if (this.log.isDebugEnabled())<a name="line.769"></a>
+<span class="sourceLineNo">770</span>                    this.debug("rec'd non-initial " + msg + " with no in-progress snapshot install; ignoring");<a name="line.770"></a>
+<span class="sourceLineNo">771</span>                return;<a name="line.771"></a>
+<span class="sourceLineNo">772</span>            }<a name="line.772"></a>
+<span class="sourceLineNo">773</span>        }<a name="line.773"></a>
+<span class="sourceLineNo">774</span><a name="line.774"></a>
+<span class="sourceLineNo">775</span>        // Get snapshot term and index<a name="line.775"></a>
+<span class="sourceLineNo">776</span>        final long term = msg.getSnapshotTerm();<a name="line.776"></a>
+<span class="sourceLineNo">777</span>        final long index = msg.getSnapshotIndex();<a name="line.777"></a>
+<span class="sourceLineNo">778</span><a name="line.778"></a>
+<span class="sourceLineNo">779</span>        // Set up new install if necessary<a name="line.779"></a>
+<span class="sourceLineNo">780</span>        if (this.snapshotReceive == null || startNewInstall) {<a name="line.780"></a>
+<span class="sourceLineNo">781</span>            assert msg.getPairIndex() == 0;<a name="line.781"></a>
+<span class="sourceLineNo">782</span>            if (this.raft.discardFlipFloppedStateMachine())<a name="line.782"></a>
+<span class="sourceLineNo">783</span>                this.warn("detected left-over content in flip-flopped state machine; discarding");<a name="line.783"></a>
+<span class="sourceLineNo">784</span>            this.updateElectionTimer();<a name="line.784"></a>
+<span class="sourceLineNo">785</span>            this.snapshotReceive = new SnapshotReceive(PrefixKVStore.create(this.raft.kv,<a name="line.785"></a>
+<span class="sourceLineNo">786</span>              this.raft.getFlipFloppedStateMachinePrefix()), term, index, msg.getSnapshotConfig());<a name="line.786"></a>
+<span class="sourceLineNo">787</span>            if (this.log.isDebugEnabled()) {<a name="line.787"></a>
+<span class="sourceLineNo">788</span>                this.debug("starting new snapshot install from \"" + msg.getSenderId()<a name="line.788"></a>
+<span class="sourceLineNo">789</span>                  + "\" of " + index + "t" + term + " with config " + msg.getSnapshotConfig());<a name="line.789"></a>
+<span class="sourceLineNo">790</span>            }<a name="line.790"></a>
+<span class="sourceLineNo">791</span>        }<a name="line.791"></a>
+<span class="sourceLineNo">792</span>        assert this.snapshotReceive.matches(msg);<a name="line.792"></a>
+<span class="sourceLineNo">793</span><a name="line.793"></a>
+<span class="sourceLineNo">794</span>        // Apply next chunk of key/value pairs<a name="line.794"></a>
+<span class="sourceLineNo">795</span>        if (this.log.isDebugEnabled())<a name="line.795"></a>
+<span class="sourceLineNo">796</span>            this.debug("applying " + msg + " to " + this.snapshotReceive);<a name="line.796"></a>
+<span class="sourceLineNo">797</span>        try {<a name="line.797"></a>
+<span class="sourceLineNo">798</span>            this.snapshotReceive.applyNextChunk(msg.getData());<a name="line.798"></a>
+<span class="sourceLineNo">799</span>        } catch (Exception e) {<a name="line.799"></a>
+<span class="sourceLineNo">800</span>            this.error("error applying snapshot to key/value store; aborting snapshot install", e);<a name="line.800"></a>
+<span class="sourceLineNo">801</span>            this.snapshotReceive = null;<a name="line.801"></a>
+<span class="sourceLineNo">802</span>            this.raft.discardFlipFloppedStateMachine();<a name="line.802"></a>
+<span class="sourceLineNo">803</span>            this.updateElectionTimer();<a name="line.803"></a>
+<span class="sourceLineNo">804</span>            return;<a name="line.804"></a>
+<span class="sourceLineNo">805</span>        }<a name="line.805"></a>
+<span class="sourceLineNo">806</span><a name="line.806"></a>
+<span class="sourceLineNo">807</span>        // If that was the last chunk, finalize persistent state<a name="line.807"></a>
+<span class="sourceLineNo">808</span>        if (msg.isLastChunk()) {<a name="line.808"></a>
+<span class="sourceLineNo">809</span>            final Map&lt;String, String&gt; snapshotConfig = this.snapshotReceive.getSnapshotConfig();<a name="line.809"></a>
+<span class="sourceLineNo">810</span>            if (this.log.isDebugEnabled()) {<a name="line.810"></a>
+<span class="sourceLineNo">811</span>                this.debug("snapshot install from \"" + msg.getSenderId() + "\" of "<a name="line.811"></a>
+<span class="sourceLineNo">812</span>                  + index + "t" + term + " with config " + snapshotConfig + " complete");<a name="line.812"></a>
+<span class="sourceLineNo">813</span>            }<a name="line.813"></a>
+<span class="sourceLineNo">814</span>            this.snapshotReceive = null;<a name="line.814"></a>
+<span class="sourceLineNo">815</span>            this.raft.flipFlopStateMachine(term, index, snapshotConfig);<a name="line.815"></a>
+<span class="sourceLineNo">816</span>            this.updateElectionTimer();<a name="line.816"></a>
+<span class="sourceLineNo">817</span>        }<a name="line.817"></a>
+<span class="sourceLineNo">818</span>    }<a name="line.818"></a>
+<span class="sourceLineNo">819</span><a name="line.819"></a>
+<span class="sourceLineNo">820</span>    @Override<a name="line.820"></a>
+<span class="sourceLineNo">821</span>    void caseRequestVote(RequestVote msg) {<a name="line.821"></a>
+<span class="sourceLineNo">822</span><a name="line.822"></a>
+<span class="sourceLineNo">823</span>        // Record new cluster ID if we haven't done so already<a name="line.823"></a>
+<span class="sourceLineNo">824</span>        if (this.raft.clusterId == 0)<a name="line.824"></a>
+<span class="sourceLineNo">825</span>            this.raft.joinCluster(msg.getClusterId());<a name="line.825"></a>
+<span class="sourceLineNo">826</span><a name="line.826"></a>
+<span class="sourceLineNo">827</span>        // Did we already vote for somebody else?<a name="line.827"></a>
+<span class="sourceLineNo">828</span>        final String peer = msg.getSenderId();<a name="line.828"></a>
+<span class="sourceLineNo">829</span>        if (this.votedFor != null &amp;&amp; !this.votedFor.equals(peer)) {<a name="line.829"></a>
+<span class="sourceLineNo">830</span>            if (this.log.isDebugEnabled())<a name="line.830"></a>
+<span class="sourceLineNo">831</span>                this.debug("rec'd " + msg + "; rejected because we already voted for \"" + this.votedFor + "\"");<a name="line.831"></a>
+<span class="sourceLineNo">832</span>            return;<a name="line.832"></a>
+<span class="sourceLineNo">833</span>        }<a name="line.833"></a>
+<span class="sourceLineNo">834</span><a name="line.834"></a>
+<span class="sourceLineNo">835</span>        // Verify that we are allowed to vote for this peer<a name="line.835"></a>
+<span class="sourceLineNo">836</span>        if (msg.getLastLogTerm() &lt; this.raft.getLastLogTerm()<a name="line.836"></a>
+<span class="sourceLineNo">837</span>          || (msg.getLastLogTerm() == this.raft.getLastLogTerm() &amp;&amp; msg.getLastLogIndex() &lt; this.raft.getLastLogIndex())) {<a name="line.837"></a>
+<span class="sourceLineNo">838</span>            if (this.log.isDebugEnabled()) {<a name="line.838"></a>
+<span class="sourceLineNo">839</span>                this.debug("rec'd " + msg + "; rejected because their log " + msg.getLastLogIndex() + "t"<a name="line.839"></a>
+<span class="sourceLineNo">840</span>                  + msg.getLastLogTerm() + " loses to ours " + this.raft.getLastLogIndex() + "t" + this.raft.getLastLogTerm());<a name="line.840"></a>
+<span class="sourceLineNo">841</span>            }<a name="line.841"></a>
+<span class="sourceLineNo">842</span>            return;<a name="line.842"></a>
+<span class="sourceLineNo">843</span>        }<a name="line.843"></a>
+<span class="sourceLineNo">844</span><a name="line.844"></a>
+<span class="sourceLineNo">845</span>        // Persist our vote for this peer (if not already persisted)<a name="line.845"></a>
+<span class="sourceLineNo">846</span>        if (this.votedFor == null) {<a name="line.846"></a>
+<span class="sourceLineNo">847</span>            if (this.log.isDebugEnabled())<a name="line.847"></a>
+<span class="sourceLineNo">848</span>                this.debug("granting vote to \"" + peer + "\" in term " + this.raft.currentTerm);<a name="line.848"></a>
+<span class="sourceLineNo">849</span>            if (!this.updateVotedFor(peer))<a name="line.849"></a>
+<span class="sourceLineNo">850</span>                return;<a name="line.850"></a>
+<span class="sourceLineNo">851</span>        } else {<a name="line.851"></a>
 <span class="sourceLineNo">852</span>            if (this.log.isDebugEnabled())<a name="line.852"></a>
-<span class="sourceLineNo">853</span>                this.debug("granting vote to \"" + peer + "\" in term " + this.raft.currentTerm);<a name="line.853"></a>
-<span class="sourceLineNo">854</span>            if (!this.updateVotedFor(peer))<a name="line.854"></a>
-<span class="sourceLineNo">855</span>                return;<a name="line.855"></a>
-<span class="sourceLineNo">856</span>        } else {<a name="line.856"></a>
-<span class="sourceLineNo">857</span>            if (this.log.isDebugEnabled())<a name="line.857"></a>
-<span class="sourceLineNo">858</span>                this.debug("confirming existing vote for \"" + peer + "\" in term " + this.raft.currentTerm);<a name="line.858"></a>
-<span class="sourceLineNo">859</span>        }<a name="line.859"></a>
-<span class="sourceLineNo">860</span><a name="line.860"></a>
-<span class="sourceLineNo">861</span>        // Send reply<a name="line.861"></a>
-<span class="sourceLineNo">862</span>        this.raft.sendMessage(new GrantVote(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm));<a name="line.862"></a>
-<span class="sourceLineNo">863</span>    }<a name="line.863"></a>
-<span class="sourceLineNo">864</span><a name="line.864"></a>
-<span class="sourceLineNo">865</span>    @Override<a name="line.865"></a>
-<span class="sourceLineNo">866</span>    void caseGrantVote(GrantVote msg) {<a name="line.866"></a>
+<span class="sourceLineNo">853</span>                this.debug("confirming existing vote for \"" + peer + "\" in term " + this.raft.currentTerm);<a name="line.853"></a>
+<span class="sourceLineNo">854</span>        }<a name="line.854"></a>
+<span class="sourceLineNo">855</span><a name="line.855"></a>
+<span class="sourceLineNo">856</span>        // Send reply<a name="line.856"></a>
+<span class="sourceLineNo">857</span>        this.raft.sendMessage(new GrantVote(this.raft.clusterId, this.raft.identity, peer, this.raft.currentTerm));<a name="line.857"></a>
+<span class="sourceLineNo">858</span>    }<a name="line.858"></a>
+<span class="sourceLineNo">859</span><a name="line.859"></a>
+<span class="sourceLineNo">860</span>    @Override<a name="line.860"></a>
+<span class="sourceLineNo">861</span>    void caseGrantVote(GrantVote msg) {<a name="line.861"></a>
+<span class="sourceLineNo">862</span><a name="line.862"></a>
+<span class="sourceLineNo">863</span>        // Ignore - we already lost the election to the real leader<a name="line.863"></a>
+<span class="sourceLineNo">864</span>        if (this.log.isDebugEnabled())<a name="line.864"></a>
+<span class="sourceLineNo">865</span>            this.debug("ignoring " + msg + " rec'd while in " + this);<a name="line.865"></a>
+<span class="sourceLineNo">866</span>    }<a name="line.866"></a>
 <span class="sourceLineNo">867</span><a name="line.867"></a>
-<span class="sourceLineNo">868</span>        // Ignore - we already lost the election to the real leader<a name="line.868"></a>
-<span class="sourceLineNo">869</span>        if (this.log.isDebugEnabled())<a name="line.869"></a>
-<span class="sourceLineNo">870</span>            this.debug("ignoring " + msg + " rec'd while in " + this);<a name="line.870"></a>
-<span class="sourceLineNo">871</span>    }<a name="line.871"></a>
-<span class="sourceLineNo">872</span><a name="line.872"></a>
-<span class="sourceLineNo">873</span>    @Override<a name="line.873"></a>
-<span class="sourceLineNo">874</span>    void casePingResponse(PingResponse msg) {<a name="line.874"></a>
-<span class="sourceLineNo">875</span><a name="line.875"></a>
-<span class="sourceLineNo">876</span>        // Are we probing?<a name="line.876"></a>
-<span class="sourceLineNo">877</span>        if (this.probeTimestamps == null) {<a name="line.877"></a>
-<span class="sourceLineNo">878</span>            if (this.log.isTraceEnabled())<a name="line.878"></a>
-<span class="sourceLineNo">879</span>                this.trace("ignoring " + msg + " rec'd while not probing in " + this);<a name="line.879"></a>
-<span class="sourceLineNo">880</span>            return;<a name="line.880"></a>
-<span class="sourceLineNo">881</span>        }<a name="line.881"></a>
-<span class="sourceLineNo">882</span><a name="line.882"></a>
-<span class="sourceLineNo">883</span>        // Update peer's ping timestamp and re-check probe status<a name="line.883"></a>
-<span class="sourceLineNo">884</span>        this.probeTimestamps.put(msg.getSenderId(), msg.getTimestamp());<a name="line.884"></a>
-<span class="sourceLineNo">885</span>    }<a name="line.885"></a>
-<span class="sourceLineNo">886</span><a name="line.886"></a>
-<span class="sourceLineNo">887</span>// Helper methods<a name="line.887"></a>
+<span class="sourceLineNo">868</span>    @Override<a name="line.868"></a>
+<span class="sourceLineNo">869</span>    void casePingResponse(PingResponse msg) {<a name="line.869"></a>
+<span class="sourceLineNo">870</span><a name="line.870"></a>
+<span class="sourceLineNo">871</span>        // Are we probing?<a name="line.871"></a>
+<span class="sourceLineNo">872</span>        if (this.probeTimestamps == null) {<a name="line.872"></a>
+<span class="sourceLineNo">873</span>            if (this.log.isTraceEnabled())<a name="line.873"></a>
+<span class="sourceLineNo">874</span>                this.trace("ignoring " + msg + " rec'd while not probing in " + this);<a name="line.874"></a>
+<span class="sourceLineNo">875</span>            return;<a name="line.875"></a>
+<span class="sourceLineNo">876</span>        }<a name="line.876"></a>
+<span class="sourceLineNo">877</span><a name="line.877"></a>
+<span class="sourceLineNo">878</span>        // Update peer's ping timestamp and re-check probe status<a name="line.878"></a>
+<span class="sourceLineNo">879</span>        this.probeTimestamps.put(msg.getSenderId(), msg.getTimestamp());<a name="line.879"></a>
+<span class="sourceLineNo">880</span>    }<a name="line.880"></a>
+<span class="sourceLineNo">881</span><a name="line.881"></a>
+<span class="sourceLineNo">882</span>// Helper methods<a name="line.882"></a>
+<span class="sourceLineNo">883</span><a name="line.883"></a>
+<span class="sourceLineNo">884</span>    /**<a name="line.884"></a>
+<span class="sourceLineNo">885</span>     * Record the peer voted for in the current term.<a name="line.885"></a>
+<span class="sourceLineNo">886</span>     */<a name="line.886"></a>
+<span class="sourceLineNo">887</span>    private boolean updateVotedFor(String recipient) {<a name="line.887"></a>
 <span class="sourceLineNo">888</span><a name="line.888"></a>
-<span class="sourceLineNo">889</span>    /**<a name="line.889"></a>
-<span class="sourceLineNo">890</span>     * Record the peer voted for in the current term.<a name="line.890"></a>
-<span class="sourceLineNo">891</span>     */<a name="line.891"></a>
-<span class="sourceLineNo">892</span>    private boolean updateVotedFor(String recipient) {<a name="line.892"></a>
-<span class="sourceLineNo">893</span><a name="line.893"></a>
-<span class="sourceLineNo">894</span>        // Sanity check<a name="line.894"></a>
-<span class="sourceLineNo">895</span>        assert Thread.holdsLock(this.raft);<a name="line.895"></a>
-<span class="sourceLineNo">896</span>        assert recipient != null;<a name="line.896"></a>
-<span class="sourceLineNo">897</span><a name="line.897"></a>
-<span class="sourceLineNo">898</span>        // Update persistent store<a name="line.898"></a>
-<span class="sourceLineNo">899</span>        final Writes writes = new Writes();<a name="line.899"></a>
-<span class="sourceLineNo">900</span>        writes.getPuts().put(RaftKVDatabase.VOTED_FOR_KEY, this.raft.encodeString(recipient));<a name="line.900"></a>
-<span class="sourceLineNo">901</span>        try {<a name="line.901"></a>
-<span class="sourceLineNo">902</span>            this.raft.kv.mutate(writes, true);<a name="line.902"></a>
-<span class="sourceLineNo">903</span>        } catch (Exception e) {<a name="line.903"></a>
-<span class="sourceLineNo">904</span>            this.error("error persisting vote for \"" + recipient + "\"", e);<a name="line.904"></a>
-<span class="sourceLineNo">905</span>            return false;<a name="line.905"></a>
-<span class="sourceLineNo">906</span>        }<a name="line.906"></a>
+<span class="sourceLineNo">889</span>        // Sanity check<a name="line.889"></a>
+<span class="sourceLineNo">890</span>        assert Thread.holdsLock(this.raft);<a name="line.890"></a>
+<span class="sourceLineNo">891</span>        assert recipient != null;<a name="line.891"></a>
+<span class="sourceLineNo">892</span><a name="line.892"></a>
+<span class="sourceLineNo">893</span>        // Update persistent store<a name="line.893"></a>
+<span class="sourceLineNo">894</span>        final Writes writes = new Writes();<a name="line.894"></a>
+<span class="sourceLineNo">895</span>        writes.getPuts().put(RaftKVDatabase.VOTED_FOR_KEY, this.raft.encodeString(recipient));<a name="line.895"></a>
+<span class="sourceLineNo">896</span>        try {<a name="line.896"></a>
+<span class="sourceLineNo">897</span>            this.raft.kv.mutate(writes, true);<a name="line.897"></a>
+<span class="sourceLineNo">898</span>        } catch (Exception e) {<a name="line.898"></a>
+<span class="sourceLineNo">899</span>            this.error("error persisting vote for \"" + recipient + "\"", e);<a name="line.899"></a>
+<span class="sourceLineNo">900</span>            return false;<a name="line.900"></a>
+<span class="sourceLineNo">901</span>        }<a name="line.901"></a>
+<span class="sourceLineNo">902</span><a name="line.902"></a>
+<span class="sourceLineNo">903</span>        // Done<a name="line.903"></a>
+<span class="sourceLineNo">904</span>        this.votedFor = recipient;<a name="line.904"></a>
+<span class="sourceLineNo">905</span>        return true;<a name="line.905"></a>
+<span class="sourceLineNo">906</span>    }<a name="line.906"></a>
 <span class="sourceLineNo">907</span><a name="line.907"></a>
-<span class="sourceLineNo">908</span>        // Done<a name="line.908"></a>
-<span class="sourceLineNo">909</span>        this.votedFor = recipient;<a name="line.909"></a>
-<span class="sourceLineNo">910</span>        return true;<a name="line.910"></a>
-<span class="sourceLineNo">911</span>    }<a name="line.911"></a>
-<span class="sourceLineNo">912</span><a name="line.912"></a>
-<span class="sourceLineNo">913</span>// Object<a name="line.913"></a>
-<span class="sourceLineNo">914</span><a name="line.914"></a>
-<span class="sourceLineNo">915</span>    @Override<a name="line.915"></a>
-<span class="sourceLineNo">916</span>    public String toString() {<a name="line.916"></a>
-<span class="sourceLineNo">917</span>        return this.toStringPrefix()<a name="line.917"></a>
-<span class="sourceLineNo">918</span>          + (this.leader != null ? ",leader=\"" + this.leader + "\"" : "")<a name="line.918"></a>
-<span class="sourceLineNo">919</span>          + (this.votedFor != null ? ",votedFor=\"" + this.votedFor + "\"" : "")<a name="line.919"></a>
-<span class="sourceLineNo">920</span>          + (!this.pendingRequests.isEmpty() ? ",pendingRequests=" + this.pendingRequests.keySet() : "")<a name="line.920"></a>
-<span class="sourceLineNo">921</span>          + (!this.pendingWrites.isEmpty() ? ",pendingWrites=" + this.pendingWrites.keySet() : "")<a name="line.921"></a>
-<span class="sourceLineNo">922</span>          + (!this.commitLeaderLeaseTimeoutMap.isEmpty() ? ",leaseTimeouts=" + this.commitLeaderLeaseTimeoutMap.keySet() : "")<a name="line.922"></a>
-<span class="sourceLineNo">923</span>          + "]";<a name="line.923"></a>
-<span class="sourceLineNo">924</span>    }<a name="line.924"></a>
-<span class="sourceLineNo">925</span><a name="line.925"></a>
-<span class="sourceLineNo">926</span>// Debug<a name="line.926"></a>
-<span class="sourceLineNo">927</span><a name="line.927"></a>
-<span class="sourceLineNo">928</span>    @Override<a name="line.928"></a>
-<span class="sourceLineNo">929</span>    boolean checkState() {<a name="line.929"></a>
-<span class="sourceLineNo">930</span>        if (!super.checkState())<a name="line.930"></a>
-<span class="sourceLineNo">931</span>            return false;<a name="line.931"></a>
-<span class="sourceLineNo">932</span>        assert this.leaderAddress != null || this.leader == null;<a name="line.932"></a>
-<span class="sourceLineNo">933</span>        assert this.electionTimer.isRunning() == this.raft.isClusterMember();<a name="line.933"></a>
-<span class="sourceLineNo">934</span>        for (Map.Entry&lt;Long, PendingRequest&gt; entry : this.pendingRequests.entrySet()) {<a name="line.934"></a>
-<span class="sourceLineNo">935</span>            final long txId = entry.getKey();<a name="line.935"></a>
-<span class="sourceLineNo">936</span>            final PendingRequest pendingRequest = entry.getValue();<a name="line.936"></a>
-<span class="sourceLineNo">937</span>            final RaftKVTransaction tx = pendingRequest.getTx();<a name="line.937"></a>
-<span class="sourceLineNo">938</span>            assert txId == tx.getTxId();<a name="line.938"></a>
-<span class="sourceLineNo">939</span>            assert tx.getState().equals(TxState.COMMIT_READY);<a name="line.939"></a>
-<span class="sourceLineNo">940</span>            assert tx.getCommitTerm() == 0;<a name="line.940"></a>
-<span class="sourceLineNo">941</span>            assert tx.getCommitIndex() == 0;<a name="line.941"></a>
-<span class="sourceLineNo">942</span>        }<a name="line.942"></a>
-<span class="sourceLineNo">943</span>        for (Map.Entry&lt;Long, PendingWrite&gt; entry : this.pendingWrites.entrySet()) {<a name="line.943"></a>
-<span class="sourceLineNo">944</span>            final long txId = entry.getKey();<a name="line.944"></a>
-<span class="sourceLineNo">945</span>            final PendingWrite pendingWrite = entry.getValue();<a name="line.945"></a>
-<span class="sourceLineNo">946</span>            final RaftKVTransaction tx = pendingWrite.getTx();<a name="line.946"></a>
-<span class="sourceLineNo">947</span>            assert txId == tx.getTxId();<a name="line.947"></a>
-<span class="sourceLineNo">948</span>            assert tx.getState().equals(TxState.COMMIT_READY) || tx.getState().equals(TxState.COMMIT_WAITING);<a name="line.948"></a>
-<span class="sourceLineNo">949</span>            assert pendingWrite.getFileWriter().getFile().exists();<a name="line.949"></a>
-<span class="sourceLineNo">950</span>        }<a name="line.950"></a>
-<span class="sourceLineNo">951</span>        return true;<a name="line.951"></a>
-<span class="sourceLineNo">952</span>    }<a name="line.952"></a>
-<span class="sourceLineNo">953</span><a name="line.953"></a>
-<span class="sourceLineNo">954</span>// PendingRequest<a name="line.954"></a>
-<span class="sourceLineNo">955</span><a name="line.955"></a>
-<span class="sourceLineNo">956</span>    // Represents a transaction in COMMIT_READY for which a CommitRequest has been sent to the leader<a name="line.956"></a>
-<span class="sourceLineNo">957</span>    // but no CommitResponse has yet been received<a name="line.957"></a>
-<span class="sourceLineNo">958</span>    private class PendingRequest {<a name="line.958"></a>
-<span class="sourceLineNo">959</span><a name="line.959"></a>
-<span class="sourceLineNo">960</span>        private final RaftKVTransaction tx;<a name="line.960"></a>
-<span class="sourceLineNo">961</span><a name="line.961"></a>
-<span class="sourceLineNo">962</span>        PendingRequest(RaftKVTransaction tx) {<a name="line.962"></a>
-<span class="sourceLineNo">963</span>            this.tx = tx;<a name="line.963"></a>
-<span class="sourceLineNo">964</span>            assert !FollowerRole.this.pendingRequests.containsKey(tx.getTxId());<a name="line.964"></a>
-<span class="sourceLineNo">965</span>            FollowerRole.this.pendingRequests.put(tx.getTxId(), this);<a name="line.965"></a>
-<span class="sourceLineNo">966</span>        }<a name="line.966"></a>
+<span class="sourceLineNo">908</span>// Object<a name="line.908"></a>
+<span class="sourceLineNo">909</span><a name="line.909"></a>
+<span class="sourceLineNo">910</span>    @Override<a name="line.910"></a>
+<span class="sourceLineNo">911</span>    public String toString() {<a name="line.911"></a>
+<span class="sourceLineNo">912</span>        return this.toStringPrefix()<a name="line.912"></a>
+<span class="sourceLineNo">913</span>          + (this.leader != null ? ",leader=\"" + this.leader + "\"" : "")<a name="line.913"></a>
+<span class="sourceLineNo">914</span>          + (this.votedFor != null ? ",votedFor=\"" + this.votedFor + "\"" : "")<a name="line.914"></a>
+<span class="sourceLineNo">915</span>          + (!this.pendingRequests.isEmpty() ? ",pendingRequests=" + this.pendingRequests.keySet() : "")<a name="line.915"></a>
+<span class="sourceLineNo">916</span>          + (!this.pendingWrites.isEmpty() ? ",pendingWrites=" + this.pendingWrites.keySet() : "")<a name="line.916"></a>
+<span class="sourceLineNo">917</span>          + (!this.commitLeaderLeaseTimeoutMap.isEmpty() ? ",leaseTimeouts=" + this.commitLeaderLeaseTimeoutMap.keySet() : "")<a name="line.917"></a>
+<span class="sourceLineNo">918</span>          + "]";<a name="line.918"></a>
+<span class="sourceLineNo">919</span>    }<a name="line.919"></a>
+<span class="sourceLineNo">920</span><a name="line.920"></a>
+<span class="sourceLineNo">921</span>// Debug<a name="line.921"></a>
+<span class="sourceLineNo">922</span><a name="line.922"></a>
+<span class="sourceLineNo">923</span>    @Override<a name="line.923"></a>
+<span class="sourceLineNo">924</span>    boolean checkState() {<a name="line.924"></a>
+<span class="sourceLineNo">925</span>        if (!super.checkState())<a name="line.925"></a>
+<span class="sourceLineNo">926</span>            return false;<a name="line.926"></a>
+<span class="sourceLineNo">927</span>        assert this.leaderAddress != null || this.leader == null;<a name="line.927"></a>
+<span class="sourceLineNo">928</span>        assert this.electionTimer.isRunning() == this.raft.isClusterMember();<a name="line.928"></a>
+<span class="sourceLineNo">929</span>        for (Map.Entry&lt;Long, PendingRequest&gt; entry : this.pendingRequests.entrySet()) {<a name="line.929"></a>
+<span class="sourceLineNo">930</span>            final long txId = entry.getKey();<a name="line.930"></a>
+<span class="sourceLineNo">931</span>            final PendingRequest pendingRequest = entry.getValue();<a name="line.931"></a>
+<span class="sourceLineNo">932</span>            final RaftKVTransaction tx = pendingRequest.getTx();<a name="line.932"></a>
+<span class="sourceLineNo">933</span>            assert txId == tx.getTxId();<a name="line.933"></a>
+<span class="sourceLineNo">934</span>            assert tx.getState().equals(TxState.COMMIT_READY);<a name="line.934"></a>
+<span class="sourceLineNo">935</span>            assert tx.getCommitTerm() == 0;<a name="line.935"></a>
+<span class="sourceLineNo">936</span>            assert tx.getCommitIndex() == 0;<a name="line.936"></a>
+<span class="sourceLineNo">937</span>        }<a name="line.937"></a>
+<span class="sourceLineNo">938</span>        for (Map.Entry&lt;Long, PendingWrite&gt; entry : this.pendingWrites.entrySet()) {<a name="line.938"></a>
+<span class="sourceLineNo">939</span>            final long txId = entry.getKey();<a name="line.939"></a>
+<span class="sourceLineNo">940</span>            final PendingWrite pendingWrite = entry.getValue();<a name="line.940"></a>
+<span class="sourceLineNo">941</span>            final RaftKVTransaction tx = pendingWrite.getTx();<a name="line.941"></a>
+<span class="sourceLineNo">942</span>            assert txId == tx.getTxId();<a name="line.942"></a>
+<span class="sourceLineNo">943</span>            assert tx.getState().equals(TxState.COMMIT_READY) || tx.getState().equals(TxState.COMMIT_WAITING);<a name="line.943"></a>
+<span class="sourceLineNo">944</span>            assert pendingWrite.getFileWriter().getFile().exists();<a name="line.944"></a>
+<span class="sourceLineNo">945</span>        }<a name="line.945"></a>
+<span class="sourceLineNo">946</span>        return true;<a name="line.946"></a>
+<span class="sourceLineNo">947</span>    }<a name="line.947"></a>
+<span class="sourceLineNo">948</span><a name="line.948"></a>
+<span class="sourceLineNo">949</span>// PendingRequest<a name="line.949"></a>
+<span class="sourceLineNo">950</span><a name="line.950"></a>
+<span class="sourceLineNo">951</span>    // Represents a transaction in COMMIT_READY for which a CommitRequest has been sent to the leader<a name="line.951"></a>
+<span class="sourceLineNo">952</span>    // but no CommitResponse has yet been received<a name="line.952"></a>
+<span class="sourceLineNo">953</span>    private class PendingRequest {<a name="line.953"></a>
+<span class="sourceLineNo">954</span><a name="line.954"></a>
+<span class="sourceLineNo">955</span>        private final RaftKVTransaction tx;<a name="line.955"></a>
+<span class="sourceLineNo">956</span><a name="line.956"></a>
+<span class="sourceLineNo">957</span>        PendingRequest(RaftKVTransaction tx) {<a name="line.957"></a>
+<span class="sourceLineNo">958</span>            this.tx = tx;<a name="line.958"></a>
+<span class="sourceLineNo">959</span>            assert !FollowerRole.this.pendingRequests.containsKey(tx.getTxId());<a name="line.959"></a>
+<span class="sourceLineNo">960</span>            FollowerRole.this.pendingRequests.put(tx.getTxId(), this);<a name="line.960"></a>
+<span class="sourceLineNo">961</span>        }<a name="line.961"></a>
+<span class="sourceLineNo">962</span><a name="line.962"></a>
+<span class="sourceLineNo">963</span>        public RaftKVTransaction getTx() {<a name="line.963"></a>
+<span class="sourceLineNo">964</span>            return this.tx;<a name="line.964"></a>
+<span class="sourceLineNo">965</span>        }<a name="line.965"></a>
+<span class="sourceLineNo">966</span>    }<a name="line.966"></a>
 <span class="sourceLineNo">967</span><a name="line.967"></a>
-<span class="sourceLineNo">968</span>        public RaftKVTransaction getTx() {<a name="line.968"></a>
-<span class="sourceLineNo">969</span>            return this.tx;<a name="line.969"></a>
-<span class="sourceLineNo">970</span>        }<a name="line.970"></a>
-<span class="sourceLineNo">971</span>    }<a name="line.971"></a>
-<span class="sourceLineNo">972</span><a name="line.972"></a>
-<span class="sourceLineNo">973</span>// PendingWrite<a name="line.973"></a>
+<span class="sourceLineNo">968</span>// PendingWrite<a name="line.968"></a>
+<span class="sourceLineNo">969</span><a name="line.969"></a>
+<span class="sourceLineNo">970</span>    // Represents a read-write transaction in COMMIT_READY or COMMIT_WAITING for which the server's AppendRequest<a name="line.970"></a>
+<span class="sourceLineNo">971</span>    // will have null mutationData, because we will already have the data on hand waiting in a temporary file. This<a name="line.971"></a>
+<span class="sourceLineNo">972</span>    // is a simple optimization to avoid sending the same data from leader -&gt; follower just sent from follower -&gt; leader.<a name="line.972"></a>
+<span class="sourceLineNo">973</span>    private static class PendingWrite {<a name="line.973"></a>
 <span class="sourceLineNo">974</span><a name="line.974"></a>
-<span class="sourceLineNo">975</span>    // Represents a read-write transaction in COMMIT_READY or COMMIT_WAITING for which the server's AppendRequest<a name="line.975"></a>
-<span class="sourceLineNo">976</span>    // will have null mutationData, because we will already have the data on hand waiting in a temporary file. This<a name="line.976"></a>
-<span class="sourceLineNo">977</span>    // is a simple optimization to avoid sending the same data from leader -&gt; follower just sent from follower -&gt; leader.<a name="line.977"></a>
-<span class="sourceLineNo">978</span>    private static class PendingWrite {<a name="line.978"></a>
-<span class="sourceLineNo">979</span><a name="line.979"></a>
-<span class="sourceLineNo">980</span>        private final RaftKVTransaction tx;<a name="line.980"></a>
-<span class="sourceLineNo">981</span>        private final FileWriter fileWriter;<a name="line.981"></a>
+<span class="sourceLineNo">975</span>        private final RaftKVTransaction tx;<a name="line.975"></a>
+<span class="sourceLineNo">976</span>        private final FileWriter fileWriter;<a name="line.976"></a>
+<span class="sourceLineNo">977</span><a name="line.977"></a>
+<span class="sourceLineNo">978</span>        PendingWrite(RaftKVTransaction tx, FileWriter fileWriter) {<a name="line.978"></a>
+<span class="sourceLineNo">979</span>            this.tx = tx;<a name="line.979"></a>
+<span class="sourceLineNo">980</span>            this.fileWriter = fileWriter;<a name="line.980"></a>
+<span class="sourceLineNo">981</span>        }<a name="line.981"></a>
 <span class="sourceLineNo">982</span><a name="line.982"></a>
-<span class="sourceLineNo">983</span>        PendingWrite(RaftKVTransaction tx, FileWriter fileWriter) {<a name="line.983"></a>
-<span class="sourceLineNo">984</span>            this.tx = tx;<a name="line.984"></a>
-<span class="sourceLineNo">985</span>            this.fileWriter = fileWriter;<a name="line.985"></a>
-<span class="sourceLineNo">986</span>        }<a name="line.986"></a>
-<span class="sourceLineNo">987</span><a name="line.987"></a>
-<span class="sourceLineNo">988</span>        public RaftKVTransaction getTx() {<a name="line.988"></a>
-<span class="sourceLineNo">989</span>            return this.tx;<a name="line.989"></a>
-<span class="sourceLineNo">990</span>        }<a name="line.990"></a>
-<span class="sourceLineNo">991</span><a name="line.991"></a>
-<span class="sourceLineNo">992</span>        public FileWriter getFileWriter() {<a name="line.992"></a>
-<span class="sourceLineNo">993</span>            return this.fileWriter;<a name="line.993"></a>
+<span class="sourceLineNo">983</span>        public RaftKVTransaction getTx() {<a name="line.983"></a>
+<span class="sourceLineNo">984</span>            return this.tx;<a name="line.984"></a>
+<span class="sourceLineNo">985</span>        }<a name="line.985"></a>
+<span class="sourceLineNo">986</span><a name="line.986"></a>
+<span class="sourceLineNo">987</span>        public FileWriter getFileWriter() {<a name="line.987"></a>
+<span class="sourceLineNo">988</span>            return this.fileWriter;<a name="line.988"></a>
+<span class="sourceLineNo">989</span>        }<a name="line.989"></a>
+<span class="sourceLineNo">990</span><a name="line.990"></a>
+<span class="sourceLineNo">991</span>        public void cleanup() {<a name="line.991"></a>
+<span class="sourceLineNo">992</span>            this.fileWriter.getFile().delete();<a name="line.992"></a>
+<span class="sourceLineNo">993</span>            Util.closeIfPossible(this.fileWriter);<a name="line.993"></a>
 <span class="sourceLineNo">994</span>        }<a name="line.994"></a>
-<span class="sourceLineNo">995</span><a name="line.995"></a>
-<span class="sourceLineNo">996</span>        public void cleanup() {<a name="line.996"></a>
-<span class="sourceLineNo">997</span>            this.fileWriter.getFile().delete();<a name="line.997"></a>
-<span class="sourceLineNo">998</span>            Util.closeIfPossible(this.fileWriter);<a name="line.998"></a>
-<span class="sourceLineNo">999</span>        }<a name="line.999"></a>
-<span class="sourceLineNo">1000</span>    }<a name="line.1000"></a>
-<span class="sourceLineNo">1001</span>}<a name="line.1001"></a>
-<span class="sourceLineNo">1002</span><a name="line.1002"></a>
+<span class="sourceLineNo">995</span>    }<a name="line.995"></a>
+<span class="sourceLineNo">996</span>}<a name="line.996"></a>
+<span class="sourceLineNo">997</span><a name="line.997"></a>
 
 
 

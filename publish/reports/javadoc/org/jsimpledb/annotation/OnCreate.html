@@ -92,15 +92,15 @@ public @interface <a href="../../../src-html/org/jsimpledb/annotation/OnCreate.h
  Note that there is a subtle distinction between (a) the creation of database objects in the database, and
  (b) the instantiation of Java model objects that represent database objects (i.e., <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s).
  These two events do not necessarily always occur at the same time. Methods that are annotated with
- <a href="../../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> are invoked only for event (a). In particular, Java model objects are often
- instantiated to represent database objects that may not actually exist in the database.
+ <a href="../../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> are invoked only for event (a). In particular, Java model objects are frequently
+ instantiated to represent database objects that already exist in the database. Also, it's possible for a Java model
+ object to be instantiated when no corresponding database object exists in the database (e.g., via
+ <a href="../../../org/jsimpledb/JTransaction.html#getJObject(org.jsimpledb.core.ObjId)"><code>JTransaction.getJObject(org.jsimpledb.core.ObjId)</code></a>).
  </p>
 
  <p>
  As a consequence, for any database fields that require default initialization, this initialization should be
- performed not in a Java constructor but rather in an <a href="../../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a>-annotated method. Otherwise,
- <a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core"><code>DeletedObjectException</code></a>s (and <a href="../../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core"><code>ReadOnlyTransactionException</code></a>s
- within read-only transactions) may unexpectedly occur.
+ performed not in a Java constructor but rather in an <a href="../../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a>-annotated method.
  </p>
 
  <p>

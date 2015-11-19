@@ -103,6 +103,15 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><span class="strong">LockManager.</span><code><strong><a href="../../../../../org/jsimpledb/kv/mvcc/LockManager.html#isLocked(org.jsimpledb.kv.mvcc.LockOwner, byte[], byte[], boolean)">isLocked</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner,
+                byte[]&nbsp;minKey,
+                byte[]&nbsp;maxKey,
+                boolean&nbsp;write)</code>
+<div class="block">Determine if the given lock owner holds a lock on the specified range.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html" title="enum in org.jsimpledb.kv.mvcc">LockManager.LockResult</a></code></td>
 <td class="colLast"><span class="strong">LockManager.</span><code><strong><a href="../../../../../org/jsimpledb/kv/mvcc/LockManager.html#lock(org.jsimpledb.kv.mvcc.LockOwner, byte[], byte[], boolean, long)">lock</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner,
         byte[]&nbsp;minKey,
@@ -112,7 +121,7 @@
 <div class="block">Acquire a lock on behalf of the specified owner.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">LockManager.</span><code><strong><a href="../../../../../org/jsimpledb/kv/mvcc/LockManager.html#release(org.jsimpledb.kv.mvcc.LockOwner)">release</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner)</code>
 <div class="block">Release all locks held by the specified owner.</div>

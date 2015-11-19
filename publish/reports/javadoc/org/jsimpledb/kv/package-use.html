@@ -140,42 +140,50 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.raft.fallback">org.jsimpledb.kv.raft.fallback</a></td>
+<td class="colLast">
+<div class="block">A partition-tolerant <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> that automatically migrates between a clustered
+ <a href="../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> and a private non-clustered "standalone mode"
+ <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>, based on availability of the Raft cluster.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.rocksdb">org.jsimpledb.kv.rocksdb</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.simple">org.jsimpledb.kv.simple</a></td>
 <td class="colLast">
 <div class="block">A simple in-memory implementation of the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.sql">org.jsimpledb.kv.sql</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.util">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse">org.jsimpledb.parse</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB parsing related classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.spring">org.jsimpledb.spring</a></td>
 <td class="colLast">
 <div class="block">Spring Framework integration classes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.util">org.jsimpledb.util</a></td>
 <td class="colLast">
 <div class="block">General utility classes used with JSimpleDB.</div>
@@ -613,6 +621,38 @@
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.raft">KVTransaction</a>
+<div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.raft.fallback">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a> used by <a href="../../../org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/CloseableKVStore.html#org.jsimpledb.kv.raft.fallback">CloseableKVStore</a>
+<div class="block">Implemented by <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>s that must be <a href="../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>CloseableKVStore.close()</code></a>ed when no longer in use.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVDatabase.html#org.jsimpledb.kv.raft.fallback">KVDatabase</a>
+<div class="block">A transactional database with a simple key/value API.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.raft.fallback">KVStore</a>
+<div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.raft.fallback">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
 </tr>

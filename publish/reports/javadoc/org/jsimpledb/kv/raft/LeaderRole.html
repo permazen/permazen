@@ -99,7 +99,7 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.39">LeaderRole</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.40">LeaderRole</a>
 extends <a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a></pre>
 <div class="block">Raft leader role.</div>
 </li>
@@ -177,7 +177,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in or
 <ul class="blockList">
 <li class="blockList">
 <h4>getFollowers</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft">Follower</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.89">getFollowers</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft">Follower</a>&gt;&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.99">getFollowers</a>()</pre>
 <div class="block">Get this leader's known followers.
 
  <p>
@@ -191,7 +191,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in or
 <ul class="blockList">
 <li class="blockList">
 <h4>getLeaseTimeout</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.117">getLeaseTimeout</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.130">getLeaseTimeout</a>()</pre>
 <div class="block">Get this leader's "lease timeout".
 
  <p>
@@ -206,7 +206,10 @@ extends <a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in or
 
  <p>
  Until it hears from a majority of followers, a leader will not have a lease timeout established yet.
- In that case this method returns null.</div>
+ In that case this method returns null.
+
+ <p>
+ This method may also return null if a previous lease timeout has gotten very stale (e.g., isolated leader).</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>this leader's lease timeout, or null if none is established yet</dd></dl>
 </li>
 </ul>
@@ -216,7 +219,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in or
 <ul class="blockList">
 <li class="blockList">
 <h4>stepDown</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.128">stepDown</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.141">stepDown</a>()</pre>
 <div class="block">Force this leader to step down.</div>
 <dl><dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this role is no longer active or election timer is not running</dd></dl>
@@ -228,7 +231,7 @@ extends <a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in or
 <ul class="blockListLast">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.942">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/LeaderRole.html#line.971">toString</a>()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/raft/Role.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/raft/Role.html" title="class in org.jsimpledb.kv.raft">Role</a></code></dd>

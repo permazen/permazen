@@ -61,13 +61,13 @@
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
 </div>
@@ -103,7 +103,7 @@
 </dl>
 <hr>
 <br>
-<pre>protected final class <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.721">AbstractMain.BerkeleyDBType</a>
+<pre>protected final class <a href="../../../src-html/org/jsimpledb/util/AbstractMain.html#line.796">AbstractMain.BerkeleyDBType</a>
 extends <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a>&lt;<a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>&gt;</pre>
 </li>
 </ul>
@@ -111,6 +111,25 @@ extends <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="cl
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colLast" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#AbstractMain.BerkeleyDBType(java.io.File)">AbstractMain.BerkeleyDBType</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;dir)</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method_summary">
@@ -131,13 +150,17 @@ extends <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="cl
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#getDescription()">getDescription</a></strong>()</code>&nbsp;</td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#setDatabaseName(java.lang.String)">setDatabaseName</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;databaseName)</code>&nbsp;</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.util.AbstractMain.DBType">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.util.<a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a></h3>
-<code><a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#cast(org.jsimpledb.kv.KVDatabase)">cast</a>, <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#createAtomicKVStore()">createAtomicKVStore</a>, <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#startKVDatabase(T)">startKVDatabase</a>, <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#stopKVDatabase(T)">stopKVDatabase</a></code></li>
+<code><a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#canBeFallbackStandalone()">canBeFallbackStandalone</a>, <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#canBeRaftLocalStorage()">canBeRaftLocalStorage</a>, <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#cast(org.jsimpledb.kv.KVDatabase)">cast</a>, <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#createAtomicKVStore()">createAtomicKVStore</a>, <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#startKVDatabase(T)">startKVDatabase</a>, <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#stopKVDatabase(T)">stopKVDatabase</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -154,19 +177,45 @@ extends <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="cl
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="AbstractMain.BerkeleyDBType(java.io.File)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>AbstractMain.BerkeleyDBType</h4>
+<pre>protected&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#line.801">AbstractMain.BerkeleyDBType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;dir)</pre>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method_detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setDatabaseName(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDatabaseName</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#line.806">setDatabaseName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;databaseName)</pre>
+</li>
+</ul>
 <a name="createKVDatabase()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#line.728">createKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#line.811">createKVDatabase</a>()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#createKVDatabase()">createKVDatabase</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a>&lt;<a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>&gt;</code></dd>
@@ -179,7 +228,7 @@ extends <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="cl
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getDescription</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#line.738">getDescription</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/util/AbstractMain.BerkeleyDBType.html#line.819">getDescription</a>()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/util/AbstractMain.DBType.html#getDescription()">getDescription</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="class in org.jsimpledb.util">AbstractMain.DBType</a>&lt;<a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a>&gt;</code></dd>
@@ -239,13 +288,13 @@ extends <a href="../../../org/jsimpledb/util/AbstractMain.DBType.html" title="cl
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
 </div>

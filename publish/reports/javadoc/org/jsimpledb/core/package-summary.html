@@ -408,26 +408,19 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></td>
-<td class="colLast">
-<div class="block">Thrown by a <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> that has been <a href="../../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a>
- when any mutating operation is attempted.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/ReferencedObjectException.html" title="class in org.jsimpledb.core">ReferencedObjectException</a></td>
 <td class="colLast">
 <div class="block">Thrown on an attempt to delete an object which is still referenced
  by a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a> configured for <a href="../../../org/jsimpledb/core/DeleteAction.html#EXCEPTION"><code>DeleteAction.EXCEPTION</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/RollbackOnlyTransactionException.html" title="class in org.jsimpledb.core">RollbackOnlyTransactionException</a></td>
 <td class="colLast">
 <div class="block">Thrown on an attempt to <a href="../../../org/jsimpledb/core/Transaction.html#commit()"><code>commit()</code></a> a transaction that has been marked rollback-only.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/SchemaMismatchException.html" title="class in org.jsimpledb.core">SchemaMismatchException</a></td>
 <td class="colLast">
 <div class="block">Thrown by <a href="../../../org/jsimpledb/core/Database.html#createTransaction(org.jsimpledb.schema.SchemaModel, int, boolean)"><code>Database.createTransaction(org.jsimpledb.schema.SchemaModel, int, boolean)</code></a> when the given schema cannot be matched with the
@@ -435,37 +428,37 @@
  because it is incompatible with one or more prior schema versions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></td>
 <td class="colLast">
 <div class="block">Thrown when a transaction that has been committed, rolled back, or otherwise invalidated is accessed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/TransactionException.html" title="class in org.jsimpledb.core">TransactionException</a></td>
 <td class="colLast">
 <div class="block">Superclass of exceptions associated with a specific <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></td>
 <td class="colLast">
 <div class="block">Thrown when attempting to update a database object to a schema version in which the object's type is not defined.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></td>
 <td class="colLast">
 <div class="block">Thrown when an unknown field is accessed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/UnknownIndexException.html" title="class in org.jsimpledb.core">UnknownIndexException</a></td>
 <td class="colLast">
 <div class="block">Thrown when an unknown index is accessed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></td>
 <td class="colLast">
 <div class="block">Thrown when attempting to access an unknown type.</div>

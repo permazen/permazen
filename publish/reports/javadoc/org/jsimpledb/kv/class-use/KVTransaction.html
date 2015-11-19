@@ -128,24 +128,32 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.raft.fallback">org.jsimpledb.kv.raft.fallback</a></td>
+<td class="colLast">
+<div class="block">A partition-tolerant <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> that automatically migrates between a clustered
+ <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> and a private non-clustered "standalone mode"
+ <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>, based on availability of the Raft cluster.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.rocksdb">org.jsimpledb.kv.rocksdb</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.simple">org.jsimpledb.kv.simple</a></td>
 <td class="colLast">
 <div class="block">A simple in-memory implementation of the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.sql">org.jsimpledb.kv.sql</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.util">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
@@ -249,6 +257,12 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
+<td class="colLast"><span class="strong">KVDatabase.</span><code><strong><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</code>
+<div class="block">Create a new transaction with the specified options.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
 <td class="colLast"><span class="strong">KVTransactionException.</span><code><strong><a href="../../../../org/jsimpledb/kv/KVTransactionException.html#getTransaction()">getTransaction</a></strong>()</code>
 <div class="block">Get the <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> that generated this exception.</div>
@@ -428,21 +442,6 @@
 </tr>
 </tbody>
 </table>
-<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
-<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> that return <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
-<td class="colLast"><span class="strong">SnapshotKVDatabase.</span><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html#createTransaction()">createTransaction</a></strong>()</code>
-<div class="block">Create a new transaction.</div>
-</td>
-</tr>
-</tbody>
-</table>
 </li>
 <li class="blockList"><a name="org.jsimpledb.kv.raft">
 <!--   -->
@@ -463,8 +462,28 @@
 </tr>
 </tbody>
 </table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.raft.fallback">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a> in <a href="../../../../org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a> that implement <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/fallback/FallbackKVTransaction.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVTransaction</a></strong></code>
+<div class="block">A <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> associated with a <a href="../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackKVDatabase</code></a>.</div>
+</td>
+</tr>
+</tbody>
+</table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
-<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a> that return <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a> that return <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -472,12 +491,15 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
-<td class="colLast"><span class="strong">FallbackKVDatabase.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html#createTransaction()">createTransaction</a></strong>()</code>&nbsp;</td>
+<td class="colLast"><span class="strong">FallbackKVTransaction.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/fallback/FallbackKVTransaction.html#getKVTransaction()">getKVTransaction</a></strong>()</code>
+<div class="block">Get the underlying transaction, which will be associated with either one of the fallback
+ databases, or the standalone mode database.</div>
+</td>
 </tr>
 </tbody>
 </table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
-<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/raft/package-summary.html">org.jsimpledb.kv.raft</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Methods in <a href="../../../../org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a> with parameters of type <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -485,18 +507,21 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">OverwriteMergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/OverwriteMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
-          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst)</code>&nbsp;</td>
+<td class="colLast"><span class="strong">OverwriteMergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
+          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst,
+          <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;lastActiveTime)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">NullMergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/NullMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
-          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst)</code>&nbsp;</td>
+<td class="colLast"><span class="strong">NullMergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/fallback/NullMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
+          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst,
+          <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;lastActiveTime)</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="strong">MergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/MergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
-          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst)</code>
+<td class="colLast"><span class="strong">MergeStrategy.</span><code><strong><a href="../../../../org/jsimpledb/kv/raft/fallback/MergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">merge</a></strong>(<a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;src,
+          <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;dst,
+          <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;lastActiveTime)</code>
 <div class="block">Merge data between databases.</div>
 </td>
 </tr>

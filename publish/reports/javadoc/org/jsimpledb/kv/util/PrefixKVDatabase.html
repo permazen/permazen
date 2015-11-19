@@ -98,7 +98,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.24">PrefixKVDatabase</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.26">PrefixKVDatabase</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></pre>
 <div class="block">Prefix <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.
@@ -156,24 +156,30 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html" title="class in org.jsimpledb.kv.util">PrefixKVTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</code>
+<div class="block">Create a new transaction with the specified options.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html#getContainingKVDatabase()">getContainingKVDatabase</a></strong>()</code>
 <div class="block">Get the containing <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> associated with this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html#getKeyPrefix()">getKeyPrefix</a></strong>()</code>
 <div class="block">Get the key prefix associated with this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
@@ -207,7 +213,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>PrefixKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.36">PrefixKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;db,
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.38">PrefixKVDatabase</a>(<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;db,
                 byte[]&nbsp;keyPrefix)</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>db</code> - the containing <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a></dd><dd><code>keyPrefix</code> - prefix for all keys</dd>
@@ -229,7 +235,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getContainingKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.48">getContainingKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.50">getContainingKVDatabase</a>()</pre>
 <div class="block">Get the containing <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the containing <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a></dd></dl>
 </li>
@@ -240,7 +246,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeyPrefix</h4>
-<pre>public final&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.57">getKeyPrefix</a>()</pre>
+<pre>public final&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.59">getKeyPrefix</a>()</pre>
 <div class="block">Get the key prefix associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>(a copy of) this instance's key prefix</dd></dl>
 </li>
@@ -251,7 +257,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.64">start</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.66">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#start()">KVDatabase</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -272,7 +278,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.68">stop</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.70">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#stop()">KVDatabase</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -284,13 +290,29 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </dl>
 </li>
 </ul>
+<a name="createTransaction(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html" title="class in org.jsimpledb.kv.util">PrefixKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.74">createTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">KVDatabase</a></code></strong></div>
+<div class="block">Create a new transaction with the specified options.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - optional transaction options; may be null</dd>
+<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
+</li>
+</ul>
 <a name="createTransaction()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html" title="class in org.jsimpledb.kv.util">PrefixKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.72">createTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html" title="class in org.jsimpledb.kv.util">PrefixKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVDatabase.html#line.79">createTransaction</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">KVDatabase</a></code></strong></div>
 <div class="block">Create a new transaction.</div>
 <dl>

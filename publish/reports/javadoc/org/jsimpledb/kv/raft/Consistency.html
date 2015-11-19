@@ -35,7 +35,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../org/jsimpledb/kv/raft/CandidateRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/kv/raft/Consistency.html" target="_top">Frames</a></li>
@@ -103,9 +103,13 @@
 </dl>
 <hr>
 <br>
-<pre>public enum <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.14">Consistency</a>
+<pre>public enum <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.18">Consistency</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang">Enum</a>&lt;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>&gt;</pre>
-<div class="block"><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVTransaction</code></a> supported consistency levels.</div>
+<div class="block"><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVTransaction</code></a> supported consistency levels.
+
+ <p>
+ The differences only apply to read-only transactions; read-write transactions (i.e., transactions containing
+ any mutations or cluster configuration changes) always behave with <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>LINEARIZABLE</code></a> consistency.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#setConsistency(org.jsimpledb.kv.raft.Consistency)"><code>RaftKVTransaction.setConsistency()</code></a>, 
 <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a></dd></dl>
 </li>
@@ -131,13 +135,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?i
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL_COMMITTED">EVENTUAL_COMMITTED</a></strong></code>
+<div class="block">Committed eventual consistency.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE">LINEARIZABLE</a></strong></code>
 <div class="block">Linearizable consistency.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#UNCOMMITTED">UNCOMMITTED</a></strong></code>
-<div class="block">Uncommitted consistency.</div>
+<div class="block">Uncommitted eventual consistency.</div>
 </td>
 </tr>
 </table>
@@ -156,12 +165,31 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?i
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#isBasedOnCommittedLogEntry()">isBasedOnCommittedLogEntry</a></strong>()</code>
+<div class="block">Determines the log entry on which transactions at this level are based.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#isGuaranteesUpToDateReads()">isGuaranteesUpToDateReads</a></strong>()</code>
+<div class="block">Determines whether transactions at this level guarantee reading the most up-to-date information.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#isWaitsForLogEntryToBeCommitted()">isWaitsForLogEntryToBeCommitted</a></strong>()</code>
+<div class="block">Determines whether transactions at this level block in <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> until
+ the log entry on which they are based is committed.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#valueOf(java.lang.String)">valueOf</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Returns the enum constant of this type with the specified name.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>[]</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Consistency.html#values()">values</a></strong>()</code>
 <div class="block">Returns an array containing the constants of this enum type, in
@@ -203,28 +231,39 @@ the order they are declared.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>UNCOMMITTED</h4>
-<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.29">UNCOMMITTED</a></pre>
-<div class="block">Uncommitted consistency.
+<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.41">UNCOMMITTED</a></pre>
+<div class="block">Uncommitted eventual consistency.
 
  <p>
- Same as <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL"><code>EVENTUAL</code></a>, but with the additional caveat that the view that the transaction sees may never
- actually get committed. This can happen, e.g., if there is a Raft leadership change during the transaction.
+ This level is only meaningful for read-only transactions; read-write transactions are always <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>LINEARIZABLE</code></a>.
 
  <p>
- Transactions at this level may result in less network communication and/or commit faster than <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL"><code>EVENTUAL</code></a>.
- Read-only transactions at this level require no network communication, commit immediately, and never result in
- <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>s; in fact, read-only transactions are equivalent to invoking
- <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#rollback()"><code>rollback()</code></a> instead of <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a>.</div>
+ Transactions see a consistent, view of the database that is either already committed or likely to be committed soon.
+ This is the same as <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL_COMMITTED"><code>EVENTUAL_COMMITTED</code></a>, but with the additional (unlikely) possibility that the view that the
+ transaction sees may never actually get committed; this can only happen if there is a Raft leadership change
+ during the transaction.
+
+ <p>
+ Transactions at this level require no network communication, commit immediately, and never result in
+ <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>s. Committing a transaction at this level is actually
+ equivalent to invoking <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#rollback()"><code>rollback()</code></a> instead of <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a>.
+
+ <p>
+ In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation does not wait
+ for that log entry to be committed, and up-to-date reads are not guaranteed.</div>
 </li>
 </ul>
-<a name="EVENTUAL">
+<a name="EVENTUAL_COMMITTED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>EVENTUAL</h4>
-<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.43">EVENTUAL</a></pre>
-<div class="block">Eventual consistency.
+<h4>EVENTUAL_COMMITTED</h4>
+<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.69">EVENTUAL_COMMITTED</a></pre>
+<div class="block">Committed eventual consistency.
+
+ <p>
+ This level is only meaningful for read-only transactions; read-write transactions are always <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>LINEARIZABLE</code></a>.
 
  <p>
  Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".
@@ -233,7 +272,47 @@ the order they are declared.</div>
  could be from arbitrarily far in the past.
 
  <p>
- Transactions at this level may result in less network communication and/or commit faster than <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>LINEARIZABLE</code></a>.</div>
+ Unlike <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL"><code>EVENTUAL</code></a>, transactions at this level require no network communication, commit immediately, and never
+ result in <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>s; however, they see a potentiall older view. Compared
+ to <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#UNCOMMITTED"><code>UNCOMMITTED</code></a>, transactions at this level see a view that is potentially older, in exchange for the guarantee
+ that it has definitely been committed.
+
+ <p>
+ This consistency level is useful when it's important to allow reading the database in any situation, e.g., even when
+ the local node is in a minority partition of the cluster. Of course, the data will only be as up-to-date as is known
+ locally.
+
+ <p>
+ In Raft terms, transactions are based on the latest committed log entry, and up-to-date reads are not guaranteed.</div>
+</li>
+</ul>
+<a name="EVENTUAL">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EVENTUAL</h4>
+<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.93">EVENTUAL</a></pre>
+<div class="block">Eventual consistency.
+
+ <p>
+ This level is only meaningful for read-only transactions; read-write transactions are always <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>LINEARIZABLE</code></a>.
+
+ <p>
+ Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".
+ The view is not guaranteed to be up-to-date; it's only guaranteed to be as up-to-date as what was known to this
+ node when the transaction was opened. In general (for example, if stuck in a network partition minority), the view
+ could be from arbitrarily far in the past.
+
+ <p>
+ No network traffic is generated by <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a>, and transactions can never throw
+ <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>s due to read/write conflicts (i.e., stale read checks).
+ A <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> blocks until the log entry on which the transaction is based is committed;
+ if no concurrent write transactions are occurring, this will happen immediately.
+
+ <p>
+ In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation waits
+ for that log entry to be committed, and up-to-date reads are not guaranteed.</div>
 </li>
 </ul>
 <a name="LINEARIZABLE">
@@ -242,15 +321,20 @@ the order they are declared.</div>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>LINEARIZABLE</h4>
-<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.55">LINEARIZABLE</a></pre>
+<pre>public static final&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a> <a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.110">LINEARIZABLE</a></pre>
 <div class="block">Linearizable consistency.
 
  <p>
- Transactions see a database that evolves step-wise through a global, linear sequence of atomic changes, where it appears as
- if each change occurs instantaneously at some point in time between the start and end of the corresponding transaction.
+ Transactions see a database that evolves step-wise through a global, linear sequence of atomic changes, where
+ each change appears to have occurred instantaneously at some point in time between the start and end of the
+ corresponding transaction.
 
  <p>
- This is the default consistency level.</div>
+ This is the default consistency level.
+
+ <p>
+ In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation waits
+ for that log entry to be committed, and up-to-date reads are guaranteed.</div>
 </li>
 </ul>
 </li>
@@ -267,7 +351,7 @@ the order they are declared.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>values</h4>
-<pre>public static&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.14">values</a>()</pre>
+<pre>public static&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.163">values</a>()</pre>
 <div class="block">Returns an array containing the constants of this enum type, in
 the order they are declared.  This method may be used to iterate
 over the constants as follows:
@@ -282,10 +366,10 @@ the order they are declared</dd></dl>
 <a name="valueOf(java.lang.String)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>valueOf</h4>
-<pre>public static&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.14">valueOf</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
+<pre>public static&nbsp;<a href="../../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft">Consistency</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.163">valueOf</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
 <div class="block">Returns the enum constant of this type with the specified name.
 The string must match <i>exactly</i> an identifier used to declare an
 enum constant in this type.  (Extraneous whitespace characters are 
@@ -296,6 +380,58 @@ not permitted.)</div>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if this enum type has no constant
 with the specified name</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if the argument is null</dd></dl>
+</li>
+</ul>
+<a name="isBasedOnCommittedLogEntry()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isBasedOnCommittedLogEntry</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.136">isBasedOnCommittedLogEntry</a>()</pre>
+<div class="block">Determines the log entry on which transactions at this level are based.
+
+ <p>
+ When false, transactions are based on this node's most recent log entry, whether committed or not.
+ When true, transactions are based on this node's most recent committed log entry. The former provides
+ a more up-to-date view, but <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> can block (and could possibly
+ fail with a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>) when <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#isWaitsForLogEntryToBeCommitted()"><code>isWaitsForLogEntryToBeCommitted()</code></a> is true.
+ The latter, when combined with <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#isGuaranteesUpToDateReads()"><code>isGuaranteesUpToDateReads()</code></a> being false, allows read-only transactions
+ to commit immediately with no network traffic, even when in a minority partition.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if transactions at this level are always based on committed log entries</dd></dl>
+</li>
+</ul>
+<a name="isWaitsForLogEntryToBeCommitted()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isWaitsForLogEntryToBeCommitted</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.150">isWaitsForLogEntryToBeCommitted</a>()</pre>
+<div class="block">Determines whether transactions at this level block in <a href="../../../../org/jsimpledb/kv/raft/RaftKVTransaction.html#commit()"><code>commit()</code></a> until
+ the log entry on which they are based is committed.
+
+ <p>
+ This setting has no effect if <a href="../../../../org/jsimpledb/kv/raft/Consistency.html#isBasedOnCommittedLogEntry()"><code>isBasedOnCommittedLogEntry()</code></a> returns true, because in that case
+ the log entry on which the transaction is based is already committed when transaction starts.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if transactions at this level wait for their base log entry to be committed</dd></dl>
+</li>
+</ul>
+<a name="isGuaranteesUpToDateReads()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isGuaranteesUpToDateReads</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Consistency.html#line.165">isGuaranteesUpToDateReads</a>()</pre>
+<div class="block">Determines whether transactions at this level guarantee reading the most up-to-date information.
+
+ <p>
+ This setting has no effect on transactions that contain mutations; they always read the most up-to-date information.
+
+ <p>
+ If this returns false, read-only transactions may read out-of-date information ("eventual consistency").</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if transactions at this level guarantee up-to-date reads</dd></dl>
 </li>
 </ul>
 </li>
@@ -325,7 +461,7 @@ with the specified name</dd>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../org/jsimpledb/kv/raft/CandidateRole.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../org/jsimpledb/kv/raft/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/kv/raft/Consistency.html" target="_top">Frames</a></li>

@@ -98,7 +98,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.41">BerkeleyKVDatabase</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.42">BerkeleyKVDatabase</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></pre>
 <div class="block">Oracle Berkeley DB Java Edition <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.
@@ -175,91 +175,97 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</code>
+<div class="block">Create a new transaction with the specified options.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je">Database</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getDatabase()">getDatabase</a></strong>()</code>
 <div class="block">Get the underlying <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a> associated with this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseConfig</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getDatabaseConfig()">getDatabaseConfig</a></strong>()</code>
 <div class="block">Get the <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>DatabaseConfig</code></a> to be used by this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getDatabaseName()">getDatabaseName</a></strong>()</code>
 <div class="block">Get the configured <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a> name.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getDirectory()">getDirectory</a></strong>()</code>
 <div class="block">Get the filesystem directory containing the database.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Environment.html?is-external=true" title="class or interface in com.sleepycat.je">Environment</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getEnvironment()">getEnvironment</a></strong>()</code>
 <div class="block">Get the underlying <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Environment.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Environment</code></a> associated with this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je">EnvironmentConfig</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getEnvironmentConfig()">getEnvironmentConfig</a></strong>()</code>
 <div class="block">Get the <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>EnvironmentConfig</code></a> to be used by this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#getTransactionConfig()">getTransactionConfig</a></strong>()</code>
 <div class="block">Get the default <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>TransactionConfig</code></a> to be used by this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setDatabaseConfig(com.sleepycat.je.DatabaseConfig)">setDatabaseConfig</a></strong>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseConfig</a>&nbsp;config)</code>
 <div class="block">Apply selected database configuration parameters from the given instance to the
  <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>DatabaseConfig</code></a> this instance will use when opening the <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a> at startup.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setDatabaseName(java.lang.String)">setDatabaseName</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;databaseName)</code>
 <div class="block">Configure the <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a> name.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setDirectory(java.io.File)">setDirectory</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</code>
 <div class="block">Configure the filesystem directory containing the database.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setEnvironmentConfig(com.sleepycat.je.EnvironmentConfig)">setEnvironmentConfig</a></strong>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je">EnvironmentConfig</a>&nbsp;config)</code>
 <div class="block">Set a custom <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>EnvironmentConfig</code></a> to be used by this instance at startup.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setNextTransactionConfig(com.sleepycat.je.TransactionConfig)">setNextTransactionConfig</a></strong>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a>&nbsp;config)</code>
 <div class="block">Configure a custom <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>TransactionConfig</code></a> to be used for the next transaction in the current thread.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setTransactionConfig(com.sleepycat.je.TransactionConfig)">setTransactionConfig</a></strong>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a>&nbsp;config)</code>
 <div class="block">Configure a custom default <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>TransactionConfig</code></a> to be used by this instance for transactions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
@@ -293,7 +299,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DEFAULT_DATABASE_NAME</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.50">DEFAULT_DATABASE_NAME</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.51">DEFAULT_DATABASE_NAME</a></pre>
 <div class="block">Default Berkeley DB database name ("JSimpleDB").</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setDatabaseName(java.lang.String)"><code>setDatabaseName()</code></a>, 
 <a href="../../../../constant-values.html#org.jsimpledb.kv.bdb.BerkeleyKVDatabase.DEFAULT_DATABASE_NAME">Constant Field Values</a></dd></dl>
@@ -313,7 +319,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>BerkeleyKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.73">BerkeleyKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.74">BerkeleyKVDatabase</a>()</pre>
 <div class="block">Constructor.</div>
 </li>
 </ul>
@@ -331,7 +337,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getDirectory</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.81">getDirectory</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.82">getDirectory</a>()</pre>
 <div class="block">Get the filesystem directory containing the database.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>database directory</dd></dl>
 </li>
@@ -342,7 +348,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setDirectory</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.90">setDirectory</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.91">setDirectory</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;directory)</pre>
 <div class="block">Configure the filesystem directory containing the database. Required property.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>directory</code> - database directory</dd></dl>
 </li>
@@ -353,7 +359,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabaseName</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.99">getDatabaseName</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.100">getDatabaseName</a>()</pre>
 <div class="block">Get the configured <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a> name.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>database name</dd></dl>
 </li>
@@ -364,7 +370,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setDatabaseName</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.108">setDatabaseName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;databaseName)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.109">setDatabaseName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;databaseName)</pre>
 <div class="block">Configure the <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a> name. Defaults to <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#DEFAULT_DATABASE_NAME"><code>DEFAULT_DATABASE_NAME</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>databaseName</code> - database name</dd></dl>
 </li>
@@ -375,7 +381,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getEnvironmentConfig</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je">EnvironmentConfig</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.121">getEnvironmentConfig</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je">EnvironmentConfig</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.122">getEnvironmentConfig</a>()</pre>
 <div class="block">Get the <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>EnvironmentConfig</code></a> to be used by this instance.
 
  <p>
@@ -390,7 +396,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnvironmentConfig</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.144">setEnvironmentConfig</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je">EnvironmentConfig</a>&nbsp;config)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.145">setEnvironmentConfig</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je">EnvironmentConfig</a>&nbsp;config)</pre>
 <div class="block">Set a custom <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/EnvironmentConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>EnvironmentConfig</code></a> to be used by this instance at startup.
 
  <p>
@@ -416,7 +422,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getTransactionConfig</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.159">getTransactionConfig</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.160">getTransactionConfig</a>()</pre>
 <div class="block">Get the default <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>TransactionConfig</code></a> to be used by this instance.
 
  <p>
@@ -431,7 +437,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setTransactionConfig</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.179">setTransactionConfig</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a>&nbsp;config)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.180">setTransactionConfig</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a>&nbsp;config)</pre>
 <div class="block">Configure a custom default <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>TransactionConfig</code></a> to be used by this instance for transactions.
 
  <p>
@@ -453,11 +459,11 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setNextTransactionConfig</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.194">setNextTransactionConfig</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a>&nbsp;config)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.195">setNextTransactionConfig</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je">TransactionConfig</a>&nbsp;config)</pre>
 <div class="block">Configure a custom <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/TransactionConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>TransactionConfig</code></a> to be used for the next transaction in the current thread.
- The next, and only the next, invocation of <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#createTransaction()"><code>createTransaction()</code></a> in the current thread will
+ The next, and only the next, invocation of <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#createTransaction(java.util.Map)"><code>createTransaction(java.util.Map&lt;java.lang.String, ?&gt;)</code></a> in the current thread will
  use the given configuration. After that, subsequent transactions will revert back to the
- <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setTransactionConfig(com.sleepycat.je.TransactionConfig)">default</a> (even if the invocation of <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#createTransaction()"><code>createTransaction()</code></a> failed).</div>
+ <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setTransactionConfig(com.sleepycat.je.TransactionConfig)">default</a> (even if the invocation of <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#createTransaction(java.util.Map)"><code>createTransaction(java.util.Map&lt;java.lang.String, ?&gt;)</code></a> failed).</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>config</code> - transaction config</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>config</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setTransactionConfig(com.sleepycat.je.TransactionConfig)"><code>setTransactionConfig()</code></a></dd></dl>
@@ -469,7 +475,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabaseConfig</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseConfig</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.208">getDatabaseConfig</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseConfig</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.209">getDatabaseConfig</a>()</pre>
 <div class="block">Get the <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>DatabaseConfig</code></a> to be used by this instance.
 
  <p>
@@ -484,7 +490,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setDatabaseConfig</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.235">setDatabaseConfig</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseConfig</a>&nbsp;config)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.236">setDatabaseConfig</a>(<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je">DatabaseConfig</a>&nbsp;config)</pre>
 <div class="block">Apply selected database configuration parameters from the given instance to the
  <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/DatabaseConfig.html?is-external=true" title="class or interface in com.sleepycat.je"><code>DatabaseConfig</code></a> this instance will use when opening the <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a> at startup.
 
@@ -513,7 +519,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getEnvironment</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Environment.html?is-external=true" title="class or interface in com.sleepycat.je">Environment</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.253">getEnvironment</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Environment.html?is-external=true" title="class or interface in com.sleepycat.je">Environment</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.254">getEnvironment</a>()</pre>
 <div class="block">Get the underlying <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Environment.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Environment</code></a> associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Environment.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Environment</code></a></dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -526,11 +532,27 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabase</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je">Database</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.265">getDatabase</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je">Database</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.266">getDatabase</a>()</pre>
 <div class="block">Get the underlying <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a> associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated <a href="https://docs.oracle.com/cd/E17277_02/html/java/com/sleepycat/je/Database.html?is-external=true" title="class or interface in com.sleepycat.je"><code>Database</code></a></dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is not <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#start()">started</a></dd></dl>
+</li>
+</ul>
+<a name="createTransaction(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.275">createTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">KVDatabase</a></code></strong></div>
+<div class="block">Create a new transaction with the specified options.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - optional transaction options; may be null</dd>
+<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
 </li>
 </ul>
 <a name="createTransaction()">
@@ -539,7 +561,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.274">createTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.280">createTransaction</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">KVDatabase</a></code></strong></div>
 <div class="block">Create a new transaction.</div>
 <dl>
@@ -555,7 +577,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <li class="blockList">
 <h4>start</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PostConstruct.html?is-external=true" title="class or interface in javax.annotation">@PostConstruct</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.312">start</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.318">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#start()">KVDatabase</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -577,7 +599,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/Berkele
 <li class="blockList">
 <h4>stop</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PreDestroy.html?is-external=true" title="class or interface in javax.annotation">@PreDestroy</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.347">stop</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#line.353">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#stop()">KVDatabase</a></code></strong></div>
 <div class="block">Stop this instance.
 

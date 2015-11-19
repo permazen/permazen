@@ -90,7 +90,7 @@
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../org/jsimpledb/kv/array/ArrayKVTransaction.html" title="class in org.jsimpledb.kv.array">ArrayKVTransaction</a>, <a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a>, <a href="../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a>, <a href="../../../org/jsimpledb/kv/leveldb/LevelDBKVTransaction.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVTransaction</a>, <a href="../../../org/jsimpledb/kv/util/PrefixKVTransaction.html" title="class in org.jsimpledb.kv.util">PrefixKVTransaction</a>, <a href="../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>, <a href="../../../org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVTransaction</a>, <a href="../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>, <a href="../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>, <a href="../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>, <a href="../../../org/jsimpledb/kv/simple/XMLKVTransaction.html" title="class in org.jsimpledb.kv.simple">XMLKVTransaction</a></dd>
+<dd><a href="../../../org/jsimpledb/kv/array/ArrayKVTransaction.html" title="class in org.jsimpledb.kv.array">ArrayKVTransaction</a>, <a href="../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVTransaction</a>, <a href="../../../org/jsimpledb/kv/raft/fallback/FallbackKVTransaction.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVTransaction</a>, <a href="../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a>, <a href="../../../org/jsimpledb/kv/leveldb/LevelDBKVTransaction.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVTransaction</a>, <a href="../../../org/jsimpledb/kv/util/PrefixKVTransaction.html" title="class in org.jsimpledb.kv.util">PrefixKVTransaction</a>, <a href="../../../org/jsimpledb/kv/raft/RaftKVTransaction.html" title="class in org.jsimpledb.kv.raft">RaftKVTransaction</a>, <a href="../../../org/jsimpledb/kv/rocksdb/RocksDBKVTransaction.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVTransaction</a>, <a href="../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>, <a href="../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc">SnapshotKVTransaction</a>, <a href="../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>, <a href="../../../org/jsimpledb/kv/simple/XMLKVTransaction.html" title="class in org.jsimpledb.kv.simple">XMLKVTransaction</a></dd>
 </dl>
 <hr>
 <br>
@@ -170,7 +170,7 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KVTransaction.html#rollback()">rollback</a></strong>()</code>
-<div class="block">Cancel this transaction.</div>
+<div class="block">Cancel this transaction, if not already canceled.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -305,15 +305,16 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.133">rollback</a>()</pre>
-<div class="block">Cancel this transaction.
+<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.134">rollback</a>()</pre>
+<div class="block">Cancel this transaction, if not already canceled.
 
  <p>
  After this method returns, this instance is no longer usable.
 
  <p>
  This method may be invoked at any time, even after a previous invocation of
- <a href="../../../org/jsimpledb/kv/KVTransaction.html#commit()"><code>commit()</code></a> or <a href="../../../org/jsimpledb/kv/KVTransaction.html#rollback()"><code>rollback()</code></a>, in which case the invocation will be ignored.</div>
+ <a href="../../../org/jsimpledb/kv/KVTransaction.html#commit()"><code>commit()</code></a> or <a href="../../../org/jsimpledb/kv/KVTransaction.html#rollback()"><code>rollback()</code></a>, in which case the invocation will be ignored.
+ In particular, this method should <b>not</b> throw <a href="../../../org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv"><code>StaleTransactionException</code></a>.</div>
 </li>
 </ul>
 <a name="mutableSnapshot()">
@@ -322,7 +323,7 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <ul class="blockListLast">
 <li class="blockList">
 <h4>mutableSnapshot</h4>
-<pre><a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.161">mutableSnapshot</a>()</pre>
+<pre><a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.162">mutableSnapshot</a>()</pre>
 <div class="block">Create a mutable copy of the database content represented by this transaction.
 
  <p>

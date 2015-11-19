@@ -114,7 +114,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> view of all keys having a common <code>byte[]</code> prefix in a containing <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>.
 
  <p>
- Instances are normally created indirectly from <a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util"><code>PrefixKVDatabase</code></a> instances via <a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html#createTransaction()"><code>PrefixKVDatabase.createTransaction()</code></a>.
+ Instances are normally created indirectly from <a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util"><code>PrefixKVDatabase</code></a> instances via <a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html#createTransaction(java.util.Map)"><code>PrefixKVDatabase.createTransaction(java.util.Map&lt;java.lang.String, ?&gt;)</code></a>.
  Instances may also be created directly from an existing <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>; in that case,
  <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#setTimeout(long)"><code>setTimeout()</code></a>, <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#commit()"><code>commit()</code></a>, and <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#rollback()"><code>rollback()</code></a> forward to the containing transaction,
  while <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#getKVDatabase()"><code>getKVDatabase()</code></a> throws <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.
@@ -184,7 +184,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#rollback()">rollback</a></strong>()</code>
-<div class="block">Cancel this transaction.</div>
+<div class="block">Cancel this transaction, if not already canceled.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -383,14 +383,15 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <h4>rollback</h4>
 <pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/util/PrefixKVTransaction.html#line.99">rollback</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()">KVTransaction</a></code></strong></div>
-<div class="block">Cancel this transaction.
+<div class="block">Cancel this transaction, if not already canceled.
 
  <p>
  After this method returns, this instance is no longer usable.
 
  <p>
  This method may be invoked at any time, even after a previous invocation of
- <a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a> or <a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()"><code>KVTransaction.rollback()</code></a>, in which case the invocation will be ignored.</div>
+ <a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a> or <a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()"><code>KVTransaction.rollback()</code></a>, in which case the invocation will be ignored.
+ In particular, this method should <b>not</b> throw <a href="../../../../org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv"><code>StaleTransactionException</code></a>.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()">rollback</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></dd>

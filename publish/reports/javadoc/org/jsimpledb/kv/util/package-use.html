@@ -98,12 +98,20 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.raft.fallback">org.jsimpledb.kv.raft.fallback</a></td>
+<td class="colLast">
+<div class="block">A partition-tolerant <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> that automatically migrates between a clustered
+ <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> and a private non-clustered "standalone mode"
+ <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>, based on availability of the Raft cluster.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.rocksdb">org.jsimpledb.kv.rocksdb</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.util">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
@@ -174,6 +182,23 @@
 <tbody>
 <tr class="altColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/kv/util/class-use/ForwardingKVStore.html#org.jsimpledb.kv.raft">ForwardingKVStore</a>
+<div class="block">Forwards all <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> operations to another underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.raft.fallback">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/util/package-summary.html">org.jsimpledb.kv.util</a> used by <a href="../../../../org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/util/class-use/ForwardingKVStore.html#org.jsimpledb.kv.raft.fallback">ForwardingKVStore</a>
 <div class="block">Forwards all <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> operations to another underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </td>
 </tr>

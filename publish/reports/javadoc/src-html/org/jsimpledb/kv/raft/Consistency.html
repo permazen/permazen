@@ -16,53 +16,165 @@
 <span class="sourceLineNo">008</span>/**<a name="line.8"></a>
 <span class="sourceLineNo">009</span> * {@link RaftKVTransaction} supported consistency levels.<a name="line.9"></a>
 <span class="sourceLineNo">010</span> *<a name="line.10"></a>
-<span class="sourceLineNo">011</span> * @see RaftKVTransaction#setConsistency RaftKVTransaction.setConsistency()<a name="line.11"></a>
-<span class="sourceLineNo">012</span> * @see &lt;a href="https://aphyr.com/posts/313-strong-consistency-models"&gt;Strong consistency models&lt;/a&gt;<a name="line.12"></a>
-<span class="sourceLineNo">013</span> */<a name="line.13"></a>
-<span class="sourceLineNo">014</span>public enum Consistency {<a name="line.14"></a>
-<span class="sourceLineNo">015</span><a name="line.15"></a>
-<span class="sourceLineNo">016</span>    /**<a name="line.16"></a>
-<span class="sourceLineNo">017</span>     * Uncommitted consistency.<a name="line.17"></a>
-<span class="sourceLineNo">018</span>     *<a name="line.18"></a>
-<span class="sourceLineNo">019</span>     * &lt;p&gt;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>     * Same as {@link #EVENTUAL}, but with the additional caveat that the view that the transaction sees may never<a name="line.20"></a>
-<span class="sourceLineNo">021</span>     * actually get committed. This can happen, e.g., if there is a Raft leadership change during the transaction.<a name="line.21"></a>
+<span class="sourceLineNo">011</span> * &lt;p&gt;<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * The differences only apply to read-only transactions; read-write transactions (i.e., transactions containing<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * any mutations or cluster configuration changes) always behave with {@link #LINEARIZABLE} consistency.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> *<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * @see RaftKVTransaction#setConsistency RaftKVTransaction.setConsistency()<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * @see &lt;a href="https://aphyr.com/posts/313-strong-consistency-models"&gt;Strong consistency models&lt;/a&gt;<a name="line.16"></a>
+<span class="sourceLineNo">017</span> */<a name="line.17"></a>
+<span class="sourceLineNo">018</span>public enum Consistency {<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>    /**<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * Uncommitted eventual consistency.<a name="line.21"></a>
 <span class="sourceLineNo">022</span>     *<a name="line.22"></a>
 <span class="sourceLineNo">023</span>     * &lt;p&gt;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>     * Transactions at this level may result in less network communication and/or commit faster than {@link #EVENTUAL}.<a name="line.24"></a>
-<span class="sourceLineNo">025</span>     * Read-only transactions at this level require no network communication, commit immediately, and never result in<a name="line.25"></a>
-<span class="sourceLineNo">026</span>     * {@link org.jsimpledb.kv.RetryTransactionException}s; in fact, read-only transactions are equivalent to invoking<a name="line.26"></a>
-<span class="sourceLineNo">027</span>     * {@link RaftKVTransaction#rollback rollback()} instead of {@link RaftKVTransaction#commit commit()}.<a name="line.27"></a>
-<span class="sourceLineNo">028</span>     */<a name="line.28"></a>
-<span class="sourceLineNo">029</span>    UNCOMMITTED,<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>    /**<a name="line.31"></a>
-<span class="sourceLineNo">032</span>     * Eventual consistency.<a name="line.32"></a>
-<span class="sourceLineNo">033</span>     *<a name="line.33"></a>
-<span class="sourceLineNo">034</span>     * &lt;p&gt;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>     * Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".<a name="line.35"></a>
-<span class="sourceLineNo">036</span>     * The view is not guaranteed to be up-to-date; it's only guaranteed to be as up-to-date as what was known to this<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     * node when the transaction was opened. In general (for example, if stuck in a network partition minority), the view<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * could be from arbitrarily far in the past.<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     *<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     * &lt;p&gt;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * Transactions at this level may result in less network communication and/or commit faster than {@link #LINEARIZABLE}.<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     */<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    EVENTUAL,<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    /**<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     * Linearizable consistency.<a name="line.46"></a>
-<span class="sourceLineNo">047</span>     *<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     * &lt;p&gt;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * Transactions see a database that evolves step-wise through a global, linear sequence of atomic changes, where it appears as<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * if each change occurs instantaneously at some point in time between the start and end of the corresponding transaction.<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     *<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * &lt;p&gt;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * This is the default consistency level.<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     */<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    LINEARIZABLE;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>}<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">024</span>     * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.<a name="line.24"></a>
+<span class="sourceLineNo">025</span>     *<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * &lt;p&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * Transactions see a consistent, view of the database that is either already committed or likely to be committed soon.<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     * This is the same as {@link #EVENTUAL_COMMITTED}, but with the additional (unlikely) possibility that the view that the<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * transaction sees may never actually get committed; this can only happen if there is a Raft leadership change<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * during the transaction.<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     *<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * &lt;p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * Transactions at this level require no network communication, commit immediately, and never result in<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * {@link org.jsimpledb.kv.RetryTransactionException}s. Committing a transaction at this level is actually<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * equivalent to invoking {@link RaftKVTransaction#rollback rollback()} instead of {@link RaftKVTransaction#commit commit()}.<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     *<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * &lt;p&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation does not wait<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * for that log entry to be committed, and up-to-date reads are not guaranteed.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    UNCOMMITTED(false, false, false),<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * Committed eventual consistency.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     *<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * &lt;p&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     *<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * &lt;p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * The view is not guaranteed to be up-to-date; it's only guaranteed to be as up-to-date as what was known to this<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * node when the transaction was opened. In general (for example, if stuck in a network partition minority), the view<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * could be from arbitrarily far in the past.<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     *<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * &lt;p&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * Unlike {@link #EVENTUAL}, transactions at this level require no network communication, commit immediately, and never<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * result in {@link org.jsimpledb.kv.RetryTransactionException}s; however, they see a potentiall older view. Compared<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * to {@link #UNCOMMITTED}, transactions at this level see a view that is potentially older, in exchange for the guarantee<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * that it has definitely been committed.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     *<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * &lt;p&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * This consistency level is useful when it's important to allow reading the database in any situation, e.g., even when<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * the local node is in a minority partition of the cluster. Of course, the data will only be as up-to-date as is known<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * locally.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * &lt;p&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * In Raft terms, transactions are based on the latest committed log entry, and up-to-date reads are not guaranteed.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    EVENTUAL_COMMITTED(true, false, false),<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>    /**<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * Eventual consistency.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     *<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * &lt;p&gt;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     *<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * &lt;p&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * Transactions see a consistent, committed view of the database as it existed at some point in the "recent past".<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * The view is not guaranteed to be up-to-date; it's only guaranteed to be as up-to-date as what was known to this<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * node when the transaction was opened. In general (for example, if stuck in a network partition minority), the view<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * could be from arbitrarily far in the past.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * &lt;p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * No network traffic is generated by {@link RaftKVTransaction#commit commit()}, and transactions can never throw<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * {@link org.jsimpledb.kv.RetryTransactionException}s due to read/write conflicts (i.e., stale read checks).<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * A {@link RaftKVTransaction#commit commit()} blocks until the log entry on which the transaction is based is committed;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * if no concurrent write transactions are occurring, this will happen immediately.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * &lt;p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation waits<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * for that log entry to be committed, and up-to-date reads are not guaranteed.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    EVENTUAL(false, true, false),<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * Linearizable consistency.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * &lt;p&gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * Transactions see a database that evolves step-wise through a global, linear sequence of atomic changes, where<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * each change appears to have occurred instantaneously at some point in time between the start and end of the<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * corresponding transaction.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     *<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * &lt;p&gt;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * This is the default consistency level.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     *<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * &lt;p&gt;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * In Raft terms, transactions are based on the latest uncommitted log entry, the commit operation waits<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * for that log entry to be committed, and up-to-date reads are guaranteed.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    LINEARIZABLE(false, true, true);<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    private final boolean basedOnCommittedLogEntry;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    private final boolean waitsForLogEntryToBeCommitted;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    private final boolean guaranteesUpToDateReads;<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>    private Consistency(boolean basedOnCommittedLogEntry,<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      boolean waitsForLogEntryToBeCommitted, boolean guaranteesUpToDateReads) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        this.basedOnCommittedLogEntry = basedOnCommittedLogEntry;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        this.waitsForLogEntryToBeCommitted = waitsForLogEntryToBeCommitted;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        this.guaranteesUpToDateReads = guaranteesUpToDateReads;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    /**<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * Determines the log entry on which transactions at this level are based.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     *<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * &lt;p&gt;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * When false, transactions are based on this node's most recent log entry, whether committed or not.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * When true, transactions are based on this node's most recent committed log entry. The former provides<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * a more up-to-date view, but {@link RaftKVTransaction#commit commit()} can block (and could possibly<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * fail with a {@link org.jsimpledb.kv.RetryTransactionException}) when {@link #isWaitsForLogEntryToBeCommitted} is true.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * The latter, when combined with {@link #isGuaranteesUpToDateReads} being false, allows read-only transactions<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * to commit immediately with no network traffic, even when in a minority partition.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @return true if transactions at this level are always based on committed log entries<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     */<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    public boolean isBasedOnCommittedLogEntry() {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        return this.basedOnCommittedLogEntry;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    }<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * Determines whether transactions at this level block in {@link RaftKVTransaction#commit commit()} until<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * the log entry on which they are based is committed.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * &lt;p&gt;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * This setting has no effect if {@link #isBasedOnCommittedLogEntry} returns true, because in that case<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * the log entry on which the transaction is based is already committed when transaction starts.<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     *<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     * @return true if transactions at this level wait for their base log entry to be committed<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     */<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    public boolean isWaitsForLogEntryToBeCommitted() {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        return this.waitsForLogEntryToBeCommitted;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>    /**<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * Determines whether transactions at this level guarantee reading the most up-to-date information.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     *<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * &lt;p&gt;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * This setting has no effect on transactions that contain mutations; they always read the most up-to-date information.<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     *<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * &lt;p&gt;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * If this returns false, read-only transactions may read out-of-date information ("eventual consistency").<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     *<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @return true if transactions at this level guarantee up-to-date reads<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    public boolean isGuaranteesUpToDateReads() {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        return this.guaranteesUpToDateReads;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
+<span class="sourceLineNo">168</span>}<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
 
 
 

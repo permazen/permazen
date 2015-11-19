@@ -749,7 +749,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>copyTo</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.502">copyTo</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+<pre>public&nbsp;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.500">copyTo</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
              <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;srcObj,
              <a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;dstId,
              <a href="../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState,
@@ -798,8 +798,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
   is not identical in this instance and <code>dest</code> (as well for any referenced objects)</dd>
 <dd><code><a href="../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - if the current schema version does not contain the source object's type</dd>
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction or <code>dest</code> is no longer usable</dd>
-<dd><code><a href="../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></code> - if <code>dest</code>'s underlying transaction
-  is <a href="../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a></dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any path in <code>refPaths</code> is invalid</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any parameter is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JObject.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.core.ObjId, org.jsimpledb.CopyState, java.lang.String...)"><code>JObject.copyTo()</code></a>, 
 <a href="../../org/jsimpledb/JObject.html#copyOut(java.lang.String...)"><code>JObject.copyOut()</code></a>, 
@@ -813,7 +811,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>copyTo</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.615">copyTo</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.611">copyTo</a>(<a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
           <a href="../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState,
           <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;jobjs)</pre>
 <div class="block">Copy the objects in the specified <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang"><code>Iterable</code></a> into the specified destination transaction.
@@ -852,8 +850,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dd><code><a href="../../org/jsimpledb/core/SchemaMismatchException.html" title="class in org.jsimpledb.core">SchemaMismatchException</a></code> - if the schema version corresponding to an object in
   <code>jobjs</code> is not identical in this instance and <code>dest</code></dd>
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction or <code>dest</code> is no longer usable</dd>
-<dd><code><a href="../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></code> - if <code>dest</code>'s underlying transaction
-  is <a href="../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a></dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>dest</code> or <code>jobjs</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JTransaction.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.JObject, org.jsimpledb.core.ObjId, org.jsimpledb.CopyState, java.lang.String...)"><code>copyTo(JTransaction, JObject, ObjId, CopyState, String[])</code></a></dd></dl>
 </li>
 </ul>
@@ -863,7 +859,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJObject</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.700">getJObject</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.696">getJObject</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
 <div class="block">Get the Java model object that is associated with this transaction and has the given ID.
 
  <p>
@@ -889,7 +885,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJObject</h4>
-<pre>public&nbsp;&lt;T&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.719">getJObject</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+<pre>public&nbsp;&lt;T&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.715">getJObject</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
 <div class="block">Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.
 
@@ -911,7 +907,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getJObject</h4>
-<pre>public&nbsp;&lt;T extends <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.739">getJObject</a>(T&nbsp;jobj)</pre>
+<pre>public&nbsp;&lt;T extends <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.735">getJObject</a>(T&nbsp;jobj)</pre>
 <div class="block">Get the Java model object with the same object ID as the given <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> and whose state derives from this transaction.
 
  <p>
@@ -930,14 +926,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>create</h4>
-<pre>public&nbsp;&lt;T&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.757">create</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
+<pre>public&nbsp;&lt;T&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.751">create</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
 <div class="block">Create a new instance of the given model class in this transaction.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - Java model type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - Java object model type</dd>
 <dt><span class="strong">Returns:</span></dt><dd>newly created instance</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>type</code> is not a known Java object model type</dd>
-<dd><code><a href="../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></code> - if the underlying transaction is
-  <a href="../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a></dd>
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
 </li>
 </ul>
@@ -947,14 +941,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>create</h4>
-<pre>public&nbsp;&lt;T&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.772">create</a>(<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;T&gt;&nbsp;jclass)</pre>
+<pre>public&nbsp;&lt;T&gt;&nbsp;T&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.764">create</a>(<a href="../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;T&gt;&nbsp;jclass)</pre>
 <div class="block">Create a new instance of the given type in this transaction.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - Java model type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>jclass</code> - object type</dd>
 <dt><span class="strong">Returns:</span></dt><dd>newly created instance</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>jclass</code> is not valid for this instance</dd>
-<dd><code><a href="../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></code> - if the underlying transaction is
-  <a href="../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a></dd>
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
 </li>
 </ul>
@@ -964,7 +956,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>delete</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.793">delete</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.783">delete</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
 <div class="block">Delete the object with the given object ID in this transaction.
 
  <p>
@@ -976,8 +968,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dd><code><a href="../../org/jsimpledb/core/ReferencedObjectException.html" title="class in org.jsimpledb.core">ReferencedObjectException</a></code> - if the object is referenced by some other object
   through a reference field configured for <a href="../../org/jsimpledb/core/DeleteAction.html#EXCEPTION"><code>DeleteAction.EXCEPTION</code></a></dd>
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
-<dd><code><a href="../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></code> - if the underlying transaction is
-  <a href="../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a></dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <code>jobj</code> is null</dd></dl>
 </li>
 </ul>
@@ -987,7 +977,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>exists</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.825">exists</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.815">exists</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
 <div class="block">Determine whether the object with the given object ID exists in this transaction.
 
  <p>
@@ -1006,7 +996,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>recreate</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.843">recreate</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.831">recreate</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
 <div class="block">Recreate the given instance in this transaction.
 
  <p>
@@ -1016,8 +1006,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dt><span class="strong">Returns:</span></dt><dd>true if the object was recreated, false if the object already existed</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
-<dd><code><a href="../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></code> - if the underlying transaction is
-  <a href="../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a></dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <code>jobj</code> is null</dd></dl>
 </li>
 </ul>
@@ -1027,7 +1015,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>revalidate</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.864">revalidate</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.852">revalidate</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
               <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;...&nbsp;groups)</pre>
 <div class="block">Add the given instance to the validation queue for validation, which will occur either at <a href="../../org/jsimpledb/JTransaction.html#commit()"><code>commit()</code></a> time
  or at the next invocation of <a href="../../org/jsimpledb/JTransaction.html#validate()"><code>validate()</code></a>, whichever occurs first.
@@ -1050,7 +1038,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>resetValidationQueue</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.877">resetValidationQueue</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.865">resetValidationQueue</a>()</pre>
 <div class="block">Clear the validation queue associated with this transaction. Any previously enqueued objects that have not
  yet been validated will no longer receive validation.</div>
 <dl><dt><span class="strong">Throws:</span></dt>
@@ -1064,7 +1052,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getSchemaVersion</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.926">getSchemaVersion</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.914">getSchemaVersion</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
 <div class="block">Get this schema version of the specified object. Does not change the object's schema version.
 
  <p>
@@ -1084,7 +1072,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>updateSchemaVersion</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.952">updateSchemaVersion</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.938">updateSchemaVersion</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
 <div class="block">Update the schema version of the specified object, if necessary, so that its version matches
  the schema version associated with this instance's <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>.
 
@@ -1102,8 +1090,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if <code>jobj</code> does not exist in this transaction</dd>
 <dd><code><a href="../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - if the current schema version does not contain the object's type</dd>
-<dd><code><a href="../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></code> - if the underlying transaction is
-  <a href="../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a></dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <code>jobj</code> is null</dd></dl>
 </li>
 </ul>
@@ -1113,7 +1099,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>registerJObject</h4>
-<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.967">registerJObject</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.953">registerJObject</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
 <div class="block">Ensure the given <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> is registered in its associated transaction's object cache.
 
  <p>
@@ -1130,7 +1116,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>readSimpleField</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.991">readSimpleField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.977">readSimpleField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                      int&nbsp;storageId,
                      boolean&nbsp;updateVersion)</pre>
 <div class="block">Read a simple field. This returns the value returned by <a href="../../org/jsimpledb/core/Transaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)"><code>Transaction.readSimpleField()</code></a>
@@ -1157,7 +1143,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>writeSimpleField</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1019">writeSimpleField</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1003">writeSimpleField</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
                     int&nbsp;storageId,
                     <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;value,
                     boolean&nbsp;updateVersion)</pre>
@@ -1171,8 +1157,6 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jobj</code> - object containing the field</dd><dd><code>storageId</code> - storage ID of the <a href="../../org/jsimpledb/JSimpleField.html" title="class in org.jsimpledb"><code>JSimpleField</code></a></dd><dd><code>value</code> - new value for the field</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
-<dd><code><a href="../../org/jsimpledb/core/ReadOnlyTransactionException.html" title="class in org.jsimpledb.core">ReadOnlyTransactionException</a></code> - if the underlying transaction is
-  <a href="../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">set read-only</a></dd>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if <code>jobj</code> does not exist in this transaction</dd>
 <dd><code><a href="../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../org/jsimpledb/JSimpleField.html" title="class in org.jsimpledb"><code>JSimpleField</code></a> corresponding to <code>storageId</code> exists</dd>
 <dd><code><a href="../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - if <code>updateVersion</code> is true but <code>jobj</code> has a type
@@ -1187,7 +1171,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>readCounterField</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/Counter.html" title="class in org.jsimpledb">Counter</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1046">readCounterField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+<pre>public&nbsp;<a href="../../org/jsimpledb/Counter.html" title="class in org.jsimpledb">Counter</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1030">readCounterField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                        int&nbsp;storageId,
                        boolean&nbsp;updateVersion)</pre>
 <div class="block">Read a counter field.
@@ -1213,7 +1197,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>readSetField</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1073">readSetField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1057">readSetField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                            int&nbsp;storageId,
                            boolean&nbsp;updateVersion)</pre>
 <div class="block">Read a set field. This returns the set returned by <a href="../../org/jsimpledb/core/Transaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)"><code>Transaction.readSetField()</code></a> with
@@ -1240,7 +1224,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>readListField</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1098">readListField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1082">readListField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                     int&nbsp;storageId,
                     boolean&nbsp;updateVersion)</pre>
 <div class="block">Read a list field. This returns the list returned by <a href="../../org/jsimpledb/core/Transaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)"><code>Transaction.readListField()</code></a> with
@@ -1267,7 +1251,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>readMapField</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;?,?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1123">readMapField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;?,?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1107">readMapField</a>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                              int&nbsp;storageId,
                              boolean&nbsp;updateVersion)</pre>
 <div class="block">Read a map field. This returns the map returned by <a href="../../org/jsimpledb/core/Transaction.html#readMapField(org.jsimpledb.core.ObjId, int, boolean)"><code>Transaction.readMapField()</code></a> with
@@ -1294,7 +1278,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>invertReferencePath</h4>
-<pre>public&nbsp;&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1142">invertReferencePath</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;startType,
+<pre>public&nbsp;&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1126">invertReferencePath</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;startType,
                                       <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;path,
                                       <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;targetObjects)</pre>
 <div class="block">Find all objects that refer to any object in the given target set through the specified path of references.</div>
@@ -1312,7 +1296,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>queryIndex</h4>
-<pre>public&nbsp;&lt;V,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index.html" title="interface in org.jsimpledb.index">Index</a>&lt;V,T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1175">queryIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
+<pre>public&nbsp;&lt;V,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index.html" title="interface in org.jsimpledb.index">Index</a>&lt;V,T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1159">queryIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
                           <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;fieldName,
                           <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V&gt;&nbsp;valueType)</pre>
 <div class="block">Get the index on a simple field. The simple field may be a sub-field of a complex field.</div>
@@ -1331,7 +1315,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>queryListElementIndex</h4>
-<pre>public&nbsp;&lt;V,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index">Index2</a>&lt;V,T,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1197">queryListElementIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
+<pre>public&nbsp;&lt;V,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index">Index2</a>&lt;V,T,<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1181">queryListElementIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
                                               <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;fieldName,
                                               <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V&gt;&nbsp;valueType)</pre>
 <div class="block">Get the composite index on a list field that includes list indicies.</div>
@@ -1349,7 +1333,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>queryMapValueIndex</h4>
-<pre>public&nbsp;&lt;V,T,K&gt;&nbsp;<a href="../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index">Index2</a>&lt;V,T,K&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1223">queryMapValueIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
+<pre>public&nbsp;&lt;V,T,K&gt;&nbsp;<a href="../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index">Index2</a>&lt;V,T,K&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1207">queryMapValueIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
                                        <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;fieldName,
                                        <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V&gt;&nbsp;valueType,
                                        <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;K&gt;&nbsp;keyType)</pre>
@@ -1368,7 +1352,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>queryCompositeIndex</h4>
-<pre>public&nbsp;&lt;V1,V2,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index">Index2</a>&lt;V1,V2,T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1253">queryCompositeIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
+<pre>public&nbsp;&lt;V1,V2,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index">Index2</a>&lt;V1,V2,T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1237">queryCompositeIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
                                             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;indexName,
                                             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V1&gt;&nbsp;value1Type,
                                             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V2&gt;&nbsp;value2Type)</pre>
@@ -1386,7 +1370,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>queryCompositeIndex</h4>
-<pre>public&nbsp;&lt;V1,V2,V3,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index3.html" title="interface in org.jsimpledb.index">Index3</a>&lt;V1,V2,V3,T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1280">queryCompositeIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
+<pre>public&nbsp;&lt;V1,V2,V3,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index3.html" title="interface in org.jsimpledb.index">Index3</a>&lt;V1,V2,V3,T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1264">queryCompositeIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
                                                   <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;indexName,
                                                   <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V1&gt;&nbsp;value1Type,
                                                   <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V2&gt;&nbsp;value2Type,
@@ -1405,7 +1389,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>queryCompositeIndex</h4>
-<pre>public&nbsp;&lt;V1,V2,V3,V4,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index4.html" title="interface in org.jsimpledb.index">Index4</a>&lt;V1,V2,V3,V4,T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1311">queryCompositeIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
+<pre>public&nbsp;&lt;V1,V2,V3,V4,T&gt;&nbsp;<a href="../../org/jsimpledb/index/Index4.html" title="interface in org.jsimpledb.index">Index4</a>&lt;V1,V2,V3,V4,T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1295">queryCompositeIndex</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;targetType,
                                                         <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;indexName,
                                                         <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V1&gt;&nbsp;value1Type,
                                                         <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;V2&gt;&nbsp;value2Type,
@@ -1425,7 +1409,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>queryIndex</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1342">queryIndex</a>(int&nbsp;storageId)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1326">queryIndex</a>(int&nbsp;storageId)</pre>
 <div class="block">Query an index by storage ID. For storage ID's corresponding to simple fields, this method returns an
  <a href="../../org/jsimpledb/index/Index.html" title="interface in org.jsimpledb.index"><code>Index</code></a>, except for list element and map value fields, for which an <a href="../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index"><code>Index2</code></a> is returned.
  For storage ID's corresponding to composite indexes, this method returns an <a href="../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index"><code>Index2</code></a>, <a href="../../org/jsimpledb/index/Index3.html" title="interface in org.jsimpledb.index"><code>Index3</code></a>,
@@ -1447,7 +1431,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1434">commit</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1418">commit</a>()</pre>
 <div class="block">Commit this transaction.
 
  <p>
@@ -1472,10 +1456,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1462">rollback</a>()</pre>
-<div class="block">Roll back this transaction.</div>
-<dl><dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1448">rollback</a>()</pre>
+<div class="block">Roll back this transaction.
+
+ <p>
+ This method may be invoked at any time, even after a previous invocation of
+ <a href="../../org/jsimpledb/JTransaction.html#commit()"><code>commit()</code></a> or <a href="../../org/jsimpledb/JTransaction.html#rollback()"><code>rollback()</code></a>, in which case the invocation will be ignored.</div>
 </li>
 </ul>
 <a name="isValid()">
@@ -1484,7 +1470,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>isValid</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1472">isValid</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1458">isValid</a>()</pre>
 <div class="block">Determine whether this transaction is still usable.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if this transaction is still valid</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/core/Transaction.html#isValid()"><code>Transaction.isValid()</code></a></dd></dl>
 </li>
@@ -1495,7 +1481,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>validate</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1497">validate</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1483">validate</a>()</pre>
 <div class="block">Perform validation checks on all objects currently in the validation queue.
  This method may be called at any time prior to <a href="../../org/jsimpledb/JTransaction.html#commit()"><code>commit()</code></a> to
  process and clear the queue of validatable objects.
@@ -1521,7 +1507,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>performAction</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1527">performAction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/JTransaction.html#line.1513">performAction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
 <div class="block">Invoke the given <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang"><code>Runnable</code></a> with this instance as the <a href="../../org/jsimpledb/JTransaction.html#getCurrent()">current transaction</a>.
 
  <p>

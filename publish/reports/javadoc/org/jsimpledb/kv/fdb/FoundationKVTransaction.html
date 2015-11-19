@@ -213,7 +213,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html#rollback()">rollback</a></strong>()</code>
-<div class="block">Cancel this transaction.</div>
+<div class="block">Cancel this transaction, if not already canceled.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -527,14 +527,15 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
 <h4>rollback</h4>
 <pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVTransaction.html#line.213">rollback</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()">KVTransaction</a></code></strong></div>
-<div class="block">Cancel this transaction.
+<div class="block">Cancel this transaction, if not already canceled.
 
  <p>
  After this method returns, this instance is no longer usable.
 
  <p>
  This method may be invoked at any time, even after a previous invocation of
- <a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a> or <a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()"><code>KVTransaction.rollback()</code></a>, in which case the invocation will be ignored.</div>
+ <a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a> or <a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()"><code>KVTransaction.rollback()</code></a>, in which case the invocation will be ignored.
+ In particular, this method should <b>not</b> throw <a href="../../../../org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv"><code>StaleTransactionException</code></a>.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#rollback()">rollback</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></dd>

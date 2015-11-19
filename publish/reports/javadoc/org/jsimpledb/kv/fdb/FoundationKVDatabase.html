@@ -98,7 +98,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.30">FoundationKVDatabase</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.31">FoundationKVDatabase</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></pre>
 <div class="block">FoundationDB <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.
@@ -172,54 +172,60 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</code>
+<div class="block">Create a new transaction with the specified options.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>com.foundationdb.Database</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#getDatabase()">getDatabase</a></strong>()</code>
 <div class="block">Get the underlying <code>Database</code> associated with this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#getKeyPrefix()">getKeyPrefix</a></strong>()</code>
 <div class="block">Get the key prefix for all keys.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>com.foundationdb.NetworkOptions</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#getNetworkOptions()">getNetworkOptions</a></strong>()</code>
 <div class="block">Get the <code>NetworkOptions</code> associated with this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#setClusterFilePath(java.lang.String)">setClusterFilePath</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;clusterFilePath)</code>
 <div class="block">Configure the cluster file path.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#setDatabaseName(byte[])">setDatabaseName</a></strong>(byte[]&nbsp;databaseName)</code>
 <div class="block">Configure the database name.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#setExecutor(java.util.concurrent.Executor)">setExecutor</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executor.html?is-external=true" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor)</code>
 <div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executor.html?is-external=true" title="class or interface in java.util.concurrent"><code>Executor</code></a> used for the FoundationDB networking event loop.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#setKeyPrefix(byte[])">setKeyPrefix</a></strong>(byte[]&nbsp;keyPrefix)</code>
 <div class="block">Configure a prefix for all keys.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
@@ -253,7 +259,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>API_VERSION</h4>
-<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.35">API_VERSION</a></pre>
+<pre>public static final&nbsp;int <a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.36">API_VERSION</a></pre>
 <div class="block">The API version used by this class.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.fdb.FoundationKVDatabase.API_VERSION">Constant Field Values</a></dd></dl>
 </li>
@@ -272,7 +278,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>FoundationKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.53">FoundationKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.54">FoundationKVDatabase</a>()</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Throws:</span></dt>
 <dd><code>com.foundationdb.FDBException</code> - if <a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#API_VERSION"><code>API_VERSION</code></a> is not supported</dd></dl>
@@ -292,7 +298,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getNetworkOptions</h4>
-<pre>public&nbsp;com.foundationdb.NetworkOptions&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.62">getNetworkOptions</a>()</pre>
+<pre>public&nbsp;com.foundationdb.NetworkOptions&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.63">getNetworkOptions</a>()</pre>
 <div class="block">Get the <code>NetworkOptions</code> associated with this instance.
  Options must be configured prior to <a href="../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html#start()"><code>start()</code></a>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>network options</dd></dl>
@@ -304,7 +310,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setExecutor</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.76">setExecutor</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executor.html?is-external=true" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.77">setExecutor</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executor.html?is-external=true" title="class or interface in java.util.concurrent">Executor</a>&nbsp;executor)</pre>
 <div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executor.html?is-external=true" title="class or interface in java.util.concurrent"><code>Executor</code></a> used for the FoundationDB networking event loop.
 
  <p>
@@ -319,7 +325,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setClusterFilePath</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.85">setClusterFilePath</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;clusterFilePath)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.86">setClusterFilePath</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;clusterFilePath)</pre>
 <div class="block">Configure the cluster file path. Default is null, which results in the default fdb.cluster file being used.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>clusterFilePath</code> - cluster file pathname</dd></dl>
 </li>
@@ -330,7 +336,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setDatabaseName</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.94">setDatabaseName</a>(byte[]&nbsp;databaseName)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.95">setDatabaseName</a>(byte[]&nbsp;databaseName)</pre>
 <div class="block">Configure the database name. Currently the default value (<code>"DB".getBytes()</code>) is the only valid value.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>databaseName</code> - database name</dd></dl>
 </li>
@@ -341,7 +347,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeyPrefix</h4>
-<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.103">getKeyPrefix</a>()</pre>
+<pre>public&nbsp;byte[]&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.104">getKeyPrefix</a>()</pre>
 <div class="block">Get the key prefix for all keys.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>key prefix, or null if there is none configured</dd></dl>
 </li>
@@ -352,7 +358,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setKeyPrefix</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.119">setKeyPrefix</a>(byte[]&nbsp;keyPrefix)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.120">setKeyPrefix</a>(byte[]&nbsp;keyPrefix)</pre>
 <div class="block">Configure a prefix for all keys. The prefix will be added/removed automatically with all access.
  The default prefix is null, which is equivalent to an empty prefix.
 
@@ -371,7 +377,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getDatabase</h4>
-<pre>public&nbsp;com.foundationdb.Database&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.132">getDatabase</a>()</pre>
+<pre>public&nbsp;com.foundationdb.Database&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.133">getDatabase</a>()</pre>
 <div class="block">Get the underlying <code>Database</code> associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated <code>Database</code></dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -385,7 +391,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <li class="blockList">
 <h4>start</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PostConstruct.html?is-external=true" title="class or interface in javax.annotation">@PostConstruct</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.141">start</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.142">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#start()">KVDatabase</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -407,7 +413,7 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/Foundat
 <li class="blockList">
 <h4>stop</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/javax/annotation/PreDestroy.html?is-external=true" title="class or interface in javax.annotation">@PreDestroy</a>
-public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.156">stop</a>()</pre>
+public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.157">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#stop()">KVDatabase</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -419,13 +425,29 @@ public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/Foundat
 </dl>
 </li>
 </ul>
+<a name="createTransaction(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.165">createTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">KVDatabase</a></code></strong></div>
+<div class="block">Create a new transaction with the specified options.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - optional transaction options; may be null</dd>
+<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
+</li>
+</ul>
 <a name="createTransaction()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.164">createTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/fdb/FoundationKVTransaction.html" title="class in org.jsimpledb.kv.fdb">FoundationKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/fdb/FoundationKVDatabase.html#line.170">createTransaction</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">KVDatabase</a></code></strong></div>
 <div class="block">Create a new transaction.</div>
 <dl>

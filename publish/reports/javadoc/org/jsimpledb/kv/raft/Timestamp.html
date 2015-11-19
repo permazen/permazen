@@ -203,24 +203,31 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Comparab
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Timestamp.html#isRolloverDanger()">isRolloverDanger</a></strong>()</code>
+<div class="block">Determine whether this timestamp is so far in the past that it is in danger of rolling over to the future
+ as time continues to move forward.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Timestamp.html#offset(int)">offset</a></strong>(int&nbsp;offset)</code>
 <div class="block">Return this timestamp offset by the given amount.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Timestamp.html#offsetFrom(org.jsimpledb.kv.raft.Timestamp)">offsetFrom</a></strong>(<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;base)</code>
 <div class="block">Get the number of milliseconds this instance is offset from the given instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Timestamp.html#offsetFromNow()">offsetFromNow</a></strong>()</code>
 <div class="block">Get the number of milliseconds this instance is offset from the current time.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/Timestamp.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
@@ -361,13 +368,29 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Comparab
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if this timestamp is in the past</dd></dl>
 </li>
 </ul>
+<a name="isRolloverDanger()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isRolloverDanger</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.129">isRolloverDanger</a>()</pre>
+<div class="block">Determine whether this timestamp is so far in the past that it is in danger of rolling over to the future
+ as time continues to move forward.
+
+ <p>
+ This returns true if this timestamp is within 5% of the roll-over point relative to the current time.
+ This would represent a time approximately 22.8 days in the past.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if this timestamp's offset is dangerously negative</dd></dl>
+</li>
+</ul>
 <a name="equals(java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.132">equals</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.146">equals</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -380,7 +403,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Comparab
 <ul class="blockList">
 <li class="blockList">
 <h4>hashCode</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.140">hashCode</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.154">hashCode</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -393,7 +416,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Comparab
 <ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.145">toString</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.159">toString</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
@@ -406,7 +429,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Comparab
 <ul class="blockListLast">
 <li class="blockList">
 <h4>compareTo</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.163">compareTo</a>(<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;that)</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/raft/Timestamp.html#line.177">compareTo</a>(<a href="../../../../org/jsimpledb/kv/raft/Timestamp.html" title="class in org.jsimpledb.kv.raft">Timestamp</a>&nbsp;that)</pre>
 <div class="block">Compare two instances, where "smaller" means earlier in time.
 
  <p>

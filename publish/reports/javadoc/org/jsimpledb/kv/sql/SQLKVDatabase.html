@@ -102,7 +102,7 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.30">SQLKVDatabase</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.31">SQLKVDatabase</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
 implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></pre>
 <div class="block">Support superclass for SQL <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations.
@@ -295,108 +295,114 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</code>
+<div class="block">Create a new transaction with the specified options.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransactionConnection()">createTransactionConnection</a></strong>()</code>
 <div class="block">Create a <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a> for a new transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql">DataSource</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getDataSource()">getDataSource</a></strong>()</code>
 <div class="block">Get the <a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql"><code>DataSource</code></a> used with this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql">IsolationLevel</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getIsolationLevel()">getIsolationLevel</a></strong>()</code>
 <div class="block">Get the transaction isolation level.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getKeyColumnName()">getKeyColumnName</a></strong>()</code>
 <div class="block">Get the name of the column containing keys.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getTableName()">getTableName</a></strong>()</code>
 <div class="block">Get the name of the table containing keys and values.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getValueColumnName()">getValueColumnName</a></strong>()</code>
 <div class="block">Get the name of the column containing values.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#limitSingleRow(java.lang.String)">limitSingleRow</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;sql)</code>
 <div class="block">Modify the given SQL statement so that only one row is returned.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#postBeginTransaction(java.sql.Connection)">postBeginTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)</code>
 <div class="block">Subclass hook invoked just after opening a new SQL transaction.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">preBeginTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)</code>
 <div class="block">Subclass hook invoked just before opening a new SQL transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#quote(java.lang.String)">quote</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Enquote a table or column name as necessary.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setDataSource(javax.sql.DataSource)">setDataSource</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql">DataSource</a>&nbsp;dataSource)</code>
 <div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql"><code>DataSource</code></a> used with this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setIsolationLevel(org.jsimpledb.kv.sql.IsolationLevel)">setIsolationLevel</a></strong>(<a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql">IsolationLevel</a>&nbsp;isolationLevel)</code>
 <div class="block">Configure the transaction isolation level.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setKeyColumnName(java.lang.String)">setKeyColumnName</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;keyColumnName)</code>
 <div class="block">Configure the name of the column containing keys.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setTableName(java.lang.String)">setTableName</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;tableName)</code>
 <div class="block">Set the name of the key/value table.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setValueColumnName(java.lang.String)">setValueColumnName</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;valueColumnName)</code>
 <div class="block">Configure the name of the column containing values.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#wrapException(org.jsimpledb.kv.sql.SQLKVTransaction, java.sql.SQLException)">wrapException</a></strong>(<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;transaction,
                           <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a>&nbsp;e)</code>
@@ -431,7 +437,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_TABLE_NAME</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.35">DEFAULT_TABLE_NAME</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.36">DEFAULT_TABLE_NAME</a></pre>
 <div class="block">Default table name ("KV").</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.sql.SQLKVDatabase.DEFAULT_TABLE_NAME">Constant Field Values</a></dd></dl>
 </li>
@@ -442,7 +448,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_KEY_COLUMN_NAME</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.40">DEFAULT_KEY_COLUMN_NAME</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.41">DEFAULT_KEY_COLUMN_NAME</a></pre>
 <div class="block">Default key column name ("kv_key").</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.sql.SQLKVDatabase.DEFAULT_KEY_COLUMN_NAME">Constant Field Values</a></dd></dl>
 </li>
@@ -453,7 +459,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_VALUE_COLUMN_NAME</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.45">DEFAULT_VALUE_COLUMN_NAME</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.46">DEFAULT_VALUE_COLUMN_NAME</a></pre>
 <div class="block">Default value column name ("kv_value").</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.sql.SQLKVDatabase.DEFAULT_VALUE_COLUMN_NAME">Constant Field Values</a></dd></dl>
 </li>
@@ -464,7 +470,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>dataSource</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql">DataSource</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.47">dataSource</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql">DataSource</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.48">dataSource</a></pre>
 </li>
 </ul>
 <a name="tableName">
@@ -473,7 +479,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>tableName</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.52">tableName</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.53">tableName</a></pre>
 <div class="block">The name of the key/value table. Default value is <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_TABLE_NAME">"KV"</a>.</div>
 </li>
 </ul>
@@ -483,7 +489,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>keyColumnName</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.57">keyColumnName</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.58">keyColumnName</a></pre>
 <div class="block">The name of the key column. Default value is <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_KEY_COLUMN_NAME">"kv_key"</a>.</div>
 </li>
 </ul>
@@ -493,7 +499,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>valueColumnName</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.62">valueColumnName</a></pre>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.63">valueColumnName</a></pre>
 <div class="block">The name of the value column. Default value is <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_VALUE_COLUMN_NAME">"kv_value"</a>.</div>
 </li>
 </ul>
@@ -503,7 +509,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isolationLevel</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql">IsolationLevel</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.67">isolationLevel</a></pre>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql">IsolationLevel</a> <a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.68">isolationLevel</a></pre>
 <div class="block">The configured transaction isolation level. Default is <a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html#SERIALIZABLE"><code>IsolationLevel.SERIALIZABLE</code></a>.</div>
 </li>
 </ul>
@@ -521,7 +527,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SQLKVDatabase</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.30">SQLKVDatabase</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.31">SQLKVDatabase</a>()</pre>
 </li>
 </ul>
 </li>
@@ -538,7 +544,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getDataSource</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql">DataSource</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.74">getDataSource</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql">DataSource</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.75">getDataSource</a>()</pre>
 <div class="block">Get the <a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql"><code>DataSource</code></a> used with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated <a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql"><code>DataSource</code></a></dd></dl>
 </li>
@@ -549,7 +555,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setDataSource</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.87">setDataSource</a>(<a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql">DataSource</a>&nbsp;dataSource)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.88">setDataSource</a>(<a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql">DataSource</a>&nbsp;dataSource)</pre>
 <div class="block">Configure the <a href="https://docs.oracle.com/javase/7/docs/api/javax/sql/DataSource.html?is-external=true" title="class or interface in javax.sql"><code>DataSource</code></a> used with this instance.
 
  <p>
@@ -564,7 +570,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getTableName</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.100">getTableName</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.101">getTableName</a>()</pre>
 <div class="block">Get the name of the table containing keys and values.
 
  <p>
@@ -579,7 +585,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setTableName</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.110">setTableName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;tableName)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.111">setTableName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;tableName)</pre>
 <div class="block">Set the name of the key/value table.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>tableName</code> - the name of the key/value table</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -592,7 +598,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeyColumnName</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.124">getKeyColumnName</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.125">getKeyColumnName</a>()</pre>
 <div class="block">Get the name of the column containing keys.
 
  <p>
@@ -607,7 +613,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setKeyColumnName</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.134">setKeyColumnName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;keyColumnName)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.135">setKeyColumnName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;keyColumnName)</pre>
 <div class="block">Configure the name of the column containing keys.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>keyColumnName</code> - the name of the key column</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -620,7 +626,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getValueColumnName</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.148">getValueColumnName</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.149">getValueColumnName</a>()</pre>
 <div class="block">Get the name of the column containing values.
 
  <p>
@@ -635,7 +641,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setValueColumnName</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.158">setValueColumnName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;valueColumnName)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.159">setValueColumnName</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;valueColumnName)</pre>
 <div class="block">Configure the name of the column containing values.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>valueColumnName</code> - the name of the value column</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -648,7 +654,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>getIsolationLevel</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql">IsolationLevel</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.172">getIsolationLevel</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql">IsolationLevel</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.173">getIsolationLevel</a>()</pre>
 <div class="block">Get the transaction isolation level.
 
  <p>
@@ -663,7 +669,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setIsolationLevel</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.182">setIsolationLevel</a>(<a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql">IsolationLevel</a>&nbsp;isolationLevel)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.183">setIsolationLevel</a>(<a href="../../../../org/jsimpledb/kv/sql/IsolationLevel.html" title="enum in org.jsimpledb.kv.sql">IsolationLevel</a>&nbsp;isolationLevel)</pre>
 <div class="block">Configure the transaction isolation level.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>isolationLevel</code> - isolation level</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -676,7 +682,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>start</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.188">start</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.189">start</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#start()">KVDatabase</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -697,7 +703,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.192">stop</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.193">stop</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#stop()">KVDatabase</a></code></strong></div>
 <div class="block">Stop this instance.
 
@@ -709,13 +715,29 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </dl>
 </li>
 </ul>
+<a name="createTransaction(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.197">createTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">KVDatabase</a></code></strong></div>
+<div class="block">Create a new transaction with the specified options.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - optional transaction options; may be null</dd>
+<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
+</li>
+</ul>
 <a name="createTransaction()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.213">createTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.219">createTransaction</a>()</pre>
 <div class="block">Create a new transaction.
 
  <p>
@@ -743,7 +765,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransactionConnection</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.237">createTransactionConnection</a>()
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.243">createTransactionConnection</a>()
                                           throws <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></pre>
 <div class="block">Create a <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a> for a new transaction.
 
@@ -762,7 +784,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>preBeginTransaction</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.253">preBeginTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.259">preBeginTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
                             throws <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></pre>
 <div class="block">Subclass hook invoked just before opening a new SQL transaction.
 
@@ -781,7 +803,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>beginTransaction</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.267">beginTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.273">beginTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
                          throws <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></pre>
 <div class="block">Open a new SQL transaction on the given <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a>.
 
@@ -799,7 +821,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>postBeginTransaction</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.283">postBeginTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.289">postBeginTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
                              throws <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></pre>
 <div class="block">Subclass hook invoked just after opening a new SQL transaction.
 
@@ -818,7 +840,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createSQLKVTransaction</h4>
-<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.299">createSQLKVTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.305">createSQLKVTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
                                            throws <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></pre>
 <div class="block">Create a new <a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql"><code>SQLKVTransaction</code></a> for a new transaction given the specified <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a>.
  There will already be an SQL transaction open on <code>connection</code>.
@@ -839,7 +861,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createGetStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.308">createGetStatement</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.314">createGetStatement</a>()</pre>
 <div class="block">Create an SQL statement that reads the value column associated with key <code>&#63;1</code>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>SQL query statement</dd></dl>
 </li>
@@ -850,7 +872,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createGetAtLeastStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.320">createGetAtLeastStatement</a>(boolean&nbsp;reverse)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.326">createGetAtLeastStatement</a>(boolean&nbsp;reverse)</pre>
 <div class="block">Create an SQL statement that reads the key and value columns (in that order) associated
  with the smallest key greater than or equal to <code>&#63;1</code>, if any.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>reverse</code> - true to return rows in descending key order, false to return rows in ascending key order</dd>
@@ -863,7 +885,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createGetAtMostStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.333">createGetAtMostStatement</a>(boolean&nbsp;reverse)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.339">createGetAtMostStatement</a>(boolean&nbsp;reverse)</pre>
 <div class="block">Create an SQL statement that reads the key and value columns (in that order)
  associated with the greatest key strictly less than <code>&#63;1</code>, if any.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>reverse</code> - true to return rows in descending key order, false to return rows in ascending key order</dd>
@@ -876,7 +898,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createGetRangeStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.346">createGetRangeStatement</a>(boolean&nbsp;reverse)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.352">createGetRangeStatement</a>(boolean&nbsp;reverse)</pre>
 <div class="block">Create an SQL statement that reads the key and value columns (in that order) associated with all keys
  in the range <code>&#63;1</code> (inclusive) to <code>&#63;2</code> (exclusive), possibly reversed.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>reverse</code> - true to return rows in descending key order, false to return rows in ascending key order</dd>
@@ -889,7 +911,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createGetAllStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.359">createGetAllStatement</a>(boolean&nbsp;reverse)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.365">createGetAllStatement</a>(boolean&nbsp;reverse)</pre>
 <div class="block">Create an SQL statement that reads all of the key and value columns (in that order), possibly reversed.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>reverse</code> - true to return rows in descending key order, false to return rows in ascending key order</dd>
 <dt><span class="strong">Returns:</span></dt><dd>SQL query statement</dd></dl>
@@ -901,7 +923,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createPutStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.370">createPutStatement</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.376">createPutStatement</a>()</pre>
 <div class="block">Create an SQL statement that inserts the key/value pair with key <code>&#63;1</code> and value <code>&#63;2</code>
  A row with key <code>&#63;1</code> may already exist; if so, the value should be updated to <code>&#63;3</code>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>SQL insertion statement</dd></dl>
@@ -913,7 +935,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createRemoveStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.382">createRemoveStatement</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.388">createRemoveStatement</a>()</pre>
 <div class="block">Create an SQL statement that deletes the row associated with key <code>&#63;1</code>, if any.
  Note that the key may or may not exist prior to this method being invoked.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>SQL delete statement</dd></dl>
@@ -925,7 +947,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createRemoveRangeStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.392">createRemoveRangeStatement</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.398">createRemoveRangeStatement</a>()</pre>
 <div class="block">Create an SQL statement that deletes all rows with keys in the range <code>&#63;1</code> (inclusive}
  to <code>&#63;2</code> (exclusive).</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>SQL delete statement</dd></dl>
@@ -937,7 +959,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createRemoveAtLeastStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.402">createRemoveAtLeastStatement</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.408">createRemoveAtLeastStatement</a>()</pre>
 <div class="block">Create an SQL statement that deletes all rows with keys greater than or equal to <code>&#63;1</code>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>SQL delete statement</dd></dl>
 </li>
@@ -948,7 +970,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createRemoveAtMostStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.411">createRemoveAtMostStatement</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.417">createRemoveAtMostStatement</a>()</pre>
 <div class="block">Create an SQL statement that deletes all rows with keys strictly less than <code>&#63;1</code>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>SQL delete statement</dd></dl>
 </li>
@@ -959,7 +981,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>createRemoveAllStatement</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.420">createRemoveAllStatement</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.426">createRemoveAllStatement</a>()</pre>
 <div class="block">Create an SQL statement that deletes all rows.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>SQL delete statement</dd></dl>
 </li>
@@ -970,7 +992,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>limitSingleRow</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.439">limitSingleRow</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;sql)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.445">limitSingleRow</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;sql)</pre>
 <div class="block">Modify the given SQL statement so that only one row is returned.
 
  <p>
@@ -991,7 +1013,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>quote</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.454">quote</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.460">quote</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
 <div class="block">Enquote a table or column name as necessary.
 
  <p>
@@ -1009,7 +1031,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>wrapException</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.466">wrapException</a>(<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;transaction,
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/sql/SQLKVDatabase.html#line.472">wrapException</a>(<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;transaction,
                                    <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a>&nbsp;e)</pre>
 <div class="block">Wrap the given <a href="https://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><code>SQLException</code></a> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>transaction</code> - the <a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql"><code>SQLKVTransaction</code></a> in which the exception occured</dd><dd><code>e</code> - SQL exception</dd>

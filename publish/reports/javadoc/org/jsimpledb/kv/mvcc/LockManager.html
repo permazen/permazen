@@ -94,7 +94,7 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.50">LockManager</a>
+<pre>public class <a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.51">LockManager</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Manager of read/write locks on <code>byte[]</code> key ranges that ensures isolation and serialization while allowing concurrent
  access by multiple threads to a single underlying <code>byte[]</code> key/value store.
@@ -200,6 +200,15 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#isLocked(org.jsimpledb.kv.mvcc.LockOwner, byte[], byte[], boolean)">isLocked</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner,
+                byte[]&nbsp;minKey,
+                byte[]&nbsp;maxKey,
+                boolean&nbsp;write)</code>
+<div class="block">Determine if the given lock owner holds a lock on the specified range.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html" title="enum in org.jsimpledb.kv.mvcc">LockManager.LockResult</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#lock(org.jsimpledb.kv.mvcc.LockOwner, byte[], byte[], boolean, long)">lock</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner,
         byte[]&nbsp;minKey,
@@ -209,13 +218,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <div class="block">Acquire a lock on behalf of the specified owner.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#release(org.jsimpledb.kv.mvcc.LockOwner)">release</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner)</code>
 <div class="block">Release all locks held by the specified owner.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#setHoldTimeout(long)">setHoldTimeout</a></strong>(long&nbsp;holdTimeout)</code>
 <div class="block">Set the hold timeout for this instance.</div>
@@ -249,7 +258,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>LockManager</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.71">LockManager</a>()</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.72">LockManager</a>()</pre>
 <div class="block">Convenience constructor. Equivalent to <code>LockManager(null)</code>.</div>
 </li>
 </ul>
@@ -259,7 +268,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>LockManager</h4>
-<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.81">LockManager</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;lockObject)</pre>
+<pre>public&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.82">LockManager</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;lockObject)</pre>
 <div class="block">Primary constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>lockObject</code> - Java object used to synchronize field access and inter-thread wait/notify handshake,
   or null to use this instance</dd></dl>
@@ -279,7 +288,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getHoldTimeout</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.95">getHoldTimeout</a>()</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.96">getHoldTimeout</a>()</pre>
 <div class="block">Get the hold timeout configured for this instance.
 
  <p>
@@ -295,7 +304,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>setHoldTimeout</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.108">setHoldTimeout</a>(long&nbsp;holdTimeout)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.109">setHoldTimeout</a>(long&nbsp;holdTimeout)</pre>
 <div class="block">Set the hold timeout for this instance. Default is zero (unlimited).</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html#HOLD_TIMEOUT_EXPIRED"><code>LockManager.LockResult.HOLD_TIMEOUT_EXPIRED</code></a>
   will be returned by <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#lock(org.jsimpledb.kv.mvcc.LockOwner, byte[], byte[], boolean, long)"><code>lock()</code></a> or <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#release(org.jsimpledb.kv.mvcc.LockOwner)"><code>release()</code></a> in milliseconds, or zero for unlimited</dd>
@@ -309,7 +318,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>lock</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html" title="enum in org.jsimpledb.kv.mvcc">LockManager.LockResult</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.146">lock</a>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner,
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html" title="enum in org.jsimpledb.kv.mvcc">LockManager.LockResult</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.147">lock</a>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner,
                           byte[]&nbsp;minKey,
                           byte[]&nbsp;maxKey,
                           boolean&nbsp;write,
@@ -342,13 +351,28 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>waitTimeout</code> is negative</dd></dl>
 </li>
 </ul>
+<a name="isLocked(org.jsimpledb.kv.mvcc.LockOwner, byte[], byte[], boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLocked</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.218">isLocked</a>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner,
+               byte[]&nbsp;minKey,
+               byte[]&nbsp;maxKey,
+               boolean&nbsp;write)</pre>
+<div class="block">Determine if the given lock owner holds a lock on the specified range.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>owner</code> - lock owner</dd><dd><code>minKey</code> - minimum key (inclusive); must not be null</dd><dd><code>maxKey</code> - maximum key (exclusive), or null for no maximum</dd><dd><code>write</code> - if range must be write locked; if false, may be either read or write locked</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if the range is locked for writes by <code>owner</code></dd></dl>
+</li>
+</ul>
 <a name="release(org.jsimpledb.kv.mvcc.LockOwner)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>release</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.224">release</a>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.247">release</a>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner)</pre>
 <div class="block">Release all locks held by the specified owner.
 
  <p>
@@ -371,7 +395,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>checkHoldTimeout</h4>
-<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.257">checkHoldTimeout</a>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner)</pre>
+<pre>public&nbsp;long&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/mvcc/LockManager.html#line.280">checkHoldTimeout</a>(<a href="../../../../org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc">LockOwner</a>&nbsp;owner)</pre>
 <div class="block">Check whether the <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#getHoldTimeout()">hold timeout</a> has expired for the given lock owner
  and if not return the amount of time remaining.
 

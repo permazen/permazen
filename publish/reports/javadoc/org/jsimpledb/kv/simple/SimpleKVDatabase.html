@@ -229,49 +229,55 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</code>
+<div class="block">Create a new transaction with the specified options.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#getHoldTimeout()">getHoldTimeout</a></strong>()</code>
 <div class="block">Get the hold timeout configured for this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#getWaitTimeout()">getWaitTimeout</a></strong>()</code>
 <div class="block">Get the wait timeout for newly created transactions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#postCommit(org.jsimpledb.kv.simple.SimpleKVTransaction, boolean)">postCommit</a></strong>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx,
                     boolean&nbsp;successful)</code>
 <div class="block">Invoked during transaction commit just after writing changes to the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#preCommit(org.jsimpledb.kv.simple.SimpleKVTransaction)">preCommit</a></strong>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</code>
 <div class="block">Invoked during transaction commit just prior to writing changes to the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#setHoldTimeout(long)">setHoldTimeout</a></strong>(long&nbsp;holdTimeout)</code>
 <div class="block">Set the hold timeout for this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#setWaitTimeout(long)">setWaitTimeout</a></strong>(long&nbsp;waitTimeout)</code>
 <div class="block">Set the wait timeout for newly created transactions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
@@ -510,13 +516,29 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </dl>
 </li>
 </ul>
+<a name="createTransaction(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.190">createTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">KVDatabase</a></code></strong></div>
+<div class="block">Create a new transaction with the specified options.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - optional transaction options; may be null</dd>
+<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
+</li>
+</ul>
 <a name="createTransaction()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.190">createTransaction</a>()</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.195">createTransaction</a>()</pre>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">KVDatabase</a></code></strong></div>
 <div class="block">Create a new transaction.</div>
 <dl>
@@ -531,7 +553,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>preCommit</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.217">preCommit</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.222">preCommit</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</pre>
 <div class="block">Invoked during transaction commit just prior to writing changes to the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.
 
  <p>
@@ -553,7 +575,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>postCommit</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.241">postCommit</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx,
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.246">postCommit</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx,
               boolean&nbsp;successful)</pre>
 <div class="block">Invoked during transaction commit just after writing changes to the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.
 
@@ -580,7 +602,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockListLast">
 <li class="blockList">
 <h4>checkState</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.294">checkState</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/jsimpledb/kv/simple/SimpleKVDatabase.html#line.299">checkState</a>(<a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple">SimpleKVTransaction</a>&nbsp;tx)</pre>
 <div class="block">Verify that the given transaction is still usable.
 
  <p>
