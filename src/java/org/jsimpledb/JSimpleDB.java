@@ -56,7 +56,8 @@ import org.slf4j.LoggerFactory;
  *  <li>At the bottom layer is a simple {@code byte[]} <b>key/value</b> database represented by the
  *      {@link org.jsimpledb.kv.KVDatabase} class. Transactions are supported at this layer and are accessed
  *      through the {@link org.jsimpledb.kv.KVTransaction} interface.
- *      There are several available {@link org.jsimpledb.kv.KVDatabase} implementations.</li>
+ *      There are several available {@link org.jsimpledb.kv.KVDatabase} implementations, including "wrappers"
+ *      for several third party key/value stores.</li>
  *  <li>On top of that sits the <b>core API</b> layer, which provides a rigourous database abstraction on top of the
  *      key/value store. It supports simple fields of any atomic Java type, as well as list, set, and map complex fields,
  *      tightly controlled schema versioning, simple and composite indexes, and lifecycle and change notifications.
@@ -71,24 +72,25 @@ import org.slf4j.LoggerFactory;
  *  </ul>
  *
  * <p>
- * User-provided Java model classes database fields as abstract Java bean property methods.
- * {@link JSimpleDB} generates concrete subclasses at runtime. These runtime classes implement the abstract methods as
- * well as the {@link JObject} interface.
- * A Java model class instance is associated with a specific {@link JTransaction}, and all of its database field
+ * User-provided Java model classes define database fields by declaring abstract Java bean property methods.
+ * {@link JSimpleDB} generates concrete subclasses of the user-provided abstract model classes at runtime.
+ * These runtime classes implement the abstract bean property methods, as well as the {@link JObject} interface.
+ * Java model class instances are always associated with a specific {@link JTransaction}, and all of their database
  * state derives from that the underlying key/value {@link org.jsimpledb.kv.KVTransaction}.
  *
  * <p>
  * All Java model class instances have a unique {@link ObjId} which represents database identity. {@link JSimpleDB}
- * guarantees that at most one Java model class instance instance will exist for any given transaction and {@link ObjId}.
+ * guarantees that at most one Java model class instance instance will exist for any given {@link JTransaction} and {@link ObjId}.
+ * Instance creation, index queries, and certain other database-related tasks are initiated using a {@link JTransaction}.
  *
  * <p>
  * Normal database transactions are created via {@link #createTransaction createTransaction()}. "Snapshot" transactions are
- * in-memory transactions that are detached from the database and may persist indefinitely. Their purpose is to hold a
+ * purely in-memory transactions that are detached from the database and may persist indefinitely. Their purpose is to hold a
  * snapshot of some (user-defined) portion of the database content for use outside of a regular transaction. Otherwise,
  * they function like normal transactions, with support for index queries, listener callbacks, etc. See
  * {@link JTransaction#createSnapshotTransaction JTransaction.createSnapshotTransaction()},
- * {@link JTransaction#getSnapshotTransaction}, {@link JObject#copyOut JObject.copyOut}, and
- * {@link JObject#copyIn JObject.copyIn}.
+ * {@link JTransaction#getSnapshotTransaction}, {@link JObject#copyOut JObject.copyOut()}, and
+ * {@link JObject#copyIn JObject.copyIn()}.
  *
  * <p>
  * Instances of this class are usually created using a {@link JSimpleDBFactory}.
