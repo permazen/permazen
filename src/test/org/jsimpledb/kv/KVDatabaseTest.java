@@ -72,9 +72,7 @@ public abstract class KVDatabaseTest extends TestSupport {
     @DataProvider(name = "kvdbs")
     protected KVDatabase[][] getDBs() {
         final KVDatabase kvdb = this.getKVDatabase();
-        return new KVDatabase[][] {
-            kvdb != null ? new KVDatabase[] { kvdb } : new KVDatabase[0]
-        };
+        return kvdb != null ? new KVDatabase[][] { { kvdb } } : new KVDatabase[0][];
     }
 
     protected abstract KVDatabase getKVDatabase();
