@@ -37,10 +37,15 @@
             <package name="org.jsimpledb.core"/>
             <package name="org.jsimpledb.kv"/>
             <package name="org.jsimpledb.kv.array"/>
+            <package name="org.jsimpledb.kv.bdb"/>
+            <package name="org.jsimpledb.kv.fdb"/>
+            <package name="org.jsimpledb.kv.leveldb"/>
             <package name="org.jsimpledb.kv.mvcc"/>
-            <package name="org.jsimpledb.kv.simple"/>
             <package name="org.jsimpledb.kv.raft"/>
             <package name="org.jsimpledb.kv.raft.msg"/>
+            <package name="org.jsimpledb.kv.rocksdb"/>
+            <package name="org.jsimpledb.kv.simple"/>
+            <package name="org.jsimpledb.kv.sql"/>
             <package name="org.jsimpledb.kv.util"/>
             <package name="org.jsimpledb.parse"/>
             <package name="org.jsimpledb.parse.expr"/>

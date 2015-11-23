@@ -6,19 +6,11 @@
 package org.jsimpledb.kv;
 
 import com.google.common.base.Converter;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -34,33 +26,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.jsimpledb.TestSupport;
-import org.jsimpledb.kv.array.ArrayKVDatabase;
-import org.jsimpledb.kv.array.AtomicArrayKVStore;
-import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
-import org.jsimpledb.kv.fdb.FoundationKVDatabase;
-import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
-import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
-import org.jsimpledb.kv.raft.RaftKVDatabase;
-import org.jsimpledb.kv.raft.RaftKVTransaction;
-import org.jsimpledb.kv.raft.TestNetwork;
-import org.jsimpledb.kv.rocksdb.RocksDBAtomicKVStore;
-import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
-import org.jsimpledb.kv.simple.XMLKVDatabase;
-import org.jsimpledb.kv.sql.IsolationLevel;
-import org.jsimpledb.kv.sql.MySQLKVDatabase;
-import org.jsimpledb.kv.util.NavigableMapKVStore;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ConvertedNavigableMap;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Optional;
-import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-public class KVDatabaseTest extends TestSupport {
+public abstract class KVDatabaseTest extends TestSupport {
 
     // Work around weird Cobertura class loading bug
     static {
@@ -73,298 +48,36 @@ public class KVDatabaseTest extends TestSupport {
         tx.rollback();
     }
 
-    private ExecutorService executor;
+    protected ExecutorService executor;
+    protected long timeoutTestStartTime;
 
-    private SimpleKVDatabase simpleKV;
-    private XMLKVDatabase xmlKV;
-    private MySQLKVDatabase mysqlKV;
-    private FoundationKVDatabase fdbKV;
-    private BerkeleyKVDatabase bdbKV;
-    private LevelDBKVDatabase leveldbKV;
-    private RocksDBKVDatabase rocksdbKV;
-    private ArrayKVDatabase arrayKV;
-    private RaftKVDatabase[] rafts;
-    private TestNetwork[] raftNetworks;
-    private File topRaftDir;
-
-    private long timeoutTestStartTime;
-
-    @BeforeClass
-    @Parameters("testSimpleKV")
-    public void setTestSimpleKV(@Optional String testSimpleKV) {
-        if (testSimpleKV != null && Boolean.valueOf(testSimpleKV)) {
-            this.simpleKV = new SimpleKVDatabase(new NavigableMapKVStore(), 250, 5000);
-            this.simpleKV.start();
-        }
-    }
-
-    @BeforeClass
-    @Parameters("xmlFilePrefix")
-    public void setTestXMLKV(@Optional String xmlFilePrefix) throws IOException {
-        if (xmlFilePrefix != null) {
-            final File xmlFile = File.createTempFile(xmlFilePrefix, ".xml");
-            xmlFile.delete();                           // we need the file to not exist at first
-            xmlFile.deleteOnExit();
-            this.xmlKV = new XMLKVDatabase(xmlFile, 250, 5000);
-            this.xmlKV.start();
-        }
-    }
-
-    @BeforeClass
-    @Parameters("mysqlURL")
-    public void setMySQLURL(@Optional String mysqlURL) {
-        if (mysqlURL != null) {
-            final MysqlDataSource dataSource = new MysqlDataSource();
-            dataSource.setUrl(mysqlURL);
-            this.mysqlKV = new MySQLKVDatabase();
-            this.mysqlKV.setDataSource(dataSource);
-            this.mysqlKV.setIsolationLevel(IsolationLevel.SERIALIZABLE);
-        }
-    }
-
-    @BeforeClass
-    @Parameters("fdbClusterFile")
-    public void setFoundationDBClusterFile(@Optional String fdbClusterFile) {
-        if (fdbClusterFile != null) {
-            this.fdbKV = new FoundationKVDatabase();
-            this.fdbKV.setClusterFilePath(fdbClusterFile);
-            this.fdbKV.start();
-        }
-    }
-
-    @BeforeClass
-    @Parameters("berkeleyDirPrefix")
-    public void setBerkeleyDirPrefix(@Optional String berkeleyDirPrefix) throws IOException {
-        if (berkeleyDirPrefix != null) {
-            final File dir = File.createTempFile(berkeleyDirPrefix, null);
-            Assert.assertTrue(dir.delete());
-            Assert.assertTrue(dir.mkdirs());
-            dir.deleteOnExit();
-            this.bdbKV = new BerkeleyKVDatabase();
-            this.bdbKV.setDirectory(dir);
-            this.bdbKV.start();
-        }
-    }
-
-    @BeforeClass
-    @Parameters("levelDbDirPrefix")
-    public void setLevelDbDirPrefix(@Optional String levelDbDirPrefix) throws IOException {
-        if (levelDbDirPrefix != null) {
-            final File dir = File.createTempFile(levelDbDirPrefix, null);
-            Assert.assertTrue(dir.delete());
-            Assert.assertTrue(dir.mkdirs());
-            dir.deleteOnExit();
-            final LevelDBAtomicKVStore kvstore = new LevelDBAtomicKVStore();
-            kvstore.setDirectory(dir);
-            kvstore.setCreateIfMissing(true);
-            this.leveldbKV = new LevelDBKVDatabase();
-            this.leveldbKV.setKVStore(kvstore);
-            this.leveldbKV.start();
-        }
-    }
-
-    @BeforeClass
-    @Parameters("rocksDbDirPrefix")
-    public void setRocksDBDirPrefix(@Optional String rocksDBDirPrefix) throws IOException {
-        if (rocksDBDirPrefix != null) {
-            final File dir = File.createTempFile(rocksDBDirPrefix, null);
-            Assert.assertTrue(dir.delete());
-            Assert.assertTrue(dir.mkdirs());
-            dir.deleteOnExit();
-            final RocksDBAtomicKVStore kvstore = new RocksDBAtomicKVStore();
-            kvstore.setDirectory(dir);
-            this.rocksdbKV = new RocksDBKVDatabase();
-            this.rocksdbKV.setKVStore(kvstore);
-            this.rocksdbKV.start();
-        }
-    }
-
-    @BeforeClass
-    @Parameters({
-      "arrayDirPrefix",
-      "arrayCompactMaxDelay",
-      "arrayCompactSpaceLowWater",
-      "arrayCompactSpaceHighWater",
-    })
-    public void setArrayDirPrefix(@Optional String arrayDirPrefix,
-      @Optional("90") int compactMaxDelay,
-      @Optional("65536") int compactLowWater,
-      @Optional("1073741824") int compactHighWater) throws IOException {
-        if (arrayDirPrefix != null) {
-            final File dir = File.createTempFile(arrayDirPrefix, null);
-            Assert.assertTrue(dir.delete());
-            Assert.assertTrue(dir.mkdirs());
-            dir.deleteOnExit();
-            final AtomicArrayKVStore kvstore = new AtomicArrayKVStore();
-            kvstore.setDirectory(dir);
-            kvstore.setCompactMaxDelay(compactMaxDelay);
-            kvstore.setCompactLowWater(compactLowWater);
-            kvstore.setCompactHighWater(compactHighWater);
-            this.arrayKV = new ArrayKVDatabase();
-            this.arrayKV.setKVStore(kvstore);
-            this.arrayKV.start();
-        }
-    }
-
-    @BeforeClass
-    @Parameters({
-      "raftDirPrefix",
-      "raftNumNodes",
-      "raftCommitTimeout",
-      "raftMinElectionTimeout",
-      "raftMaxElectionTimeout",
-      "raftHeartbeatTimeout",
-      "raftMaxTransactionDuration",
-      "raftFollowerProbingEnabled",
-      "raftNetworkDelayMillis",
-      "raftNetworkDropRatio",
-      "arrayCompactMaxDelay",
-      "arrayCompactSpaceLowWater",
-      "arrayCompactSpaceHighWater",
-    })
-    public void setTestRaftDirPrefix(@Optional String raftDirPrefix, @Optional("5") int numNodes,
-      @Optional("2500") int commitTimeout, @Optional("300") int minElectionTimeout, @Optional("350") int maxElectionTimeout,
-      @Optional("150") int heartbeatTimeout, @Optional("5000") int maxTransactionDuration,
-      @Optional("true") boolean followerProbingEnabled,
-      @Optional("25") int networkDelayMillis, @Optional("0.075") float networkDropRatio,
-      @Optional("90") int arrayCompactMaxDelay,
-      @Optional("65536") int arrayCompactLowWater,
-      @Optional("1073741824") int arrayCompactHighWater)
-      throws Exception {
-        if (raftDirPrefix == null)
-            return;
-        this.raftNetworks = new TestNetwork[numNodes];
-        this.rafts = new RaftKVDatabase[numNodes];
-        this.topRaftDir = File.createTempFile(raftDirPrefix, null);
-        Assert.assertTrue(this.topRaftDir.delete());
-        Assert.assertTrue(this.topRaftDir.mkdirs());
-        this.topRaftDir.deleteOnExit();
-        for (int i = 0; i < numNodes; i++) {
-            final String name = "node" + i;
-            final File dir = new File(this.topRaftDir, name);
-            dir.mkdirs();
-            this.raftNetworks[i] = new TestNetwork(name, networkDelayMillis, networkDropRatio);
-            this.rafts[i] = new RaftKVDatabase();
-            final File kvdir = new File(dir, "kvstore");
-            kvdir.mkdirs();
-            switch (this.random.nextInt(3)) {
-            case 1:
-            {
-                this.log.info("using LevelDB as key/value store for Raft test");
-                final LevelDBAtomicKVStore levelkv = new LevelDBAtomicKVStore();
-                levelkv.setDirectory(kvdir);
-                levelkv.setCreateIfMissing(true);
-                this.rafts[i].setKVStore(levelkv);
-                break;
-            }
-//            case 2:
-//            {
-//                this.log.info("using RocksDB as key/value store for Raft test");
-//                final RocksDBAtomicKVStore rockskv = new RocksDBAtomicKVStore();
-//                rockskv.setDirectory(kvdir);
-//                this.rafts[i].setKVStore(rockskv);
-//                break;
-//            }
-            default:
-            {
-                this.log.info("using Array as key/value store for Raft test");
-                final AtomicArrayKVStore arraykv = new AtomicArrayKVStore();
-                arraykv.setDirectory(kvdir);
-                arraykv.setCompactMaxDelay(arrayCompactMaxDelay);
-                arraykv.setCompactLowWater(arrayCompactLowWater);
-                arraykv.setCompactHighWater(arrayCompactHighWater);
-                this.rafts[i].setKVStore(arraykv);
-                break;
-            }
-            }
-            this.rafts[i].setLogDirectory(dir);
-            this.rafts[i].setNetwork(this.raftNetworks[i]);
-            this.rafts[i].setIdentity(name);
-            this.rafts[i].setCommitTimeout(commitTimeout);
-            this.rafts[i].setMinElectionTimeout(minElectionTimeout);
-            this.rafts[i].setMaxElectionTimeout(maxElectionTimeout);
-            this.rafts[i].setHeartbeatTimeout(heartbeatTimeout);
-            this.rafts[i].setMaxTransactionDuration(maxTransactionDuration);
-            this.rafts[i].setFollowerProbingEnabled(followerProbingEnabled);
-        }
-        for (int i = 0; i < numNodes; i++)
-            this.rafts[i].start();
-        for (int i = 0; i < numNodes; i++) {
-            final int targetIndex = (i < 2 ? 1 : i) % numNodes;
-            final int addIndex = (i + 1) % numNodes;
-            final String node = this.rafts[addIndex].getIdentity();
-            this.log.debug("adding node \"" + node + "\" to test cluster");
-            this.try3times(this.rafts[targetIndex], new Transactional<Void>() {
-                @Override
-                public Void transact(KVTransaction tx) {
-                    ((RaftKVTransaction)tx).configChange(node, node);
-                    return null;
-                }
-            });
-        }
-    }
-
-    @BeforeClass
-    public void setup() {
+    @BeforeClass(dependsOnGroups = "configure")
+    public void setup() throws Exception {
         this.executor = Executors.newFixedThreadPool(33);
+        for (KVDatabase[] kvdb : this.getDBs()) {
+            if (kvdb.length > 0)
+                kvdb[0].start();
+        }
     }
 
     @AfterClass
     public void teardown() throws Exception {
         this.executor.shutdown();
-        if (this.simpleKV != null)
-            this.simpleKV.stop();
-        if (this.xmlKV != null)
-            this.xmlKV.stop();
-        if (this.fdbKV != null)
-            this.fdbKV.stop();
-        if (this.bdbKV != null)
-            this.bdbKV.stop();
-        if (this.leveldbKV != null)
-            this.leveldbKV.stop();
-        if (this.rocksdbKV != null)
-            this.rocksdbKV.stop();
-        if (this.arrayKV != null)
-            this.arrayKV.stop();
-        if (this.rafts != null) {
-            for (RaftKVDatabase raft : this.rafts)
-                raft.stop();
-            for (TestNetwork network : this.raftNetworks)
-                network.stop();
-            Files.walkFileTree(this.topRaftDir.toPath(), new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+        for (KVDatabase[] kvdb : this.getDBs()) {
+            if (kvdb.length > 0)
+                kvdb[0].stop();
         }
     }
 
     @DataProvider(name = "kvdbs")
-    private Object[][] getDBs() throws Exception {
-        final ArrayList<Object[]> list = new ArrayList<>();
-        list.add(new Object[] { this.simpleKV });
-        list.add(new Object[] { this.xmlKV });
-        list.add(new Object[] { this.mysqlKV });
-        list.add(new Object[] { this.fdbKV });
-        list.add(new Object[] { this.bdbKV });
-        list.add(new Object[] { this.leveldbKV });
-        list.add(new Object[] { this.rocksdbKV });
-        list.add(new Object[] { this.arrayKV });
-        if (this.rafts != null)
-            list.add(new Object[] { this.rafts[0] });
-        for (Iterator<Object[]> i = list.iterator(); i.hasNext(); ) {
-            if (i.next()[0] == null)
-                i.remove();
-        }
-        return list.toArray(new Object[list.size()][]);
+    protected KVDatabase[][] getDBs() {
+        final KVDatabase kvdb = this.getKVDatabase();
+        return new KVDatabase[][] {
+            kvdb != null ? new KVDatabase[] { kvdb } : new KVDatabase[0]
+        };
     }
+
+    protected abstract KVDatabase getKVDatabase();
 
     @Test(dataProvider = "kvdbs")
     public void testSimpleStuff(KVDatabase store) throws Exception {
@@ -802,7 +515,7 @@ public class KVDatabaseTest extends TestSupport {
         Assert.assertEquals(waiterThread.getResult(), "success");
     }
 
-    private <V> V try3times(KVDatabase kvdb, Transactional<V> transactional) {
+    protected <V> V try3times(KVDatabase kvdb, Transactional<V> transactional) {
         RetryTransactionException retry = null;
         for (int count = 0; count < 3; count++) {
             final KVTransaction tx = kvdb.createTransaction();
@@ -823,7 +536,7 @@ public class KVDatabaseTest extends TestSupport {
         throw retry;
     }
 
-    private interface Transactional<V> {
+    protected interface Transactional<V> {
         V transact(KVTransaction kvt);
     }
 
