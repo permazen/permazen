@@ -94,6 +94,10 @@ public interface KVTransaction extends KVStore {
      * <p>
      * Key watch support is optional; instances that don't support key watches throw {@link UnsupportedOperationException}.
      *
+     * <p>
+     * Note: many {@link KVDatabase} implementations actually return a
+     * {@link com.google.common.util.concurrent.ListenableFuture}.
+     *
      * @param key the key to watch
      * @return a {@link Future} that returns {@code key} when the value associated with {@code key} is modified
      * @throws StaleTransactionException if this transaction is no longer usable
