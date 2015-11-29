@@ -27,7 +27,7 @@ public class IdentNode extends AbstractNamed implements Node {
 
     @Override
     public Value evaluate(ParseSession session) {
-        throw new RuntimeException("internal error: can't evaluate ident `" + this.name + "'");
+        throw new RuntimeException("can't evaluate standalone identifier `" + this.name + "'");
     }
 }
 

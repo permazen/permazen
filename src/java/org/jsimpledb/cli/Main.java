@@ -14,11 +14,13 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.core.Database;
+import org.jsimpledb.parse.ParseUtil;
 import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.spring.AnnotatedClassScanner;
@@ -184,6 +186,15 @@ public class Main extends AbstractMain {
         // Handle one-shot command mode
         if (!this.oneShotCommands.isEmpty()) {
             for (String text : this.oneShotCommands) {
+
+                // Parse command(s)
+                final List<CliSession.Action> actions = console.parseCommand(text);
+                if (actions == null) {
+                    session.getWriter().println("Error: failed to parse command `" + ParseUtil.truncate(text, 40) + "'");
+                    return 1;
+                }
+
+                // Execute command(s)
                 for (CliSession.Action action : console.parseCommand(text)) {
                     if (!session.performCliSessionAction(action))
                         return 1;
