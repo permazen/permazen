@@ -41,7 +41,7 @@ public class Counter {
     }
 
     /**
-     * Read the counter's current value. Invoking this method will typically disable the lock-free
+     * Read this counter's current value. Invoking this method will typically disable the lock-free
      * behavior of {@link #adjust adjust()} in the current transaction.
      *
      * @return current value of the counter
@@ -54,7 +54,7 @@ public class Counter {
     }
 
     /**
-     * Set the counter's value. Invoking this method will typically disable the lock-free
+     * Set this counter's value. Invoking this method will typically disable the lock-free
      * behavior of {@link #adjust adjust()} in the current transaction.
      *
      * @param value new value for the counter
@@ -67,7 +67,7 @@ public class Counter {
     }
 
     /**
-     * Adjust the counter's value by the specified amount.
+     * Adjust this counter's value by the specified amount.
      *
      * @param offset amount to add to counter
      * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance
@@ -76,6 +76,28 @@ public class Counter {
      */
     public void adjust(long offset) {
         this.tx.adjustCounterField(this.id, this.storageId, offset, this.updateVersion);
+    }
+
+    /**
+     * Increment this counter's value by one.
+     *
+     * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance
+     *  was read is no longer usable
+     * @throws org.jsimpledb.core.DeletedObjectException if the object from which this instance was read no longer exists
+     */
+    public void increment() {
+        this.adjust(1);
+    }
+
+    /**
+     * Decrement this counter's value by one.
+     *
+     * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance
+     *  was read is no longer usable
+     * @throws org.jsimpledb.core.DeletedObjectException if the object from which this instance was read no longer exists
+     */
+    public void decrement() {
+        this.adjust(-1);
     }
 }
 
