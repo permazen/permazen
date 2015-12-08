@@ -703,7 +703,8 @@ public class FollowerRole extends NonLeaderRole {
 
         // Sanity check transaction state
         if (!tx.getState().equals(TxState.COMMIT_READY)) {
-            this.warn("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");
+            if (this.log.isDebugEnabled())
+                this.debug("rec'd " + msg + " for " + tx + " in state " + tx.getState() + "; ignoring");
             return;
         }
         if (this.pendingRequests.remove(tx.getTxId()) == null) {
