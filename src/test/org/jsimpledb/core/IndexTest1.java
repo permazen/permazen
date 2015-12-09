@@ -29,6 +29,20 @@ public class IndexTest1 extends TestSupport {
     // Params
     private final int numObjs = 25;
     private final int refMax = Math.min(numObjs, 37);
+    private final Object[][] valueMatrix = new Object[][] {
+        { false, true },
+        { Byte.MIN_VALUE, (byte)-13, (byte)-1, (byte)0, (byte)1, (byte)37, Byte.MAX_VALUE },
+        { Character.MIN_VALUE, (char)13, (char)32767, (char)32768, (char)65000, Character.MAX_VALUE },
+        { Short.MIN_VALUE, (short)-8000, (short)-13, (short)-1, (short)0, (short)1, (short)13434, Short.MAX_VALUE },
+        { Integer.MIN_VALUE, -40007, -8000, -13, -1, 0, 1, 13434, 41234, Integer.MAX_VALUE },
+        { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -5.343e-37f, -0.0001f, -Float.MIN_VALUE, -0.0f,
+          0.0f, Float.MIN_VALUE, 1.0f, 7.3432e22f, Float.MAX_VALUE, Float.POSITIVE_INFINITY, Float.NaN },
+        { Long.MIN_VALUE, -84758724343392L, -40007L, -8000L, -13L, -1L, 0L, 1L, 13434L, 41234L, 875744654299L, Long.MAX_VALUE },
+        { Double.NEGATIVE_INFINITY, -Double.MAX_VALUE, -3.299e-99, -5.343e-63, -0.0001, -Double.MIN_VALUE, -0.0,
+          0.0, Double.MIN_VALUE, 1.0, 7.3432e45, 2.48754e99, Double.MAX_VALUE, Double.POSITIVE_INFINITY, Double.NaN },
+        { "", "\u0000", "abc", "\u0001", "\u00005\u0001\u0000", "\u0000\u0001",
+          "abc\u0000", "abcd", "fgh", "\u5678blah", "\ud9ff", "\uffff", "\uffff\uffff\uffff", null },
+    };
 
     @Test
     public void testSimpleFieldIndexes() throws Exception {
@@ -54,21 +68,6 @@ public class IndexTest1 extends TestSupport {
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
-        final Object[][] valueMatrix = new Object[][] {
-            { false, true },
-            { Byte.MIN_VALUE, (byte)-13, (byte)-1, (byte)0, (byte)1, (byte)37, Byte.MAX_VALUE },
-            { Character.MIN_VALUE, (char)13, (char)32767, (char)32768, (char)65000, Character.MAX_VALUE },
-            { Short.MIN_VALUE, (short)-8000, (short)-13, (short)-1, (short)0, (short)1, (short)13434, Short.MAX_VALUE },
-            { Integer.MIN_VALUE, -40007, -8000, -13, -1, 0, 1, 13434, 41234, Integer.MAX_VALUE },
-            { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -5.343e-37f, -0.0001f, -Float.MIN_VALUE, -0.0f,
-              0.0f, Float.MIN_VALUE, 1.0f, 7.3432e22f, Float.MAX_VALUE, Float.POSITIVE_INFINITY, Float.NaN },
-            { Long.MIN_VALUE, -84758724343392L, -40007L, -8000L, -13L, -1L, 0L, 1L, 13434L, 41234L, 875744654299L, Long.MAX_VALUE },
-            { Double.NEGATIVE_INFINITY, -Double.MAX_VALUE, -3.299e-99, -5.343e-63, -0.0001, -Double.MIN_VALUE, -0.0,
-              0.0, Double.MIN_VALUE, 1.0, 7.3432e45, 2.48754e99, Double.MAX_VALUE, Double.POSITIVE_INFINITY, Double.NaN },
-            { "", "\u0000", "abc", "\u0001", "\u00005\u0001\u0000", "\u0000\u0001",
-              "abc\u0000", "abcd", "fgh", "\u5678blah", "\ud9ff", "\uffff", "\uffff\uffff\uffff", null },
-        };
-
         // Create objects
         Transaction tx = db.createTransaction(schema1, 1, true);
         final ObjId[] ids = new ObjId[numObjs];
@@ -85,8 +84,8 @@ public class IndexTest1 extends TestSupport {
 
         // Set object fields
         for (int i = 0; i < ids.length; i++) {
-            for (int j = 0; j < valueMatrix.length; j++) {
-                final Object[] fieldValues = valueMatrix[j];
+            for (int j = 0; j < this.valueMatrix.length; j++) {
+                final Object[] fieldValues = this.valueMatrix[j];
                 tx.writeSimpleField(ids[i], 10 + j, fieldValues[i % fieldValues.length], true);
             }
             final int r = this.random.nextInt(refMax + 1);
@@ -95,8 +94,8 @@ public class IndexTest1 extends TestSupport {
         //this.showKV(tx, "testSimpleFieldIndexes: 2");
 
         // Verify non-reference indexes - objects
-        for (int i = 0; i < valueMatrix.length; i++) {
-            final Object[] fieldValues = valueMatrix[i];
+        for (int i = 0; i < this.valueMatrix.length; i++) {
+            final Object[] fieldValues = this.valueMatrix[i];
             for (int j = 0; j < fieldValues.length; j++) {
                 final Object value = fieldValues[j];
 
@@ -131,8 +130,8 @@ public class IndexTest1 extends TestSupport {
         //this.showKV(tx, "testSimpleFieldIndexes: 3");
 
         // Verify non-reference indexes - values
-        for (int i = 0; i < valueMatrix.length; i++)
-            this.verifyValues(tx, 10 + i, valueMatrix[i][0].getClass(), numObjs, valueMatrix[i]);
+        for (int i = 0; i < this.valueMatrix.length; i++)
+            this.verifyValues(tx, 10 + i, this.valueMatrix[i][0].getClass(), numObjs, this.valueMatrix[i]);
 
         // Verify reference index - values
         this.verifyValues(tx, 19, ObjId.class, numObjs, new HashSet<ObjId>(refMap.values()).toArray());
@@ -163,21 +162,6 @@ public class IndexTest1 extends TestSupport {
           + "</Schema>\n"
           ).getBytes("UTF-8")));
 
-        final Object[][] valueMatrix = new Object[][] {
-            { false, true },
-            { Byte.MIN_VALUE, (byte)-13, (byte)-1, (byte)0, (byte)1, (byte)37, Byte.MAX_VALUE },
-            { Character.MIN_VALUE, (char)13, (char)32767, (char)32768, (char)65000, Character.MAX_VALUE },
-            { Short.MIN_VALUE, (short)-8000, (short)-13, (short)-1, (short)0, (short)1, (short)13434, Short.MAX_VALUE },
-            { Integer.MIN_VALUE, -40007, -8000, -13, -1, 0, 1, 13434, 41234, Integer.MAX_VALUE },
-            { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -5.343e-37f, -0.0001f, -Float.MIN_VALUE, -0.0f,
-              0.0f, Float.MIN_VALUE, 1.0f, 7.3432e22f, Float.MAX_VALUE, Float.POSITIVE_INFINITY, Float.NaN },
-            { Long.MIN_VALUE, -84758724343392L, -40007L, -8000L, -13L, -1L, 0L, 1L, 13434L, 41234L, 875744654299L, Long.MAX_VALUE },
-            { Double.NEGATIVE_INFINITY, -Double.MAX_VALUE, -3.299e-99, -5.343e-63, -0.0001, -Double.MIN_VALUE, -0.0,
-              0.0, Double.MIN_VALUE, 1.0, 7.3432e45, 2.48754e99, Double.MAX_VALUE, Double.POSITIVE_INFINITY, Double.NaN },
-            { "", "\u0000", "abc", "\u0001", "\u00005\u0001\u0000", "\u0000\u0001",
-              "abc\u0000", "abcd", "fgh", "\u5678blah", "\ud9ff", "\uffff", "\uffff\uffff\uffff", null },
-        };
-
         final Class<?>[] elementTypes = new Class<?>[] {
             boolean.class,
             byte.class,
@@ -199,9 +183,9 @@ public class IndexTest1 extends TestSupport {
 
         // Set object fields
         for (int i = 0; i < ids.length; i++) {
-            for (int j = 0; j < valueMatrix.length; j++) {
+            for (int j = 0; j < this.valueMatrix.length; j++) {
                 final Class<?> elementType = elementTypes[j];
-                final Object[] fieldValues = valueMatrix[j];
+                final Object[] fieldValues = this.valueMatrix[j];
                 final Object array = Array.newInstance(elementType, 1);
                 Array.set(array, 0, fieldValues[i % fieldValues.length]);
                 tx.writeSimpleField(ids[i], 10 + j, array, true);
@@ -210,9 +194,9 @@ public class IndexTest1 extends TestSupport {
         //this.showKV(tx, "testArrayFieldIndexes: 2");
 
         // Verify non-reference indexes - objects
-        for (int i = 0; i < valueMatrix.length; i++) {
+        for (int i = 0; i < this.valueMatrix.length; i++) {
             final Class<?> elementType = elementTypes[i];
-            final Object[] fieldValues = valueMatrix[i];
+            final Object[] fieldValues = this.valueMatrix[i];
             for (int j = 0; j < fieldValues.length; j++) {
                 final Object value = fieldValues[j];
                 final Object array = Array.newInstance(elementType, 1);
