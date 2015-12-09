@@ -6,6 +6,7 @@
 package org.jsimpledb.core;
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,6 +25,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class IndexTest1 extends TestSupport {
+
+    // Params
+    private final int numObjs = 25;
+    private final int refMax = Math.min(numObjs, 37);
 
     @Test
     public void testSimpleFieldIndexes() throws Exception {
@@ -63,10 +68,6 @@ public class IndexTest1 extends TestSupport {
             { "", "\u0000", "abc", "\u0001", "\u00005\u0001\u0000", "\u0000\u0001",
               "abc\u0000", "abcd", "fgh", "\u5678blah", "\ud9ff", "\uffff", "\uffff\uffff\uffff", null },
         };
-
-        // Params
-        final int numObjs = 25;
-        final int refMax = Math.min(numObjs, 37);
 
         // Create objects
         Transaction tx = db.createTransaction(schema1, 1, true);
@@ -136,7 +137,101 @@ public class IndexTest1 extends TestSupport {
         // Verify reference index - values
         this.verifyValues(tx, 19, ObjId.class, numObjs, new HashSet<ObjId>(refMap.values()).toArray());
 
-        tx.rollback();
+        tx.commit();
+    }
+
+    @Test
+    public void testArrayFieldIndexes() throws Exception {
+
+        final SimpleKVDatabase kvstore = new SimpleKVDatabase();
+        final Database db = new Database(kvstore);
+
+        final SchemaModel schema1 = SchemaModel.fromXML(new ByteArrayInputStream((
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Schema formatVersion=\"1\">\n"
+          + "  <ObjectType name=\"Foo\" storageId=\"1\">\n"
+          + "    <SimpleField name=\"z\" type=\"boolean[]\" storageId=\"10\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"b\" type=\"byte[]\" storageId=\"11\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"c\" type=\"char[]\" storageId=\"12\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"s\" type=\"short[]\" storageId=\"13\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"i\" type=\"int[]\" storageId=\"14\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"f\" type=\"float[]\" storageId=\"15\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"j\" type=\"long[]\" storageId=\"16\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"d\" type=\"double[]\" storageId=\"17\" indexed=\"true\"/>\n"
+          + "    <SimpleField name=\"str\" type=\"java.lang.String[]\" storageId=\"18\" indexed=\"true\"/>\n"
+          + "  </ObjectType>\n"
+          + "</Schema>\n"
+          ).getBytes("UTF-8")));
+
+        final Object[][] valueMatrix = new Object[][] {
+            { false, true },
+            { Byte.MIN_VALUE, (byte)-13, (byte)-1, (byte)0, (byte)1, (byte)37, Byte.MAX_VALUE },
+            { Character.MIN_VALUE, (char)13, (char)32767, (char)32768, (char)65000, Character.MAX_VALUE },
+            { Short.MIN_VALUE, (short)-8000, (short)-13, (short)-1, (short)0, (short)1, (short)13434, Short.MAX_VALUE },
+            { Integer.MIN_VALUE, -40007, -8000, -13, -1, 0, 1, 13434, 41234, Integer.MAX_VALUE },
+            { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, -5.343e-37f, -0.0001f, -Float.MIN_VALUE, -0.0f,
+              0.0f, Float.MIN_VALUE, 1.0f, 7.3432e22f, Float.MAX_VALUE, Float.POSITIVE_INFINITY, Float.NaN },
+            { Long.MIN_VALUE, -84758724343392L, -40007L, -8000L, -13L, -1L, 0L, 1L, 13434L, 41234L, 875744654299L, Long.MAX_VALUE },
+            { Double.NEGATIVE_INFINITY, -Double.MAX_VALUE, -3.299e-99, -5.343e-63, -0.0001, -Double.MIN_VALUE, -0.0,
+              0.0, Double.MIN_VALUE, 1.0, 7.3432e45, 2.48754e99, Double.MAX_VALUE, Double.POSITIVE_INFINITY, Double.NaN },
+            { "", "\u0000", "abc", "\u0001", "\u00005\u0001\u0000", "\u0000\u0001",
+              "abc\u0000", "abcd", "fgh", "\u5678blah", "\ud9ff", "\uffff", "\uffff\uffff\uffff", null },
+        };
+
+        final Class<?>[] elementTypes = new Class<?>[] {
+            boolean.class,
+            byte.class,
+            char.class,
+            short.class,
+            int.class,
+            float.class,
+            long.class,
+            double.class,
+            String.class,
+        };
+
+        // Create objects
+        Transaction tx = db.createTransaction(schema1, 1, true);
+        final ObjId[] ids = new ObjId[numObjs];
+        for (int i = 0; i < ids.length; i++)
+            ids[i] = tx.create(1);
+        //this.showKV(tx, "testArrayFieldIndexes: 1");
+
+        // Set object fields
+        for (int i = 0; i < ids.length; i++) {
+            for (int j = 0; j < valueMatrix.length; j++) {
+                final Class<?> elementType = elementTypes[j];
+                final Object[] fieldValues = valueMatrix[j];
+                final Object array = Array.newInstance(elementType, 1);
+                Array.set(array, 0, fieldValues[i % fieldValues.length]);
+                tx.writeSimpleField(ids[i], 10 + j, array, true);
+            }
+        }
+        //this.showKV(tx, "testArrayFieldIndexes: 2");
+
+        // Verify non-reference indexes - objects
+        for (int i = 0; i < valueMatrix.length; i++) {
+            final Class<?> elementType = elementTypes[i];
+            final Object[] fieldValues = valueMatrix[i];
+            for (int j = 0; j < fieldValues.length; j++) {
+                final Object value = fieldValues[j];
+                final Object array = Array.newInstance(elementType, 1);
+                Array.set(array, 0, value);
+
+                // Build set of objects that should have array { value #j } in field #i
+                final TreeSet<ObjId> expected = new TreeSet<ObjId>();
+                for (int k = j; k < ids.length; k += fieldValues.length)
+                    expected.add(ids[k]);
+
+                // Query index
+                //this.log.info("testArrayFieldIndexes: checking for array with `" + value + "' in field #" + (10 + i));
+                Assert.assertEquals(tx.queryIndex(10 + i).asMap().get(array), expected);
+            }
+        }
+
+        //this.showKV(tx, "testArrayFieldIndexes: 3");
+
+        tx.commit();
     }
 
     @SuppressWarnings("unchecked")

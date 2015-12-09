@@ -64,8 +64,10 @@ abstract class IntegralArrayType<T, E extends Number> extends ArrayType<T, E> {
     public void skip(ByteReader reader) {
         while (true) {
             final int first = reader.peek();
-            if (first == END)
+            if (first == END) {
+                reader.skip(1);
                 break;
+            }
             reader.skip(LongEncoder.decodeLength(first));
         }
     }
