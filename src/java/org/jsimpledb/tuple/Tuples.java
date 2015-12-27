@@ -52,10 +52,10 @@ public final class Tuples {
     }
 
     /**
-     * Get the {@link Tuple} subclass having the specified cardinality.
+     * Get the {@link Tuple} subinterface having the specified cardinality.
      *
      * @param size number of objects in the tuple
-     * @return {@link Tuple} subclass with cardinality {@code size}
+     * @return {@link Tuple} subinterface with cardinality {@code size}
      * @throws IllegalArgumentException if {@code size} is less than one
      * @throws UnsupportedOperationException if {@code size} is more than exist concrete {@link Tuple} classes
      */
@@ -70,7 +70,7 @@ public final class Tuples {
     }
 
     /**
-     * Get the cardinality of the given {@link Tuple} subclass.
+     * Get the cardinality of the given {@link Tuple} subtype.
      *
      * @param tupleClass tuple class
      * @return cardinality of {@code tupleClass}
