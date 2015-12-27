@@ -518,12 +518,12 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
             });
         }
 
-        // Filter out duplicates
+        // Filter out nulls and duplicates
         final ObjIdSet seenIds = new ObjIdSet();
         jobjs = Iterables.filter(jobjs, new Predicate<JObject>() {
             @Override
             public boolean apply(JObject jobj) {
-                return seenIds.add(jobj.getObjId());
+                return jobj != null && seenIds.add(jobj.getObjId());
             }
         });
 
@@ -636,11 +636,10 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
 
     /**
      * Query for the database objects that will be used to fill this container. Objects should be returned in the
-     * desired order; any duplicates will be ignored.
+     * desired order; duplicates and null values will be ignored.
      *
      * <p>
      * A {@link JTransaction} will be open in the current thread when this method is invoked.
-     * </p>
      *
      * @return database objects
      */
