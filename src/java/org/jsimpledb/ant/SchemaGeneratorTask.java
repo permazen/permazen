@@ -11,13 +11,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
+import org.apache.tools.ant.types.Resource;
 import org.jsimpledb.DefaultStorageIdGenerator;
 import org.jsimpledb.JSimpleDBFactory;
 import org.jsimpledb.StorageIdGenerator;
@@ -36,11 +40,15 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  * This task scans the configured classpath for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
  * and {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations and either writes the generated schema
  * to an XML file, or verifies the schema from an existing XML file.
- * </p>
  *
  * <p>
- * The following tasks are supported:
- * </p>
+ * This task can also check for conflicts between the schema in question and older schema versions that may
+ * still exist in production databases. This has the benefit of detecting at build time incompatible schema
+ * changes that would otherwise cause runtime errors. These other schema versions are specified using nested
+ * {@code <fileset>} elements.
+ *
+ * <p>
+ * The following attributes are supported by this task:
  *
  * <div style="margin-left: 20px;">
  * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Tasks">
@@ -96,11 +104,12 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *  <td>No</td>
  *  <td>
  *      <p>
- *      Whether to fail if verification fails.
+ *      Whether to fail if verification fails when {@code mode="verify"} or when older schema
+ *      versions are specified using nested {@code <fileset>}s.
  *      </p>
  *
  *      <p>
- *      Default is {@code true}. Ignored unless {@code mode} is {@code verify}.
+ *      Default is {@code true}.
  *      </p>
  * </td>
  * </tr>
@@ -164,7 +173,9 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *      &lt;taskdef uri="urn:org.dellroad.jsimpledb" name="schema"
  *        classname="org.jsimpledb.ant.SchemaGeneratorTask" classpathref="jsimpledb.classpath"/&gt;
  *      &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
- *        file="expected-schema.xml" packages="com.example.model"/&gt;
+ *        file="current-schema.xml" packages="com.example.model"&gt;
+ *          &lt;fileset dir="obsolete-schemas" includes="*.xml"/&gt;
+ *      &lt;/jsimpledb:schema&gt;
  * </pre>
  *
  * @see org.jsimpledb.JSimpleDB
@@ -183,6 +194,7 @@ public class SchemaGeneratorTask extends Task {
     private File file;
     private Path classPath;
     private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
+    private final ArrayList<FileSet> fileSets = new ArrayList<>();
 
     public void setPackages(String packages) {
         this.packages = packages.split("[\\s,]");
@@ -223,6 +235,10 @@ public class SchemaGeneratorTask extends Task {
 
     public void setStorageIdGeneratorClass(String storageIdGeneratorClassName) {
         this.storageIdGeneratorClassName = storageIdGeneratorClassName;
+    }
+
+    public void addFileset(FileSet fileSet) {
+        this.fileSets.add(fileSet);
     }
 
     /**
@@ -320,7 +336,11 @@ public class SchemaGeneratorTask extends Task {
                 throw new BuildException("schema generation failed: " + e, e);
             }
 
+            // Record schema model in database
+            db.createTransaction(schemaModel, 1, true).commit();
+
             // Verify or generate
+            boolean verified = true;
             if (generate) {
 
                 // Write schema model to file
@@ -342,16 +362,42 @@ public class SchemaGeneratorTask extends Task {
                 }
 
                 // Compare
-                final boolean verified = matchNames ? schemaModel.equals(verifyModel) : schemaModel.isCompatibleWith(verifyModel);
-                if (this.verifiedProperty != null)
-                    this.getProject().setProperty(this.verifiedProperty, "" + verified);
-                this.log("schema verification " + (verified ? "succeeded" : "failed"));
-                if (!verified) {
+                final boolean matched = matchNames ? schemaModel.equals(verifyModel) : schemaModel.isCompatibleWith(verifyModel);
+                if (!matched)
+                    verified = false;
+                this.log("schema verification " + (matched ? "succeeded" : "failed"));
+                if (!matched)
                     this.log(schemaModel.differencesFrom(verifyModel).toString());
-                    if (this.failOnError)
-                        throw new BuildException("schema verification failed");
+            }
+
+            // Check for conflicts with other schema versions
+            if (verified) {
+                int schemaVersion = 2;
+                for (FileSet fileSet : this.fileSets) {
+                    for (Iterator<?> i = fileSet.iterator(); i.hasNext(); ) {
+                        final Resource resource = (Resource)i.next();
+                        this.log("checking schema for conflicts with " + resource);
+                        final SchemaModel otherSchema;
+                        try (BufferedInputStream input = new BufferedInputStream(resource.getInputStream())) {
+                            otherSchema = SchemaModel.fromXML(input);
+                        } catch (IOException e) {
+                            throw new BuildException("error reading schema from `" + resource + "': " + e, e);
+                        }
+                        try {
+                            db.createTransaction(otherSchema, schemaVersion++, true).commit();
+                        } catch (Exception e) {
+                            this.log("schema conflicts with " + resource + ": " + e);
+                            verified = false;
+                        }
+                    }
                 }
             }
+
+            // Check verification results
+            if (this.verifiedProperty != null)
+                this.getProject().setProperty(this.verifiedProperty, "" + verified);
+            if (!verified && this.failOnError)
+                throw new BuildException("schema verification failed");
         } finally {
             loader.resetThreadContextLoader();
             loader.cleanup();
