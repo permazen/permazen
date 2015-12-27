@@ -102,6 +102,11 @@ import org.slf4j.LoggerFactory;
  */
 public class JSimpleDB {
 
+    /**
+     * The suffix that is appended to Java model class names to get the corresponding JSimpleDB generated class name.
+     */
+    public static final String GENERATED_CLASS_NAME_SUFFIX = "$$JSimpleDB";
+
     final Logger log = LoggerFactory.getLogger(this.getClass());
 
     final TreeMap<Integer, JClass<?>> jclasses = new TreeMap<>();
@@ -421,6 +426,8 @@ public class JSimpleDB {
 
     /**
      * Get the Java model class of the given {@link JObject}.
+     *
+     * <p>
      * If {@code jobj} is an instance of a JSimpleDB-generated subclass of a user-supplied Java model class,
      * this returns the original Java model class. Otherwise, it returns {@code obj}'s type.
      *
@@ -431,7 +438,7 @@ public class JSimpleDB {
     public static Class<?> getModelClass(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
         for (Class<?> type = jobj.getClass(); type != null; type = type.getSuperclass()) {
-            if (type.getName().indexOf(ClassGenerator.CLASSNAME_SUFFIX) == -1)
+            if (type.getName().indexOf(GENERATED_CLASS_NAME_SUFFIX) == -1)
                 return type;
         }
         return null;

@@ -40,9 +40,6 @@ class ClassGenerator<T> {
      // String to use for the "source file" attribute in generated classes.
     static final String GEN_SOURCE = "[GeneratedByJSimpleDB]";
 
-     // Class name suffix for generated classes
-    static final String CLASSNAME_SUFFIX = "$$JSimpleDB";
-
     // Names of generated fields
     static final String TX_FIELD_NAME = "$tx";
     static final String ID_FIELD_NAME = "$id";
@@ -216,7 +213,7 @@ class ClassGenerator<T> {
      * Get class internal name. Note: this name contains slashes, not dots.
      */
     public String getClassName() {
-        return this.getSuperclassName() + CLASSNAME_SUFFIX;
+        return this.getSuperclassName() + JSimpleDB.GENERATED_CLASS_NAME_SUFFIX;
     }
 
     /**
