@@ -249,12 +249,24 @@ public abstract class JObjectContainer extends SimpleKeyedContainer<ObjId, JObje
     }
 
     /**
+     * Get the configured maximum number of objects.
+     *
+     * @return maximum allowed objects
+     */
+    public int getMaxObjects() {
+        return this.maxObjects;
+    }
+
+    /**
      * Configure the maximum number of objects.
+     *
+     * <p>
+     * Default is {@link #DEFAULT_MAX_OBJECTS} ({@value #DEFAULT_MAX_OBJECTS}).
      *
      * @param maxObjects maximum allowed objects
      */
     public void setMaxObjects(int maxObjects) {
-        this.maxObjects = Math.max(maxObjects, 0);
+        this.maxObjects = Math.max(maxObjects, 1);
     }
 
     /**
