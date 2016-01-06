@@ -70,8 +70,7 @@ abstract class ArrayType<T, E> extends NonNullFieldType<T> {
 
     @Override
     public String toParseableString(T array) {
-        if (array == null)
-            return "null";
+        assert array != null;
         final StringBuilder buf = new StringBuilder();
         buf.append('[');
         final int length = this.getArrayLength(array);
@@ -87,8 +86,6 @@ abstract class ArrayType<T, E> extends NonNullFieldType<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T fromParseableString(ParseContext context) {
-        if (context.tryLiteral("null"))
-            return null;
         final ArrayList<E> list = new ArrayList<>();
         context.expect('[');
         while (true) {
