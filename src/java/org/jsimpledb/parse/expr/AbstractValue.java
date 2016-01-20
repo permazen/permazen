@@ -268,9 +268,9 @@ public abstract class AbstractValue implements Value {
         if (!(shift instanceof Integer) && !(shift instanceof Long))
             throw new EvalException("invalid left shift " + AbstractValue.describeType(shift));
         if (target instanceof Long)
-            return new ConstValue((Long)target << (shift.intValue() & 0x1f));
+            return new ConstValue((Long)target << (shift.intValue() & 0x3f));
         if (target instanceof Integer)
-            return new ConstValue((Integer)target << (shift.intValue() & 0x3f));
+            return new ConstValue((Integer)target << (shift.intValue() & 0x1f));
         throw new EvalException("invalid left shift operation on "
           + AbstractValue.describeType(target) + " and " + AbstractValue.describeType(shift));
     }
@@ -286,9 +286,9 @@ public abstract class AbstractValue implements Value {
         if (!(shift instanceof Integer) && !(shift instanceof Long))
             throw new EvalException("invalid right shift " + AbstractValue.describeType(shift));
         if (target instanceof Long)
-            return new ConstValue((Long)target >> (shift.intValue() & 0x1f));
+            return new ConstValue((Long)target >> (shift.intValue() & 0x3f));
         if (target instanceof Integer)
-            return new ConstValue((Integer)target >> (shift.intValue() & 0x3f));
+            return new ConstValue((Integer)target >> (shift.intValue() & 0x1f));
         throw new EvalException("invalid right shift operation on "
           + AbstractValue.describeType(target) + " and " + AbstractValue.describeType(shift));
     }
@@ -304,9 +304,9 @@ public abstract class AbstractValue implements Value {
         if (!(shift instanceof Integer) && !(shift instanceof Long))
             throw new EvalException("invalid unsigned right shift " + AbstractValue.describeType(shift));
         if (target instanceof Long)
-            return new ConstValue((Long)target >>> (shift.intValue() & 0x1f));
+            return new ConstValue((Long)target >>> (shift.intValue() & 0x3f));
         if (target instanceof Integer)
-            return new ConstValue((Integer)target >>> (shift.intValue() & 0x3f));
+            return new ConstValue((Integer)target >>> (shift.intValue() & 0x1f));
         throw new EvalException("invalid unsigned right shift operation on "
           + AbstractValue.describeType(target) + " and " + AbstractValue.describeType(shift));
     }
