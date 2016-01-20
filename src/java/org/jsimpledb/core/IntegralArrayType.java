@@ -23,15 +23,15 @@ import org.jsimpledb.util.LongEncoder;
  * with {@code 0x00}.
  * </p>
  */
-abstract class IntegralArrayType<T, E extends Number> extends ArrayType<T, E> {
+abstract class IntegralArrayType<T, E extends Number> extends Base64ArrayType<T, E> {
 
     private static final int END = 0x00;
 
     private final IntegralType<E> integralType;
 
     @SuppressWarnings("serial")
-    IntegralArrayType(IntegralType<E> elementType, Class<T> arrayClass) {
-        super(elementType, TypeToken.of(arrayClass));
+    IntegralArrayType(IntegralType<E> elementType, int size, Class<T> arrayClass) {
+        super(elementType, size, TypeToken.of(arrayClass));
         if (this.elementType.hasPrefix0x00())
             throw new RuntimeException("internal error");
         this.integralType = elementType;

@@ -7,6 +7,9 @@ package org.jsimpledb.core;
 
 import com.google.common.primitives.Longs;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -15,7 +18,7 @@ import java.util.List;
 class LongArrayType extends IntegralArrayType<long[], Long> {
 
     LongArrayType() {
-       super(FieldTypeRegistry.LONG, long[].class);
+       super(FieldTypeRegistry.LONG, 8, long[].class);
     }
 
     @Override
@@ -31,6 +34,20 @@ class LongArrayType extends IntegralArrayType<long[], Long> {
     @Override
     protected long[] createArray(List<Long> elements) {
         return Longs.toArray(elements);
+    }
+
+    @Override
+    protected void encode(long[] array, DataOutputStream output) throws IOException {
+        for (int i = 0; i < array.length; i++)
+            output.writeLong(array[i]);
+    }
+
+    @Override
+    protected long[] decode(DataInputStream input, int numBytes) throws IOException {
+        final long[] array = this.checkDecodeLength(numBytes);
+        for (int i = 0; i < array.length; i++)
+            array[i] = input.readLong();
+        return array;
     }
 }
 

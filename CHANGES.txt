@@ -1,5 +1,6 @@
 Version Next
 
+    - Use base 64 for some primitive array string representations
     - Fixed bug when parsing shift operators with large shifts
     - Fixed bug with indexes on integral primitive array types
     - Added checking for schema conflicts to ant task

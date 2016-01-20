@@ -9,6 +9,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 import com.google.common.reflect.TypeToken;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +27,7 @@ import org.jsimpledb.util.ByteWriter;
  * which is an encoded value that can never be emitted by {@link DoubleType}.
  * </p>
  */
-class DoubleArrayType extends ArrayType<double[], Double> {
+class DoubleArrayType extends Base64ArrayType<double[], Double> {
 
     private static final int NUM_BYTES = 8;
     private static final byte[] END = new byte[NUM_BYTES];
@@ -33,7 +36,7 @@ class DoubleArrayType extends ArrayType<double[], Double> {
 
     @SuppressWarnings("serial")
     DoubleArrayType() {
-        super(FieldTypeRegistry.DOUBLE, new TypeToken<double[]>() { });
+        super(FieldTypeRegistry.DOUBLE, NUM_BYTES, new TypeToken<double[]>() { });
     }
 
     @Override
@@ -84,6 +87,20 @@ class DoubleArrayType extends ArrayType<double[], Double> {
     @Override
     protected double[] createArray(List<Double> elements) {
         return Doubles.toArray(elements);
+    }
+
+    @Override
+    protected void encode(double[] array, DataOutputStream output) throws IOException {
+        for (int i = 0; i < array.length; i++)
+            output.writeDouble(array[i]);
+    }
+
+    @Override
+    protected double[] decode(DataInputStream input, int numBytes) throws IOException {
+        final double[] array = this.checkDecodeLength(numBytes);
+        for (int i = 0; i < array.length; i++)
+            array[i] = input.readDouble();
+        return array;
     }
 }
 

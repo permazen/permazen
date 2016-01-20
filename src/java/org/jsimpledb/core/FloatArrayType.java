@@ -9,6 +9,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Floats;
 import com.google.common.reflect.TypeToken;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +27,7 @@ import org.jsimpledb.util.ByteWriter;
  * which is an encoded value that can never be emitted by {@link FloatType}.
  * </p>
  */
-class FloatArrayType extends ArrayType<float[], Float> {
+class FloatArrayType extends Base64ArrayType<float[], Float> {
 
     private static final int NUM_BYTES = 4;
     private static final byte[] END = new byte[NUM_BYTES];
@@ -33,7 +36,7 @@ class FloatArrayType extends ArrayType<float[], Float> {
 
     @SuppressWarnings("serial")
     FloatArrayType() {
-        super(FieldTypeRegistry.FLOAT, new TypeToken<float[]>() { });
+        super(FieldTypeRegistry.FLOAT, NUM_BYTES, new TypeToken<float[]>() { });
     }
 
     @Override
@@ -84,6 +87,20 @@ class FloatArrayType extends ArrayType<float[], Float> {
     @Override
     protected float[] createArray(List<Float> elements) {
         return Floats.toArray(elements);
+    }
+
+    @Override
+    protected void encode(float[] array, DataOutputStream output) throws IOException {
+        for (int i = 0; i < array.length; i++)
+            output.writeFloat(array[i]);
+    }
+
+    @Override
+    protected float[] decode(DataInputStream input, int numBytes) throws IOException {
+        final float[] array = this.checkDecodeLength(numBytes);
+        for (int i = 0; i < array.length; i++)
+            array[i] = input.readFloat();
+        return array;
     }
 }
 

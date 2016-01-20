@@ -7,6 +7,9 @@ package org.jsimpledb.core;
 
 import com.google.common.primitives.Ints;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -15,7 +18,7 @@ import java.util.List;
 class IntegerArrayType extends IntegralArrayType<int[], Integer> {
 
     IntegerArrayType() {
-       super(FieldTypeRegistry.INTEGER, int[].class);
+       super(FieldTypeRegistry.INTEGER, 4, int[].class);
     }
 
     @Override
@@ -31,6 +34,20 @@ class IntegerArrayType extends IntegralArrayType<int[], Integer> {
     @Override
     protected int[] createArray(List<Integer> elements) {
         return Ints.toArray(elements);
+    }
+
+    @Override
+    protected void encode(int[] array, DataOutputStream output) throws IOException {
+        for (int i = 0; i < array.length; i++)
+            output.writeInt(array[i]);
+    }
+
+    @Override
+    protected int[] decode(DataInputStream input, int numBytes) throws IOException {
+        final int[] array = this.checkDecodeLength(numBytes);
+        for (int i = 0; i < array.length; i++)
+            array[i] = input.readInt();
+        return array;
     }
 }
 

@@ -7,6 +7,9 @@ package org.jsimpledb.core;
 
 import com.google.common.primitives.Bytes;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -15,7 +18,7 @@ import java.util.List;
 class ByteArrayType extends IntegralArrayType<byte[], Byte> {
 
     ByteArrayType() {
-       super(FieldTypeRegistry.BYTE, byte[].class);
+       super(FieldTypeRegistry.BYTE, 1, byte[].class);
     }
 
     @Override
@@ -31,6 +34,18 @@ class ByteArrayType extends IntegralArrayType<byte[], Byte> {
     @Override
     protected byte[] createArray(List<Byte> elements) {
         return Bytes.toArray(elements);
+    }
+
+    @Override
+    protected void encode(byte[] array, DataOutputStream output) throws IOException {
+        output.write(array, 0, array.length);
+    }
+
+    @Override
+    protected byte[] decode(DataInputStream input, int numBytes) throws IOException {
+        final byte[] data = new byte[numBytes];
+        input.readFully(data);
+        return data;
     }
 }
 
