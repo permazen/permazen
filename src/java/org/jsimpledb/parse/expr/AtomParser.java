@@ -5,6 +5,7 @@
 
 package org.jsimpledb.parse.expr;
 
+import java.math.BigInteger;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +73,7 @@ public class AtomParser implements Parser<Node> {
                 throw new ParseException(ctx).addCompletion(") ");
             return node;
         }
+        final int start = ctx.getIndex();
 
         // Try to match null
         if (this.tryWord(ctx, "null") != null)
@@ -82,28 +84,38 @@ public class AtomParser implements Parser<Node> {
         if (booleanMatch != null)
             return new LiteralNode(Boolean.valueOf(booleanMatch));
 
-        // Try to match double, float, int, or long literal
-        final int start = ctx.getIndex();
+        // Try to match int or long literal
+        try {
+            final int radix;
+            Matcher matcher;
+            if ((matcher = ctx.tryPattern("(?si)(\\+|-|)(?:0x|#)(\\p{XDigit}+)(L)?")) != null)
+                radix = 16;
+            else if ((matcher = ctx.tryPattern("(?si)(\\+|-|)0b([01]+)(L)?")) != null)
+                radix = 2;
+            else if ((matcher = ctx.tryPattern("(?si)(\\+|-|)(0[0-7]*)(L)?")) != null)
+                radix = 8;
+            else if ((matcher = ctx.tryPattern("(?si)(\\+|-|)([1-9][0-9]*)(L)?")) != null)
+                radix = 10;
+            else
+                throw new IllegalArgumentException("no pattern matched");
+            final String digits = matcher.group(1) + matcher.group(2);
+            final boolean isLong = matcher.group(3) != null;
+            if (ctx.tryPattern("[.\\p{javaJavaIdentifierPart}]") != null)
+                throw new IllegalArgumentException("followed by floating stuff");
+            final BigInteger big = new BigInteger(digits, radix);
+            if (big.bitLength() > (isLong ? 64 : 32))
+                throw new IllegalArgumentException("bit length = " + big.bitLength());
+            final Number value = isLong ? (Number)big.longValue() : (Number)big.intValue();
+            return new LiteralNode(value);
+        } catch (IllegalArgumentException e) {
+            ctx.setIndex(start);
+        }
+
+        // Try to match float or double literal
         final String floatMatch = this.tryWord(ctx, Primitive.FLOAT.getParsePattern() + "[fF]");
         if (floatMatch != null) {
             try {
                 return new LiteralNode(Primitive.FLOAT.parseValue(floatMatch.substring(0, floatMatch.length() - 1)));
-            } catch (IllegalArgumentException e) {
-                ctx.setIndex(start);
-            }
-        }
-        final String longMatch = this.tryWord(ctx, Primitive.LONG.getParsePattern() + "[Ll]");
-        if (longMatch != null) {
-            try {
-                return new LiteralNode(Primitive.LONG.parseValue(longMatch.substring(0, longMatch.length() - 1)));
-            } catch (IllegalArgumentException e) {
-                ctx.setIndex(start);
-            }
-        }
-        final String intMatch = this.tryFollow(ctx, Primitive.INTEGER.getParsePattern(), "[^.\\p{javaJavaIdentifierPart}]");
-        if (intMatch != null) {
-            try {
-                return new LiteralNode(Primitive.INTEGER.parseValue(intMatch));
             } catch (IllegalArgumentException e) {
                 ctx.setIndex(start);
             }
