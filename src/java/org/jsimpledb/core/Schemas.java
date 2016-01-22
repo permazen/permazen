@@ -183,7 +183,7 @@ public class Schemas {
                 return false;
             final Map.Entry<Integer, byte[]> entry1 = i1.next();
             final Map.Entry<Integer, Schema> entry2 = i2.next();
-            if (entry1.getKey() != entry2.getKey() || !Arrays.equals(entry1.getValue(), entry2.getValue().encodedXML))
+            if ((int)entry1.getKey() != (int)entry2.getKey() || !Arrays.equals(entry1.getValue(), entry2.getValue().encodedXML))
                 return false;
         }
         return true;
