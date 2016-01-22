@@ -47,6 +47,12 @@ SHORT TERM
 
 - Should you be able to create snapshot tx's from snapshot tx's ?
 
+- Auto-garbage collect old schemas ?
+    - Keep track of highest and lowest version index entries for each schema version
+    - After object delete, update if deleted object has highest/lowest entry
+    - On last object delete for a schema version, GC that version
+    - Can start doing this "on demand" only after the first object is deleted
+
 LONG TERM
 =========
 
