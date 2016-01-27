@@ -12,6 +12,8 @@ SHORT TERM
 
 - New RocksDB transaction support
 
+- Allow @OnChange methods to take zero parameters (e.g., to revalidate())
+
 - Does JTransaction.getAll(UntypedJObject.class) work? queryIndex() ?
 
 - New KVDatabase implementations
