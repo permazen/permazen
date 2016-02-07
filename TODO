@@ -2,6 +2,8 @@
 SHORT TERM
 ==========
 
+- Test how interface default methods are detected by method scanner
+
 - CLI:
     - New CLI flags:
         - `--console-port': accept console telnet connections on port
@@ -100,6 +102,8 @@ LONG TERM
     - InetAddress, Inet4Address, Inet6Address
     - {Gregorian}Calendar?
     - {Simple}TimeZone?
+    - java.util.Currency
+    - java.util.Locale
 
 - Graceful recovery mode
     - If any inconsistent information encountered
