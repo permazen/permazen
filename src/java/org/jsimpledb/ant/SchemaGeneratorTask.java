@@ -12,13 +12,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.types.Resource;
@@ -26,6 +27,7 @@ import org.jsimpledb.DefaultStorageIdGenerator;
 import org.jsimpledb.JSimpleDBFactory;
 import org.jsimpledb.StorageIdGenerator;
 import org.jsimpledb.annotation.JFieldType;
+import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
@@ -39,13 +41,17 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  * <p>
  * This task scans the configured classpath for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
  * and {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations and either writes the generated schema
- * to an XML file, or verifies the schema from an existing XML file.
+ * to an XML file, or verifies the schema matches an existing XML file.
  *
  * <p>
- * This task can also check for conflicts between the schema in question and older schema versions that may
- * still exist in production databases. This has the benefit of detecting at build time incompatible schema
- * changes that would otherwise cause runtime errors. These other schema versions are specified using nested
- * {@code <fileset>} elements.
+ * Generation of schema XML files and the use of this task is not necessary. However, it does allow certain
+ * schema-related problems to be detected at build time instead of runtime. In particular, it can let you know
+ * if any change to your model classes requires a new JSimpleDB schema version.
+ *
+ * <p>
+ * This task can also check for conflicts between the schema in question and older schema versions that may still
+ * exist in production databases. These other schema versions are specified using nested {@code <oldschemas>}
+ * elements, which work just like {@code <fileset>}'s.
  *
  * <p>
  * The following attributes are supported by this task:
@@ -105,7 +111,8 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *  <td>
  *      <p>
  *      Whether to fail if verification fails when {@code mode="verify"} or when older schema
- *      versions are specified using nested {@code <fileset>}s.
+ *      versions are specified using nested {@code <oldschemas>} elements, which work just like
+ *      {@code <fileset>}s.
  *      </p>
  *
  *      <p>
@@ -133,19 +140,34 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  *  <td>Yes</td>
  *  <td>
  *      <p>
- *      Specifies the search path for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
- *      annotations.
+ *      Specifies the search path containing classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
+ *      and {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations.
  *      </p>
  * </td>
  * </tr>
  * <tr>
  *  <td>{@code packages}</td>
- *  <td>Yes</td>
+ *  <td>Yes, unless {@code classes} are specified</td>
  *  <td>
  *      <p>
  *      Specifies one or more Java package names (separated by commas and/or whitespace) under which to look
  *      for classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
- *      and {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations.
+ *      or {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations.
+ *
+ *      <p>
+ *      Use of this attribute requires Spring's classpath scanning classes ({@code spring-context.jar});
+ *      these must be on the {@code <taskdef>} classpath.
+ *      </p>
+ * </td>
+ * </tr>
+ * <tr>
+ *  <td>{@code classes}</td>
+ *  <td>Yes, unless {@code packages} are specified</td>
+ *  <td>
+ *      <p>
+ *      Specifies one or more Java class names (separated by commas and/or whitespace) of
+ *      classes with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
+ *      or {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations.
  *      </p>
  * </td>
  * </tr>
@@ -166,16 +188,45 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
  * </div>
  *
  * <p>
- * Example:
+ * Classes are found by scanning the packages listed in the {@code "packages"} attribute.
+ * Alternatively, or in addition, specific classes may specified using the {@code "classes"} attribute.
+ *
+ * <p>
+ * To install this task into ant:
+ *
  * <pre>
- *  &lt;project xmlns:jsimpledb="urn:org.dellroad.jsimpledb" ... &gt;
+ *  &lt;project xmlns:jsimpledb="urn:org.jsimpledb.ant" ... &gt;
  *      ...
- *      &lt;taskdef uri="urn:org.dellroad.jsimpledb" name="schema"
+ *      &lt;taskdef uri="urn:org.jsimpledb.ant" name="schema"
  *        classname="org.jsimpledb.ant.SchemaGeneratorTask" classpathref="jsimpledb.classpath"/&gt;
- *      &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
- *        file="current-schema.xml" packages="com.example.model"&gt;
- *          &lt;fileset dir="obsolete-schemas" includes="*.xml"/&gt;
- *      &lt;/jsimpledb:schema&gt;
+ * </pre>
+ *
+ * <p>
+ * Example of generating a schema XML file that corresponds to the specified Java model classes:
+ *
+ * <pre>
+ *  &lt;jsimpledb:schema mode="generate" classpathref="myclasses.classpath"
+ *    file="schema.xml" packages="com.example.model"/&gt;
+ * </pre>
+ *
+ * <p>
+ * Example of verifying that the schema generated from the Java model classes has not
+ * changed incompatibly (i.e., in a way that would require a new schema version):
+ *
+ * <pre>
+ *  &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
+ *    file="expected-schema.xml" packages="com.example.model"/&gt;
+ * </pre>
+ *
+ * <p>
+ * Example of doing the same thing, and also verifying the generated schema is compatible with prior schema versions
+ * that may still be in use in production databases:
+ *
+ * <pre>
+ *  &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
+ *    file="expected-schema.xml" packages="com.example.model"&gt;
+ *      &lt;jsimpledb:oldschemas dir="obsolete-schemas" includes="*.xml"/&gt;
+ *  &lt;/jsimpledb:schema&gt;
  * </pre>
  *
  * @see org.jsimpledb.JSimpleDB
@@ -186,7 +237,6 @@ public class SchemaGeneratorTask extends Task {
     public static final String MODE_VERIFY = "verify";
     public static final String MODE_GENERATE = "generate";
 
-    private String[] packages;
     private String mode = MODE_VERIFY;
     private boolean matchNames = true;
     private boolean failOnError = true;
@@ -194,10 +244,16 @@ public class SchemaGeneratorTask extends Task {
     private File file;
     private Path classPath;
     private String storageIdGeneratorClassName = DefaultStorageIdGenerator.class.getName();
-    private final ArrayList<FileSet> fileSets = new ArrayList<>();
+    private final ArrayList<OldSchemas> oldSchemasList = new ArrayList<>();
+    private final LinkedHashSet<String> classes = new LinkedHashSet<>();
+    private final LinkedHashSet<String> packages = new LinkedHashSet<>();
+
+    public void setClasses(String classes) {
+        this.classes.addAll(Arrays.asList(classes.split("[\\s,]+")));
+    }
 
     public void setPackages(String packages) {
-        this.packages = packages.split("[\\s,]");
+        this.packages.addAll(Arrays.asList(packages.split("[\\s,]+")));
     }
 
     public void setMode(String mode) {
@@ -237,8 +293,8 @@ public class SchemaGeneratorTask extends Task {
         this.storageIdGeneratorClassName = storageIdGeneratorClassName;
     }
 
-    public void addFileset(FileSet fileSet) {
-        this.fileSets.add(fileSet);
+    public void addOldSchemas(OldSchemas oldSchemas) {
+        this.oldSchemasList.add(oldSchemas);
     }
 
     /**
@@ -278,26 +334,66 @@ public class SchemaGeneratorTask extends Task {
         loader.setThreadContextLoader();
         try {
 
-            // Scan for @JSimpleClass classes
+            // Model and field type classes
             final HashSet<Class<?>> modelClasses = new HashSet<>();
-            for (String className : new JSimpleDBClassScanner().scanForClasses(this.packages)) {
-                this.log("adding JSimpleDB schema class " + className);
-                try {
-                    modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
-                } catch (ClassNotFoundException e) {
-                    throw new BuildException("failed to load class `" + className + "'", e);
+            final HashSet<Class<?>> fieldTypeClasses = new HashSet<>();
+
+            // Do package scanning
+            if (!this.packages.isEmpty()) {
+
+                // Join list
+                final StringBuilder buf = new StringBuilder();
+                for (String packageName : this.packages) {
+                    if (buf.length() > 0)
+                        buf.append(' ');
+                    buf.append(packageName);
+                }
+                final String packageNames = buf.toString();
+
+                // Scan for @JSimpleClass classes
+                this.log("scanning for @JSimpleClass annotations in packages: " + packageNames);
+                for (String className : new JSimpleDBClassScanner().scanForClasses(packageNames)) {
+                    this.log("adding JSimpleDB schema class " + className);
+                    try {
+                        modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
+                    } catch (ClassNotFoundException e) {
+                        throw new BuildException("failed to load class `" + className + "'", e);
+                    }
+                }
+
+                // Scan for @JFieldType classes
+                this.log("scanning for @JFieldType annotations in packages: " + packageNames);
+                for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(packageNames)) {
+                    this.log("adding JSimpleDB field type class `" + className + "'");
+                    try {
+                        fieldTypeClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
+                    } catch (Exception e) {
+                        throw new BuildException("failed to instantiate " + className, e);
+                    }
                 }
             }
 
-            // Scan for @JFieldType classes
-            final HashSet<FieldType<?>> fieldTypes = new HashSet<>();
-            for (String className : new JSimpleDBFieldTypeScanner().scanForClasses(this.packages)) {
-                this.log("adding JSimpleDB field type class " + className);
+            // Do specific class scanning
+            for (String className : this.classes) {
+
+                // Load class
+                final Class<?> cl;
                 try {
-                    fieldTypes.add(this.asFieldTypeClass(
-                      Class.forName(className, false, Thread.currentThread().getContextClassLoader())).newInstance());
-                } catch (Exception e) {
-                    throw new BuildException("failed to instantiate class `" + className + "'", e);
+                    cl = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+                } catch (ClassNotFoundException e) {
+                    throw new BuildException("failed to load class `" + className + "'", e);
+                }
+
+                // Add model classes
+                if (cl.isAnnotationPresent(JSimpleClass.class)) {
+                    this.log("adding JSimpleDB model " + cl);
+                    modelClasses.add(cl);
+                }
+
+                // Add field types
+                if (cl.isAnnotationPresent(JFieldType.class)) {
+                    this.log("adding JSimpleDB field type " + cl);
+                    fieldTypeClasses.add(cl);
                 }
             }
 
@@ -310,13 +406,26 @@ public class SchemaGeneratorTask extends Task {
                 throw new BuildException("failed to instantiate class `" + storageIdGeneratorClassName + "'", e);
             }
 
-            // Set up database and configure field type classes
+            // Set up database
             final Database db = new Database(new SimpleKVDatabase());
-            for (FieldType<?> fieldType : fieldTypes) {
+
+            // Instantiate and configure field type classes
+            for (Class<?> cl : fieldTypeClasses) {
+
+                // Instantiate field types
+                this.log("instantiating " + cl + " as field type instance");
+                final FieldType<?> fieldType;
+                try {
+                    fieldType = this.asFieldTypeClass(cl).newInstance();
+                } catch (Exception e) {
+                    throw new BuildException("failed to instantiate " + cl.getName(), e);
+                }
+
+                // Add field type
                 try {
                     db.getFieldTypeRegistry().add(fieldType);
                 } catch (Exception e) {
-                    throw new BuildException("failed to register custom field type " + fieldType.getClass().getName(), e);
+                    throw new BuildException("failed to register custom field type " + cl.getName(), e);
                 }
             }
 
@@ -373,8 +482,8 @@ public class SchemaGeneratorTask extends Task {
             // Check for conflicts with other schema versions
             if (verified) {
                 int schemaVersion = 2;
-                for (FileSet fileSet : this.fileSets) {
-                    for (Iterator<?> i = fileSet.iterator(); i.hasNext(); ) {
+                for (OldSchemas oldSchemas : this.oldSchemasList) {
+                    for (Iterator<?> i = oldSchemas.iterator(); i.hasNext(); ) {
                         final Resource resource = (Resource)i.next();
                         this.log("checking schema for conflicts with " + resource);
                         final SchemaModel otherSchema;
