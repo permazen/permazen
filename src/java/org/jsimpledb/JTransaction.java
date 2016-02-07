@@ -371,6 +371,7 @@ public class JTransaction {
      * @param jobj Java model object
      * @return the {@link org.jsimpledb.kv.KVDatabase} key corresponding to {@code jobj}
      * @throws IllegalArgumentException if {@code jobj} is null
+     * @see org.jsimpledb.kv.KVTransaction#watchKey KVTransaction.watchKey()
      * @see org.jsimpledb.core.Transaction#getKey(ObjId) Transaction.getKey()
      */
     public byte[] getKey(JObject jobj) {

@@ -69,7 +69,7 @@ public interface KVTransaction extends KVStore {
      * <p>
      * When this method is invoked, {@code key}'s current value (if any) as read by this transaction is remembered. The returned
      * {@link Future} completes if and when a different value for {@code key} is subsequently committed by some transaction,
-     * including possibly this one.
+     * including possibly this one. This includes creation or deletion of the key.
      *
      * <p>
      * Key watches outlive the transaction in which they are created, persisting until they complete or are
@@ -80,7 +80,9 @@ public interface KVTransaction extends KVStore {
      *
      * <p>
      * Key watches are not without overhead; applications should avoid overuse. For example, consider creating a
-     * single key that is used to consolidate modifications to a set of keys.
+     * single key that is used to consolidate modifications to a set of keys; at the JSimpleDB layer, modification
+     * of multiple objects and/or fields could detected by an {@link org.jsimpledb.annotation.OnChange &#64;OnChange}
+     * method that increments a single {@link org.jsimpledb.Counter} whose key is then watched.
      *
      * <p>
      * Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
