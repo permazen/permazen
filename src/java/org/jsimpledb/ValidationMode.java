@@ -10,7 +10,7 @@ package org.jsimpledb;
  *
  * @see org.jsimpledb.JTransaction#validate
  * @see org.jsimpledb.JObject#revalidate
- * @see org.jsimpledb.annotation.Validate
+ * @see org.jsimpledb.annotation.OnValidate
  */
 public enum ValidationMode {
 
@@ -32,14 +32,14 @@ public enum ValidationMode {
      * objects are enqueued for validation automatically as if by {@link JObject#revalidate} when:
      * <ul>
      *  <li>An instance is {@linkplain org.jsimpledb.JTransaction#create created}, and the Java model type (or any super-type)
-     *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on itself or a public method</li>
+     *      has a JSR 303 annotated public method or {@link org.jsimpledb.annotation.OnValidate &#64;OnValidate} annoted method</li>
      *  <li>An instance is {@linkplain org.jsimpledb.JObject#upgrade upgraded}, and the Java model type (or any super-type)
-     *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on itself or a public method</li>
+     *      has a JSR 303 annotated public method or {@link org.jsimpledb.annotation.OnValidate &#64;OnValidate} annoted method</li>
      *  <li>An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations</li>
      * </ul>
      *
      * <p>
-     * Note that the presence of a {@link org.jsimpledb.annotation.Validate &#64;Validate} annotation on a method
+     * Note that the presence of a {@link org.jsimpledb.annotation.OnValidate &#64;OnValidate} annotation on a method
      * does <b>not</b> in itself result in automatic validation when any field changes (it merely specifies an action
      * to take when validation occurs). To trigger revalidation after field changes, add
      * {@link org.jsimpledb.annotation.OnChange &#64;OnChange}-annotated method(s) that invoke

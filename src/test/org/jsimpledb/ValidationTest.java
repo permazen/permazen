@@ -22,7 +22,7 @@ import javax.validation.constraints.Size;
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JListField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.annotation.Validate;
+import org.jsimpledb.annotation.OnValidate;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -185,7 +185,7 @@ public class ValidationTest extends TestSupport {
             JTransaction.setCurrent(null);
         }
 
-        // Now test @Validate
+        // Now test @OnValidate
         tx = jdb.createTransaction(false, ValidationMode.AUTOMATIC);
         JTransaction.setCurrent(tx);
         try {
@@ -339,7 +339,7 @@ public class ValidationTest extends TestSupport {
         @Size(max = 2)
         public abstract List<Person> getFriends();
 
-        @Validate
+        @OnValidate
         private void checkMe() {
             if (this.checks == -1)
                 throw new ValidationException(this, "checks == -1");
@@ -365,11 +365,11 @@ public class ValidationTest extends TestSupport {
     public abstract static class NameThing1 extends NameThing {
     }
 
-// This class has only a @Validate method
+// This class has only a @OnValidate method
 
     @JSimpleClass
     public abstract static class NameThing2 extends NameThing {
-        @Validate
+        @OnValidate
         public void validateMe() {
             throw new ValidationException(this, "sorry");
         }
@@ -395,10 +395,10 @@ public class ValidationTest extends TestSupport {
         }
     }
 
-// This class implements an interface with a method having a @Validate constraint
+// This class implements an interface with a method having a @OnValidate constraint
 
     public interface ValidateMe {
-        @Validate
+        @OnValidate
         void validateMe();
     }
 
@@ -409,7 +409,7 @@ public class ValidationTest extends TestSupport {
         }
     }
 
-// This class extends a class with only a @Validate method
+// This class extends a class with only a @OnValidate method
 
     @JSimpleClass
     public abstract static class NameThing6 extends NameThing2 {

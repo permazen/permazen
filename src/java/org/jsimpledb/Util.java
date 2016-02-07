@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import javax.validation.Constraint;
 import javax.validation.groups.Default;
 
+import org.jsimpledb.annotation.OnValidate;
 import org.jsimpledb.annotation.Validate;
 
 /**
@@ -66,7 +67,7 @@ public final class Util {
      *
      * <p>
      * This will be true if {@code type} or any of its declared methods has a JSR 303 (<i>public</i> methods only)
-     * or {@link Validate &#64;Validate} annotation, or if any of its super-types requires validation.
+     * or {@link OnValidate &#64;OnValidate} annotation, or if any of its super-types requires validation.
      * </p>
      *
      * @param type object type
@@ -85,6 +86,10 @@ public final class Util {
 
         // Check methods
         for (Method method : type.getDeclaredMethods()) {
+
+            // Check for @OnValidate annotation
+            if (method.isAnnotationPresent(OnValidate.class))
+                return true;
 
             // Check for @Validate annotation
             if (method.isAnnotationPresent(Validate.class))

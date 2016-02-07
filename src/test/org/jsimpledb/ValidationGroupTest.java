@@ -10,7 +10,7 @@ import javax.validation.groups.Default;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSimpleClass;
-import org.jsimpledb.annotation.Validate;
+import org.jsimpledb.annotation.OnValidate;
 import org.testng.annotations.Test;
 
 public class ValidationGroupTest extends TestSupport {
@@ -184,25 +184,25 @@ public class ValidationGroupTest extends TestSupport {
         public abstract String getFieldE();
         public abstract void setFieldE(String fieldE);
 
-        @Validate
+        @OnValidate
         private void checkA() {
             if (this.enableChecks != null && this.enableChecks.indexOf('A') != -1)
                 throw new ValidationException(this, "checkA");
         }
 
-        @Validate(groups = Group1.class)
+        @OnValidate(groups = Group1.class)
         private void checkB() {
             if (this.enableChecks != null && this.enableChecks.indexOf('B') != -1)
                 throw new ValidationException(this, "checkB");
         }
 
-        @Validate(groups = Group2.class)
+        @OnValidate(groups = Group2.class)
         private void checkC() {
             if (this.enableChecks != null && this.enableChecks.indexOf('C') != -1)
                 throw new ValidationException(this, "checkC");
         }
 
-        @Validate(groups = { Default.class, Group2.class })
+        @OnValidate(groups = { Default.class, Group2.class })
         private void checkD() {
             if (this.enableChecks != null && this.enableChecks.indexOf('D') != -1)
                 throw new ValidationException(this, "checkD");

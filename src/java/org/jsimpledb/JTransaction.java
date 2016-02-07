@@ -1565,6 +1565,15 @@ public class JTransaction {
                   + this.jdb.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
             }
 
+            // Do @OnValidate method validation
+            for (OnValidateScanner<?>.MethodInfo info : jclass.onValidateMethods) {
+                Class<?>[] methodGroups = info.getAnnotation().groups();
+                if (methodGroups.length == 0)
+                    methodGroups = DEFAULT_CLASS_ARRAY;
+                if (Util.isAnyGroupBeingValidated(methodGroups, validationGroups))
+                    Util.invoke(info.getMethod(), jobj);
+            }
+
             // Do @Validate method validation
             for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods) {
                 Class<?>[] methodGroups = info.getAnnotation().groups();

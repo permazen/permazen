@@ -54,6 +54,7 @@ public class JClass<T> extends JSchemaObject {
     Set<OnCreateScanner<T>.MethodInfo> onCreateMethods;
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
     Set<OnChangeScanner<T>.MethodInfo> onChangeMethods;
+    Set<OnValidateScanner<T>.MethodInfo> onValidateMethods;
     Set<ValidateScanner<T>.MethodInfo> validateMethods;
     ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
 
@@ -388,6 +389,7 @@ public class JClass<T> extends JSchemaObject {
         this.onCreateMethods = new OnCreateScanner<T>(this).findAnnotatedMethods();
         this.onDeleteMethods = new OnDeleteScanner<T>(this).findAnnotatedMethods();
         this.onChangeMethods = new OnChangeScanner<T>(this).findAnnotatedMethods();
+        this.onValidateMethods = new OnValidateScanner<T>(this).findAnnotatedMethods();
         this.validateMethods = new ValidateScanner<T>(this).findAnnotatedMethods();
         final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<T>(this);
         this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
@@ -396,7 +398,7 @@ public class JClass<T> extends JSchemaObject {
 
     void calculateValidationRequirement() {
 
-        // Check for JSR 303 or @Validate annotations
+        // Check for JSR 303 or @OnValidate annotations
         if ((this.requiresDefaultValidation = Util.requiresDefaultValidation(this.type)))
             return;
 

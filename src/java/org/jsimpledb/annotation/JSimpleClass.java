@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
  *      a path of references) changes
  *  <li>{@link OnCreate &#64;OnCreate} - annotates a method to be invoked just after object creation
  *  <li>{@link OnDelete &#64;OnDelete} - annotates a method to be invoked just prior to object deletion
+ *  <li>{@link OnValidate &#64;OnValidate} - annotates a method to be invoked whenever the object is (re)validated
  *  <li>{@link OnVersionChange &#64;OnVersionChange} - annotates a method to be invoked when the object's schema version changes
- *  <li>{@link Validate &#64;Validate} - annotates a method to be invoked whenever the object is (re)validated
  * </ul>
  *
  * <p>
