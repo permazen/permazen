@@ -42,7 +42,20 @@ public class ValidationException extends DatabaseException {
      * @param message exception message
      */
     public ValidationException(JObject jobj, String message) {
+        this(jobj, message, null);
+    }
+
+    /**
+     * Convenience constructor for use when JSR 303 validation is not involved.
+     *
+     * @param jobj the object that failed validation
+     * @param message exception message
+     * @param cause underlying cause, or null for none
+     */
+    public ValidationException(JObject jobj, String message, Throwable cause) {
         this(jobj, null, message);
+        if (cause != null)
+            this.initCause(cause);
     }
 
     /**
