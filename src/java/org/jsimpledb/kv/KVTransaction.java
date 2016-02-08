@@ -143,22 +143,24 @@ public interface KVTransaction extends KVStore {
      * Create a mutable copy of the database content represented by this transaction.
      *
      * <p>
-     * The returned {@link KVStore} should be mutable, and be completely independent of this transaction
-     * (subsequent changes to this transaction do not affect it, and vice-versa).
+     * The returned {@link CloseableKVStore} should be mutable, but all changes should remain private until
+     * {@link CloseableKVStore#close close()} is invoked, at which time they should be discarded.
+     * That is, the {@link CloseableKVStore} it is completely independent from this transaction
+     * (subsequent changes to either one do not affect the other).
      *
      * <p>
      * Note that as with any other information extracted from a {@link KVTransaction}, the returned content
      * should not be considered valid until this transaction has been successfully committed.
      *
      * <p>
-     * The returned {@link KVStore} should be promply {@link CloseableKVStore#close close()}'d when no longer
-     * needed to release any underlying resources. In particular, the caller must ensure that the {@link KVStore}
+     * The returned {@link CloseableKVStore} should be promply {@link CloseableKVStore#close close()}'d when no longer
+     * needed to release any underlying resources. In particular, the caller must ensure that the {@link CloseableKVStore}
      * is {@link CloseableKVStore#close close()}'d even if this transaction's commit fails. This may require
      * adding a transaction synchronization callback, etc.
      *
      * <p>
      * This is an optional method; only some underlying key/value store technologies can efficiently support it.
-     * Implementations may throw {@link UnsupportedOperationException} if not supported.
+     * Implementations should throw {@link UnsupportedOperationException} if not supported.
      *
      * @return independent, mutable copy of this transaction's entire database content
      * @throws UnsupportedOperationException if this method is not supported
