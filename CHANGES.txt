@@ -1,12 +1,12 @@
 Version Next
 
-    - Rename @Validate -> @OnValidate and deprecate @Validate
+    - Renamed @Validate -> @OnValidate and deprecated @Validate
     - Use base 64 for some primitive array string representations
-    - Refactor JObjectContainer and Vaadin view application classes
+    - Refactored JObjectContainer and Vaadin view application classes
     - Fixed bug parsing shift operators with large shifts
     - Fixed bug parsing binary, octal, and hex integer literals
     - Fixed bug with indexes on integral primitive array types
-    - Add support for "classes" and <oldschemas> to the ant task
+    - Added support for "classes" and <oldschemas> to the ant task
     - Added NavigableSetPager utility class
 
 Version 1.3.4 Released November 19, 2015
