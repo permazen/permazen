@@ -66,10 +66,14 @@ LONG TERM
     - New "over the network" KVDatabase client
         - Includes server-side classes as well for embeddability
 
-- Add expression predicates to reference paths, e.g.:
-    "friend[this.name.length() > 3].name"
+- Reference path extensions:
+    - Add expression predicates
+        E.g.: "friend[this.name.length() > 3].name"
+    - Add support for reversed segements
+        E.g.: "students.element.<Parent.children.element>.phone"
+        targets phone numbers of all parents of any of my students
 
-- Key/Value database consistency checker
+- Core API database consistency checker
     - Checks a JDB key-value store for consistency
         - Correctly stored meta-data
         - All field values are properly encoded
