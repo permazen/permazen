@@ -64,20 +64,18 @@ public class JObjectChooser implements Property.ValueChangeNotifier {
     /**
      * Constructor.
      *
-     * @param jdb database
      * @param session session for evaluating expressions
      * @param type type restriction, or null for none
      * @param showFields true to show all object fields, false for just reference label
      */
-    public JObjectChooser(JSimpleDB jdb, ParseSession session, Class<?> type, boolean showFields) {
-        Preconditions.checkArgument(jdb != null, "null jdb");
+    public JObjectChooser(ParseSession session, Class<?> type, boolean showFields) {
         Preconditions.checkArgument(session != null, "null session");
-        this.jdb = jdb;
+        this.jdb = session.getJSimpleDB();
         this.session = session;
         this.showFields = showFields;
         this.typeContainer = new TypeContainer(this.jdb, type);
         this.typeTable = new TypeTable(this.typeContainer);
-        this.objectContainer = new ExprQueryJObjectContainer(this.jdb, this.typeContainer.getRootType(), this.session);
+        this.objectContainer = new ExprQueryJObjectContainer(this.session, this.typeContainer.getRootType());
 
         // Build object panel
         this.splitPanel.setWidth("100%");

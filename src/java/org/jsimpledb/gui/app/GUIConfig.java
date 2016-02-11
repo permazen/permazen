@@ -3,12 +3,12 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.gui;
+package org.jsimpledb.gui.app;
 
 import org.jsimpledb.JSimpleDB;
 
 /**
- * GUI configuration object.
+ * Configuration object for the JSimpleDB GUI application.
  */
 public interface GUIConfig {
 

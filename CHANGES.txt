@@ -2,6 +2,7 @@ Version Next
 
     - Rename @Validate -> @OnValidate and deprecate @Validate
     - Use base 64 for some primitive array string representations
+    - Refactor JObjectContainer and Vaadin view application classes
     - Fixed bug parsing shift operators with large shifts
     - Fixed bug parsing binary, octal, and hex integer literals
     - Fixed bug with indexes on integral primitive array types

@@ -14,6 +14,6 @@
     <context:annotation-config/>
 
     <!-- Find GUI beans -->
-    <context:component-scan base-package="org.jsimpledb.gui"/>
+    <context:component-scan base-package="org.jsimpledb.gui.app"/>
 
 </beans>

@@ -438,7 +438,7 @@
         </manifestclasspath>
         <jar destfile="build/distfile/${ant.project.name}-gui.jar">
             <manifest>
-                <attribute name="Main-Class" value="org.jsimpledb.gui.Main"/>
+                <attribute name="Main-Class" value="org.jsimpledb.gui.app.Main"/>
                 <attribute name="Class-Path" value="${gui.jar.classpath}"/>
             </manifest>
             <mappedresources>

@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.gui;
+package org.jsimpledb.gui.app;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.Alignment;
@@ -15,28 +15,27 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 import org.dellroad.stuff.spring.RetryTransaction;
-import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.jsimpledb.CopyState;
 import org.jsimpledb.JClass;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.UntypedJObject;
-import org.jsimpledb.change.ObjectDelete;
 import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.ReferencedObjectException;
+import org.jsimpledb.gui.JObjectChooser;
+import org.jsimpledb.gui.JObjectContainer;
+import org.jsimpledb.gui.SizedLabel;
 import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Main GUI panel containing the object chooser, object table, buttons, and expresssion text area.
  */
 @SuppressWarnings("serial")
-@VaadinConfigurable
 public class MainPanel extends VerticalLayout {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -72,14 +71,17 @@ public class MainPanel extends VerticalLayout {
                 MainPanel.this.upgradeButtonClicked(id);
         }
     });
+    private final Button refreshButton = new Button("Refresh", new Button.ClickListener() {
+        @Override
+        public void buttonClick(Button.ClickEvent event) {
+            MainPanel.this.refreshButtonClicked();
+        }
+    });
 
     private final GUIConfig guiConfig;
     private final JSimpleDB jdb;
     private final ParseSession session;
     private final JObjectChooser objectChooser;
-
-    @Autowired(required = false)
-    private ChangePublisher changePublisher;
 
     public MainPanel(GUIConfig guiConfig) {
         this.guiConfig = guiConfig;
@@ -115,7 +117,7 @@ public class MainPanel extends VerticalLayout {
         }
 
         // Setup object chooser
-        this.objectChooser = new JObjectChooser(this.jdb, this.session, null, true);
+        this.objectChooser = new JObjectChooser(this.session, null, true);
 
         // Listen to object selections
         this.objectChooser.addValueChangeListener(new Property.ValueChangeListener() {
@@ -150,6 +152,7 @@ public class MainPanel extends VerticalLayout {
         buttonRow.addComponent(this.newButton);
         buttonRow.addComponent(this.deleteButton);
         buttonRow.addComponent(this.upgradeButton);
+        buttonRow.addComponent(this.refreshButton);
         this.addComponent(buttonRow);
         this.setComponentAlignment(buttonRow, Alignment.TOP_RIGHT);
 
@@ -185,6 +188,12 @@ public class MainPanel extends VerticalLayout {
         }
     }
 
+// Refresh
+
+    private void refreshButtonClicked() {
+        this.objectChooser.getJObjectContainer().reload();
+    }
+
 // Edit
 
     private void editButtonClicked(ObjId id) {
@@ -211,7 +220,10 @@ public class MainPanel extends VerticalLayout {
         final Component titleComponent = refLabel instanceof Component ? (Component)refLabel : new Label("" + refLabel);
 
         // Open window
-        new JObjectEditorWindow(this.getUI(), this.session, this.jdb.getJClass(id), jobj, titleComponent).show();
+        final JObjectEditorWindow editor = new JObjectEditorWindow(this.getUI(),
+          this.session, this.jdb.getJClass(id), jobj, titleComponent);
+        editor.setReloadContainerAfterCommit(this.objectChooser.getJObjectContainer());
+        editor.show();
     }
 
     @RetryTransaction
@@ -225,7 +237,7 @@ public class MainPanel extends VerticalLayout {
             return null;
 
         // Copy out object and its dependencies
-        return this.objectChooser.getJObjectContainer().copyWithDependencies(jobj, jtx.getSnapshotTransaction(), new CopyState());
+        return this.objectChooser.getJObjectContainer().copyWithRelated(jobj, jtx.getSnapshotTransaction(), new CopyState());
     }
 
 // New
@@ -266,10 +278,9 @@ public class MainPanel extends VerticalLayout {
     @RetryTransaction
     @Transactional("jsimpledbGuiTransactionManager")
     private boolean doDelete(ObjId id) {
-        final JObject jobj = JTransaction.getCurrent().getJObject(id);
-        final boolean deleted = jobj.delete();
-        if (deleted && this.changePublisher != null)
-            this.changePublisher.publishChangeOnCommit(new ObjectDelete<Object>(jobj));
+        final boolean deleted = JTransaction.getCurrent().getJObject(id).delete();
+        if (deleted)
+            this.objectChooser.getJObjectContainer().reloadAfterCommit();
         return deleted;
     }
 
@@ -303,8 +314,8 @@ public class MainPanel extends VerticalLayout {
             return -1;
         }
         final boolean upgraded = jobj.upgrade();
-        if (upgraded && this.changePublisher != null)
-            this.changePublisher.publishChangeOnCommit(jobj);
+        if (upgraded)
+            this.objectChooser.getJObjectContainer().reloadAfterCommit();
         return upgraded ? oldVersion : 0;
     }
 

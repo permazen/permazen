@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.gui;
+package org.jsimpledb.gui.app;
 
 import com.google.common.base.Preconditions;
 import com.vaadin.data.Property;
@@ -24,6 +24,11 @@ import org.jsimpledb.CopyState;
 import org.jsimpledb.JObject;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.gui.ConfirmWindow;
+import org.jsimpledb.gui.JObjectChooser;
+import org.jsimpledb.gui.JObjectContainer;
+import org.jsimpledb.gui.SizedLabel;
+import org.jsimpledb.gui.SmallButton;
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -135,8 +140,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
             super(ReferenceFieldField.this.getUI(), "Select " + ReferenceFieldField.this.name);
             this.setWidth(800, Sizeable.Unit.PIXELS);
             this.setHeight(500, Sizeable.Unit.PIXELS);
-            this.objectChooser = new JObjectChooser(ReferenceFieldField.this.dest.getJSimpleDB(),
-              ReferenceFieldField.this.session, ReferenceFieldField.this.type, false);
+            this.objectChooser = new JObjectChooser(ReferenceFieldField.this.session, ReferenceFieldField.this.type, false);
         }
 
         @Override

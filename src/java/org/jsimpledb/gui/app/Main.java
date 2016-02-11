@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.gui;
+package org.jsimpledb.gui.app;
 
 import java.io.File;
 import java.net.URI;

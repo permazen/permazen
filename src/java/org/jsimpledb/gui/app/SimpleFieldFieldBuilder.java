@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.gui;
+package org.jsimpledb.gui.app;
 
 import com.google.common.base.Preconditions;
 import com.vaadin.shared.ui.datefield.Resolution;
@@ -19,6 +19,7 @@ import org.jsimpledb.JReferenceField;
 import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.FieldType;
+import org.jsimpledb.gui.SimpleFieldConverter;
 import org.jsimpledb.parse.ParseSession;
 
 /**
@@ -35,9 +36,9 @@ public class SimpleFieldFieldBuilder {
     /**
      * Constructor.
      *
-     * @param jtx target transaction used by {@link JObjectChooser}
+     * @param jtx target transaction used by {@link org.jsimpledb.gui.JObjectChooser}
      * @param jfield the database {@link JSimpleField} for which to build a Vaadin {@link Field}
-     * @param session session used by {@link JObjectChooser}
+     * @param session session used by {@link org.jsimpledb.gui.JObjectChooser}
      * @param allowNull whether null values are allowed
      */
     public SimpleFieldFieldBuilder(JTransaction jtx, JSimpleField jfield, ParseSession session, boolean allowNull) {

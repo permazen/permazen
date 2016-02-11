@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.gui;
+package org.jsimpledb.gui.app;
 
 import com.google.common.reflect.TypeToken;
 import com.vaadin.data.Property;
@@ -37,7 +37,6 @@ import javax.validation.constraints.NotNull;
 import org.dellroad.stuff.spring.RetryTransaction;
 import org.dellroad.stuff.vaadin7.EnumComboBox;
 import org.dellroad.stuff.vaadin7.FieldBuilder;
-import org.dellroad.stuff.vaadin7.VaadinConfigurable;
 import org.dellroad.stuff.vaadin7.VaadinUtil;
 import org.jsimpledb.CopyState;
 import org.jsimpledb.Counter;
@@ -52,14 +51,15 @@ import org.jsimpledb.JSetField;
 import org.jsimpledb.JSimpleField;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.ValidationException;
-import org.jsimpledb.change.ObjectCreate;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
+import org.jsimpledb.gui.ConfirmWindow;
+import org.jsimpledb.gui.ReloadableJObjectContainer;
+import org.jsimpledb.gui.SimpleFieldConverter;
 import org.jsimpledb.parse.ParseSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +67,6 @@ import org.springframework.transaction.annotation.Transactional;
  * GUI window for editing a database object.
  */
 @SuppressWarnings("serial")
-@VaadinConfigurable
 public class JObjectEditorWindow extends ConfirmWindow {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -80,14 +79,13 @@ public class JObjectEditorWindow extends ConfirmWindow {
     private final FieldGroup fieldGroup = new FieldGroup();
     private final TreeMap<String, Field<?>> fieldMap = new TreeMap<>();
 
-    @Autowired(required = false)
-    private ChangePublisher changePublisher;
+    private ReloadableJObjectContainer reloadContainer;
 
     /**
      * Constructor for creating and editing a new object.
      *
      * @param ui associated {@link UI}
-     * @param session parse session for {@link JObjectChooser}
+     * @param session parse session for {@link org.jsimpledb.gui.JObjectChooser}
      * @param jclass database object type
      */
     public JObjectEditorWindow(UI ui, ParseSession session, JClass<?> jclass) {
@@ -98,7 +96,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
      * Constructor for editing an existing object.
      *
      * @param ui associated {@link UI}
-     * @param session parse session for {@link JObjectChooser}
+     * @param session parse session for {@link org.jsimpledb.gui.JObjectChooser}
      * @param jclass object type
      * @param jobj object to edit; should be contained in a snapshot transaction
      * @param titleComponent title for edit panel
@@ -153,6 +151,16 @@ public class JObjectEditorWindow extends ConfirmWindow {
         // Bind fields into FieldGroup
         for (Map.Entry<String, Field<?>> entry : this.fieldMap.entrySet())
             this.fieldGroup.bind(entry.getValue(), entry.getKey());
+    }
+
+    /**
+     * Configure a container to be {@link org.jsimpledb.gui.ReloadableJObjectContainer#reload reload()}'ed
+     * after any successful edit.
+     *
+     * @param container container to reload after changes
+     */
+    public void setReloadContainerAfterCommit(ReloadableJObjectContainer container) {
+        this.reloadContainer = container;
     }
 
     @Override
@@ -219,12 +227,8 @@ public class JObjectEditorWindow extends ConfirmWindow {
         }
 
         // Broadcast update event after successful commit
-        if (this.changePublisher != null) {
-            if (create)
-                this.changePublisher.publishChangeOnCommit(new ObjectCreate<Object>(target));
-            else
-                this.changePublisher.publishChangeOnCommit(target);
-        }
+        if (this.reloadContainer != null)
+            this.reloadContainer.reloadAfterCommit();
 
         // Show notification after successful commit
         final VaadinSession vaadinSession = VaadinUtil.getCurrentSession();

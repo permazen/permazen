@@ -29,11 +29,8 @@
     <!-- Substitute ${properties.like.this} in this application context -->
     <context:property-placeholder/>
 
-    <!-- Define an event multicaster for the application-wide ApplicationContext -->
-    <bean id="jsimpledbGuiEventMulticaster" class="org.springframework.context.event.SimpleApplicationEventMulticaster"/>
-
     <!-- Expose the command line Main object so we can access its properties -->
-    <bean id="jsimpledbGuiMain" class="org.jsimpledb.gui.Main" factory-method="getInstance"/>
+    <bean id="jsimpledbGuiMain" class="org.jsimpledb.gui.app.Main" factory-method="getInstance"/>
 
     <!-- Get JSimpleDB database from Main object -->
     <bean id="jsimpledbGuiJSimpleDB" factory-bean="jsimpledbGuiMain" factory-method="getJSimpleDB"/>

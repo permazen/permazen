@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.gui;
+package org.jsimpledb.gui.app;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.Alignment;
@@ -11,6 +11,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Field;
 
 import org.dellroad.stuff.vaadin7.FieldLayout;
+import org.jsimpledb.gui.SmallButton;
 
 /**
  * Wraps a {@link Field} that is capable of displaying, but not necessarily choosing, a null value,

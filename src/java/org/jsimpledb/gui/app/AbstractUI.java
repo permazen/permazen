@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.gui;
+package org.jsimpledb.gui.app;
 
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Push;
@@ -22,11 +22,13 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import org.jsimpledb.Version;
+import org.jsimpledb.gui.SizedLabel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Superclass of the various {@link UI}s that constitute the GUI.
+ * Support superclass for Vaadin {@link UI} implementations.
  */
 @PreserveOnRefresh
 @Push

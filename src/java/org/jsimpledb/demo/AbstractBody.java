@@ -16,8 +16,8 @@ import java.io.ByteArrayInputStream;
 import org.dellroad.stuff.vaadin7.BlobField;
 import org.dellroad.stuff.vaadin7.FieldBuilder;
 import org.dellroad.stuff.vaadin7.ProvidesProperty;
-import org.jsimpledb.gui.NullableField;
 import org.jsimpledb.gui.SizedLabel;
+import org.jsimpledb.gui.app.NullableField;
 
 /**
  * Support superclass for {@code Body} implementations.

@@ -20,7 +20,7 @@
         </init-param>
         <init-param>
             <param-name>UIProvider</param-name>
-            <param-value>org.jsimpledb.gui.GUIUIProvider</param-value>
+            <param-value>org.jsimpledb.gui.app.GUIUIProvider</param-value>
         </init-param>
         <init-param>
             <param-name>closeIdleUIs</param-name>
