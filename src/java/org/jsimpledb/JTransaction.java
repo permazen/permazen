@@ -90,6 +90,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getCurrent getCurrent()} - Get the {@link JTransaction} instance associated with the current thread</li>
  *  <li>{@link #setCurrent setCurrent()} - Set the {@link JTransaction} instance associated with the current thread</li>
  *  <li>{@link #isValid isValid()} - Test transaction validity</li>
+ *  <li>{@link #performAction performAction()} - Perform action with this instance as the current transaction</li>
  * </ul>
  *
  * <p>
