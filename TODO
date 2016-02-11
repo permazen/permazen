@@ -2,8 +2,6 @@
 SHORT TERM
 ==========
 
-- Test how interface default methods are detected by method scanner
-
 - CLI:
     - New CLI flags:
         - `--console-port': accept console telnet connections on port
@@ -20,7 +18,7 @@ SHORT TERM
 
 - New KVDatabase implementations
     - CockroachDB
-        - Definitely; needs Java API
+        - Definitely; needs Java API (https://github.com/YugeshN/cockroach-java ?)
     - Amazon DynamoDB ?
     - Google Cloud Datastore ?
         - https://cloud.google.com/datastore/docs/concepts/overview
@@ -56,6 +54,10 @@ SHORT TERM
     - After object delete, update if deleted object has highest/lowest entry
     - On last object delete for a schema version, GC that version
     - Can start doing this "on demand" only after the first object is deleted
+
+- Ability to programmatically add FieldChangeListeners at the JTransaction level
+    - Listener via @Functional interface
+    - Pass through to Transaction
 
 LONG TERM
 =========
