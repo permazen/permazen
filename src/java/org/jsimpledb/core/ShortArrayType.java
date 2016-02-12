@@ -18,7 +18,7 @@ import java.util.List;
 class ShortArrayType extends IntegralArrayType<short[], Short> {
 
     ShortArrayType() {
-       super(FieldTypeRegistry.SHORT, 2, short[].class);
+       super(FieldTypeRegistry.SHORT, short[].class);
     }
 
     @Override

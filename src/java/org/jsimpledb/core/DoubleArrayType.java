@@ -36,7 +36,7 @@ class DoubleArrayType extends Base64ArrayType<double[], Double> {
 
     @SuppressWarnings("serial")
     DoubleArrayType() {
-        super(FieldTypeRegistry.DOUBLE, NUM_BYTES, new TypeToken<double[]>() { });
+        super(FieldTypeRegistry.DOUBLE, new TypeToken<double[]>() { });
     }
 
     @Override

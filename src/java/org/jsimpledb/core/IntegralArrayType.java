@@ -30,8 +30,8 @@ abstract class IntegralArrayType<T, E extends Number> extends Base64ArrayType<T,
     private final IntegralType<E> integralType;
 
     @SuppressWarnings("serial")
-    IntegralArrayType(IntegralType<E> elementType, int size, Class<T> arrayClass) {
-        super(elementType, size, TypeToken.of(arrayClass));
+    IntegralArrayType(IntegralType<E> elementType, Class<T> arrayClass) {
+        super(elementType, TypeToken.of(arrayClass));
         if (this.elementType.hasPrefix0x00())
             throw new RuntimeException("internal error");
         this.integralType = elementType;

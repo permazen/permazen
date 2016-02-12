@@ -18,7 +18,7 @@ import java.util.List;
 class ByteArrayType extends IntegralArrayType<byte[], Byte> {
 
     ByteArrayType() {
-       super(FieldTypeRegistry.BYTE, 1, byte[].class);
+       super(FieldTypeRegistry.BYTE, byte[].class);
     }
 
     @Override

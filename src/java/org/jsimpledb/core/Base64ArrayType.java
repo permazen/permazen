@@ -32,9 +32,9 @@ abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
 
     private final int size;
 
-    Base64ArrayType(PrimitiveType<E> elementType, int size, TypeToken<T> typeToken) {
+    Base64ArrayType(PrimitiveType<E> elementType, TypeToken<T> typeToken) {
         super(elementType, typeToken);
-        this.size = size;
+        this.size = elementType.primitive.getSize();
     }
 
     @Override

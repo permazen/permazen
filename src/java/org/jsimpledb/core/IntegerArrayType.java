@@ -18,7 +18,7 @@ import java.util.List;
 class IntegerArrayType extends IntegralArrayType<int[], Integer> {
 
     IntegerArrayType() {
-       super(FieldTypeRegistry.INTEGER, 4, int[].class);
+       super(FieldTypeRegistry.INTEGER, int[].class);
     }
 
     @Override

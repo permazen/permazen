@@ -36,7 +36,7 @@ class FloatArrayType extends Base64ArrayType<float[], Float> {
 
     @SuppressWarnings("serial")
     FloatArrayType() {
-        super(FieldTypeRegistry.FLOAT, NUM_BYTES, new TypeToken<float[]>() { });
+        super(FieldTypeRegistry.FLOAT, new TypeToken<float[]>() { });
     }
 
     @Override
