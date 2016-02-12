@@ -406,7 +406,7 @@ public class SimpleKVDatabase implements KVDatabase {
             if (maxKey != null)
                 mutations = mutations.headSet(Mutation.key(maxKey));
             final Mutation mutation = !mutations.isEmpty() ? mutations.last() : null;
-            final KVPair entry = this.kv.getAtMost(maxKey);             // XXX BUG - not locked yet
+            final KVPair entry = this.kv.getAtMost(maxKey);
 
             // Handle the case where neither is found
             if (mutation == null && entry == null)
