@@ -96,23 +96,17 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
     private void reloadInTransaction() {
 
         // Get objects from subclass
-        Iterable<? extends JObject> jobjs = this.queryForObjects();
+        Iterator<? extends JObject> jobjs = this.queryForObjects();
 
         // Copy objects (and their related object friends) into a snapshot transaction
         final SnapshotJTransaction snapshotTx = JTransaction.getCurrent().createSnapshotTransaction(ValidationMode.DISABLED);
-        final Iterable<? extends JObject> jobjs2 = jobjs;
-        jobjs = new Iterable<JObject>() {
+        final CopyState copyState = new CopyState();
+        jobjs = Iterators.transform(jobjs, new Function<JObject, JObject>() {
             @Override
-            public Iterator<JObject> iterator() {
-                final CopyState copyState = new CopyState();
-                return Iterators.transform(jobjs2.iterator(), new Function<JObject, JObject>() {
-                    @Override
-                    public JObject apply(JObject jobj) {
-                        return QueryJObjectContainer.this.copyWithRelated(jobj, snapshotTx, copyState);
-                    }
-                });
+            public JObject apply(JObject jobj) {
+                return QueryJObjectContainer.this.copyWithRelated(jobj, snapshotTx, copyState);
             }
-        };
+        });
 
         // Now actually load the objects
         this.load(jobjs);
@@ -184,6 +178,6 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
      *
      * @return database objects
      */
-    protected abstract Iterable<? extends JObject> queryForObjects();
+    protected abstract Iterator<? extends JObject> queryForObjects();
 }
 

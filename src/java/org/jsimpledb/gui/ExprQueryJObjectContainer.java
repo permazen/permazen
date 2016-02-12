@@ -5,9 +5,10 @@
 
 package org.jsimpledb.gui;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 
 import java.util.Collections;
+import java.util.Iterator;
 
 import org.jsimpledb.JObject;
 import org.jsimpledb.parse.ParseContext;
@@ -70,11 +71,11 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
     }
 
     @Override
-    protected Iterable<? extends JObject> queryForObjects() {
+    protected Iterator<? extends JObject> queryForObjects() {
 
         // Any content?
         if (this.contentExpression == null)
-            return Collections.<JObject>emptySet();
+            return Collections.<JObject>emptyIterator();
 
         // Parse expression
         final ParseContext ctx = new ParseContext(this.contentExpression);
@@ -85,13 +86,18 @@ public class ExprQueryJObjectContainer extends QueryJObjectContainer {
 
         // Evaluate parsed expression
         final Object content = node.evaluate(this.session).get(this.session);
-        if (!(content instanceof Iterable)) {
-            throw new EvalException("expression must evaluate to an Iterable; found "
+        final Iterator<?> iterator;
+        if (content instanceof Iterator)
+            iterator = (Iterator<?>)content;
+        else if (content instanceof Iterable)
+            iterator = ((Iterable<?>)content).iterator();
+        else {
+            throw new EvalException("expression must evaluate to an Iterable or Iterator; found "
               + (content != null ? content.getClass().getName() : "null") + " instead");
         }
 
         // Reload container with results of expression
-        return Iterables.transform((Iterable<?>)content, new CastFunction<JObject>(JObject.class));
+        return Iterators.transform(iterator, new CastFunction<JObject>(JObject.class));
     }
 }
 

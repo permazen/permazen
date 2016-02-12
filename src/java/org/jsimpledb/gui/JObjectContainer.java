@@ -212,10 +212,24 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
      */
     @Override
     public void load(Iterable<? extends JObject> jobjs) {
+        this.load(jobjs.iterator());
+    }
+
+    /**
+     * Load this container using the supplied backing {@link JObject}s.
+     *
+     * <p>
+     * A container {@link com.vaadin.data.Item} will be created wrapping each iterated {@link JObject};
+     * {@link com.vaadin.data.Item} properties are accessible only while the containing transaction remains open.
+     *
+     * @param jobjs backing {@link JObject}s
+     */
+    @Override
+    public void load(Iterator<? extends JObject> jobjs) {
 
         // Filter out any instances of the wrong type
         if (JObjectContainer.this.type != null) {
-            jobjs = Iterables.filter(jobjs, new Predicate<JObject>() {
+            jobjs = Iterators.filter(jobjs, new Predicate<JObject>() {
                 @Override
                 public boolean apply(JObject jobj) {
                     return JObjectContainer.this.type.isInstance(jobj);
@@ -231,19 +245,14 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
     }
 
     // This method exists solely to bind the generic type parameters
-    private <T extends JObject> Iterable<T> filterNullsAndDuplicates(final Iterable<T> jobjs) {
-        return new Iterable<T>() {
+    private <T extends JObject> Iterator<T> filterNullsAndDuplicates(final Iterator<T> jobjs) {
+        final ObjIdSet seenIds = new ObjIdSet();
+        return Iterators.filter(jobjs, new Predicate<T>() {
             @Override
-            public Iterator<T> iterator() {
-                final ObjIdSet seenIds = new ObjIdSet();
-                return Iterators.filter(jobjs.iterator(), new Predicate<T>() {
-                    @Override
-                    public boolean apply(T jobj) {
-                        return jobj != null && seenIds.add(jobj.getObjId());
-                    }
-                });
+            public boolean apply(T jobj) {
+                return jobj != null && seenIds.add(jobj.getObjId());
             }
-        };
+        });
     }
 
     /**

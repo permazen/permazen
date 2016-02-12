@@ -5,6 +5,8 @@
 
 package org.jsimpledb.gui;
 
+import java.util.Iterator;
+
 import org.jsimpledb.JObject;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.JTransaction;
@@ -25,7 +27,7 @@ import org.jsimpledb.kv.CloseableKVStore;
  * Instances are (re)loaded at any time by invoking {@link #reload}. During reload, the container opens a {@link JTransaction}
  * and then creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore} returned by
  * {@link org.jsimpledb.kv.KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}.
- * This {@link SnapshotJTransaction} is set as the current transaction while {@link #iterateObjects iterateObjects()}
+ * This {@link SnapshotJTransaction} is set as the current transaction while {@link #iterateObjects}
  * returns the {@link JObject}s to be actually included in the container. The {@link CloseableKVStore} will
  * remain open until the container is {@link #reload}'ed or {@link #disconnect}'ed.
  */
@@ -62,7 +64,7 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
      * <p>
      * This method opens a {@link JTransaction}, creates a {@link SnapshotJTransaction} using the {@link CloseableKVStore}
      * returned by {@link org.jsimpledb.kv.KVTransaction#mutableSnapshot KVTransaction.mutableSnapshot()}, and loads
-     * the container using the objects returned by {@link #iterateObjects iterateObjects()}.
+     * the container using the objects returned by {@link #iterateObjects}.
      */
     public void reload() {
 
@@ -110,6 +112,6 @@ public abstract class SnapshotJObjectContainer extends ReloadableJObjectContaine
      *
      * @return database objects
      */
-    protected abstract Iterable<? extends JObject> iterateObjects();
+    protected abstract Iterator<? extends JObject> iterateObjects();
 }
 
