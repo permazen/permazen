@@ -12,7 +12,6 @@ import com.google.common.reflect.TypeToken;
 import java.util.List;
 import java.util.NavigableSet;
 
-import org.jsimpledb.change.ListFieldReplace;
 import org.jsimpledb.change.SetFieldAdd;
 import org.jsimpledb.change.SetFieldClear;
 import org.jsimpledb.change.SetFieldRemove;
@@ -55,9 +54,6 @@ class JSetFieldInfo extends JCollectionFieldInfo {
         types.add(new TypeToken<SetFieldClear<T>>() { }
           .where(new TypeParameter<T>() { }, targetType));
         types.add(new TypeToken<SetFieldRemove<T, E>>() { }
-          .where(new TypeParameter<T>() { }, targetType)
-          .where(new TypeParameter<E>() { }, elementType.wrap()));
-        types.add(new TypeToken<ListFieldReplace<T, E>>() { }
           .where(new TypeParameter<T>() { }, targetType)
           .where(new TypeParameter<E>() { }, elementType.wrap()));
     }
