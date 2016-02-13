@@ -56,8 +56,8 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
     @Override
     protected boolean includeMethod(Method method, OnChange annotation) {
         this.checkReturnType(method, void.class);
-        if (this.getParameterTypeTokens(method).size() != 1)
-            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to take a single parameter");
+        if (this.getParameterTypeTokens(method).size() > 1)
+            throw new IllegalArgumentException(this.getErrorPrefix(method) + "method is required to take zero or one parameter");
         return true;                                    // we do further parameter type check in ChangeMethodInfo
     }
 
@@ -72,7 +72,6 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         final boolean isStatic;
         final HashMap<ReferencePath, HashSet<Integer>> paths;
-        final Class<? extends FieldChange<T>> rawParameterType;
 
         @SuppressWarnings("unchecked")
         ChangeMethodInfo(Method method, OnChange annotation) {
@@ -106,9 +105,21 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 });
             }
 
-            // Get method parameter type (generic and raw)
-            final TypeToken<?> genericParameterType = OnChangeScanner.this.getParameterTypeTokens(method).get(0);
-            this.rawParameterType = (Class<? extends FieldChange<T>>)method.getParameterTypes()[0];
+            // Get method parameter type (generic and raw), if any
+            final TypeToken<?> genericParameterType;
+            final Class<? extends FieldChange<T>> rawParameterType;
+            switch (method.getParameterTypes().length) {
+            case 1:
+                rawParameterType = (Class<? extends FieldChange<T>>)method.getParameterTypes()[0];
+                genericParameterType = OnChangeScanner.this.getParameterTypeTokens(method).get(0);
+                break;
+            case 0:
+                rawParameterType = null;
+                genericParameterType = null;
+                break;
+            default:
+                throw new RuntimeException("internal error");
+            }
 
             // Parse reference paths
             boolean anyFieldsFound = false;
@@ -124,44 +135,49 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
                 }
 
-                // Get all (concrete) change types emitted by the target field
-                final ArrayList<TypeToken<?>> changeParameterTypes = new ArrayList<TypeToken<?>>();
-                try {
-                    path.targetFieldInfo.addChangeParameterTypes(changeParameterTypes, path.targetType);
-                } catch (UnsupportedOperationException e) {
-                    if (wildcard)
-                        continue;
-                    throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `"
-                      + stringPath + "' is invalid because change notifications are not supported for " + path.targetFieldInfo, e);
-                }
-                anyFieldsFound = true;
+                // Validate the parameter type against possible changes
+                if (rawParameterType != null) {
 
-                // Check whether method parameter type accepts as least one of them; must do so consistently raw vs. generic
-                boolean anyChangeMatch = false;
-                for (TypeToken<?> possibleChangeType : changeParameterTypes) {
-                    final boolean matchesGeneric = genericParameterType.isAssignableFrom(possibleChangeType);
-                    final boolean matchesRaw = rawParameterType.isAssignableFrom(possibleChangeType.getRawType());
-                    if (matchesGeneric != matchesRaw) {
-                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "method parameter type "
-                          + genericParameterType + " will match changes emitted from `" + stringPath + "' at runtime"
-                          + " due to type erasure, but has incompatible generic type " + genericParameterType
-                          + "; parameter type should be compatible with "
+                    // Get all (concrete) change types emitted by the target field
+                    final ArrayList<TypeToken<?>> changeParameterTypes = new ArrayList<TypeToken<?>>();
+                    try {
+                        path.targetFieldInfo.addChangeParameterTypes(changeParameterTypes, path.targetType);
+                    } catch (UnsupportedOperationException e) {
+                        if (wildcard)
+                            continue;
+                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
+                          + "' is invalid because change notifications are not supported for " + path.targetFieldInfo, e);
+                    }
+                    anyFieldsFound = true;
+
+                    // Check whether method parameter type accepts as least one of them; must do so consistently raw vs. generic
+                    boolean anyChangeMatch = false;
+                    for (TypeToken<?> possibleChangeType : changeParameterTypes) {
+                        final boolean matchesGeneric = genericParameterType.isAssignableFrom(possibleChangeType);
+                        final boolean matchesRaw = rawParameterType.isAssignableFrom(possibleChangeType.getRawType());
+                        if (matchesGeneric != matchesRaw) {
+                            throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
+                              + "method parameter type " + genericParameterType + " will match changes emitted from `"
+                              + stringPath + "' at runtime" + " due to type erasure, but has incompatible generic type "
+                              + genericParameterType + "; parameter type should be compatible with "
+                              + (changeParameterTypes.size() != 1 ?
+                                  "one of: " + changeParameterTypes : changeParameterTypes.get(0)));
+                        }
+                        if (matchesGeneric) {
+                            anyChangeMatch = true;
+                            break;
+                        }
+                    }
+
+                    // If not wildcard match, then at least one change type must match method
+                    if (!anyChangeMatch) {
+                        if (wildcard)
+                            continue;
+                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
+                          + "' is invalid because no changes emitted by " + path.targetFieldInfo + " match the method's"
+                          + " parameter type " + genericParameterType + "; the emitted change type is "
                           + (changeParameterTypes.size() != 1 ? "one of: " + changeParameterTypes : changeParameterTypes.get(0)));
                     }
-                    if (matchesGeneric) {
-                        anyChangeMatch = true;
-                        break;
-                    }
-                }
-
-                // If not wildcard match, then at least one change type must match method
-                if (!anyChangeMatch) {
-                    if (wildcard)
-                        continue;
-                    throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "path `" + stringPath
-                      + "' is invalid because no changes emitted by " + path.targetFieldInfo + " match the method's"
-                      + " parameter type " + genericParameterType + "; the emitted change type is "
-                      + (changeParameterTypes.size() != 1 ? "one of: " + changeParameterTypes : changeParameterTypes.get(0)));
                 }
 
                 // Determine storage ID's corresponding to matching target types; this filters out obsolete types from old versions
@@ -210,11 +226,20 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             this.method = method;
 
             // Extract generic types from method's FieldChange<?> parameter
-            final ArrayList<Class<?>> genericTypeList = new ArrayList<>(3);
-            for (Type type : ((ParameterizedType)this.method.getGenericParameterTypes()[0]).getActualTypeArguments())
-                genericTypeList.add(TypeToken.of(type).getRawType());
-            this.genericTypes = genericTypeList.toArray(new Class<?>[genericTypeList.size()]);
-        }
+            switch (this.method.getParameterTypes().length) {
+            case 1:
+                final ArrayList<Class<?>> genericTypeList = new ArrayList<>(3);
+                for (Type type : ((ParameterizedType)this.method.getGenericParameterTypes()[0]).getActualTypeArguments())
+                    genericTypeList.add(TypeToken.of(type).getRawType());
+                this.genericTypes = genericTypeList.toArray(new Class<?>[genericTypeList.size()]);
+                break;
+            case 0:
+                this.genericTypes = null;
+                break;
+            default:
+                throw new RuntimeException("internal error");
+            }
+    }
 
     // SimpleFieldChangeListener
 
@@ -222,6 +247,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <T> void onSimpleFieldChange(Transaction tx, ObjId id,
           SimpleField<T> field, int[] path, NavigableSet<ObjId> referrers, T oldValue, T newValue) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object joldValue = this.jtx.convertCoreValue(field, oldValue);
             final Object jnewValue = this.jtx.convertCoreValue(field, newValue);
             final JObject jobj = this.checkTypes(SimpleFieldChange.class, id, joldValue, jnewValue);
@@ -236,6 +265,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onSetFieldAdd(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object jvalue = this.jtx.convertCoreValue(field.getElementField(), value);
             final JObject jobj = this.checkTypes(SetFieldAdd.class, id, jvalue);
             if (jobj == null)
@@ -247,6 +280,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onSetFieldRemove(Transaction tx, ObjId id,
           SetField<E> field, int[] path, NavigableSet<ObjId> referrers, E value) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object jvalue = this.jtx.convertCoreValue(field.getElementField(), value);
             final JObject jobj = this.checkTypes(SetFieldRemove.class, id, jvalue);
             if (jobj == null)
@@ -256,6 +293,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         @Override
         public void onSetFieldClear(Transaction tx, ObjId id, SetField<?> field, int[] path, NavigableSet<ObjId> referrers) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final JObject jobj = this.checkTypes(SetFieldClear.class, id);
             if (jobj == null)
                 return;
@@ -268,6 +309,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldAdd(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object jvalue = this.jtx.convertCoreValue(field.getElementField(), value);
             final JObject jobj = this.checkTypes(ListFieldAdd.class, id, jvalue);
             if (jobj == null)
@@ -279,6 +324,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldRemove(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E value) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object jvalue = this.jtx.convertCoreValue(field.getElementField(), value);
             final JObject jobj = this.checkTypes(ListFieldRemove.class, id, jvalue);
             if (jobj == null)
@@ -290,6 +339,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <E> void onListFieldReplace(Transaction tx, ObjId id,
           ListField<E> field, int[] path, NavigableSet<ObjId> referrers, int index, E oldValue, E newValue) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object joldValue = this.jtx.convertCoreValue(field.getElementField(), oldValue);
             final Object jnewValue = this.jtx.convertCoreValue(field.getElementField(), newValue);
             final JObject jobj = this.checkTypes(ListFieldReplace.class, id, joldValue, jnewValue);
@@ -300,6 +353,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         @Override
         public void onListFieldClear(Transaction tx, ObjId id, ListField<?> field, int[] path, NavigableSet<ObjId> referrers) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final JObject jobj = this.checkTypes(ListFieldClear.class, id);
             if (jobj == null)
                 return;
@@ -312,6 +369,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldAdd(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object jkey = this.jtx.convertCoreValue(field.getKeyField(), key);
             final Object jvalue = this.jtx.convertCoreValue(field.getValueField(), value);
             final JObject jobj = this.checkTypes(MapFieldAdd.class, id, jkey, jvalue);
@@ -324,6 +385,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldRemove(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V value) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object jkey = this.jtx.convertCoreValue(field.getKeyField(), key);
             final Object jvalue = this.jtx.convertCoreValue(field.getValueField(), value);
             final JObject jobj = this.checkTypes(MapFieldRemove.class, id, jkey, jvalue);
@@ -336,6 +401,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <K, V> void onMapFieldReplace(Transaction tx, ObjId id,
           MapField<K, V> field, int[] path, NavigableSet<ObjId> referrers, K key, V oldValue, V newValue) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final Object jkey = this.jtx.convertCoreValue(field.getKeyField(), key);
             final Object joldValue = this.jtx.convertCoreValue(field.getValueField(), oldValue);
             final Object jnewValue = this.jtx.convertCoreValue(field.getValueField(), newValue);
@@ -347,6 +416,10 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
         @Override
         public void onMapFieldClear(Transaction tx, ObjId id, MapField<?, ?> field, int[] path, NavigableSet<ObjId> referrers) {
+            if (this.genericTypes == null) {
+                this.invoke(referrers);
+                return;
+            }
             final JObject jobj = this.checkTypes(MapFieldClear.class, id);
             if (jobj == null)
                 return;
@@ -392,7 +465,25 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             return jobj;
         }
 
+        // Used when @OnChange method takes zero parameters
+        private void invoke(NavigableSet<ObjId> referrers) {
+            if ((this.method.getModifiers() & Modifier.STATIC) != 0)
+                Util.invoke(this.method, null);
+            else {
+                for (ObjId id : referrers) {
+                    final JObject target = this.jtx.getJObject(id);     // type of 'id' should always be found
+
+                    // Avoid invoking subclass's @OnChange method on superclass instance;
+                    // this can happen when the field is in superclass but wildcard @OnChange is in the subclass
+                    if (this.method.getDeclaringClass().isInstance(target))
+                        Util.invoke(this.method, target);
+                }
+            }
+        }
+
+        // Used when @OnChange method takes one parameter
         private void invoke(NavigableSet<ObjId> referrers, FieldChange<JObject> change) {
+            assert change != null;
             if ((this.method.getModifiers() & Modifier.STATIC) != 0)
                 Util.invoke(this.method, null, change);
             else {

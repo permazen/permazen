@@ -6,6 +6,7 @@ Version Next
     - Fixed bug parsing shift operators with large shifts
     - Fixed bug parsing binary, octal, and hex integer literals
     - Fixed bug with indexes on integral primitive array types
+    - Allow @OnChange methods that take zero parameters
     - Added support for "classes" and <oldschemas> to the ant task
     - Added NavigableSetPager utility class
 

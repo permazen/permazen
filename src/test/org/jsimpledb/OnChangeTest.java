@@ -157,6 +157,49 @@ public class OnChangeTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testNoParamChange() {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person2.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final Person2 p1 = jtx.create(Person2.class);
+            final Person2 p2 = jtx.create(Person2.class);
+            final Person2 p3 = jtx.create(Person2.class);
+
+            p1.getFriends().add(p2);
+            p1.getFriends().add(p3);
+            p2.getFriends().add(p3);
+
+            Assert.assertEquals(p1.getChangeNotifications(), 0);
+            Assert.assertEquals(p2.getChangeNotifications(), 0);
+            Assert.assertEquals(p3.getChangeNotifications(), 0);
+
+            p1.setName("p1");
+
+            Assert.assertEquals(p1.getChangeNotifications(), 0);
+            Assert.assertEquals(p2.getChangeNotifications(), 0);
+            Assert.assertEquals(p3.getChangeNotifications(), 0);
+
+            p2.setName("p2");
+
+            Assert.assertEquals(p1.getChangeNotifications(), 1);
+            Assert.assertEquals(p2.getChangeNotifications(), 0);
+            Assert.assertEquals(p3.getChangeNotifications(), 0);
+
+            p3.setName("p3");
+
+            Assert.assertEquals(p1.getChangeNotifications(), 2);
+            Assert.assertEquals(p2.getChangeNotifications(), 1);
+            Assert.assertEquals(p3.getChangeNotifications(), 0);
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
     private void verify(FieldChange<?>... changes) {
         Assert.assertEquals(EVENTS.get(), Arrays.asList(changes), "\nACTUAL: " + EVENTS.get()
           + "\nEXPECTED: " + Arrays.asList(changes));
@@ -436,6 +479,28 @@ public class OnChangeTest extends TestSupport {
         RED,
         GREEN,
         BLUE;
+    }
+
+    @JSimpleClass
+    public abstract static class Person2 implements JObject {
+
+        private int changeNotifications;
+
+        public int getChangeNotifications() {
+            return this.changeNotifications;
+        }
+
+        @JField
+        public abstract String getName();
+        public abstract void setName(String name);
+
+        @JSetField
+        public abstract Set<Person2> getFriends();
+
+        @OnChange("friends.element.name")
+        private void onChange() {
+            this.changeNotifications++;
+        }
     }
 }
 
