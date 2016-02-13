@@ -189,7 +189,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>Configuration Changes</b></p>
  *
  * <p>
- * Once a node configured, a separate issue is whether the node is <i>included</i> in its own configuration, i.e., whether
+ * Once a node is configured, a separate issue is whether the node is <i>included</i> in its own configuration, i.e., whether
  * the node is a member of its cluster according to the current cluster configuration. A node that is not a member of its
  * cluster does not count its own vote to determine committed log entries (if a leader), and does not start elections
  * (if a follower). However, it will accept and respond to incoming {@link AppendRequest}s and {@link RequestVote}s.
