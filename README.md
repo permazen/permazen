@@ -17,6 +17,4 @@ JSimpleDB also adds important new features that traditional databases don't prov
   * Extensible command line interface (CLI) supporting arbitrary Java queries
   * Built-in Java-aware graphical user interface (GUI) based on Vaadin
 
-Read the [FAQ](https://github.com/archiecobbs/jsimpledb/wiki/FAQ) and [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introduction) for more info, check out the [JPA\_Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison), browse the [Javadocs](http://archiecobbs.github.io/jsimpledb/publish/reports/javadoc/index.html?org/jsimpledb/JSimpleDB.html), or join the [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.
-
-JSimpleDB is a new project (created in 2014) but developing rapidly.
+Read the [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introduction), [GettingStarted](https://github.com/archiecobbs/jsimpledb/wiki/GettingStarted), and the [FAQ](https://github.com/archiecobbs/jsimpledb/wiki/FAQ) for more info, browse the [Javadocs](http://archiecobbs.github.io/jsimpledb/publish/reports/javadoc/index.html?org/jsimpledb/JSimpleDB.html), check out the [JPA\_Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison), or join the [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.
