@@ -78,7 +78,7 @@ public abstract class QueryJObjectContainer extends ReloadableJObjectContainer {
      * (Re)load this container.
      *
      * <p>
-     * This creates a new {@link JTransaction}, invokes {@link queryForObjects} to query for backing objects,
+     * This creates a new {@link JTransaction}, invokes {@link #queryForObjects} to query for backing objects,
      * copies them into an in-memory {@link SnapshotJTransaction} via {@link #copyWithRelated copyWithRelated()},
      * and builds the container from the result.
      */
