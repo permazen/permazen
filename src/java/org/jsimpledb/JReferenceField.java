@@ -26,8 +26,6 @@ import org.objectweb.asm.Type;
  */
 public class JReferenceField extends JSimpleField {
 
-    private static final String WRONG_TX_MESSAGE = "referenced object lives in a different transaction";
-
     final DeleteAction onDelete;
     final boolean cascadeDelete;
 
@@ -133,8 +131,7 @@ public class JReferenceField extends JSimpleField {
         //  if (jobj == null)
         //      id = null;
         //  else {
-        //      if (!jobj.getTransaction().equals(this.getTransaction()))
-        //          throw new IllegalArgumentException(...);
+        //      this.getTransaction().checkForeignReference(jobj);
         //      id = jobj.getObjId();
         //  }
         //  this.writeCoreAPIValue(id);
@@ -145,30 +142,18 @@ public class JReferenceField extends JSimpleField {
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         final Label label2 = new Label();
         final Label label3 = new Label();
-        final Label label4 = new Label();
         mv.visitJumpInsn(Opcodes.IFNONNULL, label2);
         mv.visitInsn(Opcodes.ACONST_NULL);
-        mv.visitJumpInsn(Opcodes.GOTO, label4);
+        mv.visitJumpInsn(Opcodes.GOTO, label3);
         mv.visitLabel(label2);
         mv.visitFrame(Opcodes.F_SAME, 0, new Object[0], 0, new Object[0]);
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         generator.emitInvoke(mv, ClassGenerator.JOBJECT_GET_TRANSACTION);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
-        generator.emitInvoke(mv, ClassGenerator.JOBJECT_GET_TRANSACTION);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getType(Object.class).getInternalName(),
-          "equals", "(Ljava/lang/Object;)Z", false);
-        mv.visitJumpInsn(Opcodes.IFNE, label3);
-        mv.visitTypeInsn(Opcodes.NEW, Type.getType(IllegalArgumentException.class).getInternalName());
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(WRONG_TX_MESSAGE);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getType(IllegalArgumentException.class).getInternalName(),
-          "<init>", "(Ljava/lang/String;)V", false);
-        mv.visitInsn(Opcodes.ATHROW);
-        mv.visitLabel(label3);
-        mv.visitFrame(Opcodes.F_SAME, 0, new Object[0], 0, new Object[0]);
+        generator.emitInvoke(mv, ClassGenerator.CHECK_FOREIGN_REFERENCE_METHOD);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         generator.emitInvoke(mv, ClassGenerator.JOBJECT_GET_OBJ_ID_METHOD);
-        mv.visitLabel(label4);
+        mv.visitLabel(label3);
         mv.visitFrame(Opcodes.F_SAME1, 0, new Object[0], 1, new String[] { Type.getInternalName(ObjId.class) });
         //mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(ObjId.class));
         this.outputWriteCoreValueBytecode(generator, mv);

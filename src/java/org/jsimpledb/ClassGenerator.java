@@ -79,6 +79,7 @@ class ClassGenerator<T> {
     static final Method GET_TRANSACTION_METHOD;
     static final Method GET_JOBJECT_METHOD;
     static final Method REGISTER_JOBJECT_METHOD;
+    static final Method CHECK_FOREIGN_REFERENCE_METHOD;
 
     // Converter method handles
     static final Method CONVERTER_CONVERT_METHOD;
@@ -130,6 +131,7 @@ class ClassGenerator<T> {
             GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
             GET_JOBJECT_METHOD = JTransaction.class.getMethod("getJObject", ObjId.class);
             REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
+            CHECK_FOREIGN_REFERENCE_METHOD = JTransaction.class.getMethod("checkForeignReference", JObject.class);
 
             // Transaction methods
             TRANSACTION_READ_SIMPLE_FIELD_METHOD = Transaction.class.getMethod("readSimpleField",

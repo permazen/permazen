@@ -26,10 +26,12 @@ class ReferenceConverter<T> extends Converter<T, ObjId> {
     }
 
     @Override
-    protected ObjId doForward(T jobj) {
-        if (jobj == null)
+    protected ObjId doForward(T obj) {
+        if (obj == null)
             return null;
-        return ((JObject)jobj).getObjId();
+        final JObject jobj = (JObject)obj;
+        this.jtx.checkForeignReference(jobj);
+        return jobj.getObjId();
     }
 
     @Override
