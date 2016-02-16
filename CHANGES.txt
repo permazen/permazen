@@ -3,6 +3,7 @@ Version Next
     - Renamed @Validate -> @OnValidate and deprecated @Validate
     - Use base 64 for some primitive array string representations
     - Refactored JObjectContainer and Vaadin view application classes
+    - Disallow setting reference to JObject in a different transaction
     - Fixed bug parsing shift operators with large shifts
     - Fixed bug parsing binary, octal, and hex integer literals
     - Fixed bug with indexes on integral primitive array types
