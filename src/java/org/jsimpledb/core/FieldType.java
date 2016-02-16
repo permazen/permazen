@@ -228,7 +228,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * </p>
      *
      * @param value actual value, never null
-     * @return string encoding of {@code value}
+     * @return string encoding of {@code value} acceptable to {@link #fromString fromString()}
      * @throws IllegalArgumentException if {@code value} is null
      * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
      */
@@ -271,7 +271,7 @@ public abstract class FieldType<T> implements Comparator<T> {
      * </p>
      *
      * @param value actual value (possibly null)
-     * @return string encoding of {@code value}
+     * @return string encoding of {@code value} acceptable to {@link #fromParseableString fromParseableString()}
      * @throws IllegalArgumentException if {@code value} is null and this type does not support null
      * @see <a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a>
      */

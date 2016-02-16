@@ -63,6 +63,26 @@ public class FieldTypeTest extends TestSupport {
                 }
             }
 
+            // "list" style string encoding for some primitive arrays
+            if (fieldType instanceof Base64ArrayType) {
+                final Base64ArrayType<T, ?> arrayType = (Base64ArrayType<T, ?>)fieldType;
+
+                // String encoding
+                if (value != null) {
+                    Assert.assertEquals(arrayType.toString(value2, false), arrayType.toString(value, false));
+                    final String s = arrayType.toString(value, false);
+                    final T value3 = arrayType.fromString(s);
+                    this.assertEquals(arrayType, value3, value);
+                } else {
+                    try {
+                        arrayType.toString(null, false);
+                        assert false;
+                    } catch (IllegalArgumentException e) {
+                        // expected
+                    }
+                }
+            }
+
             // Parseable string encoding
             Assert.assertEquals(fieldType.toParseableString(value2), fieldType.toParseableString(value));
             final String s2 = fieldType.toParseableString(value);
@@ -70,6 +90,19 @@ public class FieldTypeTest extends TestSupport {
             final T value4 = fieldType.fromParseableString(ctx);
             this.assertEquals(fieldType, value4, value);
             Assert.assertEquals(ctx.getInput(), ",abcd");
+
+            // "list" style string encoding for some primitive arrays
+            if (fieldType instanceof Base64ArrayType) {
+                final Base64ArrayType<T, ?> arrayType = (Base64ArrayType<T, ?>)fieldType;
+
+                // Parseable string encoding
+                Assert.assertEquals(arrayType.toParseableString(value2, false), arrayType.toParseableString(value, false));
+                final String s3 = arrayType.toParseableString(value, false);
+                final ParseContext ctx2 = new ParseContext(s3 + ",abcd");
+                final T value5 = arrayType.fromParseableString(ctx2);
+                this.assertEquals(arrayType, value5, value);
+                Assert.assertEquals(ctx2.getInput(), ",abcd");
+            }
 
             // Check sort order
             if (i > 0) {

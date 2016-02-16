@@ -51,6 +51,23 @@ abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
         return this.encodeString(array).toString();
     }
 
+    /**
+     * Encode a non-null value as a {@link String} for later decoding by {@link #fromString fromString()}.
+     *
+     * <p>
+     * This class supports two {@link String} encodings: base 64 and "list" syntax with square brackets and commas.
+     * The method {@link #toString(T)} returns the base 64 form; this method works exactly the same way but
+     * allows the caller to specify which form to generate. Either form is parseable by {@link #fromString fromString()}.
+     *
+     * @param value actual value, never null
+     * @param base64 true for base 64 synax, false for list syntax
+     * @return string encoding of {@code value} acceptable to {@link #fromString fromString()}
+     * @throws IllegalArgumentException if {@code value} is null
+     */
+    public String toString(T array, boolean base64) {
+        return base64 ? this.toString(array) : super.toString(array);
+    }
+
     @Override
     public String toParseableString(T array) {
         String s = this.encodeString(array);
@@ -58,6 +75,24 @@ abstract class Base64ArrayType<T, E> extends ArrayType<T, E> {
         if (length == 0 || s.charAt(length - 1) != '=')
             s += '=';                                                   // required in order to be self-delimiting
         return s;
+    }
+
+    /**
+     * Encode a possibly null value as a {@link String} for later decoding by {@link #fromParseableString fromParseableString()}.
+     *
+     * <p>
+     * This class supports two {@link String} encodings: base 64 and "list" syntax with square brackets and commas.
+     * The method {@link #toParseableString(T)} returns the base 64 form; this method works exactly the same way but
+     * allows the caller to specify which form to generate. Either form is parseable by
+     * {@link #fromParseableString fromParseableString()}.
+     *
+     * @param value actual value (possibly null)
+     * @param base64 true for base 64 synax, false for list syntax
+     * @return string encoding of {@code value} acceptable to {@link #fromParseableString fromParseableString()}
+     * @throws IllegalArgumentException if {@code value} is null and this type does not support null
+     */
+    public String toParseableString(T array, boolean base64) {
+        return base64 ? this.toParseableString(array) : super.toParseableString(array);
     }
 
     @Override

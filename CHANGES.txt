@@ -8,6 +8,7 @@ Version Next
     - Fixed bug with indexes on integral primitive array types
     - Allow @OnChange methods that take zero parameters
     - Added support for "classes" and <oldschemas> to the ant task
+    - Added Base64ArrayType.toString(T, boolean)
     - Added NavigableSetPager utility class
 
 Version 1.3.4 Released November 19, 2015
