@@ -26,7 +26,8 @@ import java.util.NoSuchElementException;
  *
  * <p>
  * For a mutable implementation, subclasses should also implement {@link #put put()}, {@link #remove remove()},
- * {@link #clear clear()}, and make the {@link #keySet keySet()} and {@link #entrySet entrySet()} iterators mutable.
+ * {@link #clear clear()}, and make the {@link #navigableKeySet navigableKeySet()} and {@link #entrySet entrySet()}
+ * iterators mutable.
  * </p>
  *
  * <p>

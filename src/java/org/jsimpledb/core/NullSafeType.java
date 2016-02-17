@@ -12,9 +12,11 @@ import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
 
 /**
- * A {@link FieldType} that wraps any other {@link FieldType} not supporting null values and adds support for null values
- * by pre-pending to the binary encoding a {@code 0x00} for non-null values or a {@code 0xff} byte for null values. Therefore,
- * null values sort last.
+ * A {@link FieldType} that wraps any other {@link FieldType} not supporting null values and adds support for null values.
+ *
+ * <p>
+ * This class pre-pends a {@code 0x01} to the binary encoding of non-null values, and uses a single {@code 0xff} byte to
+ * represent null values. Therefore, null values sort last.
  *
  * <p>
  * The default value becomes null, for which {@code "null"} is the value returned by {@link #toParseableString toParseableString()}.
