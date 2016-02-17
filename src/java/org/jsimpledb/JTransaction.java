@@ -144,8 +144,6 @@ import org.slf4j.LoggerFactory;
  *      - Copy an object into another transaction</li>
  *  <li>{@link #copyTo(JTransaction, CopyState, Iterable) copyTo()}
  *      - Copy explicitly specified objects into another transaction</li>
- *  <li>{@link #setAllowForeignReferences setAllowForeignReferences()} - configure behavior when setting
- *      a reference to an object in a different transaction
  * </ul>
  *
  * <p>
@@ -206,7 +204,6 @@ public class JTransaction {
     private final JObjectCache jobjectCache = new JObjectCache(this);
 
     private SnapshotJTransaction snapshotTransaction;
-    private boolean allowForeignReferences;
     private boolean commitInvoked;
 
 // Constructor
@@ -674,52 +671,6 @@ public class JTransaction {
             if (referrent != null)
                 this.copyTo(copyState, dest, referrent, referrent, false, fieldIndex, fields);
         }
-    }
-
-// Foreign References
-
-    /**
-     * Get whether assigning reference to {@link JObject}s that live in a different transaction is allowed
-     * for objects that live in this transaction.
-     *
-     * <p>
-     * This setting controls the behavior when a reference field, either a simple field or a sub-field of a complex field,
-     * is set to point to a {@link JObject} that lives in a different {@link JTransaction}. When disabled,
-     * an {@link IllegalArgumentException} is thrown. When enabled, the reference is set to point to the
-     * corresponding {@link JObject} in this transaction, whether or not it actually exists.
-     *
-     * <p>
-     * Default is false.
-     *
-     * @return true if assignment of foreign references is allowed, otherwise false
-     */
-    public boolean isAllowForeignReferences() {
-        return this.allowForeignReferences;
-    }
-
-    /**
-     * Set whether assigning references to {@link JObject}s that live in a different transaction is allowed
-     * for objects that live in this transaction.
-     *
-     * @param allow true to allow assignment of foreign references, false to disallow
-     * @see #isAllowForeignReferences
-     */
-    public void setAllowForeignReferences(boolean allow) {
-        this.allowForeignReferences = allow;
-    }
-
-    /**
-     * Check whether the given {@link JObject} may be assigned as a reference in a {@link JObject} that
-     * lives in this transaction.
-     *
-     * @param jobj object reference to check
-     * @throws IllegalArgumentException if {@code jobj} lives in a different transaction
-     *  and {@link #isAllowForeignReferences} is false
-     * @see #isAllowForeignReferences
-     */
-    public void checkForeignReference(JObject jobj) {
-        if (jobj != null && !this.equals(jobj.getTransaction()) && !this.allowForeignReferences)
-            throw new IllegalArgumentException("referenced object lives in a different transaction");
     }
 
 // Object/Field Access

@@ -130,10 +130,8 @@ public class JReferenceField extends JSimpleField {
         //  ObjId id;
         //  if (jobj == null)
         //      id = null;
-        //  else {
-        //      this.getTransaction().checkForeignReference(jobj);
+        //  else
         //      id = jobj.getObjId();
-        //  }
         //  this.writeCoreAPIValue(id);
         //
         mv = cw.visitMethod(
@@ -147,10 +145,6 @@ public class JReferenceField extends JSimpleField {
         mv.visitJumpInsn(Opcodes.GOTO, label3);
         mv.visitLabel(label2);
         mv.visitFrame(Opcodes.F_SAME, 0, new Object[0], 0, new Object[0]);
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        generator.emitInvoke(mv, ClassGenerator.JOBJECT_GET_TRANSACTION);
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        generator.emitInvoke(mv, ClassGenerator.CHECK_FOREIGN_REFERENCE_METHOD);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         generator.emitInvoke(mv, ClassGenerator.JOBJECT_GET_OBJ_ID_METHOD);
         mv.visitLabel(label3);

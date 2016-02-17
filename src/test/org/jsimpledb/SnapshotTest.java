@@ -183,9 +183,6 @@ public class SnapshotTest extends TestSupport {
 
             p1.getSet().add(p1);
             p1.getSet().add(p2);
-
-            snapshot.getTransaction().setAllowForeignReferences(true);
-
             snapshot.setName("Another Name");
             snapshot.setAge(123);
             snapshot.getSet().add(p2);
