@@ -242,8 +242,8 @@ public abstract class NavigableSetPager<E> {
                 page.add(item);
         }
 
-        // If we ran out of items, bounce off the end and load a full page going in the opposite direction
-        if (this.anchor != null && this.limit == null) {
+        // If we immediately ran out of items, bounce off the end and load a full page going in the opposite direction
+        if (this.anchor != null && this.limit == null && page.isEmpty()) {
             this.anchor = null;
             this.backwards = !this.backwards;
             return this.readCurrentPage();
