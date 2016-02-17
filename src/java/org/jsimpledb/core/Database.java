@@ -491,7 +491,7 @@ public class Database {
 
             // Initialize database
             formatVersion = CURRENT_FORMAT_VERSION;
-            this.log.info("detected an uninitialized database; initializing now (format version " + formatVersion + ")");
+            this.log.debug("detected an uninitialized database; initializing now (format version " + formatVersion + ")");
             final ByteWriter writer = new ByteWriter();
             UnsignedIntEncoder.write(writer, CURRENT_FORMAT_VERSION);
             kvstore.put(FORMAT_VERSION_KEY.clone(), writer.getBytes());
@@ -581,16 +581,14 @@ public class Database {
                 if (bytesMap.isEmpty()) {
                     if (!uninitialized)
                         throw new InconsistentDatabaseException("database is initialized but contains zero schema versions");
-                } else {
-                    this.log.info("schema version " + version
-                      + " not found in database; known versions are " + bytesMap.keySet());
-                }
+                } else
+                    this.log.debug("schema version " + version + " not found in database; known versions are " + bytesMap.keySet());
 
                 // Check whether we can add a new schema version
                 this.checkAddNewSchema(schemaModel, version, allowNewSchema);
 
                 // Record new schema in database
-                this.log.info("recording new schema version " + version + " into database");
+                this.log.debug("recording new schema version " + version + " into database");
                 this.writeSchema(kvstore, version, schemaModel, compressedSchemaXML);
 
                 // Try again
