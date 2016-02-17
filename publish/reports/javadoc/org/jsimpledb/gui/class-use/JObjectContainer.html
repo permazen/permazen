@@ -76,7 +76,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.gui">org.jsimpledb.gui</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB Vaadin GUI generator classes.</div>
+<div class="block">Classes to facilitate Vaadin applications that interact with a JSimpleDB database.</div>
 </td>
 </tr>
 </tbody>
@@ -98,7 +98,27 @@
 <tr class="altColor">
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui">ExprQueryJObjectContainer</a></strong></code>
-<div class="block"><a href="../../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> whose contents are determined by a Java expression.</div>
+<div class="block"><a href="../../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui"><code>QueryJObjectContainer</code></a> whose query is defined by a Java expression.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui">QueryJObjectContainer</a></strong></code>
+<div class="block">Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a> backed by <a href="../../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> Java model objects acquired by performing
+ a transactional query and copying out the results into a <a href="../../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">ReloadableJObjectContainer</a></strong></code>
+<div class="block">A <a href="../../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> that supports a <a href="../../../../org/jsimpledb/gui/ReloadableJObjectContainer.html#reload()"><code>ReloadableJObjectContainer.reload()</code></a> operation.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/SnapshotJObjectContainer.html" title="class in org.jsimpledb.gui">SnapshotJObjectContainer</a></strong></code>
+<div class="block">Specialized <a href="../../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> for use with key/value stores that implement
+ <a href="../../../../org/jsimpledb/kv/KVTransaction.html#mutableSnapshot()"><code>KVTransaction.mutableSnapshot()</code></a>.</div>
 </td>
 </tr>
 </tbody>

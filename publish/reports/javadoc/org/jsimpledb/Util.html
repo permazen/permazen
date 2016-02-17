@@ -94,7 +94,7 @@
 <li class="blockList">
 <hr>
 <br>
-<pre>public final class <a href="../../src-html/org/jsimpledb/Util.html#line.39">Util</a>
+<pre>public final class <a href="../../src-html/org/jsimpledb/Util.html#line.40">Util</a>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Various utility routines.</div>
 </li>
@@ -218,12 +218,12 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>requiresDefaultValidation</h4>
-<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.77">requiresDefaultValidation</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type)</pre>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.78">requiresDefaultValidation</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type)</pre>
 <div class="block">Determine if instances of the given type require any validation under the default validation group.
 
  <p>
  This will be true if <code>type</code> or any of its declared methods has a JSR 303 (<i>public</i> methods only)
- or <a href="../../org/jsimpledb/annotation/Validate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;Validate</code></a> annotation, or if any of its super-types requires validation.
+ or <a href="../../org/jsimpledb/annotation/OnValidate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnValidate</code></a> annotation, or if any of its super-types requires validation.
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - object type</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if <code>type</code> has any validation requirements</dd>
@@ -237,7 +237,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>requiresDefaultValidation</h4>
-<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.117">requiresDefaultValidation</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Method.html?is-external=true" title="class or interface in java.lang.reflect">Method</a>&nbsp;method)</pre>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.122">requiresDefaultValidation</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Method.html?is-external=true" title="class or interface in java.lang.reflect">Method</a>&nbsp;method)</pre>
 <div class="block">Determine if the given getter method, or any method it overrides, has a JSR 303 validation constraint
  applicable under the default validation group.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>method</code> - annotated method</dd>
@@ -252,7 +252,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>hasDefaultValidationAnnotation</h4>
-<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.141">hasDefaultValidationAnnotation</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/AnnotatedElement.html?is-external=true" title="class or interface in java.lang.reflect">AnnotatedElement</a>&nbsp;obj)</pre>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.146">hasDefaultValidationAnnotation</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/AnnotatedElement.html?is-external=true" title="class or interface in java.lang.reflect">AnnotatedElement</a>&nbsp;obj)</pre>
 <div class="block">Determine whether the given object has any JSR 303 annotation(s) defining validation constraints in the default group.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>obj</code> - annotated element</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if <code>obj</code> has one or more JSR 303 default validation constraint annotations</dd>
@@ -266,7 +266,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>isGroupBeingValidated</h4>
-<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.169">isGroupBeingValidated</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;constraintGroup,
+<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.174">isGroupBeingValidated</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;constraintGroup,
                             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;[]&nbsp;validationGroups)</pre>
 <div class="block">Determine if a constraint whose <code>groups()</code> contain the given constraint group should be applied
  when validating with the given validation groups.</div>
@@ -282,7 +282,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>isAnyGroupBeingValidated</h4>
-<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.189">isAnyGroupBeingValidated</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;[]&nbsp;constraintGroups,
+<pre>public static&nbsp;boolean&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.194">isAnyGroupBeingValidated</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;[]&nbsp;constraintGroups,
                                <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;[]&nbsp;validationGroups)</pre>
 <div class="block">Determine if a constraint whose <code>groups()</code> contain the given constraint groups should be applied
  when validating with the given validation groups.</div>
@@ -298,7 +298,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>findLowestCommonAncestorOfClasses</h4>
-<pre>public static&nbsp;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.271">findLowestCommonAncestorOfClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;types)</pre>
+<pre>public static&nbsp;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.276">findLowestCommonAncestorOfClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&gt;&nbsp;types)</pre>
 <div class="block">Find the narrowest type that is a supertype of all of the given types.
 
  <p>
@@ -315,7 +315,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>findLowestCommonAncestor</h4>
-<pre>public static&nbsp;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.291">findLowestCommonAncestor</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;&nbsp;types)</pre>
+<pre>public static&nbsp;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.296">findLowestCommonAncestor</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;?&gt;&gt;&nbsp;types)</pre>
 <div class="block">Find the narrowest type that is a supertype of all of the given types.
 
  <p>
@@ -332,7 +332,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getWildcardedType</h4>
-<pre>public static&nbsp;&lt;T&gt;&nbsp;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;? extends T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.370">getWildcardedType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
+<pre>public static&nbsp;&lt;T&gt;&nbsp;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;? extends T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.375">getWildcardedType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
 <div class="block">Parameterize the raw type with wildcards.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - raw type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - raw type</dd>
 <dt><span class="strong">Returns:</span></dt><dd><code>type</code> genericized with wildcards</dd></dl>
@@ -344,7 +344,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>getTypeParameter</h4>
-<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</a>&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.388">getTypeParameter</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</a>&nbsp;type,
+<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</a>&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.393">getTypeParameter</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</a>&nbsp;type,
                     int&nbsp;index)</pre>
 <div class="block">Get the n'th generic type parameter.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - parameterized generic type</dd><dd><code>index</code> - type parameter index (zero based)</dd>
@@ -359,7 +359,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockList">
 <li class="blockList">
 <h4>invoke</h4>
-<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.405">invoke</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Method.html?is-external=true" title="class or interface in java.lang.reflect">Method</a>&nbsp;method,
+<pre>public static&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.410">invoke</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Method.html?is-external=true" title="class or interface in java.lang.reflect">Method</a>&nbsp;method,
             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;target,
             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>...&nbsp;params)</pre>
 <div class="block">Invoke method via reflection and re-throw any checked exception wrapped in an <a href="../../org/jsimpledb/JSimpleDBException.html" title="class in org.jsimpledb"><code>JSimpleDBException</code></a>.</div>
@@ -373,7 +373,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <ul class="blockListLast">
 <li class="blockList">
 <h4>newParameterizedType</h4>
-<pre>public static&nbsp;&lt;T&gt;&nbsp;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;? extends T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.433">newParameterizedType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;target,
+<pre>public static&nbsp;&lt;T&gt;&nbsp;<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/reflect/TypeToken.html?is-external=true" title="class or interface in com.google.common.reflect">TypeToken</a>&lt;? extends T&gt;&nbsp;<a href="../../src-html/org/jsimpledb/Util.html#line.438">newParameterizedType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;target,
                                               <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/reflect/Type.html?is-external=true" title="class or interface in java.lang.reflect">Type</a>[]&nbsp;params)</pre>
 <div class="block">Convert a raw class back into its generic type using caller-supplied type parameters.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - raw class type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>target</code> - raw class</dd><dd><code>params</code> - type parameters</dd>

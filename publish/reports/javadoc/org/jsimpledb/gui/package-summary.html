@@ -35,7 +35,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../org/jsimpledb/demo/package-summary.html">Prev Package</a></li>
-<li><a href="../../../org/jsimpledb/index/package-summary.html">Next Package</a></li>
+<li><a href="../../../org/jsimpledb/gui/app/package-summary.html">Next Package</a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../index.html?org/jsimpledb/gui/package-summary.html" target="_top">Frames</a></li>
@@ -63,29 +63,12 @@
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;org.jsimpledb.gui</h1>
 <div class="docSummary">
-<div class="block">JSimpleDB Vaadin GUI generator classes.</div>
+<div class="block">Classes to facilitate Vaadin applications that interact with a JSimpleDB database.</div>
 </div>
 <p>See:&nbsp;<a href="#package_description">Description</a></p>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
-<li class="blockList">
-<table class="packageSummary" border="0" cellpadding="3" cellspacing="0" summary="Interface Summary table, listing interfaces, and an explanation">
-<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Interface</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/GUIConfig.html" title="interface in org.jsimpledb.gui">GUIConfig</a></td>
-<td class="colLast">
-<div class="block">GUI configuration object.</div>
-</td>
-</tr>
-</tbody>
-</table>
-</li>
 <li class="blockList">
 <table class="packageSummary" border="0" cellpadding="3" cellspacing="0" summary="Class Summary table, listing classes, and an explanation">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
@@ -101,93 +84,57 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/AbstractUI.html" title="class in org.jsimpledb.gui">AbstractUI</a></td>
-<td class="colLast">
-<div class="block">Superclass of the various <a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui"><code>UI</code></a>s that constitute the GUI.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/ChangePublisher.html" title="class in org.jsimpledb.gui">ChangePublisher</a></td>
-<td class="colLast">
-<div class="block">Publishes change notifications.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/ConfirmWindow.html" title="class in org.jsimpledb.gui">ConfirmWindow</a></td>
 <td class="colLast">
 <div class="block">A confirmation window.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/DataChangeEvent.html" title="class in org.jsimpledb.gui">DataChangeEvent</a></td>
-<td class="colLast">
-<div class="block">Spring application event that notifies about a <a href="../../../org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change"><code>Change</code></a> to the database.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui">ExprQueryJObjectContainer</a></td>
 <td class="colLast">
-<div class="block"><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> whose contents are determined by a Java expression.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/GUIUIProvider.html" title="class in org.jsimpledb.gui">GUIUIProvider</a></td>
-<td class="colLast">
-<div class="block"><a href="https://vaadin.com/api/com/vaadin/server/UIProvider.html?is-external=true" title="class or interface in com.vaadin.server"><code>UIProvider</code></a> for this GUI.</div>
+<div class="block"><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui"><code>QueryJObjectContainer</code></a> whose query is defined by a Java expression.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/HorizontalLine.html" title="class in org.jsimpledb.gui">HorizontalLine</a></td>
-<td class="colLast">
-<div class="block">Simple horizontal line.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/JObjectChooser.html" title="class in org.jsimpledb.gui">JObjectChooser</a></td>
 <td class="colLast">
 <div class="block">Contains widgets that allow choosing an object reference.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></td>
 <td class="colLast">
-<div class="block">General purpose support superclass for Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a>s backed by <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> database objects.</div>
+<div class="block">Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a> backed by <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> Java model objects.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/JObjectContainer.ObjIdPropertyDef.html" title="class in org.jsimpledb.gui">JObjectContainer.ObjIdPropertyDef</a></td>
 <td class="colLast">
 <div class="block">Implements the <a href="../../../org/jsimpledb/gui/JObjectContainer.html#OBJECT_ID_PROPERTY"><code>JObjectContainer.OBJECT_ID_PROPERTY</code></a> property.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/JObjectContainer.ObjPropertyDef.html" title="class in org.jsimpledb.gui">JObjectContainer.ObjPropertyDef</a>&lt;T&gt;</td>
 <td class="colLast">
 <div class="block">Support superclass for <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/PropertyDef.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>PropertyDef</code></a> implementations that derive the property value from a <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/JObjectContainer.ObjTypePropertyDef.html" title="class in org.jsimpledb.gui">JObjectContainer.ObjTypePropertyDef</a></td>
 <td class="colLast">
 <div class="block">Implements the <a href="../../../org/jsimpledb/gui/JObjectContainer.html#TYPE_PROPERTY"><code>JObjectContainer.TYPE_PROPERTY</code></a> property.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/JObjectContainer.ObjVersionPropertyDef.html" title="class in org.jsimpledb.gui">JObjectContainer.ObjVersionPropertyDef</a></td>
 <td class="colLast">
 <div class="block">Implements the <a href="../../../org/jsimpledb/gui/JObjectContainer.html#VERSION_PROPERTY"><code>JObjectContainer.VERSION_PROPERTY</code></a> property.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/JObjectContainer.RefLabelPropertyDef.html" title="class in org.jsimpledb.gui">JObjectContainer.RefLabelPropertyDef</a></td>
 <td class="colLast">
 <div class="block">Implements the <a href="../../../org/jsimpledb/gui/JObjectContainer.html#REFERENCE_LABEL_PROPERTY"><code>JObjectContainer.REFERENCE_LABEL_PROPERTY</code></a> property.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/JObjectEditorWindow.html" title="class in org.jsimpledb.gui">JObjectEditorWindow</a></td>
-<td class="colLast">
-<div class="block">GUI window for editing a database object.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -197,40 +144,22 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/Main.html" title="class in org.jsimpledb.gui">Main</a></td>
+<td class="colFirst"><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui">QueryJObjectContainer</a></td>
 <td class="colLast">
-<div class="block">GUI main entry point.</div>
+<div class="block">Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a> backed by <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> Java model objects acquired by performing
+ a transactional query and copying out the results into a <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/MainPanel.html" title="class in org.jsimpledb.gui">MainPanel</a></td>
-<td class="colLast">
-<div class="block">Main GUI panel containing the object chooser, object table, buttons, and expresssion text area.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/MainUI.html" title="class in org.jsimpledb.gui">MainUI</a></td>
-<td class="colLast">
-<div class="block">Main GUI <a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui"><code>UI</code></a> component.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/NullableField.html" title="class in org.jsimpledb.gui">NullableField</a>&lt;T&gt;</td>
-<td class="colLast">
-<div class="block">Wraps a <a href="https://vaadin.com/api/com/vaadin/ui/Field.html?is-external=true" title="class or interface in com.vaadin.ui"><code>Field</code></a> that is capable of displaying, but not necessarily choosing, a null value,
- and adds a "Null" button that sets the value to null.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/ReferenceFieldConverter.html" title="class in org.jsimpledb.gui">ReferenceFieldConverter</a></td>
 <td class="colLast">
 <div class="block">Vaadin <a href="https://vaadin.com/api/com/vaadin/data/util/converter/Converter.html?is-external=true" title="class or interface in com.vaadin.data.util.converter"><code>Converter</code></a> for that converts between <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a>'s and <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/ReferenceFieldField.html" title="class in org.jsimpledb.gui">ReferenceFieldField</a></td>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">ReloadableJObjectContainer</a></td>
 <td class="colLast">
-<div class="block">A Vaadin <a href="https://vaadin.com/api/com/vaadin/ui/Field.html?is-external=true" title="class or interface in com.vaadin.ui"><code>Field</code></a> that edits a database object reference.</div>
+<div class="block">A <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> that supports a <a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html#reload()"><code>ReloadableJObjectContainer.reload()</code></a> operation.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -240,20 +169,21 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../org/jsimpledb/gui/SimpleFieldFieldBuilder.html" title="class in org.jsimpledb.gui">SimpleFieldFieldBuilder</a></td>
-<td class="colLast">
-<div class="block">Builds <a href="https://vaadin.com/api/com/vaadin/ui/Field.html?is-external=true" title="class or interface in com.vaadin.ui"><code>Field</code></a>s for editing <a href="../../../org/jsimpledb/JSimpleField.html" title="class in org.jsimpledb"><code>JSimpleField</code></a> values.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/SizedLabel.html" title="class in org.jsimpledb.gui">SizedLabel</a></td>
 <td class="colLast">
 <div class="block">A <a href="https://vaadin.com/api/com/vaadin/ui/Label.html?is-external=true" title="class or interface in com.vaadin.ui"><code>Label</code></a> initialized to have undefined size, so its size shrinks to the content.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/SmallButton.html" title="class in org.jsimpledb.gui">SmallButton</a></td>
 <td class="colLast">&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../org/jsimpledb/gui/SnapshotJObjectContainer.html" title="class in org.jsimpledb.gui">SnapshotJObjectContainer</a></td>
+<td class="colLast">
+<div class="block">Specialized <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> for use with key/value stores that implement
+ <a href="../../../org/jsimpledb/kv/KVTransaction.html#mutableSnapshot()"><code>KVTransaction.mutableSnapshot()</code></a>.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">TypeContainer</a></td>
@@ -279,7 +209,8 @@
 <!--   -->
 </a>
 <h2 title="Package org.jsimpledb.gui Description">Package org.jsimpledb.gui Description</h2>
-<div class="block">JSimpleDB Vaadin GUI generator classes.</div>
+<div class="block">Classes to facilitate Vaadin applications that interact with a JSimpleDB database.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="https://vaadin.com/home">Vaadin</a></dd></dl>
 </div>
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <div class="bottomNav"><a name="navbar_bottom">
@@ -301,7 +232,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../org/jsimpledb/demo/package-summary.html">Prev Package</a></li>
-<li><a href="../../../org/jsimpledb/index/package-summary.html">Next Package</a></li>
+<li><a href="../../../org/jsimpledb/gui/app/package-summary.html">Next Package</a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../index.html?org/jsimpledb/gui/package-summary.html" target="_top">Frames</a></li>

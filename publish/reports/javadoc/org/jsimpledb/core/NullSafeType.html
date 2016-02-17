@@ -107,11 +107,13 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.30">NullSafeType</a>&lt;T&gt;
+<pre>public class <a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.32">NullSafeType</a>&lt;T&gt;
 extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;T&gt;</pre>
-<div class="block">A <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> that wraps any other <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> not supporting null values and adds support for null values
- by pre-pending to the binary encoding a <code>0x00</code> for non-null values or a <code>0xff</code> byte for null values. Therefore,
- null values sort last.
+<div class="block">A <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> that wraps any other <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> not supporting null values and adds support for null values.
+
+ <p>
+ This class pre-pends a <code>0x01</code> to the binary encoding of non-null values, and uses a single <code>0xff</code> byte to
+ represent null values. Therefore, null values sort last.
 
  <p>
  The default value becomes null, for which <code>"null"</code> is the value returned by <a href="../../../org/jsimpledb/core/NullSafeType.html#toParseableString(T)"><code>toParseableString()</code></a>.
@@ -312,7 +314,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>NOT_NULL_SENTINEL</h4>
-<pre>public static final&nbsp;int <a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.35">NOT_NULL_SENTINEL</a></pre>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.37">NOT_NULL_SENTINEL</a></pre>
 <div class="block">Not null sentinel byte value. Used only when inlining is not in effect.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.core.NullSafeType.NOT_NULL_SENTINEL">Constant Field Values</a></dd></dl>
 </li>
@@ -323,7 +325,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>NULL_SENTINEL</h4>
-<pre>public static final&nbsp;int <a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.40">NULL_SENTINEL</a></pre>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.42">NULL_SENTINEL</a></pre>
 <div class="block">Null sentinel byte value.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.core.NullSafeType.NULL_SENTINEL">Constant Field Values</a></dd></dl>
 </li>
@@ -334,7 +336,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockListLast">
 <li class="blockList">
 <h4>inner</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt; <a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.45">inner</a></pre>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt; <a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.47">inner</a></pre>
 <div class="block">The inner <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> that this instance wraps.</div>
 </li>
 </ul>
@@ -352,7 +354,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>NullSafeType</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.55">NullSafeType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.57">NullSafeType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
             <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;&nbsp;inner)</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - type name</dd><dd><code>inner</code> - inner type that is not null safe</dd></dl>
@@ -364,7 +366,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockListLast">
 <li class="blockList">
 <h4>NullSafeType</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.68">NullSafeType</a>(<a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;&nbsp;inner)</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.70">NullSafeType</a>(<a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;&nbsp;inner)</pre>
 <div class="block">Constructor. Takes type name from <code>inner</code>; therefore, this instance and <code>inner</code>
  cannot be both registered in a <a href="../../../org/jsimpledb/core/FieldTypeRegistry.html" title="class in org.jsimpledb.core"><code>FieldTypeRegistry</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>inner</code> - inner type that is not null safe</dd></dl>
@@ -384,7 +386,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>read</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.73">read</a>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.75">read</a>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#read(org.jsimpledb.util.ByteReader)">FieldType</a></code></strong></div>
 <div class="block">Read a value from the given input.</div>
 <dl>
@@ -402,7 +404,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>write</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.93">write</a>(<a href="../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.95">write</a>(<a href="../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
          <a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#write(org.jsimpledb.util.ByteWriter, T)">FieldType</a></code></strong></div>
 <div class="block">Write a value to the given output.</div>
@@ -418,7 +420,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>skip</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.104">skip</a>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.106">skip</a>(<a href="../../../org/jsimpledb/util/ByteReader.html" title="class in org.jsimpledb.util">ByteReader</a>&nbsp;reader)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#skip(org.jsimpledb.util.ByteReader)">FieldType</a></code></strong></div>
 <div class="block">Read and discard a value from the given input.</div>
 <dl>
@@ -433,7 +435,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>fromString</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.130">fromString</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;string)</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.132">fromString</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;string)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)">FieldType</a></code></strong></div>
 <div class="block">Parse a non-null value previously encoded by <a href="../../../org/jsimpledb/core/FieldType.html#toString(T)"><code>toString(T)</code></a>.
 
@@ -457,7 +459,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>toString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.135">toString</a>(<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.137">toString</a>(<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#toString(T)">FieldType</a></code></strong></div>
 <div class="block">Encode a non-null value as a <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> for later decoding by <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a>.
 
@@ -474,7 +476,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#toString(T)">toString</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - actual value, never null</dd>
-<dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code></dd><dt><span class="strong">See Also:</span></dt><dd><a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a></dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code> acceptable to <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a></dd><dt><span class="strong">See Also:</span></dt><dd><a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a></dd></dl>
 </li>
 </ul>
 <a name="fromParseableString(org.jsimpledb.parse.ParseContext)">
@@ -483,7 +485,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>fromParseableString</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.141">fromParseableString</a>(<a href="../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;context)</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.143">fromParseableString</a>(<a href="../../../org/jsimpledb/parse/ParseContext.html" title="class in org.jsimpledb.parse">ParseContext</a>&nbsp;context)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#fromParseableString(org.jsimpledb.parse.ParseContext)">FieldType</a></code></strong></div>
 <div class="block">Parse a value previously encoded by <a href="../../../org/jsimpledb/core/FieldType.html#toParseableString(T)"><code>toParseableString()</code></a> as a self-delimited <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a>
  and positioned at the start of the given parsing context.</div>
@@ -502,7 +504,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>toParseableString</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.146">toParseableString</a>(<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value)</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.148">toParseableString</a>(<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#toParseableString(T)">FieldType</a></code></strong></div>
 <div class="block">Encode a possibly null value as a <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> for later decoding by <a href="../../../org/jsimpledb/core/FieldType.html#fromParseableString(org.jsimpledb.parse.ParseContext)"><code>fromParseableString()</code></a>.
  The string value must be <i>self-delimiting</i>, i.e., decodable even when followed by arbitrary additional characters,
@@ -516,7 +518,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#toParseableString(T)">toParseableString</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - actual value (possibly null)</dd>
-<dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code></dd><dt><span class="strong">See Also:</span></dt><dd><a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a></dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code> acceptable to <a href="../../../org/jsimpledb/core/FieldType.html#fromParseableString(org.jsimpledb.parse.ParseContext)"><code>fromParseableString()</code></a></dd><dt><span class="strong">See Also:</span></dt><dd><a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a></dd></dl>
 </li>
 </ul>
 <a name="compare(java.lang.Object,java.lang.Object)">
@@ -527,7 +529,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>compare</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.151">compare</a>(<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value1,
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.153">compare</a>(<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value1,
           <a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&nbsp;value2)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#compare(T, T)">FieldType</a></code></strong></div>
 <div class="block">Order two field values.
@@ -556,7 +558,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>hasPrefix0xff</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.160">hasPrefix0xff</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.162">hasPrefix0xff</a>()</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#hasPrefix0xff()">FieldType</a></code></strong></div>
 <div class="block">Determine whether any of this field type's encoded values start with a <code>0xff</code> byte.
  Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
@@ -581,7 +583,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>hasPrefix0x00</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.165">hasPrefix0x00</a>()</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.167">hasPrefix0x00</a>()</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html#hasPrefix0x00()">FieldType</a></code></strong></div>
 <div class="block">Determine whether any of this field type's encoded values start with a <code>0x00</code> byte.
  Certain optimizations are possible when this is not the case. It is safe for this method to always return true.
@@ -606,7 +608,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockList">
 <li class="blockList">
 <h4>hashCode</h4>
-<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.172">hashCode</a>()</pre>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.174">hashCode</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#hashCode()">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>
@@ -619,7 +621,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 <ul class="blockListLast">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.177">equals</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jsimpledb/core/NullSafeType.html#line.179">equals</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.util">equals</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>

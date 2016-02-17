@@ -49,7 +49,7 @@
 <span class="sourceLineNo">041</span>    }<a name="line.41"></a>
 <span class="sourceLineNo">042</span><a name="line.42"></a>
 <span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * Read the counter's current value. Invoking this method will typically disable the lock-free<a name="line.44"></a>
+<span class="sourceLineNo">044</span>     * Read this counter's current value. Invoking this method will typically disable the lock-free<a name="line.44"></a>
 <span class="sourceLineNo">045</span>     * behavior of {@link #adjust adjust()} in the current transaction.<a name="line.45"></a>
 <span class="sourceLineNo">046</span>     *<a name="line.46"></a>
 <span class="sourceLineNo">047</span>     * @return current value of the counter<a name="line.47"></a>
@@ -62,7 +62,7 @@
 <span class="sourceLineNo">054</span>    }<a name="line.54"></a>
 <span class="sourceLineNo">055</span><a name="line.55"></a>
 <span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * Set the counter's value. Invoking this method will typically disable the lock-free<a name="line.57"></a>
+<span class="sourceLineNo">057</span>     * Set this counter's value. Invoking this method will typically disable the lock-free<a name="line.57"></a>
 <span class="sourceLineNo">058</span>     * behavior of {@link #adjust adjust()} in the current transaction.<a name="line.58"></a>
 <span class="sourceLineNo">059</span>     *<a name="line.59"></a>
 <span class="sourceLineNo">060</span>     * @param value new value for the counter<a name="line.60"></a>
@@ -75,7 +75,7 @@
 <span class="sourceLineNo">067</span>    }<a name="line.67"></a>
 <span class="sourceLineNo">068</span><a name="line.68"></a>
 <span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     * Adjust the counter's value by the specified amount.<a name="line.70"></a>
+<span class="sourceLineNo">070</span>     * Adjust this counter's value by the specified amount.<a name="line.70"></a>
 <span class="sourceLineNo">071</span>     *<a name="line.71"></a>
 <span class="sourceLineNo">072</span>     * @param offset amount to add to counter<a name="line.72"></a>
 <span class="sourceLineNo">073</span>     * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance<a name="line.73"></a>
@@ -85,8 +85,30 @@
 <span class="sourceLineNo">077</span>    public void adjust(long offset) {<a name="line.77"></a>
 <span class="sourceLineNo">078</span>        this.tx.adjustCounterField(this.id, this.storageId, offset, this.updateVersion);<a name="line.78"></a>
 <span class="sourceLineNo">079</span>    }<a name="line.79"></a>
-<span class="sourceLineNo">080</span>}<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * Increment this counter's value by one.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     *  was read is no longer usable<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * @throws org.jsimpledb.core.DeletedObjectException if the object from which this instance was read no longer exists<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     */<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    public void increment() {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        this.adjust(1);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * Decrement this counter's value by one.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     *<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @throws org.jsimpledb.kv.StaleTransactionException if the transaction from which this instance<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     *  was read is no longer usable<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @throws org.jsimpledb.core.DeletedObjectException if the object from which this instance was read no longer exists<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    public void decrement() {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        this.adjust(-1);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>}<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
 
 
 

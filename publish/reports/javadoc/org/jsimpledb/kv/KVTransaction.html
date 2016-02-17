@@ -239,13 +239,13 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <ul class="blockList">
 <li class="blockList">
 <h4>watchKey</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.107">watchKey</a>(byte[]&nbsp;key)</pre>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent">Future</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Void.html?is-external=true" title="class or interface in java.lang">Void</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.113">watchKey</a>(byte[]&nbsp;key)</pre>
 <div class="block">Watch a key to monitor for changes in its value.
 
  <p>
  When this method is invoked, <code>key</code>'s current value (if any) as read by this transaction is remembered. The returned
  <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a> completes if and when a different value for <code>key</code> is subsequently committed by some transaction,
- including possibly this one.
+ including possibly this one. This includes creation or deletion of the key.
 
  <p>
  Key watches outlive the transaction in which they are created, persisting until they complete or are
@@ -256,7 +256,9 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 
  <p>
  Key watches are not without overhead; applications should avoid overuse. For example, consider creating a
- single key that is used to consolidate modifications to a set of keys.
+ single key that is used to consolidate modifications to a set of keys; at the JSimpleDB layer, modification
+ of multiple objects and/or fields could detected by an <a href="../../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a>
+ method that increments a single <a href="../../../org/jsimpledb/Counter.html" title="class in org.jsimpledb"><code>Counter</code></a> whose key is then watched.
 
  <p>
  Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
@@ -268,7 +270,11 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
  A key watch is only guaranteed to be valid if the transaction in which it was created successfully commits.
 
  <p>
- Key watch support is optional; instances that don't support key watches throw <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.</div>
+ Key watch support is optional; instances that don't support key watches throw <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.
+
+ <p>
+ Note: many <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations actually return a
+ <a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - the key to watch</dd>
 <dt><span class="strong">Returns:</span></dt><dd>a <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a> that returns <code>key</code> when the value associated with <code>key</code> is modified</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -286,7 +292,7 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <ul class="blockList">
 <li class="blockList">
 <h4>commit</h4>
-<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.121">commit</a>()</pre>
+<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.127">commit</a>()</pre>
 <div class="block">Commit this transaction.
 
  <p>
@@ -305,7 +311,7 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <ul class="blockList">
 <li class="blockList">
 <h4>rollback</h4>
-<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.134">rollback</a>()</pre>
+<pre>void&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.140">rollback</a>()</pre>
 <div class="block">Cancel this transaction, if not already canceled.
 
  <p>
@@ -323,26 +329,28 @@ extends <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org
 <ul class="blockListLast">
 <li class="blockList">
 <h4>mutableSnapshot</h4>
-<pre><a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.162">mutableSnapshot</a>()</pre>
+<pre><a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/kv/KVTransaction.html#line.170">mutableSnapshot</a>()</pre>
 <div class="block">Create a mutable copy of the database content represented by this transaction.
 
  <p>
- The returned <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> should be mutable, and be completely independent of this transaction
- (subsequent changes to this transaction do not affect it, and vice-versa).
+ The returned <a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a> should be mutable, but all changes should remain private until
+ <a href="../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a> is invoked, at which time they should be discarded.
+ That is, the <a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a> it is completely independent from this transaction
+ (subsequent changes to either one do not affect the other).
 
  <p>
  Note that as with any other information extracted from a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>, the returned content
  should not be considered valid until this transaction has been successfully committed.
 
  <p>
- The returned <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> should be promply <a href="../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a>'d when no longer
- needed to release any underlying resources. In particular, the caller must ensure that the <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>
+ The returned <a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a> should be promply <a href="../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a>'d when no longer
+ needed to release any underlying resources. In particular, the caller must ensure that the <a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><code>CloseableKVStore</code></a>
  is <a href="../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a>'d even if this transaction's commit fails. This may require
  adding a transaction synchronization callback, etc.
 
  <p>
  This is an optional method; only some underlying key/value store technologies can efficiently support it.
- Implementations may throw <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a> if not supported.</div>
+ Implementations should throw <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a> if not supported.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>independent, mutable copy of this transaction's entire database content</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this method is not supported</dd>

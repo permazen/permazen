@@ -569,7 +569,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
  Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a>.
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - actual value, never null</dd>
-<dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code> acceptable to <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a></dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>value</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a></dd></dl>
 </li>
@@ -612,7 +612,7 @@ implements <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Comparat
  (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - actual value (possibly null)</dd>
-<dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code> acceptable to <a href="../../../org/jsimpledb/core/FieldType.html#fromParseableString(org.jsimpledb.parse.ParseContext)"><code>fromParseableString()</code></a></dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>value</code> is null and this type does not support null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="http://www.w3.org/TR/REC-xml/#charsets">The XML 1.0 Specification</a></dd></dl>
 </li>

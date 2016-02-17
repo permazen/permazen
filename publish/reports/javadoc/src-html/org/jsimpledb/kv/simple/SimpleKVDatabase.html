@@ -414,7 +414,7 @@
 <span class="sourceLineNo">406</span>            if (maxKey != null)<a name="line.406"></a>
 <span class="sourceLineNo">407</span>                mutations = mutations.headSet(Mutation.key(maxKey));<a name="line.407"></a>
 <span class="sourceLineNo">408</span>            final Mutation mutation = !mutations.isEmpty() ? mutations.last() : null;<a name="line.408"></a>
-<span class="sourceLineNo">409</span>            final KVPair entry = this.kv.getAtMost(maxKey);             // XXX BUG - not locked yet<a name="line.409"></a>
+<span class="sourceLineNo">409</span>            final KVPair entry = this.kv.getAtMost(maxKey);<a name="line.409"></a>
 <span class="sourceLineNo">410</span><a name="line.410"></a>
 <span class="sourceLineNo">411</span>            // Handle the case where neither is found<a name="line.411"></a>
 <span class="sourceLineNo">412</span>            if (mutation == null &amp;&amp; entry == null)<a name="line.412"></a>

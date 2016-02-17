@@ -118,110 +118,65 @@
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui">ExprQueryJObjectContainer</a></dd>
+<dd><a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">ReloadableJObjectContainer</a></dd>
 </dl>
 <hr>
 <br>
-<pre>public abstract class <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.159">JObjectContainer</a>
+<pre>public class <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.107">JObjectContainer</a>
 extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/SimpleKeyedContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">SimpleKeyedContainer</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</pre>
-<div class="block">General purpose support superclass for Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a>s backed by <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> database objects.
- Automatically creates properties for object ID, database type, version, and fields, as well as any custom properties
- defined by <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods in Java model classes,
- and handles <a href="../../../org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change"><code>Change</code></a> updates of backing objects or their related objects.
+<div class="block">Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a> backed by <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> Java model objects.
 
  <p>
- Instances are configured with a <b>type</b>, which can be any Java type (including interface types). The container
- will then be restricted to database objects that are instances of the configured type. The type may be null, in which
- case there is no restriction. The subclass method <a href="../../../org/jsimpledb/gui/JObjectContainer.html#queryForObjects()">queryForObjects()</a> determines which
- objects are actually loaded into the container. The items in the container are backed by in-memory copies of the
- corresponding database objects that live inside a <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> and therefore may persist
- indefinitely.
- </p>
-
- <p><b>Container Properties</b></p>
+ Automatically creates container properties for object ID, database type, schema version, and all fields, as well as any custom
+ properties defined by <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods in
+ Java model classes. The properties of each <a href="https://vaadin.com/api/com/vaadin/data/Item.html?is-external=true" title="class or interface in com.vaadin.data"><code>Item</code></a> in the container are derived from a corresponding
+ <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> which is usually stored in an in-memory <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> (which may contain other
+ related objects, allowing an <a href="https://vaadin.com/api/com/vaadin/data/Item.html?is-external=true" title="class or interface in com.vaadin.data"><code>Item</code></a>'s properties to be derived from those related objects as well).
 
  <p>
- Instances will have the following container properties:
+ Instances are configured with a <b>type</b>, which can be any Java type. The container will then be restricted to
+ database objects that are instances of the configured type. The type may be null, in which case there is no restriction.
+
+ <p>
+ Instances are loaded by invoking <a href="../../../org/jsimpledb/gui/JObjectContainer.html#load(java.lang.Iterable)"><code>load()</code></a> with an iteration of backing <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s.
+ Normally these <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s are contained in a <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.
+
+ <p>
+ Instances implement <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/Connectable.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>Connectable</code></a> and therefore must be <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#connect()" title="class or interface in org.dellroad.stuff.vaadin7"><code>connect()</code></a>'ed
+ prior to use and <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#disconnect()" title="class or interface in org.dellroad.stuff.vaadin7"><code>disconnect()</code></a>'ed after use (usually done in the associated widget's
+ <a href="https://vaadin.com/api/com/vaadin/ui/Component.html?is-external=true#attach()" title="class or interface in com.vaadin.ui"><code>attach()</code></a> and <a href="https://vaadin.com/api/com/vaadin/server/ClientConnector.html?is-external=true#detach()" title="class or interface in com.vaadin.server"><code>detach()</code></a> methods).
+
+ <p>
+ <b>Container Properties</b>
+
+ <p>
+ Instances have the following container properties:
  <ul>
   <li><a href="../../../org/jsimpledb/gui/JObjectContainer.html#OBJECT_ID_PROPERTY"><code>OBJECT_ID_PROPERTY</code></a>: Object <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a></li>
-  <li><a href="../../../org/jsimpledb/gui/JObjectContainer.html#TYPE_PROPERTY"><code>TYPE_PROPERTY</code></a>: Object type name (JSimpleDB type name, not Java type name, though these are typically the same)</li>
+  <li><a href="../../../org/jsimpledb/gui/JObjectContainer.html#TYPE_PROPERTY"><code>TYPE_PROPERTY</code></a>: Object type name (JSimpleDB type name, not Java type name, though the former
+      is by default the simple Java type name)</li>
   <li><a href="../../../org/jsimpledb/gui/JObjectContainer.html#VERSION_PROPERTY"><code>VERSION_PROPERTY</code></a>: Object schema version</li>
   <li><a href="../../../org/jsimpledb/gui/JObjectContainer.html#REFERENCE_LABEL_PROPERTY"><code>REFERENCE_LABEL_PROPERTY</code></a>: Object <b>reference label</b>, which is a short description identifying the
       object. Reference labels are used to provide "names" for objects that are more meaningful than object ID's
-      and are used as such in other <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> GUI classes. To customize the reference label for a Java model class,
+      and are used as such in other <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> GUI classes, for example when displaying the object in a list.
+      To customize the reference label for a Java model class,
       annotate a method with <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a><code>(</code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#REFERENCE_LABEL_PROPERTY"><code>REFERENCE_LABEL_PROPERTY</code></a><code>)</code>;
-      otherwise, the value of this property will be the same as <a href="../../../org/jsimpledb/gui/JObjectContainer.html#OBJECT_ID_PROPERTY"><code>OBJECT_ID_PROPERTY</code></a>.</li>
+      otherwise, the value of this property will be the same as <a href="../../../org/jsimpledb/gui/JObjectContainer.html#OBJECT_ID_PROPERTY"><code>OBJECT_ID_PROPERTY</code></a>. Note that objects with
+      customized reference labels will need to be included in the snapshot transaction also if they are referenced
+      by an object actually in the container.
+      </li>
   <li>A property for every <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> field that is common to all object types that sub-type
-      this instance's configured type. The property's ID is the field name; its value is as follows:
+      this containers's configured type. The property's ID is the field name; its value is as follows:
       <ul>
-          <li>Simple fields will show their string values</li>
-          <li>Reference fields show the <a href="../../../org/jsimpledb/gui/JObjectContainer.html#REFERENCE_LABEL_PROPERTY"><code>REFERENCE_LABEL_PROPERTY</code></a> of the referred-to object, or "Null"
+          <li>For simple fields, their <a href="../../../org/jsimpledb/core/FieldType.html#toString(T)">string form</a></li>
+          <li>For reference fields, the <a href="../../../org/jsimpledb/gui/JObjectContainer.html#REFERENCE_LABEL_PROPERTY"><code>REFERENCE_LABEL_PROPERTY</code></a> of the referred-to object, or "Null"
               if the reference is null</li>
-          <li>Set, list, and map fields show the first few entries in the collection</li>
+          <li>For set, list, and map fields, the first few entries in the collection</li>
       </ul>
   </li>
   <li>A property for each <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated method
       in the specified <b>type</b>. These properties will add to (or override) the properties listed above.
- </ul>
-
- <p><b>Loading</b></p>
-
- <p>
- Instances may be (re)loaded at any time by invoking <a href="../../../org/jsimpledb/gui/JObjectContainer.html#reload()"><code>reload()</code></a>. During reload, the container opens a <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>
- and then creates a <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> using the <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> returned by <a href="../../../org/jsimpledb/gui/JObjectContainer.html#buildKVStore()"><code>buildKVStore()</code></a>.
- This <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> holds the container's backing <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s, and is set as the current transaction while
- <a href="../../../org/jsimpledb/gui/JObjectContainer.html#queryForObjects()"><code>queryForObjects()</code></a> determines which <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s are included in the container. Therefore,
- <a href="../../../org/jsimpledb/gui/JObjectContainer.html#buildKVStore()"><code>buildKVStore()</code></a> must ensure that all objects needed are included; the default implementation does this automatically
- for key/value stores implementing <a href="../../../org/jsimpledb/kv/KVTransaction.html#mutableSnapshot()"><code>KVTransaction.mutableSnapshot()</code></a>.
-
- <p>
- It is up to <a href="../../../org/jsimpledb/gui/JObjectContainer.html#queryForObjects()"><code>queryForObjects()</code></a> to determine what and how many objects are returned, their sort order,
- etc. (any objects not instances of the configured type are ignored). The maximum number of objects that will be loaded is
- limited by a <a href="../../../org/jsimpledb/gui/JObjectContainer.html#setMaxObjects(int)">configurable</a> maximum.
-
- <p><b>Updating Items</b></p>
-
- <p>
- Instances support updating individual items without requiring a complete container reload by invoking
- <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleChange(org.jsimpledb.change.Change)"><code>handleChange()</code></a>. In a typical design pattern, <a href="../../../org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change"><code>Change</code></a> objects originate
- from <a href="../../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> methods and are broadcast (after copying into memory using
- a <a href="../../../org/jsimpledb/change/ChangeCopier.html" title="class in org.jsimpledb.change"><code>ChangeCopier</code></a>) to listeners such as this container by a transaction synchronization callback
- (see <a href="../../../org/jsimpledb/core/Transaction.html#addCallback(org.jsimpledb.core.Transaction.Callback)"><code>Transaction.addCallback()</code></a>).
- </p>
-
- <p>
- Moreover, this container keeps track of which related objects are associated with each backing object (according to
- <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a>). <a href="../../../org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change"><code>Change</code></a> events that affect a related object automatically cause
- the corresponding backing object(s) to update.
- </p>
-
- <p>
- This class responds to the creation or deletion of a database object matching this container's configured type
- by reloading the container; however, this is a conservative approach, as not necessarily every newly created (or
- deleted) object should be (or was) present in the container in the first place. Subclasses may wish to optimize this
- behavior by overriding <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleObjectCreate(org.jsimpledb.change.ObjectCreate)"><code>handleObjectCreate()</code></a> and/or <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleObjectDelete(org.jsimpledb.change.ObjectDelete)"><code>handleObjectDelete()</code></a>.
- </p>
-
- <p><b><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a> Limitations</b></p>
-
- <p>
- The use of <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a> methods has certain implications.
- First, if the method reads any of the object's field(s) via their Java getter methods (as would normally be expected),
- this will trigger a schema upgrade of the object if needed; however, this schema upgrade will occur in the
- container's in-memory <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> rather than in a real database transaction, so the
- <a href="../../../org/jsimpledb/gui/JObjectContainer.html#VERSION_PROPERTY"><code>VERSION_PROPERTY</code></a> will return a different schema version from what's in the database. The automatic schema
- upgrade can be avoided if desired by reading the field using the appropriate <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> field access method
- (e.g., <a href="../../../org/jsimpledb/JTransaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)"><code>JTransaction.readSimpleField()</code></a>) and being prepared to handle a
- <a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core"><code>UnknownFieldException</code></a> if/when the object has an older schema version that does not contain
- the requested field.
- </p>
-
- <p>
- Secondly, because the values of reference fields (including complex sub-fields) are displayed using reference labels,
- and these are typically derived from the referenced object's fields, those indirectly referenced objects need to be
- copied into the container's <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> as well. The easiest way to ensure these indirectly
- referenced objects are copied is by overriding <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a> as described above.
- </p></div>
+ </ul></div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../serialized-form.html#org.jsimpledb.gui.JObjectContainer">Serialized Form</a></dd></dl>
 </li>
 </ul>
@@ -321,40 +276,34 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#DEFAULT_MAX_OBJECTS">DEFAULT_MAX_OBJECTS</a></strong></code>
-<div class="block">Default maximum number of objects.</div>
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#jdb">jdb</a></strong></code>
+<div class="block">The associated <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#jdb">jdb</a></strong></code>
-<div class="block">The associated <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>, provding schema information.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>protected <a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#log">log</a></strong></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#OBJECT_ID_PROPERTY">OBJECT_ID_PROPERTY</a></strong></code>
 <div class="block">Container property name for the object ID property.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#REFERENCE_LABEL_PROPERTY">REFERENCE_LABEL_PROPERTY</a></strong></code>
 <div class="block">Container property name for the reference label property, which has type <a href="https://vaadin.com/api/com/vaadin/ui/Component.html?is-external=true" title="class or interface in com.vaadin.ui"><code>Component</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#TYPE_PROPERTY">TYPE_PROPERTY</a></strong></code>
 <div class="block">Container property name for the object type property.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#VERSION_PROPERTY">VERSION_PROPERTY</a></strong></code>
 <div class="block">Container property name for the object schema version property.</div>
@@ -398,112 +347,54 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#buildKVStore()">buildKVStore</a></strong>()</code>
-<div class="block">Build the <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> that will be used to back this container from the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyWithDependencies(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithDependencies</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
-                                        <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
-                                        <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</code>
-<div class="block">Copy the given database object, and any related objects needed by any
- <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods,
- into the specified transaction.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#disconnect()">disconnect</a></strong>()</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected abstract void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#doInCurrentTransaction(java.lang.Runnable)">doInCurrentTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</code>
-<div class="block">Perform the given action within the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected abstract void</code></td>
+<td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#doInTransaction(java.lang.Runnable)">doInTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</code>
 <div class="block">Perform the given action within a new <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)">getDependencies</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</code>
-<div class="block">Find objects related to the specified object that are needed by any
- <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated
- methods.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code><a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getKeyFor(org.jsimpledb.JObject)">getKeyFor</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getOrderedPropertyNames()">getOrderedPropertyNames</a></strong>()</code>
 <div class="block">Get the properties of this container in preferred order.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>&lt;V&gt;&nbsp;V</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getPropertyValue(org.jsimpledb.JObject, org.dellroad.stuff.vaadin7.PropertyDef)">getPropertyValue</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
                                 <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/PropertyDef.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">PropertyDef</a>&lt;V&gt;&nbsp;propertyDef)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getType()">getType</a></strong>()</code>
 <div class="block">Get the type restriction associated with this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><code>&lt;T&gt;&nbsp;void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleChange(org.jsimpledb.change.Change)">handleChange</a></strong>(<a href="../../../org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change">Change</a>&lt;T&gt;&nbsp;change)</code>
-<div class="block">Apply the given change to this container, if applicable.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected &lt;T&gt;&nbsp;void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleFieldChange(org.jsimpledb.change.FieldChange)">handleFieldChange</a></strong>(<a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change">FieldChange</a>&lt;T&gt;&nbsp;change)</code>
-<div class="block">Handle a <a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change"><code>FieldChange</code></a> event.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected &lt;T&gt;&nbsp;void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleObjectCreate(org.jsimpledb.change.ObjectCreate)">handleObjectCreate</a></strong>(<a href="../../../org/jsimpledb/change/ObjectCreate.html" title="class in org.jsimpledb.change">ObjectCreate</a>&lt;T&gt;&nbsp;change)</code>
-<div class="block">Handle an <a href="../../../org/jsimpledb/change/ObjectCreate.html" title="class in org.jsimpledb.change"><code>ObjectCreate</code></a> event.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected &lt;T&gt;&nbsp;void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleObjectDelete(org.jsimpledb.change.ObjectDelete)">handleObjectDelete</a></strong>(<a href="../../../org/jsimpledb/change/ObjectDelete.html" title="class in org.jsimpledb.change">ObjectDelete</a>&lt;T&gt;&nbsp;change)</code>
-<div class="block">Handle an <a href="../../../org/jsimpledb/change/ObjectDelete.html" title="class in org.jsimpledb.change"><code>ObjectDelete</code></a> event.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected abstract <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#queryForObjects()">queryForObjects</a></strong>()</code>
-<div class="block">Query for the database objects that will be used to fill this container.</div>
-</td>
-</tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#reload()">reload</a></strong>()</code>
-<div class="block">(Re)load this container.</div>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#load(java.lang.Iterable)">load</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;jobjs)</code>
+<div class="block">Load this container using the supplied backing <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#setMaxObjects(int)">setMaxObjects</a></strong>(int&nbsp;maxObjects)</code>
-<div class="block">Configure the maximum number of objects.</div>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#load(java.util.Iterator)">load</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;jobjs)</code>
+<div class="block">Load this container using the supplied backing <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#setType(java.lang.Class)">setType</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</code>
 <div class="block">Change the type restriction associated with this instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#updateItem(org.jsimpledb.JObject)">updateItem</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</code>
+<div class="block">Update a single item in this container by updating its backing object.</div>
 </td>
 </tr>
 </table>
@@ -519,7 +410,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.dellroad.stuff.vaadin7.<a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">AbstractSimpleContainer</a></h3>
-<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#addContainerFilter(com.vaadin.data.Container.Filter)" title="class or interface in org.dellroad.stuff.vaadin7">addContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#addContainerFilter(java.lang.Object, java.lang.String, boolean, boolean)" title="class or interface in org.dellroad.stuff.vaadin7">addContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#afterReload()" title="class or interface in org.dellroad.stuff.vaadin7">afterReload</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#connect()" title="class or interface in org.dellroad.stuff.vaadin7">connect</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#createBackedItem(T, java.util.Collection, org.dellroad.stuff.vaadin7.PropertyExtractor)" title="class or interface in org.dellroad.stuff.vaadin7">createBackedItem</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerFilters()" title="class or interface in org.dellroad.stuff.vaadin7">getContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerProperty(java.lang.Object, java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getContainerProperty</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerPropertyIds()" title="class or interface in org.dellroad.stuff.vaadin7">getContainerPropertyIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getItemIds()" title="class or interface in org.dellroad.stuff.vaadin7">getItemIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getPropertyExtractor()" title="class or interface in org.dellroad.stuff.vaadin7">getPropertyExtractor</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getSortableContainerPropertyIds()" title="class or interface in org.dellroad.stuff.vaadin7">getSortableContainerPropertyIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getType(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getType</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getUnfilteredItem(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getUnfilteredItem</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#internalRemoveAllItems()" title="class or interface in org.dellroad.stuff.vaadin7">internalRemoveAllItems</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#load(java.lang.Iterable)" title="class or interface in org.dellroad.stuff.vaadin7">load</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeAllContainerFilters()" title="class or interface in org.dellroad.stuff.vaadin7">removeAllContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeContainerFilter(com.vaadin.data.Container.Filter)" title="class or interface in org.dellroad.stuff.vaadin7">removeContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeContainerFilters(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">removeContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setProperties(java.util.Collection)" title="class or interface in org.dellroad.stuff.vaadin7">setProperties</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setProperty(org.dellroad.stuff.vaadin7.PropertyDef)" title="class or interface in org.dellroad.stuff.vaadin7">setProperty</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setPropertyExtractor(org.dellroad.stuff.vaadin7.PropertyExtractor)" title="class or interface in org.dellroad.stuff.vaadin7">setPropertyExtractor</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#sort(java.lang.Object[], boolean[])" title="class or interface in org.dellroad.stuff.vaadin7">sort</a></code></li>
+<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#addContainerFilter(com.vaadin.data.Container.Filter)" title="class or interface in org.dellroad.stuff.vaadin7">addContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#addContainerFilter(java.lang.Object, java.lang.String, boolean, boolean)" title="class or interface in org.dellroad.stuff.vaadin7">addContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#afterReload()" title="class or interface in org.dellroad.stuff.vaadin7">afterReload</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#connect()" title="class or interface in org.dellroad.stuff.vaadin7">connect</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#createBackedItem(T, java.util.Collection, org.dellroad.stuff.vaadin7.PropertyExtractor)" title="class or interface in org.dellroad.stuff.vaadin7">createBackedItem</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#disconnect()" title="class or interface in org.dellroad.stuff.vaadin7">disconnect</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerFilters()" title="class or interface in org.dellroad.stuff.vaadin7">getContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerProperty(java.lang.Object, java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getContainerProperty</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerPropertyIds()" title="class or interface in org.dellroad.stuff.vaadin7">getContainerPropertyIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getItemIds()" title="class or interface in org.dellroad.stuff.vaadin7">getItemIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getPropertyExtractor()" title="class or interface in org.dellroad.stuff.vaadin7">getPropertyExtractor</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getSortableContainerPropertyIds()" title="class or interface in org.dellroad.stuff.vaadin7">getSortableContainerPropertyIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getType(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getType</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getUnfilteredItem(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getUnfilteredItem</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#internalRemoveAllItems()" title="class or interface in org.dellroad.stuff.vaadin7">internalRemoveAllItems</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeAllContainerFilters()" title="class or interface in org.dellroad.stuff.vaadin7">removeAllContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeContainerFilter(com.vaadin.data.Container.Filter)" title="class or interface in org.dellroad.stuff.vaadin7">removeContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeContainerFilters(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">removeContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setProperties(java.util.Collection)" title="class or interface in org.dellroad.stuff.vaadin7">setProperties</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setProperty(org.dellroad.stuff.vaadin7.PropertyDef)" title="class or interface in org.dellroad.stuff.vaadin7">setProperty</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setPropertyExtractor(org.dellroad.stuff.vaadin7.PropertyExtractor)" title="class or interface in org.dellroad.stuff.vaadin7">setPropertyExtractor</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#sort(java.lang.Object[], boolean[])" title="class or interface in org.dellroad.stuff.vaadin7">sort</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_com.vaadin.data.util.AbstractInMemoryContainer">
@@ -570,24 +461,13 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="DEFAULT_MAX_OBJECTS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT_MAX_OBJECTS</h4>
-<pre>public static final&nbsp;int <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.164">DEFAULT_MAX_OBJECTS</a></pre>
-<div class="block">Default maximum number of objects.</div>
-<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.gui.JObjectContainer.DEFAULT_MAX_OBJECTS">Constant Field Values</a></dd></dl>
-</li>
-</ul>
 <a name="REFERENCE_LABEL_PROPERTY">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>REFERENCE_LABEL_PROPERTY</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.169">REFERENCE_LABEL_PROPERTY</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.112">REFERENCE_LABEL_PROPERTY</a></pre>
 <div class="block">Container property name for the reference label property, which has type <a href="https://vaadin.com/api/com/vaadin/ui/Component.html?is-external=true" title="class or interface in com.vaadin.ui"><code>Component</code></a>.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.gui.JObjectContainer.REFERENCE_LABEL_PROPERTY">Constant Field Values</a></dd></dl>
 </li>
@@ -598,7 +478,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>OBJECT_ID_PROPERTY</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.174">OBJECT_ID_PROPERTY</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.117">OBJECT_ID_PROPERTY</a></pre>
 <div class="block">Container property name for the object ID property.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.gui.JObjectContainer.OBJECT_ID_PROPERTY">Constant Field Values</a></dd></dl>
 </li>
@@ -609,7 +489,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>TYPE_PROPERTY</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.179">TYPE_PROPERTY</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.122">TYPE_PROPERTY</a></pre>
 <div class="block">Container property name for the object type property.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.gui.JObjectContainer.TYPE_PROPERTY">Constant Field Values</a></dd></dl>
 </li>
@@ -620,7 +500,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>VERSION_PROPERTY</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.184">VERSION_PROPERTY</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.127">VERSION_PROPERTY</a></pre>
 <div class="block">Container property name for the object schema version property.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.gui.JObjectContainer.VERSION_PROPERTY">Constant Field Values</a></dd></dl>
 </li>
@@ -631,7 +511,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>log</h4>
-<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.186">log</a></pre>
+<pre>protected final&nbsp;<a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.129">log</a></pre>
 </li>
 </ul>
 <a name="jdb">
@@ -640,8 +520,8 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockListLast">
 <li class="blockList">
 <h4>jdb</h4>
-<pre>protected final&nbsp;<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.191">jdb</a></pre>
-<div class="block">The associated <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>, provding schema information.</div>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a> <a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.134">jdb</a></pre>
+<div class="block">The associated <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>.</div>
 </li>
 </ul>
 </li>
@@ -658,7 +538,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockListLast">
 <li class="blockList">
 <h4>JObjectContainer</h4>
-<pre>protected&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.213">JObjectContainer</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
+<pre>protected&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.152">JObjectContainer</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
                 <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type)</pre>
 <div class="block">Constructor.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jdb</code> - <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> database</dd><dd><code>type</code> - type restriction, or null for no restriction</dd>
@@ -680,7 +560,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>getType</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.225">getType</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.164">getType</a>()</pre>
 <div class="block">Get the type restriction associated with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>Java type restriction, or null if there is none</dd></dl>
 </li>
@@ -691,21 +571,10 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>setType</h4>
-<pre>public&nbsp;&lt;T&gt;&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.236">setType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
+<pre>public&nbsp;&lt;T&gt;&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.175">setType</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;T&gt;&nbsp;type)</pre>
 <div class="block">Change the type restriction associated with this instance.
  Triggers a <a href="https://vaadin.com/api/com/vaadin/data/Container.PropertySetChangeEvent.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container.PropertySetChangeEvent</code></a> and typically requires a reload.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - Java type</dd><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - Java type restriction, or null for none</dd></dl>
-</li>
-</ul>
-<a name="setMaxObjects(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setMaxObjects</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.256">setMaxObjects</a>(int&nbsp;maxObjects)</pre>
-<div class="block">Configure the maximum number of objects.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>maxObjects</code> - maximum allowed objects</dd></dl>
 </li>
 </ul>
 <a name="getOrderedPropertyNames()">
@@ -714,7 +583,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>getOrderedPropertyNames</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.265">getOrderedPropertyNames</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.195">getOrderedPropertyNames</a>()</pre>
 <div class="block">Get the properties of this container in preferred order.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>property names</dd></dl>
 </li>
@@ -725,179 +594,63 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeyFor</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.270">getKeyFor</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.200">getKeyFor</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/SimpleKeyedContainer.html?is-external=true#getKeyFor(T)" title="class or interface in org.dellroad.stuff.vaadin7">getKeyFor</a></code>&nbsp;in class&nbsp;<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/SimpleKeyedContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">SimpleKeyedContainer</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>
-<a name="disconnect()">
+<a name="load(java.lang.Iterable)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>disconnect</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.277">disconnect</a>()</pre>
+<h4>load</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.214">load</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;jobjs)</pre>
+<div class="block">Load this container using the supplied backing <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s.
+
+ <p>
+ A container <a href="https://vaadin.com/api/com/vaadin/data/Item.html?is-external=true" title="class or interface in com.vaadin.data"><code>Item</code></a> will be created wrapping each iterated <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>;
+ <a href="https://vaadin.com/api/com/vaadin/data/Item.html?is-external=true" title="class or interface in com.vaadin.data"><code>Item</code></a> properties are accessible only while the containing transaction remains open.</div>
 <dl>
-<dt><strong>Specified by:</strong></dt>
-<dd><code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/Connectable.html?is-external=true#disconnect()" title="class or interface in org.dellroad.stuff.vaadin7">disconnect</a></code>&nbsp;in interface&nbsp;<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/Connectable.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">Connectable</a></code></dd>
 <dt><strong>Overrides:</strong></dt>
-<dd><code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#disconnect()" title="class or interface in org.dellroad.stuff.vaadin7">disconnect</a></code>&nbsp;in class&nbsp;<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">AbstractSimpleContainer</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></dd>
-</dl>
+<dd><code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#load(java.lang.Iterable)" title="class or interface in org.dellroad.stuff.vaadin7">load</a></code>&nbsp;in class&nbsp;<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">AbstractSimpleContainer</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>jobjs</code> - backing <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s</dd></dl>
 </li>
 </ul>
-<a name="reload()">
+<a name="load(java.util.Iterator)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>reload</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.288">reload</a>()</pre>
-<div class="block">(Re)load this container.</div>
+<h4>load</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.228">load</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;jobjs)</pre>
+<div class="block">Load this container using the supplied backing <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s.
+
+ <p>
+ A container <a href="https://vaadin.com/api/com/vaadin/data/Item.html?is-external=true" title="class or interface in com.vaadin.data"><code>Item</code></a> will be created wrapping each iterated <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>;
+ <a href="https://vaadin.com/api/com/vaadin/data/Item.html?is-external=true" title="class or interface in com.vaadin.data"><code>Item</code></a> properties are accessible only while the containing transaction remains open.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#load(java.util.Iterator)" title="class or interface in org.dellroad.stuff.vaadin7">load</a></code>&nbsp;in class&nbsp;<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">AbstractSimpleContainer</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>jobjs</code> - backing <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s</dd></dl>
 </li>
 </ul>
-<a name="buildKVStore()">
+<a name="updateItem(org.jsimpledb.JObject)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>buildKVStore</h4>
-<pre>protected&nbsp;<a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.352">buildKVStore</a>()</pre>
-<div class="block">Build the <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> that will be used to back this container from the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.
+<h4>updateItem</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.268">updateItem</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
+<div class="block">Update a single item in this container by updating its backing object.
 
  <p>
- This method should build a <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> containing a copy of the required portion of the current
- <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>, including all objects needed for the container.
-
- <p>
- The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> invokes <a href="../../../org/jsimpledb/JTransaction.html#getCurrent()"><code>JTransaction.getCurrent()</code></a>.<a href="../../../org/jsimpledb/JTransaction.html#getTransaction()"><code>getTransaction()</code></a>.<a href="../../../org/jsimpledb/core/Transaction.html#getKVTransaction()"><code>getKVTransaction()</code></a>.<a href="../../../org/jsimpledb/kv/KVTransaction.html#mutableSnapshot()"><code>mutableSnapshot()</code></a>; subclasses may override for
- <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> instances that don't support <a href="../../../org/jsimpledb/kv/KVTransaction.html#mutableSnapshot()"><code>KVTransaction.mutableSnapshot()</code></a>.
-
- <p>
- The returned <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> will be <a href="../../../org/jsimpledb/kv/CloseableKVStore.html#close()"><code>close()</code></a>'d when this container
- is reloaded or <a href="../../../org/jsimpledb/gui/JObjectContainer.html#disconnect()"><code>disconnect()</code></a>'ed.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>snapshot of the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> key/value store containing the required objects</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/JTransaction.html#getCurrent()"><code>JTransaction.getCurrent()</code></a></dd></dl>
-</li>
-</ul>
-<a name="handleChange(org.jsimpledb.change.Change)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>handleChange</h4>
-<pre>public&nbsp;&lt;T&gt;&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.376">handleChange</a>(<a href="../../../org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change">Change</a>&lt;T&gt;&nbsp;change)</pre>
-<div class="block">Apply the given change to this container, if applicable.
-
- <p>
- The changed object <a href="../../../org/jsimpledb/change/Change.html#getObject()">referred to</a> by <code>change</code> must be accessible.
- Unless this method is invoked from within the transaction in which the change occurred, this means that
- <code>change</code> must have been be copied out of its transaction, e.g, using a <a href="../../../org/jsimpledb/change/ChangeCopier.html" title="class in org.jsimpledb.change"><code>ChangeCopier</code></a>.
- </p>
-
- <p>
- The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> delegates to <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleObjectCreate(org.jsimpledb.change.ObjectCreate)"><code>handleObjectCreate()</code></a>,
- <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleObjectDelete(org.jsimpledb.change.ObjectDelete)"><code>handleObjectDelete()</code></a>, or <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleFieldChange(org.jsimpledb.change.FieldChange)"><code>handleFieldChange()</code></a> as appropriate.
- </p></div>
-<dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - type of the changed object</dd><dt><span class="strong">Parameters:</span></dt><dd><code>change</code> - change from a transaction</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>change</code> is null</dd>
-<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if <code>change</code> refers to a <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>
-  without an associated tranasction.</dd></dl>
-</li>
-</ul>
-<a name="handleObjectCreate(org.jsimpledb.change.ObjectCreate)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>handleObjectCreate</h4>
-<pre>protected&nbsp;&lt;T&gt;&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.418">handleObjectCreate</a>(<a href="../../../org/jsimpledb/change/ObjectCreate.html" title="class in org.jsimpledb.change">ObjectCreate</a>&lt;T&gt;&nbsp;change)</pre>
-<div class="block">Handle an <a href="../../../org/jsimpledb/change/ObjectCreate.html" title="class in org.jsimpledb.change"><code>ObjectCreate</code></a> event.
-
- <p>
- The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> <a href="../../../org/jsimpledb/gui/JObjectContainer.html#reload()">reloads</a> the container.
- </p></div>
-<dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - type of the changed object</dd><dt><span class="strong">Parameters:</span></dt><dd><code>change</code> - change from a transaction</dd></dl>
-</li>
-</ul>
-<a name="handleObjectDelete(org.jsimpledb.change.ObjectDelete)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>handleObjectDelete</h4>
-<pre>protected&nbsp;&lt;T&gt;&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.432">handleObjectDelete</a>(<a href="../../../org/jsimpledb/change/ObjectDelete.html" title="class in org.jsimpledb.change">ObjectDelete</a>&lt;T&gt;&nbsp;change)</pre>
-<div class="block">Handle an <a href="../../../org/jsimpledb/change/ObjectDelete.html" title="class in org.jsimpledb.change"><code>ObjectDelete</code></a> event.
-
- <p>
- The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> <a href="../../../org/jsimpledb/gui/JObjectContainer.html#reload()">reloads</a> the container.
- </p></div>
-<dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - type of the changed object</dd><dt><span class="strong">Parameters:</span></dt><dd><code>change</code> - change from a transaction</dd></dl>
-</li>
-</ul>
-<a name="handleFieldChange(org.jsimpledb.change.FieldChange)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>handleFieldChange</h4>
-<pre>protected&nbsp;&lt;T&gt;&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.448">handleFieldChange</a>(<a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change">FieldChange</a>&lt;T&gt;&nbsp;change)</pre>
-<div class="block">Handle a <a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change"><code>FieldChange</code></a> event.
-
- <p>
- The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> triggers value change events for all affected item(s) in this container.
- Affected items are those whose backing object is either the changed object, or has the changed object as a dependency
- according to <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a>.
- </p></div>
-<dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>T</code> - type of the changed object</dd><dt><span class="strong">Parameters:</span></dt><dd><code>change</code> - change from a transaction</dd></dl>
-</li>
-</ul>
-<a name="copyWithDependencies(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>copyWithDependencies</h4>
-<pre>protected&nbsp;<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.569">copyWithDependencies</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
-                           <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
-                           <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</pre>
-<div class="block">Copy the given database object, and any related objects needed by any
- <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods,
- into the specified transaction.
-
- <p>
- The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> copies <code>jobj</code>, and all of <code>jobj</code>'s related objects returned
- by <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a>, via <a href="../../../org/jsimpledb/JTransaction.html#copyTo(org.jsimpledb.JTransaction, org.jsimpledb.CopyState, java.lang.Iterable)"><code>JTransaction.copyTo(JTransaction, CopyState, Iterable)</code></a>.
- </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>target</code> - the object to copy, or null (ignored)</dd><dd><code>dest</code> - destination transaction</dd><dd><code>copyState</code> - tracks what's already been copied</dd>
-<dt><span class="strong">Returns:</span></dt><dd>the copy of <code>target</code> in <code>dest</code>, or null if <code>target</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)"><code>getDependencies()</code></a></dd></dl>
-</li>
-</ul>
-<a name="getDependencies(org.jsimpledb.JObject)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getDependencies</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.607">getDependencies</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj)</pre>
-<div class="block">Find objects related to the specified object that are needed by any
- <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated
- methods.
-
- <p>
- This defines all of the other objects on which any container property of <code>jobj</code> may depend.
- These related objects will copied along with <code>obj</code> into the container's
- <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a> when the container is (re)loaded.
-
- <p>
- The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> returns all objects that are directly referenced by <code>jobj</code>,
- delegating to <a href="../../../org/jsimpledb/JSimpleDB.html#getReferencedObjects(org.jsimpledb.JObject)"><code>JSimpleDB.getReferencedObjects()</code></a>.
- Subclasses may override this method to refine the selection.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>jobj</code> - the object being copied</dd>
-<dt><span class="strong">Returns:</span></dt><dd><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang"><code>Iterable</code></a> of additional objects to be copied, or null for none; any null values are ignored</dd>
-<dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>jobj</code> is null</dd></dl>
+ This updates the backing object with the same object ID as <code>jobj</code>, if any, and then fires
+ <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeEvent.html?is-external=true" title="class or interface in com.vaadin.data"><code>Property.ValueChangeEvent</code></a>s for all properties of the corresponding
+ <a href="https://vaadin.com/api/com/vaadin/data/Item.html?is-external=true" title="class or interface in com.vaadin.data"><code>Item</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>jobj</code> - updated database object</dd></dl>
 </li>
 </ul>
 <a name="doInTransaction(java.lang.Runnable)">
@@ -906,36 +659,12 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockList">
 <li class="blockList">
 <h4>doInTransaction</h4>
-<pre>protected abstract&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.616">doInTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
-<div class="block">Perform the given action within a new <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - the action to perform</dd></dl>
-</li>
-</ul>
-<a name="doInCurrentTransaction(java.lang.Runnable)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>doInCurrentTransaction</h4>
-<pre>protected abstract&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.623">doInCurrentTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
-<div class="block">Perform the given action within the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - the action to perform</dd></dl>
-</li>
-</ul>
-<a name="queryForObjects()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>queryForObjects</h4>
-<pre>protected abstract&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.635">queryForObjects</a>()</pre>
-<div class="block">Query for the database objects that will be used to fill this container. Objects should be returned in the
- desired order; any duplicates will be ignored.
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.285">doInTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
+<div class="block">Perform the given action within a new <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.
 
  <p>
- A <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> will be open in the current thread when this method is invoked.
- </p></div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>database objects</dd></dl>
+ The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> performs <code>action</code> within a new read-only transaction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - the action to perform</dd></dl>
 </li>
 </ul>
 <a name="getPropertyValue(org.jsimpledb.JObject, org.dellroad.stuff.vaadin7.PropertyDef)">
@@ -944,7 +673,7 @@ extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/jav
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getPropertyValue</h4>
-<pre>public&nbsp;&lt;V&gt;&nbsp;V&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.669">getPropertyValue</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
+<pre>public&nbsp;&lt;V&gt;&nbsp;V&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectContainer.html#line.327">getPropertyValue</a>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
                      <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/PropertyDef.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">PropertyDef</a>&lt;V&gt;&nbsp;propertyDef)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>

@@ -34,7 +34,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li>Prev Class</li>
+<li><a href="../../../org/jsimpledb/ant/OldSchemas.html" title="class in org.jsimpledb.ant"><span class="strong">Prev Class</span></a></li>
 <li>Next Class</li>
 </ul>
 <ul class="navList">
@@ -108,19 +108,27 @@
 </dl>
 <hr>
 <br>
-<pre>public class <a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.173">SchemaGeneratorTask</a>
+<pre>public class <a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.235">SchemaGeneratorTask</a>
 extends org.apache.tools.ant.Task</pre>
 <div class="block">Ant task for schema XML generation and/or verification.
 
  <p>
  This task scans the configured classpath for classes with <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>
  and <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations and either writes the generated schema
- to an XML file, or verifies the schema from an existing XML file.
- </p>
+ to an XML file, or verifies the schema matches an existing XML file.
 
  <p>
- The following tasks are supported:
- </p>
+ Generation of schema XML files and the use of this task is not necessary. However, it does allow certain
+ schema-related problems to be detected at build time instead of runtime. In particular, it can let you know
+ if any change to your model classes requires a new JSimpleDB schema version.
+
+ <p>
+ This task can also check for conflicts between the schema in question and older schema versions that may still
+ exist in production databases. These other schema versions are specified using nested <code>&lt;oldschemas&gt;</code>
+ elements, which work just like <code>&lt;fileset&gt;</code>'s.
+
+ <p>
+ The following attributes are supported by this task:
 
  <div style="margin-left: 20px;">
  <table border="1" cellpadding="3" cellspacing="0" summary="Supported Tasks">
@@ -176,11 +184,13 @@ extends org.apache.tools.ant.Task</pre>
   <td>No</td>
   <td>
       <p>
-      Whether to fail if verification fails.
+      Whether to fail if verification fails when <code>mode="verify"</code> or when older schema
+      versions are specified using nested <code>&lt;oldschemas&gt;</code> elements, which work just like
+      <code>&lt;fileset&gt;</code>s.
       </p>
 
       <p>
-      Default is <code>true</code>. Ignored unless <code>mode</code> is <code>verify</code>.
+      Default is <code>true</code>.
       </p>
  </td>
  </tr>
@@ -204,19 +214,34 @@ extends org.apache.tools.ant.Task</pre>
   <td>Yes</td>
   <td>
       <p>
-      Specifies the search path for classes with <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>
-      annotations.
+      Specifies the search path containing classes with <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>
+      and <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations.
       </p>
  </td>
  </tr>
  <tr>
   <td><code>packages</code></td>
-  <td>Yes</td>
+  <td>Yes, unless <code>classes</code> are specified</td>
   <td>
       <p>
       Specifies one or more Java package names (separated by commas and/or whitespace) under which to look
       for classes with <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>
-      and <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations.
+      or <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations.
+
+      <p>
+      Use of this attribute requires Spring's classpath scanning classes (<code>spring-context.jar</code>);
+      these must be on the <code>&lt;taskdef&gt;</code> classpath.
+      </p>
+ </td>
+ </tr>
+ <tr>
+  <td><code>classes</code></td>
+  <td>Yes, unless <code>packages</code> are specified</td>
+  <td>
+      <p>
+      Specifies one or more Java class names (separated by commas and/or whitespace) of
+      classes with <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>
+      or <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations.
       </p>
  </td>
  </tr>
@@ -237,14 +262,45 @@ extends org.apache.tools.ant.Task</pre>
  </div>
 
  <p>
- Example:
+ Classes are found by scanning the packages listed in the <code>"packages"</code> attribute.
+ Alternatively, or in addition, specific classes may specified using the <code>"classes"</code> attribute.
+
+ <p>
+ To install this task into ant:
+
  <pre>
-  &lt;project xmlns:jsimpledb="urn:org.dellroad.jsimpledb" ... &gt;
+  &lt;project xmlns:jsimpledb="urn:org.jsimpledb.ant" ... &gt;
       ...
-      &lt;taskdef uri="urn:org.dellroad.jsimpledb" name="schema"
+      &lt;taskdef uri="urn:org.jsimpledb.ant" name="schema"
         classname="org.jsimpledb.ant.SchemaGeneratorTask" classpathref="jsimpledb.classpath"/&gt;
-      &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
-        file="expected-schema.xml" packages="com.example.model"/&gt;
+ </pre>
+
+ <p>
+ Example of generating a schema XML file that corresponds to the specified Java model classes:
+
+ <pre>
+  &lt;jsimpledb:schema mode="generate" classpathref="myclasses.classpath"
+    file="schema.xml" packages="com.example.model"/&gt;
+ </pre>
+
+ <p>
+ Example of verifying that the schema generated from the Java model classes has not
+ changed incompatibly (i.e., in a way that would require a new schema version):
+
+ <pre>
+  &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
+    file="expected-schema.xml" packages="com.example.model"/&gt;
+ </pre>
+
+ <p>
+ Example of doing the same thing, and also verifying the generated schema is compatible with prior schema versions
+ that may still be in use in production databases:
+
+ <pre>
+  &lt;jsimpledb:schema mode="verify" classpathref="myclasses.classpath"
+    file="expected-schema.xml" packages="com.example.model"&gt;
+      &lt;jsimpledb:oldschemas dir="obsolete-schemas" includes="*.xml"/&gt;
+  &lt;/jsimpledb:schema&gt;
  </pre></div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>, 
 <a href="../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema"><code>SchemaModel</code></a></dd></dl>
@@ -321,12 +377,20 @@ extends org.apache.tools.ant.Task</pre>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/ant/SchemaGeneratorTask.html#addOldSchemas(org.jsimpledb.ant.OldSchemas)">addOldSchemas</a></strong>(<a href="../../../org/jsimpledb/ant/OldSchemas.html" title="class in org.jsimpledb.ant">OldSchemas</a>&nbsp;oldSchemas)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>org.apache.tools.ant.types.Path</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/ant/SchemaGeneratorTask.html#createClasspath()">createClasspath</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/ant/SchemaGeneratorTask.html#execute()">execute</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/ant/SchemaGeneratorTask.html#setClasses(java.lang.String)">setClasses</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;classes)</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
@@ -406,7 +470,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>MODE_VERIFY</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.175">MODE_VERIFY</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.237">MODE_VERIFY</a></pre>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.ant.SchemaGeneratorTask.MODE_VERIFY">Constant Field Values</a></dd></dl>
 </li>
 </ul>
@@ -416,7 +480,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>MODE_GENERATE</h4>
-<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.176">MODE_GENERATE</a></pre>
+<pre>public static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.238">MODE_GENERATE</a></pre>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jsimpledb.ant.SchemaGeneratorTask.MODE_GENERATE">Constant Field Values</a></dd></dl>
 </li>
 </ul>
@@ -434,7 +498,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SchemaGeneratorTask</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.173">SchemaGeneratorTask</a>()</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.235">SchemaGeneratorTask</a>()</pre>
 </li>
 </ul>
 </li>
@@ -445,13 +509,22 @@ extends org.apache.tools.ant.Task</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setClasses(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setClasses</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.251">setClasses</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;classes)</pre>
+</li>
+</ul>
 <a name="setPackages(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPackages</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.187">setPackages</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;packages)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.255">setPackages</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;packages)</pre>
 </li>
 </ul>
 <a name="setMode(java.lang.String)">
@@ -460,7 +533,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMode</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.191">setMode</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;mode)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.259">setMode</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;mode)</pre>
 </li>
 </ul>
 <a name="setMatchNames(boolean)">
@@ -469,7 +542,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setMatchNames</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.195">setMatchNames</a>(boolean&nbsp;matchNames)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.263">setMatchNames</a>(boolean&nbsp;matchNames)</pre>
 </li>
 </ul>
 <a name="setFailOnError(boolean)">
@@ -478,7 +551,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFailOnError</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.199">setFailOnError</a>(boolean&nbsp;failOnError)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.267">setFailOnError</a>(boolean&nbsp;failOnError)</pre>
 </li>
 </ul>
 <a name="setVerifiedProperty(java.lang.String)">
@@ -487,7 +560,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setVerifiedProperty</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.203">setVerifiedProperty</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;verifiedProperty)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.271">setVerifiedProperty</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;verifiedProperty)</pre>
 </li>
 </ul>
 <a name="setFile(java.io.File)">
@@ -496,7 +569,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFile</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.207">setFile</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;file)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.275">setFile</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;file)</pre>
 </li>
 </ul>
 <a name="createClasspath()">
@@ -505,7 +578,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>createClasspath</h4>
-<pre>public&nbsp;org.apache.tools.ant.types.Path&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.211">createClasspath</a>()</pre>
+<pre>public&nbsp;org.apache.tools.ant.types.Path&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.279">createClasspath</a>()</pre>
 </li>
 </ul>
 <a name="setClasspath(org.apache.tools.ant.types.Path)">
@@ -514,7 +587,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setClasspath</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.216">setClasspath</a>(org.apache.tools.ant.types.Path&nbsp;classPath)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.284">setClasspath</a>(org.apache.tools.ant.types.Path&nbsp;classPath)</pre>
 </li>
 </ul>
 <a name="setClasspathRef(org.apache.tools.ant.types.Reference)">
@@ -523,7 +596,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setClasspathRef</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.220">setClasspathRef</a>(org.apache.tools.ant.types.Reference&nbsp;ref)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.288">setClasspathRef</a>(org.apache.tools.ant.types.Reference&nbsp;ref)</pre>
 </li>
 </ul>
 <a name="setStorageIdGeneratorClass(java.lang.String)">
@@ -532,7 +605,16 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setStorageIdGeneratorClass</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.224">setStorageIdGeneratorClass</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;storageIdGeneratorClassName)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.292">setStorageIdGeneratorClass</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;storageIdGeneratorClassName)</pre>
+</li>
+</ul>
+<a name="addOldSchemas(org.jsimpledb.ant.OldSchemas)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addOldSchemas</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.296">addOldSchemas</a>(<a href="../../../org/jsimpledb/ant/OldSchemas.html" title="class in org.jsimpledb.ant">OldSchemas</a>&nbsp;oldSchemas)</pre>
 </li>
 </ul>
 <a name="execute()">
@@ -541,7 +623,7 @@ extends org.apache.tools.ant.Task</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>execute</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.232">execute</a>()</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/ant/SchemaGeneratorTask.html#line.304">execute</a>()</pre>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code>execute</code>&nbsp;in class&nbsp;<code>org.apache.tools.ant.Task</code></dd>
@@ -575,7 +657,7 @@ extends org.apache.tools.ant.Task</pre>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li>Prev Class</li>
+<li><a href="../../../org/jsimpledb/ant/OldSchemas.html" title="class in org.jsimpledb.ant"><span class="strong">Prev Class</span></a></li>
 <li>Next Class</li>
 </ul>
 <ul class="navList">

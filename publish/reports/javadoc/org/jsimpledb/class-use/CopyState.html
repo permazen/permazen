@@ -88,7 +88,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.gui">org.jsimpledb.gui</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB Vaadin GUI generator classes.</div>
+<div class="block">Classes to facilitate Vaadin applications that interact with a JSimpleDB database.</div>
 </td>
 </tr>
 </tbody>
@@ -196,10 +196,10 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
-<td class="colLast"><span class="strong">JObjectContainer.</span><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyWithDependencies(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithDependencies</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
-                                        <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
-                                        <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</code>
+<td class="colFirst"><code><a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
+<td class="colLast"><span class="strong">QueryJObjectContainer.</span><code><strong><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html#copyWithRelated(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithRelated</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
+                              <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+                              <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</code>
 <div class="block">Copy the given database object, and any related objects needed by any
  <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods,
  into the specified transaction.</div>

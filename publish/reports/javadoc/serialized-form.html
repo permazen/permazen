@@ -351,28 +351,6 @@
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="org.jsimpledb.gui.AbstractUI">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/AbstractUI.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.AbstractUI</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui">UI</a> implements Serializable</h3>
-<ul class="blockList">
-<li class="blockList"><a name="serializedForm">
-<!--   -->
-</a>
-<h3>Serialized Fields</h3>
-<ul class="blockList">
-<li class="blockList">
-<h4>log</h4>
-<pre><a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> log</pre>
-</li>
-<li class="blockListLast">
-<h4>rootLayout</h4>
-<pre><a href="https://vaadin.com/api/com/vaadin/ui/VerticalLayout.html?is-external=true" title="class or interface in com.vaadin.ui">VerticalLayout</a> rootLayout</pre>
-</li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="blockList"><a name="org.jsimpledb.gui.ConfirmWindow">
 <!--   -->
 </a>
@@ -403,28 +381,10 @@
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="org.jsimpledb.gui.DataChangeEvent">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/DataChangeEvent.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.DataChangeEvent</a> extends <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/context/ApplicationEvent.html?is-external=true" title="class or interface in org.springframework.context">ApplicationEvent</a> implements Serializable</h3>
-<ul class="blockList">
-<li class="blockList"><a name="serializedForm">
-<!--   -->
-</a>
-<h3>Serialized Fields</h3>
-<ul class="blockList">
-<li class="blockListLast">
-<h4>change</h4>
-<pre><a href="org/jsimpledb/change/Change.html" title="class in org.jsimpledb.change">Change</a>&lt;<a href="org/jsimpledb/change/Change.html" title="type parameter in Change">T</a>&gt; change</pre>
-</li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="blockList"><a name="org.jsimpledb.gui.ExprQueryJObjectContainer">
 <!--   -->
 </a>
-<h3>Class <a href="org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.ExprQueryJObjectContainer</a> extends <a href="org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a> implements Serializable</h3>
+<h3>Class <a href="org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.ExprQueryJObjectContainer</a> extends <a href="org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui">QueryJObjectContainer</a> implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList"><a name="serializedForm">
 <!--   -->
@@ -435,31 +395,13 @@
 <h4>session</h4>
 <pre><a href="org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a> session</pre>
 </li>
-<li class="blockList">
-<h4>dataChangeListener</h4>
-<pre>org.jsimpledb.gui.ExprQueryJObjectContainer.DataChangeListener dataChangeListener</pre>
-</li>
-<li class="blockList">
+<li class="blockListLast">
 <h4>contentExpression</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> contentExpression</pre>
 </li>
-<li class="blockListLast">
-<h4>eventMulticaster</h4>
-<pre><a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/context/event/ApplicationEventMulticaster.html?is-external=true" title="class or interface in org.springframework.context.event">ApplicationEventMulticaster</a> eventMulticaster</pre>
-</li>
 </ul>
 </li>
 </ul>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.GUIUIProvider">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/GUIUIProvider.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.GUIUIProvider</a> extends <a href="https://vaadin.com/api/com/vaadin/server/UIProvider.html?is-external=true" title="class or interface in com.vaadin.server">UIProvider</a> implements Serializable</h3>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.HorizontalLine">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/HorizontalLine.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.HorizontalLine</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/Panel.html?is-external=true" title="class or interface in com.vaadin.ui">Panel</a> implements Serializable</h3>
 </li>
 <li class="blockList"><a name="org.jsimpledb.gui.JObjectChooser">
 <!--   -->
@@ -556,7 +498,7 @@
 <li class="blockList">
 <h4>jdb</h4>
 <pre><a href="org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a> jdb</pre>
-<div class="block">The associated <a href="org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>, provding schema information.</div>
+<div class="block">The associated <a href="org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>.</div>
 </li>
 <li class="blockList">
 <h4>objIdPropertyDef</h4>
@@ -575,25 +517,130 @@
 <pre><a href="org/jsimpledb/gui/JObjectContainer.RefLabelPropertyDef.html" title="class in org.jsimpledb.gui">JObjectContainer.RefLabelPropertyDef</a> refLabelPropertyDef</pre>
 </li>
 <li class="blockList">
-<h4>dependenciesMap</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashMap.html?is-external=true" title="class or interface in java.util">HashMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashMap.html?is-external=true" title="class or interface in java.util">K</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/util/HashMap.html?is-external=true" title="class or interface in java.util">V</a>&gt; dependenciesMap</pre>
-</li>
-<li class="blockList">
 <h4>type</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">T</a>&gt; type</pre>
-</li>
-<li class="blockList">
-<h4>maxObjects</h4>
-<pre>int maxObjects</pre>
 </li>
 <li class="blockList">
 <h4>propertyScanner</h4>
 <pre><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesPropertyScanner.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">ProvidesPropertyScanner</a>&lt;<a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesPropertyScanner.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">T</a>&gt; propertyScanner</pre>
 </li>
-<li class="blockList">
+<li class="blockListLast">
 <h4>orderedPropertyNames</h4>
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">E</a>&gt; orderedPropertyNames</pre>
 </li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.JObjectTable">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/JObjectTable.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.JObjectTable</a> extends <a href="org/jsimpledb/gui/AbstractTable.html" title="class in org.jsimpledb.gui">AbstractTable</a>&lt;<a href="org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a>&gt; implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList"><a name="serializedForm">
+<!--   -->
+</a>
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockList">
+<h4>jdb</h4>
+<pre><a href="org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a> jdb</pre>
+</li>
+<li class="blockList">
+<h4>container</h4>
+<pre><a href="org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a> container</pre>
+</li>
+<li class="blockList">
+<h4>session</h4>
+<pre><a href="org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a> session</pre>
+</li>
+<li class="blockListLast">
+<h4>showFields</h4>
+<pre>boolean showFields</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.QueryJObjectContainer">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.QueryJObjectContainer</a> extends <a href="org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">ReloadableJObjectContainer</a> implements Serializable</h3>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.ReferenceFieldConverter">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/ReferenceFieldConverter.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.ReferenceFieldConverter</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList"><a name="serializedForm">
+<!--   -->
+</a>
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockListLast">
+<h4>jtx</h4>
+<pre><a href="org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a> jtx</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.ReloadableJObjectContainer">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.ReloadableJObjectContainer</a> extends <a href="org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList"><a name="serializedForm">
+<!--   -->
+</a>
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockListLast">
+<h4>vaadinSession</h4>
+<pre><a href="https://vaadin.com/api/com/vaadin/server/VaadinSession.html?is-external=true" title="class or interface in com.vaadin.server">VaadinSession</a> vaadinSession</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.SimpleFieldConverter">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/SimpleFieldConverter.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.SimpleFieldConverter</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList"><a name="serializedForm">
+<!--   -->
+</a>
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockListLast">
+<h4>fieldType</h4>
+<pre><a href="org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&gt; fieldType</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.SizedLabel">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/SizedLabel.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.SizedLabel</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/Label.html?is-external=true" title="class or interface in com.vaadin.ui">Label</a> implements Serializable</h3>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.SmallButton">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/SmallButton.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.SmallButton</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/Button.html?is-external=true" title="class or interface in com.vaadin.ui">Button</a> implements Serializable</h3>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.SnapshotJObjectContainer">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/SnapshotJObjectContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.SnapshotJObjectContainer</a> extends <a href="org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">ReloadableJObjectContainer</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList"><a name="serializedForm">
+<!--   -->
+</a>
+<h3>Serialized Fields</h3>
+<ul class="blockList">
 <li class="blockListLast">
 <h4>kvstore</h4>
 <pre><a href="org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv">CloseableKVStore</a> kvstore</pre>
@@ -602,10 +649,82 @@
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="org.jsimpledb.gui.JObjectEditorWindow">
+<li class="blockList"><a name="org.jsimpledb.gui.TypeContainer">
 <!--   -->
 </a>
-<h3>Class <a href="org/jsimpledb/gui/JObjectEditorWindow.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.JObjectEditorWindow</a> extends <a href="org/jsimpledb/gui/ConfirmWindow.html" title="class in org.jsimpledb.gui">ConfirmWindow</a> implements Serializable</h3>
+<h3>Class <a href="org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.TypeContainer</a> extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/SimpleKeyedContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">SimpleKeyedContainer</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;,<a href="org/jsimpledb/gui/TypeContainer.Node.html" title="class in org.jsimpledb.gui">TypeContainer.Node</a>&gt; implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList"><a name="serializedForm">
+<!--   -->
+</a>
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockList">
+<h4>log</h4>
+<pre><a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> log</pre>
+</li>
+<li class="blockList">
+<h4>jdb</h4>
+<pre><a href="org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a> jdb</pre>
+</li>
+<li class="blockList">
+<h4>rootType</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">T</a>&gt; rootType</pre>
+</li>
+<li class="blockListLast">
+<h4>rootList</h4>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">E</a>&gt; rootList</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.TypeTable">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/TypeTable.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.TypeTable</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/TreeTable.html?is-external=true" title="class or interface in com.vaadin.ui">TreeTable</a> implements Serializable</h3>
+</li>
+</ul>
+</li>
+<li class="blockList">
+<h2 title="Package">Package&nbsp;org.jsimpledb.gui.app</h2>
+<ul class="blockList">
+<li class="blockList"><a name="org.jsimpledb.gui.app.AbstractUI">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/app/AbstractUI.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.AbstractUI</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui">UI</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList"><a name="serializedForm">
+<!--   -->
+</a>
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockList">
+<h4>log</h4>
+<pre><a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> log</pre>
+</li>
+<li class="blockListLast">
+<h4>rootLayout</h4>
+<pre><a href="https://vaadin.com/api/com/vaadin/ui/VerticalLayout.html?is-external=true" title="class or interface in com.vaadin.ui">VerticalLayout</a> rootLayout</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.app.GUIUIProvider">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/app/GUIUIProvider.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.GUIUIProvider</a> extends <a href="https://vaadin.com/api/com/vaadin/server/UIProvider.html?is-external=true" title="class or interface in com.vaadin.server">UIProvider</a> implements Serializable</h3>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.app.HorizontalLine">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/app/HorizontalLine.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.HorizontalLine</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/Panel.html?is-external=true" title="class or interface in com.vaadin.ui">Panel</a> implements Serializable</h3>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.app.JObjectEditorWindow">
+<!--   -->
+</a>
+<h3>Class <a href="org/jsimpledb/gui/app/JObjectEditorWindow.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.JObjectEditorWindow</a> extends <a href="org/jsimpledb/gui/ConfirmWindow.html" title="class in org.jsimpledb.gui">ConfirmWindow</a> implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList"><a name="serializedForm">
 <!--   -->
@@ -645,47 +764,17 @@
 <pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/TreeMap.html?is-external=true" title="class or interface in java.util">TreeMap</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/TreeMap.html?is-external=true" title="class or interface in java.util">K</a>,<a href="https://docs.oracle.com/javase/7/docs/api/java/util/TreeMap.html?is-external=true" title="class or interface in java.util">V</a>&gt; fieldMap</pre>
 </li>
 <li class="blockListLast">
-<h4>changePublisher</h4>
-<pre><a href="org/jsimpledb/gui/ChangePublisher.html" title="class in org.jsimpledb.gui">ChangePublisher</a> changePublisher</pre>
+<h4>reloadContainer</h4>
+<pre><a href="org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">ReloadableJObjectContainer</a> reloadContainer</pre>
 </li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="org.jsimpledb.gui.JObjectTable">
+<li class="blockList"><a name="org.jsimpledb.gui.app.MainPanel">
 <!--   -->
 </a>
-<h3>Class <a href="org/jsimpledb/gui/JObjectTable.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.JObjectTable</a> extends <a href="org/jsimpledb/gui/AbstractTable.html" title="class in org.jsimpledb.gui">AbstractTable</a>&lt;<a href="org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a>&gt; implements Serializable</h3>
-<ul class="blockList">
-<li class="blockList"><a name="serializedForm">
-<!--   -->
-</a>
-<h3>Serialized Fields</h3>
-<ul class="blockList">
-<li class="blockList">
-<h4>jdb</h4>
-<pre><a href="org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a> jdb</pre>
-</li>
-<li class="blockList">
-<h4>container</h4>
-<pre><a href="org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a> container</pre>
-</li>
-<li class="blockList">
-<h4>session</h4>
-<pre><a href="org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a> session</pre>
-</li>
-<li class="blockListLast">
-<h4>showFields</h4>
-<pre>boolean showFields</pre>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.MainPanel">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/MainPanel.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.MainPanel</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/VerticalLayout.html?is-external=true" title="class or interface in com.vaadin.ui">VerticalLayout</a> implements Serializable</h3>
+<h3>Class <a href="org/jsimpledb/gui/app/MainPanel.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.MainPanel</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/VerticalLayout.html?is-external=true" title="class or interface in com.vaadin.ui">VerticalLayout</a> implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList"><a name="serializedForm">
 <!--   -->
@@ -713,8 +802,12 @@
 <pre><a href="https://vaadin.com/api/com/vaadin/ui/Button.html?is-external=true" title="class or interface in com.vaadin.ui">Button</a> upgradeButton</pre>
 </li>
 <li class="blockList">
+<h4>refreshButton</h4>
+<pre><a href="https://vaadin.com/api/com/vaadin/ui/Button.html?is-external=true" title="class or interface in com.vaadin.ui">Button</a> refreshButton</pre>
+</li>
+<li class="blockList">
 <h4>guiConfig</h4>
-<pre><a href="org/jsimpledb/gui/GUIConfig.html" title="interface in org.jsimpledb.gui">GUIConfig</a> guiConfig</pre>
+<pre><a href="org/jsimpledb/gui/app/GUIConfig.html" title="interface in org.jsimpledb.gui.app">GUIConfig</a> guiConfig</pre>
 </li>
 <li class="blockList">
 <h4>jdb</h4>
@@ -724,22 +817,18 @@
 <h4>session</h4>
 <pre><a href="org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a> session</pre>
 </li>
-<li class="blockList">
+<li class="blockListLast">
 <h4>objectChooser</h4>
 <pre><a href="org/jsimpledb/gui/JObjectChooser.html" title="class in org.jsimpledb.gui">JObjectChooser</a> objectChooser</pre>
 </li>
-<li class="blockListLast">
-<h4>changePublisher</h4>
-<pre><a href="org/jsimpledb/gui/ChangePublisher.html" title="class in org.jsimpledb.gui">ChangePublisher</a> changePublisher</pre>
-</li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="org.jsimpledb.gui.MainUI">
+<li class="blockList"><a name="org.jsimpledb.gui.app.MainUI">
 <!--   -->
 </a>
-<h3>Class <a href="org/jsimpledb/gui/MainUI.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.MainUI</a> extends <a href="org/jsimpledb/gui/AbstractUI.html" title="class in org.jsimpledb.gui">AbstractUI</a> implements Serializable</h3>
+<h3>Class <a href="org/jsimpledb/gui/app/MainUI.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.MainUI</a> extends <a href="org/jsimpledb/gui/app/AbstractUI.html" title="class in org.jsimpledb.gui.app">AbstractUI</a> implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList"><a name="serializedForm">
 <!--   -->
@@ -748,16 +837,16 @@
 <ul class="blockList">
 <li class="blockListLast">
 <h4>guiConfig</h4>
-<pre><a href="org/jsimpledb/gui/GUIConfig.html" title="interface in org.jsimpledb.gui">GUIConfig</a> guiConfig</pre>
+<pre><a href="org/jsimpledb/gui/app/GUIConfig.html" title="interface in org.jsimpledb.gui.app">GUIConfig</a> guiConfig</pre>
 </li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="org.jsimpledb.gui.NullableField">
+<li class="blockList"><a name="org.jsimpledb.gui.app.NullableField">
 <!--   -->
 </a>
-<h3>Class <a href="org/jsimpledb/gui/NullableField.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.NullableField</a> extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/FieldLayout.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">FieldLayout</a>&lt;<a href="org/jsimpledb/gui/NullableField.html" title="type parameter in NullableField">T</a>&gt; implements Serializable</h3>
+<h3>Class <a href="org/jsimpledb/gui/app/NullableField.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.NullableField</a> extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/FieldLayout.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">FieldLayout</a>&lt;<a href="org/jsimpledb/gui/app/NullableField.html" title="type parameter in NullableField">T</a>&gt; implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList"><a name="serializedForm">
 <!--   -->
@@ -772,28 +861,10 @@
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="org.jsimpledb.gui.ReferenceFieldConverter">
+<li class="blockList"><a name="org.jsimpledb.gui.app.ReferenceFieldField">
 <!--   -->
 </a>
-<h3>Class <a href="org/jsimpledb/gui/ReferenceFieldConverter.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.ReferenceFieldConverter</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> implements Serializable</h3>
-<ul class="blockList">
-<li class="blockList"><a name="serializedForm">
-<!--   -->
-</a>
-<h3>Serialized Fields</h3>
-<ul class="blockList">
-<li class="blockListLast">
-<h4>jtx</h4>
-<pre><a href="org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a> jtx</pre>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.ReferenceFieldField">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/ReferenceFieldField.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.ReferenceFieldField</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/CustomField.html?is-external=true" title="class or interface in com.vaadin.ui">CustomField</a>&lt;<a href="org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt; implements Serializable</h3>
+<h3>Class <a href="org/jsimpledb/gui/app/ReferenceFieldField.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.ReferenceFieldField</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/CustomField.html?is-external=true" title="class or interface in com.vaadin.ui">CustomField</a>&lt;<a href="org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt; implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList"><a name="serializedForm">
 <!--   -->
@@ -836,10 +907,10 @@
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="org.jsimpledb.gui.ReferenceFieldField.ChangeWindow">
+<li class="blockList"><a name="org.jsimpledb.gui.app.ReferenceFieldField.ChangeWindow">
 <!--   -->
 </a>
-<h3>Class <a href="org/jsimpledb/gui/ReferenceFieldField.ChangeWindow.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.ReferenceFieldField.ChangeWindow</a> extends <a href="org/jsimpledb/gui/ConfirmWindow.html" title="class in org.jsimpledb.gui">ConfirmWindow</a> implements Serializable</h3>
+<h3>Class <a href="org/jsimpledb/gui/app/ReferenceFieldField.ChangeWindow.html" title="class in org.jsimpledb.gui.app">org.jsimpledb.gui.app.ReferenceFieldField.ChangeWindow</a> extends <a href="org/jsimpledb/gui/ConfirmWindow.html" title="class in org.jsimpledb.gui">ConfirmWindow</a> implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList"><a name="serializedForm">
 <!--   -->
@@ -853,69 +924,6 @@
 </ul>
 </li>
 </ul>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.SimpleFieldConverter">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/SimpleFieldConverter.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.SimpleFieldConverter</a> extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> implements Serializable</h3>
-<ul class="blockList">
-<li class="blockList"><a name="serializedForm">
-<!--   -->
-</a>
-<h3>Serialized Fields</h3>
-<ul class="blockList">
-<li class="blockListLast">
-<h4>fieldType</h4>
-<pre><a href="org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="org/jsimpledb/core/FieldType.html" title="type parameter in FieldType">T</a>&gt; fieldType</pre>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.SizedLabel">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/SizedLabel.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.SizedLabel</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/Label.html?is-external=true" title="class or interface in com.vaadin.ui">Label</a> implements Serializable</h3>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.SmallButton">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/SmallButton.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.SmallButton</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/Button.html?is-external=true" title="class or interface in com.vaadin.ui">Button</a> implements Serializable</h3>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.TypeContainer">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/TypeContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.TypeContainer</a> extends <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/SimpleKeyedContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">SimpleKeyedContainer</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;,<a href="org/jsimpledb/gui/TypeContainer.Node.html" title="class in org.jsimpledb.gui">TypeContainer.Node</a>&gt; implements Serializable</h3>
-<ul class="blockList">
-<li class="blockList"><a name="serializedForm">
-<!--   -->
-</a>
-<h3>Serialized Fields</h3>
-<ul class="blockList">
-<li class="blockList">
-<h4>log</h4>
-<pre><a href="http://www.slf4j.org/api/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> log</pre>
-</li>
-<li class="blockList">
-<h4>jdb</h4>
-<pre><a href="org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a> jdb</pre>
-</li>
-<li class="blockList">
-<h4>rootType</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">T</a>&gt; rootType</pre>
-</li>
-<li class="blockListLast">
-<h4>rootList</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">E</a>&gt; rootList</pre>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="blockList"><a name="org.jsimpledb.gui.TypeTable">
-<!--   -->
-</a>
-<h3>Class <a href="org/jsimpledb/gui/TypeTable.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.TypeTable</a> extends <a href="https://vaadin.com/api/com/vaadin/ui/TreeTable.html?is-external=true" title="class or interface in com.vaadin.ui">TreeTable</a> implements Serializable</h3>
 </li>
 </ul>
 </li>

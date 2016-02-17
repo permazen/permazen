@@ -88,10 +88,16 @@
 <tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.gui">org.jsimpledb.gui</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB Vaadin GUI generator classes.</div>
+<div class="block">Classes to facilitate Vaadin applications that interact with a JSimpleDB database.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.gui.app">org.jsimpledb.gui.app</a></td>
+<td class="colLast">
+<div class="block">Classes for the JSimpleDB Vaadin GUI database editor application.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.spring">org.jsimpledb.spring</a></td>
 <td class="colLast">
 <div class="block">Spring Framework integration classes.</div>
@@ -379,10 +385,10 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
-<td class="colLast"><span class="strong">JObjectContainer.</span><code><strong><a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyWithDependencies(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithDependencies</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
-                                        <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
-                                        <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</code>
+<td class="colFirst"><code><a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></code></td>
+<td class="colLast"><span class="strong">QueryJObjectContainer.</span><code><strong><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html#copyWithRelated(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithRelated</a></strong>(<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;target,
+                              <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+                              <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a>&nbsp;copyState)</code>
 <div class="block">Copy the given database object, and any related objects needed by any
  <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/ProvidesProperty.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>&#64;ProvidesProperty</code></a>-annotated methods,
  into the specified transaction.</div>
@@ -401,16 +407,29 @@
 <div class="block">Constructor.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/ReferenceFieldField.html#ReferenceFieldField(org.jsimpledb.JTransaction, org.jsimpledb.parse.ParseSession, java.lang.String, java.lang.Class)">ReferenceFieldField</a></strong>(<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.app">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a> in <a href="../../../org/jsimpledb/gui/app/package-summary.html">org.jsimpledb.gui.app</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing constructors, and an explanation">
+<caption><span>Constructors in <a href="../../../org/jsimpledb/gui/app/package-summary.html">org.jsimpledb.gui.app</a> with parameters of type <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/app/ReferenceFieldField.html#ReferenceFieldField(org.jsimpledb.JTransaction, org.jsimpledb.parse.ParseSession, java.lang.String, java.lang.Class)">ReferenceFieldField</a></strong>(<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
                                       <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                                       <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
                                       <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/SimpleFieldFieldBuilder.html#SimpleFieldFieldBuilder(org.jsimpledb.JTransaction, org.jsimpledb.JSimpleField, org.jsimpledb.parse.ParseSession, boolean)">SimpleFieldFieldBuilder</a></strong>(<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx,
+<tr class="rowColor">
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/app/SimpleFieldFieldBuilder.html#SimpleFieldFieldBuilder(org.jsimpledb.JTransaction, org.jsimpledb.JSimpleField, org.jsimpledb.parse.ParseSession, boolean)">SimpleFieldFieldBuilder</a></strong>(<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx,
                                               <a href="../../../org/jsimpledb/JSimpleField.html" title="class in org.jsimpledb">JSimpleField</a>&nbsp;jfield,
                                               <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                                               boolean&nbsp;allowNull)</code>

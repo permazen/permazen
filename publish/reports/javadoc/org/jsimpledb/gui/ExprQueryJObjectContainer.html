@@ -34,8 +34,8 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../org/jsimpledb/gui/DataChangeEvent.html" title="class in org.jsimpledb.gui"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../org/jsimpledb/gui/GUIConfig.html" title="interface in org.jsimpledb.gui"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../org/jsimpledb/gui/ConfirmWindow.html" title="class in org.jsimpledb.gui"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jsimpledb/gui/JObjectChooser.html" title="class in org.jsimpledb.gui"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../index.html?org/jsimpledb/gui/ExprQueryJObjectContainer.html" target="_top">Frames</a></li>
@@ -60,13 +60,13 @@
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested_classes_inherited_from_class_org.jsimpledb.gui.JObjectContainer">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#fields_inherited_from_class_org.jsimpledb.gui.JObjectContainer">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
@@ -100,7 +100,17 @@
 <li><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.JObjectContainer</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.ReloadableJObjectContainer</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui">org.jsimpledb.gui.QueryJObjectContainer</a></li>
+<li>
+<ul class="inheritance">
 <li>org.jsimpledb.gui.ExprQueryJObjectContainer</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -123,11 +133,9 @@
 </dl>
 <hr>
 <br>
-<pre><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/VaadinConfigurable.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">@VaadinConfigurable</a>(<a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/VaadinConfigurable.html?is-external=true#preConstruction()" title="class or interface in org.dellroad.stuff.vaadin7">preConstruction</a>=true)
-public class <a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.34">ExprQueryJObjectContainer</a>
-extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></pre>
-<div class="block"><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> whose contents are determined by a Java expression.
- Listens for <a href="../../../org/jsimpledb/gui/DataChangeEvent.html" title="class in org.jsimpledb.gui"><code>DataChangeEvent</code></a>s broadcast by an autowired <a href="http://docs.spring.io/spring/docs/4.1.x/javadoc-api/org/springframework/context/event/ApplicationEventMulticaster.html?is-external=true" title="class or interface in org.springframework.context.event"><code>ApplicationEventMulticaster</code></a>.</div>
+<pre>public class <a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.26">ExprQueryJObjectContainer</a>
+extends <a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui">QueryJObjectContainer</a></pre>
+<div class="block"><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui"><code>QueryJObjectContainer</code></a> whose query is defined by a Java expression.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../serialized-form.html#org.jsimpledb.gui.ExprQueryJObjectContainer">Serialized Form</a></dd></dl>
 </li>
 </ul>
@@ -184,12 +192,23 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 <!--   -->
 </a>
 <h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#session">session</a></strong></code>&nbsp;</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="fields_inherited_from_class_org.jsimpledb.gui.JObjectContainer">
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;org.jsimpledb.gui.<a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></h3>
-<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#DEFAULT_MAX_OBJECTS">DEFAULT_MAX_OBJECTS</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#jdb">jdb</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#log">log</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#OBJECT_ID_PROPERTY">OBJECT_ID_PROPERTY</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#REFERENCE_LABEL_PROPERTY">REFERENCE_LABEL_PROPERTY</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#TYPE_PROPERTY">TYPE_PROPERTY</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#VERSION_PROPERTY">VERSION_PROPERTY</a></code></li>
+<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#jdb">jdb</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#log">log</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#OBJECT_ID_PROPERTY">OBJECT_ID_PROPERTY</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#REFERENCE_LABEL_PROPERTY">REFERENCE_LABEL_PROPERTY</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#TYPE_PROPERTY">TYPE_PROPERTY</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#VERSION_PROPERTY">VERSION_PROPERTY</a></code></li>
 </ul>
 </li>
 </ul>
@@ -205,15 +224,13 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#ExprQueryJObjectContainer(org.jsimpledb.JSimpleDB, java.lang.Class, org.jsimpledb.parse.ParseSession)">ExprQueryJObjectContainer</a></strong>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-                                                  <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type,
-                                                  <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</code>
+<td class="colOne"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#ExprQueryJObjectContainer(org.jsimpledb.parse.ParseSession)">ExprQueryJObjectContainer</a></strong>(<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#ExprQueryJObjectContainer(org.jsimpledb.JSimpleDB, org.jsimpledb.parse.ParseSession)">ExprQueryJObjectContainer</a></strong>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-                                                  <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</code>
+<td class="colOne"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#ExprQueryJObjectContainer(org.jsimpledb.parse.ParseSession, java.lang.Class)">ExprQueryJObjectContainer</a></strong>(<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+                                                  <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
@@ -233,32 +250,18 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#connect()">connect</a></strong>()</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#disconnect()">disconnect</a></strong>()</code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#doInCurrentTransaction(java.lang.Runnable)">doInCurrentTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</code>
-<div class="block">Perform the given action within the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#doInTransaction(java.lang.Runnable)">doInTransaction</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</code>
 <div class="block">Perform the given action within a new <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></td>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#queryForObjects()">queryForObjects</a></strong>()</code>
 <div class="block">Query for the database objects that will be used to fill this container.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#setContentExpression(java.lang.String)">setContentExpression</a></strong>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;contentExpression)</code>
 <div class="block">Configure the expression that returns this container's content.</div>
@@ -266,11 +269,25 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 </tr>
 </table>
 <ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.gui.QueryJObjectContainer">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jsimpledb.gui.<a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui">QueryJObjectContainer</a></h3>
+<code><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html#copyWithRelated(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithRelated</a>, <a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html#getRelatedObjects(org.jsimpledb.JObject)">getRelatedObjects</a>, <a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html#reload()">reload</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.gui.ReloadableJObjectContainer">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jsimpledb.gui.<a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html" title="class in org.jsimpledb.gui">ReloadableJObjectContainer</a></h3>
+<code><a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html#connect()">connect</a>, <a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html#disconnect()">disconnect</a>, <a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html#reloadAfterCommit()">reloadAfterCommit</a></code></li>
+</ul>
+<ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.gui.JObjectContainer">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.gui.<a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></h3>
-<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#buildKVStore()">buildKVStore</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#copyWithDependencies(org.jsimpledb.JObject, org.jsimpledb.JTransaction, org.jsimpledb.CopyState)">copyWithDependencies</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getDependencies(org.jsimpledb.JObject)">getDependencies</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getKeyFor(org.jsimpledb.JObject)">getKeyFor</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getOrderedPropertyNames()">getOrderedPropertyNames</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getPropertyValue(org.jsimpledb.JObject, org.dellroad.stuff.vaadin7.PropertyDef)">getPropertyValue</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getType()">getType</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleChange(org.jsimpledb.change.Change)">handleChange</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleFieldChange(org.jsimpledb.change.FieldChange)">handleFieldChange</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleObjectCreate(org.jsimpledb.change.ObjectCreate)">handleObjectCreate</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#handleObjectDelete(org.jsimpledb.change.ObjectDelete)">handleObjectDelete</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#reload()">reload</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#setMaxObjects(int)">setMaxObjects</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#setType(java.lang.Class)">setType</a></code></li>
+<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#getKeyFor(org.jsimpledb.JObject)">getKeyFor</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getOrderedPropertyNames()">getOrderedPropertyNames</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getPropertyValue(org.jsimpledb.JObject, org.dellroad.stuff.vaadin7.PropertyDef)">getPropertyValue</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#getType()">getType</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#load(java.lang.Iterable)">load</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#load(java.util.Iterator)">load</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#setType(java.lang.Class)">setType</a>, <a href="../../../org/jsimpledb/gui/JObjectContainer.html#updateItem(org.jsimpledb.JObject)">updateItem</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.dellroad.stuff.vaadin7.SimpleKeyedContainer">
@@ -284,7 +301,7 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.dellroad.stuff.vaadin7.<a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">AbstractSimpleContainer</a></h3>
-<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#addContainerFilter(com.vaadin.data.Container.Filter)" title="class or interface in org.dellroad.stuff.vaadin7">addContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#addContainerFilter(java.lang.Object, java.lang.String, boolean, boolean)" title="class or interface in org.dellroad.stuff.vaadin7">addContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#afterReload()" title="class or interface in org.dellroad.stuff.vaadin7">afterReload</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#createBackedItem(T, java.util.Collection, org.dellroad.stuff.vaadin7.PropertyExtractor)" title="class or interface in org.dellroad.stuff.vaadin7">createBackedItem</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerFilters()" title="class or interface in org.dellroad.stuff.vaadin7">getContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerProperty(java.lang.Object, java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getContainerProperty</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerPropertyIds()" title="class or interface in org.dellroad.stuff.vaadin7">getContainerPropertyIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getItemIds()" title="class or interface in org.dellroad.stuff.vaadin7">getItemIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getPropertyExtractor()" title="class or interface in org.dellroad.stuff.vaadin7">getPropertyExtractor</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getSortableContainerPropertyIds()" title="class or interface in org.dellroad.stuff.vaadin7">getSortableContainerPropertyIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getType(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getType</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getUnfilteredItem(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getUnfilteredItem</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#internalRemoveAllItems()" title="class or interface in org.dellroad.stuff.vaadin7">internalRemoveAllItems</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#load(java.lang.Iterable)" title="class or interface in org.dellroad.stuff.vaadin7">load</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeAllContainerFilters()" title="class or interface in org.dellroad.stuff.vaadin7">removeAllContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeContainerFilter(com.vaadin.data.Container.Filter)" title="class or interface in org.dellroad.stuff.vaadin7">removeContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeContainerFilters(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">removeContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setProperties(java.util.Collection)" title="class or interface in org.dellroad.stuff.vaadin7">setProperties</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setProperty(org.dellroad.stuff.vaadin7.PropertyDef)" title="class or interface in org.dellroad.stuff.vaadin7">setProperty</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setPropertyExtractor(org.dellroad.stuff.vaadin7.PropertyExtractor)" title="class or interface in org.dellroad.stuff.vaadin7">setPropertyExtractor</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#sort(java.lang.Object[], boolean[])" title="class or interface in org.dellroad.stuff.vaadin7">sort</a></code></li>
+<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#addContainerFilter(com.vaadin.data.Container.Filter)" title="class or interface in org.dellroad.stuff.vaadin7">addContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#addContainerFilter(java.lang.Object, java.lang.String, boolean, boolean)" title="class or interface in org.dellroad.stuff.vaadin7">addContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#afterReload()" title="class or interface in org.dellroad.stuff.vaadin7">afterReload</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#createBackedItem(T, java.util.Collection, org.dellroad.stuff.vaadin7.PropertyExtractor)" title="class or interface in org.dellroad.stuff.vaadin7">createBackedItem</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerFilters()" title="class or interface in org.dellroad.stuff.vaadin7">getContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerProperty(java.lang.Object, java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getContainerProperty</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getContainerPropertyIds()" title="class or interface in org.dellroad.stuff.vaadin7">getContainerPropertyIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getItemIds()" title="class or interface in org.dellroad.stuff.vaadin7">getItemIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getPropertyExtractor()" title="class or interface in org.dellroad.stuff.vaadin7">getPropertyExtractor</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getSortableContainerPropertyIds()" title="class or interface in org.dellroad.stuff.vaadin7">getSortableContainerPropertyIds</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getType(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getType</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#getUnfilteredItem(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">getUnfilteredItem</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#internalRemoveAllItems()" title="class or interface in org.dellroad.stuff.vaadin7">internalRemoveAllItems</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeAllContainerFilters()" title="class or interface in org.dellroad.stuff.vaadin7">removeAllContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeContainerFilter(com.vaadin.data.Container.Filter)" title="class or interface in org.dellroad.stuff.vaadin7">removeContainerFilter</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#removeContainerFilters(java.lang.Object)" title="class or interface in org.dellroad.stuff.vaadin7">removeContainerFilters</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setProperties(java.util.Collection)" title="class or interface in org.dellroad.stuff.vaadin7">setProperties</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setProperty(org.dellroad.stuff.vaadin7.PropertyDef)" title="class or interface in org.dellroad.stuff.vaadin7">setProperty</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#setPropertyExtractor(org.dellroad.stuff.vaadin7.PropertyExtractor)" title="class or interface in org.dellroad.stuff.vaadin7">setPropertyExtractor</a>, <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#sort(java.lang.Object[], boolean[])" title="class or interface in org.dellroad.stuff.vaadin7">sort</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_com.vaadin.data.util.AbstractInMemoryContainer">
@@ -329,35 +346,50 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="session">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>session</h4>
+<pre>protected final&nbsp;<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a> <a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.28">session</a></pre>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor_detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ExprQueryJObjectContainer(org.jsimpledb.JSimpleDB, org.jsimpledb.parse.ParseSession)">
+<a name="ExprQueryJObjectContainer(org.jsimpledb.parse.ParseSession)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>ExprQueryJObjectContainer</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.51">ExprQueryJObjectContainer</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-                         <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.37">ExprQueryJObjectContainer</a>(<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</pre>
 <div class="block">Constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>jdb</code> - underlying database</dd><dd><code>session</code> - session for parsing expressions</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - session for parsing expressions</dd></dl>
 </li>
 </ul>
-<a name="ExprQueryJObjectContainer(org.jsimpledb.JSimpleDB, java.lang.Class, org.jsimpledb.parse.ParseSession)">
+<a name="ExprQueryJObjectContainer(org.jsimpledb.parse.ParseSession, java.lang.Class)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ExprQueryJObjectContainer</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.62">ExprQueryJObjectContainer</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-                         <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type,
-                         <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</pre>
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.47">ExprQueryJObjectContainer</a>(<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+                         <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type)</pre>
 <div class="block">Constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>jdb</code> - underlying database</dd><dd><code>type</code> - type restriction, or null for no restriction</dd><dd><code>session</code> - session for parsing expressions</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - session for parsing expressions</dd><dd><code>type</code> - type restriction, or null for no restriction</dd></dl>
 </li>
 </ul>
 </li>
@@ -374,7 +406,7 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentExpression</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.73">setContentExpression</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;contentExpression)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.57">setContentExpression</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;contentExpression)</pre>
 <div class="block">Configure the expression that returns this container's content. Container will automatically reload.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>contentExpression</code> - Java expression for container content</dd></dl>
 </li>
@@ -385,78 +417,35 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 <ul class="blockList">
 <li class="blockList">
 <h4>doInTransaction</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.79">doInTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.64">doInTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#doInTransaction(java.lang.Runnable)">JObjectContainer</a></code></strong></div>
-<div class="block">Perform the given action within a new <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
+<div class="block">Perform the given action within a new <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.
+
+ <p>
+ The implementation in <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> performs <code>action</code> within a new read-only transaction.</div>
 <dl>
-<dt><strong>Specified by:</strong></dt>
+<dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#doInTransaction(java.lang.Runnable)">doInTransaction</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - the action to perform</dd></dl>
-</li>
-</ul>
-<a name="doInCurrentTransaction(java.lang.Runnable)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>doInCurrentTransaction</h4>
-<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.89">doInCurrentTransaction</a>(<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action)</pre>
-<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#doInCurrentTransaction(java.lang.Runnable)">JObjectContainer</a></code></strong></div>
-<div class="block">Perform the given action within the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>.</div>
-<dl>
-<dt><strong>Specified by:</strong></dt>
-<dd><code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#doInCurrentTransaction(java.lang.Runnable)">doInCurrentTransaction</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - the action to perform</dd></dl>
 </li>
 </ul>
 <a name="queryForObjects()">
 <!--   -->
 </a>
-<ul class="blockList">
-<li class="blockList">
-<h4>queryForObjects</h4>
-<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.99">queryForObjects</a>()</pre>
-<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#queryForObjects()">JObjectContainer</a></code></strong></div>
-<div class="block">Query for the database objects that will be used to fill this container. Objects should be returned in the
- desired order; any duplicates will be ignored.
-
- <p>
- A <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> will be open in the current thread when this method is invoked.
- </p></div>
-<dl>
-<dt><strong>Specified by:</strong></dt>
-<dd><code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#queryForObjects()">queryForObjects</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>database objects</dd></dl>
-</li>
-</ul>
-<a name="connect()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>connect</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.126">connect</a>()</pre>
-<dl>
-<dt><strong>Specified by:</strong></dt>
-<dd><code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/Connectable.html?is-external=true#connect()" title="class or interface in org.dellroad.stuff.vaadin7">connect</a></code>&nbsp;in interface&nbsp;<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/Connectable.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">Connectable</a></code></dd>
-<dt><strong>Overrides:</strong></dt>
-<dd><code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true#connect()" title="class or interface in org.dellroad.stuff.vaadin7">connect</a></code>&nbsp;in class&nbsp;<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">AbstractSimpleContainer</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;</code></dd>
-</dl>
-</li>
-</ul>
-<a name="disconnect()">
-<!--   -->
-</a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>disconnect</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.135">disconnect</a>()</pre>
+<h4>queryForObjects</h4>
+<pre>protected&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;? extends <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/ExprQueryJObjectContainer.html#line.74">queryForObjects</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html#queryForObjects()">QueryJObjectContainer</a></code></strong></div>
+<div class="block">Query for the database objects that will be used to fill this container. Objects should be returned in the
+ desired order; duplicates and null values will be ignored.
+
+ <p>
+ A <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> will be open in the current thread when this method is invoked.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
-<dd><code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/Connectable.html?is-external=true#disconnect()" title="class or interface in org.dellroad.stuff.vaadin7">disconnect</a></code>&nbsp;in interface&nbsp;<code><a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/Connectable.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">Connectable</a></code></dd>
-<dt><strong>Overrides:</strong></dt>
-<dd><code><a href="../../../org/jsimpledb/gui/JObjectContainer.html#disconnect()">disconnect</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui">JObjectContainer</a></code></dd>
-</dl>
+<dd><code><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html#queryForObjects()">queryForObjects</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui">QueryJObjectContainer</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>database objects</dd></dl>
 </li>
 </ul>
 </li>
@@ -485,8 +474,8 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../org/jsimpledb/gui/DataChangeEvent.html" title="class in org.jsimpledb.gui"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../org/jsimpledb/gui/GUIConfig.html" title="interface in org.jsimpledb.gui"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../org/jsimpledb/gui/ConfirmWindow.html" title="class in org.jsimpledb.gui"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jsimpledb/gui/JObjectChooser.html" title="class in org.jsimpledb.gui"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../index.html?org/jsimpledb/gui/ExprQueryJObjectContainer.html" target="_top">Frames</a></li>
@@ -511,13 +500,13 @@ extends <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class 
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested_classes_inherited_from_class_org.jsimpledb.gui.JObjectContainer">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#fields_inherited_from_class_org.jsimpledb.gui.JObjectContainer">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>

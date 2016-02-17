@@ -153,6 +153,13 @@ extends <a href="../../org/jsimpledb/core/DatabaseException.html" title="class i
 <div class="block">Convenience constructor for use when JSR 303 validation is not involved.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../org/jsimpledb/ValidationException.html#ValidationException(org.jsimpledb.JObject, java.lang.String, java.lang.Throwable)">ValidationException</a></strong>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
+                                      <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message,
+                                      <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;cause)</code>
+<div class="block">Convenience constructor for use when JSR 303 validation is not involved.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -225,13 +232,26 @@ extends <a href="../../org/jsimpledb/core/DatabaseException.html" title="class i
 <a name="ValidationException(org.jsimpledb.JObject, java.lang.String)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>ValidationException</h4>
 <pre>public&nbsp;<a href="../../src-html/org/jsimpledb/ValidationException.html#line.44">ValidationException</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
                    <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message)</pre>
 <div class="block">Convenience constructor for use when JSR 303 validation is not involved.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jobj</code> - the object that failed validation</dd><dd><code>message</code> - exception message</dd></dl>
+</li>
+</ul>
+<a name="ValidationException(org.jsimpledb.JObject, java.lang.String, java.lang.Throwable)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ValidationException</h4>
+<pre>public&nbsp;<a href="../../src-html/org/jsimpledb/ValidationException.html#line.55">ValidationException</a>(<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
+                   <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message,
+                   <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;cause)</pre>
+<div class="block">Convenience constructor for use when JSR 303 validation is not involved.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>jobj</code> - the object that failed validation</dd><dd><code>message</code> - exception message</dd><dd><code>cause</code> - underlying cause, or null for none</dd></dl>
 </li>
 </ul>
 </li>
@@ -248,7 +268,7 @@ extends <a href="../../org/jsimpledb/core/DatabaseException.html" title="class i
 <ul class="blockList">
 <li class="blockList">
 <h4>getObject</h4>
-<pre>public&nbsp;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/ValidationException.html#line.53">getObject</a>()</pre>
+<pre>public&nbsp;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;<a href="../../src-html/org/jsimpledb/ValidationException.html#line.66">getObject</a>()</pre>
 <div class="block">Get the object that failed to validate.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the invalid object</dd></dl>
 </li>
@@ -259,7 +279,7 @@ extends <a href="../../org/jsimpledb/core/DatabaseException.html" title="class i
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getViolations</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="https://docs.oracle.com/javaee/7/api/javax/validation/ConstraintViolation.html?is-external=true" title="class or interface in javax.validation">ConstraintViolation</a>&lt;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&gt;&nbsp;<a href="../../src-html/org/jsimpledb/ValidationException.html#line.62">getViolations</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="https://docs.oracle.com/javaee/7/api/javax/validation/ConstraintViolation.html?is-external=true" title="class or interface in javax.validation">ConstraintViolation</a>&lt;<a href="../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&gt;&gt;&nbsp;<a href="../../src-html/org/jsimpledb/ValidationException.html#line.75">getViolations</a>()</pre>
 <div class="block">Get the validation errors in case validation failed due to a failed JSR 303 validation check.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>set of JSR 303 validation errors, or null if validation did not fail due to JSR 303 validation</dd></dl>
 </li>

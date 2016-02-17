@@ -129,19 +129,31 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Counter.html#adjust(long)">adjust</a></strong>(long&nbsp;offset)</code>
-<div class="block">Adjust the counter's value by the specified amount.</div>
+<div class="block">Adjust this counter's value by the specified amount.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Counter.html#decrement()">decrement</a></strong>()</code>
+<div class="block">Decrement this counter's value by one.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Counter.html#get()">get</a></strong>()</code>
-<div class="block">Read the counter's current value.</div>
+<div class="block">Read this counter's current value.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/Counter.html#increment()">increment</a></strong>()</code>
+<div class="block">Increment this counter's value by one.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/Counter.html#set(long)">set</a></strong>(long&nbsp;value)</code>
-<div class="block">Set the counter's value.</div>
+<div class="block">Set this counter's value.</div>
 </td>
 </tr>
 </table>
@@ -173,7 +185,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <li class="blockList">
 <h4>get</h4>
 <pre>public&nbsp;long&nbsp;<a href="../../src-html/org/jsimpledb/Counter.html#line.52">get</a>()</pre>
-<div class="block">Read the counter's current value. Invoking this method will typically disable the lock-free
+<div class="block">Read this counter's current value. Invoking this method will typically disable the lock-free
  behavior of <a href="../../org/jsimpledb/Counter.html#adjust(long)"><code>adjust()</code></a> in the current transaction.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>current value of the counter</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -189,7 +201,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <li class="blockList">
 <h4>set</h4>
 <pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Counter.html#line.65">set</a>(long&nbsp;value)</pre>
-<div class="block">Set the counter's value. Invoking this method will typically disable the lock-free
+<div class="block">Set this counter's value. Invoking this method will typically disable the lock-free
  behavior of <a href="../../org/jsimpledb/Counter.html#adjust(long)"><code>adjust()</code></a> in the current transaction.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - new value for the counter</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -201,13 +213,41 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html
 <a name="adjust(long)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>adjust</h4>
 <pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Counter.html#line.77">adjust</a>(long&nbsp;offset)</pre>
-<div class="block">Adjust the counter's value by the specified amount.</div>
+<div class="block">Adjust this counter's value by the specified amount.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>offset</code> - amount to add to counter</dd>
 <dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv">StaleTransactionException</a></code> - if the transaction from which this instance
+  was read is no longer usable</dd>
+<dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if the object from which this instance was read no longer exists</dd></dl>
+</li>
+</ul>
+<a name="increment()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>increment</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Counter.html#line.88">increment</a>()</pre>
+<div class="block">Increment this counter's value by one.</div>
+<dl><dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv">StaleTransactionException</a></code> - if the transaction from which this instance
+  was read is no longer usable</dd>
+<dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if the object from which this instance was read no longer exists</dd></dl>
+</li>
+</ul>
+<a name="decrement()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>decrement</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../src-html/org/jsimpledb/Counter.html#line.99">decrement</a>()</pre>
+<div class="block">Decrement this counter's value by one.</div>
+<dl><dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../org/jsimpledb/kv/StaleTransactionException.html" title="class in org.jsimpledb.kv">StaleTransactionException</a></code> - if the transaction from which this instance
   was read is no longer usable</dd>
 <dd><code><a href="../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if the object from which this instance was read no longer exists</dd></dl>

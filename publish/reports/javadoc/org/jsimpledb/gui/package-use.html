@@ -76,7 +76,13 @@
 <tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.gui">org.jsimpledb.gui</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB Vaadin GUI generator classes.</div>
+<div class="block">Classes to facilitate Vaadin applications that interact with a JSimpleDB database.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.gui.app">org.jsimpledb.gui.app</a></td>
+<td class="colLast">
+<div class="block">Classes for the JSimpleDB Vaadin GUI database editor application.</div>
 </td>
 </tr>
 </tbody>
@@ -97,38 +103,29 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/AbstractUI.html#org.jsimpledb.gui">AbstractUI</a>
-<div class="block">Superclass of the various <a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui"><code>UI</code></a>s that constitute the GUI.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/ConfirmWindow.html#org.jsimpledb.gui">ConfirmWindow</a>
-<div class="block">A confirmation window.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/ExprQueryJObjectContainer.html#org.jsimpledb.gui">ExprQueryJObjectContainer</a>
-<div class="block"><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> whose contents are determined by a Java expression.</div>
+<div class="block"><a href="../../../org/jsimpledb/gui/QueryJObjectContainer.html" title="class in org.jsimpledb.gui"><code>QueryJObjectContainer</code></a> whose query is defined by a Java expression.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/GUIConfig.html#org.jsimpledb.gui">GUIConfig</a>
-<div class="block">GUI configuration object.</div>
+<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/JObjectContainer.html#org.jsimpledb.gui">JObjectContainer</a>
+<div class="block">Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a> backed by <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> Java model objects.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/JObjectContainer.html#org.jsimpledb.gui">JObjectContainer</a>
-<div class="block">General purpose support superclass for Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a>s backed by <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> database objects.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/JObjectContainer.ObjPropertyDef.html#org.jsimpledb.gui">JObjectContainer.ObjPropertyDef</a>
 <div class="block">Support superclass for <a href="http://archiecobbs.github.io/dellroad-stuff/publish/reports/javadoc/org/dellroad/stuff/vaadin7/PropertyDef.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><code>PropertyDef</code></a> implementations that derive the property value from a <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/QueryJObjectContainer.html#org.jsimpledb.gui">QueryJObjectContainer</a>
+<div class="block">Vaadin <a href="https://vaadin.com/api/com/vaadin/data/Container.html?is-external=true" title="class or interface in com.vaadin.data"><code>Container</code></a> backed by <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> Java model objects acquired by performing
+ a transactional query and copying out the results into a <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>.</div>
+</td>
+</tr>
 <tr class="rowColor">
-<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/Main.html#org.jsimpledb.gui">Main</a>
-<div class="block">GUI main entry point.</div>
+<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/ReloadableJObjectContainer.html#org.jsimpledb.gui">ReloadableJObjectContainer</a>
+<div class="block">A <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> that supports a <a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html#reload()"><code>ReloadableJObjectContainer.reload()</code></a> operation.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -147,6 +144,28 @@
 <tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/TypeTable.html#org.jsimpledb.gui">TypeTable</a>
 <div class="block">Table showing object types.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.app">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a> used by <a href="../../../org/jsimpledb/gui/app/package-summary.html">org.jsimpledb.gui.app</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/ConfirmWindow.html#org.jsimpledb.gui.app">ConfirmWindow</a>
+<div class="block">A confirmation window.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/gui/class-use/ReloadableJObjectContainer.html#org.jsimpledb.gui.app">ReloadableJObjectContainer</a>
+<div class="block">A <a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><code>JObjectContainer</code></a> that supports a <a href="../../../org/jsimpledb/gui/ReloadableJObjectContainer.html#reload()"><code>ReloadableJObjectContainer.reload()</code></a> operation.</div>
 </td>
 </tr>
 </tbody>

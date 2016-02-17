@@ -34,7 +34,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../org/jsimpledb/gui/HorizontalLine.html" title="class in org.jsimpledb.gui"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui"><span class="strong">Prev Class</span></a></li>
 <li><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -140,8 +140,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../org/jsimpledb/gui/JObjectChooser.html#JObjectChooser(org.jsimpledb.JSimpleDB, org.jsimpledb.parse.ParseSession, java.lang.Class, boolean)">JObjectChooser</a></strong>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-                            <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+<td class="colOne"><code><strong><a href="../../../org/jsimpledb/gui/JObjectChooser.html#JObjectChooser(org.jsimpledb.parse.ParseSession, java.lang.Class, boolean)">JObjectChooser</a></strong>(<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type,
                             boolean&nbsp;showFields)</code>
 <div class="block">Constructor.</div>
@@ -259,18 +258,17 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="JObjectChooser(org.jsimpledb.JSimpleDB, org.jsimpledb.parse.ParseSession, java.lang.Class, boolean)">
+<a name="JObjectChooser(org.jsimpledb.parse.ParseSession, java.lang.Class, boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>JObjectChooser</h4>
-<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.72">JObjectChooser</a>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-              <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+<pre>public&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.71">JObjectChooser</a>(<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
               <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type,
               boolean&nbsp;showFields)</pre>
 <div class="block">Constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>jdb</code> - database</dd><dd><code>session</code> - session for evaluating expressions</dd><dd><code>type</code> - type restriction, or null for none</dd><dd><code>showFields</code> - true to show all object fields, false for just reference label</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - session for evaluating expressions</dd><dd><code>type</code> - type restriction, or null for none</dd><dd><code>showFields</code> - true to show all object fields, false for just reference label</dd></dl>
 </li>
 </ul>
 </li>
@@ -287,7 +285,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>getJObjectContainer</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui">ExprQueryJObjectContainer</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.145">getJObjectContainer</a>()</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui">ExprQueryJObjectContainer</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.143">getJObjectContainer</a>()</pre>
 <div class="block">Get the object container for this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>associated object container</dd></dl>
 </li>
@@ -298,7 +296,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>getType</h4>
-<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.154">getType</a>()</pre>
+<pre>public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.152">getType</a>()</pre>
 <div class="block">Get the current type restriction, if any.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>current type restriction</dd></dl>
 </li>
@@ -309,7 +307,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>getTypeTable</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/gui/TypeTable.html" title="class in org.jsimpledb.gui">TypeTable</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.163">getTypeTable</a>()</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/gui/TypeTable.html" title="class in org.jsimpledb.gui">TypeTable</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.161">getTypeTable</a>()</pre>
 <div class="block">Get the type table.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>type selection table</dd></dl>
 </li>
@@ -320,7 +318,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>getObjectPanel</h4>
-<pre>public&nbsp;<a href="https://vaadin.com/api/com/vaadin/ui/HorizontalSplitPanel.html?is-external=true" title="class or interface in com.vaadin.ui">HorizontalSplitPanel</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.172">getObjectPanel</a>()</pre>
+<pre>public&nbsp;<a href="https://vaadin.com/api/com/vaadin/ui/HorizontalSplitPanel.html?is-external=true" title="class or interface in com.vaadin.ui">HorizontalSplitPanel</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.170">getObjectPanel</a>()</pre>
 <div class="block">Get the component containing the type chooser and object panel.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>object panel</dd></dl>
 </li>
@@ -331,7 +329,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>getObjId</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.181">getObjId</a>()</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.179">getObjId</a>()</pre>
 <div class="block">Get the currently selected object, if any.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>selected object ID, or null if none</dd></dl>
 </li>
@@ -342,7 +340,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>getShowForm</h4>
-<pre>public&nbsp;<a href="https://vaadin.com/api/com/vaadin/ui/FormLayout.html?is-external=true" title="class or interface in com.vaadin.ui">FormLayout</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.190">getShowForm</a>()</pre>
+<pre>public&nbsp;<a href="https://vaadin.com/api/com/vaadin/ui/FormLayout.html?is-external=true" title="class or interface in com.vaadin.ui">FormLayout</a>&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.188">getShowForm</a>()</pre>
 <div class="block">Get the form with the sort chooser and expression text area.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>expression form</dd></dl>
 </li>
@@ -353,7 +351,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>getJClass</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.199">getJClass</a>()</pre>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.197">getJClass</a>()</pre>
 <div class="block">Get the <a href="../../../org/jsimpledb/JClass.html" title="class in org.jsimpledb"><code>JClass</code></a> corresponding to the currently selected type, if any.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>selected type object type</dd></dl>
 </li>
@@ -364,7 +362,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>addValueChangeListener</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.213">addValueChangeListener</a>(<a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeListener.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.211">addValueChangeListener</a>(<a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeListener.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeListener</a>&nbsp;listener)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true#addValueChangeListener(com.vaadin.data.Property.ValueChangeListener)" title="class or interface in com.vaadin.data">addValueChangeListener</a></code>&nbsp;in interface&nbsp;<code><a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeNotifier</a></code></dd>
@@ -377,7 +375,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>removeValueChangeListener</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.221">removeValueChangeListener</a>(<a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeListener.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.219">removeValueChangeListener</a>(<a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeListener.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeListener</a>&nbsp;listener)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true#removeValueChangeListener(com.vaadin.data.Property.ValueChangeListener)" title="class or interface in com.vaadin.data">removeValueChangeListener</a></code>&nbsp;in interface&nbsp;<code><a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeNotifier</a></code></dd>
@@ -390,7 +388,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockList">
 <li class="blockList">
 <h4>addListener</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.230">addListener</a>(<a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeListener.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.228">addListener</a>(<a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeListener.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeListener</a>&nbsp;listener)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true#addListener(com.vaadin.data.Property.ValueChangeListener)" title="class or interface in com.vaadin.data">addListener</a></code>&nbsp;in interface&nbsp;<code><a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeNotifier</a></code></dd>
@@ -403,7 +401,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 <ul class="blockListLast">
 <li class="blockList">
 <h4>removeListener</h4>
-<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.235">removeListener</a>(<a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeListener.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jsimpledb/gui/JObjectChooser.html#line.233">removeListener</a>(<a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeListener.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeListener</a>&nbsp;listener)</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true#removeListener(com.vaadin.data.Property.ValueChangeListener)" title="class or interface in com.vaadin.data">removeListener</a></code>&nbsp;in interface&nbsp;<code><a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeNotifier</a></code></dd>
@@ -436,7 +434,7 @@ implements <a href="https://vaadin.com/api/com/vaadin/data/Property.ValueChangeN
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../org/jsimpledb/gui/HorizontalLine.html" title="class in org.jsimpledb.gui"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html" title="class in org.jsimpledb.gui"><span class="strong">Prev Class</span></a></li>
 <li><a href="../../../org/jsimpledb/gui/JObjectContainer.html" title="class in org.jsimpledb.gui"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">

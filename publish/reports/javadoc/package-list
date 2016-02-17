@@ -8,6 +8,7 @@ org.jsimpledb.cli.func
 org.jsimpledb.core
 org.jsimpledb.demo
 org.jsimpledb.gui
+org.jsimpledb.gui.app
 org.jsimpledb.index
 org.jsimpledb.kv
 org.jsimpledb.kv.array

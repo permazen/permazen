@@ -18,7 +18,7 @@
 <span class="sourceLineNo">010</span> *<a name="line.10"></a>
 <span class="sourceLineNo">011</span> * @see org.jsimpledb.JTransaction#validate<a name="line.11"></a>
 <span class="sourceLineNo">012</span> * @see org.jsimpledb.JObject#revalidate<a name="line.12"></a>
-<span class="sourceLineNo">013</span> * @see org.jsimpledb.annotation.Validate<a name="line.13"></a>
+<span class="sourceLineNo">013</span> * @see org.jsimpledb.annotation.OnValidate<a name="line.13"></a>
 <span class="sourceLineNo">014</span> */<a name="line.14"></a>
 <span class="sourceLineNo">015</span>public enum ValidationMode {<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
@@ -40,14 +40,14 @@
 <span class="sourceLineNo">032</span>     * objects are enqueued for validation automatically as if by {@link JObject#revalidate} when:<a name="line.32"></a>
 <span class="sourceLineNo">033</span>     * &lt;ul&gt;<a name="line.33"></a>
 <span class="sourceLineNo">034</span>     *  &lt;li&gt;An instance is {@linkplain org.jsimpledb.JTransaction#create created}, and the Java model type (or any super-type)<a name="line.34"></a>
-<span class="sourceLineNo">035</span>     *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &amp;#64;Validate} annotation on itself or a public method&lt;/li&gt;<a name="line.35"></a>
+<span class="sourceLineNo">035</span>     *      has a JSR 303 annotated public method or {@link org.jsimpledb.annotation.OnValidate &amp;#64;OnValidate} annoted method&lt;/li&gt;<a name="line.35"></a>
 <span class="sourceLineNo">036</span>     *  &lt;li&gt;An instance is {@linkplain org.jsimpledb.JObject#upgrade upgraded}, and the Java model type (or any super-type)<a name="line.36"></a>
-<span class="sourceLineNo">037</span>     *      has a JSR 303 or {@link org.jsimpledb.annotation.Validate &amp;#64;Validate} annotation on itself or a public method&lt;/li&gt;<a name="line.37"></a>
+<span class="sourceLineNo">037</span>     *      has a JSR 303 annotated public method or {@link org.jsimpledb.annotation.OnValidate &amp;#64;OnValidate} annoted method&lt;/li&gt;<a name="line.37"></a>
 <span class="sourceLineNo">038</span>     *  &lt;li&gt;An instance field is modified, and the corresponding Java model `getter' method has any JSR 303 annotations&lt;/li&gt;<a name="line.38"></a>
 <span class="sourceLineNo">039</span>     * &lt;/ul&gt;<a name="line.39"></a>
 <span class="sourceLineNo">040</span>     *<a name="line.40"></a>
 <span class="sourceLineNo">041</span>     * &lt;p&gt;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * Note that the presence of a {@link org.jsimpledb.annotation.Validate &amp;#64;Validate} annotation on a method<a name="line.42"></a>
+<span class="sourceLineNo">042</span>     * Note that the presence of a {@link org.jsimpledb.annotation.OnValidate &amp;#64;OnValidate} annotation on a method<a name="line.42"></a>
 <span class="sourceLineNo">043</span>     * does &lt;b&gt;not&lt;/b&gt; in itself result in automatic validation when any field changes (it merely specifies an action<a name="line.43"></a>
 <span class="sourceLineNo">044</span>     * to take when validation occurs). To trigger revalidation after field changes, add<a name="line.44"></a>
 <span class="sourceLineNo">045</span>     * {@link org.jsimpledb.annotation.OnChange &amp;#64;OnChange}-annotated method(s) that invoke<a name="line.45"></a>

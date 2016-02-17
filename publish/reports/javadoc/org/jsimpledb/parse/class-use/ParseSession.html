@@ -94,22 +94,28 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.gui">org.jsimpledb.gui</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB Vaadin GUI generator classes.</div>
+<div class="block">Classes to facilitate Vaadin applications that interact with a JSimpleDB database.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.gui.app">org.jsimpledb.gui.app</a></td>
+<td class="colLast">
+<div class="block">Classes for the JSimpleDB Vaadin GUI database editor application.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse">org.jsimpledb.parse</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB parsing related classes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse.expr">org.jsimpledb.parse.expr</a></td>
 <td class="colLast">
 <div class="block">Classes for parsing Java expressions with JSimpleDB-specific extensions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse.func">org.jsimpledb.parse.func</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../../org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>Function</code></a> used in a <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a>, including built-ins.</div>
@@ -218,6 +224,19 @@
 <!--   -->
 </a>
 <h3>Uses of <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a> in <a href="../../../../org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing fields, and an explanation">
+<caption><span>Fields in <a href="../../../../org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a> declared as <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></code></td>
+<td class="colLast"><span class="strong">ExprQueryJObjectContainer.</span><code><strong><a href="../../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#session">session</a></strong></code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing constructors, and an explanation">
 <caption><span>Constructors in <a href="../../../../org/jsimpledb/gui/package-summary.html">org.jsimpledb.gui</a> with parameters of type <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
@@ -225,35 +244,45 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#ExprQueryJObjectContainer(org.jsimpledb.JSimpleDB, java.lang.Class, org.jsimpledb.parse.ParseSession)">ExprQueryJObjectContainer</a></strong>(<a href="../../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-                                                  <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type,
-                                                  <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</code>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#ExprQueryJObjectContainer(org.jsimpledb.parse.ParseSession)">ExprQueryJObjectContainer</a></strong>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#ExprQueryJObjectContainer(org.jsimpledb.JSimpleDB, org.jsimpledb.parse.ParseSession)">ExprQueryJObjectContainer</a></strong>(<a href="../../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-                                                  <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</code>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/ExprQueryJObjectContainer.html#ExprQueryJObjectContainer(org.jsimpledb.parse.ParseSession, java.lang.Class)">ExprQueryJObjectContainer</a></strong>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+                                                  <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/JObjectChooser.html#JObjectChooser(org.jsimpledb.JSimpleDB, org.jsimpledb.parse.ParseSession, java.lang.Class, boolean)">JObjectChooser</a></strong>(<a href="../../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb,
-                            <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/JObjectChooser.html#JObjectChooser(org.jsimpledb.parse.ParseSession, java.lang.Class, boolean)">JObjectChooser</a></strong>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                             <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type,
                             boolean&nbsp;showFields)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/JObjectEditorWindow.html#JObjectEditorWindow(com.vaadin.ui.UI, org.jsimpledb.parse.ParseSession, org.jsimpledb.JClass)">JObjectEditorWindow</a></strong>(<a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui">UI</a>&nbsp;ui,
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.gui.app">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a> in <a href="../../../../org/jsimpledb/gui/app/package-summary.html">org.jsimpledb.gui.app</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing constructors, and an explanation">
+<caption><span>Constructors in <a href="../../../../org/jsimpledb/gui/app/package-summary.html">org.jsimpledb.gui.app</a> with parameters of type <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/app/JObjectEditorWindow.html#JObjectEditorWindow(com.vaadin.ui.UI, org.jsimpledb.parse.ParseSession, org.jsimpledb.JClass)">JObjectEditorWindow</a></strong>(<a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui">UI</a>&nbsp;ui,
                                       <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                                       <a href="../../../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&nbsp;jclass)</code>
 <div class="block">Constructor for creating and editing a new object.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/JObjectEditorWindow.html#JObjectEditorWindow(com.vaadin.ui.UI, org.jsimpledb.parse.ParseSession, org.jsimpledb.JClass, org.jsimpledb.JObject, com.vaadin.ui.Component)">JObjectEditorWindow</a></strong>(<a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui">UI</a>&nbsp;ui,
+<tr class="rowColor">
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/app/JObjectEditorWindow.html#JObjectEditorWindow(com.vaadin.ui.UI, org.jsimpledb.parse.ParseSession, org.jsimpledb.JClass, org.jsimpledb.JObject, com.vaadin.ui.Component)">JObjectEditorWindow</a></strong>(<a href="https://vaadin.com/api/com/vaadin/ui/UI.html?is-external=true" title="class or interface in com.vaadin.ui">UI</a>&nbsp;ui,
                                       <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                                       <a href="../../../../org/jsimpledb/JClass.html" title="class in org.jsimpledb">JClass</a>&lt;?&gt;&nbsp;jclass,
                                       <a href="../../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>&nbsp;jobj,
@@ -261,16 +290,16 @@
 <div class="block">Constructor for editing an existing object.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/ReferenceFieldField.html#ReferenceFieldField(org.jsimpledb.JTransaction, org.jsimpledb.parse.ParseSession, java.lang.String, java.lang.Class)">ReferenceFieldField</a></strong>(<a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
+<tr class="altColor">
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/app/ReferenceFieldField.html#ReferenceFieldField(org.jsimpledb.JTransaction, org.jsimpledb.parse.ParseSession, java.lang.String, java.lang.Class)">ReferenceFieldField</a></strong>(<a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;dest,
                                       <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                                       <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
                                       <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;type)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/SimpleFieldFieldBuilder.html#SimpleFieldFieldBuilder(org.jsimpledb.JTransaction, org.jsimpledb.JSimpleField, org.jsimpledb.parse.ParseSession, boolean)">SimpleFieldFieldBuilder</a></strong>(<a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx,
+<tr class="rowColor">
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/gui/app/SimpleFieldFieldBuilder.html#SimpleFieldFieldBuilder(org.jsimpledb.JTransaction, org.jsimpledb.JSimpleField, org.jsimpledb.parse.ParseSession, boolean)">SimpleFieldFieldBuilder</a></strong>(<a href="../../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;jtx,
                                               <a href="../../../../org/jsimpledb/JSimpleField.html" title="class in org.jsimpledb">JSimpleField</a>&nbsp;jfield,
                                               <a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
                                               boolean&nbsp;allowNull)</code>
