@@ -2,9 +2,6 @@
 SHORT TERM
 ==========
 
-- Bug?
-    - what happens if you mutate a collection field in an @OnVersionChange method?
-
 - CLI:
     - New CLI flags:
         - `--console-port': accept console telnet connections on port
