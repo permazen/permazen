@@ -21,6 +21,17 @@
  *      {@linkplain org.jsimpledb.spring.JSimpleDBExceptionTranslator implementation} suitable for use with JSimpleDB</li>
  *  <li>{@link org.jsimpledb.spring.OpenTransactionInViewFilter}, which allows {@link org.jsimpledb.JSimpleDB}
  *      transactions to span an entire web request.</li>
+ *  <li>Various {@link org.springframework.http.converter.HttpMessageConverter}'s that bring JSimpleDB's encoding,
+ *      indexing, and schema management features to data being sent over a network:
+ *      <ul>
+ *      <li>{@link org.jsimpledb.spring.KVStoreHttpMessageConverter} for encoding/decoding a raw
+ *          {@link org.jsimpledb.kv.KVStore}</li>
+ *      <li>{@link org.jsimpledb.spring.SnapshotJTransactionHttpMessageConverter} for encoding/decoding an entire
+ *          {@link org.jsimpledb.SnapshotJTransaction}</li>
+ *      <li>{@link org.jsimpledb.spring.JObjectHttpMessageConverter} for encoding/decoding a specific
+ *          {@link org.jsimpledb.JObject} within a {@link org.jsimpledb.SnapshotJTransaction}</li>
+ *      </ul>
+ *  </li>
  * </ul>
  *
  * <p><b>JSimpleDB XML Tags</b></p>
