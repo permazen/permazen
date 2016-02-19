@@ -134,6 +134,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     private final HashMap<Integer, NameIndex> nameIndexMap = new HashMap<>();
 
     private GeneratedIdCache generatedIdCache = new GeneratedIdCache();
+    private int fieldTruncationLength = -1;
 
     /**
      * Constructor.
@@ -148,6 +149,39 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
         // Build name index for each schema version
         for (Schema schema : this.tx.getSchemas().getVersions().values())
             nameIndexMap.put(schema.getVersionNumber(), new NameIndex(schema.getSchemaModel()));
+    }
+
+    /**
+     * Get the maximum length (number of characters) of any written simple field.
+     *
+     * <p>
+     * Field values longer than this will be truncated. If set to zero, all field values are written as empty tags.
+     * If set to {@code -1}, truncation is disabled.
+     *
+     * <p>
+     * Truncation is mainly useful for generating human-readable output without very long lines.
+     * Obviously, when truncation is enabled, the resulting output, although still valid XML, may
+     * have missing information and therefore cannot necessarily be read back in.
+     *
+     * <p>
+     * By default, this is {@code -1} so truncation is disabled.
+     *
+     * @return maximum field length, or zero for empty fields, or {@code -1} to not truncate
+     */
+    public int getFieldTruncationLength() {
+        return this.fieldTruncationLength;
+    }
+
+    /**
+     * Set the maximum length (number of characters) of any written simple field.
+     *
+     * @param length maximum field length, or zero for empty fields, or {@code -1} to not truncate
+     * @throws IllegalArgumentException if {@code length < -1}
+     * @see #getFieldTruncationLength
+     */
+    public void setFieldTruncationLength(int length) {
+        Preconditions.checkArgument(length >= -1, "length < -1");
+        this.fieldTruncationLength = length;
     }
 
     /**
@@ -521,16 +555,16 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
                 // Special case for simple fields, which use empty tags when null
                 if (field instanceof SimpleField) {
                     final Object value = this.tx.readSimpleField(id, field.getStorageId(), false);
-                    if (value != null)
-                        writer.writeStartElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
-                    else
+                    if (value == null || this.fieldTruncationLength == 0)
                         writer.writeEmptyElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
+                    else
+                        writer.writeStartElement(fieldTag.getNamespaceURI(), fieldTag.getLocalPart());
                     if (!nameFormat)
                         this.writeAttribute(writer, STORAGE_ID_ATTR, field.getStorageId());
-                    if (value != null) {
-                        this.writeSimpleField(writer, (SimpleField<?>)field, value);
+                    if (value != null && this.fieldTruncationLength != 0) {
+                        this.writeSimpleFieldText(writer, (SimpleField<?>)field, value);
                         writer.writeEndElement();
-                    } else
+                    } else if (value == null)
                         this.writeAttribute(writer, NULL_ATTR, "true");
                     continue;
                 }
@@ -591,19 +625,27 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
     private void writeSimpleTag(XMLStreamWriter writer, QName tag, SimpleField<?> field, Object value)
       throws XMLStreamException {
-        if (value != null) {
+        if (value != null && this.fieldTruncationLength != 0) {
             writer.writeStartElement(tag.getNamespaceURI(), tag.getLocalPart());
-            this.writeSimpleField(writer, field, value);
+            this.writeSimpleFieldText(writer, field, value);
             writer.writeEndElement();
         } else {
             writer.writeEmptyElement(tag.getNamespaceURI(), tag.getLocalPart());
-            this.writeAttribute(writer, NULL_ATTR, "true");
+            if (value == null)
+                this.writeAttribute(writer, NULL_ATTR, "true");
         }
     }
 
-    private <T> void writeSimpleField(XMLStreamWriter writer, SimpleField<T> field, Object value) throws XMLStreamException {
+    private <T> void writeSimpleFieldText(XMLStreamWriter writer, SimpleField<T> field, Object value) throws XMLStreamException {
         final FieldType<T> fieldType = field.getFieldType();
-        writer.writeCharacters(fieldType.toString(fieldType.validate(value)));
+        String text = fieldType.toString(fieldType.validate(value));
+        final int length = text.length();
+        if (this.fieldTruncationLength == -1 || length <= this.fieldTruncationLength) {
+            writer.writeCharacters(text);
+            return;
+        }
+        writer.writeCharacters(text.substring(0, this.fieldTruncationLength));
+        writer.writeCharacters("...[truncated]");
     }
 
     private <T> T readSimpleField(XMLStreamReader reader, SimpleField<T> field) throws XMLStreamException {

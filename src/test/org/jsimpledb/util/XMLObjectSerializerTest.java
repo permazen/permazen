@@ -74,6 +74,15 @@ public class XMLObjectSerializerTest extends TestSupport {
 
         XMLObjectSerializer s1 = new XMLObjectSerializer(tx);
 
+        try {
+            s1.setFieldTruncationLength(-2);
+            assert false;
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+
+        Assert.assertEquals(s1.getFieldTruncationLength(), -1);
+
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         s1.write(buf, false, true);
         this.compareResult(tx, buf.toByteArray(), "test1.xml");
@@ -82,7 +91,19 @@ public class XMLObjectSerializerTest extends TestSupport {
         s1.write(buf, true, true);
         this.compareResult(tx, buf.toByteArray(), "test2.xml");
 
+        buf.reset();
+        s1.setFieldTruncationLength(6);
+        s1.write(buf, true, true);
+        this.compareResult(tx, buf.toByteArray(), "test2a.xml", false);
+
+        buf.reset();
+        s1.setFieldTruncationLength(0);
+        s1.write(buf, true, true);
+        this.compareResult(tx, buf.toByteArray(), "test2b.xml", false);
+
         tx.commit();
+
+        s1.setFieldTruncationLength(-1);
 
         final SchemaModel schema2 = SchemaModel.fromXML(new ByteArrayInputStream((
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -138,6 +159,10 @@ public class XMLObjectSerializerTest extends TestSupport {
     }
 
     private void compareResult(Transaction tx, byte[] buf, String resource) throws Exception {
+        this.compareResult(tx, buf, resource, true);
+    }
+
+    private void compareResult(Transaction tx, byte[] buf, String resource, boolean reparse) throws Exception {
 
         // Read file
         String text = this.readResource(this.getClass().getResource(resource)).trim();
@@ -147,6 +172,8 @@ public class XMLObjectSerializerTest extends TestSupport {
         Assert.assertEquals(new String(buf, "UTF-8"), text);
 
         // Parse XML back into a snapshot transaction
+        if (!reparse)
+            return;
         final Transaction stx = tx.createSnapshotTransaction();
 
         XMLObjectSerializer s = new XMLObjectSerializer(stx);

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <Foo id="0100000000000001" version="1">
+        <b/>
+        <c/>
+        <d/>
+        <date/>
+        <f/>
+        <i/>
+        <j/>
+        <r/>
+        <str/>
+        <z/>
+    </Foo>
+</objects>
