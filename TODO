@@ -2,6 +2,8 @@
 SHORT TERM
 ==========
 
+- Parser bug with varargs methods when array passed
+
 - CLI:
     - New CLI flags:
         - `--console-port': accept console telnet connections on port
