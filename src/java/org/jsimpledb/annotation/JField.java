@@ -21,7 +21,8 @@ import org.jsimpledb.core.DeleteAction;
  * <ul>
  *  <li>To describe a <b>simple</b> database field by annotating the corresponding abstract Java bean property `getter' method</li>
  *  <li>To describe the <b>sub-field(s)</b> of a <b>complex</b> database field (i.e., set, list, or map),
- *      that is, the collection element or map key and value</li>
+ *      that is, the collection element or map key and value. In this case this annotation nests within the corresponding
+ *      {@link JListField &#64;JListField}, {@link JSetField &#64;JSetField}, or {@link JMapField &#64;JMapField} annotation.</li>
  * </ul>
  *
  * <p>
@@ -30,7 +31,8 @@ import org.jsimpledb.core.DeleteAction;
  * </p>
  *
  * <p>
- * This annotation is not required when auto-generation of properties is enabled; see {@link JSimpleClass#autogenFields}.
+ * This annotation is not required when auto-generation of properties is enabled (unless you need to override
+ * defaults); see {@link JSimpleClass#autogenFields}.
  * </p>
  *
  * <p><b>Non-Reference Fields</b></p>
