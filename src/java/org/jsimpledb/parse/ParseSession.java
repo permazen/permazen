@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedMap;
@@ -42,6 +43,19 @@ import org.jsimpledb.parse.func.VersionFunction;
  * A {@link Session} with support for parsing Java expressions.
  */
 public class ParseSession extends Session {
+
+    private static final HashMap<String, Class<?>> PRIMITIVE_CLASSES = new HashMap<>(9);
+    static {
+        PRIMITIVE_CLASSES.put("void", void.class);
+        PRIMITIVE_CLASSES.put("boolean", boolean.class);
+        PRIMITIVE_CLASSES.put("byte", byte.class);
+        PRIMITIVE_CLASSES.put("char", char.class);
+        PRIMITIVE_CLASSES.put("short", short.class);
+        PRIMITIVE_CLASSES.put("int", int.class);
+        PRIMITIVE_CLASSES.put("float", float.class);
+        PRIMITIVE_CLASSES.put("long", long.class);
+        PRIMITIVE_CLASSES.put("double", double.class);
+    }
 
     private final LinkedHashSet<String> imports = new LinkedHashSet<>();
     private final TreeMap<String, AbstractFunction> functions = new TreeMap<>();
@@ -236,7 +250,9 @@ public class ParseSession extends Session {
                 className = className.substring(0, lastDot) + "$" + className.substring(lastDot + 1);
             }
         }
-        return null;
+
+        // Handle primitive class names
+        return PRIMITIVE_CLASSES.get(name);
     }
 
     /**
