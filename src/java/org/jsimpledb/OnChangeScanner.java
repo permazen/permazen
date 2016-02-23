@@ -450,7 +450,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 return null;
 
             // Check first generic type parameter which is the JObject corresponding to id
-            final JObject jobj = this.jtx.getJObject(id);
+            final JObject jobj = this.jtx.get(id);
             if (!this.genericTypes[0].isInstance(jobj))
                 return null;
 
@@ -471,7 +471,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 Util.invoke(this.method, null);
             else {
                 for (ObjId id : referrers) {
-                    final JObject target = this.jtx.getJObject(id);     // type of 'id' should always be found
+                    final JObject target = this.jtx.get(id);            // type of 'id' should always be found
 
                     // Avoid invoking subclass's @OnChange method on superclass instance;
                     // this can happen when the field is in superclass but wildcard @OnChange is in the subclass
@@ -488,7 +488,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 Util.invoke(this.method, null, change);
             else {
                 for (ObjId id : referrers) {
-                    final JObject target = this.jtx.getJObject(id);     // type of 'id' should always be found
+                    final JObject target = this.jtx.get(id);            // type of 'id' should always be found
 
                     // Avoid invoking subclass's @OnChange method on superclass instance;
                     // this can happen when the field is in superclass but wildcard @OnChange is in the subclass

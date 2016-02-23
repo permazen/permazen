@@ -206,7 +206,7 @@ public class JObjectEditorWindow extends ConfirmWindow {
         // Find/create target object in current transaction
         final JTransaction jtx = JTransaction.getCurrent();
         final ObjId id = this.jobj.getObjId();
-        final JObject target = this.create ? (JObject)jtx.create(this.jclass) : jtx.getJObject(id);
+        final JObject target = this.create ? (JObject)jtx.create(this.jclass) : jtx.get(id);
 
         // Verify object still exists when editing
         if (!this.create && !target.exists()) {

@@ -68,7 +68,7 @@ public class ValidationTest extends TestSupport {
 
             // Reload object
             int checks = p1.getChecks();
-            p1 = tx.getJObject(p1);
+            p1 = tx.get(p1);
             p1.setChecks(checks);
 
             // Request validation
@@ -143,7 +143,7 @@ public class ValidationTest extends TestSupport {
 
             // Reload object
             int checks = p1.getChecks();
-            p1 = tx.getJObject(p1);
+            p1 = tx.get(p1);
             p1.setChecks(checks);
 
             p1.setAge(40);
@@ -169,7 +169,7 @@ public class ValidationTest extends TestSupport {
 
             // Reload object
             int checks = p1.getChecks();
-            p1 = tx.getJObject(p1);
+            p1 = tx.get(p1);
             p1.setChecks(checks);
 
             p1.setName("bob");
@@ -192,7 +192,7 @@ public class ValidationTest extends TestSupport {
 
             // Reload object
             int checks = p1.getChecks();
-            p1 = tx.getJObject(p1);
+            p1 = tx.get(p1);
             p1.setChecks(checks);
 
             p1.setChecks(-1);
@@ -218,7 +218,7 @@ public class ValidationTest extends TestSupport {
 
             // Reload object
             int checks = p1.getChecks();
-            p1 = tx.getJObject(p1);
+            p1 = tx.get(p1);
             p1.setChecks(checks);
 
             p1.setChecks(-1);

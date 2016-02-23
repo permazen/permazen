@@ -59,19 +59,19 @@ public class SimpleSpringTest extends SpringTest {
 
     @Transactional
     public void testSetName(Person p1, String name) {
-        p1 = JTransaction.getCurrent().getJObject(p1);
+        p1 = JTransaction.getCurrent().get(p1);
         p1.setName(name);
     }
 
     @Transactional(readOnly = true)
     public void testSetNameReadOnly(Person p1, String name) {
-        p1 = JTransaction.getCurrent().getJObject(p1);
+        p1 = JTransaction.getCurrent().get(p1);
         p1.setName(name);
     }
 
     @Transactional(readOnly = true)
     public String testGetName(Person p1) {
-        p1 = JTransaction.getCurrent().getJObject(p1);
+        p1 = JTransaction.getCurrent().get(p1);
         return p1.getName();
     }
 

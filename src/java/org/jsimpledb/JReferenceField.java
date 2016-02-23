@@ -99,7 +99,7 @@ public class JReferenceField extends JSimpleField {
         //  if (value == null)
         //      return null;
         //  ObjId id = (ObjId)value;
-        //  return this.tx.getJObject(id);
+        //  return this.tx.get(id);
         //
         MethodVisitor mv = cw.visitMethod(
           this.getter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
@@ -118,7 +118,7 @@ public class JReferenceField extends JSimpleField {
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),
           ClassGenerator.TX_FIELD_NAME, Type.getDescriptor(JTransaction.class));
         mv.visitInsn(Opcodes.SWAP);
-        generator.emitInvoke(mv, ClassGenerator.GET_JOBJECT_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.GET_METHOD);
         mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getter.getReturnType()));
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(0, 0);

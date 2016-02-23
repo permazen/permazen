@@ -159,7 +159,7 @@ public class ReferenceFieldField extends CustomField<JObject> {
             final ObjId id = this.objectChooser.getObjId();
             if (id == null)
                 return true;
-            final JObject jobj = JTransaction.getCurrent().getJObject(id);
+            final JObject jobj = JTransaction.getCurrent().get(id);
             if (!jobj.exists()) {
                 Notification.show("Object " + id + " no longer exists", null, Notification.Type.WARNING_MESSAGE);
                 return false;

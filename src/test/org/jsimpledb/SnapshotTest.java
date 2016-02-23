@@ -71,8 +71,8 @@ public class SnapshotTest extends TestSupport {
             Assert.assertEquals(p1a.getList().size(), 1);
             Assert.assertEquals(p1a.getMap1().size(), 2);
 
-            Assert.assertSame(p1, tx.getJObject(p1.getObjId()));
-            Assert.assertSame(p1a, stx.getJObject(p1.getObjId()));
+            Assert.assertSame(p1, tx.get(p1.getObjId()));
+            Assert.assertSame(p1a, stx.get(p1.getObjId()));
 
             TestSupport.checkSet(tx.getAll(Person.class), buildSet(p1, p2, p3));
             TestSupport.checkSet(stx.getAll(Person.class), buildSet(p1a));
@@ -122,9 +122,9 @@ public class SnapshotTest extends TestSupport {
         try {
 
             // Reload objects
-            p1 = tx2.getJObject(p1);
-            p2 = tx2.getJObject(p2);
-            p3 = tx2.getJObject(p3);
+            p1 = tx2.get(p1);
+            p2 = tx2.get(p2);
+            p3 = tx2.get(p3);
 
             Assert.assertEquals(p1.getName(), "Person #1");
             Assert.assertEquals(p1.getAge(), 123);
@@ -264,9 +264,9 @@ public class SnapshotTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
-            final Foo f1 = tx.getJObject(new ObjId("c811111111111111"), Foo.class);
-            final Foo f2 = tx.getJObject(new ObjId("c822222222222222"), Foo.class);
-            final Foo f3 = tx.getJObject(new ObjId("c833333333333333"), Foo.class);
+            final Foo f1 = tx.get(new ObjId("c811111111111111"), Foo.class);
+            final Foo f2 = tx.get(new ObjId("c822222222222222"), Foo.class);
+            final Foo f3 = tx.get(new ObjId("c833333333333333"), Foo.class);
 
             Assert.assertTrue(tx.recreate(f1));
             Assert.assertTrue(tx.recreate(f2));
@@ -281,10 +281,10 @@ public class SnapshotTest extends TestSupport {
             TestSupport.checkSet(f3.getReferrers(), buildSet(f2));
 
             tx.copyTo(stx, new CopyState(), f1.getWithRelatedObjects());
-            final Foo f1s = stx.getJObject(f1.getObjId(), Foo.class);
+            final Foo f1s = stx.get(f1.getObjId(), Foo.class);
 
-            final Foo f2s = (Foo)stx.getJObject(f2.getObjId());
-            final Foo f3s = (Foo)stx.getJObject(f3.getObjId());
+            final Foo f2s = (Foo)stx.get(f2.getObjId());
+            final Foo f3s = (Foo)stx.get(f3.getObjId());
 
             Assert.assertTrue(f1s.exists());
             Assert.assertFalse(f2s.exists());

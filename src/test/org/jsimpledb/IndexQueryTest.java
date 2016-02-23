@@ -26,18 +26,18 @@ public class IndexQueryTest extends TestSupport {
         JTransaction.setCurrent(jtx);
         try {
 
-            final Account a1 = jtx.getJObject(new ObjId("0A1111111111A001"), Account.class);
-            final Account a2 = jtx.getJObject(new ObjId("0A2222222222A002"), Account.class);
+            final Account a1 = jtx.get(new ObjId("0A1111111111A001"), Account.class);
+            final Account a2 = jtx.get(new ObjId("0A2222222222A002"), Account.class);
             jtx.recreate(a1);
             jtx.recreate(a2);
 
-            final Foo f1 = jtx.getJObject(new ObjId("141111111111F001"), Foo.class);
-            final Foo f2 = jtx.getJObject(new ObjId("142222222222F002"), Foo.class);
+            final Foo f1 = jtx.get(new ObjId("141111111111F001"), Foo.class);
+            final Foo f2 = jtx.get(new ObjId("142222222222F002"), Foo.class);
             jtx.recreate(f1);
             jtx.recreate(f2);
 
-            final Bar b1 = jtx.getJObject(new ObjId("281111111111BA01"), Bar.class);
-            final Bar b2 = jtx.getJObject(new ObjId("282222222222BA02"), Bar.class);
+            final Bar b1 = jtx.get(new ObjId("281111111111BA01"), Bar.class);
+            final Bar b2 = jtx.get(new ObjId("282222222222BA02"), Bar.class);
             jtx.recreate(b1);
             jtx.recreate(b2);
 

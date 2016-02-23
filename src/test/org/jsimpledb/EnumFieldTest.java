@@ -100,7 +100,7 @@ public class EnumFieldTest extends TestSupport {
         JTransaction.setCurrent(jtx);
         try {
 
-            final Foo foo = jtx.getJObject(id1, Foo.class);
+            final Foo foo = jtx.get(id1, Foo.class);
 
             foo.upgrade();
 

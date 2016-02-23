@@ -69,8 +69,8 @@ public class TypeSafetyTest3 extends TestSupport {
             inventory2 = jtx.getAll(Inventory2.class).iterator().next();
 
             // Reload objects
-            car = jtx.getJObject(car);
-            boat = jtx.getJObject(boat);
+            car = jtx.get(car);
+            boat = jtx.get(boat);
 
             boat.setColor(Color.RED);   // triggers notification to carColorChange()?
 

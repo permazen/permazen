@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
  * {@link OnCreate &#64;OnCreate} are invoked only for event (a). In particular, Java model objects are frequently
  * instantiated to represent database objects that already exist in the database. Also, it's possible for a Java model
  * object to be instantiated when no corresponding database object exists in the database (e.g., via
- * {@link org.jsimpledb.JTransaction#getJObject(org.jsimpledb.core.ObjId)}).
+ * {@link org.jsimpledb.JTransaction#get(org.jsimpledb.core.ObjId)}).
  * </p>
  *
  * <p>

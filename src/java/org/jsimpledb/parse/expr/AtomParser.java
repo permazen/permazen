@@ -187,7 +187,7 @@ public class AtomParser implements Parser<Node> {
             return !session.getMode().hasJSimpleDB() ? new LiteralNode(id) : new Node() {
                 @Override
                 public Value evaluate(ParseSession session) {
-                    return new ConstValue(JTransaction.getCurrent().getJObject(id));
+                    return new ConstValue(JTransaction.getCurrent().get(id));
                 }
             };
         }

@@ -61,7 +61,7 @@ public class VarValue extends AbstractLValue {
                 value = new AbstractValue() {
                     @Override
                     public Object get(ParseSession session) {
-                        return session.getJTransaction().getJObject(id);
+                        return session.getJTransaction().get(id);
                     }
                 };
             }

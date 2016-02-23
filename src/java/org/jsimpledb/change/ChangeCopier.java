@@ -162,7 +162,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * <p>
      * The implementation in {@link ChangeCopier} invokes {@code jobj.copyTo(this.dest, null, this.getCopyState())} unless
      * {@code jobj} does not exist, in which case it is not copied (but the
-     * {@linkplain JTransaction#getJObject(ObjId) corresponding} {@link JObject} is still returned).
+     * {@linkplain JTransaction#get(ObjId) corresponding} {@link JObject} is still returned).
      * Subclasses may override to copy additional objects referenced by {@code jobj} as needed.
      * </p>
      *
@@ -173,7 +173,7 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
     @SuppressWarnings("unchecked")
     protected JObject copy(JObject jobj) {
         Preconditions.checkArgument(jobj != null, "null jobj");
-        return !jobj.exists() ? this.dest.getJObject(jobj) : jobj.copyTo(this.dest, null, this.getCopyState());
+        return !jobj.exists() ? this.dest.get(jobj) : jobj.copyTo(this.dest, null, this.getCopyState());
     }
 }
 

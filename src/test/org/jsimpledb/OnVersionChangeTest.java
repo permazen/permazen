@@ -94,11 +94,11 @@ public class OnVersionChangeTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
-            final Person2 p1 = tx.getJObject(id1, Person2.class);
-            final Person2 p2 = tx.getJObject(id2, Person2.class);
-            final Person2 p3 = tx.getJObject(id3, Person2.class);
-            final Person2 p4 = tx.getJObject(id4, Person2.class);
-            final Person2 p5 = tx.getJObject(id5, Person2.class);
+            final Person2 p1 = tx.get(id1, Person2.class);
+            final Person2 p2 = tx.get(id2, Person2.class);
+            final Person2 p3 = tx.get(id3, Person2.class);
+            final Person2 p4 = tx.get(id4, Person2.class);
+            final Person2 p5 = tx.get(id5, Person2.class);
 
             TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               1, buildSet(p1, p2, p3, p4, p5)));
@@ -167,11 +167,11 @@ public class OnVersionChangeTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
-            final Person3 p1 = tx.getJObject(id1, Person3.class);
-            final Person3 p2 = tx.getJObject(id2, Person3.class);
-            final Person3 p3 = tx.getJObject(id3, Person3.class);
-            final Person3 p4 = tx.getJObject(id4, Person3.class);
-            final Person3 p5 = tx.getJObject(id5, Person3.class);
+            final Person3 p1 = tx.get(id1, Person3.class);
+            final Person3 p2 = tx.get(id2, Person3.class);
+            final Person3 p3 = tx.get(id3, Person3.class);
+            final Person3 p4 = tx.get(id4, Person3.class);
+            final Person3 p5 = tx.get(id5, Person3.class);
 
             TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               2, buildSet(p1, p2, p3, p4, p5)));
@@ -197,11 +197,11 @@ public class OnVersionChangeTest extends TestSupport {
         JTransaction.setCurrent(tx);
         try {
 
-            final Person4 p1 = tx.getJObject(id1, Person4.class);
-            final Person4 p2 = tx.getJObject(id2, Person4.class);
-            final Person4 p3 = tx.getJObject(id3, Person4.class);
-            final Person4 p4 = tx.getJObject(id4, Person4.class);
-            final Person4 p5 = tx.getJObject(id5, Person4.class);
+            final Person4 p1 = tx.get(id1, Person4.class);
+            final Person4 p2 = tx.get(id2, Person4.class);
+            final Person4 p3 = tx.get(id3, Person4.class);
+            final Person4 p4 = tx.get(id4, Person4.class);
+            final Person4 p5 = tx.get(id5, Person4.class);
 
             TestSupport.checkMap(tx.queryVersion(JObject.class), buildMap(
               2, buildSet(p4, p5),

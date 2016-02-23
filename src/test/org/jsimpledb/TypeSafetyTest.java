@@ -117,11 +117,11 @@ public class TypeSafetyTest extends TestSupport {
         try {
 
             // Get objects
-            final JObject foo1 = jtx.getJObject(f1, JObject.class);
-            final JObject foo2 = jtx.getJObject(f2, JObject.class);
-            final Bar bar1 = jtx.getJObject(b1, Bar.class);
-            final Bar bar2 = jtx.getJObject(b2, Bar.class);
-            final Bar bar3 = jtx.getJObject(b3, Bar.class);
+            final JObject foo1 = jtx.get(f1, JObject.class);
+            final JObject foo2 = jtx.get(f2, JObject.class);
+            final Bar bar1 = jtx.get(b1, Bar.class);
+            final Bar bar2 = jtx.get(b2, Bar.class);
+            final Bar bar3 = jtx.get(b3, Bar.class);
 
             // Verify index on Bar.friend does not contain any type "Foo" keys
             final NavigableMap<Bar, NavigableSet<Bar>> friendIndex = jtx.queryIndex(Bar.class, "friend", Bar.class).asMap();
@@ -223,7 +223,7 @@ public class TypeSafetyTest extends TestSupport {
             // Fixup this.friend = oldFriend.getBar()
             final JObject oldFriend = (JObject)oldValues.get(21);
             final ObjId barId = (ObjId)jtx.getTransaction().readSimpleField(oldFriend.getObjId(), 12, false);
-            final Bar newFriend = jtx.getJObject(barId, Bar.class);
+            final Bar newFriend = jtx.get(barId, Bar.class);
             this.setFriend(newFriend);
         }
 

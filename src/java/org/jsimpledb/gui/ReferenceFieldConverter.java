@@ -53,7 +53,7 @@ public class ReferenceFieldConverter implements Converter<ObjId, JObject> {
     public JObject convertToModel(ObjId id, Class<? extends JObject> targetType, Locale locale) {
         if (id == null)
             return null;
-        return this.jtx.getJObject(id);
+        return this.jtx.get(id);
     }
 }
 

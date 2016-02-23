@@ -36,7 +36,7 @@ class ReferenceConverter<T> extends Converter<T, ObjId> {
     protected T doBackward(ObjId id) {
         if (id == null)
             return null;
-        final JObject jobj = this.jtx.getJObject(id);
+        final JObject jobj = this.jtx.get(id);
         return this.type.cast(jobj);
     }
 

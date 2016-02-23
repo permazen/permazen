@@ -40,7 +40,7 @@ public class JObjectCopyTest extends TestSupport {
             p1.copyOut("friends.element.friends.element");
 
             // Verify p3 got copied out
-            Assert.assertTrue(stx.getJObject(p3).exists());
+            Assert.assertTrue(stx.get(p3).exists());
 
             jtx.commit();
 
@@ -68,7 +68,7 @@ public class JObjectCopyTest extends TestSupport {
             p1.copyOut("ref", "ref.ref");
 
             // Verify p3 got copied out
-            Assert.assertTrue(stx.getJObject(p3).exists());
+            Assert.assertTrue(stx.get(p3).exists());
 
             jtx.commit();
 

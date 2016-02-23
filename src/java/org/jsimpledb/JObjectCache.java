@@ -32,7 +32,7 @@ class JObjectCache {
      * @return Java model object
      * @throws IllegalArgumentException if {@code id} is null
      */
-    public JObject getJObject(ObjId id) {
+    public JObject get(ObjId id) {
 
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
@@ -63,10 +63,10 @@ class JObjectCache {
     /**
      * Register the given {@link JObject} with this instance in the case that the Java model class construtor invokes
      * a {@link JTransaction} method before returning (and so we won't have registered it yet). This allows re-entrant
-     * invocations of {@link #getJObject} involving Java model class constructors to work properly. Otherwise,
+     * invocations of {@link #get} involving Java model class constructors to work properly. Otherwise,
      * a "recursive load" exception is thrown by Guava's {@link LoadingCache}.
      */
-    void registerJObject(JObject jobj) {
+    void register(JObject jobj) {
 
         // Are we currently instantiating this JObject?
         if (jobj == null)

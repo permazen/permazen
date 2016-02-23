@@ -126,7 +126,7 @@ public class JObjectHttpMessageConverter extends AbstractHttpMessageConverter<JO
         }
 
         // Find the root object
-        final JObject jobj = jtx.getJObject(id);
+        final JObject jobj = jtx.get(id);
         if (!jobj.exists())
             throw new HttpMessageNotReadableException("no object with object ID " + id + " found in object graph");
 

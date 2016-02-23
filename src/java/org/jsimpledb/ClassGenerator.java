@@ -77,7 +77,7 @@ class ClassGenerator<T> {
     static final Method COPY_TO_METHOD;
     static final Method GET_SNAPSHOT_TRANSACTION_METHOD;
     static final Method GET_TRANSACTION_METHOD;
-    static final Method GET_JOBJECT_METHOD;
+    static final Method GET_METHOD;
     static final Method REGISTER_JOBJECT_METHOD;
 
     // Converter method handles
@@ -128,7 +128,7 @@ class ClassGenerator<T> {
               JTransaction.class, JObject.class, ObjId.class, CopyState.class, String[].class);
             GET_SNAPSHOT_TRANSACTION_METHOD = JTransaction.class.getMethod("getSnapshotTransaction");
             GET_TRANSACTION_METHOD = JTransaction.class.getMethod("getTransaction");
-            GET_JOBJECT_METHOD = JTransaction.class.getMethod("getJObject", ObjId.class);
+            GET_METHOD = JTransaction.class.getMethod("get", ObjId.class);
             REGISTER_JOBJECT_METHOD = JTransaction.class.getMethod("registerJObject", JObject.class);
 
             // Transaction methods

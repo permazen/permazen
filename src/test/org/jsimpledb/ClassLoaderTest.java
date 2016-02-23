@@ -31,8 +31,8 @@ public class ClassLoaderTest extends TestSupport {
         try {
             final SnapshotJTransaction stx = jtx.getSnapshotTransaction();
             final ObjId id = new ObjId("0100000000000000");
-            stx.getJObject(id).getObjId();                                  // causes snapshot class to load
-            jtx.getJObject(id).getObjId();                                  // causes normal class to load redundantly
+            stx.get(id).getObjId();                                     // causes snapshot class to load
+            jtx.get(id).getObjId();                                     // causes normal class to load redundantly
             jtx.commit();
         } finally {
             JTransaction.setCurrent(null);

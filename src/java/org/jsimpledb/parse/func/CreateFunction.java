@@ -72,7 +72,7 @@ public class CreateFunction extends AbstractFunction {
         final Transaction tx = session.getTransaction();
         final ObjId id = version != null ?
           tx.create(storageId, version.evaluate(session).checkIntegral(session, "create()")) : tx.create(storageId);
-        return new ConstValue(session.getMode().hasJSimpleDB() ? JTransaction.getCurrent().getJObject(id) : id);
+        return new ConstValue(session.getMode().hasJSimpleDB() ? JTransaction.getCurrent().get(id) : id);
     }
 
 // ParamInfo

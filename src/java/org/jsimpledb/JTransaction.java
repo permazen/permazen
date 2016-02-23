@@ -96,10 +96,9 @@ import org.slf4j.LoggerFactory;
  * <p>
  * <b>Object Access</b>
  * <ul>
- *  <li>{@link #getJObject(ObjId) getJObject()} - Get the Java model object corresponding to a specific database object ID</li>
- *  <li>{@link #create(Class) create()} - Create a new database object</li>
+ *  <li>{@link #get(ObjId, Class) get()} - Get the Java model object corresponding to a specific database object ID</li>
  *  <li>{@link #getAll getAll()} - Get all database objects that are instances of a given Java type</li>
- *  <li>{@link #queryVersion queryVersion()} - Get database objects grouped according to their schema versions</li>
+ *  <li>{@link #create(Class) create()} - Create a new database object</li>
  * </ul>
  *
  * <p>
@@ -125,6 +124,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #queryCompositeIndex(Class, String, Class, Class, Class, Class) queryCompositeIndex()}
  *      - Access a composite index defined on four fields</li>
  *  <!-- COMPOSITE-INDEX -->
+ *  <li>{@link #queryVersion queryVersion()} - Get database objects grouped according to their schema versions</li>
  * </ul>
  *
  * <p>
@@ -517,7 +517,7 @@ public class JTransaction {
 
         // Check trivial case
         if (this.tx == dest.tx && srcId.equals(dstId))
-            return dest.getJObject(dstId);
+            return dest.get(dstId);
 
         // Parse paths
         final Class<?> startType = this.jdb.getJClass(srcId).type;
@@ -565,7 +565,7 @@ public class JTransaction {
         }
 
         // Done
-        return dest.getJObject(dstId);
+        return dest.get(dstId);
     }
 
     /**
@@ -684,26 +684,27 @@ public class JTransaction {
      * <p>
      * A non-null object is always returned, but the corresponding object may not actually exist in this transaction.
      * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
+     * Use {@link JObject#exists JObject.exists()} to check.
      *
      * <p>
-     * Also, it's possible that {@code id} corresponds to an object type which no longer exists in the schema
-     * version associated with this instance. In that case, an {@link UntypedJObject} is returned.
+     * Also, it's possible that {@code id} corresponds to an object type that no longer exists in the schema
+     * version associated with this transaction. In that case, an {@link UntypedJObject} is returned.
      *
      * @param id object ID
      * @return Java model object
      * @throws IllegalArgumentException if {@code id} is null
-     * @see #getJObject(ObjId, Class)
-     * @see #getJObject(JObject)
+     * @see #get(ObjId, Class)
+     * @see #get(JObject)
      */
-    public JObject getJObject(ObjId id) {
-        return this.jobjectCache.getJObject(id);
+    public JObject get(ObjId id) {
+        return this.jobjectCache.get(id);
     }
 
     /**
      * Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.
      *
      * <p>
-     * This method just invoke {@link #getJObject(ObjId)} and then casts the result.
+     * This method just invoke {@link #get(ObjId)} and then casts the result.
      *
      * @param id object ID
      * @param type expected type
@@ -711,34 +712,84 @@ public class JTransaction {
      * @return Java model object
      * @throws ClassCastException if the Java model object does not have type {@code type}
      * @throws IllegalArgumentException if {@code type} is null
-     * @see #getJObject(ObjId)
-     * @see #getJObject(JObject)
+     * @see #get(ObjId)
+     * @see #get(JObject)
      */
-    public <T> T getJObject(ObjId id, Class<T> type) {
+    public <T> T get(ObjId id, Class<T> type) {
         Preconditions.checkArgument(type != null, "null type");
-        return type.cast(this.getJObject(id));
+        return type.cast(this.get(id));
     }
 
     /**
      * Get the Java model object with the same object ID as the given {@link JObject} and whose state derives from this transaction.
      *
      * <p>
-     * This method is equivalent to {@code getJObject(jobj.getObjId())} followed by an appropriate cast to type {@code T}.
+     * This method is equivalent to {@code get(jobj.getObjId())} followed by an appropriate cast to type {@code T}.
      *
      * @param jobj Java model object
      * @param <T> expected Java type
      * @return Java model object in this transaction with the same object ID (possibly {@code jobj} itself)
      * @throws IllegalArgumentException if {@code jobj} is null, or not a {@link JSimpleDB} database object
      * @throws ClassCastException if the Java model object in this transaction somehow does not have the same type as {@code jobj}
-     * @see #getJObject(ObjId)
-     * @see #getJObject(ObjId, Class)
+     * @see #get(ObjId)
+     * @see #get(ObjId, Class)
      */
     @SuppressWarnings("unchecked")
-    public <T extends JObject> T getJObject(T jobj) {
+    public <T extends JObject> T get(T jobj) {
         final Class<?> modelClass = JSimpleDB.getModelClass(jobj);
         if (modelClass == null)
             throw new IllegalArgumentException("can't determine model class for type " + jobj.getClass().getName());
-        return (T)modelClass.cast(this.getJObject(jobj.getObjId()));
+        return (T)modelClass.cast(this.get(jobj.getObjId()));
+    }
+
+    /**
+     * Get the Java model object that is associated with this transaction and has the given ID.
+     *
+     * @param id object ID
+     * @return Java model object
+     * @throws IllegalArgumentException if {@code id} is null
+     * @deprecated Replaced by the equivalent {@link #get(ObjId) get()}
+     * @see #get(ObjId, Class)
+     */
+    @Deprecated
+    public JObject getJObject(ObjId id) {
+        return this.get(id);
+    }
+
+    /**
+     * Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.
+     *
+     * @param id object ID
+     * @param type expected type
+     * @param <T> expected Java model type
+     * @return Java model object
+     * @throws ClassCastException if the Java model object does not have type {@code type}
+     * @throws IllegalArgumentException if {@code type} is null
+     * @deprecated Replaced by the equivalent {@link #get(ObjId, Class) get()}
+     * @see #getJObject(ObjId)
+     * @see #getJObject(JObject)
+     */
+    @Deprecated
+    public <T> T getJObject(ObjId id, Class<T> type) {
+        return this.get(id, type);
+    }
+
+    /**
+     * Get the Java model object with the same object ID as the given {@link JObject} and whose state derives from this transaction.
+     *
+     * @param jobj Java model object
+     * @param <T> expected Java type
+     * @return Java model object in this transaction with the same object ID (possibly {@code jobj} itself)
+     * @throws IllegalArgumentException if {@code jobj} is null, or not a {@link JSimpleDB} database object
+     * @throws ClassCastException if the Java model object in this transaction somehow does not have the same type as {@code jobj}
+     * @deprecated Replaced by the equivalent {@link #get(JObject) get()}
+     * @see #getJObject(ObjId)
+     * @see #getJObject(ObjId, Class)
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <T extends JObject> T getJObject(T jobj) {
+        return this.get(jobj);
     }
 
     /**
@@ -953,7 +1004,7 @@ public class JTransaction {
      * @throws NullPointerException if {@code jobj} is null
      */
     public static void registerJObject(JObject jobj) {
-        jobj.getTransaction().jobjectCache.registerJObject(jobj);
+        jobj.getTransaction().jobjectCache.register(jobj);
     }
 
     /**
@@ -1553,7 +1604,7 @@ public class JTransaction {
                 continue;
 
             // Get object and verify type exists in current schema (if not, the remaining validation is unneccessary)
-            final JObject jobj = this.getJObject(id);
+            final JObject jobj = this.get(id);
             final JClass<?> jclass = this.jdb.jclasses.get(id.getStorageId());
             if (jclass == null)
                 return;
@@ -1645,7 +1696,7 @@ public class JTransaction {
                 if (JTransaction.this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
                     continue;
                 if (jobj == null)
-                    jobj = JTransaction.this.getJObject(id);
+                    jobj = JTransaction.this.get(id);
                 Util.invoke(info.getMethod(), jobj);
             }
         }
@@ -1673,7 +1724,7 @@ public class JTransaction {
                 if (JTransaction.this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
                     continue;
                 if (jobj == null)
-                    jobj = JTransaction.this.getJObject(id);
+                    jobj = JTransaction.this.get(id);
                 Util.invoke(info.getMethod(), jobj);
             }
         }
@@ -1738,7 +1789,7 @@ public class JTransaction {
 
                 // Get Java model object
                 if (jobj == null)
-                    jobj = JTransaction.this.getJObject(id);
+                    jobj = JTransaction.this.get(id);
 
                 // Invoke method
                 info.invoke(jobj, oldVersion, newVersion, oldValuesByStorageId, oldValuesByName);
