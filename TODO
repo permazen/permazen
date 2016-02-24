@@ -3,6 +3,9 @@ SHORT TERM
 ==========
 
 - Parser bug with varargs methods when array passed
+    - Probably fix this in conjunction with lamdas/type inference
+
+- Implement Spliterator's
 
 - CLI:
     - New CLI flags:
