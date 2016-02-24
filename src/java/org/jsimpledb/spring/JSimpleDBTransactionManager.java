@@ -45,9 +45,15 @@ import org.springframework.transaction.support.TransactionSynchronization;
  * existing transactions when appropriate.
  *
  * <p>
+ * For some key/value stores, the {@link org.springframework.transaction.annotation.Transactional#isolation &#64;isolation()}
+ * value is significant:
+ *
+ * <p><b>{@link RaftKVDatabase}</b>
+ *
+ * <p>
  * For {@link RaftKVDatabase} underlying key/value stores, configurable {@link Consistency} levels are supported.
  * Although the mapping between Spring's defined isolation levels and {@link RaftKVDatabase} consistency levels
- * is only semantically approximate, all consistency levels made available by using the following values:
+ * is only semantically approximate, all Raft consistency levels are made available through the following isolation values:
  *
  * <div style="margin-left: 20px;">
  * <table border="1" cellpadding="3" cellspacing="0" summary="Isolation Level Mapping">
@@ -56,23 +62,23 @@ import org.springframework.transaction.support.TransactionSynchronization;
  *  <th align="left">{@link RaftKVDatabase} consistency level</th>
  * </tr>
  * <tr>
- *  <td>{@link TransactionDefinition#ISOLATION_DEFAULT}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#DEFAULT}</td>
  *  <td>{@link Consistency#LINEARIZABLE}</td>
  * </tr>
  * <tr>
- *  <td>{@link TransactionDefinition#ISOLATION_SERIALIZABLE}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#SERIALIZABLE}</td>
  *  <td>{@link Consistency#LINEARIZABLE}</td>
  * </tr>
  * <tr>
- *  <td>{@link TransactionDefinition#ISOLATION_REPEATABLE_READ}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#REPEATABLE_READ}</td>
  *  <td>{@link Consistency#EVENTUAL}</td>
  * </tr>
  * <tr>
- *  <td>{@link TransactionDefinition#ISOLATION_READ_COMMITTED}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_COMMITTED}</td>
  *  <td>{@link Consistency#EVENTUAL_COMMITTED}</td>
  * </tr>
  * <tr>
- *  <td>{@link TransactionDefinition#ISOLATION_READ_UNCOMMITTED}</td>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_UNCOMMITTED}</td>
  *  <td>{@link Consistency#UNCOMMITTED}</td>
  * </tr>
  * </table>

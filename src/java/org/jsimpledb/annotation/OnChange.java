@@ -105,15 +105,17 @@ import java.lang.annotation.Target;
 public @interface OnChange {
 
     /**
-     * Specifies the path to the target field to watch for changes.
+     * Specifies the path(s) to the target field(s) to watch for changes.
      * See {@link org.jsimpledb.ReferencePath} for information on the proper syntax.
      *
      * <p>
      * Multiple paths may be specified; if so, each path is handled as a separate independent listener registration,
      * and the method's parameter type must be compatible with at least one of the {@link org.jsimpledb.change.FieldChange}
-     * sub-types emitted by each field. If zero paths are specified, every field in the class (including superclasses)
-     * that emits {@link org.jsimpledb.change.FieldChange}s compatible with the method parameter will be monitored for changes.
-     * </p>
+     * sub-types emitted by each field.
+     *
+     * <p>
+     * If zero paths are specified (the default), every field in the class (including superclasses) that emits
+     * {@link org.jsimpledb.change.FieldChange}s compatible with the method parameter will be monitored for changes.
      *
      * @return reference path leading to the changed field
      * @see org.jsimpledb.ReferencePath
@@ -126,7 +128,6 @@ public @interface OnChange {
      * <p>
      * This property must be left unset for instance methods. For static methods, if this property is left unset,
      * then then class containing the annotated method is assumed.
-     * </p>
      *
      * @return Java type at which the reference path starts
      * @see org.jsimpledb.ReferencePath
