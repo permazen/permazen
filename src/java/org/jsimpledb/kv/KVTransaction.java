@@ -82,7 +82,8 @@ public interface KVTransaction extends KVStore {
      * Key watches are not without overhead; applications should avoid overuse. For example, consider creating a
      * single key that is used to consolidate modifications to a set of keys; at the JSimpleDB layer, modification
      * of multiple objects and/or fields could detected by an {@link org.jsimpledb.annotation.OnChange &#64;OnChange}
-     * method that increments a single {@link org.jsimpledb.Counter} whose key is then watched.
+     * method that increments a single {@link org.jsimpledb.Counter} whose key is then watched (to determine which
+     * key to watch, use {@link org.jsimpledb.JTransaction#getKey(org.jsimpledb.JObject, String) JTransaction.getKey()}).
      *
      * <p>
      * Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
