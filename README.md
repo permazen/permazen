@@ -19,7 +19,7 @@ JSimpleDB also adds important new features that traditional databases don't prov
 
 Read the [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introduction), [GettingStarted](https://github.com/archiecobbs/jsimpledb/wiki/GettingStarted), and the [FAQ](https://github.com/archiecobbs/jsimpledb/wiki/FAQ) for more info, browse the comprehensive [Javadocs](http://archiecobbs.github.io/jsimpledb/publish/reports/javadoc/index.html?org/jsimpledb/JSimpleDB.html), check out the [JPA\_Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison), or join the [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.
 
-The paper [JSimpleDB: Language-Natural Persistence for Java](https://cdn.rawgit.com/archiecobbs/jsimpledb/master/paper.pdf) descrives the issues that are inherent to persitence programming and how JSimpleDB addresses them. Abstract:
+The paper [JSimpleDB: Language-Natural Persistence for Java](https://cdn.rawgit.com/archiecobbs/jsimpledb/master/paper.pdf) descrives the issues that are inherent to persistence programming and how JSimpleDB addresses them. Abstract:
 
 > Most software applications require durable persistence of data. From a programmer’s point of view, persistence has its own set of inherent issues, e.g., how to manage schema changes, yet such issues are rarely addressed in the programming language itself. Instead, how we program for persistence has traditionally been driven by the storage technology side, resulting in incomplete and/or technology-specific support for managing those issues.
 
