@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 
 import org.dellroad.stuff.java.Primitive;
@@ -288,30 +289,17 @@ public class BaseExprParser implements Parser<Node> {
                     final String propertyName = member;
                     final Node target = node;
 
-                    // Handle "class" when preceded by a class name
-                    if (cl != null && propertyName.equals("class")) {
-                        node = new LiteralNode(cl);
-                        break;
-                    }
-
                     // Handle static fields
                     if (cl != null) {
 
-                        // Get static field
-                        final Field field;
-                        try {
-                            field = cl.getField(propertyName);
-                        } catch (NoSuchFieldException e) {
-                            throw new ParseException(ctx, "class `" + cl.getName() + "' has no field named `"
-                              + propertyName + "'", e);
-                        }
-                        if ((field.getModifiers() & Modifier.STATIC) == 0) {
-                            throw new ParseException(ctx, "field `" + propertyName + "' in class `" + cl.getName()
-                              + "' is not a static field");
+                        // Handle "class" literal
+                        if (propertyName.equals("class")) {
+                            node = new LiteralNode(cl);
+                            break;
                         }
 
-                        // Return node accessing it
-                        node = new ConstNode(new StaticFieldValue(field));
+                        // Return node accessing static field
+                        node = new ConstNode(new StaticFieldValue(this.findStaticField(ctx, cl, propertyName, complete)));
                         break;
                     }
 
@@ -357,6 +345,76 @@ public class BaseExprParser implements Parser<Node> {
                 throw new RuntimeException("internal error: " + opsym);
             }
         }
+    }
+
+    // Find static field
+    private Field findStaticField(ParseContext ctx, Class<?> cl, String fieldName, boolean complete) {
+        final Field[] holder = new Field[1];
+        try {
+            this.findStaticField(ctx, cl, fieldName, holder);
+            final Field field = holder[0];
+            if (field == null)
+                throw new ParseException(ctx, "class `" + cl.getName() + "' has no field named `" + fieldName + "'");
+            if ((field.getModifiers() & Modifier.STATIC) == 0)
+                throw new ParseException(ctx, "field `" + fieldName + "' in class `" + cl.getName() + "' is not a static field");
+            return field;
+        } catch (ParseException e) {
+            throw complete ? e.addCompletions(this.getStaticNameCompletions(cl, fieldName)) : e;
+        }
+    }
+
+    // Helper method for findStaticField()
+    private void findStaticField(ParseContext ctx, Class<?> cl, String fieldName, Field[] holder) {
+
+        // Find field with the given name declared in class, if any
+        for (Field field : cl.getDeclaredFields()) {
+            if (field.getName().equals(fieldName)) {
+                if (holder[0] == null || (holder[0].getModifiers() & Modifier.STATIC) == 0)
+                    holder[0] = field;
+                else {
+                    throw new ParseException(ctx, "field `" + fieldName + "' in class `" + cl.getName()
+                      + "' is ambiguous, found in both " + holder[0].getDeclaringClass() + " and " + cl);
+                }
+                break;
+            }
+        }
+
+        // Recurse on supertypes
+        if (cl.getSuperclass() != null)
+            this.findStaticField(ctx, cl.getSuperclass(), fieldName, holder);
+        for (Class<?> iface : cl.getInterfaces())
+            this.findStaticField(ctx, iface, fieldName, holder);
+    }
+
+    // Get all completions for some.class.Name.foo...
+    private Iterable<String> getStaticNameCompletions(Class<?> cl, String name) {
+        final TreeSet<String> names = new TreeSet<>();
+        this.getStaticPropertyNames(cl, names);
+        names.add("class");
+        return ParseUtil.complete(this.getStaticPropertyNames(cl, names), name);
+    }
+
+    // Helper method for getStaticNameCompletions()
+    private Iterable<String> getStaticPropertyNames(Class<?> cl, TreeSet<String> names) {
+
+        // Add static field and method names
+        for (Field field : cl.getDeclaredFields()) {
+            if ((field.getModifiers() & Modifier.STATIC) != 0)
+                names.add(field.getName());
+        }
+        for (Method method : cl.getDeclaredMethods()) {
+            if ((method.getModifiers() & Modifier.STATIC) != 0)
+                names.add(method.getName());
+        }
+
+        // Recurse on supertypes
+        if (cl.getSuperclass() != null)
+            this.getStaticPropertyNames(cl.getSuperclass(), names);
+        for (Class<?> iface : cl.getInterfaces())
+            this.getStaticPropertyNames(iface, names);
+
+        // Done
+        return names;
     }
 
     // Parse array literal
