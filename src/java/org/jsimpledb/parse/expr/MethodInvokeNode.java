@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -83,25 +84,30 @@ public class MethodInvokeNode implements Node {
     }
 
     private Value invokeMethod(Class<?> cl, Object obj, String name, Object[] params) {
+        final boolean isStatic = this.klass != null;
 
         // Try interface methods
-        for (Class<?> iface : this.addInterfaces(cl, new LinkedHashSet<Class<?>>())) {
-            for (Method method : iface.getMethods()) {
-                final Value value = this.tryMethod(method, obj, name, params);
-                if (value != null)
-                    return value;
+        if (!isStatic) {
+            for (Class<?> iface : this.addInterfaces(cl, new LinkedHashSet<Class<?>>())) {
+                for (Method method : iface.getMethods()) {
+                    final Value value = this.tryMethod(method, obj, name, params);
+                    if (value != null)
+                        return value;
+                }
             }
         }
 
         // Try class methods
         for (Method method : cl.getMethods()) {
+            if (isStatic != ((method.getModifiers() & Modifier.STATIC) != 0))
+                continue;
             final Value value = this.tryMethod(method, obj, name, params);
             if (value != null)
                 return value;
         }
 
         // Not found
-        throw new EvalException("no compatible method `" + name + "()' found in " + cl);
+        throw new EvalException("no compatible " + (isStatic ? "static" : "instance") + " method `" + name + "()' found in " + cl);
     }
 
     private Set<Class<?>> addInterfaces(Class<?> cl, Set<Class<?>> interfaces) {
