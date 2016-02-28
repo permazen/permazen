@@ -67,7 +67,7 @@ public class AtomParser implements Parser<Node> {
         // Check for parenthesized expression
         if (ctx.tryLiteral("(")) {
             this.spaceParser.parse(ctx, complete);
-            final Node node = AssignmentExprParser.INSTANCE.parse(session, ctx, complete);
+            final Node node = ExprParser.INSTANCE.parse(session, ctx, complete);
             this.spaceParser.parse(ctx, complete);
             if (!ctx.tryLiteral(")"))
                 throw new ParseException(ctx).addCompletion(") ");

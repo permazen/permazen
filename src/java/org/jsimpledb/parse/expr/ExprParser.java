@@ -16,11 +16,9 @@ public class ExprParser implements Parser<Node> {
 
     public static final ExprParser INSTANCE = new ExprParser();
 
-    private final AssignmentExprParser assignmentExprParser = new AssignmentExprParser();
-
     @Override
     public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
-        return this.assignmentExprParser.parse(session, ctx, complete);
+        return AssignmentExprParser.INSTANCE.parse(session, ctx, complete);
     }
 }
 

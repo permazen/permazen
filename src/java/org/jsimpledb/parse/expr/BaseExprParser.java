@@ -334,7 +334,7 @@ public class BaseExprParser implements Parser<Node> {
             case "[":
             {
                 this.spaceParser.parse(ctx, complete);
-                final Node index = AssignmentExprParser.INSTANCE.parse(session, ctx, complete);
+                final Node index = ExprParser.INSTANCE.parse(session, ctx, complete);
                 this.spaceParser.parse(ctx, complete);
                 if (!ctx.tryLiteral("]"))
                     throw new ParseException(ctx).addCompletion("] ");
