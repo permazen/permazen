@@ -6,6 +6,7 @@
 package org.jsimpledb.util;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public abstract class NavigableSetPager<E> {
 
     private int pageSize = DEFAULT_PAGE_SIZE;
     private boolean descending;                                 // query ordering
+    private Predicate<? super E> filter;                        // query filter
     private Bound anchor;                                       // current page min (forward) or max (backward)
     private Bound limit;                                        // marks the end of the current page, if known
     private boolean backwards;                                  // most recent move was backward (i.e., prev() instead of next())
@@ -79,6 +81,21 @@ public abstract class NavigableSetPager<E> {
             this.descending = descending;
             this.limit = null;
         }
+    }
+
+    /**
+     * Filter which items in the set are returned.
+     *
+     * <p>
+     * Items that fail to pass the specified {@code filter} are omitted from the results
+     * and do not contribute to the page total. Beware that a filter can reject arbitrarily
+     * many items and therefore when using filters the time it takes to load a full page
+     * is potentially unbounded.
+     *
+     * @param filter filter that accepts only the desired items, or null to accept all
+     */
+    public void setFilter(Predicate<? super E> filter) {
+        this.filter = filter;
     }
 
 // Paging
@@ -232,6 +249,8 @@ public abstract class NavigableSetPager<E> {
         this.limit = null;
         List<E> page = new ArrayList<>(this.pageSize);
         for (E item : anchorSet) {
+            if (this.filter != null && !this.filter.apply(item))
+                continue;
             if (this.backwards)
                 page.add(item);
             if (page.size() >= this.pageSize) {
