@@ -743,56 +743,6 @@ public class JTransaction {
     }
 
     /**
-     * Get the Java model object that is associated with this transaction and has the given ID.
-     *
-     * @param id object ID
-     * @return Java model object
-     * @throws IllegalArgumentException if {@code id} is null
-     * @deprecated Replaced by the equivalent {@link #get(ObjId) get()}
-     * @see #get(ObjId, Class)
-     */
-    @Deprecated
-    public JObject getJObject(ObjId id) {
-        return this.get(id);
-    }
-
-    /**
-     * Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.
-     *
-     * @param id object ID
-     * @param type expected type
-     * @param <T> expected Java model type
-     * @return Java model object
-     * @throws ClassCastException if the Java model object does not have type {@code type}
-     * @throws IllegalArgumentException if {@code type} is null
-     * @deprecated Replaced by the equivalent {@link #get(ObjId, Class) get()}
-     * @see #getJObject(ObjId)
-     * @see #getJObject(JObject)
-     */
-    @Deprecated
-    public <T> T getJObject(ObjId id, Class<T> type) {
-        return this.get(id, type);
-    }
-
-    /**
-     * Get the Java model object with the same object ID as the given {@link JObject} and whose state derives from this transaction.
-     *
-     * @param jobj Java model object
-     * @param <T> expected Java type
-     * @return Java model object in this transaction with the same object ID (possibly {@code jobj} itself)
-     * @throws IllegalArgumentException if {@code jobj} is null, or not a {@link JSimpleDB} database object
-     * @throws ClassCastException if the Java model object in this transaction somehow does not have the same type as {@code jobj}
-     * @deprecated Replaced by the equivalent {@link #get(JObject) get()}
-     * @see #getJObject(ObjId)
-     * @see #getJObject(ObjId, Class)
-     */
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public <T extends JObject> T getJObject(T jobj) {
-        return this.get(jobj);
-    }
-
-    /**
      * Create a new instance of the given model class in this transaction.
      *
      * @param type Java object model type
@@ -816,7 +766,7 @@ public class JTransaction {
      */
     public <T> T create(JClass<T> jclass) {
         final ObjId id = this.tx.create(jclass.storageId);
-        return jclass.getType().cast(this.getJObject(id));
+        return jclass.getType().cast(this.get(id));
     }
 
     /**
@@ -1619,15 +1569,6 @@ public class JTransaction {
 
             // Do @OnValidate method validation
             for (OnValidateScanner<?>.MethodInfo info : jclass.onValidateMethods) {
-                Class<?>[] methodGroups = info.getAnnotation().groups();
-                if (methodGroups.length == 0)
-                    methodGroups = DEFAULT_CLASS_ARRAY;
-                if (Util.isAnyGroupBeingValidated(methodGroups, validationGroups))
-                    Util.invoke(info.getMethod(), jobj);
-            }
-
-            // Do @Validate method validation
-            for (ValidateScanner<?>.MethodInfo info : jclass.validateMethods) {
                 Class<?>[] methodGroups = info.getAnnotation().groups();
                 if (methodGroups.length == 0)
                     methodGroups = DEFAULT_CLASS_ARRAY;

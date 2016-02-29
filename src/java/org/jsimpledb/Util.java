@@ -32,7 +32,6 @@ import javax.validation.Constraint;
 import javax.validation.groups.Default;
 
 import org.jsimpledb.annotation.OnValidate;
-import org.jsimpledb.annotation.Validate;
 
 /**
  * Various utility routines.
@@ -89,10 +88,6 @@ public final class Util {
 
             // Check for @OnValidate annotation
             if (method.isAnnotationPresent(OnValidate.class))
-                return true;
-
-            // Check for @Validate annotation
-            if (method.isAnnotationPresent(Validate.class))
                 return true;
 
             // Check for JSR 303 annotation

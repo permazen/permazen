@@ -55,7 +55,6 @@ public class JClass<T> extends JSchemaObject {
     Set<OnDeleteScanner<T>.MethodInfo> onDeleteMethods;
     Set<OnChangeScanner<T>.MethodInfo> onChangeMethods;
     Set<OnValidateScanner<T>.MethodInfo> onValidateMethods;
-    Set<ValidateScanner<T>.MethodInfo> validateMethods;
     ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
 
     int[] subtypeStorageIds;
@@ -390,7 +389,6 @@ public class JClass<T> extends JSchemaObject {
         this.onDeleteMethods = new OnDeleteScanner<T>(this).findAnnotatedMethods();
         this.onChangeMethods = new OnChangeScanner<T>(this).findAnnotatedMethods();
         this.onValidateMethods = new OnValidateScanner<T>(this).findAnnotatedMethods();
-        this.validateMethods = new ValidateScanner<T>(this).findAnnotatedMethods();
         final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<T>(this);
         this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
         Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);

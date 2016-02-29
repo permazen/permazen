@@ -3,6 +3,7 @@ Version Next
     - Added XMLObjectSerializer.setFieldTruncationLength()
     - Added NavigableSetPager.setFilter()
     - Fixed parser bug: handle class names like `int.class'
+    - Removed deprecated @Validate and JTransaction.getJObject()
 
 Version 1.3.5 Released February 17, 2016
 
