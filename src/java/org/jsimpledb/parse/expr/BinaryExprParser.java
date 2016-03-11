@@ -100,7 +100,7 @@ public abstract class BinaryExprParser implements Parser<Node> {
             final int max = nodeList.size();
             node = this.createNode(opList.get(max - 2), nodeList.get(max - 2), nodeList.get(max - 1));
             for (int i = max - 3; i >= 0; i--)
-                node = this.createNode(opList.get(i), nodeList.get(i + 1), node);
+                node = this.createNode(opList.get(i), nodeList.get(i), node);
         }
 
         // Done

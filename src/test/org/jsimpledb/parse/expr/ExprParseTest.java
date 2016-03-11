@@ -135,6 +135,16 @@ public class ExprParseTest extends TestSupport {
             { "$foobar = 12", 12 },
             { "$foobar", 12 },
 
+            // Check assignment bug
+            { "$a = $b = 100", 100 },
+            { "$a", 100 },
+            { "$b", 100 },
+            { "$a = 32", 32 },
+            { "$b = 21", 21 },
+            { "$b -= $a = 3", 18 },
+            { "$a", 3 },
+            { "$b", 18 },
+
             // Multiplicative
             { "12 * 5", 60 },
             { "12 * 5 / 2", 30 },
