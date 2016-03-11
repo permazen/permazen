@@ -15,7 +15,9 @@ import org.jsimpledb.kv.mvcc.SnapshotVersion;
  * and linearizable ACID semantics.
  *
  * <p>
- * {@linkplain ArrayKVTransaction#watchKey Key watches} are supported.
+ * {@linkplain ArrayKVTransaction#watchKey Key watches},
+ * {@linkplain org.jsimpledb.kv.KVTransaction#mutableSnapshot mutable snapshots},
+ * and {@linkplain AtomicArrayKVStore#hotCopy hot backups} are supported.
  */
 public class ArrayKVDatabase extends SnapshotKVDatabase {
 

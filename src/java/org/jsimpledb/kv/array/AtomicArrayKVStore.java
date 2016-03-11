@@ -794,15 +794,20 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 // Hot Copy
 
     /**
-     * Create a "hot" copy of this instance in the specified destination directory.
+     * Create a filesystem atomic snapshot, or "hot" copy", of this instance in the specified destination directory.
      *
      * <p>
      * The {@code target} directory will be created if it does not exist; otherwise, it must be empty.
-     * Files are copied using {@linkplain Files#createLink hard links} when possible.
+     * All files except the uncompacted modifications file are copied into {@code target}
+     * in constant time using {@linkplain Files#createLink hard links} if possible.
      *
      * <p>
      * The hot copy operation proceeds in parallel with normal database activity, with the exception
-     * that a compaction operation must wait until there are no concurrent hot copies to complete.
+     * that the compaction operation must wait until there are no concurrent hot copies to complete.
+     *
+     * <p>
+     * Therefore, for best performance, consider {@linkplain #scheduleCompaction performing a compaction}
+     * immediately prior to this operation.
      *
      * <p>
      * The {@code target} directory is not fsync()'d by this method; the caller
