@@ -348,6 +348,17 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             this.generationFile = new File(this.directory, GENERATION_FILE_NAME);
             if (!this.generationFile.exists()) {
 
+                // Verify no index, keys, or values file exists
+                for (File file : this.directory.listFiles()) {
+                    final String name = file.getName();
+                    if (name.startsWith(INDX_FILE_NAME_BASE)
+                      || name.startsWith(KEYS_FILE_NAME_BASE)
+                      || name.startsWith(VALS_FILE_NAME_BASE)) {
+                        throw new ArrayKVException("database file inconsistency: found "
+                          + name + " but not " + GENERATION_FILE_NAME + " in " + this.directory);
+                    }
+                }
+
                 // Create empty index, keys, and values files
                 try (
                   final FileOutputStream indxOutput = new FileOutputStream(new File(this.directory, INDX_FILE_NAME_BASE + 0));
@@ -359,12 +370,14 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                     keysOutput.getChannel().force(false);
                     indxOutput.getChannel().force(false);
                 }
+                this.directoryChannel.force(false);
 
                 // Create generation file
                 try (FileOutputStream output = new FileOutputStream(this.generationFile)) {
                     new PrintStream(output, true).println(0);
                     output.getChannel().force(false);
                 }
+                this.directoryChannel.force(false);
             }
 
             // Read current generation number
