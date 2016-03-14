@@ -305,6 +305,13 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
 
 // Cloneable
 
+    /**
+     * Clone this instance.
+     *
+     * <p>
+     * This is a "mostly deep" clone: all of the mutations are copied, but the actual
+     * {@code byte[]} keys and values, which are already assumed non-mutable, are not copied.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public Writes clone() {

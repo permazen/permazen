@@ -227,7 +227,8 @@ import org.slf4j.LoggerFactory;
  * <p><b>Key Watches</b></p>
  *
  * <p>
- * {@linkplain RaftKVTransaction#watchKey Key watches} are supported.
+ * {@linkplain RaftKVTransaction#watchKey Key watches} and {@linkplain RaftKVTransaction#mutableSnapshot mutable snapshots}
+ * are supported.
  *
  * @see <a href="https://raftconsensus.github.io/">The Raft Consensus Algorithm</a>
  */

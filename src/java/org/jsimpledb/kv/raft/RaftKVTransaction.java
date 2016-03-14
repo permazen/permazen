@@ -301,6 +301,25 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         this.timeout = (int)Math.min(timeout, Integer.MAX_VALUE);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * Key watches are supported by {@link RaftKVTransaction}.
+     *
+     * <p>
+     * Raft key watches are compatible with all {@link Consistency} levels, in that if a key watch fires due
+     * to a mutation to some key, then a subsequent transaction will see that mutation, no matter what
+     * {@link Consistency} level is configured for that transaction.
+     *
+     * @param key {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws StaleTransactionException {@inheritDoc}
+     * @throws org.jsimpledb.kv.RetryTransactionException {@inheritDoc}
+     * @throws org.jsimpledb.kv.KVDatabaseException {@inheritDoc}
+     * @throws UnsupportedOperationException {@inheritDoc}
+     * @throws IllegalArgumentException {@inheritDoc}
+     */
     @Override
     public ListenableFuture<Void> watchKey(byte[] key) {
         return this.kvdb.watchKey(key);
@@ -316,6 +335,17 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
         this.kvdb.rollback(this);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * Mutable snapshots are supported by {@link RaftKVTransaction}.
+     *
+     * @return {@inheritDoc}
+     * @throws UnsupportedOperationException {@inheritDoc}
+     * @throws StaleTransactionException {@inheritDoc}
+     * @throws org.jsimpledb.kv.RetryTransactionException {@inheritDoc}
+     */
     @Override
     public CloseableKVStore mutableSnapshot() {
         synchronized (this.kvdb) {

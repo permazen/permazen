@@ -12,6 +12,11 @@ package org.jsimpledb.kv.raft;
  * The differences only apply to read-only transactions; read-write transactions (i.e., transactions containing
  * any mutations or cluster configuration changes) always behave with {@link #LINEARIZABLE} consistency.
  *
+ * <p>
+ * Raft {@linkplain RaftKVTransaction#watchKey key watches} are compatible with all {@link Consistency} levels,
+ * in that if a key watch fires due to a mutation to some key, then a subsequent transaction will see that mutation,
+ * no matter what {@link Consistency} level is configured for that transaction.
+ *
  * @see RaftKVTransaction#setConsistency RaftKVTransaction.setConsistency()
  * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
  */
@@ -54,7 +59,7 @@ public enum Consistency {
      *
      * <p>
      * Unlike {@link #EVENTUAL}, transactions at this level require no network communication, commit immediately, and never
-     * result in {@link org.jsimpledb.kv.RetryTransactionException}s; however, they see a potentiall older view. Compared
+     * result in {@link org.jsimpledb.kv.RetryTransactionException}s; however, they see a potentially older view. Compared
      * to {@link #UNCOMMITTED}, transactions at this level see a view that is potentially older, in exchange for the guarantee
      * that it has definitely been committed.
      *
