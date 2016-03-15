@@ -45,6 +45,7 @@
         <dependency force="true" org="org.springframework" name="spring" rev="4.1+"
           conf="javac,cli,gui->aop,aspects,beans,context,jdbc,tx,web"/>
         <dependency force="true" org="org.testng" name="testng" rev="6.8+" conf="test->default"/>
+        <dependency force="true" org="org.xerial" name="sqlite-jdbc" rev="3.8+" conf="base,test-&gt;default"/>
     </dependencies>
 
 </ivy-module>

@@ -48,6 +48,7 @@ import org.jsimpledb.kv.rocksdb.RocksDBKVDatabase;
 import org.jsimpledb.kv.simple.SimpleKVDatabase;
 import org.jsimpledb.kv.simple.XMLKVDatabase;
 import org.jsimpledb.kv.sql.MySQLKVDatabase;
+import org.jsimpledb.kv.sql.SQLiteKVDatabase;
 import org.jsimpledb.spring.JSimpleDBClassScanner;
 import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -60,6 +61,7 @@ public abstract class AbstractMain extends MainClass {
     private static final File DEMO_XML_FILE = new File("demo-database.xml");
     private static final File DEMO_SUBDIR = new File("demo-classes");
     private static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
+    private static final String SQLITE_DRIVER_CLASS_NAME = "org.sqlite.JDBC";
 
     // DBTypes that have multiple config flags
     protected FoundationDBType foundationDBType;
@@ -192,6 +194,10 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 dbTypes.add(new MySQLDBType(params.removeFirst()));
+            } else if (option.equals("--sqlite")) {
+                if (params.isEmpty())
+                    this.usageError();
+                dbTypes.add(new SQLiteDBType(new File(params.removeFirst())));
             } else if (option.equals("--leveldb")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -655,6 +661,7 @@ public abstract class AbstractMain extends MainClass {
             { "--leveldb directory",            "Use LevelDB in specified directory" },
             { "--mem",                          "Use an empty in-memory database (default)" },
             { "--mysql URL",                    "Use MySQL with the given JDBC URL" },
+            { "--sqlite file",                  "Use MySQL with the given file" },
             { "--raft directory",               "Use Raft in specified directory" },
             { "--raft-min-election-timeout",    "Raft minimum election timeout in ms (default "
                                                   + RaftKVDatabase.DEFAULT_MIN_ELECTION_TIMEOUT + ")" },
@@ -955,6 +962,35 @@ public abstract class AbstractMain extends MainClass {
         @Override
         public String getDescription() {
             return "MySQL";
+        }
+    }
+
+    protected final class SQLiteDBType extends DBType<SQLiteKVDatabase> {
+
+        private final File file;
+
+        protected SQLiteDBType(File file) {
+            super(SQLiteKVDatabase.class);
+            this.file = file;
+        }
+
+        @Override
+        public SQLiteKVDatabase createKVDatabase() {
+            try {
+                Class.forName(SQLITE_DRIVER_CLASS_NAME);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException("can't load SQLite driver class `" + SQLITE_DRIVER_CLASS_NAME + "'", e);
+            }
+            final SQLiteKVDatabase sqlite = new SQLiteKVDatabase();
+            sqlite.setDatabaseFile(this.file);
+            return sqlite;
+        }
+
+        @Override
+        public String getDescription() {
+            return "SQLite " + this.file.getName();
         }
     }
 

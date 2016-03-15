@@ -11,6 +11,7 @@
     <parameter name="xmlFilePrefix" value="xmldb"/>
     <parameter name="fdbClusterFile" value="/usr/local/etc/foundationdb/fdb.cluster"/>
     <parameter name="mysqlURL" value="jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger"/>
+    <parameter name="sqliteFilePrefix" value="SQLiteKV"/>
     <parameter name="berkeleyDirPrefix" value="BerkeleyDbJava"/>
     <parameter name="levelDbDirPrefix" value="LevelDbJava"/>
     <parameter name="rocksDbDirPrefix" value="RocksDbJava"/>

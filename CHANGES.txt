@@ -1,5 +1,6 @@
 Version Next
 
+    - Added key/value database wrapper for SQLite
     - Added XMLObjectSerializer.setFieldTruncationLength()
     - Added NavigableSetPager.setFilter()
     - Fixed parser bug: handle class names like `int.class'
