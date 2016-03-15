@@ -21,6 +21,8 @@ import org.jsimpledb.kv.KVDatabaseException;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.TransactionTimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Support superclass for SQL {@link KVDatabase} implementations.
@@ -66,6 +68,8 @@ public class SQLKVDatabase implements KVDatabase {
      * The configured transaction isolation level. Default is {@link IsolationLevel#SERIALIZABLE}.
      */
     protected IsolationLevel isolationLevel = IsolationLevel.SERIALIZABLE;
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Get the {@link DataSource} used with this instance.
