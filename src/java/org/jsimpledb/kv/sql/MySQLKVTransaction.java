@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * {@link SQLKVDatabase} transaction.
+ * MySQL variant of {@link SQLKVTransaction}.
  */
 class MySQLKVTransaction extends SQLKVTransaction {
 
@@ -21,10 +21,8 @@ class MySQLKVTransaction extends SQLKVTransaction {
     @Override
     public void setTimeout(long timeout) {
         super.setTimeout(timeout);
-        try {
-            final Statement statement = this.connection.createStatement();
+        try (final Statement statement = this.connection.createStatement()) {
             statement.execute("SET innodb_lock_wait_timeout = " + (timeout + 999) / 1000);
-            statement.close();
         } catch (SQLException e) {
             throw this.handleException(e);
         }

@@ -285,15 +285,14 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     }
 
     private void update(StmtType stmtType, byte[]... params) {
-        try {
-            final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection);
-            for (int i = 0; i < params.length; i++)
+        try (final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection)) {
+            final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
+            for (int i = 0; i < params.length && i < numParams; i++)
                 preparedStatement.setBytes(i + 1, params[i]);
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
                 this.log.trace("SQL update: " + preparedStatement);
             preparedStatement.executeUpdate();
-            preparedStatement.close();
         } catch (SQLException e) {
             throw this.handleException(e);
         }
