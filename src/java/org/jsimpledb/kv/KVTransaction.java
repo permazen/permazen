@@ -96,6 +96,7 @@ public interface KVTransaction extends KVStore {
      *
      * <p>
      * Key watch support is optional; instances that don't support key watches throw {@link UnsupportedOperationException}.
+     * Some implementations may only support watching a key that already exists.
      *
      * <p>
      * Note: many {@link KVDatabase} implementations actually return a
