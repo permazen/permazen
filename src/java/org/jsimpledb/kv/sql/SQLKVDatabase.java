@@ -373,7 +373,9 @@ public class SQLKVDatabase implements KVDatabase {
 
     /**
      * Create an SQL statement that inserts the key/value pair with key <code>&#63;1</code> and value <code>&#63;2</code>
-     * A row with key <code>&#63;1</code> may already exist; if so, the value should be updated to <code>&#63;3</code>.
+     * A row with key <code>&#63;1</code> may already exist; if so, the value should be updated to
+     * <code>&#63;2</code> (if syntax requires it, the value may be updated to <code>&#63;3</code> instead;
+     * <code>&#63;3</code>, if it exists, will be set to the same value as <code>&#63;2</code>).
      *
      * @return SQL insertion statement
      */

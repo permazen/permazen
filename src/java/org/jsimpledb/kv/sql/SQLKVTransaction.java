@@ -267,7 +267,8 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     private <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {
         try {
             final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection);
-            for (int i = 0; i < params.length; i++)
+            final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
+            for (int i = 0; i < params.length && i < numParams; i++)
                 preparedStatement.setBytes(i + 1, params[i]);
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
