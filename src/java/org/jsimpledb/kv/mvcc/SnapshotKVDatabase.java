@@ -166,10 +166,10 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         // Create the new transaction and associate it with the current version
         final SnapshotKVTransaction tx = this.createSnapshotKVTransaction(versionInfo);
         versionInfo.addOpenTransaction(tx);
-        if (this.log.isDebugEnabled())
-            this.log.debug("created new transaction " + tx);
-        if (this.log.isTraceEnabled())
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("created new transaction " + tx);
             this.log.trace("updated current version info: " + versionInfo);
+        }
 
         // Done
         return tx;
@@ -280,8 +280,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
      * Rollback a transaction.
      */
     synchronized void rollback(SnapshotKVTransaction tx) {
-        if (this.log.isDebugEnabled())
-            this.log.debug("rolling back transaction " + tx);
+        if (this.log.isTraceEnabled())
+            this.log.trace("rolling back transaction " + tx);
         this.cleanupTransaction(tx);
     }
 
@@ -297,8 +297,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         assert transactionSnapshotVersion.getOpenTransactions().contains(tx);
 
         // Debug
-        if (this.log.isDebugEnabled()) {
-            this.log.debug("committing transaction " + tx + " based on version "
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("committing transaction " + tx + " based on version "
               + transactionVersion + " (current version is " + this.currentVersion + ")");
         }
 
@@ -315,11 +315,10 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             final SnapshotVersion committedSnapshotVersion = this.versionInfoMap.get(version);
             final Writes committedWrites = committedSnapshotVersion.getCommittedWrites();
             final boolean conflict = transactionReads.isConflict(committedWrites);
-            if (this.log.isDebugEnabled()) {
-                this.log.debug("ordering " + tx + " after writes in version " + version + " results in "
+            if (this.log.isTraceEnabled()) {
+                this.log.trace("ordering " + tx + " after writes in version " + version + " results in "
                   + (conflict ? "conflict" : "no conflict"));
-                if (this.log.isTraceEnabled())
-                    this.log.trace("transaction reads: {} committed writes: {}", transactionReads, committedWrites);
+                this.log.trace("transaction reads: {} committed writes: {}", transactionReads, committedWrites);
             }
             if (conflict) {
                 throw this.logException(new RetryTransactionException(tx, "transaction is based on MVCC version "
@@ -329,16 +328,16 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         }
 
         // Atomically apply the transaction's mutations
-        if (this.log.isDebugEnabled())
-            this.log.debug("applying mutations of " + tx + " to SnapshotMVCC database");
+        if (this.log.isTraceEnabled())
+            this.log.trace("applying mutations of " + tx + " to SnapshotMVCC database");
         this.kvstore.mutate(transactionWrites, true);
 
         // Record transaction's writes for this version
         currentSnapshotVersion.setCommittedWrites(transactionWrites);
 
         // Advance to the next MVCC version
-        if (this.log.isDebugEnabled())
-            this.log.debug("updating current version from " + this.currentVersion + " -> " + (this.currentVersion + 1));
+        if (this.log.isTraceEnabled())
+            this.log.trace("updating current version from " + this.currentVersion + " -> " + (this.currentVersion + 1));
         this.currentVersion++;
 
         // Notify watches
@@ -360,8 +359,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             final SnapshotVersion versionInfo = i.next().getValue();
             if (!versionInfo.getOpenTransactions().isEmpty())
                 break;
-            if (this.log.isDebugEnabled())
-                this.log.debug("discarding obsolete version " + versionInfo);
+            if (this.log.isTraceEnabled())
+                this.log.trace("discarding obsolete version " + versionInfo);
             versionInfo.close();
             i.remove();
         }
