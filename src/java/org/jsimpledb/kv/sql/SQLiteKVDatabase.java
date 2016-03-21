@@ -28,8 +28,8 @@ import org.sqlite.SQLiteOpenMode;
  *
  * <p>
  * Otherwise (i.e., if {@link #setDatabaseFile setDatabaseFile()} is not used), then {@link #setDataSource setDataSource()}
- * must be used to explicitly configure a {@link DataSource} and any invocation of {@link #setSQLiteConfig setSQLiteConfig()}
- * is ignored.
+ * must be used to explicitly configure a {@link javax.sql.DataSource} and any invocation of
+ * {@link #setSQLiteConfig setSQLiteConfig()} is ignored.
  */
 public class SQLiteKVDatabase extends SQLKVDatabase {
 

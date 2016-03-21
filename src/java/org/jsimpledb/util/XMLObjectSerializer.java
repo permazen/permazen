@@ -155,18 +155,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * Get the maximum length (number of characters) of any written simple field.
      *
      * <p>
-     * Field values longer than this will be truncated. If set to zero, all field values are written as empty tags.
-     * If set to {@code -1}, truncation is disabled.
+     * By default, this value is set to {@code -1}, i.e., truncation is disabled.
      *
-     * <p>
-     * Truncation is mainly useful for generating human-readable output without very long lines.
-     * Obviously, when truncation is enabled, the resulting output, although still valid XML, may
-     * have missing information and therefore cannot necessarily be read back in.
-     *
-     * <p>
-     * By default, this is {@code -1} so truncation is disabled.
-     *
-     * @return maximum field length, or zero for empty fields, or {@code -1} to not truncate
+     * @return maximum simple field length, or zero for empty simple fields, or {@code -1} if truncation is disabled
+     * @see #setFieldTruncationLength setFieldTruncationLength()
      */
     public int getFieldTruncationLength() {
         return this.fieldTruncationLength;
@@ -175,9 +167,17 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     /**
      * Set the maximum length (number of characters) of any written simple field.
      *
-     * @param length maximum field length, or zero for empty fields, or {@code -1} to not truncate
+     * <p>
+     * Simple field values longer than this will be truncated. If set to zero, all simple field values are written as empty tags.
+     * If set to {@code -1}, truncation is disabled.
+     *
+     * <p>
+     * Truncation is mainly useful for generating human-readable output without very long lines.
+     * Obviously, when truncation is enabled, the resulting output, although still valid XML, will
+     * be missing some information and therefore cannot successfully be read back in by this class.
+     *
+     * @param length maximum simple field length, or zero for empty simple fields, or {@code -1} to disable truncation
      * @throws IllegalArgumentException if {@code length < -1}
-     * @see #getFieldTruncationLength
      */
     public void setFieldTruncationLength(int length) {
         Preconditions.checkArgument(length >= -1, "length < -1");
