@@ -41,7 +41,7 @@ JSimpleDB does this by relegating the database to the simplest role possible - s
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-      <version>1.1.0.Final</version>
+      <version>1.0.0.GA</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
