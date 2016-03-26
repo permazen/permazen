@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.dellroad.stuff.string.StringEncoder;
+
 @SuppressWarnings("serial")
 public class ParseException extends RuntimeException {
 
@@ -29,7 +31,7 @@ public class ParseException extends RuntimeException {
 
     public ParseException(ParseContext ctx, String message, Throwable cause) {
         super((message != null ? message : "parse error") + " at "
-          + (ctx.isEOF() ? "end of input" : "`" + ParseUtil.truncate(ctx.getInput(), 20) + "'"), cause);
+          + (ctx.isEOF() ? "end of input" : "`" + StringEncoder.encode(ParseUtil.truncate(ctx.getInput(), 20), true) + "'"), cause);
         this.ctx = ctx;
     }
 
