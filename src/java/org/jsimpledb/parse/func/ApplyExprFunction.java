@@ -8,7 +8,7 @@ package org.jsimpledb.parse.func;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.expr.AtomParser;
+import org.jsimpledb.parse.expr.AtomExprParser;
 import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
@@ -34,7 +34,7 @@ public abstract class ApplyExprFunction extends AbstractFunction {
         if (!ctx.tryLiteral(","))
             throw new ParseException(ctx, "expected `,'").addCompletion(", ");
         this.spaceParser.parse(ctx, complete);
-        final Node param1 = new AtomParser().parse(session, ctx, complete);
+        final Node param1 = AtomExprParser.INSTANCE.parse(session, ctx, complete);
         if (!(param1 instanceof VarNode)) {
             ctx.setIndex(mark);
             throw new ParseException(ctx, "expected variable as second parameter to " + this.name + "()");

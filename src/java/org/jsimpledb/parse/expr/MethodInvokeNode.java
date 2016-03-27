@@ -5,28 +5,22 @@
 
 package org.jsimpledb.parse.expr;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.jsimpledb.parse.ParseSession;
 
 /**
  * {@link Node} that invokes a Java method when evaluated.
  */
-public class MethodInvokeNode implements Node {
+public class MethodInvokeNode extends AbstractInvokeNode<MethodExecutable> {
 
     private final Class<?> klass;
-    private final Node node;
+    private final Node targetNode;
     private final String name;
-    private final List<Node> paramNodes;
 
     /**
      * Constructor for static method invocation.
@@ -43,110 +37,55 @@ public class MethodInvokeNode implements Node {
     /**
      * Constructor for instance method invocation.
      *
-     * @param node node evaluating to target object
+     * @param targetNode node evaluating to target object
      * @param name instance method name
      * @param paramNodes method parameters
      */
-    public MethodInvokeNode(Node node, String name, List<Node> paramNodes) {
-        this(name, paramNodes, null, node);
-        Preconditions.checkArgument(node != null, "null node");
+    public MethodInvokeNode(Node targetNode, String name, List<Node> paramNodes) {
+        this(name, paramNodes, null, targetNode);
+        Preconditions.checkArgument(targetNode != null, "null targetNode");
     }
 
-    private MethodInvokeNode(String name, List<Node> paramNodes, Class<?> klass, Node node) {
+    private MethodInvokeNode(String name, List<Node> paramNodes, Class<?> klass, Node targetNode) {
+        super(paramNodes);
         Preconditions.checkArgument(name != null, "null name");
-        Preconditions.checkArgument(paramNodes != null, "null paramNodes");
-        for (Node paramNode : paramNodes)
-            Preconditions.checkArgument(paramNode != null, "null paramNode in list");
         this.klass = klass;
-        this.node = node;
+        this.targetNode = targetNode;
         this.name = name;
-        this.paramNodes = paramNodes;
     }
 
     @Override
     public Value evaluate(final ParseSession session) {
 
+        // Evaluate invocation target, if any
+        final Object target = this.klass == null ?
+          this.targetNode.evaluate(session).checkNotNull(session, "method " + name + "() invocation") : null;
+
         // Evaluate params
-        final Object[] params = Lists.transform(paramNodes, new Function<Node, Object>() {
-            @Override
-            public Object apply(Node param) {
-                return param.evaluate(session).get(session);
-            }
-        }).toArray();
+        final ParamInfo paramInfo = this.evaluateParams(session);
 
-        // Handle static method
-        if (this.klass != null)
-            return this.invokeMethod(this.klass, null, name, params);
+        // Find matching method
+        final Method method = MethodUtil.findMatchingMethod(
+          target != null ? target.getClass() : this.klass, this.name, paramInfo.getParamTypes(), null, this.klass != null);
+        final MethodExecutable executable = new MethodExecutable(method);
 
-        // Handle instance method
-        final Object obj = this.node.evaluate(session).checkNotNull(session, "method " + name + "() invocation");
-        return this.invokeMethod(obj.getClass(), obj, name, params);
-    }
+        // Fixup varargs
+        this.fixupVarArgs(paramInfo, executable);
 
-    private Value invokeMethod(Class<?> cl, Object obj, String name, Object[] params) {
-        final boolean isStatic = this.klass != null;
+        // Fixup type-inferring nodes
+        this.fixupTypeInferringNodes(session, paramInfo, executable);
 
-        // Try interface methods
-        if (!isStatic) {
-            for (Class<?> iface : this.addInterfaces(cl, new LinkedHashSet<Class<?>>())) {
-                for (Method method : iface.getMethods()) {
-                    final Value value = this.tryMethod(method, obj, name, params);
-                    if (value != null)
-                        return value;
-                }
-            }
-        }
-
-        // Try class methods
-        for (Method method : cl.getMethods()) {
-            if (isStatic != ((method.getModifiers() & Modifier.STATIC) != 0))
-                continue;
-            final Value value = this.tryMethod(method, obj, name, params);
-            if (value != null)
-                return value;
-        }
-
-        // Not found
-        throw new EvalException("no compatible " + (isStatic ? "static" : "instance") + " method `" + name + "()' found in " + cl);
-    }
-
-    private Set<Class<?>> addInterfaces(Class<?> cl, Set<Class<?>> interfaces) {
-        for (Class<?> iface : cl.getInterfaces()) {
-            interfaces.add(iface);
-            this.addInterfaces(iface, interfaces);
-        }
-        if (cl.getSuperclass() != null)
-            this.addInterfaces(cl.getSuperclass(), interfaces);
-        return interfaces;
-    }
-
-    private Value tryMethod(Method method, Object obj, String name, Object[] params) {
-        if (!method.getName().equals(name))
-            return null;
-        final Class<?>[] ptypes = method.getParameterTypes();
-        if (method.isVarArgs()) {
-            if (params.length < ptypes.length - 1)
-                return null;
-            Object[] newParams = new Object[ptypes.length];
-            System.arraycopy(params, 0, newParams, 0, ptypes.length - 1);
-            Object[] varargs = new Object[params.length - (ptypes.length - 1)];
-            System.arraycopy(params, ptypes.length - 1, varargs, 0, varargs.length);
-            newParams[ptypes.length - 1] = varargs;
-            params = newParams;
-        } else if (params.length != ptypes.length)
-            return null;
+        // Invoke method
         final Object result;
         try {
-            result = method.invoke(obj, params);
-        } catch (IllegalArgumentException e) {
-            return null;                            // a parameter type didn't match -> wrong method
+            result = method.invoke(target, paramInfo.getParams());
         } catch (Exception e) {
-            final Throwable t = e instanceof InvocationTargetException ?
-              ((InvocationTargetException)e).getTargetException() : e;
-            throw new EvalException("error invoking method `" + name + "()' on "
-              + (obj != null ? "object of type " + obj.getClass().getName() : method.getDeclaringClass()) + ": " + t, t);
+            final Throwable t = e instanceof InvocationTargetException ? ((InvocationTargetException)e).getTargetException() : e;
+            throw new EvalException("error invoking method `" + method.getName() + "()' on "
+              + (target != null ? "object of type " + target.getClass().getName() : method.getDeclaringClass()) + ": " + t, t);
         }
+
+        // Return result value
         return result != null || method.getReturnType() != Void.TYPE ? new ConstValue(result) : Value.NO_VALUE;
     }
 }
-

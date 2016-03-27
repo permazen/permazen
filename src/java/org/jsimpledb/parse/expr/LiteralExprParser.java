@@ -6,7 +6,6 @@
 package org.jsimpledb.parse.expr;
 
 import java.math.BigInteger;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +23,7 @@ import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.SpaceParser;
 
 /**
- * The lowest parse level. Parses parenthesized expressions, literals, and identifiers.
+ * Parses literal values.
  *
  * <p>
  * Includes these special extensions:
@@ -35,54 +34,38 @@ import org.jsimpledb.parse.SpaceParser;
  *      preceded by the {@link FieldType} name in curly braces, e.g., <code>{java.util.Date}2015-01-23T07:19:42</code></li>
  * </ul>
  */
-public class AtomParser implements Parser<Node> {
+public class LiteralExprParser implements Parser<Node> {
 
-    public static final AtomParser INSTANCE = new AtomParser();
+    public static final LiteralExprParser INSTANCE = new LiteralExprParser();
+
+    static final String IDENTS_AND_DOTS_PATTERN = IdentNode.NAME_PATTERN + "\\s*(?:\\.\\s*" + IdentNode.NAME_PATTERN + ")*";
+    static final String CLASS_NAME_PATTERN = "(" + IDENTS_AND_DOTS_PATTERN + ")\\s*((?:\\[\\s*\\]\\s*)+)?";
 
     private final SpaceParser spaceParser = new SpaceParser();
-    private final TreeSet<String> identifierCompletions;
-
-    public AtomParser() {
-        this(null);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param identifierCompletions set of valid identifiers tab completions, or null to allow any identifiers
-     */
-    public AtomParser(Iterable<String> identifierCompletions) {
-        if (identifierCompletions != null) {
-            this.identifierCompletions = new TreeSet<String>();
-            for (String identifierCompletion : identifierCompletions)
-                this.identifierCompletions.add(identifierCompletion);
-        } else
-            this.identifierCompletions = null;
-    }
 
     @Override
     public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
-        final int mark = ctx.getIndex();
-
-        // Check for parenthesized expression
-        if (ctx.tryLiteral("(")) {
-            this.spaceParser.parse(ctx, complete);
-            final Node node = ExprParser.INSTANCE.parse(session, ctx, complete);
-            this.spaceParser.parse(ctx, complete);
-            if (!ctx.tryLiteral(")"))
-                throw new ParseException(ctx).addCompletion(") ");
-            return node;
-        }
         final int start = ctx.getIndex();
 
         // Try to match null
-        if (this.tryWord(ctx, "null") != null)
+        if (ctx.tryPattern("null(?!\\p{javaJavaIdentifierPart})") != null)
             return new LiteralNode(null);
 
         // Try to match boolean
-        final String booleanMatch = this.tryWord(ctx, "false|true");
+        final Matcher booleanMatch = ctx.tryPattern("(false|true)(?!\\p{javaJavaIdentifierPart})");
         if (booleanMatch != null)
-            return new LiteralNode(Boolean.valueOf(booleanMatch));
+            return new LiteralNode(Boolean.valueOf(booleanMatch.group()));
+
+        // Try class literal
+        final Matcher classMatch = ctx.tryPattern("(" + CLASS_NAME_PATTERN + ")\\.\\s*class(?!\\p{javaJavaIdentifierPart})");
+        if (classMatch != null) {
+            try {
+                return new LiteralNode(
+                  LiteralExprParser.parseArrayClassName(session, new ParseContext(classMatch.group(1)), false));
+            } catch (ParseException e) {
+                throw new ParseException(ctx, e.getMessage());
+            }
+        }
 
         // Try to match int or long literal
         try {
@@ -112,27 +95,30 @@ public class AtomParser implements Parser<Node> {
         }
 
         // Try to match float or double literal
-        final String floatMatch = this.tryWord(ctx, Primitive.FLOAT.getParsePattern() + "[fF]");
+        final Matcher floatMatch = ctx.tryPattern(
+          "(" + Primitive.FLOAT.getParsePattern() + ")" + "[fF](?!\\p{javaJavaIdentifierPart})");
         if (floatMatch != null) {
             try {
-                return new LiteralNode(Primitive.FLOAT.parseValue(floatMatch.substring(0, floatMatch.length() - 1)));
+                return new LiteralNode(Primitive.FLOAT.parseValue(floatMatch.group(1)));
             } catch (IllegalArgumentException e) {
                 ctx.setIndex(start);
             }
         }
-        final String doubleMatch = this.tryFollow(ctx, Primitive.DOUBLE.getParsePattern(), "[^.\\p{javaJavaIdentifierPart}]");
+        final Matcher doubleMatch = ctx.tryPattern(
+          "(" + Primitive.DOUBLE.getParsePattern() + ")(?![.\\p{javaJavaIdentifierPart}])");
         if (doubleMatch != null) {
             try {
-                return new LiteralNode(Primitive.DOUBLE.parseValue(doubleMatch));
+                return new LiteralNode(Primitive.DOUBLE.parseValue(doubleMatch.group()));
             } catch (IllegalArgumentException e) {
                 ctx.setIndex(start);
             }
         }
 
         // Try to match a char literal
-        String match = this.tryWord(ctx,
+        final Matcher charMatch = ctx.tryPattern(
           StringEncoder.ENQUOTE_PATTERN.toString().replaceAll("\"", "'").replaceAll("\\*", ""));    // kludge
-        if (match != null) {
+        if (charMatch != null) {
+            String match = charMatch.group();
             match = match.substring(1, match.length() - 1);
             if (match.length() > 0 && match.charAt(0) == '\'') {
                 ctx.setIndex(start);
@@ -151,17 +137,16 @@ public class AtomParser implements Parser<Node> {
         if (stringMatch != null)
             return new LiteralNode(new String(StringEncoder.dequote(stringMatch.group())));
 
-        // Try to type from type registry within curly braces
-        int fieldTypeStart = ctx.getIndex();
+        // Try to match the name of a type from the type registry within curly braces, followed by a value of that type
         final Matcher braceMatch = ctx.tryPattern("\\{(" + FieldType.NAME_PATTERN + ")\\}");
         if (braceMatch != null) {
             final String fieldTypeName = braceMatch.group(1);
             final FieldType<?> fieldType = session.getDatabase().getFieldTypeRegistry().getFieldType(fieldTypeName);
             if (fieldType == null) {
-                ctx.setIndex(fieldTypeStart);
+                ctx.setIndex(start);
                 throw new ParseException(ctx, "unknown simple field type `" + fieldTypeName + "'");
             }
-            fieldTypeStart = ctx.getIndex();
+            final int fieldTypeStart = ctx.getIndex();
             try {
                 return new LiteralNode(fieldType.fromParseableString(ctx));
             } catch (IllegalArgumentException e) {
@@ -192,42 +177,33 @@ public class AtomParser implements Parser<Node> {
             };
         }
 
-        // Try to match identifier; support tab-completion of configured identifiers, if any
-        final Matcher identMatcher = ctx.tryPattern(IdentNode.NAME_PATTERN);
-        if (identMatcher != null) {
-            final String name = identMatcher.group();
-            if (complete && ctx.isEOF() && this.identifierCompletions != null && !name.equals("new"))
-                throw new ParseException(ctx).addCompletions(ParseUtil.complete(this.identifierCompletions, name));
-            return new IdentNode(name);
-        }
-        if (complete && ctx.isEOF() && this.identifierCompletions != null)
-            throw new ParseException(ctx).addCompletions(this.identifierCompletions);
-
         // No match
         throw new ParseException(ctx);
     }
 
-// Match a pattern not followed by a identifier letter
-
-    private String tryWord(ParseContext ctx, Pattern pattern) {
-        return this.tryWord(ctx, pattern.toString());
+    static Class<?> parseClassName(ParseSession session, ParseContext ctx, boolean complete) {
+        return LiteralExprParser.parseClassName(session, ctx, false, complete);
     }
 
-    private String tryWord(ParseContext ctx, String pattern) {
-        return this.tryFollow(ctx, pattern, "[^\\p{javaJavaIdentifierPart}]");
+    static Class<?> parseArrayClassName(ParseSession session, ParseContext ctx, boolean complete) {
+        return LiteralExprParser.parseClassName(session, ctx, true, complete);
     }
 
-    private String tryFollow(ParseContext ctx, Pattern pattern, String follow) {
-        return this.tryFollow(ctx, pattern.toString(), follow);
-    }
+    static Class<?> parseClassName(ParseSession session, ParseContext ctx, boolean allowArray, boolean complete) {
 
-    private String tryFollow(ParseContext ctx, String pattern, String follow) {
-        final Matcher matcher = Pattern.compile("(" + pattern + ")(" + follow + "(?s:.*))?").matcher(ctx.getInput());
-        if (!matcher.matches())
-            return null;
-        final String match = matcher.group(1);
-        ctx.setIndex(ctx.getIndex() + match.length());
-        return match;
+        // Parse name
+        final int start = ctx.getIndex();
+        final Matcher matcher = ctx.tryPattern(allowArray ? CLASS_NAME_PATTERN : IDENTS_AND_DOTS_PATTERN);
+        if (matcher == null) {
+            ctx.setIndex(start);
+            throw new ParseException(ctx, "expected class name");
+        }
+
+        // Resolve class
+        try {
+            return session.resolveClass(matcher.group().replaceAll("\\s+", ""), true, allowArray);
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(ctx, e.getMessage());                              // TODO: tab-completions
+        }
     }
 }
-

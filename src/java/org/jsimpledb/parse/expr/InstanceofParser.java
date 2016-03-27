@@ -8,6 +8,7 @@ package org.jsimpledb.parse.expr;
 import java.util.regex.Matcher;
 
 import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 
@@ -25,16 +26,18 @@ public class InstanceofParser implements Parser<Node> {
         final Node node = ShiftExprParser.INSTANCE.parse(session, ctx, complete);
 
         // Try to parse 'instanceof some.class.name'
-        final Matcher matcher = ctx.tryPattern("\\s*instanceof\\s+"
-          + "(" + IdentNode.NAME_PATTERN + "(\\s*\\.\\s*" + IdentNode.NAME_PATTERN + ")*)\\s*");
+        final Matcher matcher = ctx.tryPattern("\\s*instanceof\\s+(" + LiteralExprParser.CLASS_NAME_PATTERN + ")\\s*");
         if (matcher == null)
             return node;
-        final String className = matcher.group(1);
+        final String className = matcher.group(1).replaceAll("\\s+", "");
 
         // Resolve class name
-        final Class<?> cl = session.resolveClass(className);
-        if (cl == null)
-            throw new EvalException("unknown class `" + className + "'");     // TODO: tab-completions
+        final Class<?> cl;
+        try {
+            cl = session.resolveClass(className, false, true);
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(ctx, e.getMessage());                              // TODO: tab-completions
+        }
 
         // Return node that compares value's type to class
         return new Node() {

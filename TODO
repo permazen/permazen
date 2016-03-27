@@ -95,7 +95,9 @@ LONG TERM
         - min(), max(), avg(), sum(), etc.
         - See http://dev.mysql.com/doc/refman/5.5/en/group-by-functions.html
 
-- Expression parser Java 8 lamda syntax support
+- More JLS-correct expression parsing, method resolution, etc.
+    - Carry "compile time" type information along with each Node?
+    - Support (still optional) generics
 
 - CLI
     - New console "expr" input mode

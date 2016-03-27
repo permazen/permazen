@@ -80,7 +80,8 @@ public enum Op {
                     try {
                         return Array.get(target, index);
                     } catch (IllegalArgumentException e) {
-                        throw new EvalException("invalid array access operation on non-array", e);
+                        throw new EvalException("invalid array access operation on non-array of type `"
+                          + target.getClass().getName() + "'", e);
                     } catch (ArrayIndexOutOfBoundsException e) {
                         throw new EvalException("array index out of bounds"
                           + (e.getMessage() != null ? ": " + e.getMessage() : ""), e);

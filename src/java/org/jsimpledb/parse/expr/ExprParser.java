@@ -6,6 +6,7 @@
 package org.jsimpledb.parse.expr;
 
 import org.jsimpledb.parse.ParseContext;
+import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 
@@ -18,6 +19,16 @@ public class ExprParser implements Parser<Node> {
 
     @Override
     public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
+
+        // Try lambda
+        final int start = ctx.getIndex();
+        try {
+            return LambdaExprParser.INSTANCE.parse(session, ctx, complete);
+        } catch (ParseException e) {
+            ctx.setIndex(start);
+        }
+
+        // Parse assignment
         return AssignmentExprParser.INSTANCE.parse(session, ctx, complete);
     }
 }

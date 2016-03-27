@@ -19,6 +19,7 @@ import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.func.AbstractFunction;
 import org.jsimpledb.parse.func.AllFunction;
@@ -60,6 +61,8 @@ public class ParseSession extends Session {
     private final LinkedHashSet<String> imports = new LinkedHashSet<>();
     private final TreeMap<String, AbstractFunction> functions = new TreeMap<>();
     private final TreeMap<String, Value> variables = new TreeMap<>();
+
+    private Parser<? extends Node> identifierParser;
 
 // Constructors
 
@@ -209,38 +212,80 @@ public class ParseSession extends Session {
         throw new IllegalArgumentException("unable to instantiate class " + cl.getName() + ": " + failure, failure);
     }
 
+// Identifier resolution
+
+    /**
+     * Get the current standalone identifier parser.
+     *
+     * @return current identifier parser, if any, otherwise null
+     */
+    public Parser<? extends Node> getIdentifierParser() {
+        return this.identifierParser;
+    }
+
+    /**
+     * Set the standalone identifier parser.
+     *
+     * <p>
+     * The configured identifier parser, if any, is invoked on standalone identifiers.
+     * This allows for configurable behavior with respect to resolving such identifiers.
+     *
+     * <p>
+     * Typically when installing a new parser, the previous parser (if any) is set as its delegate.
+     */
+    public void setIdentifierParser(Parser<? extends Node> identifierParser) {
+        this.identifierParser = identifierParser;
+    }
+
 // Class name resolution
 
     /**
      * Resolve a class name against this instance's currently configured class imports.
      *
-     * @param name class name
-     * @return resolved class, or null if not found
+     * @param name class name as it would appear in the Java language
+     * @param allowPrimitive whether to allow primitive types like {@code int}
+     * @param allowArray whether to allow array types like {@code Object[][]}
+     * @return resolved class
+     * @throws IllegalArgumentException if {@code name} cannot be resolved
      */
-    public Class<?> resolveClass(final String name) {
-        final int firstDot = name.indexOf('.');
-        final String firstPart = firstDot != -1 ? name.substring(0, firstDot - 1) : name;
+    public Class<?> resolveClass(final String name, boolean allowPrimitive, boolean allowArray) {
+
+        // Strip off and count array dimensions
+        int dims = 0;
+        int len = name.length();
+        while (len > 2 && name.charAt(len - 2) == '[' && name.charAt(len - 1) == ']') {
+            dims++;
+            len -= 2;
+        }
+        final String baseName = name.substring(0, len);
+
+        // Parse base class and search in package imports
+        final int firstDot = baseName.indexOf('.');
+        final String firstPart = firstDot != -1 ? baseName.substring(0, firstDot - 1) : baseName;
         final ArrayList<String> packages = new ArrayList<>(this.imports.size() + 1);
         packages.add(null);
         packages.addAll(this.imports);
+        Class<?> baseClass = null;
+    search:
         for (String pkg : packages) {
 
             // Get absolute class name
             String className;
             if (pkg == null)
-                className = name;
+                className = baseName;
             else if (pkg.endsWith(".*"))
-                className = pkg.substring(0, pkg.length() - 1) + name;
+                className = pkg.substring(0, pkg.length() - 1) + baseName;
             else {
                 if (!firstPart.equals(pkg.substring(pkg.lastIndexOf('.') + 1, pkg.length() - 2)))
                     continue;
-                className = pkg.substring(0, pkg.length() - 2 - firstPart.length()) + name;
+                className = pkg.substring(0, pkg.length() - 2 - firstPart.length()) + baseName;
             }
 
             // Try package vs. nested classes
             while (true) {
                 try {
-                    return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+                    baseClass = Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+                    break search;
                 } catch (ClassNotFoundException e) {
                     // not found
                 }
@@ -250,9 +295,19 @@ public class ParseSession extends Session {
                 className = className.substring(0, lastDot) + "$" + className.substring(lastDot + 1);
             }
         }
+        if (baseClass == null && allowPrimitive)
+            baseClass = PRIMITIVE_CLASSES.get(baseName);
 
-        // Handle primitive class names
-        return PRIMITIVE_CLASSES.get(name);
+        // Found?
+        if (baseClass == null)
+            throw new IllegalArgumentException("unknown class `" + baseName + "'");
+
+        // Array allowed?
+        if (dims > 0 && !allowArray)
+            throw new IllegalArgumentException("unexpected array type `" + name + "'");
+
+        // Apply array dimensions
+        return ParseUtil.getArrayClass(baseClass, dims);
     }
 
     /**
@@ -269,8 +324,12 @@ public class ParseSession extends Session {
         final String name = klass.getName();
         for (int pos = name.lastIndexOf('.'); pos > 0; pos = name.lastIndexOf('.', pos - 1)) {
             final String shortName = name.substring(pos + 1);
-            if (this.resolveClass(shortName) == klass)
-                return shortName;
+            try {
+                if (this.resolveClass(shortName, false, true) == klass)
+                    return shortName;
+            } catch (IllegalArgumentException e) {
+                // continue
+            }
         }
         return klass.getName();
     }
