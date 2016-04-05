@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import org.dellroad.nvt4j.Terminal;
+import org.dellroad.nvt4j.impl.TerminalImpl;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.KVDatabase;
@@ -100,7 +102,7 @@ public final class TelnetConsole extends Console {
       String encoding, String appName) throws IOException {
 
         // Set up nvt4j; ignore the initial clear & reposition
-        final nvt4j.impl.Terminal nvt4jTerminal = new nvt4j.impl.Terminal(input, output) {
+        final Terminal nvt4jTerminal = new TerminalImpl(input, output) {
 
             private boolean cleared;
             private boolean moved;
@@ -119,7 +121,7 @@ public final class TelnetConsole extends Console {
                 this.moved = true;
             }
         };
-        nvt4jTerminal.put(nvt4j.impl.Terminal.AUTO_WRAP_ON);
+        nvt4jTerminal.put(TerminalImpl.AUTO_WRAP_ON);
         nvt4jTerminal.setCursor(true);
 
         // Have JLine do input & output through telnet terminal
@@ -224,13 +226,13 @@ public final class TelnetConsole extends Console {
 // TelnetTerminal
 
     /**
-     * JLine {@link jline.Terminal} that gets window size information from an associated nvt4j {@link nvt4j.impl.Terminal}.
+     * JLine {@link jline.Terminal} that gets window size information from an associated nvt4j {@link Terminal}.
      */
     public static class TelnetTerminal extends ForwardingTerminal {
 
-        private final nvt4j.impl.Terminal nvt;
+        private final Terminal nvt;
 
-        public TelnetTerminal(jline.Terminal terminal, nvt4j.impl.Terminal nvt) {
+        public TelnetTerminal(jline.Terminal terminal, Terminal nvt) {
             super(terminal);
             Preconditions.checkArgument(nvt != null, "null nvt");
             this.nvt = nvt;
