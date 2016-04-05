@@ -34,7 +34,7 @@ JSimpleDB does this by relegating the database to the simplest role possible - s
     <developer>
       <id>archie</id>
       <name>Archie Cobbs</name>
-      <email>archie@dellroad.org</email>
+      <email>archie.cobbs@gmail.com</email>
     </developer>
   </developers>
   <dependencies>
