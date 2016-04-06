@@ -288,6 +288,8 @@ public class ParseSession extends Session {
                     break search;
                 } catch (ClassNotFoundException e) {
                     // not found
+                } catch (StringIndexOutOfBoundsException e) {
+                    // not found - workaround for https://bz.apache.org/bugzilla/show_bug.cgi?id=59282
                 }
                 final int lastDot = className.lastIndexOf('.');
                 if (lastDot == -1)
