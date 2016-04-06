@@ -6,22 +6,13 @@
 package org.jsimpledb.parse.expr;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
 
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
-import org.jsimpledb.parse.ParseUtil;
-import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.SpaceParser;
-import org.jsimpledb.parse.func.AbstractFunction;
 
 /**
  * Node representing a literal array instantiation expression, i.e., with curly braces initial values.
