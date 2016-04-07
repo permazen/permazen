@@ -23,10 +23,10 @@ import org.jsimpledb.kv.RetryTransactionException;
  */
 public class MySQLKVDatabase extends SQLKVDatabase {
 
-    private static final int DEFAULT_LOCK_TIMEOUT = 10;             // 10 seconds
-
     public static final int INNODB_NORMAL_INDEX_SIZE = 767;
     public static final int INNODB_LARGE_INDEX_SIZE = 3072;
+
+    private static final int DEFAULT_LOCK_TIMEOUT = 10;             // 10 seconds
 
     private boolean innodbLargePrefix;
 
@@ -81,6 +81,11 @@ public class MySQLKVDatabase extends SQLKVDatabase {
             statement.execute("SET innodb_lock_wait_timeout = " + DEFAULT_LOCK_TIMEOUT);
             statement.execute("SET SESSION sql_mode = 'TRADITIONAL'");              // force error if key or value is too long
         }
+    }
+
+    @Override
+    protected SQLKVTransaction createSQLKVTransaction(Connection connection) throws SQLException {
+        return new MySQLKVTransaction(this, connection);
     }
 
     /**
