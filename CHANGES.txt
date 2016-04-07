@@ -7,6 +7,7 @@ Version Next
     - Fixed parser bug: handle class names like `int.class'
     - Fixed parser bug handling multiple assignment
     - Added parsing workaround for Tomcat bug #59282
+    - Auto-create KV table in MySQLKVDatabase
     - Removed deprecated annotation @Validate
 
 Version 1.3.5 Released February 17, 2016

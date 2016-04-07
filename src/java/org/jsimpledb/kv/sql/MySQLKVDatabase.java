@@ -19,15 +19,60 @@ import org.jsimpledb.kv.RetryTransactionException;
  * MySQL variant of {@link SQLKVDatabase}.
  *
  * <p>
- * An idempotent script for initializing a MySQL database is available at
- * {@code classpath:org/jsimpledb/kv/sql/createTable-mysql.sql}
- * (see also {@link org.dellroad.stuff.schema.UpdatingDataSource}).
- * </p>
- *
+ * Automatically creates the key/value table on startup if it doesn't already exist.
  */
 public class MySQLKVDatabase extends SQLKVDatabase {
 
     private static final int DEFAULT_LOCK_TIMEOUT = 10;             // 10 seconds
+
+    public static final int INNODB_NORMAL_INDEX_SIZE = 767;
+    public static final int INNODB_LARGE_INDEX_SIZE = 3072;
+
+    private boolean innodbLargePrefix;
+
+    /**
+     * Configure the use of InnoDB large prefixes.
+     *
+     * <p>
+     * MySQL InnoDB indexes are normally limited to {@value #INNODB_NORMAL_INDEX_SIZE} bytes, but you can
+     * go up to {@value #INNODB_LARGE_INDEX_SIZE} bytes if you set these parameters in {@code /etc/my.cnf}:
+     * <pre>
+     *  [mysqld]
+     *  innodb_large_prefix      = true
+     *  innodb_file_per_table    = true
+     *  innodb_file_format       = barracuda
+     * </pre>
+     *
+     * <p>
+     * Setting this property to true increases the maximum key length from {@value #INNODB_NORMAL_INDEX_SIZE}
+     * to {@value #INNODB_LARGE_INDEX_SIZE} bytes and adds {@code ROW_FORMAT=DYNAMIC} to the table creation
+     * statement in {@link #initializeDatabaseIfNecessary initializeDatabaseIfNecessary()}. This property has
+     * no effect if the table already exists at startup.
+     *
+     * <p>
+     * Default is false.
+     *
+     * @param innodbLargePrefix true for InnoDB large prefixes
+     * @see <a href="http://dev.mysql.com/doc/refman/5.5/en/innodb-restrictions.html">Limits on InnoDB Tables</a>
+     */
+    public void setInnodbLargePrefix(boolean innodbLargePrefix) {
+        this.innodbLargePrefix = innodbLargePrefix;
+    }
+
+    @Override
+    protected void initializeDatabaseIfNecessary(Connection connection) throws SQLException {
+        final int indexSize = this.innodbLargePrefix ? INNODB_LARGE_INDEX_SIZE : INNODB_NORMAL_INDEX_SIZE;
+        final String rowFormat = this.innodbLargePrefix ? " ROW_FORMAT=DYNAMIC" : "";
+        final String sql = "CREATE TABLE IF NOT EXISTS " + this.quote(this.getTableName()) + " (\n"
+          + "  " + this.quote(this.getKeyColumnName()) + " VARBINARY(" + indexSize + ") NOT NULL,\n"
+          + "  " + this.quote(this.getValueColumnName()) + " LONGBLOB NOT NULL,\n"
+          + "  PRIMARY KEY(" + this.quote(this.getKeyColumnName()) + ")\n"
+          + ") ENGINE=InnoDB default charset=utf8 collate=utf8_bin" + rowFormat;
+        try (final Statement statement = connection.createStatement()) {
+            this.log.debug("auto-creating table `" + this.getTableName() + "' if not already existing:\n{}", sql);
+            statement.execute(sql);
+        }
+    }
 
     @Override
     protected void preBeginTransaction(Connection connection) throws SQLException {

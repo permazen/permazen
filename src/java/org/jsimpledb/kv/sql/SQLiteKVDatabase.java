@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.jsimpledb.kv.KVDatabaseException;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.sqlite.SQLiteConfig;
@@ -87,7 +86,6 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
 
     @Override
     public void start() {
-        super.start();
 
         // Auto-configure DataSource
         if (this.getDataSource() == null && this.file != null) {
@@ -98,7 +96,13 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
             this.setDataSource(dataSource);
         }
 
-        // Auto-create table
+        // Proceed
+        super.start();
+        this.log.debug("SQLite database " + (this.file != null ? this.file + " " : "") + "started");
+    }
+
+    @Override
+    protected void initializeDatabaseIfNecessary(Connection connection) throws SQLException {
         final String sql = "CREATE TABLE IF NOT EXISTS " + this.quote(this.getTableName()) + "(\n"
           + "  " + this.quote(this.getKeyColumnName()) + " BLOB\n"
             + "    CONSTRAINT " + this.quote(this.getKeyColumnName() + "_null") + " NOT NULL\n"
@@ -106,15 +110,11 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
           + "  " + this.quote(this.getValueColumnName()) + " BLOB\n"
             + "    CONSTRAINT " + this.quote(this.getValueColumnName() + "_null") + " NOT NULL\n"
           + ")";
-        try (final Connection connection = this.createTransactionConnection()) {
-            this.beginTransaction(connection);
-            try (final Statement statement = connection.createStatement()) {
-                this.log.debug("auto-creating table `" + this.getTableName() + "' if not already existing:\n{}", sql);
-                statement.execute(sql);
-                statement.execute("COMMIT");
-            }
-        } catch (SQLException e) {
-            throw new KVDatabaseException(this, e);
+        this.beginTransaction(connection);
+        try (final Statement statement = connection.createStatement()) {
+            this.log.debug("auto-creating table `" + this.getTableName() + "' if not already existing:\n{}", sql);
+            statement.execute(sql);
+            statement.execute("COMMIT");
         }
         this.log.debug("SQLite database " + (this.file != null ? this.file + " " : "") + "started");
     }

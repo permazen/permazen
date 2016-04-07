@@ -191,10 +191,28 @@ public class SQLKVDatabase implements KVDatabase {
 
     @Override
     public void start() {
+        try (final Connection connection = this.createTransactionConnection()) {
+            this.initializeDatabaseIfNecessary(connection);
+        } catch (SQLException e) {
+            throw new KVDatabaseException(this, e);
+        }
     }
 
     @Override
     public void stop() {
+    }
+
+    /**
+     * Perform any required database initialization.
+     *
+     * <p>
+     * The implementation in {@link SQLKVDatabase} does nothing. Subclasses will
+     * typically invoke {@code CREATE TABLE ... IF NOT EXISTS} here, etc.
+     *
+     * @param connection open database connection (will be closed by the caller of this method)
+     * @throws SQLException if an error occurs
+     */
+    protected void initializeDatabaseIfNecessary(Connection connection) throws SQLException {
     }
 
     @Override
