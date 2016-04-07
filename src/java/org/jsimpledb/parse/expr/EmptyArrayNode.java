@@ -20,6 +20,9 @@ public class EmptyArrayNode implements Node {
 
     /**
      * Constructor.
+     *
+     * @param elemType array component type
+     * @param dimensionList list containing the sizes of each array dimension
      */
     public EmptyArrayNode(Class<?> elemType, List<Node> dimensionList) {
         this.elemType = elemType;

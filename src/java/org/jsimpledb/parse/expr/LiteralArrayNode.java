@@ -24,6 +24,10 @@ public class LiteralArrayNode implements Node {
 
     /**
      * Constructor.
+     *
+     * @param elemType array component type
+     * @param initialValue array initial value; each element in the list is either a {@link List} (all but the last dimension)
+     *  or a {@code Node} (last dimension)
      */
     public LiteralArrayNode(Class<?> elemType, List<?> initialValue) {
         this.elemType = elemType;
@@ -55,6 +59,10 @@ public class LiteralArrayNode implements Node {
     /**
      * Parse an array literal initial value expression.
      *
+     * @param session parse session
+     * @param ctx input to parse
+     * @param complete false if parse is "for real", true if only for tab completion calculation
+     * @param elemType array component type
      * @return list of array elements, possibly nested
      */
     public static List<?> parseArrayLiteral(ParseSession session, ParseContext ctx, boolean complete, Class<?> elemType) {

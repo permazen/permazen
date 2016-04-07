@@ -232,6 +232,8 @@ public class ParseSession extends Session {
      *
      * <p>
      * Typically when installing a new parser, the previous parser (if any) is set as its delegate.
+     *
+     * @param identifierParser parser for standalone identifiers, or null for none
      */
     public void setIdentifierParser(Parser<? extends Node> identifierParser) {
         this.identifierParser = identifierParser;
