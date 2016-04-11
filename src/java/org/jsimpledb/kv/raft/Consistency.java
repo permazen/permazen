@@ -29,7 +29,7 @@ public enum Consistency {
      * This level is only meaningful for read-only transactions; read-write transactions are always {@link #LINEARIZABLE}.
      *
      * <p>
-     * Transactions see a consistent, view of the database that is either already committed or likely to be committed soon.
+     * Transactions see a consistent view of the database that is either already committed or likely to be committed soon.
      * This is the same as {@link #EVENTUAL_COMMITTED}, but with the additional (unlikely) possibility that the view that the
      * transaction sees may never actually get committed; this can only happen if there is a Raft leadership change
      * during the transaction.

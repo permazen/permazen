@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Of course, this sacrifices consistency. To address that, a configurable {@link MergeStrategy} is used to migrate the data
- * When switching between normal mode and standalone mode. The {@link MergeStrategy} is given read-only access to the
+ * when switching between normal mode and standalone mode. The {@link MergeStrategy} is given read-only access to the
  * database being switched away from, and read-write access to the database being switched to; when switching away from
  * the {@link RaftKVDatabase}, {@link Consistency#EVENTUAL_COMMITTED} is used to eliminate the requirement for
  * communication with the rest of the cluster.

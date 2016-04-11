@@ -300,7 +300,7 @@ public abstract class KVDatabaseTest extends TestSupport {
           this.executor.submit(new Writer(txs[1], b("10"), b("02")))
         };
 
-        // See what happened - we have have gotten a conflict at write time
+        // See what happened - we might have gotten a conflict at write time
         for (int i = 0; i < 2; i++) {
             try {
                 futures[i].get();
