@@ -32,6 +32,7 @@ import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.array.ArrayKVDatabase;
 import org.jsimpledb.kv.array.AtomicArrayKVStore;
 import org.jsimpledb.kv.bdb.BerkeleyKVDatabase;
+import org.jsimpledb.kv.cockroach.CockroachKVDatabase;
 import org.jsimpledb.kv.fdb.FoundationKVDatabase;
 import org.jsimpledb.kv.leveldb.LevelDBAtomicKVStore;
 import org.jsimpledb.kv.leveldb.LevelDBKVDatabase;
@@ -62,6 +63,7 @@ public abstract class AbstractMain extends MainClass {
     private static final File DEMO_SUBDIR = new File("demo-classes");
     private static final String MYSQL_DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
     private static final String SQLITE_DRIVER_CLASS_NAME = "org.sqlite.JDBC";
+    private static final String POSTGRESQL_DRIVER_CLASS_NAME = "org.postgresql.Driver";
 
     // DBTypes that have multiple config flags
     protected FoundationDBType foundationDBType;
@@ -198,6 +200,10 @@ public abstract class AbstractMain extends MainClass {
                 if (params.isEmpty())
                     this.usageError();
                 dbTypes.add(new SQLiteDBType(new File(params.removeFirst())));
+            } else if (option.equals("--cockroach")) {
+                if (params.isEmpty())
+                    this.usageError();
+                dbTypes.add(new CockroachDBType(params.removeFirst()));
             } else if (option.equals("--leveldb")) {
                 if (params.isEmpty())
                     this.usageError();
@@ -658,6 +664,7 @@ public abstract class AbstractMain extends MainClass {
             { "--bdb directory",                "Use Berkeley DB Java Edition in specified directory" },
             { "--bdb-database",                 "Specify Berkeley DB database name (default `"
                                                   + BerkeleyKVDatabase.DEFAULT_DATABASE_NAME + "')" },
+            { "--cockroach URL",                "Use CockroachDB with the given PostgreSQL JDBC URL" },
             { "--leveldb directory",            "Use LevelDB in specified directory" },
             { "--mem",                          "Use an empty in-memory database (default)" },
             { "--mysql URL",                    "Use MySQL with the given JDBC URL" },
@@ -991,6 +998,35 @@ public abstract class AbstractMain extends MainClass {
         @Override
         public String getDescription() {
             return "SQLite " + this.file.getName();
+        }
+    }
+
+    protected final class CockroachDBType extends DBType<CockroachKVDatabase> {
+
+        private final String jdbcUrl;
+
+        protected CockroachDBType(String jdbcUrl) {
+            super(CockroachKVDatabase.class);
+            this.jdbcUrl = jdbcUrl;
+        }
+
+        @Override
+        public CockroachKVDatabase createKVDatabase() {
+            try {
+                Class.forName(POSTGRESQL_DRIVER_CLASS_NAME);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException("can't load PostgreSQL driver class `" + POSTGRESQL_DRIVER_CLASS_NAME + "'", e);
+            }
+            final CockroachKVDatabase cockroach = new CockroachKVDatabase();
+            cockroach.setDataSource(new DriverManagerDataSource(this.jdbcUrl));
+            return cockroach;
+        }
+
+        @Override
+        public String getDescription() {
+            return "Cockroach";
         }
     }
 

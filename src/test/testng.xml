@@ -11,6 +11,7 @@
     <parameter name="xmlFilePrefix" value="xmldb"/>
     <parameter name="fdbClusterFile" value="/usr/local/etc/foundationdb/fdb.cluster"/>
     <parameter name="mysqlURL" value="jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger"/>
+    <parameter name="cockroachURL" value="jdbc:postgresql://127.0.0.1:26257/jsimpledb?sslmode=disable&amp;user=root"/>
     <parameter name="sqliteFilePrefix" value="SQLiteKV"/>
     <parameter name="berkeleyDirPrefix" value="BerkeleyDbJava"/>
     <parameter name="levelDbDirPrefix" value="LevelDbJava"/>
@@ -39,6 +40,7 @@
             <package name="org.jsimpledb.kv"/>
             <package name="org.jsimpledb.kv.array"/>
             <package name="org.jsimpledb.kv.bdb"/>
+            <package name="org.jsimpledb.kv.cockroach"/>
             <package name="org.jsimpledb.kv.fdb"/>
             <package name="org.jsimpledb.kv.leveldb"/>
             <package name="org.jsimpledb.kv.mvcc"/>
