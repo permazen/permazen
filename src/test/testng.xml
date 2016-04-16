@@ -18,8 +18,8 @@
     <parameter name="rocksDbDirPrefix" value="RocksDbJava"/>
     <parameter name="arrayDirPrefix" value="ArrayKVStore"/>
     <parameter name="arrayCompactMaxDelay" value="3"/>
-    <parameter name="arrayCompactSpaceLowWater" value="200"/>
-    <parameter name="arrayCompactSpaceHighWater" value="500"/>
+    <parameter name="arrayCompactSpaceLowWater" value="1048576"/>
+    <parameter name="arrayCompactSpaceHighWater" value="16777216"/>
     <parameter name="raftDirPrefix" value="RaftDB"/>
     <parameter name="raftNumNodes" value="3"/>
     <parameter name="raftCommitTimeout" value="2500"/>
