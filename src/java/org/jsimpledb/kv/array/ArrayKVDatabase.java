@@ -18,6 +18,8 @@ import org.jsimpledb.kv.mvcc.SnapshotVersion;
  * {@linkplain ArrayKVTransaction#watchKey Key watches},
  * {@linkplain org.jsimpledb.kv.KVTransaction#mutableSnapshot mutable snapshots},
  * and {@linkplain AtomicArrayKVStore#hotCopy hot backups} are supported.
+ *
+ * @see AtomicArrayKVStore
  */
 public class ArrayKVDatabase extends SnapshotKVDatabase {
 

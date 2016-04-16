@@ -64,21 +64,41 @@ import org.slf4j.LoggerFactory;
  * It is optimized for relatively infrequent writes.
  *
  * <p>
- * Instances periodically compact outstanding changes into new arrays in a background thread. A compaction is scheduled whenever:
+ * A (read-only) {@link ArrayKVStore} is the basis for the database; the array files are mapped into memory. As mutations are
+ * applied, they are added to an in-memory change set, and appended to a mutation log file for persistence. On restart,
+ * the mutation log file (if any) is read to reconstruct the in-memory change set.
+ *
+ * <p>
+ * <b>Compaction</b>
+ *
+ * <p>
+ * Instances periodically compact outstanding changes into new array files (and truncate the mutation log file) in a background
+ * thread. A compaction is scheduled whenever:
  *  <ul>
- *  <li>The size of uncompacted changes exceeds the {@linkplain #setCompactLowWater compaction space low-water mark}</li>
+ *  <li>The size of mutation log file exceeds the {@linkplain #setCompactLowWater compaction space low-water mark}</li>
  *  <li>The oldest uncompacted modification is older than the {@linkplain #setCompactMaxDelay compaction maximum delay}</li>
- *  <li>{@link #scheduleCompaction} is invoked</li>
+ *  <li>The {@link #scheduleCompaction} method is invoked</li>
  *  </ul>
  *
  * <p>
- * There is also a {@linkplain #setCompactHighWater high water mark for the size of uncompacted changes}: when this value
- * is exceeded, new write attempts will block until the current compaction cycle completes. This prevents the unbounded growth
- * of uncompacted changes when there is extremely high write volume.
+ * In order to prevent compaction from getting hopelessly behind when there is high write volume, a
+ * {@linkplain #setCompactHighWater compaction space high-water mark} is also used. When the size of the mutation log file
+ * exceeds the half-way point between the low-water and high-water marks, new write attempts start being artificially delayed,
+ * and this delay amount {@linkplain #calculateCompactionPressureDelay increases to infinity} as the high-water mark is approached,
+ * so that as long as the high-water mark is exceeded, new writes are blocked completely until the current compaction cycle
+ * completes.
  *
  * <p>
- * "Hot" backups created in parallel with normal operation are supported via {@link #hotCopy hotCopy()}.
- * Hard links are used (when available) to make this operation fast.
+ * The number of bytes occupied by the in-memory change set and the length of the outstanding mutations log file are
+ * related. Therefore, the compaction high-water mark loosely correlates to a maximum amount of memory required
+ * by the in-memory change set.
+ *
+ * <p>
+ * <b>Hot Backups</b>
+ *
+ * <p>
+ * "Hot" backups may be created in parallel with normal operation via {@link #hotCopy hotCopy()}.
+ * Hard links are used to make this operation fast; only the mutation log file (if any) is actually copied.
  *
  * <p>
  * The {@linkplain #setDirectory database directory} is a required configuration property.
@@ -222,6 +242,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     /**
      * Configure the compaction space low-water mark in bytes.
      *
+     * <p>
+     * This value is applied to the size of the on-disk modifications file.
+     *
      * @param compactLowWater compaction space low-water mark in bytes
      * @throws IllegalArgumentException if {@code compactLowWater} is negative
      * @throws IllegalStateException if this instance is already {@link #start}ed
@@ -239,6 +262,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
     /**
      * Configure the compaction space high-water mark in bytes.
+     *
+     * <p>
+     * This value is applied to the size of the on-disk modifications file.
      *
      * <p>
      * If the compaction space high water mark is set smaller than the the compaction space low water mark,
@@ -486,7 +512,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Wait for compaction to complete
             this.log.debug("waiting for in-progress compaction to complete before shutdown");
-            this.compaction.waitForCompletion();
+            this.compaction.waitForCompletion(0);
             this.log.debug("compaction completed, proceeding with shutdown");
 
             // Check whether another thread invoked stop() while we were asleep
@@ -694,22 +720,44 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             // Verify we are started
             Preconditions.checkState(this.kvstore != null, "not started");
 
-            // Block until compaction completes if size of outstanding modifications exceeds high water mark
-            while (this.compaction != null && this.modsFileLength > this.compactHighWater) {
+            // Delay operation if size of outstanding modifications is approaching high water mark
+            while (this.compaction != null) {
 
-                // If scheduled compaction is in the future, reschedule to be immediate
+                // Calculate how full is low -> high window
+                final float windowRatio =
+                   this.modsFileLength <= this.compactLowWater ? 0.0f :
+                   this.modsFileLength >= this.compactHighWater ? 1.0f :
+                   (float)(this.modsFileLength - this.compactLowWater) / (float)(this.compactHighWater - this.compactLowWater);
+
+                // Calculate corresponding delay
+                final long delayMillis = this.calculateCompactionPressureDelay(windowRatio);
+                if (delayMillis < 0)
+                    break;
+
+                // If there is already a scheduled compaction, reschedule to be immediate
                 if (this.compaction.getDelay() > 0)
                     this.scheduleCompaction(0);
 
                 // Wait for it to complete
-                this.log.debug("reached compaction high-water mark; waiting for in-progress compaction to complete"
-                  + " before applying mutation(s)");
-                this.compaction.waitForCompletion();
-                this.log.debug("compaction completed, proceeding with application of mutation(s)");
+                final long delayNanos = TimeUnit.MILLISECONDS.toNanos(delayMillis);
+                long waitStart = 0;
+                if (this.log.isDebugEnabled()) {
+                    this.log.debug(String.format("reached %d%% of high-water mark; waiting up to %dms for in-progress"
+                      + " compaction to complete before applying mutation(s)", (int)(windowRatio * 100), delayMillis));
+                    waitStart = System.nanoTime();
+                }
+                this.compaction.waitForCompletion(delayNanos);
+                if (this.log.isDebugEnabled()) {
+                    this.log.debug(String.format("compaction completed after %dms, proceeding with application of mutation(s)",
+                      TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - waitStart)));
+                }
 
                 // Verify we are still open after giving up lock
                 if (this.kvstore == null)
                     throw new ArrayKVException("k/v store was closed while waiting for compaction to complete");
+
+                // Done waiting
+                break;
             }
 
             // Get mutations as a Writes object
@@ -912,6 +960,26 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     }
 
 // Compaction
+
+    /**
+     * Calculate the maximum amount of time that a thread attempting to {@link #mutate mutate()} must wait
+     * for a background compaction to complete as we start nearing the high water mark.
+     *
+     * <p>
+     * The implementation in {@link AtomicArrayKVStore} returns {@code -1} for all values below 50%,
+     * and then scales according to an inverse power function returning zero at 50%, 100ms at 75%,
+     * and {@link Long#MAX_VALUE} at 100%.
+     *
+     * @param windowRatio the uncompacted mutation size as a fraction of the interval between low and high
+     *  water marks; always a value value between zero and one (exclusive)
+     * @return negative value for no delay, zero or positive value to trigger a background compaction
+     *  (if not already running) and wait up to that many milliseconds for it to complete
+     */
+    protected long calculateCompactionPressureDelay(float windowRatio) {
+        if ((windowRatio -= 0.5f) < 0)
+            return -1;
+        return (long)(100 * (1.0f / (0.5f - windowRatio) - 1.0f));
+    }
 
     /**
      * Schedule a new compaction cycle, unless there is one already scheduled or running, or there are no
@@ -1354,8 +1422,11 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
         /**
          * Wait for this compaction to complete.
+         *
+         * @param nanos max wait in nanoseconds, or zero for indefinite wait
+         * @return true if compaction completed, false if timeout occurred first
          */
-        public void waitForCompletion() {
+        public boolean waitForCompletion(long nanos) {
 
             // Sanity check
             assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
@@ -1364,7 +1435,11 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             boolean interrupted = false;
             while (!this.completed) {
                 try {
-                    this.completedCondition.await();
+                    if (nanos > 0) {
+                        if ((nanos = this.completedCondition.awaitNanos(nanos)) <= 0)
+                            break;
+                    } else
+                        this.completedCondition.await();
                 } catch (InterruptedException e) {
                     AtomicArrayKVStore.this.log.warn(
                       "thread was interrupted while waiting for compaction to complete (ignoring)", e);
@@ -1373,6 +1448,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             }
             if (interrupted)
                 Thread.currentThread().interrupt();
+            return this.completed;
         }
 
         public Future<Void> getFuture() {
