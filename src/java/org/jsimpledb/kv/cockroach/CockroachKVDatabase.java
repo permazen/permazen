@@ -15,7 +15,7 @@ import org.jsimpledb.kv.sql.SQLKVDatabase;
 import org.jsimpledb.kv.sql.SQLKVTransaction;
 
 /**
- * {@link KVDatabase} implementation based on CockroachDB.
+ * {@link org.jsimpledb.kv.KVDatabase} implementation based on CockroachDB.
  *
  * <p>
  * Automatically creates the key/value table on startup if it doesn't already exist.
