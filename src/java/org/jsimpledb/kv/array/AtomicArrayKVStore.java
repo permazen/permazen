@@ -808,6 +808,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
     /**
      * Create a filesystem atomic snapshot, or "hot" copy", of this instance in the specified destination directory.
+     * The copy will be up-to-date as of the time this method is invoked.
      *
      * <p>
      * The {@code target} directory will be created if it does not exist; otherwise, it must be empty.
@@ -815,16 +816,16 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
      * in constant time using {@linkplain Files#createLink hard links} if possible.
      *
      * <p>
-     * The hot copy operation proceeds in parallel with normal database activity, with the exception
-     * that the compaction operation must wait until there are no concurrent hot copies to complete.
+     * The hot copy operation can proceed in parallel with normal database activity, with the exception
+     * that the compaction operation cannot start while there are concurrent hot copies in progress.
      *
      * <p>
      * Therefore, for best performance, consider {@linkplain #scheduleCompaction performing a compaction}
      * immediately prior to this operation.
      *
      * <p>
-     * The {@code target} directory is not fsync()'d by this method; the caller
-     * must perform that action to ensure durability if required.
+     * Note: when this method returns, all copied files, and the {@code target} directory, have been {@code fsync()}'d
+     * and therefore may be considered durable in case of a system crash.
      *
      * @param target destination directory
      * @throws IOException if an I/O error occurs
@@ -877,8 +878,17 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             // Copy remaining files without using hard links
             regularCopyFiles.add(this.modsFile);                     // it's ok if we copy a partial write
             regularCopyFiles.add(this.generationFile);               // copy this one last
-            for (File file : regularCopyFiles)
-                Files.copy(file.toPath(), dir.resolve(file.getName()));
+            for (File file : regularCopyFiles) {
+                try (final FileOutputStream fileCopy = new FileOutputStream(new File(target, file.getName()))) {
+                    Files.copy(file.toPath(), fileCopy);
+                    fileCopy.getChannel().force(false);
+                }
+            }
+
+            // Sync directory
+            try (FileChannel dirChannel = FileChannel.open(dir)) {
+                dirChannel.force(false);
+            }
         } finally {
             this.writeLock.lock();
             try {
