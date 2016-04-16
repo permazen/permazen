@@ -987,9 +987,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 return;
 
             // Set now running - this prevents future cancel()'s
-            assert !compaction.isRunning();
+            assert !compaction.isStarted();
             assert !compaction.isCompleted();
-            compaction.setRunning();
+            compaction.setStarted();
         } finally {
             this.writeLock.unlock();
         }
@@ -1284,7 +1284,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         private final Condition completedCondition = AtomicArrayKVStore.this.writeLock.newCondition();
         private final ScheduledFuture<Void> future;
 
-        private boolean running;
+        private boolean started;
         private boolean completed;
 
         @SuppressWarnings("unchecked")
@@ -1302,7 +1302,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         /**
          * Cancel this compaction.
          *
-         * @return true if canceled, false if already running
+         * @return true if canceled, false if already started
          */
         public boolean cancel() {
 
@@ -1314,8 +1314,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             if (AtomicArrayKVStore.this.compaction != this)
                 return false;
 
-            // Already running?
-            if (this.running)
+            // Already started?
+            if (this.started)
                 return false;
 
             // Attempt to cancel scheduled task
@@ -1349,7 +1349,6 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Sanity check
             assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
-            Preconditions.checkState(this.running, "not running");
 
             // Wait for completion
             boolean interrupted = false;
@@ -1370,13 +1369,13 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             return this.future;
         }
 
-        public boolean isRunning() {
+        public boolean isStarted() {
             assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
-            return this.running;
+            return this.started;
         }
-        public void setRunning() {
+        public void setStarted() {
             assert AtomicArrayKVStore.this.lock.isWriteLockedByCurrentThread();
-            this.running = true;
+            this.started = true;
         }
 
         public boolean isCompleted() {
