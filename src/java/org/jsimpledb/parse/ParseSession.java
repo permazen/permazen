@@ -299,7 +299,7 @@ public class ParseSession extends Session {
                 className = className.substring(0, lastDot) + "$" + className.substring(lastDot + 1);
             }
         }
-        if (baseClass == null && allowPrimitive)
+        if (baseClass == null && (allowPrimitive || dims > 0))
             baseClass = PRIMITIVE_CLASSES.get(baseName);
 
         // Found?
