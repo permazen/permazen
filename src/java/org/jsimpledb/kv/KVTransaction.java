@@ -100,7 +100,8 @@ public interface KVTransaction extends KVStore {
      *
      * <p>
      * Note: many {@link KVDatabase} implementations actually return a
-     * {@link com.google.common.util.concurrent.ListenableFuture}.
+     * {@link com.google.common.util.concurrent.ListenableFuture}. However, listeners must not perform any
+     * long running or blocking operations.
      *
      * @param key the key to watch
      * @return a {@link Future} that returns {@code key} when the value associated with {@code key} is modified

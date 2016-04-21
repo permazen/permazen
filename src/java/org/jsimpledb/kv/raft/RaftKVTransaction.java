@@ -312,6 +312,10 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * to a mutation to some key, then a subsequent transaction will see that mutation, no matter what
      * {@link Consistency} level is configured for that transaction.
      *
+     * <p>
+     * Listeners registered on the returned {@link ListenableFuture} must not perform any long running
+     * or blocking operations.
+     *
      * @param key {@inheritDoc}
      * @return {@inheritDoc}
      * @throws StaleTransactionException {@inheritDoc}
