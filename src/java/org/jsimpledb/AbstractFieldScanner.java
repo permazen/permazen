@@ -5,6 +5,8 @@
 
 package org.jsimpledb;
 
+import com.google.common.reflect.TypeToken;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -66,9 +68,10 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
         if ((method.getModifiers() & Modifier.ABSTRACT) == 0)                   // quick check
             return true;
         final Class<?> methodType = method.getDeclaringClass();
-        for (Class<?> type = this.jclass.type;
-          type != null && methodType.isAssignableFrom(type) && !type.equals(methodType);
-          type = type.getSuperclass()) {
+        for (TypeToken<?> typeToken : TypeToken.of(this.jclass.type).getTypes()) {
+            final Class<?> type = typeToken.getRawType();
+            if (!methodType.isAssignableFrom(type) || type.equals(methodType))  // i.e., type > methodType
+                continue;
             final Method otherMethod;
             try {
                 otherMethod = type.getDeclaredMethod(method.getName(), method.getParameterTypes());
