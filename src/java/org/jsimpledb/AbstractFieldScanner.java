@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
 
+import org.jsimpledb.annotation.JTransient;
 import org.jsimpledb.util.AnnotationScanner;
 
 /**
@@ -19,11 +20,13 @@ import org.jsimpledb.util.AnnotationScanner;
  */
 abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationScanner<T, A> {
 
-    private final boolean autogenFields;
+    protected final boolean autogenFields;
+    protected final boolean autogenNonAbstract;
 
-    AbstractFieldScanner(JClass<T> jclass, Class<A> annotationType, boolean autogenFields) {
+    AbstractFieldScanner(JClass<T> jclass, Class<A> annotationType, boolean autogenFields, boolean autogenNonAbstract) {
         super(jclass, annotationType);
         this.autogenFields = autogenFields;
+        this.autogenNonAbstract = autogenNonAbstract;
     }
 
     protected abstract A getDefaultAnnotation();
@@ -47,9 +50,11 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
     protected boolean isAutoPropertyCandidate(Method method) {
         if (!this.autogenFields)
             return false;
-        if (this.isOverriddenByConcreteMethod(method))
+        if ((method.getModifiers() & Modifier.STATIC) != 0)
             return false;
-        if ((method.getModifiers() & (Modifier.ABSTRACT | Modifier.STATIC)) != Modifier.ABSTRACT)
+        if (this.hasJTransientAnnotation(method))
+            return false;
+        if (!this.autogenNonAbstract && this.isOverriddenByConcreteMethod(method))
             return false;
         if ((method.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0)
             return false;
@@ -83,5 +88,20 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
         }
         return false;
     }
-}
 
+    private boolean hasJTransientAnnotation(Method method) {
+        final String name = method.getName();
+        final Class<?>[] ptypes = method.getParameterTypes();
+        for (TypeToken<?> typeToken : TypeToken.of(method.getDeclaringClass()).getTypes()) {
+            final Method override;
+            try {
+                override = typeToken.getRawType().getDeclaredMethod(name, ptypes);
+            } catch (NoSuchMethodException e) {
+                continue;
+            }
+            if (override.getAnnotation(JTransient.class) != null)
+                return true;
+        }
+        return false;
+    }
+}

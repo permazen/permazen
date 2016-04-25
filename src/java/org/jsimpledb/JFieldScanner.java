@@ -62,8 +62,8 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         }
     };
 
-    JFieldScanner(JClass<T> jclass, boolean autogenFields) {
-        super(jclass, JField.class, autogenFields);
+    JFieldScanner(JClass<T> jclass, boolean autogenFields, boolean autogenNonAbstract) {
+        super(jclass, JField.class, autogenFields, autogenNonAbstract);
     }
 
     @Override
@@ -96,7 +96,7 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             } catch (IllegalArgumentException e) {
                 return false;
             }
-            if ((setter.getModifiers() & Modifier.ABSTRACT) == 0)
+            if (!this.autogenNonAbstract && (setter.getModifiers() & Modifier.ABSTRACT) == 0)
                 return false;
         }
         return true;

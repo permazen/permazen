@@ -18,8 +18,8 @@ import org.jsimpledb.annotation.JMapField;
  */
 class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
 
-    JMapFieldScanner(JClass<T> jclass, boolean autogenFields) {
-        super(jclass, JMapField.class, autogenFields);
+    JMapFieldScanner(JClass<T> jclass, boolean autogenFields, boolean autogenNonAbstract) {
+        super(jclass, JMapField.class, autogenFields, autogenNonAbstract);
     }
 
     @Override

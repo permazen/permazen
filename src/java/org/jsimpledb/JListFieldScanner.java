@@ -16,8 +16,8 @@ import org.jsimpledb.annotation.JListField;
  */
 class JListFieldScanner<T> extends AbstractFieldScanner<T, JListField> {
 
-    JListFieldScanner(JClass<T> jclass, boolean autogenFields) {
-        super(jclass, JListField.class, autogenFields);
+    JListFieldScanner(JClass<T> jclass, boolean autogenFields, boolean autogenNonAbstract) {
+        super(jclass, JListField.class, autogenFields, autogenNonAbstract);
     }
 
     @Override

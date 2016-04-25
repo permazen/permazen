@@ -18,8 +18,8 @@ import org.jsimpledb.annotation.JSetField;
  */
 class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
 
-    JSetFieldScanner(JClass<T> jclass, boolean autogenFields) {
-        super(jclass, JSetField.class, autogenFields);
+    JSetFieldScanner(JClass<T> jclass, boolean autogenFields, boolean autogenNonAbstract) {
+        super(jclass, JSetField.class, autogenFields, autogenNonAbstract);
     }
 
     @Override

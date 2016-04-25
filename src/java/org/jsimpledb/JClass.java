@@ -142,9 +142,10 @@ public class JClass<T> extends JSchemaObject {
 
         // Auto-generate properties?
         final boolean autogenFields = this.type.getAnnotation(JSimpleClass.class).autogenFields();
+        final boolean autogenNonAbstract = this.type.getAnnotation(JSimpleClass.class).autogenNonAbstract();
 
         // Scan for Simple fields
-        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this, autogenFields);
+        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this, autogenFields, autogenNonAbstract);
         for (JFieldScanner<T>.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -202,7 +203,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Set fields
-        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<T>(this, autogenFields);
+        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<T>(this, autogenFields, autogenNonAbstract);
         for (JSetFieldScanner<T>.MethodInfo info : setFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -242,7 +243,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for List fields
-        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<T>(this, autogenFields);
+        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<T>(this, autogenFields, autogenNonAbstract);
         for (JListFieldScanner<T>.MethodInfo info : listFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -282,7 +283,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Map fields
-        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<T>(this, autogenFields);
+        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<T>(this, autogenFields, autogenNonAbstract);
         for (JMapFieldScanner<T>.MethodInfo info : mapFieldScanner.findAnnotatedMethods()) {
 
             // Get info

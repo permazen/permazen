@@ -94,11 +94,31 @@ public @interface JSimpleClass {
      * will cause the corresponding collection fields to be created; other getter/setter method pairs will cause
      * the corresponding simple fields to be generated. Auto-generation of storage ID's is performed by the
      * configured {@link org.jsimpledb.StorageIdGenerator}.
-     * </p>
+     *
+     * <p>
+     * A {@link JTransient &#64;JTransient} annotation on the getter method, or any overridden superclass method,
+     * disables this auto-generation for that particular method (this is only useful when applied to non-abstract
+     * methods, and therefore when {@link #autogenNonAbstract} is true: if applied to any abstract methods,
+     * the auto-generated database subclass wouldn't be instantiable at runtime).
      *
      * @return whether to auto-generate fields from abstract methods
+     * @see #autogenNonAbstract
      * @see org.jsimpledb.JSimpleDBFactory#setStorageIdGenerator JSimpleDBFactory.setStorageIdGenerator()
      */
     boolean autogenFields() default true;
+
+    /**
+     * Whether to automatically generate database fields even from non-abstract Java bean methods.
+     *
+     * <p>
+     * If {@link #autogenFields} is false, this property is ignored. Otherwise, database fields will be auto-generated
+     * corresponding to all bean property getter methods, whether or not marked <b>abstract</b>, unless there is
+     * a {@link &#64;JTransient} annotation.
+     *
+     * @return whether to auto-generate fields from non-abstract methods when {@link #autogenFields} is true
+     * @see #autogenFields
+     * @see JTransient
+     */
+    boolean autogenNonAbstract() default false;
 }
 
