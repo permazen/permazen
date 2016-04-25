@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.validation.groups.Default;
 
 import org.dellroad.stuff.validation.ValidationContext;
@@ -1578,7 +1579,8 @@ public class JTransaction {
 
     @SuppressWarnings("unchecked")
     private void doValidate() {
-        final Validator validator = this.jdb.validatorFactory.getValidator();
+        final ValidatorFactory validatorFactory = this.jdb.getValidatorFactory();
+        final Validator validator = validatorFactory != null ? validatorFactory.getValidator() : null;
         while (true) {
 
             // Pop next object to validate off the queue
@@ -1609,12 +1611,14 @@ public class JTransaction {
             if (jclass == null)
                 return;
 
-            // Do JSR 303 validation
-            final Set<ConstraintViolation<JObject>> violations
-              = new ValidationContext<JObject>(jobj, validationGroups).validate(validator);
-            if (!violations.isEmpty()) {
-                throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
-                  + this.jdb.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
+            // Do JSR 303 validation if needed
+            if (validator != null) {
+                final Set<ConstraintViolation<JObject>> violations
+                  = new ValidationContext<JObject>(jobj, validationGroups).validate(validator);
+                if (!violations.isEmpty()) {
+                    throw new ValidationException(jobj, violations, "validation error for object " + id + " of type `"
+                      + this.jdb.jclasses.get(id.getStorageId()).name + "':\n" + ValidationUtil.describe(violations));
+                }
             }
 
             // Do @OnValidate method validation

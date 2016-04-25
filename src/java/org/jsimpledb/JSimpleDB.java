@@ -125,8 +125,9 @@ public class JSimpleDB {
     final boolean hasOnDeleteMethods;
     final boolean hasOnVersionChangeMethods;
     final boolean anyJClassRequiresDefaultValidation;
+    final AnnotatedElement elementRequiringJSR303Validation;
 
-    ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+    ValidatorFactory validatorFactory;
 
     volatile int actualVersion;
 
@@ -335,11 +336,14 @@ public class JSimpleDB {
         for (JClass<?> jclass : this.jclasses.values())
             jclass.calculateValidationRequirement();
         boolean anyDefaultValidation = false;
+        AnnotatedElement someElementRequiringJSR303Validation = null;
         for (JClass<?> jclass : this.jclasses.values()) {
-            if ((anyDefaultValidation |= jclass.requiresDefaultValidation))
-                break;
+            anyDefaultValidation |= jclass.requiresDefaultValidation;
+            if (someElementRequiringJSR303Validation == null)
+                someElementRequiringJSR303Validation = jclass.elementRequiringJSR303Validation;
         }
         this.anyJClassRequiresDefaultValidation = anyDefaultValidation;
+        this.elementRequiringJSR303Validation = someElementRequiringJSR303Validation;
 
         // Detect whether we have any @OnCreate, @OnDelete, and/or @OnVersionChange methods
         boolean anyOnCreateMethods = false;
@@ -761,6 +765,34 @@ public class JSimpleDB {
     public void setValidatorFactory(ValidatorFactory validatorFactory) {
         Preconditions.checkArgument(validatorFactory != null, "null validatorFactory");
         this.validatorFactory = validatorFactory;
+    }
+
+    /**
+     * Get the {@link ValidatorFactory}, if needed.
+     *
+     * @return {@link ValidatorFactory} for JSR 303 validation, or null if JSR 303 validation is not being used
+     */
+    ValidatorFactory getValidatorFactory() {
+
+        // Already created or configured?
+        if (this.validatorFactory != null)
+            return this.validatorFactory;
+
+        // Are we doing any JSR 303 validation?
+        if (this.elementRequiringJSR303Validation == null)
+            return null;
+
+        // Create it
+        try {
+            this.validatorFactory = Validation.buildDefaultValidatorFactory();
+        } catch (Exception e) {
+            throw new JSimpleDBException("JSR 303 validation constraint found on " + this.elementRequiringJSR303Validation
+              + " but creation of default ValidatorFactory failed; is there a JSR 303 validation implementation on the classpath?",
+              e);
+        }
+
+        // Done
+        return this.validatorFactory;
     }
 
 // Misc utility

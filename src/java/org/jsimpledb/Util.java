@@ -62,6 +62,45 @@ public final class Util {
     }
 
     /**
+     * Determine if any JSR 303 validation annotations are present on the given type itself
+     * or any of its methods (<i>public</i> methods only).
+     *
+     * @param type object type
+     * @return a non-null object with JSR 303 validation requirements, or null if none found
+     * @throws IllegalArgumentException if {@code type} is null
+     */
+    public static AnnotatedElement hasValidation(Class<?> type) {
+
+        // Sanity check
+        Preconditions.checkArgument(type != null, "null type");
+
+        // Check for annotations on the class itself
+        if (Util.hasValidationAnnotation(type))
+            return type;
+
+        // Check methods
+        for (Method method : type.getDeclaredMethods()) {
+
+            // Check for JSR 303 annotation
+            if ((method.getModifiers() & Modifier.PUBLIC) != 0 && Util.hasValidationAnnotation(method))
+                return method;
+        }
+
+        // Recurse on supertypes
+        for (TypeToken<?> typeToken : TypeToken.of(type).getTypes()) {
+            final Class<?> superType = typeToken.getRawType();
+            if (superType == type)
+                continue;
+            final AnnotatedElement annotatedElement = Util.hasValidation(superType);
+            if (annotatedElement != null)
+                return annotatedElement;
+        }
+
+        // None found
+        return null;
+    }
+
+    /**
      * Determine if instances of the given type require any validation under the default validation group.
      *
      * <p>
@@ -139,6 +178,21 @@ public final class Util {
      * @throws IllegalArgumentException if {@code obj} is null
      */
     public static boolean hasDefaultValidationAnnotation(AnnotatedElement obj) {
+        return Util.hasValidationAnnotation(obj, new Class<?>[] { Default.class });
+    }
+
+    /**
+     * Determine whether the given object has any JSR 303 annotation(s).
+     *
+     * @param obj annotated element
+     * @return true if {@code obj} has one or more JSR 303 validation constraint annotations
+     * @throws IllegalArgumentException if {@code obj} is null
+     */
+    public static boolean hasValidationAnnotation(AnnotatedElement obj) {
+        return Util.hasValidationAnnotation(obj, null);
+    }
+
+    private static boolean hasValidationAnnotation(AnnotatedElement obj, Class[] validationGroups) {
         Preconditions.checkArgument(obj != null, "null obj");
         for (Annotation annotation : obj.getAnnotations()) {
             final Class<?> annotationType = annotation.annotationType();
@@ -152,7 +206,7 @@ public final class Util {
             }
             if (groups == null || groups.length == 0)
                 return true;
-            return Util.isAnyGroupBeingValidated(groups, new Class<?>[] { Default.class });
+            return validationGroups == null || Util.isAnyGroupBeingValidated(groups, validationGroups);
         }
         return false;
     }

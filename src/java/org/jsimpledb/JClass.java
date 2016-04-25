@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ public class JClass<T> extends JSchemaObject {
 
     int[] subtypeStorageIds;
     boolean requiresDefaultValidation;
+    AnnotatedElement elementRequiringJSR303Validation;
 
     /**
      * Constructor.
@@ -396,7 +398,10 @@ public class JClass<T> extends JSchemaObject {
 
     void calculateValidationRequirement() {
 
-        // Check for JSR 303 or @OnValidate annotations
+        // Check for use of JSR 303 annotations
+        this.elementRequiringJSR303Validation = Util.hasValidation(this.type);
+
+        // Check for JSR 303 or @OnValidate annotations in default group
         if ((this.requiresDefaultValidation = Util.requiresDefaultValidation(this.type)))
             return;
 
