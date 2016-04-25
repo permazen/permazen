@@ -17,7 +17,18 @@ public interface Node {
      *
      * @param session parse session
      * @return result of node evaluation
+     * @throws EvalException if evaluation fails
      */
     Value evaluate(ParseSession session);
-}
 
+    /**
+     * Get the type of this node's value.
+     *
+     * <p>
+     * If the type is unknown, {@code Object.class} should be returned.
+     *
+     * @param session parse session
+     * @return the expected type of the node
+     */
+    Class<?> getType(ParseSession session);
+}

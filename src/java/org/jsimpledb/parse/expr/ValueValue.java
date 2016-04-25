@@ -43,6 +43,11 @@ public class ValueValue extends AbstractLValue {
     }
 
     @Override
+    public Class<?> getType(ParseSession session) {
+        return this.value.getType(session);
+    }
+
+    @Override
     public void set(ParseSession session, Value value) {
         Preconditions.checkArgument(value != null, "null value");
         this.value = value;

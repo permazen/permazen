@@ -246,11 +246,10 @@ public class ParseSession extends Session {
      *
      * @param name class name as it would appear in the Java language
      * @param allowPrimitive whether to allow primitive types like {@code int}
-     * @param allowArray whether to allow array types like {@code Object[][]}
      * @return resolved class
      * @throws IllegalArgumentException if {@code name} cannot be resolved
      */
-    public Class<?> resolveClass(final String name, boolean allowPrimitive, boolean allowArray) {
+    public Class<?> resolveClass(final String name, boolean allowPrimitive) {
 
         // Strip off and count array dimensions
         int dims = 0;
@@ -304,11 +303,7 @@ public class ParseSession extends Session {
 
         // Found?
         if (baseClass == null)
-            throw new IllegalArgumentException("unknown class `" + baseName + "'");
-
-        // Array allowed?
-        if (dims > 0 && !allowArray)
-            throw new IllegalArgumentException("unexpected array type `" + name + "'");
+            throw new IllegalArgumentException("unknown class `" + name + "'");
 
         // Apply array dimensions
         return ParseUtil.getArrayClass(baseClass, dims);
@@ -325,17 +320,22 @@ public class ParseSession extends Session {
      */
     public String relativizeClassName(Class<?> klass) {
         Preconditions.checkArgument(klass != null, "null klass");
+        final StringBuilder dims = new StringBuilder();
+        while (klass.isArray()) {
+            klass = klass.getComponentType();
+            dims.append("[]");
+        }
         final String name = klass.getName();
         for (int pos = name.lastIndexOf('.'); pos > 0; pos = name.lastIndexOf('.', pos - 1)) {
             final String shortName = name.substring(pos + 1);
             try {
-                if (this.resolveClass(shortName, false, true) == klass)
-                    return shortName;
+                if (this.resolveClass(shortName, false) == klass)
+                    return shortName + dims;
             } catch (IllegalArgumentException e) {
                 // continue
             }
         }
-        return klass.getName();
+        return klass.getName() + dims;
     }
 
 // Action

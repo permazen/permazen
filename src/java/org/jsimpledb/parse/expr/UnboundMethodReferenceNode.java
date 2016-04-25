@@ -25,23 +25,24 @@ import org.jsimpledb.parse.ParseSession;
  */
 public class UnboundMethodReferenceNode extends MethodReferenceNode {
 
-    private final Class<?> cl;
+    private final ClassNode classNode;
 
     /**
      * Constructor.
      *
-     * @param cl method class
+     * @param classNode method class
      * @param name method name
      * @throws IllegalArgumentException if either parameter is null
      */
-    public UnboundMethodReferenceNode(Class<?> cl, String name) {
+    public UnboundMethodReferenceNode(ClassNode classNode, String name) {
         super(name);
-        Preconditions.checkArgument(cl != null, "null cl");
-        this.cl = cl;
+        Preconditions.checkArgument(classNode != null, "null classNode");
+        this.classNode = classNode;
     }
 
     @Override
     public <T> Node resolve(ParseSession session, TypeToken<T> type) {
+        final Class<?> cl = this.classNode.resolveClass(session);
         final Method shape = MethodUtil.findFunctionalMethod(type.getRawType());
         final MethodHandles.Lookup lookup = MethodHandles.publicLookup();
         final Type[] ptypes = shape.getGenericParameterTypes();
@@ -49,11 +50,11 @@ public class UnboundMethodReferenceNode extends MethodReferenceNode {
             final MethodType shapeType = lookup.unreflect(shape).type();
             final MethodHandle handle;
             if (this.name.equals("new")) {
-                if (this.cl.isArray()) {
+                if (cl.isArray()) {
                     handle = MethodHandles.insertArguments(lookup.findStatic(Array.class, "newInstance",
-                      MethodType.methodType(Object.class, Class.class, int.class)), 0, this.cl.getComponentType());
+                      MethodType.methodType(Object.class, Class.class, int.class)), 0, cl.getComponentType());
                 } else {
-                    final Constructor<?> constructor = MethodUtil.findMatchingConstructor(this.cl, ptypes);
+                    final Constructor<?> constructor = MethodUtil.findMatchingConstructor(cl, ptypes);
                     handle = lookup.unreflectConstructor(constructor).asType(shapeType);
                 }
             } else {
@@ -62,12 +63,12 @@ public class UnboundMethodReferenceNode extends MethodReferenceNode {
                 Method instanceMethod = null;
 
                 if (ptypes.length > 0
-                  && (this.cl.isAssignableFrom(TypeToken.of(ptypes[0]).getRawType())
+                  && (cl.isAssignableFrom(TypeToken.of(ptypes[0]).getRawType())
                    || shape.getGenericParameterTypes()[0] instanceof TypeVariable)) {
                     final Type[] mtypes = new Type[ptypes.length - 1];
                     System.arraycopy(ptypes, 1, mtypes, 0, mtypes.length);
                     try {
-                        instanceMethod = MethodUtil.findMatchingMethod(this.cl, this.name,
+                        instanceMethod = MethodUtil.findMatchingMethod(cl, this.name,
                           mtypes, shape.getReturnType() != void.class ? shape.getReturnType() : null, false);
                     } catch (EvalException e) {
                         // ignore
@@ -77,7 +78,7 @@ public class UnboundMethodReferenceNode extends MethodReferenceNode {
                 // Lookup static method
                 Method staticMethod = null;
                 try {
-                    staticMethod = MethodUtil.findMatchingMethod(this.cl, this.name,
+                    staticMethod = MethodUtil.findMatchingMethod(cl, this.name,
                       ptypes, shape.getReturnType() != void.class ? shape.getReturnType() : null, true);
                 } catch (EvalException e) {
                     // ignore
@@ -85,16 +86,16 @@ public class UnboundMethodReferenceNode extends MethodReferenceNode {
 
                 // Get corresponding method handle
                 if (instanceMethod == null && staticMethod == null)
-                    throw new EvalException("method " + this.name + "() not found in " + this.cl);
+                    throw new EvalException("method " + this.name + "() not found in " + cl);
                 if (instanceMethod != null && staticMethod != null)
-                    throw new EvalException("ambiguous invocation of `" + this.name + "()' in " + this.cl);
+                    throw new EvalException("ambiguous invocation of `" + this.name + "()' in " + cl);
                 handle = lookup.unreflect(instanceMethod != null ? instanceMethod : staticMethod);
             }
 
             // Create proxy
             return new ConstNode(new ConstValue(MethodHandleProxies.asInterfaceInstance(type.getRawType(), handle)));
         } catch (Exception e) {
-            throw new EvalException("failed to resolve method " + this.cl.getName() + "::" + this.name + " for " + type, e);
+            throw new EvalException("failed to resolve method " + cl.getName() + "::" + this.name + " for " + type, e);
         }
     }
 }

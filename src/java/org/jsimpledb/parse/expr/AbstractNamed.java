@@ -9,12 +9,12 @@ import com.google.common.base.Preconditions;
 
 import java.util.regex.Pattern;
 
+import org.jsimpledb.parse.ParseUtil;
+
 /**
  * Support superclass for things with a name.
  */
 public abstract class AbstractNamed {
-
-    public static final Pattern NAME_PATTERN = Pattern.compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
 
     protected final String name;
 
@@ -27,7 +27,7 @@ public abstract class AbstractNamed {
      */
     protected AbstractNamed(String name) {
         Preconditions.checkArgument(name != null, "null name");
-        if (!NAME_PATTERN.matcher(name).matches())
+        if (!Pattern.compile(ParseUtil.IDENT_PATTERN).matcher(name).matches())
             throw new IllegalArgumentException("invalid identifier `" + name + "'");
         this.name = name;
     }

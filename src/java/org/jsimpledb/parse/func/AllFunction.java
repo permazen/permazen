@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.func;
 
+import java.util.regex.Pattern;
+
 import org.jsimpledb.JClass;
 import org.jsimpledb.JTransaction;
 import org.jsimpledb.core.UnknownTypeException;
@@ -12,10 +14,10 @@ import org.jsimpledb.parse.ObjTypeParser;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.ParseUtil;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.ExprParser;
-import org.jsimpledb.parse.expr.IdentNode;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 
@@ -51,22 +53,19 @@ public class AllFunction extends AbstractFunction {
             return null;
 
         // Special handling for tab-completion support for type names
-        if (complete && (ctx.isEOF() || IdentNode.NAME_PATTERN.matcher(ctx.getInput()).matches())) {
+        if (complete && (ctx.isEOF() || Pattern.compile(ParseUtil.IDENT_PATTERN).matcher(ctx.getInput()).matches())) {
             new ObjTypeParser().parse(session, ctx, complete);
             throw new ParseException(ctx, "expected `)'").addCompletion(") ");
         }
 
-        // Parse expression
-        final int startingMark = ctx.getIndex();
-        final Node node = ExprParser.INSTANCE.parse(session, ctx, complete);
-
-        // If expression is a single identifier, re-parse it as an object type name, otherwise it's a class or int expression
+        // Parse type name or expression
         final Object result;
-        if (node instanceof IdentNode) {
+        final int startingMark = ctx.getIndex();
+        if (ctx.tryPattern("(" + ParseUtil.IDENT_PATTERN + ")\\s*\\)") != null) {
             ctx.setIndex(startingMark);
             result = new ObjTypeParser().parse(session, ctx, complete).getStorageId();
         } else
-            result = node;
+            result = ExprParser.INSTANCE.parse(session, ctx, complete);
 
         // Finish parse
         ctx.skipWhitespace();

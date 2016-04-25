@@ -29,6 +29,11 @@ public final class ConstValue extends AbstractValue {
     }
 
     @Override
+    public Class<?> getType(ParseSession session) {
+        return this.value != null ? this.value.getClass() : Object.class;
+    }
+
+    @Override
     public String toString() {
         return "ConstValue[" + this.value + "]";
     }

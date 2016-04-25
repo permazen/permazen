@@ -37,36 +37,46 @@ public class UnaryExprParser implements Parser<Node> {
         // Proceed with parse
         switch (opsym) {
         case "!":
-            return this.createUnaryOpNode(Op.LOGICAL_NOT, arg);
+            return this.createUnaryOpNode(Op.LOGICAL_NOT, arg, Boolean.class);
         case "~":
-            return this.createUnaryOpNode(Op.INVERT, arg);
+            return this.createUnaryOpNode(Op.INVERT, arg, null);
         case "+":
-            return this.createUnaryOpNode(Op.UNARY_PLUS, arg);
+            return this.createUnaryOpNode(Op.UNARY_PLUS, arg, Number.class);
         case "-":
-            return this.createUnaryOpNode(Op.UNARY_MINUS, arg);
+            return this.createUnaryOpNode(Op.UNARY_MINUS, arg, Number.class);
         case "++":
-            return this.createPrecrementNode("increment", arg, true);
+            return this.createPrecrementNode("increment", arg, null, true);
         case "--":
-            return this.createPrecrementNode("decrement", arg, false);
+            return this.createPrecrementNode("decrement", arg, null, false);
         default:
             throw new RuntimeException("internal error: " + opsym);
         }
     }
 
-    private Node createUnaryOpNode(final Op op, final Node arg) {
+    private Node createUnaryOpNode(final Op op, final Node arg, final Class<?> type) {
         return new Node() {
             @Override
             public Value evaluate(ParseSession session) {
                 return op.apply(session, arg.evaluate(session));
             }
+
+            @Override
+            public Class<?> getType(ParseSession session) {
+                return type != null ? type : arg.getType(session);
+            }
         };
     }
 
-    private Node createPrecrementNode(final String operation, final Node node, final boolean increment) {
+    private Node createPrecrementNode(final String operation, final Node node, final Class<?> type, final boolean increment) {
         return new Node() {
             @Override
             public Value evaluate(ParseSession session) {
                 return node.evaluate(session).xxcrement(session, "pre-" + operation, increment);
+            }
+
+            @Override
+            public Class<?> getType(ParseSession session) {
+                return type != null ? type : node.getType(session);
             }
         };
     }

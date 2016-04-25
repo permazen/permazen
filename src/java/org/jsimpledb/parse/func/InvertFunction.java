@@ -17,10 +17,10 @@ import org.jsimpledb.core.UnknownTypeException;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.ParseUtil;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.ExprParser;
-import org.jsimpledb.parse.expr.IdentNode;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.util.ParseCastFunction;
@@ -55,7 +55,7 @@ public class InvertFunction extends AbstractFunction {
 
         // Parse entire reference path
         final int mark = ctx.getIndex();
-        final Matcher matcher = ctx.tryPattern(IdentNode.NAME_PATTERN + "\\s*(\\.\\s*" + IdentNode.NAME_PATTERN + "\\s*)*");
+        final Matcher matcher = ctx.tryPattern(ParseUtil.IDENT_PATTERN + "\\s*(\\.\\s*" + ParseUtil.IDENT_PATTERN + "\\s*)*");
         if (matcher == null)
             throw new ParseException(ctx, "invalid reference path");
         final String path = matcher.group().replaceAll("\\s+", "");

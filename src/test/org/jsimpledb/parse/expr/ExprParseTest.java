@@ -110,7 +110,9 @@ public class ExprParseTest extends TestSupport {
         return new Object[][] {
 
             // Literals
+            { "null", null },
             { "true", true },
+            { "(true)", true },
             { "false", false },
             { "0", 0 },
             { "0L", 0L },
@@ -122,6 +124,7 @@ public class ExprParseTest extends TestSupport {
             { "\"line1\\nline2\\n\"", "line1\nline2\n" },
             { "\"\\\"quoted\\\"\"", "\"quoted\"" },
             { "@1111111111111111", new ObjId("1111111111111111") },
+            { "Object.class", Object.class },
 
             // Literal fails
             { "'\''", PARSE_FAIL },

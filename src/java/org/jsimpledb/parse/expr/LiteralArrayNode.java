@@ -5,6 +5,8 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,31 +14,32 @@ import java.util.List;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.ParseUtil;
 import org.jsimpledb.parse.SpaceParser;
 
 /**
  * Node representing a literal array instantiation expression, i.e., with curly braces initial values.
  */
-public class LiteralArrayNode implements Node {
+public class LiteralArrayNode extends AbstractArrayNode {
 
-    private final Class<?> elemType;
     private final List<?> initialValue;
 
     /**
      * Constructor.
      *
-     * @param elemType array component type
+     * @param baseTypeNode array base type class node
      * @param initialValue array initial value; each element in the list is either a {@link List} (all but the last dimension)
      *  or a {@code Node} (last dimension)
      */
-    public LiteralArrayNode(Class<?> elemType, List<?> initialValue) {
-        this.elemType = elemType;
+    public LiteralArrayNode(ClassNode baseTypeNode, int numDimensions, List<?> initialValue) {
+        super(baseTypeNode, numDimensions);
         this.initialValue = initialValue;
     }
 
     @Override
     public Value evaluate(final ParseSession session) {
-        return new ConstValue(LiteralArrayNode.createLiteral(session, this.elemType, this.initialValue));
+        final Class<?> elemType = ParseUtil.getArrayClass(this.getBaseType(session), this.numDimensions - 1);
+        return new ConstValue(LiteralArrayNode.createLiteral(session, elemType, this.initialValue));
     }
 
     private static Object createLiteral(ParseSession session, Class<?> elemType, List<?> values) {
@@ -62,10 +65,12 @@ public class LiteralArrayNode implements Node {
      * @param session parse session
      * @param ctx input to parse
      * @param complete false if parse is "for real", true if only for tab completion calculation
-     * @param elemType array component type
+     * @param dims number of array dimensions
      * @return list of array elements, possibly nested
+     * @throws IllegalArgumentException if {@code dims} is less than one
      */
-    public static List<?> parseArrayLiteral(ParseSession session, ParseContext ctx, boolean complete, Class<?> elemType) {
+    public static List<?> parseArrayLiteral(ParseSession session, ParseContext ctx, boolean complete, int dims) {
+        Preconditions.checkArgument(dims >= 1, "dims < 1");
         final SpaceParser spaceParser = new SpaceParser();
         final ArrayList<Object> list = new ArrayList<>();
         spaceParser.parse(ctx, complete);
@@ -75,8 +80,8 @@ public class LiteralArrayNode implements Node {
         if (ctx.tryLiteral("}"))
             return list;
         while (true) {
-            list.add(elemType.isArray() ?
-              LiteralArrayNode.parseArrayLiteral(session, ctx, complete, elemType.getComponentType()) :
+            list.add(dims > 1 ?
+              LiteralArrayNode.parseArrayLiteral(session, ctx, complete, dims - 1) :
               ExprParser.INSTANCE.parse(session, ctx, complete));
             ctx.skipWhitespace();
             if (ctx.tryLiteral("}"))

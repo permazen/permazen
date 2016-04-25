@@ -8,9 +8,6 @@ SHORT TERM
         - `--background': disable console on stdin/stdout, daemonize
             - Requires native code
 
-- Parsing improvement: "$x = new Foo()" gives "parse error" instead
-  of "unknown class `Foo'" error; defer "Foo" resolution until eval?
-
 - @JField(allowNull = false) ?
 
 - LevelDB & RocksDB: ensure removeRange() doesn't sync() on each k/v pair

@@ -30,6 +30,11 @@ public class LogicalAndParser extends BinaryExprParser {
                 }
                 return new ConstValue(true);
             }
+
+            @Override
+            public Class<?> getType(ParseSession session) {
+                return Boolean.class;
+            }
         };
     }
 }

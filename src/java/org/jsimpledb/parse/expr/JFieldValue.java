@@ -45,5 +45,10 @@ public class JFieldValue extends AbstractValue {
               + ": " + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
+
+    @Override
+    public Class<?> getType(ParseSession session) {
+        return this.jfield.getGetter().getReturnType();
+    }
 }
 

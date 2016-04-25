@@ -27,6 +27,11 @@ import org.jsimpledb.parse.util.StripPrefixFunction;
  */
 public final class ParseUtil {
 
+    /**
+     * Regular expression that matches valid Java identifiers.
+     */
+    public static final String IDENT_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
+
     private ParseUtil() {
     }
 

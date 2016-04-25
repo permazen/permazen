@@ -53,5 +53,10 @@ public class BeanPropertyValue extends AbstractValue {
               + this.bean.getClass().getName() + ": " + t, t);
         }
     }
+
+    @Override
+    public Class<?> getType(ParseSession session) {
+        return this.getter.getReturnType();
+    }
 }
 

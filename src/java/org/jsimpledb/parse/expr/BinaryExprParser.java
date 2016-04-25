@@ -113,6 +113,13 @@ public abstract class BinaryExprParser implements Parser<Node> {
             public Value evaluate(ParseSession session) {
                 return op.apply(session, lhs.evaluate(session), rhs.evaluate(session));
             }
+
+            @Override
+            public Class<?> getType(ParseSession session) {
+                final Class<?> ltype = lhs.getType(session);
+                final Class<?> rtype = rhs.getType(session);
+                return ltype == rtype ? ltype : Object.class;           // TODO: be more precise
+            }
         };
     }
 }

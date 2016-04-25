@@ -26,7 +26,7 @@ public class LambdaExprParser implements Parser<LambdaNode> {
     public LambdaNode parse(ParseSession session, ParseContext ctx, boolean complete) {
 
         // Match one of: "() -> ...", "x -> ...", "(x) -> ..., "(x, y) -> ", "(x, y, z) -> ", etc.
-        final String id = IdentNode.NAME_PATTERN.toString();
+        final String id = ParseUtil.IDENT_PATTERN;
         final Matcher matcher = ctx.tryPattern("((" + id + ")|\\(\\s*(" + id + "\\s*(,\\s*" + id + "\\s*)*)?\\))\\s*->\\s*");
         if (matcher == null)
             throw new ParseException(ctx);
@@ -49,7 +49,7 @@ public class LambdaExprParser implements Parser<LambdaNode> {
         session.setIdentifierParser(new Parser<Node>() {
             @Override
             public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
-                final String name = ctx.tryPattern(IdentNode.NAME_PATTERN).group();
+                final String name = ctx.tryPattern(ParseUtil.IDENT_PATTERN).group();
                 final LambdaNode.Param paramNode = paramMap.get(name);
                 if (paramNode == null) {
                     throw new ParseException(ctx, "unknown lambda parameter `" + name + "'")

@@ -9,29 +9,30 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.ParseUtil;
 
 /**
  * Node representing an "empty" array instantiation expression, i.e., with dimensions but no literal values.
  */
-public class EmptyArrayNode implements Node {
+public class EmptyArrayNode extends AbstractArrayNode {
 
-    private final Class<?> elemType;
     private final List<Node> dimensionList;
 
     /**
      * Constructor.
      *
-     * @param elemType array component type
+     * @param baseTypeNode array base type class node
      * @param dimensionList list containing the sizes of each array dimension
      */
-    public EmptyArrayNode(Class<?> elemType, List<Node> dimensionList) {
-        this.elemType = elemType;
+    public EmptyArrayNode(ClassNode baseTypeNode, List<Node> dimensionList) {
+        super(baseTypeNode, dimensionList.size());
         this.dimensionList = dimensionList;
     }
 
     @Override
     public Value evaluate(final ParseSession session) {
-        return new ConstValue(EmptyArrayNode.createEmpty(session, this.elemType, this.dimensionList));
+        final Class<?> elemType = ParseUtil.getArrayClass(this.getBaseType(session), this.numDimensions - 1);
+        return new ConstValue(EmptyArrayNode.createEmpty(session, elemType, this.dimensionList));
     }
 
     private static Object createEmpty(ParseSession session, Class<?> elemType, List<Node> dims) {

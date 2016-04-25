@@ -6,6 +6,7 @@ Version Next
     - Added XMLObjectSerializer.setFieldTruncationLength()
     - Added NavigableSetPager.setFilter()
     - Don't require JSR 303 validation classes unless used (issue #5)
+    - Improvements to expression parser tab-completion
     - Fixed parser bug: handle class names like `int.class'
     - Fixed parser bug handling multiple assignment
     - Added parsing workaround for Tomcat bug #59282

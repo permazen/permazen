@@ -121,5 +121,10 @@ public class LambdaNode extends TypeInferringNode {
         public Value evaluate(ParseSession session) {
             return this.owner.frame.get().get(this.name);
         }
+
+        @Override
+        public Class<?> getType(ParseSession session) {
+            return Object.class;
+        }
     }
 }

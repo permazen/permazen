@@ -30,6 +30,11 @@ public class VarNode extends ConstNode {
         return (VarValue)super.evaluate(session);
     }
 
+    @Override
+    public Class<?> getType(ParseSession session) {
+        return ((VarValue)super.evaluate(session)).getType(session);
+    }
+
     /**
      * Get the variable name.
      *

@@ -12,8 +12,10 @@ import java.util.regex.Pattern;
 import org.dellroad.stuff.java.Primitive;
 import org.dellroad.stuff.string.StringEncoder;
 import org.jsimpledb.JTransaction;
+import org.jsimpledb.UntypedJObject;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.TypeNotInSchemaVersionException;
 import org.jsimpledb.parse.ObjIdParser;
 import org.jsimpledb.parse.ParseContext;
 import org.jsimpledb.parse.ParseException;
@@ -38,8 +40,8 @@ public class LiteralExprParser implements Parser<Node> {
 
     public static final LiteralExprParser INSTANCE = new LiteralExprParser();
 
-    static final String IDENTS_AND_DOTS_PATTERN = IdentNode.NAME_PATTERN + "\\s*(?:\\.\\s*" + IdentNode.NAME_PATTERN + ")*";
-    static final String CLASS_NAME_PATTERN = "(" + IDENTS_AND_DOTS_PATTERN + ")\\s*((?:\\[\\s*\\]\\s*)+)?";
+    static final String IDENTS_AND_DOTS_PATTERN = ParseUtil.IDENT_PATTERN + "\\s*(?:\\.\\s*" + ParseUtil.IDENT_PATTERN + ")*";
+    static final String CLASS_NAME_PATTERN = "(?:" + IDENTS_AND_DOTS_PATTERN + ")\\s*(?:(?:\\[\\s*\\]\\s*)+)?";
 
     private final SpaceParser spaceParser = new SpaceParser();
 
@@ -59,12 +61,8 @@ public class LiteralExprParser implements Parser<Node> {
         // Try class literal
         final Matcher classMatch = ctx.tryPattern("(" + CLASS_NAME_PATTERN + ")\\.\\s*class(?!\\p{javaJavaIdentifierPart})");
         if (classMatch != null) {
-            try {
-                return new LiteralNode(
-                  LiteralExprParser.parseArrayClassName(session, new ParseContext(classMatch.group(1)), false));
-            } catch (ParseException e) {
-                throw new ParseException(ctx, e.getMessage());
-            }
+            final String className = classMatch.group(1).replaceAll("\\s+", "");
+            return ClassNode.parse(ctx, className, true);
         }
 
         // Try to match int or long literal
@@ -157,7 +155,7 @@ public class LiteralExprParser implements Parser<Node> {
 
         // Try to match variable
         if (ctx.tryLiteral("$")) {
-            final Matcher varMatcher = ctx.tryPattern(AbstractNamed.NAME_PATTERN);
+            final Matcher varMatcher = ctx.tryPattern(ParseUtil.IDENT_PATTERN);
             if (varMatcher == null)
                 throw new ParseException(ctx).addCompletions(session.getVars().keySet());
             final String name = varMatcher.group();
@@ -174,36 +172,21 @@ public class LiteralExprParser implements Parser<Node> {
                 public Value evaluate(ParseSession session) {
                     return new ConstValue(JTransaction.getCurrent().get(id));
                 }
+
+                @Override
+                public Class<?> getType(ParseSession session) {
+                    try {
+                        return session.getJSimpleDB().getJClass(id).getType();
+                    } catch (TypeNotInSchemaVersionException e) {
+                        return UntypedJObject.class;
+                    } catch (IllegalArgumentException e) {
+                        return Object.class;
+                    }
+                }
             };
         }
 
         // No match
         throw new ParseException(ctx);
-    }
-
-    static Class<?> parseClassName(ParseSession session, ParseContext ctx, boolean complete) {
-        return LiteralExprParser.parseClassName(session, ctx, false, complete);
-    }
-
-    static Class<?> parseArrayClassName(ParseSession session, ParseContext ctx, boolean complete) {
-        return LiteralExprParser.parseClassName(session, ctx, true, complete);
-    }
-
-    static Class<?> parseClassName(ParseSession session, ParseContext ctx, boolean allowArray, boolean complete) {
-
-        // Parse name
-        final int start = ctx.getIndex();
-        final Matcher matcher = ctx.tryPattern(allowArray ? CLASS_NAME_PATTERN : IDENTS_AND_DOTS_PATTERN);
-        if (matcher == null) {
-            ctx.setIndex(start);
-            throw new ParseException(ctx, "expected class name");
-        }
-
-        // Resolve class
-        try {
-            return session.resolveClass(matcher.group().replaceAll("\\s+", ""), true, allowArray);
-        } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, e.getMessage());                              // TODO: tab-completions
-        }
     }
 }

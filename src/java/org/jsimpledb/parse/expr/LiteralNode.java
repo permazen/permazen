@@ -38,6 +38,11 @@ public class LiteralNode implements Node {
     }
 
     @Override
+    public Class<?> getType(ParseSession session) {
+        return this.value != null ? this.value.getClass() : Object.class;
+    }
+
+    @Override
     public String toString() {
         return "LiteralNode[" + this.value + "]";
     }

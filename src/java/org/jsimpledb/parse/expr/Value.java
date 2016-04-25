@@ -43,6 +43,18 @@ public interface Value {
     Object get(ParseSession session);
 
     /**
+     * Get the type of this value without evaluating it.
+     *
+     * <p>
+     * This should perform a best-effort attempt to determine the type, but should not invoke {@link #get get()}.
+     * If the type is unknown, {@code Object.class} should be returned.
+     *
+     * @param session parse session
+     * @return the expected type of the evaluated result
+     */
+    Class<?> getType(ParseSession session);
+
+    /**
      * Evaluate this value, verify that it is not null, and return it.
      *
      * @param session current session

@@ -40,6 +40,11 @@ public class AssignmentExprParser extends BinaryExprParser {
                 // Done
                 return value;
             }
+
+            @Override
+            public Class<?> getType(ParseSession session) {
+                return lhs.getType(session);
+            }
         };
     }
 }

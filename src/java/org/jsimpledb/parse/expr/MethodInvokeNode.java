@@ -88,4 +88,9 @@ public class MethodInvokeNode extends AbstractInvokeNode<MethodExecutable> {
         // Return result value
         return result != null || method.getReturnType() != Void.TYPE ? new ConstValue(result) : Value.NO_VALUE;
     }
+
+    @Override
+    public Class<?> getType(ParseSession session) {
+        return Object.class;
+    }
 }

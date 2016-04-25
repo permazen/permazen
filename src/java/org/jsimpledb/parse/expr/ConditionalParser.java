@@ -51,6 +51,13 @@ public class ConditionalParser implements Parser<Node> {
                 return test.evaluate(session).checkBoolean(session, "conditional") ?
                   ifTrue.evaluate(session) : ifFalse.evaluate(session);
             }
+
+            @Override
+            public Class<?> getType(ParseSession session) {
+                final Class<?> trueType = ifTrue.getType(session);
+                final Class<?> falseType = ifFalse.getType(session);
+                return trueType == falseType ? trueType : Object.class;           // TODO: be more precise
+            }
         };
     }
 }

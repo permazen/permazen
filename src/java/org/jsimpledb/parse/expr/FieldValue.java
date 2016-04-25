@@ -46,5 +46,10 @@ public class FieldValue extends AbstractValue {
               + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
+
+    @Override
+    public Class<?> getType(ParseSession session) {
+        return this.field.getTypeToken().getRawType();
+    }
 }
 

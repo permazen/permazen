@@ -5,10 +5,17 @@
 
 package org.jsimpledb.parse.expr;
 
+import java.beans.BeanInfo;
+import java.beans.IndexedPropertyDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
@@ -21,6 +28,9 @@ import org.jsimpledb.parse.ParseUtil;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.func.AbstractFunction;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 /**
  * Parses atomic Java expressions such as parenthesized expressions, {@code new} expressions,
@@ -67,12 +77,22 @@ public class AtomExprParser implements Parser<Node> {
 
             // Get base class name
             new SpaceParser(true).parse(ctx, complete);
-            final Class<?> baseClass = LiteralExprParser.parseClassName(session, ctx, complete);
-            if (baseClass == void.class)
+            final String className = ctx.matchPrefix(LiteralExprParser.IDENTS_AND_DOTS_PATTERN).group().replaceAll("\\s+", "");
+            final ClassNode classNode = ClassNode.parse(ctx, className, true);
+
+            // Handle tab-completion
+            if (complete && ctx.isEOF()) {
+                try {
+                    session.resolveClass(className, true);
+                } catch (IllegalArgumentException e) {
+                    throw new ParseException(ctx).addCompletions(AtomExprParser.getClassNameCompletions(session, className));
+                }
+            }
+            if (className.equals("void"))
                 throw new ParseException(ctx, "illegal instantiation of void");
 
             // Get array dimensions, if any, including length initialization expressions
-            final ArrayList<Node> dims = new ArrayList<>();
+            final ArrayList<Node> dimensions = new ArrayList<>();
             boolean sawNull = false;
             while (true) {
                 ctx.skipWhitespace();
@@ -80,20 +100,21 @@ public class AtomExprParser implements Parser<Node> {
                     break;
                 ctx.skipWhitespace();
                 if (ctx.tryLiteral("]")) {
-                    dims.add(null);
+                    dimensions.add(null);
                     sawNull = true;
                     continue;
                 }
                 if (!sawNull) {
-                    dims.add(ExprParser.INSTANCE.parse(session, ctx, complete));
+                    dimensions.add(ExprParser.INSTANCE.parse(session, ctx, complete));
                     ctx.skipWhitespace();
                 }
                 if (!ctx.tryLiteral("]"))
                     throw new ParseException(ctx, "expected `]'").addCompletion("]");
             }
+            final int numDimensions = dimensions.size();
 
             // Handle non-array instantiation
-            if (dims.isEmpty()) {
+            if (numDimensions == 0) {
 
                 // Parse parameters
                 if (!ctx.tryLiteral("("))
@@ -102,24 +123,23 @@ public class AtomExprParser implements Parser<Node> {
                 final List<Node> paramNodes = AtomExprParser.parseParams(session, ctx, complete);
 
                 // Return constructor invocation node
-                return new ConstructorInvokeNode(baseClass, paramNodes);
+                return new ConstructorInvokeNode(classNode, paramNodes);
             }
 
             // Check number of dimensions
-            if (dims.size() > 255)
-                throw new ParseException(ctx, "too many array dimensions (" + dims.size() + " > 255)");
+            if (numDimensions > 255)
+                throw new ParseException(ctx, "too many array dimensions (" + numDimensions + " > 255)");
 
             // Handle empty or initialized array instantiation expression
-            final Class<?> elemType = ParseUtil.getArrayClass(baseClass, dims.size() - 1);
-            if (dims.get(0) != null)
-                return new EmptyArrayNode(elemType, dims);
-            else
-                return new LiteralArrayNode(elemType, LiteralArrayNode.parseArrayLiteral(session, ctx, complete, elemType));
+            return dimensions.get(0) != null ?
+              new EmptyArrayNode(classNode, dimensions) :
+              new LiteralArrayNode(classNode, numDimensions,
+               LiteralArrayNode.parseArrayLiteral(session, ctx, complete, numDimensions));
         } else
             ctx.setIndex(start);
 
         // Handle session function invocation - distguished by a single identifier, followed by '('
-        final Matcher functionMatcher = ctx.tryPattern("(" + IdentNode.NAME_PATTERN + ")\\s*\\(");
+        final Matcher functionMatcher = ctx.tryPattern("(" + ParseUtil.IDENT_PATTERN + ")\\s*\\(");
         if (functionMatcher != null) {
 
             // Find function
@@ -140,6 +160,11 @@ public class AtomExprParser implements Parser<Node> {
                 public Value evaluate(ParseSession session) {
                     return function.apply(session, params);
                 }
+
+                @Override
+                public Class<?> getType(ParseSession session) {
+                    return Object.class;
+                }
             };
         }
 
@@ -158,37 +183,63 @@ public class AtomExprParser implements Parser<Node> {
         }
 
         // Handle unbound method references
-        final Matcher methodMatcher = ctx.tryPattern(LiteralExprParser.CLASS_NAME_PATTERN + "\\s*::\\s*" + IdentNode.NAME_PATTERN);
+        final Matcher methodMatcher = ctx.tryPattern(
+          "(" + LiteralExprParser.CLASS_NAME_PATTERN + ")\\s*::\\s*(" + ParseUtil.IDENT_PATTERN + ")");
         if (methodMatcher != null) {
 
             // Parse class and method name
             ctx.setIndex(start);
-            final Class<?> cl = LiteralExprParser.parseArrayClassName(session, ctx, complete);
-            final String methodName = ctx.matchPrefix("\\s*::\\s*(" + IdentNode.NAME_PATTERN + ")").group(1);
+            final ClassNode classNode = ClassNode.parse(ctx, methodMatcher.group(1), false);
+            final String methodName = methodMatcher.group(2);
 
-            // Verify method exists, and support tab-completion if not
-            final HashSet<String> validMethodNames = new HashSet<>();
-            validMethodNames.add("new");
-            for (Method method : cl.getMethods())
-                validMethodNames.add(method.getName());
-            if (!validMethodNames.contains(methodName)) {
-                throw new ParseException(ctx, "unknown method `" + methodName + "()' in " + cl)
-                  .addCompletions(ParseUtil.complete(validMethodNames, methodName));
+            // Support tab-completion of method names
+            if (complete && ctx.isEOF()) {
+                Class<?> type = null;
+                try {
+                    type = classNode.resolveClass(session);
+                } catch (IllegalArgumentException e) {
+                    // ignore
+                }
+                if (type != null) {
+                    final HashSet<String> validMethodNames = new HashSet<>();
+                    validMethodNames.add("new");
+                    for (Method method : type.getMethods())
+                        validMethodNames.add(method.getName());
+                    if (!validMethodNames.contains(methodName)) {
+                        throw new ParseException(ctx, "unknown method `" + methodName + "()' in " + type)
+                          .addCompletions(ParseUtil.complete(validMethodNames, methodName));
+                    }
+                }
             }
 
             // Return unbound method reference
-            return new UnboundMethodReferenceNode(cl, methodName);
+            return new UnboundMethodReferenceNode(classNode, methodName);
+        }
+
+        // Handle tab-completion of "Foo" and "Foo.", assuming "Foo" is a class name (or prefix of a class name)
+        if (complete) {
+            final Matcher nameDotMatcher = ctx.tryPattern("(" + ParseUtil.IDENT_PATTERN + ")\\s*(\\.\\s*)?$");
+            if (nameDotMatcher != null) {
+                final String className = nameDotMatcher.group(1);
+                if (nameDotMatcher.group(2) == null)
+                    throw new ParseException(ctx).addCompletions(AtomExprParser.getClassNameCompletions(session, className));
+                try {
+                    final Class<?> clazz = session.resolveClass(className, false);
+                    throw new ParseException(ctx).addCompletions(AtomExprParser.getStaticMemberCompletions(clazz, ""));
+                } catch (IllegalArgumentException e) {
+                    ctx.setIndex(start);            // class not found
+                }
+            }
         }
 
         // Handle static method invocation and field access
-        final Matcher staticMatcher = ctx.tryPattern(IdentNode.NAME_PATTERN + "\\s*\\.\\s*" + IdentNode.NAME_PATTERN);
+        final Matcher staticMatcher = ctx.tryPattern(
+          "(" + ParseUtil.IDENT_PATTERN + ")\\s*\\.\\s*(" + ParseUtil.IDENT_PATTERN + ")");
         if (staticMatcher != null) {
 
             // Parse first two identifiers
-            ctx.setIndex(start);
-            String idents = ctx.matchPrefix(IdentNode.NAME_PATTERN).group();            // class name so far
-            ctx.matchPrefix("\\s*\\.\\s*");
-            String member = ctx.matchPrefix(IdentNode.NAME_PATTERN).group();            // class member name
+            String idents = staticMatcher.group(1);                     // class name so far
+            String member = staticMatcher.group(2);                     // class member name
 
             // Keep parsing identifiers as long as we can; after each identifier, try to resolve a class name
             final ArrayList<Integer> indexList = new ArrayList<>();
@@ -197,14 +248,14 @@ public class AtomExprParser implements Parser<Node> {
             Class<?> cl;
             while (true) {
                 try {
-                    cl = session.resolveClass(idents, false, false);
+                    cl = session.resolveClass(idents, false);
                 } catch (IllegalArgumentException e) {
                     cl = null;
                 }
                 classList.add(cl);
                 indexList.add(ctx.getIndex());
                 memberList.add(member);
-                final Matcher matcher = ctx.tryPattern("\\s*\\.\\s*(" + IdentNode.NAME_PATTERN + ")");
+                final Matcher matcher = ctx.tryPattern("\\s*\\.\\s*(" + ParseUtil.IDENT_PATTERN + ")");
                 if (matcher == null)
                     break;
                 idents += "." + member;
@@ -220,15 +271,25 @@ public class AtomExprParser implements Parser<Node> {
                     break;
                 }
             }
-            if (cl == null)
-                throw new ParseException(ctx, "unknown class `" + idents + "'");        // TODO: tab-completions
+
+            // Check if class was found; if not, handle tab-completion of class name
+            if (cl == null) {
+                final ParseException e = new ParseException(ctx, "unknown class `" + idents + "'");
+                if (complete && ctx.isEOF())
+                    e.addCompletions(AtomExprParser.getClassNameCompletions(session, idents));
+                throw e;
+            }
+
+            // Handle tab-completion of static class members
+            if (complete && ctx.isEOF())
+                throw new ParseException(ctx).addCompletions(AtomExprParser.getStaticMemberCompletions(cl, member));
 
             // Handle static method invocation
             if (ctx.tryPattern("\\s*\\(") != null)
                 return new MethodInvokeNode(cl, member, AtomExprParser.parseParams(session, ctx, complete));
 
             // Handle static field access
-            return new ConstNode(new StaticFieldValue(this.findStaticField(ctx, cl, member, complete)));
+            return new ConstNode(new StaticFieldValue(this.findStaticField(ctx, cl, member)));
         }
 
         // Can't parse this
@@ -236,32 +297,26 @@ public class AtomExprParser implements Parser<Node> {
     }
 
     // Find static field
-    private Field findStaticField(ParseContext ctx, Class<?> cl, String fieldName, boolean complete) {
-        final Field[] holder = new Field[1];
-        try {
-            this.findStaticField(ctx, cl, fieldName, holder);
-            final Field field = holder[0];
-            if (field == null)
-                throw new ParseException(ctx, "class `" + cl.getName() + "' has no field named `" + fieldName + "'");
-            if ((field.getModifiers() & Modifier.STATIC) == 0)
-                throw new ParseException(ctx, "field `" + fieldName + "' in class `" + cl.getName() + "' is not a static field");
-            return field;
-        } catch (ParseException e) {
-            throw complete ? e.addCompletions(this.getStaticNameCompletions(cl, fieldName)) : e;
-        }
+    private Field findStaticField(ParseContext ctx, Class<?> cl, String fieldName) {
+        final Field field = this.findStaticField(ctx, cl, fieldName, null);
+        if (field == null)
+            throw new ParseException(ctx, "class `" + cl.getName() + "' has no field named `" + fieldName + "'");
+        if ((field.getModifiers() & Modifier.STATIC) == 0)
+            throw new ParseException(ctx, "field `" + fieldName + "' in class `" + cl.getName() + "' is not a static field");
+        return field;
     }
 
     // Helper method for findStaticField()
-    private void findStaticField(ParseContext ctx, Class<?> cl, String fieldName, Field[] holder) {
+    private Field findStaticField(ParseContext ctx, Class<?> cl, String fieldName, Field field) {
 
         // Find field with the given name declared in class, if any
-        for (Field field : cl.getDeclaredFields()) {
-            if (field.getName().equals(fieldName)) {
-                if (holder[0] == null || (holder[0].getModifiers() & Modifier.STATIC) == 0)
-                    holder[0] = field;
+        for (Field candidate : cl.getDeclaredFields()) {
+            if (candidate.getName().equals(fieldName)) {
+                if (field == null || (field.getModifiers() & Modifier.STATIC) == 0)
+                    field = candidate;
                 else {
                     throw new ParseException(ctx, "field `" + fieldName + "' in class `" + cl.getName()
-                      + "' is ambiguous, found in both " + holder[0].getDeclaringClass() + " and " + cl);
+                      + "' is ambiguous, found in both " + field.getDeclaringClass() + " and " + cl);
                 }
                 break;
             }
@@ -269,37 +324,72 @@ public class AtomExprParser implements Parser<Node> {
 
         // Recurse on supertypes
         if (cl.getSuperclass() != null)
-            this.findStaticField(ctx, cl.getSuperclass(), fieldName, holder);
+            field = this.findStaticField(ctx, cl.getSuperclass(), fieldName, field);
         for (Class<?> iface : cl.getInterfaces())
-            this.findStaticField(ctx, iface, fieldName, holder);
+            field = this.findStaticField(ctx, iface, fieldName, field);
+
+        // Done
+        return field;
     }
 
-    // Get all completions for some.class.Name.foo...
-    private Iterable<String> getStaticNameCompletions(Class<?> cl, String name) {
+    /**
+     * Get all class name completions for {@code some.class.Name...}.
+     */
+    static Iterable<String> getClassNameCompletions(ParseSession session, String name) {
+
+        // Use a separate class to avoid exception if Spring classes are not available
+        try {
+            return new ClassNameCompletion(name).findCompletions(session);
+        } catch (NoClassDefFoundError e) {
+            return Collections.emptySet();
+        }
+    }
+
+    /**
+     * Get all public static member name completions for {@code some.class.Name.member...}.
+     */
+    static Iterable<String> getStaticMemberCompletions(Class<?> cl, String name) {
         final TreeSet<String> names = new TreeSet<>();
-        this.getStaticPropertyNames(cl, names);
+        AtomExprParser.getMemberNames(cl, names, true);
         names.add("class");
-        return ParseUtil.complete(this.getStaticPropertyNames(cl, names), name);
+        return ParseUtil.complete(names, name);
     }
 
-    // Helper method for getStaticNameCompletions()
-    private Iterable<String> getStaticPropertyNames(Class<?> cl, TreeSet<String> names) {
+    /**
+     * Get all public instance member name completions, including bean property names, for {@code some.class.Name.member...}.
+     */
+    static Iterable<String> getInstanceMemberCompletions(Class<?> cl, String name) {
+        final TreeSet<String> names = new TreeSet<>();
+        AtomExprParser.getMemberNames(cl, names, false);
+        AtomExprParser.getBeanPropertyNames(cl, names);
+        if (cl.isArray())
+            names.add("length");
+        return ParseUtil.complete(names, name);
+    }
 
-        // Add static field and method names
+    private static Iterable<String> getMemberNames(Class<?> cl, TreeSet<String> names, boolean isStatic) {
+
+        // Setup flags
+        final int mask = Modifier.PUBLIC | Modifier.STATIC;
+        final int flags = Modifier.PUBLIC | (isStatic ? Modifier.STATIC : 0);
+
+        // Add public fields and methods
         for (Field field : cl.getDeclaredFields()) {
-            if ((field.getModifiers() & Modifier.STATIC) != 0)
-                names.add(field.getName());
+            if ((field.getModifiers() & mask) != flags)
+                continue;
+            names.add(field.getName());
         }
         for (Method method : cl.getDeclaredMethods()) {
-            if ((method.getModifiers() & Modifier.STATIC) != 0)
-                names.add(method.getName());
+            if ((method.getModifiers() & mask) != flags)
+                continue;
+            names.add(method.getName() + "(");
         }
 
         // Recurse on supertypes
         if (cl.getSuperclass() != null)
-            this.getStaticPropertyNames(cl.getSuperclass(), names);
+            AtomExprParser.getMemberNames(cl.getSuperclass(), names, isStatic);
         for (Class<?> iface : cl.getInterfaces())
-            this.getStaticPropertyNames(iface, names);
+            AtomExprParser.getMemberNames(iface, names, isStatic);
 
         // Done
         return names;
@@ -322,5 +412,90 @@ public class AtomExprParser implements Parser<Node> {
             spaceParser.parse(ctx, complete);
         }
         return params;
+    }
+
+    // Get bean property names
+    static void getBeanPropertyNames(Class<?> cl, TreeSet<String> names) {
+        final BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(cl);
+        } catch (IntrospectionException e) {
+            return;
+        }
+        for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
+            if (propertyDescriptor instanceof IndexedPropertyDescriptor)
+                continue;
+            if (propertyDescriptor.getReadMethod() == null)
+                continue;
+            names.add(propertyDescriptor.getName());
+        }
+    }
+
+// ClassNameCompletion
+
+    private static class ClassNameCompletion {
+
+        private final String prefix;
+        private final boolean hasDot;
+
+        ClassNameCompletion(String prefix) {
+            this.prefix = prefix;
+            this.hasDot = prefix.indexOf('.') != -1;
+        }
+
+        public Iterable<String> findCompletions(ParseSession session) {
+
+            // Create search patterns
+            final HashSet<String> patterns = new HashSet<>();
+            if (!this.hasDot) {
+                for (String mport : session.getImports()) {
+                    mport = mport.replace('.', '/');
+                    if (mport.length() > 1 && mport.charAt(mport.length() - 2) == '/' && mport.charAt(mport.length() - 1) == '*') {
+                        patterns.add(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
+                          + mport.substring(0, mport.length() - 1) + this.prefix + "*.class");
+                    } else if (mport.lastIndexOf('/') != -1 && mport.substring(mport.lastIndexOf('/') + 1).startsWith(this.prefix))
+                        patterns.add(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + mport + ".class");
+                }
+            } else {
+                String path = this.prefix.replace('.', '/');
+                patterns.add(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + path + "*.class");
+            }
+
+            // Search for matching class resources
+            final HashSet<String> classNames = new HashSet<>();
+            for (String pattern : patterns) {
+                final Resource[] resources;
+                try {
+                    resources = new PathMatchingResourcePatternResolver().getResources(pattern);
+                } catch (IOException e) {
+                    continue;
+                }
+                for (Resource resource : resources) {
+                    String name;
+                    if (this.hasDot) {
+                        final String uri;
+                        try {
+                            uri = resource.getURI().toString();
+                        } catch (IOException e) {
+                            continue;
+                        }
+                        final int npos = uri.lastIndexOf(this.prefix.replace('.', '/'));
+                        name = uri.substring(npos).replace('/', '.');
+                    } else {
+                        name = resource.getFilename();
+                    }
+                    if (name.endsWith(".class"))                                // should always be the case
+                        name = name.substring(0, name.length() - 6);
+                    final int dot = name.indexOf('.', this.prefix.length());
+                    if (dot != -1)
+                        name = name.substring(0, dot);                          // stop at '.' separators
+                    final int dollar = name.indexOf('$', this.prefix.length());
+                    if (dollar != -1)
+                        name = name.substring(0, dollar);                       // stop at '$' separators
+                    classNames.add(name);
+                }
+            }
+            return ParseUtil.complete(classNames, this.prefix);
+        }
     }
 }

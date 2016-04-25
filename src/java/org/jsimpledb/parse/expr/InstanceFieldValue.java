@@ -13,9 +13,9 @@ import java.lang.reflect.Modifier;
 import org.jsimpledb.parse.ParseSession;
 
 /**
- * {@link Value} that reflects a instance Java field in some object.
+ * {@link Value} that reflects a non-static field in some Java object.
  */
-public class ObjectFieldValue extends AbstractFieldValue {
+public class InstanceFieldValue extends AbstractFieldValue {
 
     protected final Object object;
 
@@ -28,7 +28,7 @@ public class ObjectFieldValue extends AbstractFieldValue {
      * @throws IllegalArgumentException if {@code field} is null
      * @throws IllegalArgumentException if {@code field} is static
      */
-    public ObjectFieldValue(Object object, Field field) {
+    public InstanceFieldValue(Object object, Field field) {
         super(field);
         Preconditions.checkArgument(object != null, "null object");
         Preconditions.checkArgument((field.getModifiers() & Modifier.STATIC) == 0, "field is static");

@@ -19,32 +19,35 @@ import org.jsimpledb.parse.ParseSession;
  */
 public class ConstructorInvokeNode extends AbstractInvokeNode<ConstructorExecutable> {
 
-    private final Class<?> klass;
+    private final ClassNode classNode;
 
     /**
      * Constructor.
      *
-     * @param klass class containing constructor
+     * @param classNode class containing constructor
      * @param paramNodes constructor parameters
      */
-    public ConstructorInvokeNode(Class<?> klass, List<Node> paramNodes) {
+    public ConstructorInvokeNode(ClassNode classNode, List<Node> paramNodes) {
         super(paramNodes);
-        Preconditions.checkArgument(klass != null, "null klass");
-        this.klass = klass;
+        Preconditions.checkArgument(classNode != null, "null classNode");
+        this.classNode = classNode;
     }
 
     @Override
     public Value evaluate(final ParseSession session) {
 
+        // Resolve class
+        final Class<?> cl = this.classNode.resolveClass(session);
+
         // Sanity check
-        if (this.klass.isPrimitive() || (this.klass.getModifiers() & Modifier.ABSTRACT) != 0)
-            throw new EvalException("invalid instantiation of " + this.klass);
+        if (cl.isPrimitive() || (cl.getModifiers() & Modifier.ABSTRACT) != 0)
+            throw new EvalException("invalid instantiation of " + cl);
 
         // Evaluate params
         final ParamInfo paramInfo = this.evaluateParams(session);
 
         // Find matching constructor
-        final Constructor<?> constructor = MethodUtil.findMatchingConstructor(this.klass, paramInfo.getParamTypes());
+        final Constructor<?> constructor = MethodUtil.findMatchingConstructor(cl, paramInfo.getParamTypes());
         final ConstructorExecutable executable = new ConstructorExecutable(constructor);
 
         // Fixup varargs
@@ -59,10 +62,19 @@ public class ConstructorInvokeNode extends AbstractInvokeNode<ConstructorExecuta
             result = constructor.newInstance(paramInfo.getParams());
         } catch (Exception e) {
             final Throwable t = e instanceof InvocationTargetException ? ((InvocationTargetException)e).getTargetException() : e;
-            throw new EvalException("error invoking constructor " + klass.getSimpleName() + "(): " + t, t);
+            throw new EvalException("error invoking constructor " + cl.getSimpleName() + "(): " + t, t);
         }
 
         // Return result value
         return new ConstValue(result);
+    }
+
+    @Override
+    public Class<?> getType(ParseSession session) {
+        try {
+            return this.classNode.resolveClass(session);
+        } catch (EvalException e) {
+            return Object.class;
+        }
     }
 }

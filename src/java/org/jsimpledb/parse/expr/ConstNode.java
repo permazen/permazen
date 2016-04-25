@@ -25,5 +25,10 @@ public class ConstNode implements Node {
     public Value evaluate(ParseSession session) {
         return this.value;
     }
+
+    @Override
+    public Class<?> getType(ParseSession session) {
+        return this.value.getType(session);
+    }
 }
 

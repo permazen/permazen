@@ -29,6 +29,11 @@ public abstract class TypeInferringNode implements Node {
         throw new EvalException("cannot directly evaluate type-inferring expression");
     }
 
+    @Override
+    public Class<?> getType(ParseSession session) {
+        return Object.class;
+    }
+
     /**
      * Resolve this instance into an {@linkplain #evaluate evaluable} {@link Node}, given the specified target type.
      *

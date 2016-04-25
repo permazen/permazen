@@ -8,7 +8,6 @@ package org.jsimpledb.parse.expr;
 import java.util.regex.Matcher;
 
 import org.jsimpledb.parse.ParseContext;
-import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.Parser;
 
@@ -23,27 +22,25 @@ public class InstanceofParser implements Parser<Node> {
     public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
 
         // Parse left-hand side
-        final Node node = ShiftExprParser.INSTANCE.parse(session, ctx, complete);
+        final Node target = ShiftExprParser.INSTANCE.parse(session, ctx, complete);
 
         // Try to parse 'instanceof some.class.name'
         final Matcher matcher = ctx.tryPattern("\\s*instanceof\\s+(" + LiteralExprParser.CLASS_NAME_PATTERN + ")\\s*");
         if (matcher == null)
-            return node;
+            return target;
         final String className = matcher.group(1).replaceAll("\\s+", "");
-
-        // Resolve class name
-        final Class<?> cl;
-        try {
-            cl = session.resolveClass(className, false, true);
-        } catch (IllegalArgumentException e) {
-            throw new ParseException(ctx, e.getMessage());                              // TODO: tab-completions
-        }
+        final ClassNode classNode = ClassNode.parse(ctx, className, false);
 
         // Return node that compares value's type to class
         return new Node() {
             @Override
             public Value evaluate(final ParseSession session) {
-                return new ConstValue(cl.isInstance(node.evaluate(session).get(session)));
+                return new ConstValue(classNode.resolveClass(session).isInstance(target.evaluate(session).get(session)));
+            }
+
+            @Override
+            public Class<?> getType(ParseSession session) {
+                return Boolean.class;
             }
         };
     }

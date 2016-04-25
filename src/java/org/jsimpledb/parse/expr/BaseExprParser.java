@@ -71,6 +71,12 @@ public class BaseExprParser implements Parser<Node> {
                     public Value evaluate(ParseSession session) {
                         return Op.ARRAY_ACCESS.apply(session, target.evaluate(session), index.evaluate(session));
                     }
+
+                    @Override
+                    public Class<?> getType(ParseSession session) {
+                        final Class<?> arrayType = target.getType(session);
+                        return arrayType.isArray() ? arrayType.getComponentType() : Object.class;
+                    }
                 };
                 continue;
             }
@@ -78,22 +84,34 @@ public class BaseExprParser implements Parser<Node> {
             // Handle bound method reference
             if (ctx.tryLiteral("::")) {
                 ctx.skipWhitespace();
-                final Matcher methodMatch = ctx.tryPattern(IdentNode.NAME_PATTERN);
+                final Matcher methodMatch = ctx.tryPattern(ParseUtil.IDENT_PATTERN);
                 if (methodMatch == null)
                     throw new ParseException(ctx, "expected method name");
                 node = new BoundMethodReferenceNode(node, methodMatch.group());
                 continue;
             }
 
+            // Support tab-completion for "<expr>.foo", based on the type of <expr>
+            if (complete) {
+                final Matcher propertyPrefixMatch = ctx.tryPattern("\\.\\s*(" + ParseUtil.IDENT_PATTERN + ")?$");
+                if (propertyPrefixMatch != null) {
+                    String prefix = propertyPrefixMatch.group(1);
+                    if (prefix == null)
+                        prefix = "";
+                    throw new ParseException(ctx)
+                      .addCompletions(AtomExprParser.getInstanceMemberCompletions(node.getType(session), prefix));
+                }
+            }
+
             // Handle instance method invocation
-            final Matcher invokeMatch = ctx.tryPattern("\\.\\s*(" + IdentNode.NAME_PATTERN + ")\\s*\\(");
+            final Matcher invokeMatch = ctx.tryPattern("\\.\\s*(" + ParseUtil.IDENT_PATTERN + ")\\s*\\(");
             if (invokeMatch != null) {
                 node = new MethodInvokeNode(node, invokeMatch.group(1), AtomExprParser.parseParams(session, ctx, complete));
                 continue;
             }
 
             // Handle property/field reference
-            final Matcher propertyMatch = ctx.tryPattern("\\.\\s*(" + IdentNode.NAME_PATTERN + ")\\s*");
+            final Matcher propertyMatch = ctx.tryPattern("\\.\\s*(" + ParseUtil.IDENT_PATTERN + ")\\s*");
             if (propertyMatch != null) {
                 final String propertyName = propertyMatch.group(1);
                 final Node target = node;
@@ -101,6 +119,11 @@ public class BaseExprParser implements Parser<Node> {
                     @Override
                     public Value evaluate(ParseSession session) {
                         return BaseExprParser.this.evaluateProperty(session, target.evaluate(session), propertyName);
+                    }
+
+                    @Override
+                    public Class<?> getType(ParseSession session) {
+                        return BaseExprParser.this.getPropertyType(session, target, propertyName);
                     }
                 };
                 continue;
@@ -200,7 +223,7 @@ public class BaseExprParser implements Parser<Node> {
             javaField = null;
         }
         if (javaField != null)
-            return new ObjectFieldValue(target, javaField);
+            return new InstanceFieldValue(target, javaField);
 
         // Try array.length
         if (target.getClass().isArray() && name.equals("length"))
@@ -210,11 +233,53 @@ public class BaseExprParser implements Parser<Node> {
         throw new EvalException("property `" + name + "' not found in " + cl);
     }
 
+    private Class<?> getPropertyType(ParseSession session, Node node, final String name) {
+
+        // Try bean property accessed via bean methods
+        final Class<?> cl = node.getType(session);
+        final BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(cl);
+        } catch (IntrospectionException e) {
+            return Object.class;
+        }
+        for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
+            if (propertyDescriptor instanceof IndexedPropertyDescriptor)
+                continue;
+            if (!propertyDescriptor.getName().equals(name))
+                continue;
+            final Method getter = MethodUtil.makeAccessible(propertyDescriptor.getReadMethod());
+            return getter.getReturnType();
+        }
+
+        // Try instance field
+        /*final*/ Field javaField;
+        try {
+            javaField = cl.getField(name);
+        } catch (NoSuchFieldException e) {
+            javaField = null;
+        }
+        if (javaField != null)
+            return javaField.getType();
+
+        // Try array.length
+        if (cl.isArray() && name.equals("length"))
+            return Integer.class;
+
+        // Dunno
+        return Object.class;
+    }
+
     private Node createPostcrementNode(final String operation, final Node node, final boolean increment) {
         return new Node() {
             @Override
             public Value evaluate(ParseSession session) {
                 return node.evaluate(session).xxcrement(session, "post-" + operation, increment);
+            }
+
+            @Override
+            public Class<?> getType(ParseSession session) {
+                return node.getType(session);
             }
         };
     }

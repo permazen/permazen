@@ -31,6 +31,11 @@ public abstract class AbstractValue implements Value {
     }
 
     @Override
+    public Class<?> getType(ParseSession session) {
+        return Object.class;
+    }
+
+    @Override
     public Object checkNotNull(ParseSession session, String operation) {
         final Object value = this.get(session);
         if (value == null)
