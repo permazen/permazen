@@ -57,12 +57,14 @@ import org.jsimpledb.core.DeleteAction;
  * </p>
  *
  * <p>
- * Reference fields have configurable behavior when the containing object or the referred-to object is deleted;
- * see {@link #onDelete} and {@link #cascadeDelete}.
+ * Reference fields are always indexed; the value of {@link #indexed} is ignored.
  * </p>
  *
+ * <p><b>Delete Cascades</b></p>
+ *
  * <p>
- * Reference fields are always indexed; the value of {@link #indexed} is ignored.
+ * Reference fields have configurable behavior when the referring object or the referred-to object is deleted;
+ * see {@link #onDelete} and {@link #cascadeDelete}.
  * </p>
  *
  * <p><b>Uniqueness Constraints</b></p>
@@ -189,7 +191,7 @@ public @interface JField {
     DeleteAction onDelete() default DeleteAction.EXCEPTION;
 
     /**
-     * For reference fields, configure cascading behavior when the containing object is
+     * For reference fields, configure cascading behavior when the referring object is
      * {@linkplain org.jsimpledb.JObject#delete deleted}. If set to true, the referred-to object
      * is automatically deleted as well.
      *
