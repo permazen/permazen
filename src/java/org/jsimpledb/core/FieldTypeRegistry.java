@@ -235,7 +235,6 @@ public class FieldTypeRegistry {
      *
      * @param classNames names of classes that implement {@link FieldType}
      * @throws IllegalArgumentException if {@code classNames} is null
-     * @throws IllegalArgumentException if {@code classNames} contains a null class or a class with invalid annotation(s)
      * @throws IllegalArgumentException if {@code classNames} contains an invalid {@link FieldType} class
      * @throws RuntimeException if instantiation of a class fails
      */
