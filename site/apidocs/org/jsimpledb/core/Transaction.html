@@ -1,0 +1,2072 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>Transaction (JSimpleDB 2.0.0-SNAPSHOT API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="Transaction (JSimpleDB 2.0.0-SNAPSHOT API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/Transaction.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jsimpledb/core/StringEncodedType.html" title="class in org.jsimpledb.core"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jsimpledb/core/Transaction.html" target="_top">Frames</a></li>
+<li><a href="Transaction.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jsimpledb.core</div>
+<h2 title="Class Transaction" class="title">Class Transaction</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jsimpledb.core.Transaction</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public class <span class="strong">Transaction</span>
+extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">A JSimpleDB <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> transaction.
+
+ <p>
+ Note: this is the lower level, core API for <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>. In most cases this API
+ will only be used indirectly through the higher level <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>, <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>,
+ and <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> APIs.
+ </p>
+
+ <p>
+ Methods in this class can be divided into the following categories:
+ </p>
+
+ <p>
+ <b>Transaction Meta-Data</b>
+ <ul>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#getDatabase()"><code>getDatabase()</code></a> - Get the associated <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a></li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#getSchemas()"><code>getSchemas()</code></a> - Get the database <a href="../../../org/jsimpledb/core/Schemas.html" title="class in org.jsimpledb.core"><code>Schemas</code></a>, as seen by this transaction</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#getSchema()"><code>getSchema()</code></a> - Get the <a href="../../../org/jsimpledb/core/Schema.html" title="class in org.jsimpledb.core"><code>Schema</code></a> that will be used by this transaction</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#deleteSchemaVersion(int)"><code>deleteSchemaVersion()</code></a> - Delete a schema version that is no longer being used</li>
+ </ul>
+
+ <p>
+ <b>Transaction Lifecycle</b>
+ <ul>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#commit()"><code>commit()</code></a> - Commit transaction</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#rollback()"><code>rollback()</code></a> - Roll back transaction</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#isValid()"><code>isValid()</code></a> - Test transaction validity</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#setTimeout(long)"><code>setTimeout()</code></a> - Set transaction timeout</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)"><code>setReadOnly()</code></a> - Set transaction to read-only</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#setRollbackOnly()"><code>setRollbackOnly()</code></a> - Set transaction for rollack only</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#addCallback(org.jsimpledb.core.Transaction.Callback)"><code>addCallback()</code></a> - Register a <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a> on transaction completion</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#createSnapshotTransaction()"><code>createSnapshotTransaction()</code></a> - Create a empty, in-memory copy of this transaction</li>
+ </ul>
+
+ <p>
+ <b>Object Lifecycle</b>
+ <ul>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#create(int)"><code>create()</code></a> - Create a database object</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)"><code>delete()</code></a> - Delete a database object</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#exists(org.jsimpledb.core.ObjId)"><code>exists()</code></a> - Test whether a database object exists</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)"><code>copy()</code></a> - Copy an object's fields onto another object in a (possibly) different transaction</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#addCreateListener(org.jsimpledb.core.CreateListener)"><code>addCreateListener()</code></a> - Register a <a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a> for notifications about new objects</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#removeCreateListener(org.jsimpledb.core.CreateListener)"><code>removeCreateListener()</code></a> - Unregister a <a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a></li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#addDeleteListener(org.jsimpledb.core.DeleteListener)"><code>addDeleteListener()</code></a> - Register a <a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><code>DeleteListener</code></a> for notifications
+      about object deletions</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#removeDeleteListener(org.jsimpledb.core.DeleteListener)"><code>removeDeleteListener()</code></a> - Unregister a <a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><code>DeleteListener</code></a></li>
+ </ul>
+
+ <p>
+ <b>Object Versioning</b>
+ <ul>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#getSchemaVersion(org.jsimpledb.core.ObjId)"><code>getSchemaVersion()</code></a> - Inspect an object's schema version</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#updateSchemaVersion(org.jsimpledb.core.ObjId)"><code>updateSchemaVersion()</code></a> - Update an object's schema version to match this transaction</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#queryVersion()"><code>queryVersion()</code></a> - Locate objects by schema version</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#addVersionChangeListener(org.jsimpledb.core.VersionChangeListener)"><code>addVersionChangeListener()</code></a> - Register a <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a>
+      for notifications about object version changes</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#removeVersionChangeListener(org.jsimpledb.core.VersionChangeListener)"><code>removeVersionChangeListener()</code></a> - Unregister a <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a></li>
+ </ul>
+
+ <p>
+ <b>Object and Field Access</b>
+ <ul>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#getAll()"><code>getAll(int)</code></a> - Get all objects, or all objects of a specific type</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)"><code>readSimpleField()</code></a> - Read the value of a <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> in an object</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#writeSimpleField(org.jsimpledb.core.ObjId, int, java.lang.Object, boolean)"><code>writeSimpleField()</code></a> - Write the value of a <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> in an object</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#readCounterField(org.jsimpledb.core.ObjId, int, boolean)"><code>readCounterField()</code></a> - Read the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> in an object</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#writeCounterField(org.jsimpledb.core.ObjId, int, long, boolean)"><code>writeCounterField()</code></a> - Write the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> in an object</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#adjustCounterField(org.jsimpledb.core.ObjId, int, long, boolean)"><code>adjustCounterField()</code></a> - Adjust the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> in an object</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)"><code>readSetField()</code></a> - Access a <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> in an object as a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a></li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)"><code>readListField()</code></a> - Access a <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> in an object as a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util"><code>List</code></a></li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#readMapField(org.jsimpledb.core.ObjId, int, boolean)"><code>readMapField()</code></a> - Access a <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> in an object as a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util"><code>NavigableMap</code></a></li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId)"><code>getKey(ObjId)</code></a> - Get the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> key corresponding to an object</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId)"><code>getKey(ObjId, int)</code></a> - Get the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>
+      key corresponding to a field in an object</li>
+ </ul>
+
+ <p>
+ <b>Field Change Notifications</b>
+ <ul>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> - Register a <a href="../../../org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>SimpleFieldChangeListener</code></a> for
+      notifications of changes in a <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a>, as seen through a path of object references</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#addSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)"><code>addSetFieldChangeListener()</code></a> - Register a <a href="../../../org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>SetFieldChangeListener</code></a> for
+      notifications of changes in a <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a>, as seen through a path of object references</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#addListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)"><code>addListFieldChangeListener()</code></a> - Register a <a href="../../../org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>ListFieldChangeListener</code></a> for
+      notifications of changes in a <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a>, as seen through a path of object references</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)"><code>addMapFieldChangeListener()</code></a> - Register a <a href="../../../org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>MapFieldChangeListener</code></a> for
+      notifications of changes in a <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a>, as seen through a path of object references</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#removeSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>removeSimpleFieldChangeListener()</code></a> - Unregister a previously registered
+      <a href="../../../org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>SimpleFieldChangeListener</code></a></li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#removeSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)"><code>removeSetFieldChangeListener()</code></a> - Unregister a previously registered
+      <a href="../../../org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>SetFieldChangeListener</code></a></li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#removeListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)"><code>removeListFieldChangeListener()</code></a> - Unregister a previously registered
+      <a href="../../../org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>ListFieldChangeListener</code></a></li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#removeMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)"><code>removeMapFieldChangeListener()</code></a> - Unregister a previously registered
+      <a href="../../../org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core"><code>MapFieldChangeListener</code></a></li>
+ </ul>
+
+ <p>
+ <b>Reference Inversion</b>
+ <ul>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#invertReferencePath(int[], java.lang.Iterable)"><code>invertReferencePath()</code></a> - Find all objects that refer to any element in a given set
+      of objects through a specified reference path</li>
+ </ul>
+
+ <p>
+ <b>Index Queries</b>
+ <ul>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#queryIndex(int)"><code>queryIndex()</code></a> - Query the index associated with a <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a>
+      to identify all values and all objects having those values</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#queryListElementIndex(int)"><code>queryListElementIndex()</code></a> - Query the index associated with a <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a>
+      to identify all list elements, all objects having those elements in the list, and thier corresponding indicies</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#queryMapValueIndex(int)"><code>queryMapValueIndex()</code></a> - Query the index associated with a <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a>
+      to identify all map values, all objects having those values in the map, and the corresponding keys</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex(int)"><code>queryCompositeIndex()</code></a> - Query any composite index</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex2(int)"><code>queryCompositeIndex2()</code></a> - Query a composite index on two fields</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex3(int)"><code>queryCompositeIndex3()</code></a> - Query a composite index on three fields</li>
+  <li><a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex3(int)"><code>queryCompositeIndex4()</code></a> - Query a composite index on four fields</li>
+  <!-- COMPOSITE-INDEX -->
+ </ul>
+
+ <p>
+ All methods returning a set of values return a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>.
+ The <a href="../../../org/jsimpledb/util/NavigableSets.html" title="class in org.jsimpledb.util"><code>NavigableSets</code></a> utility class provides methods for the efficient <a href="../../../org/jsimpledb/util/NavigableSets.html#intersection(java.lang.Iterable)"><code>intersection</code></a>,
+ <a href="../../../org/jsimpledb/util/NavigableSets.html#union(java.util.NavigableSet...)"><code>union</code></a>, <a href="../../../org/jsimpledb/util/NavigableSets.html#difference(java.util.NavigableSet, java.util.NavigableSet)"><code>difference</code></a>, and
+ <a href="../../../org/jsimpledb/util/NavigableSets.html#symmetricDifference(java.util.NavigableSet, java.util.NavigableSet)"><code>symmetric difference</code></a> of <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s containing the same element type,
+ thereby providing the equivalent of traditional database joins.
+ </p></div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a></strong></code>
+<div class="block">Callback interface for notification of transaction completion events.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.CallbackAdapter.html" title="class in org.jsimpledb.core">Transaction.CallbackAdapter</a></strong></code>
+<div class="block">Adapter class for <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="http://slf4j.org/apidocs/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#log">log</a></strong></code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#addCallback(org.jsimpledb.core.Transaction.Callback)">addCallback</a></strong>(<a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a>&nbsp;callback)</code>
+<div class="block">Register a transaction <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a> to be invoked when this transaction completes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#addCreateListener(org.jsimpledb.core.CreateListener)">addCreateListener</a></strong>(<a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core">CreateListener</a>&nbsp;listener)</code>
+<div class="block">Add a <a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a> to this transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#addDeleteListener(org.jsimpledb.core.DeleteListener)">addDeleteListener</a></strong>(<a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core">DeleteListener</a>&nbsp;listener)</code>
+<div class="block">Add a <a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><code>DeleteListener</code></a> to this transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#addListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)">addListFieldChangeListener</a></strong>(int&nbsp;storageId,
+                          int[]&nbsp;path,
+                          <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                          <a href="../../../org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core">ListFieldChangeListener</a>&nbsp;listener)</code>
+<div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> as seen through a path of references.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)">addMapFieldChangeListener</a></strong>(int&nbsp;storageId,
+                         int[]&nbsp;path,
+                         <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                         <a href="../../../org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core">MapFieldChangeListener</a>&nbsp;listener)</code>
+<div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> as seen through a path of references.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#addSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)">addSetFieldChangeListener</a></strong>(int&nbsp;storageId,
+                         int[]&nbsp;path,
+                         <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                         <a href="../../../org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core">SetFieldChangeListener</a>&nbsp;listener)</code>
+<div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> as seen through a path of references.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)">addSimpleFieldChangeListener</a></strong>(int&nbsp;storageId,
+                            int[]&nbsp;path,
+                            <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                            <a href="../../../org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core">SimpleFieldChangeListener</a>&nbsp;listener)</code>
+<div class="block">Monitor for changes within this transaction of the value of the given field, as seen through a path of references.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#addVersionChangeListener(org.jsimpledb.core.VersionChangeListener)">addVersionChangeListener</a></strong>(<a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core">VersionChangeListener</a>&nbsp;listener)</code>
+<div class="block">Add an <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a> to this transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#adjustCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">adjustCounterField</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                  int&nbsp;storageId,
+                  long&nbsp;offset,
+                  boolean&nbsp;updateVersion)</code>
+<div class="block">Adjust the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> in an object by some amount, optionally updating the object's schema version.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#commit()">commit</a></strong>()</code>
+<div class="block">Commit this transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)">copy</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;source,
+    <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
+    <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;dest,
+    boolean&nbsp;updateVersion)</code>
+<div class="block">Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#create(int)">create</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Create a new object with a randomly assigned object ID and having the given type.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#create(int, int)">create</a></strong>(int&nbsp;storageId,
+      int&nbsp;versionNumber)</code>
+<div class="block">Create a new object with a randomly assigned object ID and having the given type and schema version.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#create(org.jsimpledb.core.ObjId)">create</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Create a new object with the given object ID, if it doesn't already exist.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#create(org.jsimpledb.core.ObjId, int)">create</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+      int&nbsp;versionNumber)</code>
+<div class="block">Create a new object with the given object ID, if it doesn't already exist.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#createSnapshotTransaction()">createSnapshotTransaction</a></strong>()</code>
+<div class="block">Create an empty, in-memory "snapshot" transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">delete</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Delete an object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#deleteSchemaVersion(int)">deleteSchemaVersion</a></strong>(int&nbsp;version)</code>
+<div class="block">Delete a schema version that is no longer being used.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#exists(org.jsimpledb.core.ObjId)">exists</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Determine if an object exists.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#generateId(int)">generateId</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Generate a random, unused <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a> for the given storage ID.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getAll()">getAll</a></strong>()</code>
+<div class="block">Get all objects in the database.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getAll(int)">getAll</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Get all objects whose object type has the specified storage ID.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getDatabase()">getDatabase</a></strong>()</code>
+<div class="block">Get the database with which this transaction is associated.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>byte[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId)">getKey</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Get the <code>byte[]</code> key in the underlying key/value store corresponding to the specified object.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>byte[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId, int)">getKey</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+      int&nbsp;storageId)</code>
+<div class="block">Get the <code>byte[]</code> key in the underlying key/value store corresponding to the specified field in the specified object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getKVTransaction()">getKVTransaction</a></strong>()</code>
+<div class="block">Get the underlying key/value store transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/Schema.html" title="class in org.jsimpledb.core">Schema</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">getSchema</a></strong>()</code>
+<div class="block">Get the database schema version associated with this transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/Schemas.html" title="class in org.jsimpledb.core">Schemas</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getSchemas()">getSchemas</a></strong>()</code>
+<div class="block">Get the database schema versions known to this transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#getSchemaVersion(org.jsimpledb.core.ObjId)">getSchemaVersion</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Read the current schema version of the given object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#invertReferencePath(int[], java.lang.Iterable)">invertReferencePath</a></strong>(int[]&nbsp;path,
+                   <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;targetObjects)</code>
+<div class="block">Find all objects that refer to any object in the given target set through the specified path of references.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#isReadOnly()">isReadOnly</a></strong>()</code>
+<div class="block">Determine whether this transaction is read-only.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#isRollbackOnly()">isRollbackOnly</a></strong>()</code>
+<div class="block">Determine whether this transaction is marked rollback only.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#isValid()">isValid</a></strong>()</code>
+<div class="block">Determine whether this transaction is still valid.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex(int)">queryCompositeIndex</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Access any composite index by storage ID, regardless of the number of fields indexed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/CoreIndex2.html" title="class in org.jsimpledb.core">CoreIndex2</a>&lt;?,?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex2(int)">queryCompositeIndex2</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Access a composite index on two fields.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/CoreIndex3.html" title="class in org.jsimpledb.core">CoreIndex3</a>&lt;?,?,?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex3(int)">queryCompositeIndex3</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Access a composite index on three fields.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/CoreIndex4.html" title="class in org.jsimpledb.core">CoreIndex4</a>&lt;?,?,?,?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#queryCompositeIndex4(int)">queryCompositeIndex4</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Access a composite index on four fields.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/CoreIndex.html" title="class in org.jsimpledb.core">CoreIndex</a>&lt;?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#queryIndex(int)">queryIndex</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Find all values stored in the specified <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> and, for each value,
+ the set of all objects having that value in the field.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/CoreIndex2.html" title="class in org.jsimpledb.core">CoreIndex2</a>&lt;?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#queryListElementIndex(int)">queryListElementIndex</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Find all values stored as an element in the specified <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> and, for each such value,
+ the set of all objects having that value as an element in the list and the corresponding list index.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/CoreIndex2.html" title="class in org.jsimpledb.core">CoreIndex2</a>&lt;?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,?&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#queryMapValueIndex(int)">queryMapValueIndex</a></strong>(int&nbsp;storageId)</code>
+<div class="block">Find all values stored as a value in the specified <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> and, for each such value,
+ the set of all objects having that value as a value in the map and the corresponding key.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jsimpledb/core/CoreIndex.html" title="class in org.jsimpledb.core">CoreIndex</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#queryVersion()">queryVersion</a></strong>()</code>
+<div class="block">Query objects by schema version.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#readCounterField(org.jsimpledb.core.ObjId, int, boolean)">readCounterField</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                int&nbsp;storageId,
+                boolean&nbsp;updateVersion)</code>
+<div class="block">Read the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> from an object, optionally updating the object's schema version.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;?&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)">readListField</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+             int&nbsp;storageId,
+             boolean&nbsp;updateVersion)</code>
+<div class="block">Access a <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> associated with an object, optionally updating the object's schema version.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;?,?&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#readMapField(org.jsimpledb.core.ObjId, int, boolean)">readMapField</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+            int&nbsp;storageId,
+            boolean&nbsp;updateVersion)</code>
+<div class="block">Access a <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> associated with an object, optionally updating the object's schema version.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;?&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)">readSetField</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+            int&nbsp;storageId,
+            boolean&nbsp;updateVersion)</code>
+<div class="block">Access a <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> associated with an object, optionally updating the object's schema version.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)">readSimpleField</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+               int&nbsp;storageId,
+               boolean&nbsp;updateVersion)</code>
+<div class="block">Read the value of a <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> from an object, optionally updating the object's schema version.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#removeCreateListener(org.jsimpledb.core.CreateListener)">removeCreateListener</a></strong>(<a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core">CreateListener</a>&nbsp;listener)</code>
+<div class="block">Remove an <a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a> from this transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#removeDeleteListener(org.jsimpledb.core.DeleteListener)">removeDeleteListener</a></strong>(<a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core">DeleteListener</a>&nbsp;listener)</code>
+<div class="block">Remove an <a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><code>DeleteListener</code></a> from this transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#removeListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)">removeListFieldChangeListener</a></strong>(int&nbsp;storageId,
+                             int[]&nbsp;path,
+                             <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                             <a href="../../../org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core">ListFieldChangeListener</a>&nbsp;listener)</code>
+<div class="block">Remove a monitor previously added via <a href="../../../org/jsimpledb/core/Transaction.html#addListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)"><code>addListFieldChangeListener()</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#removeMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)">removeMapFieldChangeListener</a></strong>(int&nbsp;storageId,
+                            int[]&nbsp;path,
+                            <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                            <a href="../../../org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core">MapFieldChangeListener</a>&nbsp;listener)</code>
+<div class="block">Remove a monitor previously added via <a href="../../../org/jsimpledb/core/Transaction.html#addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)"><code>addMapFieldChangeListener()</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#removeSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)">removeSetFieldChangeListener</a></strong>(int&nbsp;storageId,
+                            int[]&nbsp;path,
+                            <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                            <a href="../../../org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core">SetFieldChangeListener</a>&nbsp;listener)</code>
+<div class="block">Remove a monitor previously added via <a href="../../../org/jsimpledb/core/Transaction.html#addSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)"><code>addSetFieldChangeListener()</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#removeSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)">removeSimpleFieldChangeListener</a></strong>(int&nbsp;storageId,
+                               int[]&nbsp;path,
+                               <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                               <a href="../../../org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core">SimpleFieldChangeListener</a>&nbsp;listener)</code>
+<div class="block">Remove a monitor previously added via <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#removeVersionChangeListener(org.jsimpledb.core.VersionChangeListener)">removeVersionChangeListener</a></strong>(<a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core">VersionChangeListener</a>&nbsp;listener)</code>
+<div class="block">Remove an <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a> from this transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#rollback()">rollback</a></strong>()</code>
+<div class="block">Roll back this transaction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#setReadOnly(boolean)">setReadOnly</a></strong>(boolean&nbsp;readOnly)</code>
+<div class="block">Enable or disaable read-only mode.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#setRollbackOnly()">setRollbackOnly</a></strong>()</code>
+<div class="block">Mark this transaction for rollback only.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#setTimeout(long)">setTimeout</a></strong>(long&nbsp;timeout)</code>
+<div class="block">Change the timeout for this transaction from its default value (optional operation).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#updateSchemaVersion(org.jsimpledb.core.ObjId)">updateSchemaVersion</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Change the schema version of the specified object, if necessary, so that its version matches
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#writeCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">writeCounterField</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                 int&nbsp;storageId,
+                 long&nbsp;value,
+                 boolean&nbsp;updateVersion)</code>
+<div class="block">Set the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> in an object, optionally updating the object's schema version.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/Transaction.html#writeSimpleField(org.jsimpledb.core.ObjId, int, java.lang.Object, boolean)">writeSimpleField</a></strong>(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                int&nbsp;storageId,
+                <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;value,
+                boolean&nbsp;updateVersion)</code>
+<div class="block">Change the value of a <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> in an object, optionally updating the object's schema version.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="log">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>log</h4>
+<pre>protected final&nbsp;<a href="http://slf4j.org/apidocs/org/slf4j/Logger.html?is-external=true" title="class or interface in org.slf4j">Logger</a> log</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getDatabase()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDatabase</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core">Database</a>&nbsp;getDatabase()</pre>
+<div class="block">Get the database with which this transaction is associated.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>associated database</dd></dl>
+</li>
+</ul>
+<a name="getSchemas()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSchemas</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/Schemas.html" title="class in org.jsimpledb.core">Schemas</a>&nbsp;getSchemas()</pre>
+<div class="block">Get the database schema versions known to this transaction.
+ This reflects all schema versions currently recorded in the database.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>associated schemas</dd></dl>
+</li>
+</ul>
+<a name="getSchema()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSchema</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/Schema.html" title="class in org.jsimpledb.core">Schema</a>&nbsp;getSchema()</pre>
+<div class="block">Get the database schema version associated with this transaction.
+ This is the schema version used for newly created objects, and the target schema version when
+ <a href="../../../org/jsimpledb/core/Transaction.html#updateSchemaVersion(org.jsimpledb.core.ObjId)">upgrading</a> objects.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>associated schema</dd></dl>
+</li>
+</ul>
+<a name="deleteSchemaVersion(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>deleteSchemaVersion</h4>
+<pre>public&nbsp;boolean&nbsp;deleteSchemaVersion(int&nbsp;version)</pre>
+<div class="block">Delete a schema version that is no longer being used. There must be no objects with the given version
+ in the database, and <code>version</code> must not be the version being used by this transaction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>version</code> - schema version to remove</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if schema version was found and removed, false if schema version does not exist in database</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/InvalidSchemaException.html" title="class in org.jsimpledb.core">InvalidSchemaException</a></code> - if one or more objects with schema version <code>version</code> still exist</dd>
+<dd><code><a href="../../../org/jsimpledb/core/InvalidSchemaException.html" title="class in org.jsimpledb.core">InvalidSchemaException</a></code> - if <code>version</code> is equal to this transaction's version</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>version</code> is zero or negative</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="getKVTransaction()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getKVTransaction</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a>&nbsp;getKVTransaction()</pre>
+<div class="block">Get the underlying key/value store transaction.
+
+ <p>
+ <b>Warning:</b> making changes to the key/value store directly is not supported. If any changes
+ are made, all future behavior is undefined.
+ </p></div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the associated key/value transaction</dd></dl>
+</li>
+</ul>
+<a name="commit()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>commit</h4>
+<pre>public&nbsp;void&nbsp;commit()</pre>
+<div class="block">Commit this transaction.</div>
+<dl><dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv">RetryTransactionException</a></code> - from <a href="../../../org/jsimpledb/kv/KVTransaction.html#commit()"><code>KVTransaction.commit()</code></a></dd>
+<dd><code><a href="../../../org/jsimpledb/core/RollbackOnlyTransactionException.html" title="class in org.jsimpledb.core">RollbackOnlyTransactionException</a></code> - if this instance has been <a href="../../../org/jsimpledb/core/Transaction.html#setRollbackOnly()">marked</a> rollback only;
+  this instance will be automatically rolled back</dd></dl>
+</li>
+</ul>
+<a name="rollback()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rollback</h4>
+<pre>public&nbsp;void&nbsp;rollback()</pre>
+<div class="block">Roll back this transaction.
+
+ <p>
+ This method may be invoked at any time, even after a previous invocation of
+ <a href="../../../org/jsimpledb/core/Transaction.html#commit()"><code>commit()</code></a> or <a href="../../../org/jsimpledb/core/Transaction.html#rollback()"><code>rollback()</code></a>, in which case the invocation will be ignored.</div>
+</li>
+</ul>
+<a name="isValid()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isValid</h4>
+<pre>public&nbsp;boolean&nbsp;isValid()</pre>
+<div class="block">Determine whether this transaction is still valid. If not, all other methods in this class
+ will throw <a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core"><code>StaleTransactionException</code></a>.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is still usable</dd></dl>
+</li>
+</ul>
+<a name="isReadOnly()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isReadOnly</h4>
+<pre>public&nbsp;boolean&nbsp;isReadOnly()</pre>
+<div class="block">Determine whether this transaction is read-only.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is read-only</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="setReadOnly(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setReadOnly</h4>
+<pre>public&nbsp;void&nbsp;setReadOnly(boolean&nbsp;readOnly)</pre>
+<div class="block">Enable or disaable read-only mode.
+
+ <p>
+ Read-only transactions allow mutations, but all changes are discarded on <a href="../../../org/jsimpledb/core/Transaction.html#commit()"><code>commit()</code></a>,
+ as if <a href="../../../org/jsimpledb/core/Transaction.html#rollback()"><code>rollback()</code></a> were invoked. Registered <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a>s are still processed normally.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>readOnly</code> - read-only setting</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="isRollbackOnly()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isRollbackOnly</h4>
+<pre>public&nbsp;boolean&nbsp;isRollbackOnly()</pre>
+<div class="block">Determine whether this transaction is marked rollback only.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is marked for rollback only</dd></dl>
+</li>
+</ul>
+<a name="setRollbackOnly()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRollbackOnly</h4>
+<pre>public&nbsp;void&nbsp;setRollbackOnly()</pre>
+<div class="block">Mark this transaction for rollback only. A subsequent attempt to <a href="../../../org/jsimpledb/core/Transaction.html#commit()"><code>commit()</code></a> will throw an exception.</div>
+</li>
+</ul>
+<a name="setTimeout(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTimeout</h4>
+<pre>public&nbsp;void&nbsp;setTimeout(long&nbsp;timeout)</pre>
+<div class="block">Change the timeout for this transaction from its default value (optional operation).</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>timeout</code> - transaction timeout in milliseconds, or zero for unlimited</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this transaction does not support timeouts</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>timeout</code> is negative</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="addCallback(org.jsimpledb.core.Transaction.Callback)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addCallback</h4>
+<pre>public&nbsp;void&nbsp;addCallback(<a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a>&nbsp;callback)</pre>
+<div class="block">Register a transaction <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a> to be invoked when this transaction completes.
+ Callbacks will be invoked in the order they are registered, but <i>duplicate registrations are ignored</i>.
+
+ <p>
+ Note: if you are using Spring for transaction demarcation (via <a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring"><code>JSimpleDBTransactionManager</code></a>),
+ then you may also use Spring's
+ <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/TransactionSynchronizationManager.html?is-external=true#registerSynchronization(org.springframework.transaction.support.TransactionSynchronization)" title="class or interface in org.springframework.transaction.support"><code>TransactionSynchronizationManager.registerSynchronization()</code></a> instead of this method.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>callback</code> - callback to invoke</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>callback</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="createSnapshotTransaction()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createSnapshotTransaction</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core">SnapshotTransaction</a>&nbsp;createSnapshotTransaction()</pre>
+<div class="block">Create an empty, in-memory "snapshot" transaction.
+ The snapshot transaction will be initialized with the same schema meta-data as this instance but will be otherwise empty
+ (i.e., contain no objects). It can be used as a destination for "snapshot" copies of objects made via <a href="../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)"><code>copy()</code></a>.
+
+ <p>
+ The returned <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a> does not support <a href="../../../org/jsimpledb/core/Transaction.html#commit()"><code>commit()</code></a>, <a href="../../../org/jsimpledb/core/Transaction.html#rollback()"><code>rollback()</code></a>,
+ or <a href="../../../org/jsimpledb/core/Transaction.html#addCallback(org.jsimpledb.core.Transaction.Callback)"><code>addCallback()</code></a>, and can be used indefinitely after this transaction closes.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>empty in-memory snapshot transaction with compatible schema information</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/Database.html#createSnapshotTransaction(org.jsimpledb.kv.KVStore, org.jsimpledb.schema.SchemaModel, int, boolean)"><code>Database.createSnapshotTransaction()</code></a></dd></dl>
+</li>
+</ul>
+<a name="create(org.jsimpledb.core.ObjId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre>public&nbsp;boolean&nbsp;create(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<div class="block">Create a new object with the given object ID, if it doesn't already exist. If it does exist, nothing happens.
+
+ <p>
+ If the object doesn't already exist, all fields are set to their default values and the object's
+ schema version is set to <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the version associated with this transaction</a>.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if the object did not exist and was created, false if the object already existed</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> does not correspond to a known object type in this transaction's schema version</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="create(org.jsimpledb.core.ObjId, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre>public&nbsp;boolean&nbsp;create(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+             int&nbsp;versionNumber)</pre>
+<div class="block">Create a new object with the given object ID, if it doesn't already exist. If it does exist, nothing happens.
+
+ <p>
+ If the object doesn't already exist, all fields are set to their default values and the object's
+ schema version is set to the specified version.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID</dd><dd><code>versionNumber</code> - schema version number to use for newly created object</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if the object did not exist and was created, false if the object already existed</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> does not correspond to a known object type in the specified schema version</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>versionNumber</code> is invalid or unknown</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="create(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;create(int&nbsp;storageId)</pre>
+<div class="block">Create a new object with a randomly assigned object ID and having the given type.
+
+ <p>
+ All fields will be set to their default values.
+ The object's schema version will be set to <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the version associated with this transaction</a>.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - object type storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>object id of newly created object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>storageId</code> does not correspond to a known object type in this transaction's schema</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="create(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>create</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;create(int&nbsp;storageId,
+           int&nbsp;versionNumber)</pre>
+<div class="block">Create a new object with a randomly assigned object ID and having the given type and schema version.
+
+ <p>
+ All fields will be set to their default values.
+ The object's schema version will be set to the specified version.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - object type storage ID</dd><dd><code>versionNumber</code> - schema version number to use for newly created object</dd>
+<dt><span class="strong">Returns:</span></dt><dd>object id of newly created object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>storageId</code> does not correspond to a known object type in the specified schema version</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>versionNumber</code> is invalid or unknown</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="generateId(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>generateId</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;generateId(int&nbsp;storageId)</pre>
+<div class="block">Generate a random, unused <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a> for the given storage ID.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - object type storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>random unassigned object id</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>storageId</code> does not correspond to any known object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="delete(org.jsimpledb.core.ObjId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>delete</h4>
+<pre>public&nbsp;boolean&nbsp;delete(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<div class="block">Delete an object. Does nothing if object does not exist (e.g., has already been deleted).
+
+ <p>
+ This method does <i>not</i> change the object's schema version if it has a different version that this transaction.
+ </p>
+
+ <p><b>Secondary Deletions</b></p>
+
+ <p>
+ Deleting an object can trigger additional secondary deletions. Specifically,
+ (a) if the object contains reference fields with <a href="../../../org/jsimpledb/core/ReferenceField.html#cascadeDelete">delete cascade</a> enabled,
+ any objects referred to through those fields will also be deleted, and (b) if the object is referred to by any other objects
+ through fields configured for <a href="../../../org/jsimpledb/core/DeleteAction.html#DELETE"><code>DeleteAction.DELETE</code></a>, those referring objects will be deleted.
+ </p>
+
+ <p>
+ In any case, deletions occur one at a time, and only when an object is actually deleted are any associated secondary
+ deletions added to an internal deletion queue. However, the order in which objects on this deletion queue are
+ processed is unspecified. For an example of where this ordering matters, consider an object <code>A</code> referring to objects
+ <code>B</code> and <code>C</code> with delete cascading references, where B also refers to C with a <a href="../../../org/jsimpledb/core/DeleteAction.html#EXCEPTION"><code>DeleteAction.EXCEPTION</code></a>
+ reference. Then if <code>A</code> is deleted, it's indeterminate whether a <a href="../../../org/jsimpledb/core/ReferencedObjectException.html" title="class in org.jsimpledb.core"><code>ReferencedObjectException</code></a> will be thrown,
+ as that depends on whether <code>B</code> or <code>C</code> is deleted first (with the answer being, respectively, no and yes).
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object to delete</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if object was found and deleted, false if object was not found,
+  or if <code>id</code> specifies an unknown object type</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/ReferencedObjectException.html" title="class in org.jsimpledb.core">ReferencedObjectException</a></code> - if the object is referenced by some other object
+  through a reference field configured for <a href="../../../org/jsimpledb/core/DeleteAction.html#EXCEPTION"><code>DeleteAction.EXCEPTION</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="exists(org.jsimpledb.core.ObjId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exists</h4>
+<pre>public&nbsp;boolean&nbsp;exists(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<div class="block">Determine if an object exists.
+
+ <p>
+ This method does <i>not</i> change the object's schema version if it exists
+ and has a different version that this transaction.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object to find</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if object was found, false if object was not found, or if <code>id</code> specifies an unknown object type</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copy</h4>
+<pre>public&nbsp;boolean&nbsp;copy(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;source,
+           <a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
+           <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;dest,
+           boolean&nbsp;updateVersion)</pre>
+<div class="block">Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
+
+ <p>
+ If necessary, <code>source</code> object is first upgraded to <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with
+ this transaction</a>, which must be identical in this transaction and <code>dest</code>.
+ </p>
+
+ <p>
+ Only the object's fields are copied; any other objects they reference are not copied. If the <code>target</code> object
+ does not exist in <code>dest</code>, it will be created first (and <a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a>s notified); if <code>target</code>
+ does exist in <code>dest</code>, it's schema version will be upgraded if necessary to match <code>source</code> (and any registered
+ <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a>s notified).
+ (Meaningful) changes to <code>target</code>'s fields generate change listener notifications.
+ </p>
+
+ <p>
+ Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
+ deadlock could result.
+ </p>
+
+ <p>
+ If <code>dest</code> is this instance, and <code>source</code> equals <code>target</code>, no changes are made and false is returned.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - object ID of the source object in this transaction</dd><dd><code>target</code> - object ID of the target object in <code>dest</code></dd><dd><code>dest</code> - destination transaction containing <code>target</code> (possibly same as this transaction)</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Returns:</span></dt><dd>false if object already existed in <code>dest</code>, true if <code>target</code> did not exist in <code>dest</code></dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found in this transaction</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>source</code> or <code>target</code> specifies an unknown object type</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>source</code> and <code>target</code> specify different object types</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any parameter is null</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any <code>source</code> and <code>target</code> have different object types</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction or <code>dest</code> is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/SchemaMismatchException.html" title="class in org.jsimpledb.core">SchemaMismatchException</a></code> - if the schema version associated with <code>source</code> differs between
+  this transaction and <code>dest</code></dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd></dl>
+</li>
+</ul>
+<a name="addCreateListener(org.jsimpledb.core.CreateListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addCreateListener</h4>
+<pre>public&nbsp;void&nbsp;addCreateListener(<a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core">CreateListener</a>&nbsp;listener)</pre>
+<div class="block">Add a <a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a> to this transaction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>listener</code> - the listener to add</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="removeCreateListener(org.jsimpledb.core.CreateListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeCreateListener</h4>
+<pre>public&nbsp;void&nbsp;removeCreateListener(<a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core">CreateListener</a>&nbsp;listener)</pre>
+<div class="block">Remove an <a href="../../../org/jsimpledb/core/CreateListener.html" title="interface in org.jsimpledb.core"><code>CreateListener</code></a> from this transaction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>listener</code> - the listener to remove</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>listener</code> is null</dd></dl>
+</li>
+</ul>
+<a name="addDeleteListener(org.jsimpledb.core.DeleteListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addDeleteListener</h4>
+<pre>public&nbsp;void&nbsp;addDeleteListener(<a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core">DeleteListener</a>&nbsp;listener)</pre>
+<div class="block">Add a <a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><code>DeleteListener</code></a> to this transaction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>listener</code> - the listener to add</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="removeDeleteListener(org.jsimpledb.core.DeleteListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeDeleteListener</h4>
+<pre>public&nbsp;void&nbsp;removeDeleteListener(<a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core">DeleteListener</a>&nbsp;listener)</pre>
+<div class="block">Remove an <a href="../../../org/jsimpledb/core/DeleteListener.html" title="interface in org.jsimpledb.core"><code>DeleteListener</code></a> from this transaction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>listener</code> - the listener to remove</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>listener</code> is null</dd></dl>
+</li>
+</ul>
+<a name="getSchemaVersion(org.jsimpledb.core.ObjId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSchemaVersion</h4>
+<pre>public&nbsp;int&nbsp;getSchemaVersion(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<div class="block">Read the current schema version of the given object. Does not change the object's version.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object id</dd>
+<dt><span class="strong">Returns:</span></dt><dd>object's current schema version</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="updateSchemaVersion(org.jsimpledb.core.ObjId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateSchemaVersion</h4>
+<pre>public&nbsp;boolean&nbsp;updateSchemaVersion(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<div class="block">Change the schema version of the specified object, if necessary, so that its version matches
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>.
+
+ <p>
+ If a schema change occurs, any registered <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a>s will be notified prior
+ to this method returning.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object to delete</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if the object schema version was changed, otherwise false</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - if the object version could not be updated because the object's type
+   does not exist in the schema version associated with this transaction</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/Transaction.html#getSchemaVersion(org.jsimpledb.core.ObjId)"><code>getSchemaVersion(ObjId)</code></a></dd></dl>
+</li>
+</ul>
+<a name="queryVersion()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queryVersion</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/CoreIndex.html" title="class in org.jsimpledb.core">CoreIndex</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;queryVersion()</pre>
+<div class="block">Query objects by schema version.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of all database objects indexed by schema version</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="addVersionChangeListener(org.jsimpledb.core.VersionChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addVersionChangeListener</h4>
+<pre>public&nbsp;void&nbsp;addVersionChangeListener(<a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core">VersionChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Add an <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a> to this transaction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>listener</code> - the listener to add</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="removeVersionChangeListener(org.jsimpledb.core.VersionChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeVersionChangeListener</h4>
+<pre>public&nbsp;void&nbsp;removeVersionChangeListener(<a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core">VersionChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Remove an <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a> from this transaction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>listener</code> - the listener to remove</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>listener</code> is null</dd></dl>
+</li>
+</ul>
+<a name="getAll()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAll</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;getAll()</pre>
+<div class="block">Get all objects in the database.
+
+ <p>
+ The returned set includes objects from all schema versions. Use <a href="../../../org/jsimpledb/core/Transaction.html#queryVersion()"><code>queryVersion()</code></a> to
+ find objects with a specific schema version.
+ </p>
+
+ <p>
+ The returned set is mutable, with the exception that <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#add(E)" title="class or interface in java.util"><code>add()</code></a> is not supported.
+ Deleting an element results in <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">deleting</a> the corresponding object.
+ </p></div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a live view of all database objects</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/Transaction.html#getAll(int)"><code>getAll(int)</code></a></dd></dl>
+</li>
+</ul>
+<a name="getAll(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAll</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;getAll(int&nbsp;storageId)</pre>
+<div class="block">Get all objects whose object type has the specified storage ID.
+
+ <p>
+ The returned set is mutable, with the exception that <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#add(E)" title="class or interface in java.util"><code>add()</code></a> is not supported.
+ Deleting an element results in <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">deleting</a> the corresponding object.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - object type storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>a live view of all database objects having the specified storage ID</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>storageId</code> does not correspond to any known object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/Transaction.html#getAll()"><code>getAll()</code></a></dd></dl>
+</li>
+</ul>
+<a name="readSimpleField(org.jsimpledb.core.ObjId, int, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readSimpleField</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;readSimpleField(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                     int&nbsp;storageId,
+                     boolean&nbsp;updateVersion)</pre>
+<div class="block">Read the value of a <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> from an object, optionally updating the object's schema version.
+
+ <p>
+ If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
+ reading the field.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Returns:</span></dt><dd>value of the field in the object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> corresponding to <code>storageId</code> exists in the object</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd></dl>
+</li>
+</ul>
+<a name="writeSimpleField(org.jsimpledb.core.ObjId, int, java.lang.Object, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writeSimpleField</h4>
+<pre>public&nbsp;void&nbsp;writeSimpleField(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                    int&nbsp;storageId,
+                    <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;value,
+                    boolean&nbsp;updateVersion)</pre>
+<div class="block">Change the value of a <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> in an object, optionally updating the object's schema version.
+
+ <p>
+ If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
+ writing the field.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a></dd><dd><code>value</code> - new value for the field</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> corresponding to <code>storageId</code> exists in the object</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>value</code> is not an appropriate value for the field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="readCounterField(org.jsimpledb.core.ObjId, int, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readCounterField</h4>
+<pre>public&nbsp;long&nbsp;readCounterField(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                    int&nbsp;storageId,
+                    boolean&nbsp;updateVersion)</pre>
+<div class="block">Read the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> from an object, optionally updating the object's schema version.
+
+ <p>
+ If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
+ reading the field.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Returns:</span></dt><dd>value of the counter in the object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> corresponding to <code>storageId</code> exists in the object</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="writeCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>writeCounterField</h4>
+<pre>public&nbsp;void&nbsp;writeCounterField(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                     int&nbsp;storageId,
+                     long&nbsp;value,
+                     boolean&nbsp;updateVersion)</pre>
+<div class="block">Set the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> in an object, optionally updating the object's schema version.
+
+ <p>
+ If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
+ writing the field.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a></dd><dd><code>value</code> - new counter value</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> corresponding to <code>storageId</code> exists in the object</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="adjustCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>adjustCounterField</h4>
+<pre>public&nbsp;void&nbsp;adjustCounterField(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                      int&nbsp;storageId,
+                      long&nbsp;offset,
+                      boolean&nbsp;updateVersion)</pre>
+<div class="block">Adjust the value of a <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> in an object by some amount, optionally updating the object's schema version.
+
+ <p>
+ If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
+ writing the field.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a></dd><dd><code>offset</code> - offset value to add to counter value</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> corresponding to <code>storageId</code> exists in the object</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="readSetField(org.jsimpledb.core.ObjId, int, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readSetField</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;?&gt;&nbsp;readSetField(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                           int&nbsp;storageId,
+                           boolean&nbsp;updateVersion)</pre>
+<div class="block">Access a <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> associated with an object, optionally updating the object's schema version.
+
+ <p>
+ If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Returns:</span></dt><dd>set field value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> corresponding to <code>storageId</code> exists in the object</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="readListField(org.jsimpledb.core.ObjId, int, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readListField</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;?&gt;&nbsp;readListField(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                    int&nbsp;storageId,
+                    boolean&nbsp;updateVersion)</pre>
+<div class="block">Access a <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> associated with an object, optionally updating the object's schema version.
+
+ <p>
+ If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Returns:</span></dt><dd>list field value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> corresponding to <code>storageId</code> exists in the object</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="readMapField(org.jsimpledb.core.ObjId, int, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readMapField</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;?,?&gt;&nbsp;readMapField(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+                             int&nbsp;storageId,
+                             boolean&nbsp;updateVersion)</pre>
+<div class="block">Access a <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> associated with an object, optionally updating the object's schema version.
+
+ <p>
+ If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
+<dt><span class="strong">Returns:</span></dt><dd>map field value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
+<dd><code><a href="../../../org/jsimpledb/core/DeletedObjectException.html" title="class in org.jsimpledb.core">DeletedObjectException</a></code> - if no object with ID equal to <code>id</code> is found</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownTypeException.html" title="class in org.jsimpledb.core">UnknownTypeException</a></code> - if <code>id</code> specifies an unknown object type</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> corresponding to <code>storageId</code> exists in the object</dd>
+<dd><code><a href="../../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core">TypeNotInSchemaVersionException</a></code> - <code>updateVersion</code> is true and the object could not be updated because
+   the object's type does not exist in the schema version associated with this transaction</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="getKey(org.jsimpledb.core.ObjId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getKey</h4>
+<pre>public&nbsp;byte[]&nbsp;getKey(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</pre>
+<div class="block">Get the <code>byte[]</code> key in the underlying key/value store corresponding to the specified object.
+
+ <p>
+ Notes:
+ <ul>
+  <li>This method does not check whether <code>id</code> is valid or the object actually exists.</li>
+  <li>Objects utilize mutiple keys; the return value is the common prefix of all such keys.</li>
+  <li>The <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> should not be modified directly, otherwise behavior is undefined</li>
+ </ul></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> key corresponding to <code>id</code></dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/JTransaction.html#getKey(org.jsimpledb.JObject)"><code>JTransaction.getKey()</code></a></dd></dl>
+</li>
+</ul>
+<a name="getKey(org.jsimpledb.core.ObjId, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getKey</h4>
+<pre>public&nbsp;byte[]&nbsp;getKey(<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
+            int&nbsp;storageId)</pre>
+<div class="block">Get the <code>byte[]</code> key in the underlying key/value store corresponding to the specified field in the specified object.
+
+ <p>
+ Notes:
+ <ul>
+  <li>This method does not check whether <code>id</code> is valid, the object exists,
+      or the field actually exists in the object.</li>
+  <li>Complex fields utilize mutiple keys; the return value is the common prefix of all such keys.</li>
+  <li>The <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> should not be modified directly, otherwise behavior is undefined</li>
+ </ul></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID</dd><dd><code>storageId</code> - field storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> key of the field in the specified object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no field corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> corresponds to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> is less than or equal to zero</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/JTransaction.html#getKey(org.jsimpledb.JObject, java.lang.String)"><code>JTransaction.getKey()</code></a>, 
+<a href="../../../org/jsimpledb/kv/KVTransaction.html#watchKey(byte[])"><code>KVTransaction.watchKey()</code></a></dd></dl>
+</li>
+</ul>
+<a name="addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addSimpleFieldChangeListener</h4>
+<pre>public&nbsp;void&nbsp;addSimpleFieldChangeListener(int&nbsp;storageId,
+                                int[]&nbsp;path,
+                                <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                                <a href="../../../org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core">SimpleFieldChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Monitor for changes within this transaction of the value of the given field, as seen through a path of references.
+
+ <p>
+ When the specified field is changed, a listener notification will be delivered for each referring object that
+ refers to the object containing the changed field through the specified path of references. Notifications are
+ delivered at the end of the mutation operation just prior to returning to the caller. If the listener method
+ performs additional mutation(s) which are themselves being listened for, those notifications will also be delivered
+ prior to the returning to the original caller. Therefore, care must be taken to avoid change notification dependency
+ loops when listeners can themselves mutate fields, to avoid infinite loops.
+ </p>
+
+ <p>
+ If a non-null <code>types</code> is provided, then only objects whose types have one of the specified storage ID's
+ will trigger notifications to <code>listener</code>.
+ </p>
+
+ <p>
+ A referring object may refer to the changed object through more than one actual path of references matching <code>path</code>;
+ if so, it will still appear only once in the <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a> provided to the listener (this is of course required
+ by set semantics).
+ </p>
+
+ <p>
+ Although the reference back-tracking algorithm does consolidate multiple paths between the same two objects,
+ be careful to avoid an explosion of notifications when objects in the <code>path</code> have a high degree of fan-in.
+ </p>
+
+ <p>
+ When a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a> in <code>path</code> also happens to be the field being changed, then there is ambiguity
+ about how the set of referring objects is calculated: does it use the field's value before or after the change?
+ This API guarantees that the answer is "after the change"; however, if another listener on the same field is
+ invoked before <code>listener</code> and mutates any reference field(s) in <code>path</code>, then whether that additional
+ change is also be included in the calculation is undefined.
+ </p>
+
+ <p>
+ Therefore, for consistency, avoid changing any <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a> from within a listener callback when that
+ field is also in some other listener's reference path, and both listeners are watching the same field.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> refers to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> or <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="addSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addSetFieldChangeListener</h4>
+<pre>public&nbsp;void&nbsp;addSetFieldChangeListener(int&nbsp;storageId,
+                             int[]&nbsp;path,
+                             <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                             <a href="../../../org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core">SetFieldChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> as seen through a path of references.
+
+ <p>
+ See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> refers to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> or <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="addListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addListFieldChangeListener</h4>
+<pre>public&nbsp;void&nbsp;addListFieldChangeListener(int&nbsp;storageId,
+                              int[]&nbsp;path,
+                              <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                              <a href="../../../org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core">ListFieldChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> as seen through a path of references.
+
+ <p>
+ See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> refers to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> or <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addMapFieldChangeListener</h4>
+<pre>public&nbsp;void&nbsp;addMapFieldChangeListener(int&nbsp;storageId,
+                             int[]&nbsp;path,
+                             <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                             <a href="../../../org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core">MapFieldChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> as seen through a path of references.
+
+ <p>
+ See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> refers to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> or <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="removeSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeSimpleFieldChangeListener</h4>
+<pre>public&nbsp;void&nbsp;removeSimpleFieldChangeListener(int&nbsp;storageId,
+                                   int[]&nbsp;path,
+                                   <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                                   <a href="../../../org/jsimpledb/core/SimpleFieldChangeListener.html" title="interface in org.jsimpledb.core">SimpleFieldChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Remove a monitor previously added via <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to no longer monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> refers to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> or <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="removeSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeSetFieldChangeListener</h4>
+<pre>public&nbsp;void&nbsp;removeSetFieldChangeListener(int&nbsp;storageId,
+                                int[]&nbsp;path,
+                                <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                                <a href="../../../org/jsimpledb/core/SetFieldChangeListener.html" title="interface in org.jsimpledb.core">SetFieldChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Remove a monitor previously added via <a href="../../../org/jsimpledb/core/Transaction.html#addSetFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SetFieldChangeListener)"><code>addSetFieldChangeListener()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to no longer monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> refers to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> or <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="removeListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeListFieldChangeListener</h4>
+<pre>public&nbsp;void&nbsp;removeListFieldChangeListener(int&nbsp;storageId,
+                                 int[]&nbsp;path,
+                                 <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                                 <a href="../../../org/jsimpledb/core/ListFieldChangeListener.html" title="interface in org.jsimpledb.core">ListFieldChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Remove a monitor previously added via <a href="../../../org/jsimpledb/core/Transaction.html#addListFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.ListFieldChangeListener)"><code>addListFieldChangeListener()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to no longer monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> refers to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> or <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="removeMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeMapFieldChangeListener</h4>
+<pre>public&nbsp;void&nbsp;removeMapFieldChangeListener(int&nbsp;storageId,
+                                int[]&nbsp;path,
+                                <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;types,
+                                <a href="../../../org/jsimpledb/core/MapFieldChangeListener.html" title="interface in org.jsimpledb.core">MapFieldChangeListener</a>&nbsp;listener)</pre>
+<div class="block">Remove a monitor previously added via <a href="../../../org/jsimpledb/core/Transaction.html#addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)"><code>addMapFieldChangeListener()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to no longer monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>storageId</code> refers to a sub-field of a complex field</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> or <code>listener</code> is null</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="invertReferencePath(int[], java.lang.Iterable)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>invertReferencePath</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;invertReferencePath(int[]&nbsp;path,
+                                      <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;targetObjects)</pre>
+<div class="block">Find all objects that refer to any object in the given target set through the specified path of references.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>path</code> - path of one or more reference fields (represented by storage IDs) through which to reach the target objects</dd><dd><code>targetObjects</code> - target objects</dd>
+<dt><span class="strong">Returns:</span></dt><dd>set of objects that refer to the <code>targetObjects</code> via <code>path</code></dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if <code>path</code> contains a storage ID that does not correspond to a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a></dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>targetObjects</code> or <code>path</code> is null</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>path</code> is empty</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="queryIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queryIndex</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/CoreIndex.html" title="class in org.jsimpledb.core">CoreIndex</a>&lt;?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;queryIndex(int&nbsp;storageId)</pre>
+<div class="block">Find all values stored in the specified <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> and, for each value,
+ the set of all objects having that value in the field.
+
+ <p>
+ The <code>storageId</code> may refer to any <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a>, whether part of an object or a sub-field
+ of a <a href="../../../org/jsimpledb/core/ComplexField.html" title="class in org.jsimpledb.core"><code>ComplexField</code></a>.
+ </p>
+
+ <p>
+ The returned index contains objects from all recorded schema versions for which the field is indexed;
+ this method does not check whether any such schema versions exist.
+ </p>
+
+ <p>
+ Only objects having schema versions in which the field is indexed will be found;
+ this method does not check whether any such schema versions exist.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a>'s storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of field values mapped to sets of objects with the value in the field</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="queryListElementIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queryListElementIndex</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/CoreIndex2.html" title="class in org.jsimpledb.core">CoreIndex2</a>&lt;?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;queryListElementIndex(int&nbsp;storageId)</pre>
+<div class="block">Find all values stored as an element in the specified <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> and, for each such value,
+ the set of all objects having that value as an element in the list and the corresponding list index.
+
+ <p>
+ The returned index contains objects from all recorded schema versions for which the list element field is indexed;
+ this method does not check whether any such schema versions exist.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a>'s storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of list element values, objects with the value in the list, and corresponding indicies</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="queryMapValueIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queryMapValueIndex</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/CoreIndex2.html" title="class in org.jsimpledb.core">CoreIndex2</a>&lt;?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>,?&gt;&nbsp;queryMapValueIndex(int&nbsp;storageId)</pre>
+<div class="block">Find all values stored as a value in the specified <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> and, for each such value,
+ the set of all objects having that value as a value in the map and the corresponding key.
+
+ <p>
+ The returned index contains objects from all recorded schema versions for which the map value field is indexed;
+ this method does not check whether any such schema versions exist.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a>'s storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of map values, objects with the value in the map, and corresponding keys</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> corresponding to <code>storageId</code> exists</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="queryCompositeIndex2(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queryCompositeIndex2</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/CoreIndex2.html" title="class in org.jsimpledb.core">CoreIndex2</a>&lt;?,?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;queryCompositeIndex2(int&nbsp;storageId)</pre>
+<div class="block">Access a composite index on two fields.
+
+ <p>
+ The returned index contains objects from all recorded schema versions in which the composite index is defined.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - composite index's storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of the fields' values and the objects having those values in the fields</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownIndexException.html" title="class in org.jsimpledb.core">UnknownIndexException</a></code> - if <code>storageID</code> is unknown or does not correspond to a composite index on two fields</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="queryCompositeIndex3(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queryCompositeIndex3</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/CoreIndex3.html" title="class in org.jsimpledb.core">CoreIndex3</a>&lt;?,?,?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;queryCompositeIndex3(int&nbsp;storageId)</pre>
+<div class="block">Access a composite index on three fields.
+
+ <p>
+ The returned index contains objects from all recorded schema versions in which the composite index is defined.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - composite index's storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of the fields' values and the objects having those values in the fields</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownIndexException.html" title="class in org.jsimpledb.core">UnknownIndexException</a></code> - if <code>storageID</code> is unknown or does not correspond to a composite index on two fields</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="queryCompositeIndex4(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queryCompositeIndex4</h4>
+<pre>public&nbsp;<a href="../../../org/jsimpledb/core/CoreIndex4.html" title="class in org.jsimpledb.core">CoreIndex4</a>&lt;?,?,?,?,<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;&nbsp;queryCompositeIndex4(int&nbsp;storageId)</pre>
+<div class="block">Access a composite index on four fields.
+
+ <p>
+ The returned index contains objects from all recorded schema versions in which the composite index is defined.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - composite index's storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of the fields' values and the objects having those values in the fields</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownIndexException.html" title="class in org.jsimpledb.core">UnknownIndexException</a></code> - if <code>storageID</code> is unknown or does not correspond to a composite index on two fields</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+<a name="queryCompositeIndex(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>queryCompositeIndex</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;queryCompositeIndex(int&nbsp;storageId)</pre>
+<div class="block">Access any composite index by storage ID, regardless of the number of fields indexed.
+
+ <p>
+ The returned index contains objects from all recorded schema versions in which the composite index is defined.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - composite index's storage ID</dd>
+<dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of the fields' values and the objects having those values in the fields</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/UnknownIndexException.html" title="class in org.jsimpledb.core">UnknownIndexException</a></code> - if <code>storageID</code> is unknown or does not correspond to a composite index</dd>
+<dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/Transaction.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jsimpledb/core/StringEncodedType.html" title="class in org.jsimpledb.core"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jsimpledb/core/Transaction.html" target="_top">Frames</a></li>
+<li><a href="Transaction.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2016. All rights reserved.</small></p>
+</body>
+</html>

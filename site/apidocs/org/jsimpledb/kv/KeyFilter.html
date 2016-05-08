@@ -1,0 +1,295 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>KeyFilter (JSimpleDB 2.0.0-SNAPSHOT API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="KeyFilter (JSimpleDB 2.0.0-SNAPSHOT API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/KeyFilter.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jsimpledb/kv/KeyFilterUtil.html" title="class in org.jsimpledb.kv"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jsimpledb/kv/KeyFilter.html" target="_top">Frames</a></li>
+<li><a href="KeyFilter.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jsimpledb.kv</div>
+<h2 title="Interface KeyFilter" class="title">Interface KeyFilter</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><a href="../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public interface <span class="strong">KeyFilter</span></pre>
+<div class="block">A predicate for filtering <code>byte[]</code> keys that is also capable of efficiently jumping over
+ contiguous regions of uncontained keys.
+
+ <p>
+ Instances assume <code>byte[]</code> keys are ordered in unsigned lexicographical order.
+ </p></div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyFilter.html#contains(byte[])">contains</a></strong>(byte[]&nbsp;key)</code>
+<div class="block">Determine whether this instance contains the given key.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>byte[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyFilter.html#seekHigher(byte[])">seekHigher</a></strong>(byte[]&nbsp;key)</code>
+<div class="block">Skip over the largest possible uncontained region in an upward direction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>byte[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/kv/KeyFilter.html#seekLower(byte[])">seekLower</a></strong>(byte[]&nbsp;key)</code>
+<div class="block">Skip over the largest possible uncontained region in a downward direction.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="contains(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>contains</h4>
+<pre>boolean&nbsp;contains(byte[]&nbsp;key)</pre>
+<div class="block">Determine whether this instance contains the given key.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - key to test</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if <code>key</code> is contained by this instance, otherwise false</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>key</code> is null</dd></dl>
+</li>
+</ul>
+<a name="seekHigher(byte[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekHigher</h4>
+<pre>byte[]&nbsp;seekHigher(byte[]&nbsp;key)</pre>
+<div class="block">Skip over the largest possible uncontained region in an upward direction.
+
+ <p>
+ This method should return an inclusive lower bound on all keys greater than or equal to <code>key</code>
+ that are contained by this instance. The bound does not have to be tight, but the tighter the better.
+ </p>
+
+ <p>
+ A value of null may be returned to indicate that no key greater than or equal to <code>key</code> is contained by this instance.
+ </p>
+
+ <p>
+ If <code>key</code> is contained by this instance, this method must return <code>key</code>;
+ if <code>key</code> is not contained by this instance, this method must return a key strictly higher than <code>key</code> or null.
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - starting key</dd>
+<dt><span class="strong">Returns:</span></dt><dd>a lower bound (inclusive) for contained keys greater than or equal to <code>key</code>,
+  or null if no key greater than or equal to <code>key</code> is contained by this instance</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>key</code> is null</dd></dl>
+</li>
+</ul>
+<a name="seekLower(byte[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>seekLower</h4>
+<pre>byte[]&nbsp;seekLower(byte[]&nbsp;key)</pre>
+<div class="block">Skip over the largest possible uncontained region in a downward direction.
+
+ <p>
+ This method should return an exclusive upper bound on all keys strictly less than <code>key</code>
+ that are contained by this instance. The bound does not have to be tight, but the tighter the better.
+ </p>
+
+ <p>
+ A value of null may be returned to indicate that no key strictly less than <code>key</code> is contained by this instance.
+ </p>
+
+ <p>
+ For the purposes of this method, an empty <code>byte[]</code> array represents an upper bound greater than all
+ <code>byte[]</code> keys. This interpretation applies both to the <code>key</code> parameter and returned value. Note that
+ this implies an empty array cannot be returned to indicate that no keys exist (instead, return null).
+ </p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - starting key, or an empty array to indicate a maximal upper bound</dd>
+<dt><span class="strong">Returns:</span></dt><dd>an upper bound (exclusive) for contained keys strictly less that <code>key</code>,
+  null if no key strictly less than <code>key</code> is contained by this instance, or an empty <code>byte[]</code> array
+  to indicate an upper bound greater than all <code>byte[]</code> keys (which implies <code>key</code> was also empty)</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>key</code> is null</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/KeyFilter.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jsimpledb/kv/CloseableKVStore.html" title="interface in org.jsimpledb.kv"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jsimpledb/kv/KeyFilterUtil.html" title="class in org.jsimpledb.kv"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jsimpledb/kv/KeyFilter.html" target="_top">Frames</a></li>
+<li><a href="KeyFilter.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2016. All rights reserved.</small></p>
+</body>
+</html>
