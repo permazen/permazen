@@ -1,4 +1,3 @@
-.gitignore
-build/
-junk/
 *.swp
+dependency-reduced-pom.xml
+target/

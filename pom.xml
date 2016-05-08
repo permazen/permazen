@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.jsimpledb</groupId>
+    <artifactId>jsimpledb</artifactId>
+    <name>JSimpleDB</name>
+    <version>2.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <description>JSimpleDB makes powerful persistence easy for Java programmers.
+
+JSimpleDB's goal is to make scalable Java persistence as simple as possible, exposing complexity to the developer only when there is inherent underlying complexity in the problem space, and even then doing so in the most straightforward manner, all the while remaining strictly type safe.
+
+JSimpleDB does this by relegating the database to the simplest role possible - storing data as key/value pairs - and reimplementing the usual database supporting features, such as indexes and notifications, in a simpler, type-safe, Java-centric way. JSimpleDB also adds important new features that traditional databases don't provide.</description>
+    <url>https://github.com/archiecobbs/jsimpledb/</url>
+
+    <modules>
+        <module>jsimpledb-ant</module>
+        <module>jsimpledb-app</module>
+        <module>jsimpledb-cli</module>
+        <module>jsimpledb-cli-telnet</module>
+        <module>jsimpledb-cliapp</module>
+        <module>jsimpledb-coreapi</module>
+        <module>jsimpledb-demo</module>
+        <module>jsimpledb-guiapp</module>
+        <module>jsimpledb-kv-array</module>
+        <module>jsimpledb-kv-bdb</module>
+        <module>jsimpledb-kv-cockroach</module>
+        <module>jsimpledb-kv-fdb</module>
+        <module>jsimpledb-kv-leveldb</module>
+        <module>jsimpledb-kv-raft</module>
+        <module>jsimpledb-kv-rocksdb</module>
+        <module>jsimpledb-kv-simple</module>
+        <module>jsimpledb-kv-sql</module>
+        <module>jsimpledb-kv-test</module>
+        <module>jsimpledb-kv</module>
+        <module>jsimpledb-main</module>
+        <module>jsimpledb-parse</module>
+        <module>jsimpledb-spring</module>
+        <module>jsimpledb-test</module>
+        <module>jsimpledb-util</module>
+        <module>jsimpledb-vaadin</module>
+    </modules>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/archiecobbs/jsimpledb/issues</url>
+    </issueManagement>
+    <scm>
+        <url>https://github.com/archiecobbs/jsimpledb/</url>
+        <connection>scm:git:git://github.com/archiecobbs/jsimpledb.git</connection>
+        <developerConnection>scm:git:git://github.com/archiecobbs/jsimpledb.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>archie</id>
+            <name>Archie Cobbs</name>
+            <email>archie.cobbs@gmail.com</email>
+        </developer>
+    </developers>
+    <properties>
+
+        <!-- Basic stuff -->
+        <compiler.source>1.7</compiler.source>
+        <compiler.target>1.7</compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
+
+        <!-- Dependency versions -->
+        <ant.version>1.8.1</ant.version>
+        <aspectj.version>1.8.9</aspectj.version>
+        <bdb.version>6.4.9</bdb.version>
+        <commons-codec.version>1.10</commons-codec.version>
+        <asm.version>5.1</asm.version>
+        <dellroad-stuff.version>1.2.0-SNAPSHOT</dellroad-stuff.version>
+        <fdb.version>3.0.2</fdb.version>
+        <guava.version>18.0</guava.version>
+        <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
+        <hibernate.version>4.3.3.Final</hibernate.version>
+        <javax.el-api.version>2.2.4</javax.el-api.version>
+        <jetty.version>9.2.7.v20150116</jetty.version>
+        <jline.version>2.14.1</jline.version>
+        <log4j.version>1.2.17</log4j.version>
+        <mysql.version>5.1.38</mysql.version>
+        <nvt4j.version>1.2.0</nvt4j.version>
+        <postgresql.version>9.4.1208.jre7</postgresql.version>
+        <servlet-api.version>3.1.0</servlet-api.version>
+        <slf4j.version>1.7.21</slf4j.version>
+        <spring.version>4.1.9.RELEASE</spring.version>
+        <sqlite.version>3.8.11.2</sqlite.version>
+        <testng.version>6.9.10</testng.version>
+        <vaadin7.version.prefix>7.5</vaadin7.version.prefix>
+        <vaadin7.version>7.5.5</vaadin7.version>
+        <validation-api.version>1.1.0.Final</validation-api.version>
+        <rocksdb.version>4.5.1</rocksdb.version>
+        <leveldb.version>0.8.1</leveldb.version>
+
+    </properties>
+
+    <dependencies>
+
+        <!-- Standard test dependencies -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Logging -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <optional>true</optional>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+                <optional>true</optional>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!-- Guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <!-- Vaadin -->
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-shared</artifactId>
+                <version>${vaadin7.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-server</artifactId>
+                <version>${vaadin7.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-push</artifactId>
+                <version>${vaadin7.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-themes</artifactId>
+                <version>${vaadin7.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-client-compiled</artifactId>
+                <version>${vaadin7.version}</version>
+            </dependency>
+
+            <!-- Jetty -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-annotations</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+
+            <!-- Spring -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <!-- DellRoad Stuff -->
+            <dependency>
+                <groupId>org.dellroad</groupId>
+                <artifactId>dellroad-stuff-main</artifactId>
+                <version>${dellroad-stuff.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dellroad</groupId>
+                <artifactId>dellroad-stuff-spring</artifactId>
+                <version>${dellroad-stuff.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dellroad</groupId>
+                <artifactId>dellroad-stuff-vaadin7</artifactId>
+                <version>${dellroad-stuff.version}</version>
+            </dependency>
+
+            <!-- JLine -->
+            <dependency>
+                <groupId>jline</groupId>
+                <artifactId>jline</artifactId>
+                <version>${jline.version}</version>
+            </dependency>
+
+            <!-- NVT4J -->
+            <dependency>
+                <groupId>org.dellroad</groupId>
+                <artifactId>nvt4j</artifactId>
+                <version>${nvt4j.version}</version>
+            </dependency>
+
+            <!-- ASM -->
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+
+            <!-- Commons Codec -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+
+            <!-- AspectJ -->
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+
+            <!-- Servlet API -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${servlet-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Validation -->
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${validation-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>${hibernate-validator.version}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>javax.el-api</artifactId>
+                <version>${javax.el-api.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <!-- Key/Value technologies -->
+            <dependency>
+                <groupId>com.sleepycat</groupId>
+                <artifactId>je</artifactId>
+                <version>${bdb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>${sqlite.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.foundationdb</groupId>
+                <artifactId>fdb-java</artifactId>
+                <version>${fdb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dellroad</groupId>
+                <artifactId>leveldb</artifactId>
+                <version>${leveldb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dellroad</groupId>
+                <artifactId>leveldb-api</artifactId>
+                <version>${leveldb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.rocksdb</groupId>
+                <artifactId>rocksdbjni</artifactId>
+                <version>${rocksdb.version}</version>
+            </dependency>
+
+            <!-- TestNG -->
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+            </dependency>
+
+            <!-- Sibling JARs -->
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-cli</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-cliapp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-coreapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-demo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-guiapp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-main</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-array</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-bdb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-cockroach</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-fdb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-leveldb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-raft</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-rocksdb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-simple</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-sql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-parse</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-vaadin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <distributionManagement>
+        <downloadUrl>https://github.com/archiecobbs/jsimpledb</downloadUrl>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <site>
+            <id>${project.artifactId}-site</id>
+            <url>file://${project.basedir}/site/</url>
+        </site>
+    </distributionManagement>
+    <build>
+        <plugins>
+
+            <!-- JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+            </plugin>
+
+            <!-- Compile -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${compiler.source}</source>
+                    <target>${compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <!-- Sources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <notimestamp>true</notimestamp>
+                    <links>
+                        <link>http://docs.guava-libraries.googlecode.com/git/javadoc/</link>
+                        <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
+                        <link>http://google.github.io/guava/releases/${guava.version}/api/docs/</link>
+                        <link>http://slf4j.org/apidocs/</link>
+                        <link>http://vaadin.com/download/release/${vaadin7.version.prefix}/${vaadin7.version}/docs/api/</link>
+                        <link>https://docs.oracle.com/javaee/7/api/</link>
+                    </links>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>javadoc</goal>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <deleteTempDirs>true</deleteTempDirs>
+                        <randomSeed/>
+
+                        <!-- These properties are used by KVDatabase tests. Uncomment one or more to include time-consuming tests. -->
+                    <!--
+                        <testSimpleKV>true</testSimpleKV>
+                        <xmlFilePrefix>xmldb</xmlFilePrefix>
+                        <fdbClusterFile>/usr/local/etc/foundationdb/fdb.cluster</fdbClusterFile>
+                        <mysqlURL>jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger</mysqlURL>
+                        <cockroachURL>jdbc:postgresql://127.0.0.1:26257/jsimpledb?sslmode=disable&amp;user=root</cockroachURL>
+                        <sqliteFilePrefix>SQLiteKV</sqliteFilePrefix>
+                        <berkeleyDirPrefix>BerkeleyDbJava</berkeleyDirPrefix>
+                        <levelDbDirPrefix>LevelDbJava</levelDbDirPrefix>
+                        <rocksDbDirPrefix>RocksDbJava</rocksDbDirPrefix>
+                        <arrayDirPrefix>ArrayKVStore</arrayDirPrefix>
+                        <arrayCompactMaxDelay>3</arrayCompactMaxDelay>
+                        <arrayCompactSpaceLowWater>1048576</arrayCompactSpaceLowWater>
+                        <arrayCompactSpaceHighWater>16777216</arrayCompactSpaceHighWater>
+                        <raftDirPrefix>RaftDB</raftDirPrefix>
+                        <raftNumNodes>3</raftNumNodes>
+                        <raftCommitTimeout>2500</raftCommitTimeout>
+                        <raftMinElectionTimeout>100</raftMinElectionTimeout>
+                        <raftMaxElectionTimeout>150</raftMaxElectionTimeout>
+                        <raftHeartbeatTimeout>50</raftHeartbeatTimeout>
+                        <raftMaxTransactionDuration>500</raftMaxTransactionDuration>
+                        <raftFollowerProbingEnabled>false</raftFollowerProbingEnabled>
+                        <raftNetworkDelayMillis>10</raftNetworkDelayMillis>
+                        <raftNetworkDropRatio>0.05</raftNetworkDropRatio>
+                    -->
+
+                    </systemPropertyVariables>
+                    <properties>
+                        <property>
+                            <name>surefire.testng.verbose</name>
+                            <value>10</value>
+                        </property>
+                    </properties>
+                </configuration>
+            </plugin>
+
+            <!-- Checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                            <linkXRef>false</linkXRef>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Info Reports -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.9</version>
+            </plugin>
+        </plugins>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-scm</artifactId>
+                <version>2.10</version>
+            </extension>
+        </extensions>
+    </build>
+    <reporting>
+        <plugins>
+
+            <!-- Aggregated Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <notimestamp>true</notimestamp>
+                    <aggregate>true</aggregate>
+                    <links>
+                        <link>http://docs.guava-libraries.googlecode.com/git/javadoc/</link>
+                        <link>http://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
+                        <link>http://google.github.io/guava/releases/${guava.version}/api/docs/</link>
+                        <link>http://slf4j.org/apidocs/</link>
+                        <link>http://vaadin.com/download/release/${vaadin7.version.prefix}/${vaadin7.version}/docs/api/</link>
+                        <link>https://docs.oracle.com/javaee/7/api/</link>
+                    </links>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <inherited>false</inherited>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+    <profiles>
+
+        <!-- Maven Central requires signed artifacts -->
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

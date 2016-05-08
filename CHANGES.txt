@@ -1,5 +1,6 @@
 Version Next
 
+    - Converted build to Maven with more modular artifacts
     - Added KV wrapper for CockroachDB
     - Added parsing support for Java 8 expression syntax
     - Added key/value database wrapper for SQLite

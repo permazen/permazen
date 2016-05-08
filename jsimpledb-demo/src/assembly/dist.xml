@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<assembly
+  xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+   http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+    <id>dist</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+
+        <!-- XML files, etc. -->
+        <fileSet>
+            <directory>${project.basedir}/src/demo</directory>
+            <outputDirectory/>
+        </fileSet>
+
+        <!-- Executable JARs -->
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <includes>
+                <include>${project.parent.artifactId}-cli.jar</include>
+                <include>${project.parent.artifactId}-gui.jar</include>
+            </includes>
+            <outputDirectory/>
+        </fileSet>
+
+        <!-- Demo sources and classes -->
+        <fileSet>
+            <directory>${project.build.sourceDirectory}</directory>
+            <outputDirectory>demo-classes</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.outputDirectory}</directory>
+            <outputDirectory>demo-classes</outputDirectory>
+            <excludes>
+                <exclude>log4j.xml</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>
