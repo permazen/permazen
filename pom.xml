@@ -471,6 +471,17 @@ JSimpleDB does this by relegating the database to the simplest role possible - s
         </dependencies>
     </dependencyManagement>
 
+    <repositories>
+
+        <!-- For Berkeley DB Java Edition -->
+        <repository>
+            <id>oracleReleases</id>
+            <name>Oracle Released Java Packages</name>
+            <url>http://download.oracle.com/maven</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
     <distributionManagement>
         <downloadUrl>https://github.com/archiecobbs/jsimpledb</downloadUrl>
         <snapshotRepository>
