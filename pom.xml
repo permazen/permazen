@@ -10,11 +10,7 @@
     <name>JSimpleDB</name>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <description>JSimpleDB makes powerful persistence easy for Java programmers.
-
-JSimpleDB's goal is to make scalable Java persistence as simple as possible, exposing complexity to the developer only when there is inherent underlying complexity in the problem space, and even then doing so in the most straightforward manner, all the while remaining strictly type safe.
-
-JSimpleDB does this by relegating the database to the simplest role possible - storing data as key/value pairs - and reimplementing the usual database supporting features, such as indexes and notifications, in a simpler, type-safe, Java-centric way. JSimpleDB also adds important new features that traditional databases don't provide.</description>
+    <description>JSimpleDB is a better persistence layer for Java.</description>
     <url>https://github.com/archiecobbs/jsimpledb/</url>
 
     <modules>
