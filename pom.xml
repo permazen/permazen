@@ -612,13 +612,14 @@
                 <version>2.17</version>
                 <executions>
                     <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
+                        <id>default-verify</id>
+                        <phase>verify</phase>
                         <configuration>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <linkXRef>false</linkXRef>
+                            <excludes>**/generated-sources/**/*</excludes>
                         </configuration>
                         <goals>
                             <goal>check</goal>
