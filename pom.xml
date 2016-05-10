@@ -34,6 +34,7 @@
         <module>jsimpledb-kv-test</module>
         <module>jsimpledb-kv</module>
         <module>jsimpledb-main</module>
+        <module>jsimpledb-maven-plugin</module>
         <module>jsimpledb-parse</module>
         <module>jsimpledb-spring</module>
         <module>jsimpledb-test</module>
