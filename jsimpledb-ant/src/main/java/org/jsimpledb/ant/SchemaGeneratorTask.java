@@ -353,7 +353,7 @@ public class SchemaGeneratorTask extends Task {
                 // Scan for @JSimpleClass classes
                 this.log("scanning for @JSimpleClass annotations in packages: " + packageNames);
                 for (String className : new JSimpleDBClassScanner().scanForClasses(packageNames)) {
-                    this.log("adding JSimpleDB schema class " + className);
+                    this.log("adding JSimpleDB model class " + className);
                     try {
                         modelClasses.add(Class.forName(className, false, Thread.currentThread().getContextClassLoader()));
                     } catch (ClassNotFoundException e) {
