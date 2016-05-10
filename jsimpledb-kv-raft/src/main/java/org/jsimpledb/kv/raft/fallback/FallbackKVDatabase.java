@@ -49,7 +49,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances transparently and automatically switch over to standalone mode {@link KVDatabase} when they determine
- * that the {@link RaftKVDatabase} is unavailable.
+ * that the {@link RaftKVDatabase} is unavailable, and automatically switch back to using the {@link RaftKVDatabase}
+ * once it is available again. The rate of switching is limited by an enforced hysteresis.
  *
  * <p>
  * Of course, this sacrifices consistency. To address that, a configurable {@link MergeStrategy} is used to migrate the data
@@ -234,6 +235,7 @@ public class FallbackKVDatabase implements KVDatabase {
 
         // Sanity check
         Preconditions.checkState(this.stateFile != null, "no state file configured");
+        Preconditions.checkState(this.standaloneKV != null, "no standaloneKV configured");
         Preconditions.checkState(this.targets != null, "no targets configured");
         try {
 
