@@ -154,7 +154,7 @@ public class NullSafeType<T> extends FieldType<T> {
         if (value1 == null)
             return value2 == null ? 0 : 1;
         if (value2 == null)
-            return value1 == null ? 0 : -1;
+            return -1;
         return this.inner.compare(value1, value2);
     }
 

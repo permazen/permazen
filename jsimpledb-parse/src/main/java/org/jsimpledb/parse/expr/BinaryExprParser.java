@@ -65,7 +65,6 @@ public abstract class BinaryExprParser implements Parser<Node> {
             this.spaceParser.parse(ctx, complete);
             final int mark = ctx.getIndex();
             Op op = null;
-        candidateLoop:
             for (Op candidate : this.ops) {
                 if (ctx.tryLiteral(candidate.getSymbol())) {
                     op = candidate;
