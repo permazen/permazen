@@ -600,7 +600,7 @@ public class RaftKVDatabase implements KVDatabase {
      */
     public synchronized void setCommitTimeout(int timeout) {
         Preconditions.checkArgument(timeout >= 0, "timeout < 0");
-        this.commitTimeout = commitTimeout;
+        this.commitTimeout = timeout;
     }
 
     /**

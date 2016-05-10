@@ -25,9 +25,9 @@ public abstract class ComplexSchemaField extends SchemaField {
         for (Map.Entry<String, SimpleSchemaField> entry : this.getSubFields().entrySet()) {
             final String subFieldName = entry.getKey();
             final SimpleSchemaField subField = entry.getValue();
-            subField.validate();
             if (subField == null)
                 throw new InvalidSchemaException("invalid " + this + ": missing sub-field `" + subFieldName + "'");
+            subField.validate();
             if (!subFieldName.equals(subField.getName())) {
                 throw new InvalidSchemaException("sub-" + subField + " of " + this + " has the wrong name `"
                   + subField.getName() + "' != `" + subFieldName + "'");
