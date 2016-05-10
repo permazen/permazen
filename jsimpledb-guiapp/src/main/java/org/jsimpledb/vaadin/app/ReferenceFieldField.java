@@ -33,7 +33,7 @@ import org.jsimpledb.vaadin.SmallButton;
 
 /**
  * A Vaadin {@link com.vaadin.ui.Field} that edits a database object reference. Supports displaying,
- * but not selecting, a null value; wrap in a {@link NullableField} to allow for that.
+ * but not selecting, a null value; wrap in a {@link org.jsimpledb.vaadin.NullableField} to allow for that.
  */
 @SuppressWarnings("serial")
 public class ReferenceFieldField extends CustomField<JObject> {

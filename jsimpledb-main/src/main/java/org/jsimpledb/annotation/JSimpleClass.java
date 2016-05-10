@@ -113,7 +113,7 @@ public @interface JSimpleClass {
      * <p>
      * If {@link #autogenFields} is false, this property is ignored. Otherwise, database fields will be auto-generated
      * corresponding to all bean property getter methods, whether or not marked <b>abstract</b>, unless there is
-     * a {@link &#64;JTransient} annotation.
+     * a {@link JTransient &#64;JTransient} annotation.
      *
      * @return whether to auto-generate fields from non-abstract methods when {@link #autogenFields} is true
      * @see #autogenFields

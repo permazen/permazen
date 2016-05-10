@@ -9,7 +9,7 @@
  * <p>
  * This uses the PostgreSQL JDBC driver to connect to CockroachDB.
  *
- * @see org.jsimpledb.kv.leveldb.LevelDBKVDatabase
+ * @see org.jsimpledb.kv.cockroach.CockroachKVDatabase
  * @see <a href="https://www.cockroachlabs.com/">CockroachDB</a>
  */
 package org.jsimpledb.kv.cockroach;

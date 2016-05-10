@@ -45,6 +45,8 @@ public class ClassNode implements Node {
     /**
      * Attempt to resolve the class name.
      *
+     * @param session parse session
+     * @return resolved class
      * @throws EvalException if {@code name} cannot be resolved
      */
     public Class<?> resolveClass(ParseSession session) {
@@ -57,6 +59,8 @@ public class ClassNode implements Node {
 
     /**
      * Get the configured class name.
+     *
+     * @return class name
      */
     public String getClassName() {
         return this.className;

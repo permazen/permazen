@@ -416,6 +416,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     /**
      * This test runs transactions in parallel and verifies there is no "leakage" between them.
      * Database must be configured for linearizable isolation.
+     *
+     * @param store underlying store
+     * @throws Exception if an error occurs
      */
     @Test(dataProvider = "kvdbs")
     public void testParallelTransactions(KVDatabase store) throws Exception {
@@ -442,6 +445,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
     /**
      * This test runs transactions sequentially and verifies that each transaction sees
      * the changes that were committed in the previous transaction.
+     *
+     * @param store underlying store
+     * @throws Exception if an error occurs
      */
     @Test(dataProvider = "kvdbs")
     public void testSequentialTransactions(KVDatabase store) throws Exception {

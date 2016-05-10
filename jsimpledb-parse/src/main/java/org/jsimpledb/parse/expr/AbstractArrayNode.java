@@ -24,6 +24,8 @@ abstract class AbstractArrayNode implements Node {
     /**
      * Resolve the array base type.
      *
+     * @param session parse session
+     * @return resolved array base type
      * @throws EvalException if base type is {@code void}
      * @throws EvalException if base type cannot be resolved
      */

@@ -23,8 +23,7 @@ public class CastNode implements Node {
      * Constructor.
      *
      * @param typeNode cast type node
-     * @param initialValue array initial value; each element in the list is either a {@link List} (all but the last dimension)
-     *  or a {@code Node} (last dimension)
+     * @param target cast target
      */
     public CastNode(ClassNode typeNode, Node target) {
         this.typeNode = typeNode;

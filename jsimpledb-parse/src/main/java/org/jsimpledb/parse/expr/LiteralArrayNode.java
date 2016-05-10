@@ -28,6 +28,7 @@ public class LiteralArrayNode extends AbstractArrayNode {
      * Constructor.
      *
      * @param baseTypeNode array base type class node
+     * @param numDimensions number of array dimensions
      * @param initialValue array initial value; each element in the list is either a {@link List} (all but the last dimension)
      *  or a {@code Node} (last dimension)
      */

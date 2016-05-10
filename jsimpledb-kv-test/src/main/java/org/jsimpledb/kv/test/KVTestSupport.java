@@ -25,6 +25,9 @@ public abstract class KVTestSupport extends TestSupport {
 
     /**
      * Dump KV contents to the log.
+     *
+     * @param tx transaction
+     * @param label descriptive label
      */
     protected void showKV(KVTransaction tx, String label) {
         this.showKV(tx, label, null, null);
@@ -32,6 +35,11 @@ public abstract class KVTestSupport extends TestSupport {
 
     /**
      * Dump KV portion to the log.
+     *
+     * @param tx transaction
+     * @param label descriptive label
+     * @param minKey minimum key
+     * @param maxKey maximum key
      */
     protected void showKV(KVTransaction tx, String label, byte[] minKey, byte[] maxKey) {
         try {

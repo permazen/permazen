@@ -68,4 +68,31 @@
             <artifactId>log4j</artifactId>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <additionalDependencies>
+                        <additionalDependency>
+                            <groupId>org.jsimpledb</groupId>
+                            <artifactId>jsimpledb-main</artifactId>
+                            <version>${project.version}</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.jsimpledb</groupId>
+                            <artifactId>jsimpledb-spring</artifactId>
+                            <version>${project.version}</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.springframework</groupId>
+                            <artifactId>spring-tx</artifactId>
+                            <version>${spring.version}</version>
+                        </additionalDependency>
+                    </additionalDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
