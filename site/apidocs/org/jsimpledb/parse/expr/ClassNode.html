@@ -258,7 +258,9 @@ implements <a href="../../../../org/jsimpledb/parse/expr/Node.html" title="inter
 <h4>resolveClass</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;resolveClass(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</pre>
 <div class="block">Attempt to resolve the class name.</div>
-<dl><dt><span class="strong">Throws:</span></dt>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - parse session</dd>
+<dt><span class="strong">Returns:</span></dt><dd>resolved class</dd>
+<dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../../org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr">EvalException</a></code> - if <code>name</code> cannot be resolved</dd></dl>
 </li>
 </ul>
@@ -270,6 +272,7 @@ implements <a href="../../../../org/jsimpledb/parse/expr/Node.html" title="inter
 <h4>getClassName</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;getClassName()</pre>
 <div class="block">Get the configured class name.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>class name</dd></dl>
 </li>
 </ul>
 <a name="parse(org.jsimpledb.util.ParseContext, java.lang.String, boolean)">

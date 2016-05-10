@@ -27,6 +27,7 @@ org.jsimpledb.kv.simple
 org.jsimpledb.kv.sql
 org.jsimpledb.kv.test
 org.jsimpledb.kv.util
+org.jsimpledb.maven
 org.jsimpledb.parse
 org.jsimpledb.parse.expr
 org.jsimpledb.parse.func

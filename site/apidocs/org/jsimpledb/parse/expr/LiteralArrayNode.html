@@ -249,7 +249,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
                 int&nbsp;numDimensions,
                 <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;?&gt;&nbsp;initialValue)</pre>
 <div class="block">Constructor.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>baseTypeNode</code> - array base type class node</dd><dd><code>initialValue</code> - array initial value; each element in the list is either a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util"><code>List</code></a> (all but the last dimension)
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>baseTypeNode</code> - array base type class node</dd><dd><code>numDimensions</code> - number of array dimensions</dd><dd><code>initialValue</code> - array initial value; each element in the list is either a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util"><code>List</code></a> (all but the last dimension)
   or a <code>Node</code> (last dimension)</dd></dl>
 </li>
 </ul>
@@ -299,7 +299,9 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <h4>getBaseType</h4>
 <pre>protected&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;getBaseType(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session)</pre>
 <div class="block">Resolve the array base type.</div>
-<dl><dt><span class="strong">Throws:</span></dt>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - parse session</dd>
+<dt><span class="strong">Returns:</span></dt><dd>resolved array base type</dd>
+<dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../../org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr">EvalException</a></code> - if base type is <code>void</code></dd>
 <dd><code><a href="../../../../org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr">EvalException</a></code> - if base type cannot be resolved</dd></dl>
 </li>

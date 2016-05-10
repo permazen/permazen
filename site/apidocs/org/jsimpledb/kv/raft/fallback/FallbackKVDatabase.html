@@ -113,7 +113,9 @@ implements <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="inte
 
  <p>
  Instances transparently and automatically switch over to standalone mode <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> when they determine
- that the <a href="../../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> is unavailable.
+ that the <a href="../../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> is unavailable, and automatically switch back to using the <a href="../../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a>
+ once it is available again. The rate of switching is limited by an enforced hysteresis; see
+ <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html#getMinAvailableTime()"><code>FallbackTarget.getMinAvailableTime()</code></a> and <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html#getMinUnavailableTime()"><code>FallbackTarget.getMinUnavailableTime()</code></a>.
 
  <p>
  Of course, this sacrifices consistency. To address that, a configurable <a href="../../../../../org/jsimpledb/kv/raft/fallback/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft.fallback"><code>MergeStrategy</code></a> is used to migrate the data

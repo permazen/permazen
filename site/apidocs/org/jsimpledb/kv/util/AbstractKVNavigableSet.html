@@ -147,7 +147,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 
  <p>
  This class provides a read-only implementation; for a mutable implementation, subclasses should also implement
- <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#add(E)" title="class or interface in java.util"><code>add()</code></a> (if appropriate), <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#remove(java.lang.Object)" title="class or interface in java.util"><code>remove()</code></a>, and <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#clear()" title="class or interface in java.util"><code>AbstractCollection.clear()</code></a>; note, these methods must verify
+ <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#add(E)" title="class or interface in java.util"><code>add()</code></a> (if appropriate), <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#remove(java.lang.Object)"><code>remove()</code></a>, and <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#clear()" title="class or interface in java.util"><code>AbstractCollection.clear()</code></a>; note, these methods must verify
  the key <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#isVisible(byte[])"><code>isVisible()</code></a> before making any changes.
  </p>
 
@@ -155,7 +155,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
  Additional subclass notes:
  <ul>
   <li><a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#iterator()"><code>iterator()</code></a> returns an <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util"><code>Iterator</code></a> whose <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true#remove()" title="class or interface in java.util"><code>Iterator.remove()</code></a> method delegates
-      to this instance's <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#remove(java.lang.Object)" title="class or interface in java.util"><code>remove()</code></a> method.
+      to this instance's <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#remove(java.lang.Object)"><code>remove()</code></a> method.
  </ul>
 
  <p><b>Prefix Mode</b></p>
@@ -376,6 +376,10 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.html?is-external=true" title="class or interface in java.util">Iterator</a>&lt;<a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="type parameter in AbstractKVNavigableSet">E</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#iterator()">iterator</a></strong>()</code>&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#remove(java.lang.Object)">remove</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</code>&nbsp;</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.util.AbstractNavigableSet">
@@ -403,7 +407,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.util.<a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true" title="class or interface in java.util">AbstractCollection</a></h3>
-<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#add(E)" title="class or interface in java.util">add</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#addAll(java.util.Collection)" title="class or interface in java.util">addAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#clear()" title="class or interface in java.util">clear</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#containsAll(java.util.Collection)" title="class or interface in java.util">containsAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#remove(java.lang.Object)" title="class or interface in java.util">remove</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#retainAll(java.util.Collection)" title="class or interface in java.util">retainAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#toString()" title="class or interface in java.util">toString</a></code></li>
+<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#add(E)" title="class or interface in java.util">add</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#addAll(java.util.Collection)" title="class or interface in java.util">addAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#clear()" title="class or interface in java.util">clear</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#containsAll(java.util.Collection)" title="class or interface in java.util">containsAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#retainAll(java.util.Collection)" title="class or interface in java.util">retainAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#toString()" title="class or interface in java.util">toString</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -424,7 +428,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;java.util.<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a></h3>
-<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#add(E)" title="class or interface in java.util">add</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#addAll(java.util.Collection)" title="class or interface in java.util">addAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#clear()" title="class or interface in java.util">clear</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#containsAll(java.util.Collection)" title="class or interface in java.util">containsAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.util">equals</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#hashCode()" title="class or interface in java.util">hashCode</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#isEmpty()" title="class or interface in java.util">isEmpty</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#remove(java.lang.Object)" title="class or interface in java.util">remove</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#removeAll(java.util.Collection)" title="class or interface in java.util">removeAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#retainAll(java.util.Collection)" title="class or interface in java.util">retainAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#size()" title="class or interface in java.util">size</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#toArray()" title="class or interface in java.util">toArray</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#toArray(T[])" title="class or interface in java.util">toArray</a></code></li>
+<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#add(E)" title="class or interface in java.util">add</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#addAll(java.util.Collection)" title="class or interface in java.util">addAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#clear()" title="class or interface in java.util">clear</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#containsAll(java.util.Collection)" title="class or interface in java.util">containsAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.util">equals</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#hashCode()" title="class or interface in java.util">hashCode</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#isEmpty()" title="class or interface in java.util">isEmpty</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#removeAll(java.util.Collection)" title="class or interface in java.util">removeAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#retainAll(java.util.Collection)" title="class or interface in java.util">retainAll</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#size()" title="class or interface in java.util">size</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#toArray()" title="class or interface in java.util">toArray</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#toArray(T[])" title="class or interface in java.util">toArray</a></code></li>
 </ul>
 </li>
 </ul>
@@ -608,6 +612,23 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#iterator()" title="class or interface in java.util">iterator</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="type parameter in AbstractKVNavigableSet">E</a>&gt;</code></dd>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#iterator()" title="class or interface in java.util">iterator</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true" title="class or interface in java.util">AbstractCollection</a>&lt;<a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="type parameter in AbstractKVNavigableSet">E</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="remove(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>remove</h4>
+<pre>public&nbsp;boolean&nbsp;remove(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Collection.html?is-external=true#remove(java.lang.Object)" title="class or interface in java.util">remove</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</a>&lt;<a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="type parameter in AbstractKVNavigableSet">E</a>&gt;</code></dd>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#remove(java.lang.Object)" title="class or interface in java.util">remove</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</a>&lt;<a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="type parameter in AbstractKVNavigableSet">E</a>&gt;</code></dd>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#remove(java.lang.Object)" title="class or interface in java.util">remove</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true" title="class or interface in java.util">AbstractCollection</a>&lt;<a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="type parameter in AbstractKVNavigableSet">E</a>&gt;</code></dd>
 </dl>
 </li>
 </ul>

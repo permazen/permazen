@@ -436,8 +436,9 @@ extends <a href="../../../../org/jsimpledb/kv/test/KVTestSupport.html" title="cl
                               throws <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></pre>
 <div class="block">This test runs transactions in parallel and verifies there is no "leakage" between them.
  Database must be configured for linearizable isolation.</div>
-<dl><dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></code></dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>store</code> - underlying store</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></code> - if an error occurs</dd></dl>
 </li>
 </ul>
 <a name="testSequentialTransactions(org.jsimpledb.kv.KVDatabase)">
@@ -450,8 +451,9 @@ extends <a href="../../../../org/jsimpledb/kv/test/KVTestSupport.html" title="cl
                                 throws <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></pre>
 <div class="block">This test runs transactions sequentially and verifies that each transaction sees
  the changes that were committed in the previous transaction.</div>
-<dl><dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></code></dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>store</code> - underlying store</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a></code> - if an error occurs</dd></dl>
 </li>
 </ul>
 <a name="try3times(org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.test.KVDatabaseTest.Transactional)">
