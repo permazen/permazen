@@ -89,6 +89,7 @@
         <log4j.version>1.2.17</log4j.version>
         <mysql.version>5.1.38</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
+        <plugin-api.version>3.3.9</plugin-api.version>
         <postgresql.version>9.4.1208.jre7</postgresql.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.21</slf4j.version>
@@ -547,6 +548,7 @@
                         <link>http://slf4j.org/apidocs/</link>
                         <link>http://vaadin.com/download/release/${vaadin7.version.prefix}/${vaadin7.version}/docs/api/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
+                        <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
                     </links>
                 </configuration>
                 <executions>
@@ -662,6 +664,7 @@
                         <link>http://slf4j.org/apidocs/</link>
                         <link>http://vaadin.com/download/release/${vaadin7.version.prefix}/${vaadin7.version}/docs/api/</link>
                         <link>https://docs.oracle.com/javaee/7/api/</link>
+                        <link>https://maven.apache.org/ref/${plugin-api.version}/apidocs/</link>
                     </links>
                 </configuration>
                 <reportSets>
