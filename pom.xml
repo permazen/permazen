@@ -622,7 +622,7 @@
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <linkXRef>false</linkXRef>
-                            <excludes>**/generated-sources/**/*</excludes>
+                            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         </configuration>
                         <goals>
                             <goal>check</goal>
@@ -654,6 +654,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.3</version>
+                <inherited>false</inherited>
                 <configuration>
                     <notimestamp>true</notimestamp>
                     <aggregate>true</aggregate>
