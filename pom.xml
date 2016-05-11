@@ -8,7 +8,7 @@
     <groupId>org.jsimpledb</groupId>
     <artifactId>jsimpledb</artifactId>
     <name>JSimpleDB</name>
-    <version>2.0.0</version>
+    <version>2.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>JSimpleDB is a better persistence layer for Java.</description>
     <url>https://github.com/archiecobbs/jsimpledb/</url>
@@ -73,7 +73,7 @@
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
         <!-- An already existing version (needed to avoid cycles during javadoc) -->
-        <javadoc.previous.version>2.0.0-SNAPSHOT</javadoc.previous.version>
+        <javadoc.previous.version>2.0.0</javadoc.previous.version>
 
         <!-- Dependency versions -->
         <ant.version>1.8.1</ant.version>
@@ -81,7 +81,7 @@
         <bdb.version>6.4.9</bdb.version>
         <commons-codec.version>1.10</commons-codec.version>
         <asm.version>5.1</asm.version>
-        <dellroad-stuff.version>1.2.0-SNAPSHOT</dellroad-stuff.version>
+        <dellroad-stuff.version>2.0.0</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
         <guava.version>18.0</guava.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
