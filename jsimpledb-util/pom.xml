@@ -52,7 +52,7 @@
                         <additionalDependency>
                             <groupId>org.jsimpledb</groupId>
                             <artifactId>jsimpledb-main</artifactId>
-                            <version>${project.version}</version>
+                            <version>${javadoc.previous.version}</version>
                         </additionalDependency>
                     </additionalDependencies>
                 </configuration>

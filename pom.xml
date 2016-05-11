@@ -72,6 +72,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>
 
+        <!-- An already existing version (needed to avoid cycles during javadoc) -->
+        <javadoc.previous.version>2.0.0-SNAPSHOT</javadoc.previous.version>
+
         <!-- Dependency versions -->
         <ant.version>1.8.1</ant.version>
         <aspectj.version>1.8.9</aspectj.version>
