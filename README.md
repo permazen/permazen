@@ -78,4 +78,4 @@ Read the [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introducti
 
 ### Maven Site
 
-The auto-generated Maven site is [here](http://archiecobbs.github.io/jsimpledb/publish/site/index.html).
+The auto-generated Maven site is [here](http://archiecobbs.github.io/jsimpledb/site/index.html).
