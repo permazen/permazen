@@ -74,8 +74,8 @@ or from the [Ivy RoundUp](https://github.com/archiecobbs/ivyroundup/) ivy reposi
 
 ### Documentation
 
-Read the [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introduction), [GettingStarted](https://github.com/archiecobbs/jsimpledb/wiki/GettingStarted), and the [FAQ](https://github.com/archiecobbs/jsimpledb/wiki/FAQ) for more info, browse the comprehensive [Javadocs](http://archiecobbs.github.io/jsimpledb/publish/site/apidocs/index.html?org/jsimpledb/JSimpleDB.html), check out the [JPA\_Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison), or join the [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.
+Read the [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introduction), [GettingStarted](https://github.com/archiecobbs/jsimpledb/wiki/GettingStarted), and the [FAQ](https://github.com/archiecobbs/jsimpledb/wiki/FAQ) for more info, browse the comprehensive [Javadocs](http://archiecobbs.github.io/jsimpledb/site/apidocs/index.html?org/jsimpledb/JSimpleDB.html), check out the [JPA\_Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison), or join the [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.
 
 ### Maven Site
 
-The auto-generated Maven site is [here](http://archiecobbs.github.io/jsimpledb/site/index.html).
+The auto-generated Maven site is [here](http://archiecobbs.github.io/jsimpledb/site/).
