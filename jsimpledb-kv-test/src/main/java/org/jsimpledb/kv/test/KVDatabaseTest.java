@@ -301,7 +301,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             } catch (Exception e) {
                 while (e instanceof ExecutionException)
                     e = (Exception)e.getCause();
-                assert e instanceof RetryTransactionException : "wrong exception type: " + e;
+                if (!(e instanceof RetryTransactionException))
+                    throw new AssertionError("wrong exception type: " + e, e);
                 final RetryTransactionException retry = (RetryTransactionException)e;
                 Assert.assertSame(retry.getTransaction(), txs[i]);
                 this.log.info(txs[i] + " #" + (i + 1) + " failed on write");
