@@ -56,8 +56,7 @@ public class CockroachKVDatabase extends SQLKVDatabase {
 
     @Override
     public String createPutStatement() {
-        // XXX Requires this issue to be fixed: https://github.com/cockroachdb/cockroach/issues/1962
-        return "REPLACE INTO " + this.quote(this.tableName) + " (" + this.quote(this.keyColumnName)
+        return "UPSERT INTO " + this.quote(this.tableName) + " (" + this.quote(this.keyColumnName)
           + ", " + this.quote(this.valueColumnName) + ") VALUES (?, ?)";
     }
 
