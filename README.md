@@ -72,6 +72,8 @@ or from the [Ivy RoundUp](https://github.com/archiecobbs/ivyroundup/) ivy reposi
 <dependency org="org.jsimpledb" name="jsimpledb"/>
 ```
 
+There is a [demo distribution ZIP file](https://oss.sonatype.org/content/repositories/public/org/jsimpledb/jsimpledb-demo/2.0.0/jsimpledb-demo-2.0.0-dist.zip) that lets you play with the JSimpleDB command line and GUI, using a simple database of the solar system.
+
 ### Documentation
 
 Read the [Introduction](https://github.com/archiecobbs/jsimpledb/wiki/Introduction), [GettingStarted](https://github.com/archiecobbs/jsimpledb/wiki/GettingStarted), and the [FAQ](https://github.com/archiecobbs/jsimpledb/wiki/FAQ) for more info, browse the comprehensive [Javadocs](http://archiecobbs.github.io/jsimpledb/site/apidocs/index.html?org/jsimpledb/JSimpleDB.html), check out the [JPA\_Comparison](https://github.com/archiecobbs/jsimpledb/wiki/JPA_Comparison), or join the [JSimpleDB Users](https://groups.google.com/forum/#!forum/jsimpledb-users) discussion group.

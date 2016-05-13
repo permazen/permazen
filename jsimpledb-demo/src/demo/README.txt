@@ -2,28 +2,51 @@
 Welcome to JSimpleDB
 ====================
 
-JSimpleDB makes powerful persistence simple for Java programmers.
+JSimpleDB is a better persistence layer for Java
 
-JSimpleDB's goal is to make Java persistence as simple as possible, doing so in
-a Java-centric manner, while remaining strictly type safe.
+Mainstream persistence solutions such as JPA and JDO fail to address many important issues that are _inherent_ to persistence programming. This is because they were not designed to address these issues; they were designed merely to give Java programmers access to existing database functionality.
 
-JSimpleDB does this without sacrificing flexibility or scalability by relegating
-the database to the simplest role possible - storing data as key/value pairs -
-and providing all other supporting features, such as indexes, command line
-interface, etc., in a simpler, type-safe, Java-centric way.
+In particular:
 
-JSimpleDB also adds important new features that traditional databases don't provide.
+  * [Configuration complexity] Do we have to explicitly configure how data is mapped? Are we forced to (ab)use the programming language to address what are really database configuration issues?
+  * [Query language concordance] Does the code that performs queries look like regular Java code, or do we have to learn a new “query language”?
+  * [Query performance transparency] Is the performance of a query obvious from looking at the code that performs it?
+  * [Data type congruence] Do database types agree with Java types? Are all field values supported? Do we always read back the same values we write?
+  * [First class offline data] Can it be precisely defined which data is actually copied out of a transaction? Does offline data have all the rights and privileges of “online” (i.e., transactional) data? Does this include index queries and a framework for handling schema differences?
+  * [Schema verification] Is the schema assumed by the code cross-checked against the schema actually present in the database?
+  * [Incremental schema evolution] Can multiple schemas exist at the same time in the database, to support rolling upgrades? Can data be migrated incrementally, i.e., without stopping the world? Are any whole database operations ever required?
+  * [Structural schema changes] Are structural schema updates performed automatically?
+  * [Semantic schema changes] Is there a convenient way to specify semantic schema updates, preferably at the Java level, not the database level? Do semantic updates have access to both the old and the new values?
+  * [Schema evolution type safety] Is type safety and data type congruence guaranteed across arbitrary schema migrations?
+  * [Transactional validation] Does validation only occur at the end of the transaction, or randomly and inconveniently in the middle?
+  * [Cross-object validation] Is it possible to define validation constraints that span multiple objects/records?
+  * [Language-level data maintainability] Can data maintenance tasks be performed using the normal Java types and values? Are there convenient tools for manual and scripted use?
 
-    * Designed from the ground up to be Java-centric; completely type-safe.
-    * Works on top of any database that can function as a key/value store (SQL, NoSQL, etc.)
-    * Scales gracefully to large data sets; no "whole database" operation is ever required
-    * Configured entirely via Java annotations (only one is required)
-    * Queries are regular Java code - there is no "query language" needed
-    * Change notifications from arbitrarily distant objects
-    * Built-in support for rolling schema changes across multiple nodes with no downtime
-    * Supports simple and composite indexes and user-defined custom types
-    * Extensible command line interface (CLI) supporting arbitrary Java queries
-    * Built-in Java-aware graphical user interface (GUI) based on Vaadin 
+JSimpleDB addresses all of these issues, this without sacrificing flexibility or scalability.
+
+JSimpleDB does this by treating the database as just a sorted key/value store, and implementing the following in Java:
+
+  * Encoding/decoding of field values
+  * Enforcing referential integrity; forward/reverse delete cascades
+  * Field indexes (simple and composite)
+  * Query views
+  * Schema management
+  * Change notification
+  * Validation queues
+  * Command line interface
+
+JSimpleDB also adds some new features that traditional databases don't provide.
+
+  * Designed from the ground up to be Java-centric; 100% type-safe at all times.
+  * Works on top of any database that can function as a key/value store (SQL, NoSQL, etc.)
+  * Scales gracefully to large data sets; no "whole database" operation is ever required
+  * Configured entirely via Java annotations (only one is required)
+  * Queries are regular Java code - there is no "query language" needed
+  * Change notifications from arbitrarily distant objects
+  * Built-in support for rolling schema changes across multiple nodes with no downtime
+  * Supports simple and composite indexes, including on user-defined custom types
+  * Extensible command line interface (CLI) including Java 8 expression parser
+  * Built-in Java-aware graphical user interface (GUI) based on Vaadin
 
 Homepage: https://github.com/archiecobbs/jsimpledb/
 
@@ -59,7 +82,7 @@ To view the demo database in the CLI:
     java -jar jsimpledb-cli.jar
 
 Use the "help" command to see all commands and functions. In particular, the
-"expr" command evaluates any Java expression and is used for database queries.
+"expr" command evaluates any Java 8 expression and is used for database queries.
 For example, to query for all Moon objects, enter "expr all(Moon)".
 
 The "expr" command supports several extensions to Java syntax, including:
