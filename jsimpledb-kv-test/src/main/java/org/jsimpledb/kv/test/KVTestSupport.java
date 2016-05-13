@@ -28,9 +28,10 @@ public abstract class KVTestSupport extends TestSupport {
      *
      * @param tx transaction
      * @param label descriptive label
+     * @return exception thrown during query, or null if successful
      */
-    protected void showKV(KVTransaction tx, String label) {
-        this.showKV(tx, label, null, null);
+    protected Exception showKV(KVTransaction tx, String label) {
+        return this.showKV(tx, label, null, null);
     }
 
     /**
@@ -40,18 +41,23 @@ public abstract class KVTestSupport extends TestSupport {
      * @param label descriptive label
      * @param minKey minimum key
      * @param maxKey maximum key
+     * @return exception thrown during query, or null if successful
      */
-    protected void showKV(KVTransaction tx, String label, byte[] minKey, byte[] maxKey) {
+    protected Exception showKV(KVTransaction tx, String label, byte[] minKey, byte[] maxKey) {
         try {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
             final XMLStreamWriter writer = new IndentXMLStreamWriter(
               XMLOutputFactory.newInstance().createXMLStreamWriter(buf, "UTF-8"));
             new XMLSerializer(tx).write(writer, minKey, maxKey);
             this.log.info("{}\n{}", label, new String(buf.toByteArray(), Charset.forName("UTF-8")));
+            return null;
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
             this.log.info("{} - oops, got " + e, label);
+            if (this.log.isTraceEnabled())
+                this.log.trace(label + " exception trace:", e);
+            return e;
         }
     }
 

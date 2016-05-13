@@ -282,6 +282,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
 
         // Both read the same key
         final KVTransaction[] txs = new KVTransaction[] { store.createTransaction(), store.createTransaction() };
+        this.log.info("tx[0] is " + txs[0]);
+        this.log.info("tx[1] is " + txs[1]);
         this.executor.submit(new Reader(txs[0], b("10"))).get();
         this.executor.submit(new Reader(txs[1], b("10"))).get();
 
@@ -306,16 +308,25 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 final RetryTransactionException retry = (RetryTransactionException)e;
                 Assert.assertSame(retry.getTransaction(), txs[i]);
                 this.log.info(txs[i] + " #" + (i + 1) + " failed on write");
+                if (this.log.isTraceEnabled())
+                    this.log.trace(txs[i] + " #" + (i + 1) + " write failure exception trace:", e);
                 fails[i] = "" + e;
+            }
+        }
+
+        // Show contents of surviving transactions; note exception(s) could occur here also
+        for (int i = 0; i < 2; i++) {
+            if (fails[i] == null) {
+                final Exception e = this.showKV(txs[i], "tx[" + i + "] of " + store + " after write");
+                if (e != null)
+                    fails[i] = "" + e;
             }
         }
 
         // If both succeeded, then we should get a conflict on commit instead
         for (int i = 0; i < 2; i++) {
-            if (fails[i] == null) {
-                this.showKV(txs[i], "tx[" + i + "] of " + store + " after write");
+            if (fails[i] == null)
                 futures[i] = this.executor.submit(new Committer(txs[i]));
-            }
         }
         for (int i = 0; i < 2; i++) {
             if (fails[i] == null) {
@@ -330,6 +341,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                     final RetryTransactionException retry = (RetryTransactionException)e;
                     Assert.assertSame(retry.getTransaction(), txs[i]);
                     this.log.info(txs[i] + " #" + (i + 1) + " failed on commit");
+                    if (this.log.isTraceEnabled())
+                        this.log.trace(txs[i] + " #" + (i + 1) + " commit failure exception trace:", e);
                     fails[i] = "" + e;
                 }
             }
@@ -878,6 +891,10 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             } catch (RuntimeException e) {
                 KVDatabaseTest.this.log.info("exception putting " + s(this.key) + " -> " + s(this.value)
                   + " in " + this.tx + ": " + e);
+                if (KVDatabaseTest.this.log.isTraceEnabled()) {
+                    KVDatabaseTest.this.log.trace(this.tx + " put " + s(this.key) + " -> " + s(this.value)
+                      + " failure exception trace:", e);
+                }
                 throw e;
             }
         }
@@ -900,6 +917,8 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 this.tx.commit();
             } catch (RuntimeException e) {
                 KVDatabaseTest.this.log.info("exception committing " + this.tx + ": " + e);
+                if (KVDatabaseTest.this.log.isTraceEnabled())
+                    KVDatabaseTest.this.log.trace(this.tx + " commit failure exception trace:", e);
                 throw e;
             }
         }
