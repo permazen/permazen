@@ -28,6 +28,11 @@ public class CockroachKVDatabaseTest extends KVDatabaseTest {
     }
 
     @Override
+    protected boolean allowBothTransactionsToFail() {
+        return true;
+    }
+
+    @Override
     protected KVDatabase getKVDatabase() {
         return this.cockroachKV;
     }
