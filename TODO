@@ -2,9 +2,7 @@
 SHORT TERM
 ==========
 
-- Maveny things
-    - Ensure aggregate site builds and add more documentation
-    - Write plugin equivalent to ant tasks
+- META-INF autodetections
     - Auto-detect CLI commands using META-INF/jsimpledb/cli-commands.xml
     - Auto-detect CLI functions using META-INF/jsimpledb/parse-commands.xml
     - Auto-detect atomic key/value stores using META-INF/jsimpledb/atomic-key-value-stores.xml
@@ -26,7 +24,6 @@ SHORT TERM
 - Does JTransaction.getAll(UntypedJObject.class) work? queryIndex() ?
 
 - New KVDatabase implementations
-    - CockroachDB
     - Amazon DynamoDB ?
     - Google Cloud Datastore ?
         - https://cloud.google.com/datastore/docs/concepts/overview
