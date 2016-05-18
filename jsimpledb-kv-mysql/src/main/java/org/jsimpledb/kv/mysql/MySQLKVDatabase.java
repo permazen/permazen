@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.sql;
+package org.jsimpledb.kv.mysql;
 
 import com.mysql.jdbc.MysqlErrorNumbers;
 import com.mysql.jdbc.exceptions.MySQLTimeoutException;
@@ -14,16 +14,15 @@ import java.sql.Statement;
 
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
+import org.jsimpledb.kv.sql.SQLKVDatabase;
+import org.jsimpledb.kv.sql.SQLKVTransaction;
 
 /**
  * MySQL variant of {@link SQLKVDatabase}.
  *
  * <p>
  * Automatically creates the key/value table on startup if it doesn't already exist.
- *
- * @deprecated Replaced by {@link org.jsimpledb.kv.mysql.MySQLKVDatabase}
  */
-@Deprecated
 public class MySQLKVDatabase extends SQLKVDatabase {
 
     public static final int INNODB_NORMAL_INDEX_SIZE = 767;

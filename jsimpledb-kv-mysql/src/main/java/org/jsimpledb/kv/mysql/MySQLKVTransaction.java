@@ -3,21 +3,21 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.sql;
+package org.jsimpledb.kv.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * SQLite variant of {@link SQLKVTransaction}.
- *
- * @deprecated Replaced by {@link org.jsimpledb.kv.sqlite.SQLiteKVTransaction}
- */
-@Deprecated
-class SQLiteKVTransaction extends SQLKVTransaction {
+import org.jsimpledb.kv.sql.SQLKVDatabase;
+import org.jsimpledb.kv.sql.SQLKVTransaction;
 
-    SQLiteKVTransaction(SQLKVDatabase database, Connection connection) throws SQLException {
+/**
+ * MySQL variant of {@link SQLKVTransaction}.
+ */
+class MySQLKVTransaction extends SQLKVTransaction {
+
+    MySQLKVTransaction(SQLKVDatabase database, Connection connection) throws SQLException {
         super(database, connection);
     }
 
@@ -25,7 +25,7 @@ class SQLiteKVTransaction extends SQLKVTransaction {
     public void setTimeout(long timeout) {
         super.setTimeout(timeout);
         try (final Statement statement = this.connection.createStatement()) {
-            statement.execute("PRAGMA busy_timeout=" + timeout);
+            statement.execute("SET innodb_lock_wait_timeout = " + (timeout + 999) / 1000);
         } catch (SQLException e) {
             throw this.handleException(e);
         }

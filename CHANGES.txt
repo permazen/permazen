@@ -1,3 +1,7 @@
+Version Next
+
+    - Split out new modules kv-mysql and kv-sqlite from kv-sql
+
 Version 2.0.0 Released May 10, 2016
 
     - Converted build to Maven with more modular artifacts

@@ -3,18 +3,18 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.sql;
+package org.jsimpledb.kv.sqlite;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.jsimpledb.kv.sql.SQLKVDatabase;
+import org.jsimpledb.kv.sql.SQLKVTransaction;
+
 /**
  * SQLite variant of {@link SQLKVTransaction}.
- *
- * @deprecated Replaced by {@link org.jsimpledb.kv.sqlite.SQLiteKVTransaction}
  */
-@Deprecated
 class SQLiteKVTransaction extends SQLKVTransaction {
 
     SQLiteKVTransaction(SQLKVDatabase database, Connection connection) throws SQLException {
@@ -31,4 +31,3 @@ class SQLiteKVTransaction extends SQLKVTransaction {
         }
     }
 }
-

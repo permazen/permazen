@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.sql;
+package org.jsimpledb.kv.sqlite;
 
 import java.io.File;
 import java.io.IOException;

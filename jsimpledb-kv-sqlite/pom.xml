@@ -10,9 +10,9 @@
         <artifactId>jsimpledb</artifactId>
         <version>2.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>jsimpledb-kv-sql</artifactId>
-    <name>JSimpleDB SQL Database Key/Value Store</name>
-    <description>Support for JSimpleDB key/value store implementation based on SQL databases.</description>
+    <artifactId>jsimpledb-kv-sqlite</artifactId>
+    <name>JSimpleDB SQLite Key/Value Store</name>
+    <description>JSimpleDB key/value store implementation based on SQLite.</description>
     <distributionManagement>
         <site>
             <id>${project.artifactId}-site</id>
@@ -26,38 +26,16 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-sql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-kv-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-util</artifactId>
-        </dependency>
-        <!-- Remove with deprecated classes -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <!-- Remove with deprecated classes -->
-        <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
         </dependency>
     </dependencies>
 </project>

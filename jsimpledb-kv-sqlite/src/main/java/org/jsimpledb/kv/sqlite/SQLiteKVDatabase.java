@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.sql;
+package org.jsimpledb.kv.sqlite;
 
 import java.io.File;
 import java.sql.Connection;
@@ -12,6 +12,8 @@ import java.sql.Statement;
 
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
+import org.jsimpledb.kv.sql.SQLKVDatabase;
+import org.jsimpledb.kv.sql.SQLKVTransaction;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteDataSource;
 import org.sqlite.SQLiteErrorCode;
@@ -29,10 +31,7 @@ import org.sqlite.SQLiteOpenMode;
  * Otherwise (i.e., if {@link #setDatabaseFile setDatabaseFile()} is not used), then {@link #setDataSource setDataSource()}
  * must be used to explicitly configure a {@link javax.sql.DataSource} and any invocation of
  * {@link #setSQLiteConfig setSQLiteConfig()} is ignored.
- *
- * @deprecated Replaced by {@link org.jsimpledb.kv.sqlite.SQLiteKVDatabase}
  */
-@Deprecated
 public class SQLiteKVDatabase extends SQLKVDatabase {
 
     /**
@@ -155,4 +154,3 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
         }
     }
 }
-

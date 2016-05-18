@@ -11,7 +11,10 @@ import java.sql.Statement;
 
 /**
  * MySQL variant of {@link SQLKVTransaction}.
+ *
+ * @deprecated Replaced by {@link org.jsimpledb.kv.mysql.MySQLKVTransaction}
  */
+@Deprecated
 class MySQLKVTransaction extends SQLKVTransaction {
 
     MySQLKVTransaction(SQLKVDatabase database, Connection connection) throws SQLException {

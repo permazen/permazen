@@ -3,11 +3,12 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.kv.sql;
+package org.jsimpledb.kv.mysql;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import org.jsimpledb.kv.KVDatabase;
+import org.jsimpledb.kv.sql.IsolationLevel;
 import org.jsimpledb.kv.test.KVDatabaseTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
