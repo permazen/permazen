@@ -42,7 +42,7 @@ public class SchemaGenerationTest extends TestSupport {
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         factory.newJSimpleDB().getSchemaModel().toXML(buf, true);
         final String actual = new String(buf.toByteArray(), StandardCharsets.UTF_8);
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual.replaceAll("\\r\\n?", "\n"), expected);
     }
 
     @DataProvider(name = "invalidCases")
