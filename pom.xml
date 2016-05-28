@@ -27,10 +27,12 @@
         <module>jsimpledb-kv-cockroach</module>
         <module>jsimpledb-kv-fdb</module>
         <module>jsimpledb-kv-leveldb</module>
+        <module>jsimpledb-kv-mysql</module>
         <module>jsimpledb-kv-raft</module>
         <module>jsimpledb-kv-rocksdb</module>
         <module>jsimpledb-kv-simple</module>
         <module>jsimpledb-kv-sql</module>
+        <module>jsimpledb-kv-sqlite</module>
         <module>jsimpledb-kv-test</module>
         <module>jsimpledb-kv</module>
         <module>jsimpledb-main</module>
@@ -420,6 +422,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-mysql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
                 <artifactId>jsimpledb-kv-raft</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -436,6 +443,11 @@
             <dependency>
                 <groupId>org.jsimpledb</groupId>
                 <artifactId>jsimpledb-kv-sql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsimpledb</groupId>
+                <artifactId>jsimpledb-kv-sqlite</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

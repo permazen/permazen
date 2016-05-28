@@ -58,6 +58,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-kv-mysql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-kv-raft</artifactId>
         </dependency>
         <dependency>
@@ -70,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>${project.parent.artifactId}-kv-sql</artifactId>
+            <artifactId>${project.parent.artifactId}-kv-sqlite</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
