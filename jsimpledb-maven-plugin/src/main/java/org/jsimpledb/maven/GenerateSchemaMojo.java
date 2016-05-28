@@ -26,7 +26,7 @@ import org.jsimpledb.JSimpleDB;
   threadSafe = true)
 public class GenerateSchemaMojo extends AbstractMainSchemaMojo {
 
-    public static final String JSIMPLEDB_DIRECTORY_DEFAULT = "${project.source.directory}/src/main/jsimpledb";
+    public static final String JSIMPLEDB_DIRECTORY_DEFAULT = "${basedir}/src/main/jsimpledb";
     public static final String EXPECTED_SCHEMA_DEFAULT = JSIMPLEDB_DIRECTORY_DEFAULT + "/current-schema.xml";
 
     /**

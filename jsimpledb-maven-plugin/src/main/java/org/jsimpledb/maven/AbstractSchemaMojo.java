@@ -20,9 +20,11 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -62,7 +64,7 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
      * or {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations.
      *
      * <p>
-     * If no {@code &lt;classes&gt;} or {@code &lt;packages&gt;} are configured, then by default this plugin
+     * If no {@code <classes>} or {@code <packages>} are configured, then by default this plugin
      * searches all classes in the output directory.
      */
     @Parameter
@@ -117,7 +119,12 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
 
         // Set up class loader that includes project classes and dependencies
-        final HashSet<URL> urls = new HashSet<>();
+        final TreeSet<URL> urls = new TreeSet<>(new Comparator<URL>() {                 // sort URLs to aid in debugging
+            @Override
+            public int compare(URL url1, URL url2) {
+                return url1.toString().compareTo(url2.toString());
+            }
+        });
         try {
             urls.add(this.getClassOutputDirectory().toURI().toURL());
         } catch (MalformedURLException e) {
@@ -154,7 +161,9 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                                 buf.append('.');
                             buf.append(component.toString());
                         }
-                        classNames.add(buf.toString());
+                        String name = buf.toString();
+                        name = name.substring(0, name.length() - ".class".length());
+                        classNames.add(name);
                         return FileVisitResult.CONTINUE;
                     }
                 });
@@ -162,9 +171,13 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
                 throw new MojoExecutionException("error walking output directory hierarchy", e);
             }
             this.classes = classNames.toArray(new String[classNames.size()]);
+            this.getLog().debug(this.getClass().getSimpleName() + " auto-generated class list: "
+              + classNames.toString().replaceAll("(^\\[|, )", "\n  "));
         }
 
         // Gather model and field type classes
+        this.getLog().debug(this.getClass().getSimpleName() + " classloader setup: "
+          + urls.toString().replaceAll("(^\\[|, )", "\n  "));
         final ClassLoader parentLoader = Thread.currentThread().getContextClassLoader();
         final ClassLoader loader = URLClassLoader.newInstance(urls.toArray(new URL[urls.size()]), parentLoader);
         Thread.currentThread().setContextClassLoader(loader);
