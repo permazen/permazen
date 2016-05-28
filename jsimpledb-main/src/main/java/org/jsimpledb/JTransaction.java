@@ -705,6 +705,13 @@ public class JTransaction {
      * Get the Java model object that is associated with this transaction and has the given ID, cast to the given type.
      *
      * <p>
+     * This method guarantees that for any particular {@code id}, the same Java instance will always be returned.
+     *
+     * <p>
+     * A non-null object is always returned, but the corresponding object may not actually exist in this transaction.
+     * In that case, attempts to access its fields will throw {@link org.jsimpledb.core.DeletedObjectException}.
+     *
+     * <p>
      * This method just invoke {@link #get(ObjId)} and then casts the result.
      *
      * @param id object ID
