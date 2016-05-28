@@ -189,9 +189,9 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
     }
 
     void writeAttributes(XMLStreamWriter writer, boolean includeName) throws XMLStreamException {
-        writer.writeAttribute(/*STORAGE_ID_ATTRIBUTE.getNamespaceURI(),*/ STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + this.storageId);
+        writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + this.storageId);
         if (includeName && this.name != null)
-            writer.writeAttribute(/*NAME_ATTRIBUTE.getNamespaceURI(),*/ NAME_ATTRIBUTE.getLocalPart(), this.name);
+            writer.writeAttribute(NAME_ATTRIBUTE.getNamespaceURI(), NAME_ATTRIBUTE.getLocalPart(), this.name);
     }
 
 // Object
