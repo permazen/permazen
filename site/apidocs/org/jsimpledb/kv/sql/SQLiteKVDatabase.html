@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SQLiteKVDatabase (JSimpleDB 2.0.0 API)</title>
+<title>SQLiteKVDatabase (JSimpleDB 2.0.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SQLiteKVDatabase (JSimpleDB 2.0.0 API)";
+        parent.document.title="SQLiteKVDatabase (JSimpleDB 2.0.1 API)";
     }
 //-->
 </script>
@@ -103,8 +103,12 @@
 <dd><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></dd>
 </dl>
 <hr>
+<div class="block"><strong>Deprecated.</strong>&nbsp;
+<div class="block"><i>Replaced by <a href="../../../../org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sqlite"><code>SQLiteKVDatabase</code></a></i></div>
+</div>
 <br>
-<pre>public class <span class="strong">SQLiteKVDatabase</span>
+<pre><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Deprecated.html?is-external=true" title="class or interface in java.lang">@Deprecated</a>
+public class <span class="strong">SQLiteKVDatabase</span>
 extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></pre>
 <div class="block">SQLite variant of <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql"><code>SQLKVDatabase</code></a>.
 
@@ -138,6 +142,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#MEMORY_FILE">MEMORY_FILE</a></strong></code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">The special <a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io"><code>File</code></a> that, when configured via <a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#setDatabaseFile(java.io.File)"><code>setDatabaseFile()</code></a>,
  causes SQLite to use an in-memory database.</div>
 </td>
@@ -165,6 +170,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#SQLiteKVDatabase()">SQLiteKVDatabase</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Constructor.</div>
 </td>
 </tr>
@@ -186,6 +192,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#createPutStatement()">createPutStatement</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Create an SQL statement that inserts the key/value pair with key <code>&#63;1</code> and value <code>&#63;2</code>
  A row with key <code>&#63;1</code> may already exist; if so, the value should be updated to
  <code>&#63;2</code> (if syntax requires it, the value may be updated to <code>&#63;3</code> instead;
@@ -195,36 +202,42 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#getDatabaseFile()">getDatabaseFile</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Get the configured database file.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#initializeDatabaseIfNecessary(java.sql.Connection)">initializeDatabaseIfNecessary</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Perform any required database initialization.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#limitSingleRow(java.lang.String)">limitSingleRow</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;sql)</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Appends <code>LIMIT 1</code> to the statement.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#quote(java.lang.String)">quote</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Encloses the given <code>name</code> in double quotes.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#setDatabaseFile(java.io.File)">setDatabaseFile</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;file)</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Set the configured database file.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#setSQLiteConfig(org.sqlite.SQLiteConfig)">setSQLiteConfig</a></strong>(org.sqlite.SQLiteConfig&nbsp;config)</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Set the <code>SQLiteConfig</code> used to configure the auto-created <code>SQLiteDataSource</code>
  when a database file is <a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#setDatabaseFile(java.io.File)">specified</a> but no</div>
 </td>
@@ -232,6 +245,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#start()">start</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
@@ -239,6 +253,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#wrapException(org.jsimpledb.kv.sql.SQLKVTransaction, java.sql.SQLException)">wrapException</a></strong>(<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;tx,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a>&nbsp;e)</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
 <div class="block">Wrap the given <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><code>SQLException</code></a> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
 </td>
 </tr>
@@ -278,6 +293,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>MEMORY_FILE</h4>
 <pre>public static final&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a> MEMORY_FILE</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block">The special <a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io"><code>File</code></a> that, when configured via <a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#setDatabaseFile(java.io.File)"><code>setDatabaseFile()</code></a>,
  causes SQLite to use an in-memory database.</div>
 </li>
@@ -297,6 +313,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>SQLiteKVDatabase</h4>
 <pre>public&nbsp;SQLiteKVDatabase()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block">Constructor.</div>
 </li>
 </ul>
@@ -315,6 +332,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>getDatabaseFile</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;getDatabaseFile()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block">Get the configured database file.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>configured database file, if any, otherwise null</dd></dl>
 </li>
@@ -326,6 +344,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>setDatabaseFile</h4>
 <pre>public&nbsp;void&nbsp;setDatabaseFile(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;file)</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block">Set the configured database file.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>file</code> - database file</dd></dl>
 </li>
@@ -337,6 +356,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>setSQLiteConfig</h4>
 <pre>public&nbsp;void&nbsp;setSQLiteConfig(org.sqlite.SQLiteConfig&nbsp;config)</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block">Set the <code>SQLiteConfig</code> used to configure the auto-created <code>SQLiteDataSource</code>
  when a database file is <a href="../../../../org/jsimpledb/kv/sql/SQLiteKVDatabase.html#setDatabaseFile(java.io.File)">specified</a> but no</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>config</code> - connection config, or null for none</dd></dl>
@@ -349,6 +369,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>start</h4>
 <pre>public&nbsp;void&nbsp;start()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVDatabase.html#start()">KVDatabase</a></code></strong></div>
 <div class="block">Start this instance. This method must be called prior to creating any transactions.
 
@@ -373,6 +394,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <h4>initializeDatabaseIfNecessary</h4>
 <pre>protected&nbsp;void&nbsp;initializeDatabaseIfNecessary(<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</a>&nbsp;connection)
                                       throws <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a></pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#initializeDatabaseIfNecessary(java.sql.Connection)">SQLKVDatabase</a></code></strong></div>
 <div class="block">Perform any required database initialization.
 
@@ -394,6 +416,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>createPutStatement</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;createPutStatement()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createPutStatement()">SQLKVDatabase</a></code></strong></div>
 <div class="block">Create an SQL statement that inserts the key/value pair with key <code>&#63;1</code> and value <code>&#63;2</code>
  A row with key <code>&#63;1</code> may already exist; if so, the value should be updated to
@@ -412,6 +435,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>quote</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;quote(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block">Encloses the given <code>name</code> in double quotes.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
@@ -427,6 +451,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <li class="blockList">
 <h4>limitSingleRow</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;limitSingleRow(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;sql)</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block">Appends <code>LIMIT 1</code> to the statement.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
@@ -443,6 +468,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <h4>wrapException</h4>
 <pre>public&nbsp;<a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv">KVTransactionException</a>&nbsp;wrapException(<a href="../../../../org/jsimpledb/kv/sql/SQLKVTransaction.html" title="class in org.jsimpledb.kv.sql">SQLKVTransaction</a>&nbsp;tx,
                                    <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</a>&nbsp;e)</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#wrapException(org.jsimpledb.kv.sql.SQLKVTransaction, java.sql.SQLException)">SQLKVDatabase</a></code></strong></div>
 <div class="block">Wrap the given <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><code>SQLException</code></a> in the appropriate <a href="../../../../org/jsimpledb/kv/KVTransactionException.html" title="class in org.jsimpledb.kv"><code>KVTransactionException</code></a>.</div>
 <dl>

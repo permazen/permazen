@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Class Hierarchy (JSimpleDB 2.0.0 API)</title>
+<title>Class Hierarchy (JSimpleDB 2.0.1 API)</title>
 <link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Class Hierarchy (JSimpleDB 2.0.0 API)";
+        parent.document.title="Class Hierarchy (JSimpleDB 2.0.1 API)";
     }
 //-->
 </script>
@@ -86,12 +86,14 @@
 <li><a href="org/jsimpledb/kv/fdb/package-tree.html">org.jsimpledb.kv.fdb</a>, </li>
 <li><a href="org/jsimpledb/kv/leveldb/package-tree.html">org.jsimpledb.kv.leveldb</a>, </li>
 <li><a href="org/jsimpledb/kv/mvcc/package-tree.html">org.jsimpledb.kv.mvcc</a>, </li>
+<li><a href="org/jsimpledb/kv/mysql/package-tree.html">org.jsimpledb.kv.mysql</a>, </li>
 <li><a href="org/jsimpledb/kv/raft/package-tree.html">org.jsimpledb.kv.raft</a>, </li>
 <li><a href="org/jsimpledb/kv/raft/fallback/package-tree.html">org.jsimpledb.kv.raft.fallback</a>, </li>
 <li><a href="org/jsimpledb/kv/raft/msg/package-tree.html">org.jsimpledb.kv.raft.msg</a>, </li>
 <li><a href="org/jsimpledb/kv/rocksdb/package-tree.html">org.jsimpledb.kv.rocksdb</a>, </li>
 <li><a href="org/jsimpledb/kv/simple/package-tree.html">org.jsimpledb.kv.simple</a>, </li>
 <li><a href="org/jsimpledb/kv/sql/package-tree.html">org.jsimpledb.kv.sql</a>, </li>
+<li><a href="org/jsimpledb/kv/sqlite/package-tree.html">org.jsimpledb.kv.sqlite</a>, </li>
 <li><a href="org/jsimpledb/kv/test/package-tree.html">org.jsimpledb.kv.test</a>, </li>
 <li><a href="org/jsimpledb/kv/util/package-tree.html">org.jsimpledb.kv.util</a>, </li>
 <li><a href="org/jsimpledb/maven/package-tree.html">org.jsimpledb.maven</a>, </li>
@@ -136,7 +138,7 @@
 <ul>
 <li type="circle">com.vaadin.ui.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/ui/HorizontalLayout.html?is-external=true" title="class or interface in com.vaadin.ui"><span class="strong">HorizontalLayout</span></a>
 <ul>
-<li type="circle">org.dellroad.stuff.vaadin7.FieldLayout&lt;T&gt; (implements com.vaadin.ui.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/ui/Field.html?is-external=true" title="class or interface in com.vaadin.ui">Field</a>&lt;T&gt;)
+<li type="circle">org.dellroad.stuff.vaadin7.<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/vaadin7/FieldLayout.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><span class="strong">FieldLayout</span></a>&lt;T&gt; (implements com.vaadin.ui.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/ui/Field.html?is-external=true" title="class or interface in com.vaadin.ui">Field</a>&lt;T&gt;)
 <ul>
 <li type="circle">org.jsimpledb.vaadin.<a href="org/jsimpledb/vaadin/NullableField.html" title="class in org.jsimpledb.vaadin"><span class="strong">NullableField</span></a>&lt;T&gt;</li>
 </ul>
@@ -301,9 +303,9 @@
 <ul>
 <li type="circle">com.vaadin.data.util.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/util/AbstractInMemoryContainer.html?is-external=true" title="class or interface in com.vaadin.data.util"><span class="strong">AbstractInMemoryContainer</span></a>&lt;ITEMIDTYPE,PROPERTYIDCLASS,ITEMCLASS&gt; (implements com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Container.Indexed.html?is-external=true" title="class or interface in com.vaadin.data">Container.Indexed</a>, com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Container.ItemSetChangeNotifier.html?is-external=true" title="class or interface in com.vaadin.data">Container.ItemSetChangeNotifier</a>)
 <ul>
-<li type="circle">org.dellroad.stuff.vaadin7.AbstractSimpleContainer&lt;I,T&gt; (implements org.dellroad.stuff.vaadin7.Connectable, com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Container.Filterable.html?is-external=true" title="class or interface in com.vaadin.data">Container.Filterable</a>, com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Container.SimpleFilterable.html?is-external=true" title="class or interface in com.vaadin.data">Container.SimpleFilterable</a>, com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Container.Sortable.html?is-external=true" title="class or interface in com.vaadin.data">Container.Sortable</a>, org.dellroad.stuff.vaadin7.PropertyExtractor&lt;T&gt;)
+<li type="circle">org.dellroad.stuff.vaadin7.<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/vaadin7/AbstractSimpleContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><span class="strong">AbstractSimpleContainer</span></a>&lt;I,T&gt; (implements org.dellroad.stuff.vaadin7.<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/vaadin7/Connectable.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">Connectable</a>, com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Container.Filterable.html?is-external=true" title="class or interface in com.vaadin.data">Container.Filterable</a>, com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Container.SimpleFilterable.html?is-external=true" title="class or interface in com.vaadin.data">Container.SimpleFilterable</a>, com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Container.Sortable.html?is-external=true" title="class or interface in com.vaadin.data">Container.Sortable</a>, org.dellroad.stuff.vaadin7.<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/vaadin7/PropertyExtractor.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7">PropertyExtractor</a>&lt;T&gt;)
 <ul>
-<li type="circle">org.dellroad.stuff.vaadin7.SimpleKeyedContainer&lt;I,T&gt;
+<li type="circle">org.dellroad.stuff.vaadin7.<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/vaadin7/SimpleKeyedContainer.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><span class="strong">SimpleKeyedContainer</span></a>&lt;I,T&gt;
 <ul>
 <li type="circle">org.jsimpledb.vaadin.<a href="org/jsimpledb/vaadin/JObjectContainer.html" title="class in org.jsimpledb.vaadin"><span class="strong">JObjectContainer</span></a>
 <ul>
@@ -526,8 +528,8 @@
 <li type="circle">org.jsimpledb.kv.util.<a href="org/jsimpledb/kv/util/XMLSerializer.html" title="class in org.jsimpledb.kv.util"><span class="strong">XMLSerializer</span></a></li>
 </ul>
 </li>
-<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/AddPrefixFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">AddPrefixFunction</span></a> (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)</li>
-<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/AddSuffixFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">AddSuffixFunction</span></a> (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)</li>
+<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/AddPrefixFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">AddPrefixFunction</span></a> (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)</li>
+<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/AddSuffixFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">AddSuffixFunction</span></a> (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)</li>
 <li type="circle">org.jsimpledb.kv.array.<a href="org/jsimpledb/kv/array/ArrayKVWriter.html" title="class in org.jsimpledb.kv.array"><span class="strong">ArrayKVWriter</span></a> (implements java.io.<a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a>)</li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/AtomExprParser.html" title="class in org.jsimpledb.parse.expr"><span class="strong">AtomExprParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/BaseExprParser.html" title="class in org.jsimpledb.parse.expr"><span class="strong">BaseExprParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
@@ -553,7 +555,7 @@
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/ByteUtil.html" title="class in org.jsimpledb.util"><span class="strong">ByteUtil</span></a></li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util"><span class="strong">ByteWriter</span></a></li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/CastExprParser.html" title="class in org.jsimpledb.parse.expr"><span class="strong">CastExprParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
-<li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/CastFunction.html" title="class in org.jsimpledb.util"><span class="strong">CastFunction</span></a>&lt;T&gt; (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)
+<li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/CastFunction.html" title="class in org.jsimpledb.util"><span class="strong">CastFunction</span></a>&lt;T&gt; (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)
 <ul>
 <li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/ParseCastFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">ParseCastFunction</span></a>&lt;T&gt;</li>
 </ul>
@@ -622,7 +624,7 @@
 </ul>
 </li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/ConstructorInvokeNode.html" title="class in org.jsimpledb.parse.expr"><span class="strong">ConstructorInvokeNode</span></a></li>
-<li type="circle">com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><span class="strong">Converter</span></a>&lt;A,B&gt; (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)
+<li type="circle">com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Converter.html?is-external=true" title="class or interface in com.google.common.base"><span class="strong">Converter</span></a>&lt;A,B&gt; (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)
 <ul>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/EnumConverter.html" title="class in org.jsimpledb"><span class="strong">EnumConverter</span></a>&lt;T&gt;</li>
 </ul>
@@ -694,7 +696,7 @@
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/IndexedFieldParser.html" title="class in org.jsimpledb.parse"><span class="strong">IndexedFieldParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/IndexedFieldParser.Result.html" title="class in org.jsimpledb.parse"><span class="strong">IndexedFieldParser.Result</span></a></li>
 <li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/InstanceofParser.html" title="class in org.jsimpledb.parse.expr"><span class="strong">InstanceofParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>
-<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/InstancePredicate.html" title="class in org.jsimpledb.parse.util"><span class="strong">InstancePredicate</span></a> (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;T&gt;)</li>
+<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/InstancePredicate.html" title="class in org.jsimpledb.parse.util"><span class="strong">InstancePredicate</span></a> (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/JFieldSwitchAdapter.html" title="class in org.jsimpledb"><span class="strong">JFieldSwitchAdapter</span></a>&lt;R&gt; (implements org.jsimpledb.<a href="org/jsimpledb/JFieldSwitch.html" title="interface in org.jsimpledb">JFieldSwitch</a>&lt;R&gt;)</li>
 <li type="circle">org.jsimpledb.vaadin.<a href="org/jsimpledb/vaadin/JObjectChooser.html" title="class in org.jsimpledb.vaadin"><span class="strong">JObjectChooser</span></a> (implements com.vaadin.data.<a href="http://vaadin.com/download/release/7.5/7.5.5/docs/api/com/vaadin/data/Property.ValueChangeNotifier.html?is-external=true" title="class or interface in com.vaadin.data">Property.ValueChangeNotifier</a>)</li>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/JSchemaObject.html" title="class in org.jsimpledb"><span class="strong">JSchemaObject</span></a>
@@ -754,7 +756,7 @@
 <li type="circle">org.jsimpledb.kv.mvcc.<a href="org/jsimpledb/kv/mvcc/LockOwner.html" title="class in org.jsimpledb.kv.mvcc"><span class="strong">LockOwner</span></a></li>
 <li type="circle">org.jsimpledb.kv.raft.<a href="org/jsimpledb/kv/raft/LogEntry.html" title="class in org.jsimpledb.kv.raft"><span class="strong">LogEntry</span></a></li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/LongEncoder.html" title="class in org.jsimpledb.util"><span class="strong">LongEncoder</span></a></li>
-<li type="circle">org.dellroad.stuff.main.MainClass
+<li type="circle">org.dellroad.stuff.main.<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/main/MainClass.html?is-external=true" title="class or interface in org.dellroad.stuff.main"><span class="strong">MainClass</span></a>
 <ul>
 <li type="circle">org.jsimpledb.app.<a href="org/jsimpledb/app/AbstractMain.html" title="class in org.jsimpledb.app"><span class="strong">AbstractMain</span></a>
 <ul>
@@ -797,9 +799,9 @@
 <li type="circle">org.jsimpledb.cli.<a href="org/jsimpledb/cli/ParamParser.Param.html" title="class in org.jsimpledb.cli"><span class="strong">ParamParser.Param</span></a></li>
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util"><span class="strong">ParseContext</span></a> (implements java.lang.<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>)</li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseUtil.html" title="class in org.jsimpledb.parse"><span class="strong">ParseUtil</span></a></li>
-<li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseUtil.HasNamePredicate.html" title="class in org.jsimpledb.parse"><span class="strong">ParseUtil.HasNamePredicate</span></a> (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;T&gt;)</li>
+<li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/ParseUtil.HasNamePredicate.html" title="class in org.jsimpledb.parse"><span class="strong">ParseUtil.HasNamePredicate</span></a> (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;T&gt;)</li>
 <li type="circle">org.jsimpledb.kv.util.<a href="org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util"><span class="strong">PrefixKVDatabase</span></a> (implements org.jsimpledb.kv.<a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>)</li>
-<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/PrefixPredicate.html" title="class in org.jsimpledb.parse.util"><span class="strong">PrefixPredicate</span></a> (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;T&gt;)</li>
+<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/PrefixPredicate.html" title="class in org.jsimpledb.parse.util"><span class="strong">PrefixPredicate</span></a> (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;T&gt;)</li>
 <li type="circle">org.apache.tools.ant.ProjectComponent (implements java.lang.<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>)
 <ul>
 <li type="circle">org.apache.tools.ant.types.DataType (implements java.lang.<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</a>)
@@ -822,7 +824,7 @@
 </li>
 </ul>
 </li>
-<li type="circle">org.dellroad.stuff.vaadin7.PropertyDef&lt;T&gt;
+<li type="circle">org.dellroad.stuff.vaadin7.<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/vaadin7/PropertyDef.html?is-external=true" title="class or interface in org.dellroad.stuff.vaadin7"><span class="strong">PropertyDef</span></a>&lt;T&gt;
 <ul>
 <li type="circle">org.jsimpledb.vaadin.<a href="org/jsimpledb/vaadin/JObjectContainer.ObjPropertyDef.html" title="class in org.jsimpledb.vaadin"><span class="strong">JObjectContainer.ObjPropertyDef</span></a>&lt;T&gt;
 <ul>
@@ -917,10 +919,12 @@
 <ul>
 <li type="circle">org.jsimpledb.kv.cockroach.<a href="org/jsimpledb/kv/cockroach/CockroachKVDatabase.html" title="class in org.jsimpledb.kv.cockroach"><span class="strong">CockroachKVDatabase</span></a></li>
 <li type="circle">org.jsimpledb.kv.sql.<a href="org/jsimpledb/kv/sql/MySQLKVDatabase.html" title="class in org.jsimpledb.kv.sql"><span class="strong">MySQLKVDatabase</span></a></li>
+<li type="circle">org.jsimpledb.kv.mysql.<a href="org/jsimpledb/kv/mysql/MySQLKVDatabase.html" title="class in org.jsimpledb.kv.mysql"><span class="strong">MySQLKVDatabase</span></a></li>
 <li type="circle">org.jsimpledb.kv.sql.<a href="org/jsimpledb/kv/sql/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sql"><span class="strong">SQLiteKVDatabase</span></a></li>
+<li type="circle">org.jsimpledb.kv.sqlite.<a href="org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sqlite"><span class="strong">SQLiteKVDatabase</span></a></li>
 </ul>
 </li>
-<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/StripPrefixFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">StripPrefixFunction</span></a> (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)</li>
+<li type="circle">org.jsimpledb.parse.util.<a href="org/jsimpledb/parse/util/StripPrefixFunction.html" title="class in org.jsimpledb.parse.util"><span class="strong">StripPrefixFunction</span></a> (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)</li>
 <li type="circle">org.jsimpledb.cli.telnet.<a href="org/jsimpledb/cli/telnet/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli.telnet"><span class="strong">TelnetConsole.ForwardingTerminal</span></a> (implements jline.Terminal)
 <ul>
 <li type="circle">org.jsimpledb.cli.telnet.<a href="org/jsimpledb/cli/telnet/TelnetConsole.TelnetTerminal.html" title="class in org.jsimpledb.cli.telnet"><span class="strong">TelnetConsole.TelnetTerminal</span></a></li>
@@ -1040,7 +1044,7 @@
 <li type="circle">org.jsimpledb.util.<a href="org/jsimpledb/util/UnsignedIntEncoder.html" title="class in org.jsimpledb.util"><span class="strong">UnsignedIntEncoder</span></a></li>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/UntypedJObject.html" title="class in org.jsimpledb"><span class="strong">UntypedJObject</span></a> (implements org.jsimpledb.<a href="org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a>)</li>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/Util.html" title="class in org.jsimpledb"><span class="strong">Util</span></a></li>
-<li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/Value.GetFunction.html" title="class in org.jsimpledb.parse.expr"><span class="strong">Value.GetFunction</span></a> (implements com.google.common.base.<a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)</li>
+<li type="circle">org.jsimpledb.parse.expr.<a href="org/jsimpledb/parse/expr/Value.GetFunction.html" title="class in org.jsimpledb.parse.expr"><span class="strong">Value.GetFunction</span></a> (implements com.google.common.base.<a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base">Function</a>&lt;F,T&gt;)</li>
 <li type="circle">org.jsimpledb.core.<a href="org/jsimpledb/core/Version.html" title="class in org.jsimpledb.core"><span class="strong">Version</span></a></li>
 <li type="circle">org.jsimpledb.<a href="org/jsimpledb/Version.html" title="class in org.jsimpledb"><span class="strong">Version</span></a></li>
 <li type="circle">org.jsimpledb.parse.<a href="org/jsimpledb/parse/WordParser.html" title="class in org.jsimpledb.parse"><span class="strong">WordParser</span></a> (implements org.jsimpledb.parse.<a href="org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;T&gt;)</li>

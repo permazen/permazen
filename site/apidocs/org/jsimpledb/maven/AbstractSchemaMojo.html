@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>AbstractSchemaMojo (JSimpleDB 2.0.0 API)</title>
+<title>AbstractSchemaMojo (JSimpleDB 2.0.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="AbstractSchemaMojo (JSimpleDB 2.0.0 API)";
+        parent.document.title="AbstractSchemaMojo (JSimpleDB 2.0.1 API)";
     }
 //-->
 </script>
@@ -132,16 +132,13 @@ extends <a href="https://maven.apache.org/ref/3.3.9/apidocs/org/apache/maven/plu
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/maven/AbstractSchemaMojo.html#classes">classes</a></strong></code>
-<div class="block">Specifies the names of specific Java classes to search for <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>
- or <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations.</div>
+<div class="block">Specifies the names of specific Java classes to search for @<code>JSimpleClass</code> or @<code>JFieldType</code> annotations.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/maven/AbstractSchemaMojo.html#packages">packages</a></strong></code>
-<div class="block">Specifies Java package names under which to search for classes with
- <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a> or
- <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations.</div>
+<div class="block">Specifies Java package names under which to search for classes with @<code>JSimpleClass</code> or @<code>JFieldType</code> annotations.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -269,9 +266,11 @@ extends <a href="https://maven.apache.org/ref/3.3.9/apidocs/org/apache/maven/plu
 <h4>packages</h4>
 <pre><a href="https://maven.apache.org/ref/3.3.9/apidocs/org/apache/maven/plugins.annotations.Parameter.html?is-external=true" title="class or interface in org.apache.maven">@Parameter</a>
 protected&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[] packages</pre>
-<div class="block">Specifies Java package names under which to search for classes with
- <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a> or
- <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations.</div>
+<div class="block">Specifies Java package names under which to search for classes with @<code>JSimpleClass</code> or @<code>JFieldType</code> annotations.
+
+ <p>
+ If no <code>&lt;classes&gt;</code> or <code>&lt;packages&gt;</code> are configured, then by default this plugin
+ searches all classes in the output directory.</div>
 </li>
 </ul>
 <a name="classes">
@@ -282,11 +281,10 @@ protected&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Strin
 <h4>classes</h4>
 <pre><a href="https://maven.apache.org/ref/3.3.9/apidocs/org/apache/maven/plugins.annotations.Parameter.html?is-external=true" title="class or interface in org.apache.maven">@Parameter</a>
 protected&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[] classes</pre>
-<div class="block">Specifies the names of specific Java classes to search for <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>
- or <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a> annotations.
+<div class="block">Specifies the names of specific Java classes to search for @<code>JSimpleClass</code> or @<code>JFieldType</code> annotations.
 
  <p>
- If no <code>&amp;lt;classes&amp;gt;</code> or <code>&amp;lt;packages&amp;gt;</code> are configured, then by default this plugin
+ If no <code>&lt;classes&gt;</code> or <code>&lt;packages&gt;</code> are configured, then by default this plugin
  searches all classes in the output directory.</div>
 </li>
 </ul>

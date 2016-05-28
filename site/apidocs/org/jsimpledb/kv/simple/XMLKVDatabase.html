@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>XMLKVDatabase (JSimpleDB 2.0.0 API)</title>
+<title>XMLKVDatabase (JSimpleDB 2.0.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="XMLKVDatabase (JSimpleDB 2.0.0 API)";
+        parent.document.title="XMLKVDatabase (JSimpleDB 2.0.1 API)";
     }
 //-->
 </script>
@@ -110,10 +110,10 @@
 <br>
 <pre>public class <span class="strong">XMLKVDatabase</span>
 extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></pre>
-<div class="block">Simple persistent <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> backed by an XML file stored in a <code>StreamRepository</code>.
+<div class="block">Simple persistent <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> backed by an XML file stored in a <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/StreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>StreamRepository</code></a>.
  The data is kept in memory, and the XML file is rewritten in its entirety after each successful commit.
- In normal usage, the XML file is stored in a regular <a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io"><code>File</code></a> using a <code>FileStreamRepository</code>, which
- guarantees (via the use of <code>AtomicUpdateFileOutputStream</code>) that a partially written XML file can never exist.
+ In normal usage, the XML file is stored in a regular <a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io"><code>File</code></a> using a <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/FileStreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>FileStreamRepository</code></a>, which
+ guarantees (via the use of <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/AtomicUpdateFileOutputStream.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>AtomicUpdateFileOutputStream</code></a>) that a partially written XML file can never exist.
 
  <p>
  If a <a href="http://docs.oracle.com/javase/7/docs/api/java/io/FileNotFoundException.html?is-external=true" title="class or interface in java.io"><code>FileNotFoundException</code></a> is caught when trying to read the XML file, we assume that the underlying file has
@@ -122,7 +122,7 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
  to create the initial content more dynamically.
 
  <p>
- When a <code>FileStreamRepository</code> is used, instances support "out-of-band" updates of the XML file. In that case,
+ When a <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/FileStreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>FileStreamRepository</code></a> is used, instances support "out-of-band" updates of the XML file. In that case,
  each time a transaction is accessed the modification timestamp of the XML file is examined. If the XML file has been
  updated by some external process since the time the transaction was created, the database will be reloaded from
  the XML file and the transaction will fail with a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>.
@@ -135,7 +135,7 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
  <p>
  <a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html#watchKey(byte[])">Key watches</a> are supported.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/util/XMLSerializer.html" title="class in org.jsimpledb.kv.util"><code>XMLSerializer</code></a>, 
-<code>AtomicUpdateFileOutputStream</code>, 
+<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/AtomicUpdateFileOutputStream.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>AtomicUpdateFileOutputStream</code></a>, 
 <a href="../../../../org/jsimpledb/spring/SpringXMLKVDatabase.html" title="class in org.jsimpledb.spring"><code>SpringXMLKVDatabase</code></a></dd></dl>
 </li>
 </ul>
@@ -182,12 +182,12 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html#XMLKVDatabase(org.dellroad.stuff.io.StreamRepository)">XMLKVDatabase</a></strong>(org.dellroad.stuff.io.StreamRepository&nbsp;repository)</code>
+<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html#XMLKVDatabase(org.dellroad.stuff.io.StreamRepository)">XMLKVDatabase</a></strong>(<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/StreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io">StreamRepository</a>&nbsp;repository)</code>
 <div class="block">Constructor.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html#XMLKVDatabase(org.dellroad.stuff.io.StreamRepository, long, long)">XMLKVDatabase</a></strong>(org.dellroad.stuff.io.StreamRepository&nbsp;repository,
+<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html#XMLKVDatabase(org.dellroad.stuff.io.StreamRepository, long, long)">XMLKVDatabase</a></strong>(<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/StreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io">StreamRepository</a>&nbsp;repository,
              long&nbsp;waitTimeout,
              long&nbsp;holdTimeout)</code>
 <div class="block">Constructor.</div>
@@ -311,7 +311,7 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
 <div class="block">Constructor.
 
  <p>
- Uses a <code>FileStreamRepository</code> backed by the specified file, with timeouts set to
+ Uses a <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/FileStreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>FileStreamRepository</code></a> backed by the specified file, with timeouts set to
  <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#DEFAULT_WAIT_TIMEOUT"><code>SimpleKVDatabase.DEFAULT_WAIT_TIMEOUT</code></a> and <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#DEFAULT_HOLD_TIMEOUT"><code>SimpleKVDatabase.DEFAULT_HOLD_TIMEOUT</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>file</code> - persistent XML file</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -330,7 +330,7 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
 <div class="block">Constructor.
 
  <p>
- Uses a <code>FileStreamRepository</code> backed by the specified file with configurable lock timeouts.</div>
+ Uses a <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/FileStreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>FileStreamRepository</code></a> backed by the specified file with configurable lock timeouts.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>file</code> - persistent XML file</dd><dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd><dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>
@@ -345,11 +345,11 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
 <ul class="blockList">
 <li class="blockList">
 <h4>XMLKVDatabase</h4>
-<pre>public&nbsp;XMLKVDatabase(org.dellroad.stuff.io.StreamRepository&nbsp;repository)</pre>
+<pre>public&nbsp;XMLKVDatabase(<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/StreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io">StreamRepository</a>&nbsp;repository)</pre>
 <div class="block">Constructor.
 
  <p>
- Allows storage in any user-supplied <code>StreamRepository</code>, with timeouts set to
+ Allows storage in any user-supplied <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/StreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>StreamRepository</code></a>, with timeouts set to
  <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#DEFAULT_WAIT_TIMEOUT"><code>SimpleKVDatabase.DEFAULT_WAIT_TIMEOUT</code></a> and <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#DEFAULT_HOLD_TIMEOUT"><code>SimpleKVDatabase.DEFAULT_HOLD_TIMEOUT</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>repository</code> - XML file storage</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -362,13 +362,13 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
 <ul class="blockListLast">
 <li class="blockList">
 <h4>XMLKVDatabase</h4>
-<pre>public&nbsp;XMLKVDatabase(org.dellroad.stuff.io.StreamRepository&nbsp;repository,
+<pre>public&nbsp;XMLKVDatabase(<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/StreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io">StreamRepository</a>&nbsp;repository,
              long&nbsp;waitTimeout,
              long&nbsp;holdTimeout)</pre>
 <div class="block">Constructor.
 
  <p>
- Allows storage in any user-supplied <code>StreamRepository</code> with configurable lock timeouts.</div>
+ Allows storage in any user-supplied <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/io/StreamRepository.html?is-external=true" title="class or interface in org.dellroad.stuff.io"><code>StreamRepository</code></a> with configurable lock timeouts.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>repository</code> - XML file storage</dd><dd><code>waitTimeout</code> - how long a thread will wait for a lock before throwing <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd><dd><code>holdTimeout</code> - how long a thread may hold a contestested lock before throwing <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>
   in milliseconds, or zero for unlimited</dd>

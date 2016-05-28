@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>RaftKVDatabase (JSimpleDB 2.0.0 API)</title>
+<title>RaftKVDatabase (JSimpleDB 2.0.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="RaftKVDatabase (JSimpleDB 2.0.0 API)";
+        parent.document.title="RaftKVDatabase (JSimpleDB 2.0.1 API)";
     }
 //-->
 </script>
@@ -575,8 +575,8 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setNetwork(org.dellroad.stuff.net.Network)">setNetwork</a></strong>(org.dellroad.stuff.net.Network&nbsp;network)</code>
-<div class="block">Configure the <code>Network</code> to use for inter-node communication.</div>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setNetwork(org.dellroad.stuff.net.Network)">setNetwork</a></strong>(<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net">Network</a>&nbsp;network)</code>
+<div class="block">Configure the <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net"><code>Network</code></a> to use for inter-node communication.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -787,12 +787,12 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <ul class="blockList">
 <li class="blockList">
 <h4>setNetwork</h4>
-<pre>public&nbsp;void&nbsp;setNetwork(org.dellroad.stuff.net.Network&nbsp;network)</pre>
-<div class="block">Configure the <code>Network</code> to use for inter-node communication.
+<pre>public&nbsp;void&nbsp;setNetwork(<a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net">Network</a>&nbsp;network)</pre>
+<div class="block">Configure the <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/net/Network.html?is-external=true" title="class or interface in org.dellroad.stuff.net"><code>Network</code></a> to use for inter-node communication.
 
  <p>
- By default, a <code>TCPNetwork</code> instance communicating on <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_TCP_PORT"><code>DEFAULT_TCP_PORT</code></a> is used.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>network</code> - network implementation; must not be started</dd>
+ By default, a <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/net/TCPNetwork.html?is-external=true" title="class or interface in org.dellroad.stuff.net"><code>TCPNetwork</code></a> instance communicating on <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#DEFAULT_TCP_PORT"><code>DEFAULT_TCP_PORT</code></a> is used.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>network</code> - network implementation; must not be <a href="http://archiecobbs.github.io/dellroad-stuff/site/apidocs/org/dellroad/stuff/net/Network.html?is-external=true#start(org.dellroad.stuff.net.Network.Handler)" title="class or interface in org.dellroad.stuff.net">started</a></dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this instance is already started</dd></dl>
 </li>

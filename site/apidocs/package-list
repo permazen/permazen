@@ -19,12 +19,14 @@ org.jsimpledb.kv.cockroach
 org.jsimpledb.kv.fdb
 org.jsimpledb.kv.leveldb
 org.jsimpledb.kv.mvcc
+org.jsimpledb.kv.mysql
 org.jsimpledb.kv.raft
 org.jsimpledb.kv.raft.fallback
 org.jsimpledb.kv.raft.msg
 org.jsimpledb.kv.rocksdb
 org.jsimpledb.kv.simple
 org.jsimpledb.kv.sql
+org.jsimpledb.kv.sqlite
 org.jsimpledb.kv.test
 org.jsimpledb.kv.util
 org.jsimpledb.maven

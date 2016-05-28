@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>VerifySchemaMojo (JSimpleDB 2.0.0 API)</title>
+<title>VerifySchemaMojo (JSimpleDB 2.0.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="VerifySchemaMojo (JSimpleDB 2.0.0 API)";
+        parent.document.title="VerifySchemaMojo (JSimpleDB 2.0.1 API)";
     }
 //-->
 </script>
@@ -120,8 +120,11 @@
       threadSafe=true)
 public class <span class="strong">VerifySchemaMojo</span>
 extends <a href="../../../org/jsimpledb/maven/AbstractMainSchemaMojo.html" title="class in org.jsimpledb.maven">AbstractMainSchemaMojo</a></pre>
-<div class="block">Verifies that the JSimpleDB schema generated from user-supplied model classes will not
- cause any <a href="../../../org/jsimpledb/core/SchemaMismatchException.html" title="class in org.jsimpledb.core"><code>SchemaMismatchException</code></a>s at runtime.
+<div class="block">Verify the JSimpleDB schema auto-generated from user-supplied model classes.
+
+ <p>
+ This goal verifies that the JSimpleDB schema can be successfully auto-generated from user-supplied model classes.
+ It also checks that the schema will not lead to any <a href="../../../org/jsimpledb/core/SchemaMismatchException.html" title="class in org.jsimpledb.core"><code>SchemaMismatchException</code></a>s at runtime.
 
  <p>
  Such exceptions occur when either:
@@ -133,19 +136,34 @@ extends <a href="../../../org/jsimpledb/maven/AbstractMainSchemaMojo.html" title
  </ul>
 
  <p>
- The first case is detected by having an expected schema XML file. This file should correspond
- to the project's currently configured JSimpleDB schema version. It is used to verify that the
- schema auto-generated from the project's current model classes is has not changed incompatibly.
- In other words, the actual schema generated from the compiled classes will be checked for
- compatibility against this file. If it is found incompatible, this goal will fail, the
- project's configured JSimpleDB schema version should be incremented, and the expected schema
- file updated with the new schema version, which will be found in the <code>&amp;lt;actualSchemaFile&amp;gt;</code>
- location, and the previous expected schema file should be moved into the <code>&amp;lt;oldSchemasDirectory&amp;gt;</code>.
+ The first case is detected by having an expected schema XML file. This file corresponds to the project's
+ currently configured JSimpleDB schema version number (which is used to configure JSimpleDB at runtime).
+ It is used to verify that the schema auto-generated from the project's current model classes has not changed
+ in an incompatible way, which would cause an error at runtime.
+ In other words, the actual schema generated from the compiled classes is verified to match
+ what is expected, which is recorded in this file.
+ The current expected schema XML file location is configured by <code>&lt;expectedSchemaFile&gt;</code>;
 
  <p>
- The second case it detected by supplying XML files containing the old schema versions in the
- <code>&amp;lt;oldSchemasDirectory&amp;gt;</code>. Files ending in <code>.xml</code> found under this
- directory are checked for incompatibilities with the current schema version.</div>
+ The second case it detected by supplying XML files containing any old schema versions that are still active
+ in the old schema files directory. All files ending in <code>.xml</code> found anywhere under this
+ directory are checked for incompatibilities with the current schema version.
+ The old schema XML files directory is configured by <code>&lt;oldSchemasDirectory&gt;</code>.
+
+ <p>
+ If this goal fails due to an incompatibility of the first type:
+ <ul>
+  <li>The old expected schema XML file should be moved into the old schemas directory;</li>
+  <li>the new expected schema XML file (found in the location configured by <code>&lt;actualSchemaFile&gt;</code>)
+      should be copied to the current expected schema XML file;</li>
+  <li>The project's configured JSimpleDB schema version number should be incremented.</li>
+ </ul>
+
+ <p>
+ If this goal fails due to an incompatibility of the second type, you must adjust your model classes to make
+ them compatible again. For example, manually reassign the conflicting field a different
+ <a href="../../../org/jsimpledb/annotation/JField.html#name()"><code>name()</code></a> or <a href="../../../org/jsimpledb/annotation/JField.html#storageId()"><code>storageId()</code></a>
+ using the <a href="../../../org/jsimpledb/annotation/JField.html" title="annotation in org.jsimpledb.annotation"><code>JField</code></a> annotation.</div>
 </li>
 </ul>
 </div>
