@@ -52,16 +52,17 @@ import org.jsimpledb.spring.JSimpleDBFieldTypeScanner;
 public abstract class AbstractSchemaMojo extends AbstractMojo {
 
     /**
-     * Specifies Java package names under which to search for classes with
-     * {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} or
-     * {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations.
+     * Specifies Java package names under which to search for classes with @{@code JSimpleClass} or @{@code JFieldType} annotations.
+     *
+     * <p>
+     * If no {@code <classes>} or {@code <packages>} are configured, then by default this plugin
+     * searches all classes in the output directory.
      */
     @Parameter
     protected String[] packages;
 
     /**
-     * Specifies the names of specific Java classes to search for {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}
-     * or {@link org.jsimpledb.annotation.JFieldType &#64;JFieldType} annotations.
+     * Specifies the names of specific Java classes to search for @{@code JSimpleClass} or @{@code JFieldType} annotations.
      *
      * <p>
      * If no {@code <classes>} or {@code <packages>} are configured, then by default this plugin
