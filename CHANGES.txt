@@ -1,4 +1,4 @@
-Version Next
+Version 2.0.1 Released May 28, 2016
 
     - Split out new modules kv-mysql and kv-sqlite from kv-sql
     - Fix bugs in the Maven plugin
