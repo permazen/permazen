@@ -8,8 +8,8 @@
     However, you can use these files during your build to verify that the schema
     generated from your Java model classes will be as expected, thereby ensuring
     that no schema version change will need to occur. You can use the provided
-    <jsimpledb:schema> ant task to generate or verify XML schema files like this.
-    See the Javadoc for org.jsimpledb.ant.SchemaGeneratorTask for more info.
+    <jsimpledb:schema> ant task, or the JSimpleDB Maven plugin, to generate and/or
+    verify XML schema files like this.
 -->
 
 <Schema formatVersion="2">
