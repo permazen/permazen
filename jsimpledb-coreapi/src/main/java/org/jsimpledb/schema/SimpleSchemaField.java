@@ -138,16 +138,16 @@ public class SimpleSchemaField extends SchemaField implements DiffGenerating<Sim
         super.writeAttributes(writer, includeName);
         this.writeSimpleAttributes(writer);
         if (this.encodingSignature != 0) {
-            writer.writeAttribute(/*ENCODING_SIGNATURE_ATTRIBUTE.getNamespaceURI(),*/
-              ENCODING_SIGNATURE_ATTRIBUTE.getLocalPart(), "" + this.encodingSignature);
+            writer.writeAttribute(ENCODING_SIGNATURE_ATTRIBUTE.getNamespaceURI(), ENCODING_SIGNATURE_ATTRIBUTE.getLocalPart(),
+              "" + this.encodingSignature);
         }
     }
 
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
         if (this.type != null)
-            writer.writeAttribute(/*TYPE_ATTRIBUTE.getNamespaceURI(),*/ TYPE_ATTRIBUTE.getLocalPart(), this.type);
+            writer.writeAttribute(TYPE_ATTRIBUTE.getNamespaceURI(), TYPE_ATTRIBUTE.getLocalPart(), this.type);
         if (this.indexed)
-            writer.writeAttribute(/*INDEXED_ATTRIBUTE.getNamespaceURI(),*/ INDEXED_ATTRIBUTE.getLocalPart(), "" + this.indexed);
+            writer.writeAttribute(INDEXED_ATTRIBUTE.getNamespaceURI(), INDEXED_ATTRIBUTE.getLocalPart(), "" + this.indexed);
     }
 
 // Object

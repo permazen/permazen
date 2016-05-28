@@ -167,16 +167,13 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         else
             writer.writeEmptyElement(REFERENCE_FIELD_TAG.getNamespaceURI(), REFERENCE_FIELD_TAG.getLocalPart());
         this.writeAttributes(writer, includeName);
-        if (this.onDelete != null) {
-            writer.writeAttribute(/*ON_DELETE_ATTRIBUTE.getNamespaceURI(),*/
-              ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());
-        }
+        if (this.onDelete != null)
+            writer.writeAttribute(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());
         if (this.objectTypes != null) {
             writer.writeStartElement(OBJECT_TYPES_TAG.getNamespaceURI(), OBJECT_TYPES_TAG.getLocalPart());
             for (int storageId : this.objectTypes) {
                 writer.writeEmptyElement(OBJECT_TYPE_TAG.getNamespaceURI(), OBJECT_TYPE_TAG.getLocalPart());
-                writer.writeAttribute(/*STORAGE_ID_ATTRIBUTE.getNamespaceURI(),*/
-                  STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
+                writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
             }
             writer.writeEndElement();           // </ObjectTypes>
             writer.writeEndElement();           // </ReferenceField>
@@ -187,8 +184,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     void writeSimpleAttributes(XMLStreamWriter writer) throws XMLStreamException {
         // don't need to write type or indexed
         if (this.cascadeDelete) {
-            writer.writeAttribute(/*CASCADE_DELETE_ATTRIBUTE.getNamespaceURI(),*/
-              CASCADE_DELETE_ATTRIBUTE.getLocalPart(), "" + this.cascadeDelete);
+            writer.writeAttribute(CASCADE_DELETE_ATTRIBUTE.getNamespaceURI(), CASCADE_DELETE_ATTRIBUTE.getLocalPart(),
+              "" + this.cascadeDelete);
         }
     }
 

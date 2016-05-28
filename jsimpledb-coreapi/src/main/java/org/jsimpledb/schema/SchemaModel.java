@@ -72,6 +72,9 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
         FIELD_OR_COMPOSITE_INDEX_TAG_MAP.put(COMPOSITE_INDEX_TAG, SchemaCompositeIndex.class);
     }
 
+    private static final String XML_OUTPUT_FACTORY_PROPERTY = "javax.xml.stream.XMLOutputFactory";
+    private static final String DEFAULT_XML_OUTPUT_FACTORY_IMPLEMENTATION = "com.sun.xml.internal.stream.XMLOutputFactoryImpl";
+
     private static final int CURRENT_FORMAT_VERSION = 2;
 
     private /*final*/ TreeMap<Integer, SchemaObjectType> schemaObjectTypes = new TreeMap<>();
@@ -93,7 +96,23 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      */
     public void toXML(OutputStream output, boolean indent) throws IOException {
         try {
-            XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
+
+            // Create factory, preferring Sun implementation to avoid https://github.com/FasterXML/woodstox/issues/17
+            XMLOutputFactory factory;
+            final boolean setDefault = System.getProperty(XML_OUTPUT_FACTORY_PROPERTY) == null;
+            if (setDefault)
+                System.setProperty(XML_OUTPUT_FACTORY_PROPERTY, DEFAULT_XML_OUTPUT_FACTORY_IMPLEMENTATION);
+            try {
+                factory = XMLOutputFactory.newInstance();
+            } catch (RuntimeException e) {
+                if (!setDefault)
+                    throw e;
+                System.clearProperty(XML_OUTPUT_FACTORY_PROPERTY);
+                factory = XMLOutputFactory.newInstance();
+            }
+
+            // Create writer
+            XMLStreamWriter writer = factory.createXMLStreamWriter(output, "UTF-8");
             if (indent)
                 writer = new IndentXMLStreamWriter(writer);
             writer.writeStartDocument("UTF-8", "1.0");
@@ -274,7 +293,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         writer.setDefaultNamespace(SCHEMA_MODEL_TAG.getNamespaceURI());
         writer.writeStartElement(SCHEMA_MODEL_TAG.getNamespaceURI(), SCHEMA_MODEL_TAG.getLocalPart());
-        writer.writeAttribute(/*FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),*/
+        writer.writeAttribute(FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
           FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + CURRENT_FORMAT_VERSION);
         final ArrayList<SchemaObjectType> typeList = new ArrayList<>(this.schemaObjectTypes.values());
         Collections.sort(typeList, new AbstractSchemaItem.NameComparator());
