@@ -410,19 +410,3 @@ public abstract class AbstractSchemaMojo extends AbstractMojo {
         }
     }
 }
-
-/* %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        // Get specified files
-        final ArrayList<String> files = new ArrayList<>();
-        final FileSetManager fileSetManager = new FileSetManager(this.getLog());
-        if (this.fileSets == null) {
-
-            // Apply default: all classes in output directory
-            final FileSet fileSet = new FileSet();
-            fileSet.setDirectory(this.getClassOutputDirectory());
-
-        for (FileSet fileSet : this.fileSets
-        String[] includedFiles = fileSetManager.getIncludedFiles( fileset );
-*/
-
