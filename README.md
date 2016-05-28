@@ -56,13 +56,13 @@ Abstract:
 
 ### Installing JSimpleDB
 
-JSimpleDB is availble via Maven Central:
+JSimpleDB is availble from [Maven Central](http://search.maven.org/#search|ga|1|g%3Aorg.jsimpledb):
 
 ```xml
     <dependency>
         <groupId>org.jsimpledb</groupId>
         <artifactId>jsimpledb-main</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.1</version>
     </dependency>
 ```
 
@@ -72,7 +72,7 @@ or from the [Ivy RoundUp](https://github.com/archiecobbs/ivyroundup/) ivy reposi
 <dependency org="org.jsimpledb" name="jsimpledb"/>
 ```
 
-There is a [demo distribution ZIP file](https://oss.sonatype.org/content/repositories/public/org/jsimpledb/jsimpledb-demo/2.0.0/jsimpledb-demo-2.0.0-dist.zip) that lets you play with the JSimpleDB command line and GUI, using a simple database of the solar system.
+There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|jsimpledb-demo) that lets you play with the JSimpleDB command line and GUI, using a simple database of the solar system.
 
 ### Documentation
 
