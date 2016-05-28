@@ -77,7 +77,7 @@ public class SchemaCompositeIndex extends AbstractSchemaItem implements DiffGene
         this.writeAttributes(writer, true);
         for (int storageId : this.indexedFields) {
             writer.writeEmptyElement(INDEXED_FIELD_TAG.getNamespaceURI(), INDEXED_FIELD_TAG.getLocalPart());
-            writer.writeAttribute(STORAGE_ID_ATTRIBUTE.getNamespaceURI(), STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
+            writer.writeAttribute(/*STORAGE_ID_ATTRIBUTE.getNamespaceURI(),*/ STORAGE_ID_ATTRIBUTE.getLocalPart(), "" + storageId);
         }
         writer.writeEndElement();           // </CompositeIndex>
     }

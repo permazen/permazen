@@ -274,7 +274,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
     void writeXML(XMLStreamWriter writer) throws XMLStreamException {
         writer.setDefaultNamespace(SCHEMA_MODEL_TAG.getNamespaceURI());
         writer.writeStartElement(SCHEMA_MODEL_TAG.getNamespaceURI(), SCHEMA_MODEL_TAG.getLocalPart());
-        writer.writeAttribute(FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),
+        writer.writeAttribute(/*FORMAT_VERSION_ATTRIBUTE.getNamespaceURI(),*/
           FORMAT_VERSION_ATTRIBUTE.getLocalPart(), "" + CURRENT_FORMAT_VERSION);
         final ArrayList<SchemaObjectType> typeList = new ArrayList<>(this.schemaObjectTypes.values());
         Collections.sort(typeList, new AbstractSchemaItem.NameComparator());
