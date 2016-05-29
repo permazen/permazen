@@ -595,20 +595,42 @@
                         <randomSeed/>
 
                         <!-- These properties are used by KVDatabase tests. Uncomment one or more to include time-consuming tests. -->
-                    <!--
-                        <testSimpleKV>true</testSimpleKV>
-                        <xmlFilePrefix>xmldb</xmlFilePrefix>
-                        <fdbClusterFile>/usr/local/etc/foundationdb/fdb.cluster</fdbClusterFile>
-                        <mysqlURL>jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger</mysqlURL>
-                        <cockroachURL>jdbc:postgresql://127.0.0.1:26257/jsimpledb?sslmode=disable&amp;user=root</cockroachURL>
-                        <sqliteFilePrefix>SQLiteKV</sqliteFilePrefix>
-                        <berkeleyDirPrefix>BerkeleyDbJava</berkeleyDirPrefix>
-                        <levelDbDirPrefix>LevelDbJava</levelDbDirPrefix>
-                        <rocksDbDirPrefix>RocksDbJava</rocksDbDirPrefix>
+
+                        <!-- kv-array -->
+                        <!--
                         <arrayDirPrefix>ArrayKVStore</arrayDirPrefix>
                         <arrayCompactMaxDelay>3</arrayCompactMaxDelay>
                         <arrayCompactSpaceLowWater>1048576</arrayCompactSpaceLowWater>
                         <arrayCompactSpaceHighWater>16777216</arrayCompactSpaceHighWater>
+                        -->
+
+                        <!-- kv-bdb -->
+                        <!--
+                        <berkeleyDirPrefix>BerkeleyDbJava</berkeleyDirPrefix>
+                        -->
+
+                        <!-- kv-cockroach -->
+                        <!--
+                        <cockroachURL>jdbc:postgresql://127.0.0.1:26257/jsimpledb?sslmode=disable&amp;user=root</cockroachURL>
+                        -->
+
+                        <!-- kv-fdb -->
+                        <!--
+                        <fdbClusterFile>/usr/local/etc/foundationdb/fdb.cluster</fdbClusterFile>
+                        -->
+
+                        <!-- kv-leveldb -->
+                        <!--
+                        <levelDbDirPrefix>LevelDbJava</levelDbDirPrefix>
+                        -->
+
+                        <!-- kv-mysql -->
+                        <!--
+                        <mysqlURL>jdbc:mysql://127.0.0.1:3306/jsimpledb?user=jsimpledb&amp;password=jsimpledb&amp;logger=com.mysql.jdbc.log.Slf4JLogger</mysqlURL>
+                        -->
+
+                        <!-- kv-raft -->
+                        <!--
                         <raftDirPrefix>RaftDB</raftDirPrefix>
                         <raftNumNodes>3</raftNumNodes>
                         <raftCommitTimeout>2500</raftCommitTimeout>
@@ -619,7 +641,21 @@
                         <raftFollowerProbingEnabled>false</raftFollowerProbingEnabled>
                         <raftNetworkDelayMillis>10</raftNetworkDelayMillis>
                         <raftNetworkDropRatio>0.05</raftNetworkDropRatio>
-                    -->
+                        -->
+
+                        <!-- kv-rocksdb -->
+                        <!--
+                        <rocksDbDirPrefix>RocksDbJava</rocksDbDirPrefix>
+                        -->
+
+                        <!-- kv-simple -->
+                        <testSimpleKV>true</testSimpleKV>
+                        <xmlFilePrefix>xmldb</xmlFilePrefix>
+
+                        <!-- kv-sqlite -->
+                        <!--
+                        <sqliteFilePrefix>SQLiteKV</sqliteFilePrefix>
+                        -->
 
                     </systemPropertyVariables>
                     <properties>
