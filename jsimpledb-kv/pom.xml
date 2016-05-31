@@ -60,7 +60,7 @@
                         <additionalDependency>
                             <groupId>org.jsimpledb</groupId>
                             <artifactId>jsimpledb-main</artifactId>
-                            <version>${javadoc.previous.version}</version>
+                            <version>${previous.version}</version>
                         </additionalDependency>
                     </additionalDependencies>
                 </configuration>
