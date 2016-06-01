@@ -79,7 +79,6 @@ public class MySQLKVDatabase extends SQLKVDatabase {
     @Override
     protected void preBeginTransaction(Connection connection) throws SQLException {
         try (final Statement statement = connection.createStatement()) {
-            statement.execute("SET TRANSACTION ISOLATION LEVEL " + this.isolationLevel.name().replace('_', ' '));
             statement.execute("SET innodb_lock_wait_timeout = " + DEFAULT_LOCK_TIMEOUT);
             statement.execute("SET SESSION sql_mode = 'TRADITIONAL'");              // force error if key or value is too long
         }

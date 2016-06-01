@@ -18,8 +18,6 @@ import org.jsimpledb.core.DatabaseException;
 import org.jsimpledb.core.Transaction;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
-import org.jsimpledb.kv.raft.Consistency;
-import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -28,6 +26,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.TransactionTimedOutException;
 import org.springframework.transaction.TransactionUsageException;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.ResourceTransactionManager;
@@ -46,49 +45,22 @@ import org.springframework.transaction.support.TransactionSynchronization;
  *
  * <p>
  * For some key/value stores, the {@link org.springframework.transaction.annotation.Transactional#isolation &#64;isolation()}
- * value is significant:
- *
- * <p><b>{@link RaftKVDatabase}</b>
- *
- * <p>
- * For {@link RaftKVDatabase} underlying key/value stores, configurable {@link Consistency} levels are supported.
- * Although the mapping between Spring's defined isolation levels and {@link RaftKVDatabase} consistency levels
- * is only semantically approximate, all Raft consistency levels are made available through the following isolation values:
- *
- * <div style="margin-left: 20px;">
- * <table border="1" cellpadding="3" cellspacing="0" summary="Isolation Level Mapping">
- * <tr style="bgcolor:#ccffcc">
- *  <th align="left">Spring isolation level</th>
- *  <th align="left">{@link RaftKVDatabase} consistency level</th>
- * </tr>
- * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#DEFAULT}</td>
- *  <td>{@link Consistency#LINEARIZABLE}</td>
- * </tr>
- * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#SERIALIZABLE}</td>
- *  <td>{@link Consistency#LINEARIZABLE}</td>
- * </tr>
- * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#REPEATABLE_READ}</td>
- *  <td>{@link Consistency#EVENTUAL}</td>
- * </tr>
- * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_COMMITTED}</td>
- *  <td>{@link Consistency#EVENTUAL_COMMITTED}</td>
- * </tr>
- * <tr>
- *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_UNCOMMITTED}</td>
- *  <td>{@link Consistency#UNCOMMITTED}</td>
- * </tr>
- * </table>
- * </div>
+ * value is significant; see the documentation for the specific {@link org.jsimpledb.kv.KVDatabase}.
  *
  * @see org.jsimpledb.spring
  */
 @SuppressWarnings("serial")
 public class JSimpleDBTransactionManager extends AbstractPlatformTransactionManager
   implements ResourceTransactionManager, InitializingBean {
+
+    /**
+     * The name of the transaction option passed to
+     * {@link org.jsimpledb.kv.KVTransaction#createTransaction(Map) KVTransaction.createTransaction()}
+     * containing the {@linkplain TransactionDefinition#getIsolationLevel isolation level} from the
+     * transaction definition. Some key/value databases may interpret this option.
+     * The value of this option is an {@link Isolation} instance.
+     */
+    public static final String ISOLATION_OPTION = Isolation.class.getName();
 
     /**
      * The default {@link ValidationMode} to use for transactions ({@link ValidationMode#AUTOMATIC}).
@@ -195,12 +167,27 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         if (tx.getJTransaction() != null)
             throw new TransactionUsageException("there is already a transaction associated with the current thread");
 
-        // Map transaction options
+        // Set transaction options
         final Map<String, Object> options = new HashMap<>();
-        try {
-            new RaftOptionMapper().map(txDef, options);
-        } catch (NoClassDefFoundError e) {
-            // ignore - jsimpledb-kv-raft is not on the classpath
+        switch (txDef.getIsolationLevel()) {
+        case TransactionDefinition.ISOLATION_READ_UNCOMMITTED:
+            options.put(ISOLATION_OPTION, Isolation.READ_UNCOMMITTED);
+            break;
+        case TransactionDefinition.ISOLATION_READ_COMMITTED:
+            options.put(ISOLATION_OPTION, Isolation.READ_COMMITTED);
+            break;
+        case TransactionDefinition.ISOLATION_REPEATABLE_READ:
+            options.put(ISOLATION_OPTION, Isolation.REPEATABLE_READ);
+            break;
+        case TransactionDefinition.ISOLATION_SERIALIZABLE:
+            options.put(ISOLATION_OPTION, Isolation.SERIALIZABLE);
+            break;
+        case TransactionDefinition.ISOLATION_DEFAULT:
+            options.put(ISOLATION_OPTION, Isolation.DEFAULT);
+            break;
+        default:
+            this.logger.warn("unexpected isolation level " + txDef.getIsolationLevel());
+            break;
         }
 
         // Create JSimpleDB transaction
@@ -494,32 +481,6 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         @Override
         public int hashCode() {
             return this.synchronization.hashCode();
-        }
-    }
-
-// RaftOptionMapper
-
-    // This is a separate class to isolate the dependency on jsimpledb-kv-raft
-    private class RaftOptionMapper {
-
-        public void map(TransactionDefinition txDef, Map<String, Object> options) {
-            if (!(JSimpleDBTransactionManager.this.jdb.getDatabase().getKVDatabase() instanceof RaftKVDatabase))
-                return;
-            switch (txDef.getIsolationLevel()) {
-            case TransactionDefinition.ISOLATION_READ_UNCOMMITTED:
-                options.put(RaftKVDatabase.OPTION_CONSISTENCY, Consistency.UNCOMMITTED);
-                break;
-            case TransactionDefinition.ISOLATION_READ_COMMITTED:
-                options.put(RaftKVDatabase.OPTION_CONSISTENCY, Consistency.EVENTUAL_COMMITTED);
-                break;
-            case TransactionDefinition.ISOLATION_REPEATABLE_READ:
-                options.put(RaftKVDatabase.OPTION_CONSISTENCY, Consistency.EVENTUAL);
-                break;
-            case TransactionDefinition.ISOLATION_SERIALIZABLE:
-            default:
-                options.put(RaftKVDatabase.OPTION_CONSISTENCY, Consistency.LINEARIZABLE);
-                break;
-            }
         }
     }
 }

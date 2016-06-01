@@ -230,6 +230,45 @@ import org.slf4j.LoggerFactory;
  * {@linkplain RaftKVTransaction#watchKey Key watches} and {@linkplain RaftKVTransaction#mutableSnapshot mutable snapshots}
  * are supported.
  *
+ * <p><b>Spring Isolation Levels</b></p>
+ *
+ * <p>
+ * In Spring applications, the transaction {@link Consistency} level may be configured through the Spring
+ * {@link org.jsimpledb.spring.JSimpleDBTransactionManager} by (ab)using the transaction isolation level setting,
+ * for example, via the {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation's
+ * {@link org.springframework.transaction.annotation.Transactional#isolation isolation()} property.
+ * All Raft consistency levels are made available this way, though the mapping from Spring's isolation levels to
+ * {@link RaftKVDatabase}'s consistency levels is only semantically approximate:
+ *
+ * <div style="margin-left: 20px;">
+ * <table border="1" cellpadding="3" cellspacing="0" summary="Isolation Level Mapping">
+ * <tr style="bgcolor:#ccffcc">
+ *  <th align="left">Spring isolation level</th>
+ *  <th align="left">{@link RaftKVDatabase} consistency level</th>
+ * </tr>
+ * <tr>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#DEFAULT}</td>
+ *  <td>{@link Consistency#LINEARIZABLE}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#SERIALIZABLE}</td>
+ *  <td>{@link Consistency#LINEARIZABLE}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#REPEATABLE_READ}</td>
+ *  <td>{@link Consistency#EVENTUAL}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_COMMITTED}</td>
+ *  <td>{@link Consistency#EVENTUAL_COMMITTED}</td>
+ * </tr>
+ * <tr>
+ *  <td>{@link org.springframework.transaction.annotation.Isolation#READ_UNCOMMITTED}</td>
+ *  <td>{@link Consistency#UNCOMMITTED}</td>
+ * </tr>
+ * </table>
+ * </div>
+ *
  * @see <a href="https://raftconsensus.github.io/">The Raft Consensus Algorithm</a>
  */
 public class RaftKVDatabase implements KVDatabase {
@@ -1141,7 +1180,32 @@ public class RaftKVDatabase implements KVDatabase {
 
     @Override
     public RaftKVTransaction createTransaction(Map<String, ?> options) {
+
+        // Look for options from the JSimpleDBTransactionManager
         Consistency consistency = null;
+        Object isolation = options.get("org.springframework.transaction.annotation.Isolation");
+        if (isolation instanceof Enum)
+            isolation = ((Enum<?>)isolation).name();
+        if (isolation != null) {
+            switch (isolation.toString()) {
+            case "READ_UNCOMMITTED":
+                consistency = Consistency.UNCOMMITTED;
+                break;
+            case "READ_COMMITTED":
+                consistency = Consistency.EVENTUAL_COMMITTED;
+                break;
+            case "REPEATABLE_READ":
+                consistency = Consistency.EVENTUAL;
+                break;
+            case "SERIALIZABLE":
+                consistency = Consistency.LINEARIZABLE;
+                break;
+            default:
+                break;
+            }
+        }
+
+        // Look for OPTION_CONSISTENCY option
         try {
             final Object value = options.get(OPTION_CONSISTENCY);
             if (value instanceof Consistency)
@@ -1151,6 +1215,8 @@ public class RaftKVDatabase implements KVDatabase {
         } catch (Exception e) {
             // ignore
         }
+
+        // Configure consistency level
         return this.createTransaction(consistency != null ? consistency : Consistency.LINEARIZABLE);
     }
 

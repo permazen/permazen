@@ -65,9 +65,15 @@ public class SQLKVDatabase implements KVDatabase {
     protected String valueColumnName = DEFAULT_VALUE_COLUMN_NAME;
 
     /**
-     * The configured transaction isolation level. Default is {@link IsolationLevel#SERIALIZABLE}.
+     * The default transaction isolation level. Default is {@link IsolationLevel#SERIALIZABLE}.
      */
     protected IsolationLevel isolationLevel = IsolationLevel.SERIALIZABLE;
+
+    /**
+     * Option key for {@link #createTransaction(Map)}. Value should be an {@link IsolationLevel} instance,
+     * or the {@link IsolationLevel#name name()} thereof.
+     */
+    public static final String OPTION_ISOLATION = "isolation";
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -166,11 +172,13 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Get the transaction isolation level.
+     * Get the default transaction isolation level.
+     *
+     * <p>
+     * This may be overridden on a per-transaction basis; see {@link #getIsolationLevel(Map)}.
      *
      * <p>
      * Default value is {@link IsolationLevel#SERIALIZABLE}.
-     * </p>
      *
      * @return isolation level
      */
@@ -179,7 +187,7 @@ public class SQLKVDatabase implements KVDatabase {
     }
 
     /**
-     * Configure the transaction isolation level.
+     * Configure the default transaction isolation level.
      *
      * @param isolationLevel isolation level
      * @throws IllegalArgumentException if {@code isolationLevel} is null
@@ -215,11 +223,6 @@ public class SQLKVDatabase implements KVDatabase {
     protected void initializeDatabaseIfNecessary(Connection connection) throws SQLException {
     }
 
-    @Override
-    public SQLKVTransaction createTransaction(Map<String, ?> options) {
-        return this.createTransaction();                                            // no options supported yet
-    }
-
     /**
      * Create a new transaction.
      *
@@ -227,6 +230,7 @@ public class SQLKVDatabase implements KVDatabase {
      * The implementation in {@link SQLKVDatabase} invokes {@link #createTransactionConnection createTransactionConnection()}
      * to get a {@link Connection} for the new transaction, then invokes these methods in order:
      *  <ol>
+     *  <li>{@link Connection#setTransactionIsolation Connection.setTransactionIsolation()}</li>
      *  <li>{@link #preBeginTransaction preBeginTransaction()}</li>
      *  <li>{@link #beginTransaction beginTransaction()}</li>
      *  <li>{@link #postBeginTransaction postBeginTransaction()}</li>
@@ -238,17 +242,91 @@ public class SQLKVDatabase implements KVDatabase {
      * @throws IllegalStateException if no {@link DataSource} is {@linkplain #setDataSource configured}
      */
     @Override
-    public SQLKVTransaction createTransaction() {
+    public SQLKVTransaction createTransaction(Map<String, ?> options) {
+
+        // Sanity check
         Preconditions.checkState(this.dataSource != null, "no DataSource configured");
+
+        // Get isolation level
+        final IsolationLevel txIsolationLevel = options != null ? this.getIsolationLevel(options) : this.isolationLevel;
+
+        // Get connection and transaction
+        final SQLKVTransaction tx;
         try {
             final Connection connection = this.createTransactionConnection();
+            connection.setTransactionIsolation(txIsolationLevel.getConnectionIsolation());
             this.preBeginTransaction(connection);
             this.beginTransaction(connection);
             this.postBeginTransaction(connection);
-            return this.createSQLKVTransaction(connection);
+            tx = this.createSQLKVTransaction(connection);
         } catch (SQLException e) {
             throw new KVDatabaseException(this, e);
         }
+
+        // Done
+        return tx;
+    }
+
+    /**
+     * Create a new transaction.
+     *
+     * <p>
+     * The implementation in {@link SQLKVDatabase} invokes
+     * {@link #createTransactionConnection(Map) createTransactionConnection(null)} (i.e., with no options)
+     * and returns the result.
+     *
+     * @throws KVDatabaseException if an unexpected error occurs
+     * @throws IllegalStateException if no {@link DataSource} is {@linkplain #setDataSource configured}
+     */
+    @Override
+    public SQLKVTransaction createTransaction() {
+        return this.createTransaction(null);
+    }
+
+    /**
+     * Extract the {@link IsolationLevel}, if any, from the transaction options.
+     *
+     * <p>
+     * The implementation in {@link SQLKVDatabase} supports an {@link IsolationLevel} under the key {@link #OPTION_ISOLATION};
+     * also, the {@link IsolationLevel} may be configured by the Spring
+     * {@link org.jsimpledb.spring.JSimpleDBTransactionManager}, for example, using the
+     * {@link org.springframework.transaction.annotation.Transactional &#64;Transactional} annotation.
+     *
+     * @param options transaction options
+     * @return transaction isolation
+     */
+    protected IsolationLevel getIsolationLevel(Map<String, ?> options) {
+
+        // Start with the default
+        IsolationLevel txIsolationLevel = this.isolationLevel;
+
+        // Look for isolation option from the JSimpleDBTransactionManager
+        Object isolation = options.get("org.springframework.transaction.annotation.Isolation");
+        if (isolation instanceof Enum)
+            isolation = ((Enum<?>)isolation).name();
+        if (isolation != null) {
+            switch (isolation.toString()) {
+            case "DEFAULT":
+                break;
+            default:
+                txIsolationLevel = IsolationLevel.valueOf(isolation.toString());
+                break;
+            }
+        }
+
+        // Look for OPTION_ISOLATION option
+        try {
+            final Object value = options.get(OPTION_ISOLATION);
+            if (value instanceof IsolationLevel)
+                txIsolationLevel = (IsolationLevel)value;
+            else if (value instanceof String)
+                txIsolationLevel = IsolationLevel.valueOf((String)value);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        // Done
+        return txIsolationLevel;
     }
 
     /**
