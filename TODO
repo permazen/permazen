@@ -40,6 +40,9 @@ SHORT TERM
         - Invoke from EvalCommand.getAction()
         - Invoke from Transaction.setRollbackOnly()
 
+- JSimpleDBTransactionManager
+    - Add support for a new @TransactionOptions annotation for passing options
+
 - Vaadin GUI editor generator
     - Implement editors for collection fields
     - Add range support - if query result is Navigable{Set,Map}
