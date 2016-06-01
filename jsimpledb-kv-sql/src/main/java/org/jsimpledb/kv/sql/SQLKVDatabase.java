@@ -47,6 +47,12 @@ public class SQLKVDatabase implements KVDatabase {
      */
     public static final String DEFAULT_VALUE_COLUMN_NAME = "kv_value";
 
+    /**
+     * Option key for {@link #createTransaction(Map)}. Value should be an {@link IsolationLevel} instance,
+     * or the {@link IsolationLevel#name name()} thereof.
+     */
+    public static final String OPTION_ISOLATION = "isolation";
+
     protected DataSource dataSource;
 
     /**
@@ -68,12 +74,6 @@ public class SQLKVDatabase implements KVDatabase {
      * The default transaction isolation level. Default is {@link IsolationLevel#SERIALIZABLE}.
      */
     protected IsolationLevel isolationLevel = IsolationLevel.SERIALIZABLE;
-
-    /**
-     * Option key for {@link #createTransaction(Map)}. Value should be an {@link IsolationLevel} instance,
-     * or the {@link IsolationLevel#name name()} thereof.
-     */
-    public static final String OPTION_ISOLATION = "isolation";
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
