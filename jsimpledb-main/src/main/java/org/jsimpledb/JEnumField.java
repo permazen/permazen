@@ -53,6 +53,16 @@ public class JEnumField extends JSimpleField {
     }
 
     @Override
+    boolean isSameAs(JField that0) {
+        if (!super.isSameAs(that0))
+            return false;
+        final JEnumField that = (JEnumField)that0;
+        if (!this.converter.equals(that.converter))
+            return false;
+        return true;
+    }
+
+    @Override
     EnumSchemaField toSchemaItem(JSimpleDB jdb) {
         final EnumSchemaField schemaField = new EnumSchemaField();
         this.initialize(jdb, schemaField);

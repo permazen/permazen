@@ -77,6 +77,18 @@ public class JMapField extends JComplexField {
     }
 
     @Override
+    boolean isSameAs(JField that0) {
+        if (!super.isSameAs(that0))
+            return false;
+        final JMapField that = (JMapField)that0;
+        if (!this.keyField.isSameAs(that.keyField))
+            return false;
+        if (!this.valueField.isSameAs(that.valueField))
+            return false;
+        return true;
+    }
+
+    @Override
     String getSubFieldName(JSimpleField subField) {
         if (subField == this.keyField)
             return MapField.KEY_FIELD_NAME;

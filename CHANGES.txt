@@ -1,3 +1,7 @@
+Version Next
+
+    - Handle fields declared in multiple incomparable supertypes
+
 Version 2.0.1 Released May 28, 2016
 
     - Split out new modules kv-mysql and kv-sqlite from kv-sql

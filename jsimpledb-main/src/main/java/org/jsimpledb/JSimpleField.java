@@ -163,6 +163,24 @@ public class JSimpleField extends JField {
     }
 
     @Override
+    boolean isSameAs(JField that0) {
+        if (!super.isSameAs(that0))
+            return false;
+        final JSimpleField that = (JSimpleField)that0;
+        if (!this.typeToken.equals(that.typeToken))
+            return false;
+        if (!this.fieldType.equals(that.fieldType))
+            return false;
+        if (this.indexed != that.indexed)
+            return false;
+        if (this.unique != that.unique)
+            return false;
+        if (!(this.uniqueExcludes != null ? this.uniqueExcludes.equals(that.uniqueExcludes) : that.uniqueExcludes == null))
+            return false;
+        return true;
+    }
+
+    @Override
     SimpleSchemaField toSchemaItem(JSimpleDB jdb) {
         final SimpleSchemaField schemaField = new SimpleSchemaField();
         this.initialize(jdb, schemaField);

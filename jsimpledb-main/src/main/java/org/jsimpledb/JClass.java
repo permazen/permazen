@@ -437,11 +437,26 @@ public class JClass<T> extends JSchemaObject {
     // Add new JField (and sub-fields, if any), checking for name and storage ID conflicts
     private void addField(JField jfield) {
 
-        // Check for storage ID conflict
+        // Check for storage ID conflict; note we can get this legitimately when a field is declared only
+        // in supertypes, where two of the supertypes are mutually unassignable from each other. In that
+        // case, verify that the generated field is the same.
         JField other = this.jfields.get(jfield.storageId);
         if (other != null) {
-            throw new IllegalArgumentException("illegal duplicate use of storage ID "
-              + jfield.storageId + " for both " + other + " and " + jfield);
+
+            // If the descriptions differ, no need to give any more details
+            if (!other.toString().equals(jfield.toString())) {
+                throw new IllegalArgumentException("illegal duplicate use of storage ID "
+                  + jfield.storageId + " for both " + other + " and " + jfield);
+            }
+
+            // Check whether the fields are exactly the same; if not, there is a conflict
+            if (!other.isSameAs(jfield)) {
+                throw new IllegalArgumentException("two or more methods defining " + jfield + " conflict: "
+                  + other.getter + " and " + jfield.getter);
+            }
+
+            // OK - they are the same thing
+            return;
         }
         this.jfields.put(jfield.storageId, jfield);
 

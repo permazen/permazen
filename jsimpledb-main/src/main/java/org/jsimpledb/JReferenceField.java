@@ -70,6 +70,18 @@ public class JReferenceField extends JSimpleField {
     }
 
     @Override
+    boolean isSameAs(JField that0) {
+        if (!super.isSameAs(that0))
+            return false;
+        final JReferenceField that = (JReferenceField)that0;
+        if (!this.onDelete.equals(that.onDelete))
+            return false;
+        if (this.cascadeDelete != that.cascadeDelete)
+            return false;
+        return true;
+    }
+
+    @Override
     ReferenceSchemaField toSchemaItem(JSimpleDB jdb) {
         final ReferenceSchemaField schemaField = new ReferenceSchemaField();
         super.initialize(jdb, schemaField);

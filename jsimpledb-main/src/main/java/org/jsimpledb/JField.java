@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SchemaField;
@@ -33,6 +34,29 @@ public abstract class JField extends JSchemaObject {
 
     void calculateRequiresDefaultValidation() {
         this.requiresDefaultValidation = this.getter != null && Util.requiresDefaultValidation(this.getter);
+    }
+
+    /**
+     * Determine if this instance and the given instance are effectively the same.
+     *
+     * <p>
+     * This is used to handle the case where a field is declared via abstract methods in multiple
+     * supertypes, but not declared in the model class itself.
+     */
+    boolean isSameAs(JField that) {
+        if (!(this.name != null ? this.name.equals(that.name) : that.name == null))
+            return false;
+        if (this.storageId != that.storageId)
+            return false;
+        if (!this.description.equals(that.description))
+            return false;
+        if (!this.getClass().equals(that.getClass()))
+            return false;
+        if (!this.getter.getReturnType().equals(that.getter.getReturnType()))
+            return false;
+        if (!Arrays.equals(this.getter.getParameterTypes(), that.getter.getParameterTypes()))
+            return false;
+        return true;
     }
 
     @Override

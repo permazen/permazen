@@ -54,6 +54,16 @@ public abstract class JCollectionField extends JComplexField {
     }
 
     @Override
+    boolean isSameAs(JField that0) {
+        if (!super.isSameAs(that0))
+            return false;
+        final JCollectionField that = (JCollectionField)that0;
+        if (!this.elementField.isSameAs(that.elementField))
+            return false;
+        return true;
+    }
+
+    @Override
     String getSubFieldName(JSimpleField subField) {
         if (subField == this.elementField)
             return CollectionField.ELEMENT_FIELD_NAME;
