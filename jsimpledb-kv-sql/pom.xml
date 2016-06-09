@@ -33,6 +33,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
         <!-- Remove with deprecated classes -->
         <dependency>
             <groupId>mysql</groupId>

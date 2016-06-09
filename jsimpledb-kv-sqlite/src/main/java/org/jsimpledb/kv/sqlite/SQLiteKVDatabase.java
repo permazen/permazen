@@ -35,6 +35,11 @@ import org.sqlite.SQLiteOpenMode;
 public class SQLiteKVDatabase extends SQLKVDatabase {
 
     /**
+     * The name of the SQLite JDBC driver class ({@value #SQLITE_DRIVER_CLASS_NAME}).
+     */
+    public static final String SQLITE_DRIVER_CLASS_NAME = "org.sqlite.JDBC";
+
+    /**
      * The special {@link File} that, when configured via {@link #setDatabaseFile setDatabaseFile()},
      * causes SQLite to use an in-memory database.
      */
@@ -88,6 +93,15 @@ public class SQLiteKVDatabase extends SQLKVDatabase {
 
     @Override
     public void start() {
+
+        // Ensure driver class is loaded
+        try {
+            Class.forName(SQLITE_DRIVER_CLASS_NAME, false, Thread.currentThread().getContextClassLoader());
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("can't load SQLite driver class `" + SQLITE_DRIVER_CLASS_NAME + "'", e);
+        }
 
         // Auto-configure DataSource
         if (this.getDataSource() == null && this.file != null) {

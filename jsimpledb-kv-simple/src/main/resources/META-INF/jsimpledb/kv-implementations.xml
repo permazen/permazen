@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<kv-implementations>
+    <kv-implementation class="org.jsimpledb.kv.simple.MemoryKVImplementation"/>
+    <kv-implementation class="org.jsimpledb.kv.simple.XMLKVImplementation"/>
+</kv-implementations>

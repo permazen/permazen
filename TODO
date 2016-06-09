@@ -5,9 +5,7 @@ SHORT TERM
 - META-INF autodetections
     - Auto-detect CLI commands using META-INF/jsimpledb/cli-commands.xml
     - Auto-detect CLI functions using META-INF/jsimpledb/parse-commands.xml
-    - Auto-detect atomic key/value stores using META-INF/jsimpledb/atomic-key-value-stores.xml
-    - Auto-detect key/value databases using META-INF/jsimpledb/key-value-databases.xml
-        - Eliminate all the kv dependencies of cliapp and guiapp
+        - Eliminate cli dependency on kv-raft
 
 - CLI:
     - New CLI flags:

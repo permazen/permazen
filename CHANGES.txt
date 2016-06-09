@@ -1,5 +1,6 @@
 Version Next
 
+    - Discover key/value implementations by scanning the classpath
     - Handle fields declared in multiple incomparable supertypes
 
 Version 2.0.1 Released May 28, 2016
