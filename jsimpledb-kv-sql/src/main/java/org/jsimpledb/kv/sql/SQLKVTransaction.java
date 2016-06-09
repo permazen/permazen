@@ -22,6 +22,7 @@ import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
+import org.jsimpledb.util.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,13 +267,16 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
     private <T> T query(StmtType stmtType, ResultSetFunction<T> resultSetFunction, boolean close, byte[]... params) {
         try {
-            final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection);
+            final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log);
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
-            for (int i = 0; i < params.length && i < numParams; i++)
+            for (int i = 0; i < params.length && i < numParams; i++) {
+                if (this.log.isTraceEnabled())
+                    this.log.trace("setting ?" + (i + 1) + " = " + ByteUtil.toString(params[i]));
                 preparedStatement.setBytes(i + 1, params[i]);
+            }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
-                this.log.trace("SQL query: " + preparedStatement);
+                this.log.trace("executing SQL query: " + preparedStatement);
             final ResultSet resultSet = preparedStatement.executeQuery();
             final T result = resultSetFunction.apply(preparedStatement, resultSet);
             if (close) {
@@ -286,13 +290,16 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     }
 
     private void update(StmtType stmtType, byte[]... params) {
-        try (final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection)) {
+        try (final PreparedStatement preparedStatement = stmtType.create(this.database, this.connection, this.log)) {
             final int numParams = preparedStatement.getParameterMetaData().getParameterCount();
-            for (int i = 0; i < params.length && i < numParams; i++)
+            for (int i = 0; i < params.length && i < numParams; i++) {
+                if (this.log.isTraceEnabled())
+                    this.log.trace("setting ?" + (i + 1) + " = " + ByteUtil.toString(params[i]));
                 preparedStatement.setBytes(i + 1, params[i]);
+            }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
-                this.log.trace("SQL update: " + preparedStatement);
+                this.log.trace("executing SQL update: " + preparedStatement);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw this.handleException(e);
@@ -404,120 +411,126 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
 
         static final StmtType GET = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetStatement());
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetStatement(), log);
             };
         };
         static final StmtType GET_AT_LEAST_SINGLE = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.limitSingleRow(db.createGetAtLeastStatement(false)));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetAtLeastStatement(false)), log);
             };
         };
         static final StmtType GET_AT_MOST_SINGLE = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.limitSingleRow(db.createGetAtMostStatement(false)));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetAtMostStatement(false)), log);
             };
         };
         static final StmtType GET_FIRST = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.limitSingleRow(db.createGetAllStatement(false)));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetAllStatement(false)), log);
             };
         };
         static final StmtType GET_LAST = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.limitSingleRow(db.createGetAllStatement(true)));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.limitSingleRow(db.createGetAllStatement(true)), log);
             };
         };
         static final StmtType GET_AT_LEAST_FORWARD = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetAtLeastStatement(false));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetAtLeastStatement(false), log);
             };
         };
         static final StmtType GET_AT_LEAST_REVERSE = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetAtLeastStatement(true));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetAtLeastStatement(true), log);
             };
         };
         static final StmtType GET_AT_MOST_FORWARD = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetAtMostStatement(false));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetAtMostStatement(false), log);
             };
         };
         static final StmtType GET_AT_MOST_REVERSE = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetAtMostStatement(true));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetAtMostStatement(true), log);
             };
         };
         static final StmtType GET_RANGE_FORWARD = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetRangeStatement(false));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetRangeStatement(false), log);
             };
         };
         static final StmtType GET_RANGE_REVERSE = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetRangeStatement(true));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetRangeStatement(true), log);
             };
         };
         static final StmtType GET_ALL_FORWARD = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetAllStatement(false));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetAllStatement(false), log);
             };
         };
         static final StmtType GET_ALL_REVERSE = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createGetAllStatement(true));
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createGetAllStatement(true), log);
             };
         };
         static final StmtType PUT = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createPutStatement());
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createPutStatement(), log);
             };
         };
         static final StmtType REMOVE = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createRemoveStatement());
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createRemoveStatement(), log);
             };
         };
         static final StmtType REMOVE_RANGE = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createRemoveRangeStatement());
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createRemoveRangeStatement(), log);
             };
         };
         static final StmtType REMOVE_AT_LEAST = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createRemoveAtLeastStatement());
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createRemoveAtLeastStatement(), log);
             };
         };
         static final StmtType REMOVE_AT_MOST = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createRemoveAtMostStatement());
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createRemoveAtMostStatement(), log);
             };
         };
         static final StmtType REMOVE_ALL = new StmtType() {
             @Override
-            PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException {
-                return c.prepareStatement(db.createRemoveAllStatement());
+            PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException {
+                return this.prepare(c, db.createRemoveAllStatement(), log);
             };
         };
 
-        abstract PreparedStatement create(SQLKVDatabase db, Connection c) throws SQLException;
+        abstract PreparedStatement create(SQLKVDatabase db, Connection c, Logger log) throws SQLException;
+
+        PreparedStatement prepare(Connection c, String sql, Logger log) throws SQLException {
+            if (log.isTraceEnabled())
+                log.trace("preparing SQL statement: " + sql);
+            return c.prepareStatement(sql);
+        }
     }
 }
 

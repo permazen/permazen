@@ -271,9 +271,8 @@ public class SQLKVDatabase implements KVDatabase {
      * Create a new transaction.
      *
      * <p>
-     * The implementation in {@link SQLKVDatabase} invokes
-     * {@link #createTransactionConnection(Map) createTransactionConnection(null)} (i.e., with no options)
-     * and returns the result.
+     * The implementation in {@link SQLKVDatabase} invokes {@link #createTransaction(Map) createTransaction(null)}
+     * (i.e., with no options) and returns the result.
      *
      * @throws KVDatabaseException if an unexpected error occurs
      * @throws IllegalStateException if no {@link DataSource} is {@linkplain #setDataSource configured}
