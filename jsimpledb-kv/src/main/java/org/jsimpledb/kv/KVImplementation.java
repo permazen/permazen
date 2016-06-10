@@ -5,18 +5,13 @@
 
 package org.jsimpledb.kv;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
-
-import javax.xml.stream.XMLStreamException;
+import java.util.List;
 
 import org.jsimpledb.kv.mvcc.AtomicKVDatabase;
 import org.jsimpledb.kv.mvcc.AtomicKVStore;
+import org.jsimpledb.util.ImplementationsReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +31,11 @@ public abstract class KVImplementation {
      *
      * <p>
      * Example:
-     * <blockquote><code>
+     * <blockquote><pre>
      *  &lt;kv-implementations&gt;
      *      &lt;kv-implementation class="com.example.MyKVImplementation"/&gt;
      *  &lt;/kv-implementations&gt;
-     * </code></blockquote>
+     * </pre></blockquote>
      *
      * <p>
      * Instances must have a public default constructor.
@@ -174,46 +169,20 @@ public abstract class KVImplementation {
     public abstract String getDescription(Object configuration);
 
     /**
-     * Find all implementations on the classpath.
+     * Find available {@link KVImplementation}s by scanning the classpath.
+     *
+     * <p>
+     * This method searches the classpath for {@link KVImplementation} descriptor files and instantiates
+     * the corresponding {@link KVImplementation}s. Example:
+     * <blockquote><pre>
+     *  &lt;kv-implementations&gt;
+     *      &lt;kv-implementation class="com.example.MyKVImplementation"/&gt;
+     *  &lt;/kv-implementations&gt;
+     * </pre></blockquote>
      */
     public static KVImplementation[] getImplementations() {
-
-        // Get logger
-        final Logger log = LoggerFactory.getLogger(KVImplementation.class);
-
-        // Find XML files
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        final Enumeration<URL> enumeration;
-        try {
-            enumeration = loader.getResources(XML_DESCRIPTOR_RESOURCE);
-        } catch (IOException e) {
-            log.error("error finding resources `" + XML_DESCRIPTOR_RESOURCE + "'", e);
-            return new KVImplementation[0];
-        }
-
-        // Parse XML files and build a list of implementations
-        final ArrayList<KVImplementation> list = new ArrayList<>();
-        while (enumeration.hasMoreElements()) {
-            final URL url = enumeration.nextElement();
-            if (log.isDebugEnabled())
-                log.debug("reading key/value implementations from " + url);
-            try (final InputStream input = url.openStream()) {
-                for (String className : new KVImplementationsReader(input).parse()) {
-                    if (log.isDebugEnabled())
-                        log.debug("instantiating key/value implementation " + className);
-                    try {
-                        list.add((KVImplementation)Class.forName(className, false, loader).newInstance());
-                    } catch (Exception e) {
-                        log.error("error instantiating class `" + className + "' specified in " + url, e);
-                    }
-                }
-            } catch (IOException | XMLStreamException e) {
-                log.error("error reading " + url, e);
-                continue;
-            }
-        }
-
-        // Done
-        return list.toArray(new KVImplementation[list.size()]);
+        final List<KVImplementation> kvs = new ImplementationsReader("kv")
+          .findImplementations(KVImplementation.class, XML_DESCRIPTOR_RESOURCE);
+        return kvs.toArray(new KVImplementation[kvs.size()]);
     }
 }
