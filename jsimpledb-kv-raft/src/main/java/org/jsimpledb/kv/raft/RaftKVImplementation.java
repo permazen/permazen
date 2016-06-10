@@ -63,6 +63,12 @@ public class RaftKVImplementation extends KVImplementation {
     }
 
     @Override
+    public String getUsageText() {
+        return "Raft requires its own internal key/value store, which should also be specified along with `--raft'.\n"
+          + "For Raft fallback, specify `--raft-fallback' in addition.";
+    }
+
+    @Override
     public Config parseCommandLineOptions(ArrayDeque<String> options) {
 
         // Raft options

@@ -55,6 +55,18 @@ public abstract class KVImplementation {
     public abstract String[][] getCommandLineOptions();
 
     /**
+     * Get additional usage message text, if any.
+     *
+     * <p>
+     * The implementation in {@link KVImplementation} returns null.
+     *
+     * @return usage text if any, otherwise null
+     */
+    public String getUsageText() {
+        return null;
+    }
+
+    /**
      * Parse the specified command line options and return the resulting configuration, if possible.
      *
      * <p>

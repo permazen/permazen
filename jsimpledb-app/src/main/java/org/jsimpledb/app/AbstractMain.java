@@ -429,8 +429,9 @@ public abstract class AbstractMain extends MainClass {
         }));
 
         // Add options supported by the various key/value implementations
-        for (KVImplementation availableKVImplementation : KVImplementation.getImplementations())
-            optionList.addAll(Arrays.<String[]>asList(availableKVImplementation.getCommandLineOptions()));
+        final KVImplementation[] kvs = KVImplementation.getImplementations();
+        for (KVImplementation kv : kvs)
+            optionList.addAll(Arrays.<String[]>asList(kv.getCommandLineOptions()));
 
         // Add options supported by subclass
         if (subclassOpts != null)
@@ -450,5 +451,12 @@ public abstract class AbstractMain extends MainClass {
             width = Math.max(width, opt[0].length());
         for (String[] opt : optionList)
             System.err.println(String.format("  %-" + width + "s  %s", opt[0], opt[1]));
+
+        // Display additional usage text
+        for (KVImplementation kv : kvs) {
+            final String usageText = kv.getUsageText();
+            if (usageText != null)
+                System.err.println(usageText.trim());
+        }
     }
 }
