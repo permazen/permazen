@@ -5,15 +5,15 @@
 
 package org.jsimpledb.cli.cmd;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.expr.Node;
-import org.jsimpledb.parse.func.AbstractFunction;
+import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class RegisterFunctionCommand extends AbstractCommand {
 
     public RegisterFunctionCommand() {
@@ -22,7 +22,12 @@ public class RegisterFunctionCommand extends AbstractCommand {
 
     @Override
     public String getHelpSummary() {
-        return "Instantiates a user-supplied class subclassing AbstractFunction and registers it as an available function.";
+        return "Instantiates a user-supplied class implementing the Function interface and registers it as an available function.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override
@@ -34,8 +39,12 @@ public class RegisterFunctionCommand extends AbstractCommand {
                 final Object result = expr.evaluate(session).get(session);
                 if (!(result instanceof Class))
                     throw new Exception("invalid parameter: not a " + Class.class.getName() + " instance");
-                final AbstractFunction function = session.registerFunction((Class<?>)result);
-                session.getWriter().println("Registered command `" + function.getName() + "'");
+                final Class<?> cl = (Class<?>)result;
+                if (!Function.class.isAssignableFrom(cl))
+                    throw new Exception("invalid parameter: " + cl + " does not implement " + Function.class);
+                final Function function = cl.asSubclass(Function.class).newInstance();
+                session.registerFunction(function);
+                session.getWriter().println("Registered function `" + function.getName() + "'");
             }
         };
     }

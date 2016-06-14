@@ -28,9 +28,7 @@ import org.jsimpledb.core.Transaction;
 import org.jsimpledb.parse.ObjInfo;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
-import org.jsimpledb.parse.func.Function;
 
-@Function
 public class DumpFunction extends SimpleCliFunction {
 
     public DumpFunction() {

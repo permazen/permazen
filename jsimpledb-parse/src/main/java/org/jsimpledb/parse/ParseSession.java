@@ -7,7 +7,6 @@ package org.jsimpledb.parse;
 
 import com.google.common.base.Preconditions;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -21,29 +20,31 @@ import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
-import org.jsimpledb.parse.func.AbstractFunction;
-import org.jsimpledb.parse.func.AllFunction;
-import org.jsimpledb.parse.func.ConcatFunction;
-import org.jsimpledb.parse.func.CountFunction;
-import org.jsimpledb.parse.func.CreateFunction;
-import org.jsimpledb.parse.func.FilterFunction;
-import org.jsimpledb.parse.func.ForEachFunction;
-import org.jsimpledb.parse.func.InvertFunction;
-import org.jsimpledb.parse.func.LimitFunction;
-import org.jsimpledb.parse.func.ListFunction;
-import org.jsimpledb.parse.func.QueryCompositeIndexFunction;
-import org.jsimpledb.parse.func.QueryIndexFunction;
-import org.jsimpledb.parse.func.QueryListElementIndexFunction;
-import org.jsimpledb.parse.func.QueryMapValueIndexFunction;
-import org.jsimpledb.parse.func.QueryVersionFunction;
-import org.jsimpledb.parse.func.TransformFunction;
-import org.jsimpledb.parse.func.UpgradeFunction;
-import org.jsimpledb.parse.func.VersionFunction;
+import org.jsimpledb.parse.func.Function;
+import org.jsimpledb.util.ImplementationsReader;
 
 /**
  * A {@link Session} with support for parsing Java expressions.
  */
 public class ParseSession extends Session {
+
+    /**
+     * Classpath XML file resource describing available {@link Function}s: {@value #PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE}.
+     *
+     * <p>
+     * Example:
+     * <blockquote><pre>
+     *  &lt;parse-function-implementations&gt;
+     *      &lt;parse-function-implementation class="com.example.MyFunction"/&gt;
+     *  &lt;/parse-function-implementations&gt;
+     * </pre></blockquote>
+     *
+     * <p>
+     * Instances must have a public constructor taking either zero parameters or one {@link ParseSession} parameter.
+     *
+     * @see #loadFunctionsFromClasspath
+     */
+    public static final String PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE = "META-INF/jsimpledb/parse-function-implementations.xml";
 
     private static final HashMap<String, Class<?>> PRIMITIVE_CLASSES = new HashMap<>(9);
     static {
@@ -59,7 +60,7 @@ public class ParseSession extends Session {
     }
 
     private final LinkedHashSet<String> imports = new LinkedHashSet<>();
-    private final TreeMap<String, AbstractFunction> functions = new TreeMap<>();
+    private final TreeMap<String, Function> functions = new TreeMap<>();
     private final TreeMap<String, Value> variables = new TreeMap<>();
 
     private Parser<? extends Node> identifierParser;
@@ -115,11 +116,11 @@ public class ParseSession extends Session {
     }
 
     /**
-     * Get the {@link AbstractFunction}s registered with this instance.
+     * Get the {@link Function}s registered with this instance.
      *
      * @return registered functions indexed by name
      */
-    public SortedMap<String, AbstractFunction> getFunctions() {
+    public SortedMap<String, Function> getFunctions() {
         return this.functions;
     }
 
@@ -135,81 +136,32 @@ public class ParseSession extends Session {
 // Function registration
 
     /**
-     * Register the standard built-in functions such as {@code all()}, {@code foreach()}, etc.
-     */
-    public void registerStandardFunctions() {
-
-        // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
-        final Class<?>[] functionClasses = new Class<?>[] {
-            AllFunction.class,
-            ConcatFunction.class,
-            CountFunction.class,
-            CreateFunction.class,
-            FilterFunction.class,
-            ForEachFunction.class,
-            InvertFunction.class,
-            LimitFunction.class,
-            ListFunction.class,
-            QueryCompositeIndexFunction.class,
-            QueryIndexFunction.class,
-            QueryListElementIndexFunction.class,
-            QueryMapValueIndexFunction.class,
-            QueryVersionFunction.class,
-            TransformFunction.class,
-            UpgradeFunction.class,
-            VersionFunction.class,
-        };
-        for (Class<?> cl : functionClasses)
-            this.registerFunction(cl);
-    }
-
-    /**
-     * Create an instance of the specified class and register it as an {@link AbstractFunction}.
-     * as appropriate. The class must have a public constructor taking either a single {@link ParseSession} parameter
-     * or no parameters; they will be tried in that order.
+     * Scan the classpath for {@link Function}s and register them.
      *
-     * @param cl function class
-     * @return the newly instantiated function
-     * @throws IllegalArgumentException if {@code cl} has no suitable constructor
-     * @throws IllegalArgumentException if {@code cl} instantiation fails
-     * @throws IllegalArgumentException if {@code cl} does not subclass {@link AbstractFunction}
+     * @see #PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE
      */
-    public AbstractFunction registerFunction(Class<?> cl) {
-        if (!AbstractFunction.class.isAssignableFrom(cl))
-            throw new IllegalArgumentException(cl + " does not subclass " + AbstractFunction.class.getName());
-        final AbstractFunction function = this.instantiate(cl.asSubclass(AbstractFunction.class));
-        try {
-            function.getSessionModes();
-        } catch (UnsupportedOperationException e) {
-            throw new IllegalArgumentException(cl + " does not know it's supported session modes", e);
-        }
-        this.functions.put(function.getName(), function);
-        return function;
+    public void loadFunctionsFromClasspath() {
+        final ImplementationsReader reader = new ImplementationsReader("parse-function");
+        final ArrayList<Object[]> paramLists = new ArrayList<>(2);
+        paramLists.add(new Object[] { this });
+        paramLists.add(new Object[0]);
+        reader.setConstructorParameterLists(paramLists);
+        for (Function function : reader.findImplementations(Function.class, PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE))
+            this.registerFunction(function);
     }
 
     /**
-     * Instantiate an instance of the given class.
-     * The class must have a public constructor taking either a single {@link ParseSession} parameter
-     * or no parameters; they will be tried in that order.
+     * Register the given {@link Function}.
+     *
+     * <p>
+     * Any existing {@link Function} with the same name will be replaced.
+     *
+     * @param function new function
+     * @throws IllegalArgumentException if {@code function} is null
      */
-    private <T> T instantiate(Class<T> cl) {
-        Throwable failure;
-        try {
-            return cl.getConstructor(ParseSession.class).newInstance(this);
-        } catch (NoSuchMethodException e) {
-            try {
-                return cl.getConstructor().newInstance();
-            } catch (NoSuchMethodException e2) {
-                throw new IllegalArgumentException("no suitable constructor found in class " + cl.getName());
-            } catch (Exception e2) {
-                failure = e2;
-            }
-        } catch (Exception e) {
-            failure = e;
-        }
-        if (failure instanceof InvocationTargetException)
-            failure = failure.getCause();
-        throw new IllegalArgumentException("unable to instantiate class " + cl.getName() + ": " + failure, failure);
+    public void registerFunction(Function function) {
+        Preconditions.checkArgument(function != null, "null function");
+        this.functions.put(function.getName(), function);
     }
 
 // Identifier resolution

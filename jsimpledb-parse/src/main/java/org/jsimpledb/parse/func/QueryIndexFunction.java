@@ -12,7 +12,6 @@ import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.util.ParseContext;
 
-@Function
 public class QueryIndexFunction extends AbstractQueryFunction {
 
     public QueryIndexFunction() {

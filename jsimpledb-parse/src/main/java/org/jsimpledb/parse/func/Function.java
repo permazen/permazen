@@ -5,37 +5,84 @@
 
 package org.jsimpledb.parse.func;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.EnumSet;
 
 import org.jsimpledb.SessionMode;
+import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.parse.expr.Value;
+import org.jsimpledb.util.ParseContext;
 
 /**
- * Java annotation for classes that define custom {@link org.jsimpledb.parse.ParseSession} functions.
- *
- * <p>
- * Annotated classes must extend {@link AbstractFunction}
- * and have a public constructor taking either zero parameters or a single {@link org.jsimpledb.parse.ParseSession} parameter.
- * </p>
+ * Function hook in a {@link org.jsimpledb.parse.ParseSession}.
  *
  * @see AbstractFunction
  * @see SimpleFunction
  */
-@Documented
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Function {
+public interface Function {
 
     /**
-     * Get the {@link SessionMode}s supported by the annotated {@link org.jsimpledb.parse.func.AbstractFunction}.
+     * Get the name of this function.
      *
-     * @return supported {@link SessionMode}s
+     * @return function name
      */
-    SessionMode[] modes() default { SessionMode.CORE_API, SessionMode.JSIMPLEDB };
-}
+    String getName();
 
+    /**
+     * Get function usage string. For example: {@code pow(base, exponent)}.
+     *
+     * @return function usage string
+     */
+    String getUsage();
+
+    /**
+     * Get summarized help (typically a single line).
+     *
+     * @return one line summarized description of this function
+     */
+    String getHelpSummary();
+
+    /**
+     * Get expanded help (typically multiple lines). May refer to the {@linkplain #getUsage usage string}.
+     *
+     * <p>
+     * The implementation in {@link AbstractFunction} delegates to {@link #getHelpSummary getHelpSummary()}.
+     * </p>
+     *
+     * @return detailed description of this function
+     */
+    String getHelpDetail();
+
+    /**
+     * Get the {@link SessionMode}(s) supported by this function.
+     *
+     * @return set of supported {@link SessionMode}s
+     */
+    EnumSet<SessionMode> getSessionModes();
+
+    /**
+     * Parse function parameters.
+     *
+     * <p>
+     * The {@code ctx} will be pointing at the first parameter (if any) or closing parenthesis. This method should parse
+     * (but not evaluate) function parameters up through the closing parenthesis. The return value is an opaque value
+     * representing the parsed parameters and subsequently passed to {@link #apply apply()}.
+     * </p>
+     *
+     * @param session parse session
+     * @param ctx parse context
+     * @param complete false if parse is "for real", true if only for tab completion calculation
+     * @return parsed parameters object to be passed to {@link #apply apply()}
+     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
+     */
+    Object parseParams(ParseSession session, ParseContext ctx, boolean complete);
+
+    /**
+     * Evaluate this function. There will be a transaction open.
+     *
+     * @param session parse session
+     * @param params parsed parameters returned by {@link #parseParams parseParams()}
+     * @return value returned by this function
+     * @throws RuntimeException if there is an error
+     */
+    Value apply(ParseSession session, Object params);
+}

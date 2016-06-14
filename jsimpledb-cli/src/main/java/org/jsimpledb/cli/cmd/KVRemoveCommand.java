@@ -6,6 +6,7 @@
 package org.jsimpledb.cli.cmd;
 
 import java.io.PrintWriter;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
@@ -14,7 +15,6 @@ import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE })
 public class KVRemoveCommand extends AbstractKVCommand {
 
     public KVRemoveCommand() {
@@ -33,6 +33,11 @@ public class KVRemoveCommand extends AbstractKVCommand {
           + " is the maximum key (exclusive) if given, otherwise there is no maximum key. `key' and `maxKey' may be given"
           + " as hexadecimal strings or C-style doubly-quoted strings."
           + "\n\nWARNING: this command can corrupt a JSimpleDB database.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.of(SessionMode.KEY_VALUE);
     }
 
     @Override

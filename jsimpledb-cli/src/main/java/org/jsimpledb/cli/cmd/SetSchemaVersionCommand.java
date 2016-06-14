@@ -11,7 +11,6 @@ import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.util.ParseContext;
 
-@Command
 public class SetSchemaVersionCommand extends AbstractCommand {
 
     public SetSchemaVersionCommand() {

@@ -8,6 +8,7 @@ package org.jsimpledb.parse.func;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 
 import org.jsimpledb.SessionMode;
@@ -16,7 +17,6 @@ import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class LimitFunction extends SimpleFunction {
 
     public LimitFunction() {
@@ -31,6 +31,11 @@ public class LimitFunction extends SimpleFunction {
     @Override
     public String getHelpSummary() {
         return "Discards items past a maximum count";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override

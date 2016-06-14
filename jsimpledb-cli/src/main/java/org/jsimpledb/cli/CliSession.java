@@ -8,57 +8,45 @@ package org.jsimpledb.cli;
 import com.google.common.base.Preconditions;
 
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.Session;
-import org.jsimpledb.cli.cmd.AbstractCommand;
-import org.jsimpledb.cli.cmd.CompareSchemasCommand;
-import org.jsimpledb.cli.cmd.DeleteSchemaVersionCommand;
-import org.jsimpledb.cli.cmd.EvalCommand;
-import org.jsimpledb.cli.cmd.HelpCommand;
-import org.jsimpledb.cli.cmd.ImportCommand;
-import org.jsimpledb.cli.cmd.InfoCommand;
-import org.jsimpledb.cli.cmd.KVGetCommand;
-import org.jsimpledb.cli.cmd.KVLoadCommand;
-import org.jsimpledb.cli.cmd.KVPutCommand;
-import org.jsimpledb.cli.cmd.KVRemoveCommand;
-import org.jsimpledb.cli.cmd.KVSaveCommand;
-import org.jsimpledb.cli.cmd.LoadCommand;
-import org.jsimpledb.cli.cmd.QuitCommand;
-import org.jsimpledb.cli.cmd.RaftAddCommand;
-import org.jsimpledb.cli.cmd.RaftFallbackStatusCommand;
-import org.jsimpledb.cli.cmd.RaftRemoveCommand;
-import org.jsimpledb.cli.cmd.RaftStartElectionCommand;
-import org.jsimpledb.cli.cmd.RaftStatusCommand;
-import org.jsimpledb.cli.cmd.RaftStepDownCommand;
-import org.jsimpledb.cli.cmd.RegisterCommandCommand;
-import org.jsimpledb.cli.cmd.RegisterFunctionCommand;
-import org.jsimpledb.cli.cmd.SaveCommand;
-import org.jsimpledb.cli.cmd.SetAllowNewSchemaCommand;
-import org.jsimpledb.cli.cmd.SetSchemaVersionCommand;
-import org.jsimpledb.cli.cmd.SetSessionModeCommand;
-import org.jsimpledb.cli.cmd.SetValidationModeCommand;
-import org.jsimpledb.cli.cmd.SetVerboseCommand;
-import org.jsimpledb.cli.cmd.ShowAllSchemasCommand;
-import org.jsimpledb.cli.cmd.ShowSchemaCommand;
-import org.jsimpledb.cli.func.DumpFunction;
-import org.jsimpledb.cli.func.PrintFunction;
+import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
+import org.jsimpledb.util.ImplementationsReader;
 
 /**
  * Represents one CLI console session.
  */
 public class CliSession extends ParseSession {
 
+    /**
+     * Classpath XML file resource describing available {@link Command}s: {@value #CLI_COMMANDS_DESCRIPTOR_RESOURCE}.
+     *
+     * <p>
+     * Example:
+     * <blockquote><pre>
+     *  &lt;cli-command-implementations&gt;
+     *      &lt;cli-command-implementation class="com.example.MyCliCommand"/&gt;
+     *  &lt;/cli-command-implementations&gt;
+     * </pre></blockquote>
+     *
+     * <p>
+     * Instances must have a public constructor taking either zero parameters or one {@link CliSession} parameter.
+     *
+     * @see #loadCommandsFromClasspath
+     */
+    public static final String CLI_COMMANDS_DESCRIPTOR_RESOURCE = "META-INF/jsimpledb/cli-command-implementations.xml";
+
     private final Console console;
     private final PrintWriter writer;
-    private final TreeMap<String, AbstractCommand> commands = new TreeMap<>();
+    private final TreeMap<String, Command> commands = new TreeMap<>();
 
     private boolean done;
     private boolean verbose;
@@ -132,11 +120,11 @@ public class CliSession extends ParseSession {
     }
 
     /**
-     * Get the {@link AbstractCommand}s registered with this instance.
+     * Get the {@link Command}s registered with this instance.
      *
      * @return registered commands indexed by name
      */
-    public SortedMap<String, AbstractCommand> getCommands() {
+    public SortedMap<String, Command> getCommands() {
         return this.commands;
     }
 
@@ -164,100 +152,32 @@ public class CliSession extends ParseSession {
 // Command registration
 
     /**
-     * Register the standard CLI built-in functions such as {@code print()}, {@code dump()}, etc.
-     */
-    @Override
-    public void registerStandardFunctions() {
-        super.registerStandardFunctions();
-
-        // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
-        this.registerFunction(DumpFunction.class);
-        this.registerFunction(PrintFunction.class);
-    }
-
-    /**
-     * Register the standard CLI built-in commands.
-     */
-    public void registerStandardCommands() {
-
-        // We don't use AnnotatedClassScanner here to avoid having a dependency on the spring classes
-        final Class<?>[] commandClasses = new Class<?>[] {
-            CompareSchemasCommand.class,
-            DeleteSchemaVersionCommand.class,
-            EvalCommand.class,
-            HelpCommand.class,
-            ImportCommand.class,
-            InfoCommand.class,
-            KVGetCommand.class,
-            KVLoadCommand.class,
-            KVPutCommand.class,
-            KVRemoveCommand.class,
-            KVSaveCommand.class,
-            LoadCommand.class,
-            QuitCommand.class,
-            RaftAddCommand.class,
-            RaftFallbackStatusCommand.class,
-            RaftRemoveCommand.class,
-            RaftStartElectionCommand.class,
-            RaftStatusCommand.class,
-            RaftStepDownCommand.class,
-            RegisterCommandCommand.class,
-            RegisterFunctionCommand.class,
-            SaveCommand.class,
-            SetAllowNewSchemaCommand.class,
-            SetSchemaVersionCommand.class,
-            SetSessionModeCommand.class,
-            SetValidationModeCommand.class,
-            SetVerboseCommand.class,
-            ShowAllSchemasCommand.class,
-            ShowSchemaCommand.class,
-        };
-        for (Class<?> cl : commandClasses)
-            this.registerCommand(cl);
-    }
-
-    /**
-     * Create an instance of the specified class and register it as a {@link AbstractCommand}.
-     * The class must have a public constructor taking either a single {@link CliSession} parameter
-     * or no parameters; they will be tried in that order.
+     * Scan the classpath for {@link Command}s and register them.
      *
-     * @param cl command class
-     * @return the newly instantiated command
-     * @throws IllegalArgumentException if {@code cl} has no suitable constructor
-     * @throws IllegalArgumentException if {@code cl} instantiation fails
-     * @throws IllegalArgumentException if {@code cl} does not subclass {@link AbstractCommand}
+     * @see #CLI_COMMANDS_DESCRIPTOR_RESOURCE
      */
-    public AbstractCommand registerCommand(Class<?> cl) {
-        if (!AbstractCommand.class.isAssignableFrom(cl))
-            throw new IllegalArgumentException(cl + " does not subclass " + AbstractCommand.class.getName());
-        final AbstractCommand command = this.instantiate(cl.asSubclass(AbstractCommand.class));
-        try {
-            command.getSessionModes();
-        } catch (UnsupportedOperationException e) {
-            throw new IllegalArgumentException(cl + " does not know it's supported session modes", e);
-        }
-        this.commands.put(command.getName(), command);
-        return command;
+    public void loadCommandsFromClasspath() {
+        final ImplementationsReader reader = new ImplementationsReader("cli-command");
+        final ArrayList<Object[]> paramLists = new ArrayList<>(2);
+        paramLists.add(new Object[] { this });
+        paramLists.add(new Object[0]);
+        reader.setConstructorParameterLists(paramLists);
+        for (Command command : reader.findImplementations(Command.class, CLI_COMMANDS_DESCRIPTOR_RESOURCE))
+            this.registerCommand(command);
     }
 
-    private <T> T instantiate(Class<T> cl) {
-        Throwable failure;
-        try {
-            return cl.getConstructor(CliSession.class).newInstance(this);
-        } catch (NoSuchMethodException e) {
-            try {
-                return cl.getConstructor().newInstance();
-            } catch (NoSuchMethodException e2) {
-                throw new IllegalArgumentException("no suitable constructor found in class " + cl.getName());
-            } catch (Exception e2) {
-                failure = e2;
-            }
-        } catch (Exception e) {
-            failure = e;
-        }
-        if (failure instanceof InvocationTargetException)
-            failure = failure.getCause();
-        throw new IllegalArgumentException("unable to instantiate class " + cl.getName() + ": " + failure, failure);
+    /**
+     * Register the given {@link Command}.
+     *
+     * <p>
+     * Any existing {@link Command} with the same name will be replaced.
+     *
+     * @param command new command
+     * @throws IllegalArgumentException if {@code command} is null
+     */
+    public void registerCommand(Command command) {
+        Preconditions.checkArgument(command != null, "null command");
+        this.commands.put(command.getName(), command);
     }
 
 // Errors

@@ -12,7 +12,6 @@ import org.jsimpledb.core.Schema;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
-@Command
 public class ShowAllSchemasCommand extends AbstractCommand {
 
     public ShowAllSchemasCommand() {

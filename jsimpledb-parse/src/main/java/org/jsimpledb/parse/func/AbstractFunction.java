@@ -16,17 +16,16 @@ import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.SpaceParser;
 import org.jsimpledb.parse.expr.ExprParser;
 import org.jsimpledb.parse.expr.Node;
-import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.util.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Superclass of all {@link ParseSession} functions.
+ * Support superclass for {@link Function}s.
  *
  * @see Function
  */
-public abstract class AbstractFunction {
+public abstract class AbstractFunction implements Function {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final SpaceParser spaceParser = new SpaceParser();
@@ -46,38 +45,20 @@ public abstract class AbstractFunction {
 
 // Accessors
 
-    /**
-     * Get the name of this function.
-     *
-     * @return function name
-     */
+    @Override
     public String getName() {
         return this.name;
     }
 
     /**
-     * Get function usage string. For example: {@code pow(base, exponent)}.
-     *
-     * @return function usage string
-     */
-    public abstract String getUsage();
-
-    /**
-     * Get summarized help (typically a single line).
-     *
-     * @return one line summarized description of this function
-     */
-    public abstract String getHelpSummary();
-
-    /**
-     * Get expanded help (typically multiple lines). May refer to the {@linkplain #getUsage usage string}.
+     * {@inheritDoc}
      *
      * <p>
-     * The implementation in {@link AbstractFunction} delegates to {@link #getHelpSummary getHelpSummary()}.
-     * </p>
+     * The implementation in {@link AbstractFunction} just delegates to {@link #getHelpSummary getHelpSummary()}.
      *
      * @return detailed description of this function
      */
+    @Override
     public String getHelpDetail() {
         return this.getHelpSummary();
     }
@@ -86,49 +67,15 @@ public abstract class AbstractFunction {
      * Get the {@link SessionMode}(s) supported by this instance.
      *
      * <p>
-     * The implementation in {@link AbstractFunction} introspects the {@link Function &#64;Function} annotation on
-     * this instance's class; if not present, an exception is thrown.
-     * </p>
+     * The implementation in {@link AbstractFunction} returns an {@link EnumSet} containing
+     * {@link SessionMode#CORE_API} and {@link SessionMode#JSIMPLEDB}.
      *
-     * @return set of supported {@link SessionMode}s
+     * @return supported {@link SessionMode}s
      */
+    @Override
     public EnumSet<SessionMode> getSessionModes() {
-        final Function annotation = this.getClass().getAnnotation(Function.class);
-        if (annotation == null)
-            throw new UnsupportedOperationException("no @Function annotation found on " + this.getClass());
-        final EnumSet<SessionMode> set = EnumSet.noneOf(SessionMode.class);
-        for (SessionMode sessionMode : annotation.modes())
-            set.add(sessionMode);
-        return set;
+        return EnumSet.<SessionMode>of(SessionMode.CORE_API, SessionMode.JSIMPLEDB);
     }
-
-// Parsing
-
-    /**
-     * Parse function parameters.
-     *
-     * <p>
-     * The {@code ctx} will be pointing at the first parameter (if any) or closing parenthesis. This method should parse
-     * (but not evaluate) function parameters up through the closing parenthesis.
-     * </p>
-     *
-     * @param session parse session
-     * @param ctx parse context
-     * @param complete false if parse is "for real", true if only for tab completion calculation
-     * @return parsed parameters object to be passed to {@link #apply apply()}
-     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
-     */
-    public abstract Object parseParams(ParseSession session, ParseContext ctx, boolean complete);
-
-    /**
-     * Evaluate this function. There will be a transaction open.
-     *
-     * @param session parse session
-     * @param params parsed parameters returned by {@link #parseParams parseParams()}
-     * @return value returned by this function
-     * @throws RuntimeException if there is an error
-     */
-    public abstract Value apply(ParseSession session, Object params);
 
     /**
      * Parse some number of Java expression function arguments. We assume we have parsed the opening parenthesis,
@@ -144,7 +91,7 @@ public abstract class AbstractFunction {
      * @return parsed expressions
      * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
      */
-    public Node[] parseExpressionParams(ParseSession session, ParseContext ctx, boolean complete,
+    protected Node[] parseExpressionParams(ParseSession session, ParseContext ctx, boolean complete,
       int skippedArgs, int minArgs, int maxArgs) {
 
         // Parse parameters
@@ -184,4 +131,3 @@ public abstract class AbstractFunction {
         return params.toArray(new Node[params.size()]);
     }
 }
-

@@ -32,8 +32,8 @@ import jline.TerminalFactory;
  *
  *      // Set up telnet CLI console
  *      final TelnetConsole console = TelnetConsole.create(database, socket);
- *      console.getSession().registerStandardFunctions();
- *      console.getSession().registerStandardCommands();
+ *      console.getSession().loadFunctionsFromClasspath();
+ *      console.getSession().loadCommandsFromClasspath();
  *
  *      // Run the console
  *      console.run();

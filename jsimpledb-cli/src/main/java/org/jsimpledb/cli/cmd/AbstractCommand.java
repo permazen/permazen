@@ -26,11 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Superclass of all CLI commands.
+ * Support superclass for CLI {@link Command} implementations.
  *
  * @see Command
  */
-public abstract class AbstractCommand implements Parser<CliSession.Action> {
+public abstract class AbstractCommand implements Command {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
     protected final String name;
@@ -64,24 +64,20 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
 
 // Command stuff
 
-    /**
-     * Get the name of this command.
-     *
-     * @return command name
-     */
+    @Override
     public String getName() {
         return this.name;
     }
 
     /**
-     * Get command usage string.
+     * {@inheritDoc}
      *
      * <p>
      * The implementation in {@link AbstractCommand} delegates to {@link ParamParser#getUsage ParamParser.getUsage()}.
-     * </p>
      *
      * @return command usage string
      */
+    @Override
     public String getUsage() {
         return this.paramParser.getUsage(this.name);
     }
@@ -91,47 +87,42 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      *
      * @return one line command summary
      */
+    @Override
     public abstract String getHelpSummary();
 
     /**
-     * Get expanded help (typically multiple lines).
+     * {@inheritDoc}
      *
      * <p>
      * The implementation in {@link AbstractCommand} delegates to {@link #getHelpSummary getHelpSummary()}.
-     * </p>
      *
      * @return detailed command description
      */
+    @Override
     public String getHelpDetail() {
         return this.getHelpSummary();
     }
 
     /**
-     * Get the {@link SessionMode}(s) supported by this instance.
+     * {@inheritDoc}
      *
      * <p>
-     * The implementation in {@link AbstractCommand} introspects the {@link Command &#64;Command} annotation on
-     * this instance's class; if not present, an exception is thrown.
-     * </p>
+     * The implementation in {@link AbstractCommand} returns an {@link EnumSet} containing
+     * {@link SessionMode#CORE_API} and {@link SessionMode#JSIMPLEDB}.
      *
      * @return set of supported {@link SessionMode}s
      */
+    @Override
     public EnumSet<SessionMode> getSessionModes() {
-        final Command annotation = this.getClass().getAnnotation(Command.class);
-        if (annotation == null)
-            throw new UnsupportedOperationException("no @Command annotation found on " + this.getClass());
-        final EnumSet<SessionMode> set = EnumSet.noneOf(SessionMode.class);
-        for (SessionMode sessionMode : annotation.modes())
-            set.add(sessionMode);
-        return set;
+        return EnumSet.<SessionMode>of(SessionMode.CORE_API, SessionMode.JSIMPLEDB);
     }
 
     /**
-     * Parse command line and return command action.
+     * {@inheritDoc}
      *
      * <p>
-     * The implementation in {@link AbstractCommand} parses the parameters and delegates to {@link #getAction} with the result.
-     * </p>
+     * The implementation in {@link AbstractCommand} parses the parameters and delegates to {@link #getAction getAction()}
+     * with the result.
      *
      * @param session CLI session
      * @param ctx input to parse
@@ -156,7 +147,8 @@ public abstract class AbstractCommand implements Parser<CliSession.Action> {
      * @throws org.jsimpledb.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions
      * @throws org.jsimpledb.parse.ParseException if parameters are invalid
      */
-    public abstract CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params);
+    protected abstract CliSession.Action getAction(CliSession session,
+      ParseContext ctx, boolean complete, Map<String, Object> params);
 
     /**
      * Convert parameter spec type name into a {@link Parser}. Used for custom type names not supported by {@link ParamParser}.

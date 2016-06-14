@@ -5,13 +5,13 @@
 
 package org.jsimpledb.cli.cmd;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class QuitCommand extends AbstractCommand implements CliSession.Action {
 
     public QuitCommand() {
@@ -21,6 +21,11 @@ public class QuitCommand extends AbstractCommand implements CliSession.Action {
     @Override
     public String getHelpSummary() {
         return "Quits out of the JSimpleDB command line";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override

@@ -10,7 +10,6 @@ import java.util.Map;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.util.ParseContext;
 
-@Command
 public class SetAllowNewSchemaCommand extends AbstractCommand {
 
     public SetAllowNewSchemaCommand() {

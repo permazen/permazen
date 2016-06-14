@@ -19,7 +19,6 @@ import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.util.InstancePredicate;
 import org.jsimpledb.util.ParseContext;
 
-@Function
 public class QueryMapValueIndexFunction extends AbstractQueryFunction {
 
     public QueryMapValueIndexFunction() {

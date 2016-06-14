@@ -8,13 +8,13 @@ package org.jsimpledb.parse.func;
 import com.google.common.collect.Lists;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.Value;
 
-@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class ListFunction extends SimpleFunction {
 
     public ListFunction() {
@@ -29,6 +29,11 @@ public class ListFunction extends SimpleFunction {
     @Override
     public String getUsage() {
         return "list(item, ...)";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override

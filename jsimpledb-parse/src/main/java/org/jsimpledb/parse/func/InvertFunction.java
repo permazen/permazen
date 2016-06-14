@@ -7,6 +7,7 @@ package org.jsimpledb.parse.func;
 
 import com.google.common.collect.Iterables;
 
+import java.util.EnumSet;
 import java.util.regex.Matcher;
 
 import org.jsimpledb.JClass;
@@ -25,7 +26,6 @@ import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.util.ParseCastFunction;
 import org.jsimpledb.util.ParseContext;
 
-@Function(modes = SessionMode.JSIMPLEDB)
 public class InvertFunction extends AbstractFunction {
 
     public InvertFunction() {
@@ -48,6 +48,11 @@ public class InvertFunction extends AbstractFunction {
           + " of type name followed by a dot-separated list of one or more reference fields. The second parameter is a"
           + " collection of target objects. The return value is the set of all objects that refer to any of the target"
           + " objects through the path of references. This function does not work when running in core API mode.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.of(SessionMode.JSIMPLEDB);
     }
 
     @Override

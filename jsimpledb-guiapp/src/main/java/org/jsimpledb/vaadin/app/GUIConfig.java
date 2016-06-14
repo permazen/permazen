@@ -53,12 +53,5 @@ public interface GUIConfig {
      * @return configured verbose setting
      */
     boolean isVerbose();
-
-    /**
-     * Get any custom {@link org.jsimpledb.parse.func.AbstractFunction} classes.
-     *
-     * @return custom function classes, or null for none
-     */
-    Iterable<? extends Class<?>> getFunctionClasses();
 }
 

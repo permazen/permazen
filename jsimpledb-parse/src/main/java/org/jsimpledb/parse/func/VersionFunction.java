@@ -13,7 +13,6 @@ import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function
 public class VersionFunction extends SimpleFunction {
 
     public VersionFunction() {

@@ -5,36 +5,51 @@
 
 package org.jsimpledb.cli.cmd;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.EnumSet;
 
 import org.jsimpledb.SessionMode;
+import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.parse.Parser;
 
 /**
- * Java annotation for classes that define custom {@link org.jsimpledb.cli.CliSession} commands.
- *
- * <p>
- * Annotated classes must extend {@link AbstractCommand}
- * and have a public constructor taking either zero parameters or a single {@link org.jsimpledb.cli.CliSession} parameter.
- * </p>
+ * {@link org.jsimpledb.cli.CliSession} command.
  *
  * @see AbstractCommand
  */
-@Documented
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Command {
+public interface Command extends Parser<CliSession.Action> {
 
     /**
-     * Get the {@link SessionMode}s supported by the annotated {@link org.jsimpledb.cli.cmd.AbstractCommand}.
+     * Get the name of this command.
      *
-     * @return supported {@link SessionMode}s
+     * @return command name
      */
-    SessionMode[] modes() default { SessionMode.CORE_API, SessionMode.JSIMPLEDB };
-}
+    String getName();
 
+    /**
+     * Get command usage string.
+     *
+     * @return command usage string
+     */
+    String getUsage();
+
+    /**
+     * Get summarized help (typically a single line).
+     *
+     * @return one line command summary
+     */
+    String getHelpSummary();
+
+    /**
+     * Get expanded help (typically multiple lines).
+     *
+     * @return detailed command description
+     */
+    String getHelpDetail();
+
+    /**
+     * Get the {@link SessionMode}(s) supported by this command.
+     *
+     * @return set of supported {@link SessionMode}s
+     */
+    EnumSet<SessionMode> getSessionModes();
+}

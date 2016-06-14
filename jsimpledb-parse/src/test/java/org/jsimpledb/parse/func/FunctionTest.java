@@ -54,7 +54,7 @@ public class FunctionTest extends TestSupport {
         // Create parse session and register functions
         this.session = new ParseSession(jdb);
         this.session.setValidationMode(ValidationMode.AUTOMATIC);
-        this.session.registerStandardFunctions();
+        this.session.loadFunctionsFromClasspath();
     }
 
     @Test

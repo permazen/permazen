@@ -8,6 +8,7 @@ package org.jsimpledb.cli.cmd;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
@@ -16,7 +17,6 @@ import org.jsimpledb.kv.util.XMLSerializer;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE })
 public class KVLoadCommand extends AbstractKVCommand {
 
     public KVLoadCommand() {
@@ -38,6 +38,11 @@ public class KVLoadCommand extends AbstractKVCommand {
     @Override
     protected Parser<?> getParser(String typeName) {
         return "file".equals(typeName) ? new InputFileParser() : super.getParser(typeName);
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.of(SessionMode.KEY_VALUE);
     }
 
     @Override

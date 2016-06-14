@@ -26,7 +26,7 @@ public class DetachedObjectTest extends TestSupport {
         this.session = new ParseSession(jdb);
         this.session.setSchemaVersion(1);
         this.session.setAllowNewSchema(true);
-        this.session.registerStandardFunctions();
+        this.session.loadFunctionsFromClasspath();
     }
 
     @Test

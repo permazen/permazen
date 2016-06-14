@@ -3,21 +3,22 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.cli.cmd;
+package org.jsimpledb.kv.raft.cmd;
 
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.cli.cmd.AbstractCommand;
 import org.jsimpledb.kv.raft.fallback.FallbackKVDatabase;
 import org.jsimpledb.kv.raft.fallback.FallbackTarget;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class RaftFallbackStatusCommand extends AbstractCommand {
 
     public RaftFallbackStatusCommand() {
@@ -27,6 +28,11 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
     @Override
     public String getHelpSummary() {
         return "Displays the status of the Raft fallback database";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override

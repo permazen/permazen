@@ -6,6 +6,7 @@
 package org.jsimpledb.cli.cmd;
 
 import java.io.PrintWriter;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -17,7 +18,6 @@ import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.util.ByteUtil;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class KVGetCommand extends AbstractKVCommand {
 
     public KVGetCommand() {
@@ -38,6 +38,11 @@ public class KVGetCommand extends AbstractKVCommand {
           + " key/value pairs displayed.\nBy default, keys and values are displayed in hexadecimal with an ASCII decoding;"
           + " use the `-s' flag to display keys and values directly as C-style doubly-quoted strings.\nThe `-n' flag causes"
           + " only keys (not values) to be displayed.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override

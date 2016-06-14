@@ -7,6 +7,7 @@ package org.jsimpledb.parse.func;
 
 import com.google.common.collect.Iterables;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
@@ -16,7 +17,6 @@ import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class TransformFunction extends ApplyExprFunction {
 
     public TransformFunction() {
@@ -37,6 +37,11 @@ public class TransformFunction extends ApplyExprFunction {
     public String getHelpDetail() {
         return "Creates a view of an Iterable where each item is transformed by assigning the item to the specified variable"
           + " and evaluating the specified expression. Maps are also supported, in which case the map's entrySet() is transformed.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override

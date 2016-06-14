@@ -7,13 +7,14 @@ package org.jsimpledb.parse.func;
 
 import com.google.common.collect.Iterables;
 
+import java.util.EnumSet;
+
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class ConcatFunction extends SimpleFunction {
 
     public ConcatFunction() {
@@ -34,6 +35,11 @@ public class ConcatFunction extends SimpleFunction {
     public String getHelpDetail() {
         return "The concat() function takes an argument which must be an Iterable of Iterables (i.e., an instance of"
           + " Iterable<? extends Iterable<?>>), and returns a new Iterable<?> which is the concatenation of the inner Iterables.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override
@@ -59,4 +65,3 @@ public class ConcatFunction extends SimpleFunction {
         };
     }
 }
-

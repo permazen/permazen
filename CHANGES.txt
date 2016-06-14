@@ -1,7 +1,13 @@
 Version 2.1.0
 
     - Discover key/value implementations by scanning the classpath
+    - Discover parse function implementations from classpath
+    - Discover CLI command implementations from classpath
     - Handle fields declared in multiple incomparable supertypes
+    - API changes:
+      - @Command and @Function annotations converted to interfaces
+      - registerStandardFunctions() replaced by loadFunctionsFromClasspath()
+      - registerStandardCommands() replaced by loadCommandsFromClasspath()
 
 Version 2.0.1 Released May 28, 2016
 

@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.jsimpledb.JSimpleDB;
@@ -21,11 +20,8 @@ import org.jsimpledb.SessionMode;
 import org.jsimpledb.app.AbstractMain;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.cli.Console;
-import org.jsimpledb.cli.cmd.Command;
 import org.jsimpledb.core.Database;
-import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.spring.AnnotatedClassScanner;
 import org.jsimpledb.util.ParseContext;
 
 /**
@@ -37,8 +33,6 @@ public class Main extends AbstractMain {
 
     private File schemaFile;
     private SessionMode mode = SessionMode.JSIMPLEDB;
-    private final LinkedHashSet<Class<?>> commandClasses = new LinkedHashSet<>();
-    private final LinkedHashSet<Class<?>> functionClasses = new LinkedHashSet<>();
     private final ArrayList<String> oneShotCommands = new ArrayList<>();
 
     @Override
@@ -55,27 +49,9 @@ public class Main extends AbstractMain {
             this.mode = SessionMode.CORE_API;
         else if (option.equals("--kv-mode"))
             this.mode = SessionMode.KEY_VALUE;
-        else if (option.equals("--cmd-pkg")) {
-            if (params.isEmpty())
-                this.usageError();
-            this.scanCommandClasses(params.removeFirst());
-        } else if (option.equals("--func-pkg")) {
-            if (params.isEmpty())
-                this.usageError();
-            this.scanFunctionClasses(params.removeFirst());
-        } else
+        else
             return false;
         return true;
-    }
-
-    private void scanCommandClasses(String pkgname) {
-        for (String className : new AnnotatedClassScanner(Command.class).scanForClasses(pkgname.split("[\\s,]")))
-            this.commandClasses.add(this.loadClass(className));
-    }
-
-    private void scanFunctionClasses(String pkgname) {
-        for (String className : new AnnotatedClassScanner(Function.class).scanForClasses(pkgname.split("[\\s,]")))
-            this.functionClasses.add(this.loadClass(className));
     }
 
     @Override
@@ -164,25 +140,8 @@ public class Main extends AbstractMain {
         session.setSchemaModel(schemaModel);
         session.setSchemaVersion(this.schemaVersion);
         session.setAllowNewSchema(this.allowNewSchema);
-        session.registerStandardFunctions();
-        session.registerStandardCommands();
-        try {
-            for (Class<?> cl : this.commandClasses) {
-                final Command annotation = cl.getAnnotation(Command.class);
-                if (annotation != null && Arrays.asList(annotation.modes()).contains(session.getMode()))
-                    session.registerCommand(cl);
-            }
-            for (Class<?> cl : this.functionClasses) {
-                final Function annotation = cl.getAnnotation(Function.class);
-                if (annotation != null && Arrays.asList(annotation.modes()).contains(session.getMode()))
-                    session.registerFunction(cl);
-            }
-        } catch (IllegalArgumentException e) {
-            System.err.println(this.getName() + ": " + e.getMessage());
-            if (this.verbose)
-                e.printStackTrace(System.err);
-            return 1;
-        }
+        session.loadFunctionsFromClasspath();
+        session.loadCommandsFromClasspath();
 
         // Handle one-shot command mode
         if (!this.oneShotCommands.isEmpty()) {
@@ -226,8 +185,6 @@ public class Main extends AbstractMain {
         System.err.println("Options:");
         this.outputFlags(new String[][] {
           { "--schema-file file",       "Load core database schema from XML file" },
-          { "--cmd-pkg package",        "Register @Command-annotated classes found under the specified Java package" },
-          { "--func-pkg package",       "Register @Function-annotated classes found under the specified Java package" },
           { "--core-mode",              "Force core API mode (default if neither Java model classes nor schema are provided)" },
           { "--kv-mode",                "Force key/value mode" },
           { "--command, -c command",    "Execute the given command and then exit (may be repeated)" },
@@ -238,4 +195,3 @@ public class Main extends AbstractMain {
         new Main().doMain(args);
     }
 }
-

@@ -5,6 +5,7 @@
 
 package org.jsimpledb.cli.cmd;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
@@ -14,7 +15,6 @@ import org.jsimpledb.parse.EnumNameParser;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = SessionMode.JSIMPLEDB)
 public class SetValidationModeCommand extends AbstractCommand {
 
     public SetValidationModeCommand() {
@@ -29,6 +29,11 @@ public class SetValidationModeCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "Sets the validation mode for JSimpleDB transactions, one of `disabled', `manual', or `automatic' (the default).";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.of(SessionMode.JSIMPLEDB);
     }
 
     @Override

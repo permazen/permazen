@@ -2,11 +2,6 @@
 SHORT TERM
 ==========
 
-- META-INF autodetections
-    - Auto-detect CLI commands using META-INF/jsimpledb/cli-commands.xml
-    - Auto-detect CLI functions using META-INF/jsimpledb/parse-commands.xml
-        - Eliminate cli dependency on kv-raft
-
 - CLI:
     - New CLI flags:
         - `--console-port': accept console telnet connections on port

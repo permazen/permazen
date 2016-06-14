@@ -6,6 +6,7 @@
 package org.jsimpledb.parse.func;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -15,7 +16,6 @@ import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class CountFunction extends SimpleFunction {
 
     public CountFunction() {
@@ -30,6 +30,11 @@ public class CountFunction extends SimpleFunction {
     @Override
     public String getUsage() {
         return "count(items)";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override
@@ -50,4 +55,3 @@ public class CountFunction extends SimpleFunction {
         throw new EvalException("count() cannot be applied to object of type " + obj.getClass().getName());
     }
 }
-

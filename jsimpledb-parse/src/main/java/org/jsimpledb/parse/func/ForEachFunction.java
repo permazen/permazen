@@ -5,6 +5,7 @@
 
 package org.jsimpledb.parse.func;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
@@ -13,7 +14,6 @@ import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class ForEachFunction extends ApplyExprFunction {
 
     public ForEachFunction() {
@@ -37,6 +37,11 @@ public class ForEachFunction extends ApplyExprFunction {
     }
 
     @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
+    }
+
+    @Override
     protected Value apply(ParseSession session, ParamInfo params) {
 
         // Evaluate items
@@ -54,4 +59,3 @@ public class ForEachFunction extends ApplyExprFunction {
         return Value.NO_VALUE;
     }
 }
-

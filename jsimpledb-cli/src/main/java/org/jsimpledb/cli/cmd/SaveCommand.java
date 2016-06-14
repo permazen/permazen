@@ -27,7 +27,6 @@ import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.parse.util.ParseCastFunction;
 import org.jsimpledb.util.ParseContext;
 
-@Command
 public class SaveCommand extends AbstractCommand {
 
     public SaveCommand() {

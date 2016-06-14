@@ -6,6 +6,7 @@
 package org.jsimpledb.cli.cmd;
 
 import java.io.PrintWriter;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
@@ -15,7 +16,6 @@ import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class EvalCommand extends AbstractCommand {
 
     public EvalCommand() {
@@ -31,6 +31,11 @@ public class EvalCommand extends AbstractCommand {
     public String getHelpDetail() {
         return "The expression is evaluated within a transaction. If an exception occurs, the transaction is rolled back"
           + " unless the `-f' flag is given, in which case it will be committed anyway.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override

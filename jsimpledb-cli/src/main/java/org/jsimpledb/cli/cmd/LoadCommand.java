@@ -15,7 +15,6 @@ import org.jsimpledb.core.util.XMLObjectSerializer;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.util.ParseContext;
 
-@Command
 public class LoadCommand extends AbstractCommand {
 
     public LoadCommand() {

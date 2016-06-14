@@ -3,17 +3,15 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.cli.cmd;
+package org.jsimpledb.kv.raft.cmd;
 
 import java.util.Map;
 
-import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.raft.LeaderRole;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class RaftStepDownCommand extends AbstractRaftCommand {
 
     public RaftStepDownCommand() {

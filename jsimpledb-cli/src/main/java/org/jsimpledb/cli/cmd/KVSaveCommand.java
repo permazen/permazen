@@ -8,6 +8,7 @@ package org.jsimpledb.cli.cmd;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
@@ -17,7 +18,6 @@ import org.jsimpledb.kv.util.XMLSerializer;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class KVSaveCommand extends AbstractCommand {
 
     public KVSaveCommand() {
@@ -35,6 +35,11 @@ public class KVSaveCommand extends AbstractCommand {
           + "\n\nIf `minKey', `maxKey', and/or `limit' are specified, the keys are restricted to the specified range"
           + " and/or count limit. `minKey' and `maxKey' may be given as hexadecimal strings or C-style doubly-quoted strings."
           + " The `-i' flag causes the output XML to be indented.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override

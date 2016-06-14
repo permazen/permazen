@@ -26,7 +26,7 @@ import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.ParseUtil;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.SpaceParser;
-import org.jsimpledb.parse.func.AbstractFunction;
+import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.util.ParseContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -144,7 +144,7 @@ public class AtomExprParser implements Parser<Node> {
 
             // Find function
             final String functionName = functionMatcher.group(1);
-            final AbstractFunction function = session.getFunctions().get(functionName);
+            final Function function = session.getFunctions().get(functionName);
             if (function == null) {
                 throw new ParseException(ctx, "unknown function `" + functionName + "()'")
                   .addCompletions(ParseUtil.complete(session.getFunctions().keySet(), functionName));

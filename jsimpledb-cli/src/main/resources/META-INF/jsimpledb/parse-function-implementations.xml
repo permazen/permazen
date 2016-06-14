@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<parse-function-implementations>
+    <parse-function-implementation class="org.jsimpledb.cli.func.DumpFunction"/>
+    <parse-function-implementation class="org.jsimpledb.cli.func.PrintFunction"/>
+</parse-function-implementations>

@@ -6,6 +6,7 @@
 package org.jsimpledb.cli.cmd;
 
 import java.io.PrintWriter;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -13,10 +14,9 @@ import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.parse.WordParser;
-import org.jsimpledb.parse.func.AbstractFunction;
+import org.jsimpledb.parse.func.Function;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class HelpCommand extends AbstractCommand {
 
     private final CliSession session;
@@ -35,6 +35,11 @@ public class HelpCommand extends AbstractCommand {
     public String getHelpDetail() {
         return "Displays the list of known commands and functions, or help information about a specific command or function."
           + "\nNormally only those appropriate for the current session mode are listed; use `-a' to show all.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override
@@ -64,24 +69,24 @@ public class HelpCommand extends AbstractCommand {
                 final PrintWriter writer = session.getWriter();
                 if (name == null) {
                     writer.println((all ? "All" : "Available") + " commands:");
-                    for (AbstractCommand command : session.getCommands().values()) {
+                    for (Command command : session.getCommands().values()) {
                         if (all || command.getSessionModes().contains(sessionMode))
                             writer.println(String.format("%24s - %s", command.getName(), command.getHelpSummary()));
                     }
                     writer.println((all ? "All" : "Available") + " functions:");
-                    for (AbstractFunction function : session.getFunctions().values()) {
+                    for (Function function : session.getFunctions().values()) {
                         if (all || function.getSessionModes().contains(sessionMode))
                             writer.println(String.format("%24s - %s", function.getName(), function.getHelpSummary()));
                     }
                 } else {
-                    final AbstractCommand command = session.getCommands().get(name);
+                    final Command command = session.getCommands().get(name);
                     if (command != null) {
                         writer.println("Usage: " + command.getUsage());
                         writer.println(command.getHelpDetail());
                         writer.println("Supported session modes: "
                           + command.getSessionModes().toString().replaceAll("\\[(.*)\\]", "$1"));
                     }
-                    final AbstractFunction function = session.getFunctions().get(name);
+                    final Function function = session.getFunctions().get(name);
                     if (function != null) {
                         writer.println("Usage: " + function.getUsage());
                         writer.println(function.getHelpDetail());

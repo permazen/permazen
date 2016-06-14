@@ -9,8 +9,6 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
@@ -26,8 +24,6 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.app.AbstractMain;
 import org.jsimpledb.core.Database;
-import org.jsimpledb.parse.func.Function;
-import org.jsimpledb.spring.AnnotatedClassScanner;
 
 /**
  * GUI main entry point.
@@ -42,7 +38,6 @@ public class Main extends AbstractMain implements GUIConfig {
     private Server server;
     private int port = DEFAULT_HTTP_PORT;
     private URI root;
-    private final LinkedHashSet<Class<?>> functionClasses = new LinkedHashSet<>();
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -54,18 +49,9 @@ public class Main extends AbstractMain implements GUIConfig {
             if (params.isEmpty())
                 this.usageError();
             this.port = Integer.parseInt(params.removeFirst());
-        } else if (option.equals("--func-pkg")) {
-            if (params.isEmpty())
-                this.usageError();
-            this.scanFunctionClasses(params.removeFirst());
         } else
             return false;
         return true;
-    }
-
-    private void scanFunctionClasses(String pkgname) {
-        for (String className : new AnnotatedClassScanner(Function.class).scanForClasses(pkgname.split("[\\s,]")))
-            this.functionClasses.add(this.loadClass(className));
     }
 
     @Override
@@ -159,11 +145,6 @@ public class Main extends AbstractMain implements GUIConfig {
     }
 
     @Override
-    public Set<Class<?>> getFunctionClasses() {
-        return this.functionClasses;
-    }
-
-    @Override
     protected String getName() {
         return "jsimpledb-gui";
     }
@@ -174,7 +155,6 @@ public class Main extends AbstractMain implements GUIConfig {
         System.err.println("  " + this.getName() + " --pkg package [options]");
         System.err.println("Options:");
         this.outputFlags(new String[][] {
-          { "--func-pkg package",   "Register @Function-annotated classes found under the specified Java package" },
           { "--port port",          "Specify HTTP port (default " + DEFAULT_HTTP_PORT + ")" },
           { "--root directory",     "Specify GUI install directory" },
         });
@@ -188,4 +168,3 @@ public class Main extends AbstractMain implements GUIConfig {
         return Main.instance;
     }
 }
-

@@ -3,13 +3,12 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.cli.cmd;
+package org.jsimpledb.kv.raft.cmd;
 
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
-import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.raft.CandidateRole;
 import org.jsimpledb.kv.raft.Follower;
@@ -23,7 +22,6 @@ import org.jsimpledb.kv.raft.Timestamp;
 import org.jsimpledb.kv.raft.TxState;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class RaftStatusCommand extends AbstractRaftCommand {
 
     public RaftStatusCommand() {

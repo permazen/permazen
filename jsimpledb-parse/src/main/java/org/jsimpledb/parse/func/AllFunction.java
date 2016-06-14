@@ -21,7 +21,6 @@ import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.util.ParseContext;
 
-@Function
 public class AllFunction extends AbstractFunction {
 
     public AllFunction() {
@@ -145,4 +144,3 @@ public class AllFunction extends AbstractFunction {
         };
     }
 }
-

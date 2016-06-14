@@ -6,6 +6,7 @@
 package org.jsimpledb.cli.cmd;
 
 import java.io.PrintWriter;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
@@ -14,7 +15,6 @@ import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
-@Command(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class InfoCommand extends AbstractCommand implements CliSession.Action {
 
     public InfoCommand() {
@@ -29,6 +29,11 @@ public class InfoCommand extends AbstractCommand implements CliSession.Action {
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
         return this;
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
 // CliSession.Action

@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Archie L. Cobbs. All rights reserved.
  */
 
-package org.jsimpledb.cli.cmd;
+package org.jsimpledb.kv.raft.cmd;
 
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.KVTransaction;

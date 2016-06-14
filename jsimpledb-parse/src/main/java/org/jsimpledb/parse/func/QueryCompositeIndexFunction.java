@@ -13,7 +13,6 @@ import org.jsimpledb.parse.expr.AbstractValue;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.util.ParseContext;
 
-@Function
 public class QueryCompositeIndexFunction extends AbstractQueryFunction {
 
     private final SpaceParser spaceParser = new SpaceParser();

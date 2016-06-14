@@ -9,6 +9,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
@@ -20,7 +21,6 @@ import org.jsimpledb.parse.expr.ConstValue;
 import org.jsimpledb.parse.expr.EvalException;
 import org.jsimpledb.parse.expr.Value;
 
-@Function(modes = { SessionMode.KEY_VALUE, SessionMode.CORE_API, SessionMode.JSIMPLEDB })
 public class FilterFunction extends ApplyExprFunction {
 
     public FilterFunction() {
@@ -42,6 +42,11 @@ public class FilterFunction extends ApplyExprFunction {
         return "Creates a filtered view of an Iterable, where items are included only if when the item is assigned to the"
           + " specified variable the specified expression evaluates to true. Maps are also supported, in which case the map's"
           + " entrySet() is filtered.";
+    }
+
+    @Override
+    public EnumSet<SessionMode> getSessionModes() {
+        return EnumSet.allOf(SessionMode.class);
     }
 
     @Override
@@ -82,4 +87,3 @@ public class FilterFunction extends ApplyExprFunction {
         };
     }
 }
-

@@ -12,7 +12,6 @@ import org.jsimpledb.core.Schema;
 import org.jsimpledb.util.Diffs;
 import org.jsimpledb.util.ParseContext;
 
-@Command
 public class CompareSchemasCommand extends AbstractCommand {
 
     public CompareSchemasCommand() {

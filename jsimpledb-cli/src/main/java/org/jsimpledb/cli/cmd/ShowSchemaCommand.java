@@ -11,7 +11,6 @@ import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.schema.SchemaModel;
 import org.jsimpledb.util.ParseContext;
 
-@Command
 public class ShowSchemaCommand extends AbstractCommand implements CliSession.Action {
 
     public ShowSchemaCommand() {

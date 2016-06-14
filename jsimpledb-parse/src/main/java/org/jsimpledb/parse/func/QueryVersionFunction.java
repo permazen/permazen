@@ -18,7 +18,6 @@ import org.jsimpledb.parse.expr.Node;
 import org.jsimpledb.parse.expr.Value;
 import org.jsimpledb.util.ParseContext;
 
-@Function
 public class QueryVersionFunction extends AbstractFunction {
 
     public QueryVersionFunction() {
