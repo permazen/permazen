@@ -6,4 +6,4 @@
 /**
  * Support for JSimpleDB GUI applications based on Vaadin.
  */
-package org.jsimpledb.gui.app;
+package org.jsimpledb.vaadin.app;

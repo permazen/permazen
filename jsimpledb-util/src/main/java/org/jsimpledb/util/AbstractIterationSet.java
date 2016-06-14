@@ -17,13 +17,13 @@ import java.util.Set;
  * <p>
  * Superclass methods in {@link AbstractSet} that rely on {@link #size} are overridden with alternate
  * implementations that avoid the use of {@link #size} when possible.
- * </p>
  *
  * <p>
  * For a read-only implementation, subclasses should implement {@link #contains contains()} and {@link #iterator iterator()}.
+ *
+ * <p>
  * For a mutable implementation, subclasses should also implement {@link #add add()}, {@link #remove remove()},
- * and {@link #clear}, and make the {@link #iterator} mutable.
- * </p>
+ * and {@link #clear clear()}, and make the {@link #iterator iterator()} mutable.
  */
 public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
 

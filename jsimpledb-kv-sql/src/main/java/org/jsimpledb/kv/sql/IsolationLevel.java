@@ -24,6 +24,8 @@ public enum IsolationLevel {
 
     /**
      * Get the value corresponding to this isolation level suitable for {@link Connection#setTransactionIsolation}.
+     *
+     * @return {@link Connection} isolation level
      */
     public int getConnectionIsolation() {
         return this.connectionIsolation;

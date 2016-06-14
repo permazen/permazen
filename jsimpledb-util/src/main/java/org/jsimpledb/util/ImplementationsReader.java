@@ -96,6 +96,7 @@ public class ImplementationsReader extends AbstractXMLStreaming {
      * @param input XML input
      * @return list of class names
      * @throws IllegalArgumentException if {@code input} is null
+     * @throws XMLStreamException if XML parse fails
      */
     public List<String> parse(InputStream input) throws XMLStreamException {
         Preconditions.checkArgument(input != null, "null input");
@@ -117,6 +118,8 @@ public class ImplementationsReader extends AbstractXMLStreaming {
      *
      * @param type required implementation type
      * @param resource XML file classpath resource
+     * @return list of instantiated implementations
+     * @param <T> implementation type
      * @throws IllegalArgumentException if either parameter is null
      */
     public <T> List<T> findImplementations(Class<T> type, String resource) {

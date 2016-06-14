@@ -72,7 +72,7 @@ public interface Function {
      * @param ctx parse context
      * @param complete false if parse is "for real", true if only for tab completion calculation
      * @return parsed parameters object to be passed to {@link #apply apply()}
-     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
+     * @throws org.jsimpledb.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions
      */
     Object parseParams(ParseSession session, ParseContext ctx, boolean complete);
 

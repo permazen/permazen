@@ -55,7 +55,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
     /**
      * The name of the transaction option passed to
-     * {@link org.jsimpledb.kv.KVTransaction#createTransaction(Map) KVTransaction.createTransaction()}
+     * {@link org.jsimpledb.kv.KVDatabase#createTransaction(Map) KVDatabase.createTransaction()}
      * containing the {@linkplain TransactionDefinition#getIsolationLevel isolation level} from the
      * transaction definition. Some key/value databases may interpret this option.
      * The value of this option is an {@link Isolation} instance.

@@ -83,6 +83,7 @@ public abstract class KVImplementation {
      * Subclass support method for parsing out a single command line flag and argument.
      * If found, the {@code flag} and argument are removed from {@code options}.
      *
+     * @param options command line options
      * @param flag command line flag taking an argument
      * @return flag's argument, or null if flag is not present
      */
@@ -105,6 +106,7 @@ public abstract class KVImplementation {
      * Subclass support method for parsing out a single command line flag without argument.
      * If found, the {@code flag} is removed from {@code options}.
      *
+     * @param options command line options
      * @param flag command line flag taking an argument
      * @return whether flag is present
      */
@@ -177,6 +179,7 @@ public abstract class KVImplementation {
      * Generate a short, human-readable description of the {@link KVDatabase} instance configured as given.
      *
      * @param configuration implementation configuration returned by {@link #parseCommandLineOptions parseCommandLineOptions()}
+     * @return human-readable description
      */
     public abstract String getDescription(Object configuration);
 
@@ -191,6 +194,8 @@ public abstract class KVImplementation {
      *      &lt;kv-implementation class="com.example.MyKVImplementation"/&gt;
      *  &lt;/kv-implementations&gt;
      * </pre></blockquote>
+     *
+     * @return {@link KVImplementation}s found on the classpath
      */
     public static KVImplementation[] getImplementations() {
         final List<KVImplementation> kvs = new ImplementationsReader("kv")
