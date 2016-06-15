@@ -11,7 +11,6 @@ package org.jsimpledb.kv;
  *
  * <p>
  * Instances assume {@code byte[]} keys are ordered in unsigned lexicographical order.
- * </p>
  */
 public interface KeyFilter {
 
@@ -30,16 +29,13 @@ public interface KeyFilter {
      * <p>
      * This method should return an inclusive lower bound on all keys greater than or equal to {@code key}
      * that are contained by this instance. The bound does not have to be tight, but the tighter the better.
-     * </p>
      *
      * <p>
      * A value of null may be returned to indicate that no key greater than or equal to {@code key} is contained by this instance.
-     * </p>
      *
      * <p>
      * If {@code key} is contained by this instance, this method must return {@code key};
      * if {@code key} is not contained by this instance, this method must return a key strictly higher than {@code key} or null.
-     * </p>
      *
      * @param key starting key
      * @return a lower bound (inclusive) for contained keys greater than or equal to {@code key},
@@ -54,17 +50,14 @@ public interface KeyFilter {
      * <p>
      * This method should return an exclusive upper bound on all keys strictly less than {@code key}
      * that are contained by this instance. The bound does not have to be tight, but the tighter the better.
-     * </p>
      *
      * <p>
      * A value of null may be returned to indicate that no key strictly less than {@code key} is contained by this instance.
-     * </p>
      *
      * <p>
      * For the purposes of this method, an empty {@code byte[]} array represents an upper bound greater than all
      * {@code byte[]} keys. This interpretation applies both to the {@code key} parameter and returned value. Note that
      * this implies an empty array cannot be returned to indicate that no keys exist (instead, return null).
-     * </p>
      *
      * @param key starting key, or an empty array to indicate a maximal upper bound
      * @return an upper bound (exclusive) for contained keys strictly less that {@code key},

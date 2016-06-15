@@ -74,7 +74,6 @@ public class SpringXMLKVDatabase extends XMLKVDatabase {
      * <p>
      * The implementation in {@link SpringXMLKVDatabase} returns an {@link InputStream} acquired from the {@link Resource}
      * configured by {@link #setInitialContentResource setInitialContentResource()}, if any, otherwise null.
-     * </p>
      *
      * @return default initial XML database content, or null for none
      */

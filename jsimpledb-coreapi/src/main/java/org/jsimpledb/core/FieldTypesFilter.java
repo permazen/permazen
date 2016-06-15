@@ -24,7 +24,6 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * Instances are immutable.
- * </p>
  */
 class FieldTypesFilter implements KeyFilter {
 

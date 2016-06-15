@@ -36,7 +36,6 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  *
  * <p>
  * Instances are not thread safe.
- * </p>
  */
 public class Writes implements Cloneable, Mutations, SizeEstimating {
 
@@ -60,7 +59,6 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
      *
      * <p>
      * The caller must not modify any of the {@code byte[]} arrays in the returned {@link KeyRanges}.
-     * </p>
      *
      * @param removes key ranges removed
      * @throws IllegalArgumentException if {@code removes} is null
@@ -75,7 +73,6 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
      *
      * <p>
      * The caller must not modify any of the returned {@code byte[]} arrays.
-     * </p>
      *
      * @return mutable mapping from key to corresponding value
      */
@@ -88,7 +85,6 @@ public class Writes implements Cloneable, Mutations, SizeEstimating {
      *
      * <p>
      * The caller must not modify any of the returned {@code byte[]} arrays.
-     * </p>
      *
      * @return mutable mapping from key to corresponding counter adjustment
      */

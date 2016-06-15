@@ -29,7 +29,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * <p>
  * This filter makes {@link JTransaction}s available via the current thread, which will be autodetected by
  * a {@link JSimpleDBTransactionManager}.
- * </p>
  *
  * <p>
  * Looks up the {@link JSimpleDB} in Spring's root web application context. Supports a {@code "JSimpleDBBeanName"}

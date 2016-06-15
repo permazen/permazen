@@ -29,7 +29,6 @@ import java.lang.annotation.Target;
  * <p>
  * If a class has multiple {@link OnVersionChange &#64;OnVersionChange}-annotated methods, methods with more specific
  * constraint(s) (i.e., non-zero {@link #oldVersion} and/or {@link #newVersion}) will be invoked first.
- * </p>
  *
  * <p><b>Incompatible Schema Changes</b></p>
  *
@@ -60,7 +59,6 @@ import java.lang.annotation.Target;
  * the new, narrower type, then upgrading the object without change would represent a violation of Java type safety.
  * Therefore, when any object is upgraded, all references that would otherwise be illegal are cleared (in the manner of
  * {@link org.jsimpledb.core.DeleteAction#UNREFERENCE}); use {@code oldValues} to access the previous field value(s) if needed.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -75,11 +73,9 @@ public @interface OnVersionChange {
      * for which the previous schema version equals the specified version will result in notification,
      * and the annotated method must have the corresponding parameter omitted. Otherwise notifications
      * are delivered for any previous schema version and the {@code oldVersion} method parameter is required.
-     * </p>
      *
      * <p>
      * Negative values are not allowed.
-     * </p>
      *
      * @return old schema version, or zero for no restriction
      */
@@ -93,11 +89,9 @@ public @interface OnVersionChange {
      * for which the new schema version equals the specified version will result in notification,
      * and the annotated method must have the corresponding parameter omitted. Otherwise notifications
      * are delivered for any new schema version and the {@code newVersion} method parameter is required.
-     * </p>
      *
      * <p>
      * Negative values are not allowed.
-     * </p>
      *
      * @return new schema version, or zero for no restriction
      */

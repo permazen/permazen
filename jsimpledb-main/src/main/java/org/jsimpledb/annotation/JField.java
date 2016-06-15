@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 import org.jsimpledb.core.DeleteAction;
 
 /**
- * Java annotation for creating simple fields, including reference fields that refer to other Java model object types.
+ * Java annotation for defining simple fields, including reference fields that refer to other Java model object types.
  *
  * <p>
  * This annotation is used in two scenarios:
@@ -28,12 +28,10 @@ import org.jsimpledb.core.DeleteAction;
  * <p>
  * Note that this annotation can be applied to superclass and interface methods to have the corresponding
  * field defined in all sub-types.
- * </p>
  *
  * <p>
- * This annotation is not required when auto-generation of properties is enabled (unless you need to override
- * defaults); see {@link JSimpleClass#autogenFields}.
- * </p>
+ * When auto-generation of properties is enabled, use of this annotation is not required unless you need to override
+ * the defaults; see {@link JSimpleClass#autogenFields}.
  *
  * <p><b>Non-Reference Fields</b></p>
  *
@@ -43,29 +41,24 @@ import org.jsimpledb.core.DeleteAction;
  * must be registered in the {@link org.jsimpledb.core.FieldTypeRegistry} (perhaps via {@link JFieldType &#64;JFieldType}),
  * and the corresponding {@link org.jsimpledb.core.FieldType} is then used to encode/decode field values.
  * The type name may also be specified explicitly by {@link #name}.
- * </p>
  *
  * <p>
  * Simple fields may be {@link #indexed}; see {@link org.jsimpledb.index} for information on querying indexes.
- * </p>
  *
  * <p><b>Reference Fields</b></p>
  *
  * <p>
  * If the type of the field is (assignable to) a {@link JSimpleClass &#64;JsimpleClass}-annotated Java model object type,
  * then the field is a reference field.
- * </p>
  *
  * <p>
  * Reference fields are always indexed; the value of {@link #indexed} is ignored.
- * </p>
  *
  * <p><b>Delete Cascades</b></p>
  *
  * <p>
  * Reference fields have configurable behavior when the referring object or the referred-to object is deleted;
  * see {@link #onDelete} and {@link #cascadeDelete}.
- * </p>
  *
  * <p><b>Uniqueness Constraints</b></p>
  *
@@ -74,13 +67,11 @@ import org.jsimpledb.core.DeleteAction;
  * Fields with uniqueness constraints must be indexed. Uniqueness constraints are handled at the JSimpleDB layer and function as
  * an implicit validation constraint. In other words, the constraint is verified when the validation queue is processed
  * and is affected by the transaction's configured {@link org.jsimpledb.ValidationMode}.
- * </p>
  *
  * <p>
  * Optionally, specific field values may be marked as excluded from the uniqueness constraint via {@link #uniqueExclude}.
  * If so, the specified values may appear in multiple objects without violating the constraint. Because null values
  * are not allowed in annotations, {@link #uniqueExcludeNull} is provided to exclude the null value.
- * </p>
  *
  * <p>
  * In {@link org.jsimpledb.ValidationMode#AUTOMATIC}, any upgraded {@link org.jsimpledb.JObject}s are automatically
@@ -91,7 +82,6 @@ import org.jsimpledb.core.DeleteAction;
  * Note however, that uniqueness constraints can be added or changed on a field without a schema version change.
  * Therefore, after such changes, pre-existing database objects that were previously valid could become suddenly invalid.
  * To avoid this possibililty, change the schema version number and update them manually.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -103,11 +93,9 @@ public @interface JField {
      *
      * <p>
      * If equal to the empty string (default value), the name is inferred from the name of the annotated Java bean getter method.
-     * </p>
      *
      * <p>
      * For sub-fields of complex fields, this property must be left unset.
-     * </p>
      *
      * @return the name of the field
      */
@@ -126,12 +114,10 @@ public @interface JField {
      * and the {@link org.jsimpledb.core.FieldType} is found via
      * {@link org.jsimpledb.core.FieldTypeRegistry#getFieldType(com.google.common.reflect.TypeToken)
      * FieldTypeRegistry.getFieldType()}.
-     * </p>
      *
      * <p>
      * For reference fields (i.e., methods with return value equal to a {@link JSimpleClass &#64;JSimpleClass}-annotated class),
      * this property must be left unset.
-     * </p>
      *
      * <p>
      * For sub-fields of complex fields, this property can be used to force a primitive sub-field type instead of a
@@ -166,11 +152,9 @@ public @interface JField {
      * <p>
      * Setting this property to true creates a simple index on this field. To have this field participate in
      * a composite index on multiple fields, use {@link JSimpleClass#compositeIndexes}.
-     * </p>
      *
      * <p>
      * Note: reference fields are always indexed (for reference fields, this property is ignored).
-     * </p>
      *
      * @return whether the field is indexed
      */
@@ -182,7 +166,6 @@ public @interface JField {
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
-     * </p>
      *
      * @return desired behavior when a referenced object is deleted
      * @see #cascadeDelete
@@ -197,7 +180,6 @@ public @interface JField {
      *
      * <p>
      * For non-reference fields this property must be equal to its default value.
-     * </p>
      *
      * @return whether deletion should cascade to the referred-to object
      * @see #onDelete
@@ -241,7 +223,6 @@ public @interface JField {
      *
      * <p>
      * This property must be left empty when {@link #unique} is false.
-     * </p>
      *
      * @return values to exclude from the uniqueness constraint
      * @see #unique
@@ -254,7 +235,6 @@ public @interface JField {
      *
      * <p>
      * This property must be left false when {@link #unique} is false or the field has primitive type.
-     * </p>
      *
      * @return whether null should be excluded from the uniqueness constraint
      * @see #unique

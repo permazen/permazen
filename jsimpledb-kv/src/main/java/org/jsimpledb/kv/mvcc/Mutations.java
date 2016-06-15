@@ -30,7 +30,6 @@ public interface Mutations {
      *
      * <p>
      * The caller must not modify any of the returned {@code byte[]} arrays.
-     * </p>
      *
      * @return mapping from key to corresponding value
      */
@@ -41,7 +40,6 @@ public interface Mutations {
      *
      * <p>
      * The caller must not modify any of the returned {@code byte[]} arrays.
-     * </p>
      *
      * @return mapping from key to corresponding counter adjustment
      */

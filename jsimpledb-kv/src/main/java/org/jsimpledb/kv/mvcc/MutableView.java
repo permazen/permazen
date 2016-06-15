@@ -30,25 +30,20 @@ import org.jsimpledb.util.SizeEstimator;
  * Instances intercept all operations to the underlying {@link KVStore}, recording mutations in a {@link Writes} instance
  * instead of applying them to the {@link KVStore}. Instances then provide a view of the mutated {@link KVStore} based those
  * mutations. Mutations that overwrite previous mutations are consolidated.
- * </p>
  *
  * <p>
  * Unlike writes, reads are passed through to the underlying {@link KVStore}, except where they intersect a previous write.
  * Reads may also be optionally recorded.
- * </p>
  *
  * <p>
  * In all cases, then underlying {@link KVStore} is never modified.
- * </p>
  *
  * <p>
  * Instances are also capable of performing certain MVCC-related calculations, such as whether two transactions may be re-ordered.
- * </p>
  *
  * <p>
  * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe
  * without first locking this instance.
- * </p>
  */
 public class MutableView extends AbstractKVStore implements Cloneable, SizeEstimating {
 

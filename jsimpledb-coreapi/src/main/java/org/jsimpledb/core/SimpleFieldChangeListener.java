@@ -19,11 +19,9 @@ public interface SimpleFieldChangeListener {
      *
      * <p>
      * Notifications are only delivered when the set of referring objects is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)

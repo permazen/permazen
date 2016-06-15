@@ -19,7 +19,6 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * Each boolean value is encoded in two bits: end of array ({@code 00}), false ({@code 01}), or true ({@code 10}).
- * </p>
  */
 class BooleanArrayType extends ArrayType<boolean[], Boolean> {
 

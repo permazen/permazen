@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  * The various annotated getter and setter methods will be overridden in the generated class.
  * If the user class implements {@link JObject}, then those methods will also be overridden with concrete implementations
  * in the generated class.
- * </p>
  */
 class ClassGenerator<T> {
 

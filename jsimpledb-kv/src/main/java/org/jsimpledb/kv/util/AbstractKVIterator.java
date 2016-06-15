@@ -26,12 +26,10 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Subclasses must implement {@linkplain #decodePair decodePair()} to convert key/value pairs into iteration elements.
- * </p>
  *
  * <p>
  * This class provides a read-only implementation; for a mutable implementation, subclasses should also implement
  * {@link #doRemove doRemove()}.
- * </p>
  *
  * <p><b>Prefix Mode</b></p>
  *
@@ -40,31 +38,26 @@ import org.slf4j.LoggerFactory;
  * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
  * number of key bytes consumed by {@link #decodePair decodePair()}.
  * When not in prefix mode, {@link #decodePair decodePair()} <b>must</b> consume the entire key to preserve correct semantics.
- * </p>
  *
  * <p><b>Key Restrictions</b></p>
  *
  * <p>
  * Instances are configured with an (optional) {@link KeyRange} that restricts the iteration to the specified range.
- * </p>
  *
  * <p>
  * Instances also support filtering visible values using a {@link KeyFilter}.
  * To be visible in the iteration, keys must both be within the {@link KeyRange} and pass the {@link KeyFilter}.
- * </p>
  *
  * <p><b>Concurrent Modification</b></p>
  *
  * <p>
  * Instances of this class are thread safe.
- * </p>
  *
  * <p>
  * Internally, when not in prefix mode and no {@link KeyFilter} is configured, this instance will rely on the
  * iteration from {@link KVStore#getRange KVStore.getRange()}; otherwise, it will use a {@link KVPairIterator}.
  * Therefore, in the former case, whether this iteration always reflects the current state of the underlying
  * {@link KVStore} depends on the behavior of {@link KVStore#getRange KVStore.getRange()}.
- * </p>
  *
  * @see AbstractKVNavigableMap
  * @see AbstractKVNavigableSet
@@ -199,7 +192,6 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * <p>
      * If not in prefix mode, all of {@code keyReader} must be consumed; otherwise, the consumed portion
      * is the prefix and any following keys with the same prefix are ignored.
-     * </p>
      *
      * @param pair key/value pair
      * @param keyReader key input
@@ -213,7 +205,6 @@ public abstract class AbstractKVIterator<E> implements java.util.Iterator<E> {
      * <p>
      * The implementation in {@link AbstractKVIterator} always throws {@link UnsupportedOperationException}.
      * Subclasses should override to make the iterator mutable.
-     * </p>
      *
      * @param value most recent value returned by {@link #next}
      * @param pair the key/value pair corresponding to {@code value}

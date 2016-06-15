@@ -17,7 +17,6 @@ public interface CreateListener {
      *
      * <p>
      * Notifications are delivered in the same thread that is creating object, immediately after creation.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the new object

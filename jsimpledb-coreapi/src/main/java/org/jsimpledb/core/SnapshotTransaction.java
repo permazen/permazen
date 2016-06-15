@@ -58,7 +58,6 @@ public class SnapshotTransaction extends Transaction {
      *
      * <p>
      * It will contain schema meta-data but no objects.
-     * </p>
      */
     public void reset() {
 
@@ -75,7 +74,6 @@ public class SnapshotTransaction extends Transaction {
      *
      * <p>
      * {@link SnapshotTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.
-     * </p>
      *
      * @throws UnsupportedOperationException always
      */
@@ -89,7 +87,6 @@ public class SnapshotTransaction extends Transaction {
      *
      * <p>
      * {@link SnapshotTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.
-     * </p>
      *
      * @throws UnsupportedOperationException always
      */
@@ -104,7 +101,6 @@ public class SnapshotTransaction extends Transaction {
      * <p>
      * {@link Transaction.Callback}s registered with a {@link SnapshotTransaction} will by definition never be invoked.
      * Therefore, this method simply discards {@code callback}.
-     * </p>
      */
     @Override
     public void addCallback(Callback callback) {
@@ -115,7 +111,6 @@ public class SnapshotTransaction extends Transaction {
      *
      * <p>
      * {@link SnapshotTransaction}s are always valid.
-     * </p>
      *
      * @return true always
      */

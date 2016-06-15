@@ -18,7 +18,6 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * We use the same encoding as {@link StringType}.
- * </p>
  */
 class CharacterArrayType extends ArrayType<char[], Character> {
 

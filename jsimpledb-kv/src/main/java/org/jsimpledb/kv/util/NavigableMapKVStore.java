@@ -46,7 +46,6 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable {
      *
      * <p>
      * The underlying map <b>must</b> sort keys lexicographically as unsigned bytes; otherwise, behavior is undefined.
-     * </p>
      *
      * @param map underlying map
      * @throws IllegalArgumentException if {@code map} is null

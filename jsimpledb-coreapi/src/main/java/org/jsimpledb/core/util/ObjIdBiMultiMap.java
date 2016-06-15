@@ -15,11 +15,9 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * Instances can be thought of as containing a set of <i>source, target</i> ordered pairs.
  * The many-to-many mapping can be efficiently queried and modified from either direction.
- * </p>
  *
  * <p>
  * Instances of this class are thread-safe.
- * </p>
  */
 public class ObjIdBiMultiMap {
 
@@ -91,7 +89,6 @@ public class ObjIdBiMultiMap {
      *
      * <p>
      * The returned {@link ObjIdSet} is mutable, but changes to it do not affect this instance.
-     * </p>
      *
      * @return all source ID's associated with this instance, possibly empty
      */
@@ -106,7 +103,6 @@ public class ObjIdBiMultiMap {
      *
      * <p>
      * The returned {@link ObjIdSet} is mutable, but changes to it do not affect this instance.
-     * </p>
      *
      * @return all targets ID's associated with this instance, possibly empty
      */
@@ -121,7 +117,6 @@ public class ObjIdBiMultiMap {
      *
      * <p>
      * The returned {@link ObjIdSet} is mutable, but changes to it do not affect this instance.
-     * </p>
      *
      * @param target target ID
      * @return one or more source ID's associated with {@code target}, or null if there are none
@@ -140,7 +135,6 @@ public class ObjIdBiMultiMap {
      *
      * <p>
      * The returned {@link ObjIdSet} is mutable, but changes to it do not affect this instance.
-     * </p>
      *
      * @param source source ID
      * @return one or more target ID's associated with {@code source}, or null if there are none
@@ -356,11 +350,9 @@ public class ObjIdBiMultiMap {
      * <p>
      * The returned {@link ObjIdBiMultiMap} is a <i>view</i> in which sources become targets and vice-versa;
      * any changes are reflected back in this instance.
-     * </p>
      *
      * <p>
      * This method is efficient, requiring only constant time.
-     * </p>
      *
      * @return inverse view of this instance
      */

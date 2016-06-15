@@ -21,7 +21,6 @@ import org.jsimpledb.util.LongEncoder;
  * Arrays are encoded as a sequence of numerical values followed by {@code 0x00}, where each value is encoded via
  * {@link LongEncoder}. Note, we take advantage of the fact that {@link LongEncoder} does not emit values starting
  * with {@code 0x00}.
- * </p>
  */
 abstract class IntegralArrayType<T, E extends Number> extends Base64ArrayType<T, E> {
 

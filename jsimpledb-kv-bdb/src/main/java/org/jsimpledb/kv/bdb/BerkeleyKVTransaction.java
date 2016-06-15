@@ -273,7 +273,6 @@ public class BerkeleyKVTransaction extends AbstractKVStore implements KVTransact
      *
      * <p>
      * Instances implement {@link Closeable}.
-     * </p>
      */
     public final class CursorIterator implements Iterator<KVPair>, Closeable {
 

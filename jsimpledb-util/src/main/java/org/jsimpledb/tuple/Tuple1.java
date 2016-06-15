@@ -10,7 +10,6 @@ package org.jsimpledb.tuple;
  *
  * <p>
  * Instances are immutable.
- * </p>
  *
  * @param <V1> value type
  */

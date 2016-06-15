@@ -142,7 +142,6 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      * <p>
      * The implementation in {@link XMLKVDatabase} opens and returns the {@link File} configured by
      * {@link #setInitialContentFile setInitialContentFile()}, if any, otherwise null.
-     * </p>
      *
      * @return default initial XML database content, or null for none
      * @throws IOException if an error occurs accessing the initial content file
@@ -178,7 +177,6 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      *
      * <p>
      * Any transactions that are in-progress when this method is called immediately become unusable.
-     * </p>
      */
     public synchronized void reload() {
         this.readXML();

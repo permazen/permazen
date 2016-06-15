@@ -32,7 +32,6 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  *
  * <p>
  * Instances are immutable.
- * </p>
  *
  * @see KeyRange
  */
@@ -61,7 +60,6 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * Creates an instance that contains all keys contained by any of the {@link KeyRange}s in {@code ranges}.
      * The given {@code ranges} may be adjacent, overlap, and/or be listed in any order; this constructor
      * will normalize them.
-     * </p>
      *
      * @param ranges individual key ranges
      * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
@@ -78,7 +76,6 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * Creates an instance that contains all keys contained by any of the {@link KeyRange}s in {@code ranges}.
      * The given {@code ranges} may be adjacent, overlap, and/or be listed in any order; this constructor
      * will normalize them.
-     * </p>
      *
      * @param ranges individual key ranges
      * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
@@ -144,7 +141,6 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      *
      * <p>
      * The returned {@link KeyRange}s will be listed in order.
-     * </p>
      *
      * @return minimal, unmodifiable list of {@link KeyRange}s sorted by key range
      */
@@ -288,7 +284,6 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * the nearest {@link KeyRange} to the left of {@code key}, or null if none exists, and the second element is
      * the {@link KeyRange} to the right of {@code key}, or null if none exists. Note if this instance is empty
      * then <code>{ null, null }</code> is returned.
-     * </p>
      *
      * @param key key to find
      * @return array with the containing {@link KeyRange} or nearest neighbor to the left (or null) and

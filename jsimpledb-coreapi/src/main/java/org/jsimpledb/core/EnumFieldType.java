@@ -22,11 +22,9 @@ import org.dellroad.stuff.java.EnumUtil;
  * <p>
  * Each {@link EnumFieldType} instance has an ordered list of {@link String} identifiers; two {@link EnumFieldType}
  * instances are not compatible unless they have identical identifier lists. The identifiers must be valid Java identifiers.
- * </p>
  *
  * <p>
  * Null values are supported by this class.
- * </p>
  */
 public class EnumFieldType extends NullSafeType<EnumValue> {
 
@@ -99,7 +97,6 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      * <p>
      * If {@code name} is the name of an {@link Enum} class with matching identifiers, then it will
      * associated with the created instance and returned by its {@link #getEnumType} method.
-     * </p>
      *
      * @param name name of the type
      * @param idents ordered list of identifiers

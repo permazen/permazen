@@ -21,12 +21,10 @@ import org.jsimpledb.util.ParseContext;
  * A {@link FieldType} maps between instances of its supported Java type and the self-delimited {@code byte[]} encoding of
  * those instances used in the database. The {@code byte[]} encoding also implicitly defines the database sort order
  * (via unsigned lexicographical ordering). This ordering is also reflected via {@link #compare compare()}.
- * </p>
  *
  * <p>
  * A {@link FieldType} also defines a mapping between Java instances and {@link String} values.
  * There are two separate {@link String} forms, a regular form and a self-delimiting form.
- * </p>
  *
  * <p>
  * {@link FieldType}s have these requirements and properties:
@@ -51,11 +49,9 @@ import org.jsimpledb.util.ParseContext;
  * <p>
  * Two {@link FieldType} instances should be equal according to {@link #equals equals()} if only if they behave identically
  * with respect to all of the above.
- * </p>
  *
  * <p>
  * A {@link FieldTypeRegistry} contains a registry of {@link FieldType}s indexed by name.
- * </p>
  *
  * @param <T> The associated Java type
  * @see FieldTypeRegistry
@@ -145,12 +141,10 @@ public abstract class FieldType<T> implements Comparator<T> {
      * implementation changes its binary encoding, but not it's name, it <b>must</b> use a new, different binary encoding
      * signature to eliminate the possibility of mixing incompatible encodings in software vs. persistent storage.
      * Typically a value of zero is used until if/when such a change occurs.
-     * </p>
      *
      * <p>
      * Note that another option when encodings change is simply to change the {@linkplain #getName name} of the type
      * (encoding signatures are scoped to a single {@link FieldType} name).
-     * </p>
      *
      * @return binary encoding signature
      */
@@ -219,12 +213,10 @@ public abstract class FieldType<T> implements Comparator<T> {
      * <p>
      * Each of the characters in the returned {@link String} must be one of the valid XML characters
      * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
-     * </p>
      *
      * <p>
      * The implementation in {@link FieldType} checks that {@code value} is not null, then delegates to {@link #toParseableString}.
      * Subclasses that override this method should also override {@link #fromString fromString()}.
-     * </p>
      *
      * @param value actual value, never null
      * @return string encoding of {@code value} acceptable to {@link #fromString fromString()}
@@ -243,7 +235,6 @@ public abstract class FieldType<T> implements Comparator<T> {
      * The implementation in {@link FieldType} creates a new {@link ParseContext} based on {@code string},
      * delegates to {@link #toParseableString} to parse it, and verifies that all of {@code string} was consumed
      * during the parse. Subclasses that override this method should also override {@link #toString(Object) toString(T)}.
-     * </p>
      *
      * @param string non-null value previously encoded as a {@link String} by {@link #toString(Object) toString(T)}
      * @return actual value
@@ -267,7 +258,6 @@ public abstract class FieldType<T> implements Comparator<T> {
      * <p>
      * In addition, each of the characters in the returned {@link String} must be one of the valid XML characters
      * (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
-     * </p>
      *
      * @param value actual value (possibly null)
      * @return string encoding of {@code value} acceptable to {@link #fromParseableString fromParseableString()}
@@ -292,17 +282,14 @@ public abstract class FieldType<T> implements Comparator<T> {
      * <p>
      * Note that this method must throw {@link IllegalArgumentException}, not {@link ClassCastException}
      * or {@link NullPointerException}, if {@code obj} does not have the correct type, or is an illegal null value.
-     * </p>
      *
      * <p>
      * This method is allowed to perform widening conversions of the object that lose no information, e.g.,
      * from {@link Integer} to {@link Long}.
-     * </p>
      *
      * <p>
      * The implementation in {@link FieldType} simply casts the value using this instance's raw Java type.
      * Subclasses should override this method to implement any other restrictions, e.g., disallowing null values.
-     * </p>
      *
      * @param obj object to validate
      * @return {@code obj} cast to this field's type
@@ -345,11 +332,9 @@ public abstract class FieldType<T> implements Comparator<T> {
      * <p>
      * Note: changing the return value of this method usually means changing the binary encoding, resulting in
      * an incompatible type.
-     * </p>
      *
      * <p>
      * The implementation in {@link FieldType} returns {@code true}.
-     * </p>
      *
      * @return true if an encoded value starting with {@code 0x00} exists
      */
@@ -364,11 +349,9 @@ public abstract class FieldType<T> implements Comparator<T> {
      * <p>
      * Note: changing the return value of this method usually means changing the binary encoding, resulting in
      * an incompatible type.
-     * </p>
      *
      * <p>
      * The implementation in {@link FieldType} returns {@code true}.
-     * </p>
      *
      * @return true if an encoded value starting with {@code 0xff} exists
      */

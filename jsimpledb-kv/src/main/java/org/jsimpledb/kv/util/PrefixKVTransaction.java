@@ -21,7 +21,6 @@ import org.jsimpledb.kv.KVTransaction;
  * Instances may also be created directly from an existing {@link KVTransaction}; in that case,
  * {@link #setTimeout setTimeout()}, {@link #commit}, and {@link #rollback} forward to the containing transaction,
  * while {@link #getKVDatabase} throws {@link UnsupportedOperationException}.
- * </p>
  */
 public class PrefixKVTransaction extends PrefixKVStore implements KVTransaction {
 

@@ -14,7 +14,6 @@ import org.jsimpledb.kv.KVStore;
  *
  * <p>
  * Attempts to invoke any of the mutating {@link KVStore} methods result in an {@link UnsupportedOperationException}.
- * </p>
  */
 public class UnmodifiableKVStore extends ForwardingKVStore {
 

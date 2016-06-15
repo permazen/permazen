@@ -31,23 +31,19 @@ import org.dellroad.stuff.java.PrimitiveSwitch;
  * <p>
  * All {@link FieldType}s in a {@link FieldTypeRegistry} are registered under a unique type name.
  * However, multiple registered {@link FieldType}s may support the same {@linkplain FieldType#getTypeToken Java type}.
- * </p>
  *
  * <p><b>Arrays</b></p>
  *
  * <p>
  * Array types will be automatically created and registered on demand, assuming the base element
  * type is already registered.
- * </p>
  *
  * <p>
  * Arrays are passed by value: i.e., the entire array is copied. Therefore, changes to array elements after
  * getting or setting a field have no effect on the field's value.
- * </p>
  *
  * <p>
  * Arrays of references are not currently supported.
- * </p>
  *
  * <p>
  * The following types are automatically registered (or generated on demand):

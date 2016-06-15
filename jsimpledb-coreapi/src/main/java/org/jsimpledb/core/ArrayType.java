@@ -20,11 +20,9 @@ import org.jsimpledb.util.ParseContext;
  * <p>
  * This class does not support null arrays; wrap in {@link NullSafeType} to get that.
  * The default value is the empty array.
- * </p>
  *
  * <p>
  * Arrays sort lexicographically.
- * </p>
  *
  * @param <T> array type
  * @param <E> array element type

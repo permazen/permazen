@@ -13,7 +13,6 @@ import com.google.common.base.Preconditions;
  *
  * <p>
  * Instances are immutable.
- * </p>
  *
  * @see EnumFieldType
  * @see org.jsimpledb.EnumConverter
@@ -73,7 +72,6 @@ public class EnumValue {
      *
      * <p>
      * Note: to match only by name, just use {@link Enum#valueOf Enum.valueOf()}.
-     * </p>
      *
      * @param type {@link Enum} type
      * @param <T> enum type

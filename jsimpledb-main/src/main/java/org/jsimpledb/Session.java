@@ -22,11 +22,9 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Instances operate in one of three modes; see {@link SessionMode}.
- * </p>
  *
  * <p>
  * Instances are <b>not</b> thread safe.
- * </p>
  *
  * @see SessionMode
  */
@@ -308,7 +306,6 @@ public class Session {
      * <p>
      * The implementation in {@code Session} logs an error message. Subclasses are encouraged to
      * handle errors more gracefully within the context of the associated application.
-     * </p>
      *
      * @param e exception thrown during {@link #performSessionAction performSessionAction()}
      */

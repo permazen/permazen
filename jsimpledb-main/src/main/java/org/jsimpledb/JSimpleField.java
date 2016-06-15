@@ -97,7 +97,6 @@ public class JSimpleField extends JField {
      * Note that for {@link Enum} and reference fields, the core API uses a different type than the Java model
      * classes ({@link org.jsimpledb.core.EnumValue} and {@link org.jsimpledb.core.ObjId}, respectively).
      * Values can always be properly converted using the {@link Converter} returned by {@link #getConverter getConverter()}.
-     * </p>
      *
      * @return this field's core-layer type definition
      */

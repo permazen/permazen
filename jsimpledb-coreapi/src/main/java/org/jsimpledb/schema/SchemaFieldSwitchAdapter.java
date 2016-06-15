@@ -18,7 +18,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to
      * {@link #caseCollectionSchemaField caseCollectionSchemaField()}.
-     * </p>
      */
     @Override
     public R caseSetSchemaField(SetSchemaField field) {
@@ -31,7 +30,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to
      * {@link #caseCollectionSchemaField caseCollectionSchemaField()}.
-     * </p>
      */
     @Override
     public R caseListSchemaField(ListSchemaField field) {
@@ -44,7 +42,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to
      * {@link #caseComplexSchemaField caseComplexSchemaField()}.
-     * </p>
      */
     @Override
     public R caseMapSchemaField(MapSchemaField field) {
@@ -57,7 +54,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to
      * {@link #caseDefault caseDefault()}.
-     * </p>
      */
     @Override
     public R caseSimpleSchemaField(SimpleSchemaField field) {
@@ -70,7 +66,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to
      * {@link #caseSimpleSchemaField caseSimpleSchemaField()}.
-     * </p>
      */
     @Override
     public R caseReferenceSchemaField(ReferenceSchemaField field) {
@@ -83,7 +78,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to
      * {@link #caseSimpleSchemaField caseSimpleSchemaField()}.
-     * </p>
      */
     @Override
     public R caseEnumSchemaField(EnumSchemaField field) {
@@ -95,7 +89,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseDefault caseDefault()}.
-     * </p>
      */
     @Override
     public R caseCounterSchemaField(CounterSchemaField field) {
@@ -107,7 +100,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseComplexSchemaField caseComplexSchemaField()}.
-     * </p>
      *
      * @param field visiting field
      * @return visitor return value
@@ -121,7 +113,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} delegates to {@link #caseDefault caseDefault()}.
-     * </p>
      *
      * @param field visiting field
      * @return visitor return value
@@ -135,7 +126,6 @@ public class SchemaFieldSwitchAdapter<R> implements SchemaFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link SchemaFieldSwitchAdapter} always throws {@link UnsupportedOperationException}.
-     * </p>
      *
      * @param field visiting field
      * @return visitor return value

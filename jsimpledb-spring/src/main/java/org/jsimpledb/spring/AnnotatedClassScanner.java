@@ -90,7 +90,6 @@ public class AnnotatedClassScanner extends ClassPathScanningCandidateComponentPr
      * <p>
      * Overridden in {@link AnnotatedClassScanner} to set the default filters to be ones that match classes
      * annotated with any of the annotation types provided to the constructor.
-     * </p>
      */
     @Override
     protected void registerDefaultFilters() {

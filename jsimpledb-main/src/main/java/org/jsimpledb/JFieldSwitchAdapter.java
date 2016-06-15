@@ -17,7 +17,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJCollectionField caseJCollectionField()}.
-     * </p>
      */
     @Override
     public R caseJSetField(JSetField field) {
@@ -29,7 +28,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJCollectionField caseJCollectionField()}.
-     * </p>
      */
     @Override
     public R caseJListField(JListField field) {
@@ -41,7 +39,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJComplexField caseJComplexField()}.
-     * </p>
      */
     @Override
     public R caseJMapField(JMapField field) {
@@ -53,7 +50,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJField caseJField()}.
-     * </p>
      */
     @Override
     public R caseJSimpleField(JSimpleField field) {
@@ -65,7 +61,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJSimpleField caseJSimpleField()}.
-     * </p>
      */
     @Override
     public R caseJReferenceField(JReferenceField field) {
@@ -77,7 +72,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJSimpleField caseJSimpleField()}.
-     * </p>
      */
     @Override
     public R caseJEnumField(JEnumField field) {
@@ -89,7 +83,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJField caseJField()}.
-     * </p>
      */
     @Override
     public R caseJCounterField(JCounterField field) {
@@ -101,7 +94,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJComplexField caseJComplexField()}.
-     * </p>
      *
      * @param field the visiting field
      * @return visitor return value
@@ -115,7 +107,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} delegates to {@link #caseJField caseJField()}.
-     * </p>
      *
      * @param field the visiting field
      * @return visitor return value
@@ -129,7 +120,6 @@ public class JFieldSwitchAdapter<R> implements JFieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link JFieldSwitchAdapter} always throws {@link UnsupportedOperationException}.
-     * </p>
      *
      * @param field the visiting field
      * @return visitor return value

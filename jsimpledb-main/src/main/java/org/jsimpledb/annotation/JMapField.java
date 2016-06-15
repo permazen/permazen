@@ -19,14 +19,12 @@ import java.lang.annotation.Target;
  * The annotated method's return type must be either {@link java.util.Map Map}{@code <K, V>},
  * {@link java.util.SortedMap SortedMap}{@code <K, V>}, or {@link java.util.NavigableMap NavigableMap}{@code <K, V>},
  * where {@code K} and {@code V} are supported simple types.
- * </p>
  *
  * <p>
  * Note that both primitive types and their corresponding wrapper types are supported as keys and/or values. A map whose
  * keys/values have primitive type will throw an exception on an attempt to add a null key/value.
  * To specify a primitive key or value type, specify the type name (e.g., {@code "int"}) as the {@link JField#type}
  * in the {@link #key} or the {@link #value}.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -38,7 +36,6 @@ public @interface JMapField {
      *
      * <p>
      * If empty string (default value), the name is inferred from the name of the annotated Java bean getter method.
-     * </p>
      *
      * @return the map field name
      */

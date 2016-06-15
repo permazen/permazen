@@ -46,7 +46,6 @@ public interface Function {
      *
      * <p>
      * The implementation in {@link AbstractFunction} delegates to {@link #getHelpSummary getHelpSummary()}.
-     * </p>
      *
      * @return detailed description of this function
      */
@@ -66,7 +65,6 @@ public interface Function {
      * The {@code ctx} will be pointing at the first parameter (if any) or closing parenthesis. This method should parse
      * (but not evaluate) function parameters up through the closing parenthesis. The return value is an opaque value
      * representing the parsed parameters and subsequently passed to {@link #apply apply()}.
-     * </p>
      *
      * @param session parse session
      * @param ctx parse context

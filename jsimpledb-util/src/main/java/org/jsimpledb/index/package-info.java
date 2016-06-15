@@ -13,51 +13,42 @@
  * {@code User} will be represented by a {@link org.jsimpledb.index.Index}{@code <Integer, User>}, and may be viewed
  * either as a {@link java.util.NavigableSet}{@code <}{@link org.jsimpledb.tuple.Tuple2}{@code <Integer, User>>}
  * or a {@link java.util.NavigableMap}{@code <Integer, }{@link java.util.NavigableSet}{@code <User>>}.
- * </p>
  *
  * <p>
  * <b>Simple and Composite Indexes</b>
- * </p>
  *
  * <p>
  * A simple index on a single field value is created by setting {@code indexed="true"} on the
  * {@link org.jsimpledb.annotation.JField &#64;JField} annotation.
- * </p>
  *
  * <p>
  * Composite indexes on multiple fields are also supported. These are useful when the target type needs to be sorted
  * on multiple fields; for simple searching on multiple fields, it suffices to have independent, single-field indexes,
  * which can be intersected via {@link org.jsimpledb.util.NavigableSets#intersection NavigableSets.intersection()}, etc.
- * </p>
  *
  * <p>
  * A composite index on two fields {@code String getUsername()} and {@code float getBalance()} of type {@code User}
  * will be represented by a {@link org.jsimpledb.index.Index2}{@code <String, Float, User>}; a composite index on
  * three fields of type {@code X}, {@code Y}, and {@code Z} by a {@link org.jsimpledb.index.Index3}{@code <X, Y, Z, User>}, etc.
- * </p>
  *
  * <p>
  * A composite index may be viewed as a set of tuples of indexed and target values, or as various mappings from one
  * or more indexed field values to subsequent values. A composite index may also be viewed as a simpler index on
  * any prefix of the indexed fields.
- * </p>
  *
  * <p>
  * <b>Complex Sub-Fields</b>
- * </p>
  *
  * <p>
  * Only simple fields may be indexed, but the indexed field can be either a normal object field or a sub-field of
  * a complex {@link java.util.Set Set}, {@link java.util.List List}, or {@link java.util.Map Map} field. However,
  * complex sub-fields may not appear in composite indexes.
- * </p>
  *
  * <p>
  * For those complex sub-fields that can contain duplicate values (namely, {@link java.util.List} element and
  * {@link java.util.Map} value), the associated distinguishing value (respectively, {@link java.util.List} index
  * and {@link java.util.Map} key) is appended to the index and becomes the new target type.
  * Therefore the resulting index types associated with indexes on complex sub-fields are follows:
- * </p>
  *
  * <div style="margin-left: 20px;">
  * <table border="1" cellpadding="3" cellspacing="0" summary="Index Types">

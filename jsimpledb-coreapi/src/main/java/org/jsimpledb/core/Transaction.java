@@ -51,11 +51,9 @@ import org.slf4j.LoggerFactory;
  * Note: this is the lower level, core API for {@link org.jsimpledb.JSimpleDB}. In most cases this API
  * will only be used indirectly through the higher level {@link org.jsimpledb.JSimpleDB}, {@link org.jsimpledb.JTransaction},
  * and {@link org.jsimpledb.JObject} APIs.
- * </p>
  *
  * <p>
  * Methods in this class can be divided into the following categories:
- * </p>
  *
  * <p>
  * <b>Transaction Meta-Data</b>
@@ -171,7 +169,6 @@ import org.slf4j.LoggerFactory;
  * {@link NavigableSets#union union}, {@link NavigableSets#difference difference}, and
  * {@link NavigableSets#symmetricDifference symmetric difference} of {@link NavigableSet}s containing the same element type,
  * thereby providing the equivalent of traditional database joins.
- * </p>
  */
 public class Transaction {
 
@@ -292,7 +289,6 @@ public class Transaction {
      * <p>
      * <b>Warning:</b> making changes to the key/value store directly is not supported. If any changes
      * are made, all future behavior is undefined.
-     * </p>
      *
      * @return the associated key/value transaction
      */
@@ -496,7 +492,6 @@ public class Transaction {
      * then you may also use Spring's
      * {@link org.springframework.transaction.support.TransactionSynchronizationManager#registerSynchronization
      * TransactionSynchronizationManager.registerSynchronization()} instead of this method.
-     * </p>
      *
      * @param callback callback to invoke
      * @throws IllegalArgumentException if {@code callback} is null
@@ -535,7 +530,6 @@ public class Transaction {
      * <p>
      * If the object doesn't already exist, all fields are set to their default values and the object's
      * schema version is set to {@linkplain #getSchema() the version associated with this transaction}.
-     * </p>
      *
      * @param id object ID
      * @return true if the object did not exist and was created, false if the object already existed
@@ -553,7 +547,6 @@ public class Transaction {
      * <p>
      * If the object doesn't already exist, all fields are set to their default values and the object's
      * schema version is set to the specified version.
-     * </p>
      *
      * @param id object ID
      * @param versionNumber schema version number to use for newly created object
@@ -589,7 +582,6 @@ public class Transaction {
      * <p>
      * All fields will be set to their default values.
      * The object's schema version will be set to {@linkplain #getSchema() the version associated with this transaction}.
-     * </p>
      *
      * @param storageId object type storage ID
      * @return object id of newly created object
@@ -606,7 +598,6 @@ public class Transaction {
      * <p>
      * All fields will be set to their default values.
      * The object's schema version will be set to the specified version.
-     * </p>
      *
      * @param storageId object type storage ID
      * @param versionNumber schema version number to use for newly created object
@@ -708,7 +699,6 @@ public class Transaction {
      *
      * <p>
      * This method does <i>not</i> change the object's schema version if it has a different version that this transaction.
-     * </p>
      *
      * <p><b>Secondary Deletions</b></p>
      *
@@ -717,7 +707,6 @@ public class Transaction {
      * (a) if the object contains reference fields with {@linkplain ReferenceField#cascadeDelete delete cascade} enabled,
      * any objects referred to through those fields will also be deleted, and (b) if the object is referred to by any other objects
      * through fields configured for {@link DeleteAction#DELETE}, those referring objects will be deleted.
-     * </p>
      *
      * <p>
      * In any case, deletions occur one at a time, and only when an object is actually deleted are any associated secondary
@@ -726,7 +715,6 @@ public class Transaction {
      * {@code B} and {@code C} with delete cascading references, where B also refers to C with a {@link DeleteAction#EXCEPTION}
      * reference. Then if {@code A} is deleted, it's indeterminate whether a {@link ReferencedObjectException} will be thrown,
      * as that depends on whether {@code B} or {@code C} is deleted first (with the answer being, respectively, no and yes).
-     * </p>
      *
      * @param id object ID of the object to delete
      * @return true if object was found and deleted, false if object was not found,
@@ -877,7 +865,6 @@ public class Transaction {
      * <p>
      * This method does <i>not</i> change the object's schema version if it exists
      * and has a different version that this transaction.
-     * </p>
      *
      * @param id object ID of the object to find
      * @return true if object was found, false if object was not found, or if {@code id} specifies an unknown object type
@@ -899,7 +886,6 @@ public class Transaction {
      * <p>
      * If necessary, {@code source} object is first upgraded to {@linkplain #getSchema() the schema version associated with
      * this transaction}, which must be identical in this transaction and {@code dest}.
-     * </p>
      *
      * <p>
      * Only the object's fields are copied; any other objects they reference are not copied. If the {@code target} object
@@ -907,16 +893,13 @@ public class Transaction {
      * does exist in {@code dest}, it's schema version will be upgraded if necessary to match {@code source} (and any registered
      * {@link VersionChangeListener}s notified).
      * (Meaningful) changes to {@code target}'s fields generate change listener notifications.
-     * </p>
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
-     * </p>
      *
      * <p>
      * If {@code dest} is this instance, and {@code source} equals {@code target}, no changes are made and false is returned.
-     * </p>
      *
      * @param source object ID of the source object in this transaction
      * @param target object ID of the target object in {@code dest}
@@ -1152,7 +1135,6 @@ public class Transaction {
      * <p>
      * If a schema change occurs, any registered {@link VersionChangeListener}s will be notified prior
      * to this method returning.
-     * </p>
      *
      * @param id object ID of the object to delete
      * @return true if the object schema version was changed, otherwise false
@@ -1484,12 +1466,10 @@ public class Transaction {
      * <p>
      * The returned set includes objects from all schema versions. Use {@link #queryVersion} to
      * find objects with a specific schema version.
-     * </p>
      *
      * <p>
      * The returned set is mutable, with the exception that {@link NavigableSet#add add()} is not supported.
      * Deleting an element results in {@linkplain #delete deleting} the corresponding object.
-     * </p>
      *
      * @return a live view of all database objects
      * @throws StaleTransactionException if this transaction is no longer usable
@@ -1511,7 +1491,6 @@ public class Transaction {
      * <p>
      * The returned set is mutable, with the exception that {@link NavigableSet#add add()} is not supported.
      * Deleting an element results in {@linkplain #delete deleting} the corresponding object.
-     * </p>
      *
      * @param storageId object type storage ID
      * @return a live view of all database objects having the specified storage ID
@@ -1537,7 +1516,6 @@ public class Transaction {
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
      * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * reading the field.
-     * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SimpleField}
@@ -1581,7 +1559,6 @@ public class Transaction {
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
      * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
-     * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SimpleField}
@@ -1723,7 +1700,6 @@ public class Transaction {
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
      * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * reading the field.
-     * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link CounterField}
@@ -1767,7 +1743,6 @@ public class Transaction {
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
      * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
-     * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link CounterField}
@@ -1808,7 +1783,6 @@ public class Transaction {
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
      * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary, prior to
      * writing the field.
-     * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link CounterField}
@@ -1851,7 +1825,6 @@ public class Transaction {
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
      * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
-     * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link SetField}
@@ -1875,7 +1848,6 @@ public class Transaction {
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
      * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
-     * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link ListField}
@@ -1899,7 +1871,6 @@ public class Transaction {
      * <p>
      * If {@code updateVersion} is true, the schema version of the object will be automatically changed to match
      * {@linkplain #getSchema() the schema version associated with this transaction}, if necessary.
-     * </p>
      *
      * @param id object ID of the object
      * @param storageId storage ID of the {@link MapField}
@@ -2084,23 +2055,19 @@ public class Transaction {
      * performs additional mutation(s) which are themselves being listened for, those notifications will also be delivered
      * prior to the returning to the original caller. Therefore, care must be taken to avoid change notification dependency
      * loops when listeners can themselves mutate fields, to avoid infinite loops.
-     * </p>
      *
      * <p>
      * If a non-null {@code types} is provided, then only objects whose types have one of the specified storage ID's
      * will trigger notifications to {@code listener}.
-     * </p>
      *
      * <p>
      * A referring object may refer to the changed object through more than one actual path of references matching {@code path};
      * if so, it will still appear only once in the {@link NavigableSet} provided to the listener (this is of course required
      * by set semantics).
-     * </p>
      *
      * <p>
      * Although the reference back-tracking algorithm does consolidate multiple paths between the same two objects,
      * be careful to avoid an explosion of notifications when objects in the {@code path} have a high degree of fan-in.
-     * </p>
      *
      * <p>
      * When a {@link ReferenceField} in {@code path} also happens to be the field being changed, then there is ambiguity
@@ -2108,12 +2075,10 @@ public class Transaction {
      * This API guarantees that the answer is "after the change"; however, if another listener on the same field is
      * invoked before {@code listener} and mutates any reference field(s) in {@code path}, then whether that additional
      * change is also be included in the calculation is undefined.
-     * </p>
      *
      * <p>
      * Therefore, for consistency, avoid changing any {@link ReferenceField} from within a listener callback when that
      * field is also in some other listener's reference path, and both listeners are watching the same field.
-     * </p>
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
@@ -2136,7 +2101,6 @@ public class Transaction {
      *
      * <p>
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
-     * </p>
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
@@ -2159,7 +2123,6 @@ public class Transaction {
      *
      * <p>
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
-     * </p>
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
@@ -2182,7 +2145,6 @@ public class Transaction {
      *
      * <p>
      * See {@link #addSimpleFieldChangeListener addSimpleFieldChangeListener()} for details on how notifications are delivered.
-     * </p>
      *
      * @param storageId storage ID of the field to monitor
      * @param path path of reference fields (represented by storage IDs) through which to monitor field
@@ -2511,17 +2473,14 @@ public class Transaction {
      * <p>
      * The {@code storageId} may refer to any {@link SimpleField}, whether part of an object or a sub-field
      * of a {@link ComplexField}.
-     * </p>
      *
      * <p>
      * The returned index contains objects from all recorded schema versions for which the field is indexed;
      * this method does not check whether any such schema versions exist.
-     * </p>
      *
      * <p>
      * Only objects having schema versions in which the field is indexed will be found;
      * this method does not check whether any such schema versions exist.
-     * </p>
      *
      * @param storageId {@link SimpleField}'s storage ID
      * @return read-only, real-time view of field values mapped to sets of objects with the value in the field
@@ -2546,7 +2505,6 @@ public class Transaction {
      * <p>
      * The returned index contains objects from all recorded schema versions for which the list element field is indexed;
      * this method does not check whether any such schema versions exist.
-     * </p>
      *
      * @param storageId {@link ListField}'s storage ID
      * @return read-only, real-time view of list element values, objects with the value in the list, and corresponding indicies
@@ -2567,7 +2525,6 @@ public class Transaction {
      * <p>
      * The returned index contains objects from all recorded schema versions for which the map value field is indexed;
      * this method does not check whether any such schema versions exist.
-     * </p>
      *
      * @param storageId {@link MapField}'s storage ID
      * @return read-only, real-time view of map values, objects with the value in the map, and corresponding keys
@@ -2586,7 +2543,6 @@ public class Transaction {
      *
      * <p>
      * The returned index contains objects from all recorded schema versions in which the composite index is defined.
-     * </p>
      *
      * @param storageId composite index's storage ID
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
@@ -2609,7 +2565,6 @@ public class Transaction {
      *
      * <p>
      * The returned index contains objects from all recorded schema versions in which the composite index is defined.
-     * </p>
      *
      * @param storageId composite index's storage ID
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
@@ -2632,7 +2587,6 @@ public class Transaction {
      *
      * <p>
      * The returned index contains objects from all recorded schema versions in which the composite index is defined.
-     * </p>
      *
      * @param storageId composite index's storage ID
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
@@ -2655,7 +2609,6 @@ public class Transaction {
      *
      * <p>
      * The returned index contains objects from all recorded schema versions in which the composite index is defined.
-     * </p>
      *
      * @param storageId composite index's storage ID
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
@@ -2681,7 +2634,6 @@ public class Transaction {
      * <p>
      * Because different schema versions can have different {@link DeleteAction}'s configured for the
      * same field, we have to iterate through each schema version separately.
-     * </p>
      *
      * @param target referred-to object
      * @param onDelete {@link DeleteAction} to match
@@ -2783,7 +2735,6 @@ public class Transaction {
      *
      * <p>
      * Modeled after Spring's {@link org.springframework.transaction.support.TransactionSynchronization} interface.
-     * </p>
      *
      * @see Transaction#addCallback Transaction.addCallback()
      */
@@ -2795,7 +2746,6 @@ public class Transaction {
          *
          * <p>
          * Any exceptions thrown will result in a transaction rollback and be propagated to the caller.
-         * </p>
          *
          * @param readOnly true if the transaction {@linkplain Transaction#isReadOnly is marked read-only}
          */
@@ -2809,7 +2759,6 @@ public class Transaction {
          *
          * <p>
          * Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.
-         * </p>
          */
         void beforeCompletion();
 
@@ -2818,7 +2767,6 @@ public class Transaction {
          *
          * <p>
          * Any exceptions thrown will propagate to the caller.
-         * </p>
          */
         void afterCommit();
 
@@ -2829,7 +2777,6 @@ public class Transaction {
          *
          * <p>
          * Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.
-         * </p>
          *
          * @param committed true if transaction was commited, false if transaction was rolled back
          */
@@ -2841,7 +2788,6 @@ public class Transaction {
      *
      * <p>
      * All the implementations in this class do nothing.
-     * </p>
      */
     public static class CallbackAdapter implements Callback {
 

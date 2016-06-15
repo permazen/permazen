@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Locking note: all fields in this class are protected by the Java monitor of the associated {@link SimpleKVDatabase},
  * not the Java monitor of this instance.
- * </p>
  */
 public class SimpleKVTransaction extends AbstractKVStore implements KVTransaction {
 

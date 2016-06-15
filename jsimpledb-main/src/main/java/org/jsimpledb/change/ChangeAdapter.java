@@ -17,7 +17,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseChange caseChange()}.
-     * </p>
      */
     @Override
     public <T> R caseObjectCreate(ObjectCreate<T> change) {
@@ -29,7 +28,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseChange caseChange()}.
-     * </p>
      */
     @Override
     public <T> R caseObjectDelete(ObjectDelete<T> change) {
@@ -41,7 +39,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
-     * </p>
      */
     @Override
     public <T, E> R caseListFieldAdd(ListFieldAdd<T, E> change) {
@@ -53,7 +50,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
-     * </p>
      */
     @Override
     public <T> R caseListFieldClear(ListFieldClear<T> change) {
@@ -65,7 +61,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
-     * </p>
      */
     @Override
     public <T, E> R caseListFieldRemove(ListFieldRemove<T, E> change) {
@@ -77,7 +72,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseListFieldChange caseListFieldChange()}.
-     * </p>
      */
     @Override
     public <T, E> R caseListFieldReplace(ListFieldReplace<T, E> change) {
@@ -89,7 +83,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
-     * </p>
      */
     @Override
     public <T, K, V> R caseMapFieldAdd(MapFieldAdd<T, K, V> change) {
@@ -101,7 +94,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
-     * </p>
      */
     @Override
     public <T> R caseMapFieldClear(MapFieldClear<T> change) {
@@ -113,7 +105,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
-     * </p>
      */
     @Override
     public <T, K, V> R caseMapFieldRemove(MapFieldRemove<T, K, V> change) {
@@ -125,7 +116,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseMapFieldChange caseMapFieldChange()}.
-     * </p>
      */
     @Override
     public <T, K, V> R caseMapFieldReplace(MapFieldReplace<T, K, V> change) {
@@ -137,7 +127,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
-     * </p>
      */
     @Override
     public <T, E> R caseSetFieldAdd(SetFieldAdd<T, E> change) {
@@ -149,7 +138,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
-     * </p>
      */
     @Override
     public <T> R caseSetFieldClear(SetFieldClear<T> change) {
@@ -161,7 +149,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseSetFieldChange caseSetFieldChange()}.
-     * </p>
      */
     @Override
     public <T, E> R caseSetFieldRemove(SetFieldRemove<T, E> change) {
@@ -173,7 +160,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseSetFieldChange caseFieldChange()}.
-     * </p>
      */
     @Override
     public <T, V> R caseSimpleFieldChange(SimpleFieldChange<T, V> change) {
@@ -187,7 +173,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
-     * </p>
      *
      * @param change visiting change
      * @param <T> changed object type
@@ -202,7 +187,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
-     * </p>
      *
      * @param change visiting change
      * @param <T> changed object type
@@ -217,7 +201,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseFieldChange caseFieldChange()}.
-     * </p>
      *
      * @param change visiting change
      * @param <T> changed object type
@@ -232,7 +215,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} delegates to {@link #caseChange caseChange()}.
-     * </p>
      *
      * @param change visiting change
      * @param <T> changed object type
@@ -247,7 +229,6 @@ public class ChangeAdapter<R> implements ChangeSwitch<R> {
      *
      * <p>
      * The implementation in {@link ChangeAdapter} returns null.
-     * </p>
      *
      * @param change visiting change
      * @param <T> changed object type

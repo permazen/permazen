@@ -23,7 +23,6 @@ import org.jsimpledb.tuple.Tuple5;
  *
  * <p>
  * Instances are immutable.
- * </p>
  *
  * @param <V1> first index value type
  * @param <V2> second index value type

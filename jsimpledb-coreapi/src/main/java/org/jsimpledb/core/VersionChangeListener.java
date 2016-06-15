@@ -21,7 +21,6 @@ public interface VersionChangeListener {
      * <p>
      * Notifications are delivered in the same thread that first reads the object, before the operation
      * that triggered the schema version change returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the updated object

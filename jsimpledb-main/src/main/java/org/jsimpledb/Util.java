@@ -106,7 +106,6 @@ public final class Util {
      * <p>
      * This will be true if {@code type} or any of its declared methods has a JSR 303 (<i>public</i> methods only)
      * or {@link OnValidate &#64;OnValidate} annotation, or if any of its super-types requires validation.
-     * </p>
      *
      * @param type object type
      * @return true if {@code type} has any validation requirements
@@ -316,7 +315,6 @@ public final class Util {
      * <p>
      * This method delegates to {@link #findLowestCommonAncestor findLowestCommonAncestor()}
      * after converting the {@link Class} instances to {@link TypeToken}s.
-     * </p>
      *
      * @param types sub-types
      * @return narrowest common super-type
@@ -337,7 +335,6 @@ public final class Util {
      * <p>
      * When there is more than one choice, heuristics are used. For example, we prefer
      * non-interface types, and {@link JObject} over other interface types.
-     * </p>
      *
      * @param types sub-types
      * @return narrowest common super-type

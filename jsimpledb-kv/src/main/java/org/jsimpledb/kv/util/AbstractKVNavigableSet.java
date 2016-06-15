@@ -34,18 +34,15 @@ import org.jsimpledb.util.ByteWriter;
  * methods to convert elements to/from {@code byte[]} keys (associated values are ignored), and
  * {@link #createSubSet(boolean, KeyRange, KeyFilter, Bounds) createSubSet()}
  * to allow creating reversed and restricted range sub-sets.
- * </p>
  *
  * <p>
  * Subclasses must also implement {@link #comparator comparator()}, and the resulting sort order must be consistent with
  * the sort order of the encoded {@code byte[]} keys (possibly {@link #reversed}).
- * </p>
  *
  * <p>
  * This class provides a read-only implementation; for a mutable implementation, subclasses should also implement
  * {@link #add add()} (if appropriate), {@link #remove remove()}, and {@link #clear}; note, these methods must verify
  * the key {@link #isVisible isVisible()} before making any changes.
- * </p>
  *
  * <p>
  * Additional subclass notes:
@@ -61,26 +58,22 @@ import org.jsimpledb.util.ByteWriter;
  * and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
  * number of bytes produced by {@link #encode encode()} or consumed by {@link #decode decode()}.
  * When not in prefix mode, {@link #decode decode()} <b>must</b> consume the entire key to preserve correct semantics.
- * </p>
  *
  * <p><b>Key Restrictions</b></p>
  *
  * <p>
  * Instances are configured with an (optional) {@link KeyRange}; when {@linkplain #bounds range restriction} is in
  * effect, this key range corresponds to the bounds.
- * </p>
  *
  * <p>
  * Instances also support filtering visible values using a {@link KeyFilter}; see {@link #filterKeys filterKeys()}.
  * To be {@linkplain #isVisible} in the set, keys must both be in the {@link KeyRange} and pass the {@link KeyFilter}.
- * </p>
  *
  * <p><b>Concurrent Modifications</b></p>
  *
  * <p>
  * This implementation never throws {@link java.util.ConcurrentModificationException}; instead, iterators always
  * see the most up-to-date state of the associated {@link KVStore}.
- * </p>
  *
  * @see AbstractKVNavigableMap
  * @param <E> element type
@@ -155,7 +148,6 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      *
      * <p>
      * Note: if {@code bounds} are set, then {@code keyRange} must exclude all keys outside of those bounds.
-     * </p>
      *
      * @param kv underlying {@link KVStore}
      * @param prefixMode whether to allow keys to have trailing garbage
@@ -222,7 +214,6 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * <p>
      * The restrictions of the given {@link KeyFilter} will be added to any current {@link KeyFilter} restrictions on this instance.
      * The {@link #bounds} associated with this instance will not change.
-     * </p>
      *
      * @param keyFilter additional key filtering to apply
      * @return filtered view of this instance
@@ -305,7 +296,6 @@ public abstract class AbstractKVNavigableSet<E> extends AbstractNavigableSet<E> 
      * <p>
      * If not in prefix mode, all of {@code reader} must be consumed; otherwise, the consumed portion
      * is the prefix and any following keys with the same prefix are ignored.
-     * </p>
      *
      * @param reader input for encoded bytes
      * @return decoded set element

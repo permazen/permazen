@@ -22,12 +22,10 @@ import java.lang.annotation.Target;
  * instantiated to represent database objects that already exist in the database. Also, it's possible for a Java model
  * object to be instantiated when no corresponding database object exists in the database (e.g., via
  * {@link org.jsimpledb.JTransaction#get(org.jsimpledb.core.ObjId)}).
- * </p>
  *
  * <p>
  * As a consequence, for any database fields that require default initialization, this initialization should be
  * performed not in a Java constructor but rather in an {@link OnCreate &#64;OnCreate}-annotated method.
- * </p>
  *
  * <p>
  * For example, instead of this:
@@ -66,7 +64,6 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Notifications are delivered in the same thread that created the object, immediately after the object is created.
- * </p>
  *
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.

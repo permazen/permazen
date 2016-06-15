@@ -14,7 +14,6 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * <p>
  * This class adds support for the <code>&lt;jsimpledb:jsimpledb&gt;</code>, <code>&lt;jsimpledb:scan-classes&gt;</code> and
  * <code>&lt;jsimpledb:scan-field-types&gt;</code> XML tags.
- * </p>
  *
  * @see org.jsimpledb.spring
  */

@@ -52,7 +52,6 @@ public class SnapshotJTransaction extends JTransaction {
      *
      * <p>
      * It will contain schema meta-data but no objects.
-     * </p>
      */
     public void reset() {
         this.resetValidationQueue();
@@ -64,7 +63,6 @@ public class SnapshotJTransaction extends JTransaction {
      *
      * <p>
      * {@link SnapshotJTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.
-     * </p>
      *
      * @throws UnsupportedOperationException always
      */
@@ -78,7 +76,6 @@ public class SnapshotJTransaction extends JTransaction {
      *
      * <p>
      * {@link SnapshotJTransaction}s do not support this method and will always throw {@link UnsupportedOperationException}.
-     * </p>
      *
      * @throws UnsupportedOperationException always
      */
@@ -92,7 +89,6 @@ public class SnapshotJTransaction extends JTransaction {
      *
      * <p>
      * {@link SnapshotJTransaction}s are always valid.
-     * </p>
      *
      * @return true always
      */

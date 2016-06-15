@@ -25,7 +25,6 @@ import org.jsimpledb.util.ByteWriter;
  * <p>
  * Array elements are encoded using {@link DoubleType}, and the array is terminated by {@code 0x0000000000000000L},
  * which is an encoded value that can never be emitted by {@link DoubleType}.
- * </p>
  */
 class DoubleArrayType extends Base64ArrayType<double[], Double> {
 

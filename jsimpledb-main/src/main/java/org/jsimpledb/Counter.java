@@ -18,11 +18,9 @@ import org.jsimpledb.core.Transaction;
  * To define a field of type {@link Counter}, annotate the field's getter method as a normal field using
  * {@link org.jsimpledb.annotation.JField &#64;JField}. No setter method should be defined.
  * Counter fields do not support indexing or change listeners.
- * </p>
  *
  * <p>
  * Note: during schema version change notification, counter field values appear as plain {@code long} values.
- * </p>
  */
 public class Counter {
 

@@ -28,7 +28,6 @@ import org.jsimpledb.util.SizeEstimator;
  *
  * <p>
  * Instances are not thread safe.
- * </p>
  */
 public class Reads implements Cloneable, SizeEstimating {
 

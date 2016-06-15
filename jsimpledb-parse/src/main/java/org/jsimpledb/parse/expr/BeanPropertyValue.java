@@ -17,7 +17,6 @@ import org.jsimpledb.parse.ParseSession;
  *
  * <p>
  * For mutable bean properties, use {@link MutableBeanPropertyValue}, which is also an {@link LValue}.
- * </p>
  */
 public class BeanPropertyValue extends AbstractValue {
 

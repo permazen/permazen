@@ -31,7 +31,6 @@ public interface JObject {
      *
      * <p>
      * This method always succeeds.
-     * </p>
      *
      * @return unique database identifier for this instance
      */
@@ -55,7 +54,6 @@ public interface JObject {
      * If this is a regular database instance, this returns the {@link JTransaction}
      * {@linkplain JTransaction#getCurrent associated} with the current thread. Otherwise, this instance
      * is a snapshot instance and this method returns the associated {@link SnapshotJTransaction}.
-     * </p>
      *
      * @return the {@link JTransaction} that contains this instance's field state
      */
@@ -67,7 +65,6 @@ public interface JObject {
      * <p>
      * See {@link org.jsimpledb.core.Transaction#delete Transaction.delete()} for details on secondary deletions from
      * {@link org.jsimpledb.core.DeleteAction#DELETE} and {@link org.jsimpledb.annotation.JField#cascadeDelete}.
-     * </p>
      *
      * @return true if instance was deleted, false if it did not exist
      * @throws org.jsimpledb.core.StaleTransactionException
@@ -129,7 +126,6 @@ public interface JObject {
      * <p>
      * If a version change occurs, matching {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange}
      * methods will be invoked prior to this method returning.
-     * </p>
      *
      * @return true if the object's schema version was changed, false if it was already updated
      * @throws org.jsimpledb.core.DeletedObjectException
@@ -160,12 +156,10 @@ public interface JObject {
      * however, for {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}, the annotation must have {@code snapshotTransactions = true}
      * if {@code dest} is a {@link SnapshotJTransaction}.
-     * </p>
      *
      * <p>
      * The two transactions must be compatible in that for any schema versions encountered, those schema versions
      * must be identical in both transactions.
-     * </p>
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
@@ -174,18 +168,15 @@ public interface JObject {
      * actually already exist in {@code dest}, an exception is thrown).
      * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
      * of a previous copy, {@code copyState} may be reused.
-     * </p>
      *
      * <p>
      * Note: if {@code target} is not equal to this instance's object ID, and through one of the {@code refPaths} there
      * is a circular reference back to this instance, then that reference is copied as-is (i.e., it is not copied
      * onto {@code target}).
-     * </p>
      *
      * <p>
      * Warning: if two threads attempt to copy objects between the same two transactions at the same time
      * but in opposite directions, deadlock could result.
-     * </p>
      *
      * @param dest destination transaction for copies
      * @param target target object ID in {@code dest} onto which to copy this instance's fields, or null for this instance
@@ -222,12 +213,10 @@ public interface JObject {
      * If any object already exists there, it will be overwritten, otherwise it will be created.
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
      * notifications will be delivered accordingly; however, the annotation must have {@code snapshotTransactions = true}.
-     * </p>
      *
      * <p>
      * Normally this method would only be invoked on a regular database {@link JObject}.
      * The returned object will always be a snapshot {@link JObject}.
-     * </p>
      *
      * <p>
      * This is a convenience method, and is equivalent to invoking:
@@ -260,7 +249,6 @@ public interface JObject {
      * If any object already exists in the current thread's transaction, it will be overwritten, otherwise it will be created.
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange}
      * notifications will be delivered accordingly.
-     * </p>
      *
      * <p>
      * Normally this method would only be invoked on a snapshot {@link JObject}.

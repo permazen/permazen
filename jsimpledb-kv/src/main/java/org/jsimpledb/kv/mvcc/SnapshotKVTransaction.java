@@ -103,7 +103,6 @@ public class SnapshotKVTransaction extends ForwardingKVStore implements KVTransa
      * {@link SnapshotKVTransaction}s do not perform any locking while the transaction is open. Therefore, the configured
      * value is used instead as a timeout on the overall transaction duration. If the transaction is kept open for longer
      * than {@code timeout} milliseconds, a {@link TransactionTimeoutException} will be thrown.
-     * </p>
      *
      * @param timeout transaction timeout in milliseconds, or zero for unlimited
      * @throws IllegalArgumentException if {@code timeout} is negative

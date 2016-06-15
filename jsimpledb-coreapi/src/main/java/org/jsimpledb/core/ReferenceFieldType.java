@@ -17,7 +17,6 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * Null values are supported by this class.
- * </p>
  */
 public class ReferenceFieldType extends NullSafeType<ObjId> {
 
@@ -28,7 +27,6 @@ public class ReferenceFieldType extends NullSafeType<ObjId> {
      *
      * <p>
      * No restrictions will be placed on encoded references.
-     * </p>
      */
     public ReferenceFieldType() {
         this(null);

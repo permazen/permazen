@@ -74,7 +74,6 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * Commonly used methods in this class can be divided into the following categories:
- * </p>
  *
  * <p>
  * <b>Transaction Meta-Data</b>
@@ -159,7 +158,6 @@ import org.slf4j.LoggerFactory;
  * The remaining methods in this class are normally only used by generated Java model object subclasses.
  * Instead of using these methods directly, using the appropriately annotated Java model object method
  * or {@link JObject} interface method is recommended.
- * </p>
  *
  * <p>
  * <b>Java Model Object Methods</b>
@@ -318,12 +316,10 @@ public class JTransaction {
      * <p>
      * The returned set includes objects from all schema versions. Use {@link #queryVersion queryVersion()} to
      * find objects with a specific schema version.
-     * </p>
      *
      * <p>
      * The returned set is mutable, with the exception that {@link NavigableSet#add add()} is not supported.
      * Deleting an element results in {@linkplain JObject#delete deleting} the corresponding object.
-     * </p>
      *
      * @param type any Java type; use {@link Object Object.class} to return all database objects
      * @param <T> containing Java type
@@ -460,26 +456,21 @@ public class JTransaction {
      * actually already exist in {@code dest}, an exception is thrown).
      * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
      * of a previous copy, {@code copyState} may be reused.
-     * </p>
      *
      * <p>
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
      * must be identical in both transactions.
-     * </p>
      *
      * <p>
      * Does nothing if this instance and {@code dest} are the same instance and {@code srcObj}'s object ID is {@code dstId}.
-     * </p>
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
-     * </p>
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#copyIn JObject.copyIn()},
      * {@link JObject#copyOut JObject.copyOut()}, or {@link JObject#copyTo JObject.copyTo()} would be used instead.
-     * </p>
      *
      * @param dest destination transaction
      * @param srcObj source object
@@ -585,21 +576,17 @@ public class JTransaction {
      * The {@code copyState} parameter tracks which objects that have already been copied. For a "fresh" copy operation,
      * pass a newly created {@code CopyState}; for a copy operation that is a continuation of a previous copy,
      * the previous {@link CopyState} may be reused.
-     * </p>
      *
      * <p>
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
      * must be identical in both transactions.
-     * </p>
      *
      * <p>
      * Does nothing if this instance and {@code dest} are the same instance.
-     * </p>
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
-     * </p>
      *
      * @param dest destination transaction
      * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
@@ -782,7 +769,6 @@ public class JTransaction {
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#delete} would be used instead.
-     * </p>
      *
      * @param jobj the object to delete
      * @return true if object was found and deleted, false if object was not found
@@ -816,7 +802,6 @@ public class JTransaction {
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#exists} would be used instead.
-     * </p>
      *
      * @param id ID of the object to test for existence
      * @return true if object was found, false if object was not found
@@ -832,7 +817,6 @@ public class JTransaction {
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#recreate} would be used instead.
-     * </p>
      *
      * @param jobj the object to recreate
      * @return true if the object was recreated, false if the object already existed
@@ -850,7 +834,6 @@ public class JTransaction {
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#revalidate} would be used instead.
-     * </p>
      *
      * @param id ID of the object to revalidate
      * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed
@@ -914,7 +897,6 @@ public class JTransaction {
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#getSchemaVersion} would be used instead.
-     * </p>
      *
      * @param id ID of the object containing the field
      * @return object's schema version
@@ -933,11 +915,9 @@ public class JTransaction {
      * <p>
      * If a version change occurs, matching {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange}
      * methods will be invoked prior to this method returning.
-     * </p>
      *
      * <p>
      * This method is typically only used by generated classes; normally, {@link JObject#upgrade} would be used instead.
-     * </p>
      *
      * @param jobj object to update
      * @return true if the object's schema version was changed, false if it was already updated
@@ -972,7 +952,6 @@ public class JTransaction {
      * <p>
      * This method is used by generated {@link org.jsimpledb.annotation.JField &#64;JField} getter override methods
      * and not normally invoked directly by user code.
-     * </p>
      *
      * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JSimpleField}
@@ -997,7 +976,6 @@ public class JTransaction {
      * <p>
      * This method is used by generated {@link org.jsimpledb.annotation.JField &#64;JField} setter override methods
      * and not normally invoked directly by user code.
-     * </p>
      *
      * @param jobj object containing the field
      * @param storageId storage ID of the {@link JSimpleField}
@@ -1025,7 +1003,6 @@ public class JTransaction {
      * <p>
      * This method is used by generated {@link org.jsimpledb.annotation.JField &#64;JField} getter override methods
      * and not normally invoked directly by user code.
-     * </p>
      *
      * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JCounterField}
@@ -1052,7 +1029,6 @@ public class JTransaction {
      * <p>
      * This method is used by generated {@link org.jsimpledb.annotation.JSetField &#64;JSetField}
      * getter override methods and not normally invoked directly by user code.
-     * </p>
      *
      * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JSetField}
@@ -1077,7 +1053,6 @@ public class JTransaction {
      * <p>
      * This method is used by generated {@link org.jsimpledb.annotation.JListField &#64;JListField}
      * getter override methods and not normally invoked directly by user code.
-     * </p>
      *
      * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JListField}
@@ -1102,7 +1077,6 @@ public class JTransaction {
      * <p>
      * This method is used by generated {@link org.jsimpledb.annotation.JMapField &#64;JMapField}
      * getter override methods and not normally invoked directly by user code.
-     * </p>
      *
      * @param id ID of the object containing the field
      * @param storageId storage ID of the {@link JMapField}
@@ -1326,7 +1300,6 @@ public class JTransaction {
      *
      * <p>
      * This method exists mainly for the convenience of programmatic tools, etc.
-     * </p>
      *
      * @param storageId indexed {@link JSimpleField}'s storage ID
      * @return read-only, real-time view of the fields' values and the objects having those values in the fields
@@ -1414,12 +1387,10 @@ public class JTransaction {
      * <p>
      * Prior to actual commit, if this transaction was created with a validation mode other than {@link ValidationMode#DISABLED},
      * {@linkplain #validate validation} of outstanding objects in the validation queue is performed.
-     * </p>
      *
      * <p>
      * If a {@link ValidationException} is thrown, the transaction is no longer usable. To perform validation and leave
      * the transaction open, invoke {@link #validate} prior to commit.
-     * </p>
      *
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws org.jsimpledb.kv.RetryTransactionException from {@link org.jsimpledb.kv.KVTransaction#commit KVTransaction.commit()}
@@ -1478,11 +1449,9 @@ public class JTransaction {
      * <p>
      * If validation fails, validation stops, all remaining unvalidated objects are left on the validation queue,
      * and a {@link ValidationException} is thrown. The transaction will remain usable.
-     * </p>
      *
      * <p>
      * <b>Note:</b> if the this transaction was created with {@link ValidationMode#DISABLED}, then this method does nothing.
-     * </p>
      *
      * @throws org.jsimpledb.kv.RetryTransactionException from {@link org.jsimpledb.kv.KVTransaction#commit KVTransaction.commit()}
      * @throws ValidationException if a validation error is detected
@@ -1516,7 +1485,6 @@ public class JTransaction {
      * <p>
      * If another instance is currently associated with the current thread, it is set aside for the duration of
      * {@code action}'s execution, and then restored when {@code action} is finished (regardless of outcome).
-     * </p>
      *
      * @param action action to perform
      * @throws IllegalArgumentException if {@code action} is null
@@ -1774,7 +1742,6 @@ public class JTransaction {
      *
      * <p>
      * Returns null if no conversion is necessary.
-     * </p>
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     class CoreValueConverterBuilder extends FieldSwitchAdapter<Converter<?, ?>> {

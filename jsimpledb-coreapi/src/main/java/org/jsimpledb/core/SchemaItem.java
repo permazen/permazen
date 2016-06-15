@@ -14,7 +14,6 @@ import com.google.common.base.Preconditions;
  * Instances have a {@linkplain #getStorageId storage ID} which must be unique across the {@link Schema} version.
  * Instances also have a {@linkplain #getName name} which must be a {@linkplain #NAME_PATTERN valid Java identifier}.
  * Instances are also associated with a {@linkplain #getSchema specific} {@link Schema}.
- * </p>
  */
 public abstract class SchemaItem {
 

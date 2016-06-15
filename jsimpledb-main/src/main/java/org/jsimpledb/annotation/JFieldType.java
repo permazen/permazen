@@ -20,7 +20,6 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Annotated classes must extend {@link org.jsimpledb.core.FieldType} and have a zero-parameter constructor.
- * </p>
  *
  * <p>
  * Note that once a certain encoding has been used for a given type name in a database, the encoding should not
@@ -28,7 +27,6 @@ import java.lang.annotation.Target;
  * {@linkplain org.jsimpledb.core.FieldType#getEncodingSignature encoding signature}.
  * Otherwise, {@link org.jsimpledb.core.InconsistentDatabaseException}s can result when the new type unexpectedly
  * encounters the old encoding or vice-versa.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

@@ -193,7 +193,6 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
      * <p>
      * The implementation in {@link SQLKVTransaction} rolls back the SQL transaction, closes the associated {@link Connection},
      * and wraps the exception via {@link SQLKVDatabase#wrapException SQLKVDatabase.wrapException()}.
-     * </p>
      *
      * @param e original exception
      * @return key/value transaction exception

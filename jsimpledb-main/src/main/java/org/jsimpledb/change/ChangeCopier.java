@@ -18,7 +18,6 @@ import org.jsimpledb.JTransaction;
  *
  * <p>
  * Each instance has an internal {@link CopyState} used to avoid redundant copies, accessible via {@link #getCopyState}.
- * </p>
  */
 public class ChangeCopier implements ChangeSwitch<Change<?>> {
 
@@ -164,7 +163,6 @@ public class ChangeCopier implements ChangeSwitch<Change<?>> {
      * {@code jobj} does not exist, in which case it is not copied (but the
      * {@linkplain JTransaction#get(ObjId) corresponding} {@link JObject} is still returned).
      * Subclasses may override to copy additional objects referenced by {@code jobj} as needed.
-     * </p>
      *
      * @param jobj original object
      * @return copied object in {@link #dest}

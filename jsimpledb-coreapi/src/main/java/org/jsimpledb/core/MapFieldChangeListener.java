@@ -19,11 +19,9 @@ public interface MapFieldChangeListener {
      *
      * <p>
      * Notifications are only delivered when the set of referring objects is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
@@ -43,11 +41,9 @@ public interface MapFieldChangeListener {
      *
      * <p>
      * Notifications are only delivered when the set of referring objects is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
@@ -67,11 +63,9 @@ public interface MapFieldChangeListener {
      *
      * <p>
      * Notifications are only delivered when the set of referring objects is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
@@ -93,15 +87,12 @@ public interface MapFieldChangeListener {
      * <p>
      * This method is only used when the whole map is cleared; when a range restricted submap is cleared, individual
      * {@linkplain #onMapFieldRemove onMapFieldRemove()} invocations for each removed entry are made instead.
-     * </p>
      *
      * <p>
      * Notifications are only delivered when the set of referring objects is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that was cleared)

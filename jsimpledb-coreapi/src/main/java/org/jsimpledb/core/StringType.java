@@ -21,7 +21,6 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  * {@link UnsignedIntEncoder}, with the special exception that the characters {@code 0x0000} and {@code 0x0001}
  * are prefixed with a {@code 0x01} byte to avoid writing a {@code 0x00}. We rely on the fact that {@link UnsignedIntEncoder}
  * encodes {@code 0} and {@code 1} as {@code 0x00} and {@code 0x01}, respectively.
- * </p>
  */
 class StringType extends NonNullFieldType<String> {
 

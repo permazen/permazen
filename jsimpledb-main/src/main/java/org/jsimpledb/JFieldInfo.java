@@ -21,7 +21,6 @@ import org.jsimpledb.core.Transaction;
  * As the same {@link JField} can appear in multiple object types, this class contains the information about a
  * {@link JField} that is not specific to any one {@link JClass}. This is particularly relevant for reference fields,
  * which can have different Java reference types in different {@link JClass}es.
- * </p>
  */
 abstract class JFieldInfo {
 
@@ -68,7 +67,6 @@ abstract class JFieldInfo {
      *
      * <p>
      * The implementation in {@link JFieldInfo} returns null.
-     * </p>
      *
      * @param jtx transaction
      */

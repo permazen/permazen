@@ -13,12 +13,10 @@ package org.jsimpledb;
  * but not in the current schema version. This situation can occur when a new schema is added that drops a previously
  * defined Java model type, yet for which objects of that type still exist in the database. If encountered, these
  * objects will be represented by instances of this class.
- * </p>
  *
  * <p>
  * All object fields are still accessible, but they must be accessed directly via the {@link JTransaction} field access methods
  * with {@code upgradeVersion} set to false (otherwise, a {@link org.jsimpledb.core.TypeNotInSchemaVersionException} is thrown).
- * </p>
  */
 public abstract class UntypedJObject implements JObject {
 }

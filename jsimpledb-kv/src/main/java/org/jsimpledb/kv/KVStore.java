@@ -55,7 +55,6 @@ public interface KVStore {
      * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code minKey} starts with {@code 0xff},
      * then this method returns null.
-     * </p>
      *
      * @param minKey minimum key (inclusive), or null for no minimum (get the smallest key)
      * @return smallest key/value pair with {@code key >= minKey}, or null if none exists
@@ -70,7 +69,6 @@ public interface KVStore {
      * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code maxKey} starts with {@code 0xff},
      * then this method behaves as if {@code maxKey} were null.
-     * </p>
      *
      * @param maxKey maximum key (exclusive), or null for no maximum (get the largest key)
      * @return largest key/value pair with {@code key < maxKey}, or null if none exists
@@ -86,23 +84,19 @@ public interface KVStore {
      * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code minKey} starts with {@code 0xff},
      * then this method returns an empty iteration.
-     * </p>
      *
      * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, and {@code maxKey} starts with {@code 0xff},
      * then this method behaves as if {@code maxKey} were null.
-     * </p>
      *
      * <p>
      * The returned {@link Iterator} must not throw {@link java.util.ConcurrentModificationException};
      * however, whether or not a "live" {@link Iterator} reflects any modifications made after its creation is
      * implementation dependent. Implementations that do make post-creation updates visible in the {@link Iterator},
      * even if the update occurs after some delay, must preserve the order in which the modifications actually occurred.
-     * </p>
      *
      * <p>
      * The returned {@link Iterator} itself is not guaranteed to be thread safe.
-     * </p>
      *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
@@ -143,7 +137,6 @@ public interface KVStore {
      * <p>
      * The {@code minKey} must be less than or equal to {@code maxKey}; if they equal (and not null)
      * then nothing happens; if they are both null then all entries are deleted.
-     * </p>
      *
      * <p>
      * If keys starting with {@code 0xff} are not supported by this instance, then:
@@ -189,13 +182,11 @@ public interface KVStore {
      * <p>
      * Ideally this operation should behave in a lock-free manner, so that concurrent transactions can invoke it without
      * conflict. However, when lock-free behavior occurs (if at all) depends on the implementation.
-     * </p>
      *
      * <p>
      * If there is no value associated with {@code key}, or {@code key}'s value is not a valid counter encoding as
      * would be acceptable to {@link #decodeCounter decodeCounter()}, then how this operation affects {@code key}'s
      * value is undefined.
-     * </p>
      *
      * @param key key
      * @param amount amount to adjust counter value by

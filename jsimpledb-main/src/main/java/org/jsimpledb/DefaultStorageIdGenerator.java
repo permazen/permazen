@@ -21,7 +21,6 @@ import org.jsimpledb.core.SetField;
  * This class hashes the names into storage ID's in the range {@value #MIN_STORAGE_ID} (inclusive) to
  * {@value #MAX_STORAGE_ID} (exclusive); this corresponds to the range of values that are encoded in three bytes.
  * This provides a target space of 65,280 possible storage IDs, so collisions should be extremely rare.
- * </p>
  */
 public class DefaultStorageIdGenerator implements StorageIdGenerator {
 

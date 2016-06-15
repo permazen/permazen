@@ -35,7 +35,6 @@ public interface Value {
      *
      * <p>
      * Normally this method should only be invoked once, and the result cached, because evaluation could have side effects.
-     * </p>
      *
      * @param session parse session
      * @return the evaluated result

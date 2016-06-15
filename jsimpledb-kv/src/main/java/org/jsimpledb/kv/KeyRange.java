@@ -23,7 +23,6 @@ import org.jsimpledb.util.SizeEstimator;
  * <p>
  * Instances are immutable: the minimum and maximum {@code byte[]} arrays are copied during
  * construction and when accessed by {@link #getMin} and {@link #getMax}.
- * </p>
  */
 public class KeyRange implements SizeEstimating {
 
@@ -193,7 +192,6 @@ public class KeyRange implements SizeEstimating {
      *
      * <p>
      * If so, {@link #getMin} returns the key.
-     * </p>
      *
      * @return true if this instance contains exactly one key, otherwise false
      */

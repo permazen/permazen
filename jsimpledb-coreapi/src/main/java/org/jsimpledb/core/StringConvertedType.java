@@ -21,7 +21,6 @@ import org.jsimpledb.util.ParseContext;
  * <p>
  * Null values are not supported by this class; instead, use {@link StringEncodedType}, which is the
  * null-supporting wrapper around this class.
- * </p>
  *
  * @param <T> The associated Java type
  */

@@ -15,7 +15,6 @@ import org.jsimpledb.kv.util.KeyWatchTracker;
  *
  * <p>
  * Note the definition of {@linkplain #equals equality} does <b>not</b> include the {@linkplain #getValue value}.
- * </p>
  */
 class Put extends Mutation {
 

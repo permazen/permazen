@@ -91,7 +91,6 @@ public class SQLKVDatabase implements KVDatabase {
      *
      * <p>
      * Required property.
-     * </p>
      *
      * @param dataSource access to the underlying database
      */
@@ -104,7 +103,6 @@ public class SQLKVDatabase implements KVDatabase {
      *
      * <p>
      * Default value is {@value #DEFAULT_TABLE_NAME}.
-     * </p>
      *
      * @return key/value table name
      */
@@ -128,7 +126,6 @@ public class SQLKVDatabase implements KVDatabase {
      *
      * <p>
      * Default value is {@value #DEFAULT_KEY_COLUMN_NAME}.
-     * </p>
      *
      * @return the name of the key column
      */
@@ -152,7 +149,6 @@ public class SQLKVDatabase implements KVDatabase {
      *
      * <p>
      * Default value is {@value #DEFAULT_VALUE_COLUMN_NAME}.
-     * </p>
      *
      * @return the name of the value column
      */
@@ -334,7 +330,6 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * The implementation in {@link SQLKVDatabase} invokes {@link DataSource#getConnection()} on the
      * {@linkplain #dataSource configured} {@link DataSource}.
-     * </p>
      *
      * @return new transaction {@link Connection}
      * @throws SQLException if an error occurs
@@ -349,7 +344,6 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * The implementation in {@link SQLKVDatabase} does nothing. Note: subclasses must ensure the transaction is
      * configured for the {@link IsolationLevel} configured on this instance.
-     * </p>
      *
      * @param connection the {@link Connection} for a new transaction
      * @throws SQLException if an error occurs
@@ -363,7 +357,6 @@ public class SQLKVDatabase implements KVDatabase {
      *
      * <p>
      * The implementation in {@link SQLKVDatabase} invokes {@link Connection#setAutoCommit Connection.setAutoCommit(false)}.
-     * </p>
      *
      * @param connection the {@link Connection} for a new transaction
      * @throws SQLException if an error occurs
@@ -379,7 +372,6 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * The implementation in {@link SQLKVDatabase} does nothing. Note: subclasses must ensure the transaction is
      * configured for the {@link IsolationLevel} configured on this instance.
-     * </p>
      *
      * @param connection the {@link Connection} for a new transaction
      * @throws SQLException if an error occurs
@@ -395,7 +387,6 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * The implementation in {@link SQLKVDatabase} just invokes
      * {@link SQLKVTransaction#SQLKVTransaction new SQLKVTransaction(this, connection)}.
-     * </p>
      *
      * @param connection the {@link Connection} for a new transaction
      * @return newly created transaction
@@ -534,11 +525,9 @@ public class SQLKVDatabase implements KVDatabase {
      * <p>
      * This is an optional method; returning {@code statement} unmodified is acceptable, but subclasses may
      * be able to improve efficiency by modifying the SQL statement in a vendor-specific manner to only return one row.
-     * </p>
      *
      * <p>
      * The implementation in {@link SQLKVDatabase} returns its parameter unchanged.
-     * </p>
      *
      * @param sql SQL statement
      * @return SQL statement
@@ -552,7 +541,6 @@ public class SQLKVDatabase implements KVDatabase {
      *
      * <p>
      * The implementation in {@link SQLKVDatabase} returns its parameter unchanged.
-     * </p>
      *
      * @param name table or column name
      * @return {@code name} enquoted as necessary for this database type

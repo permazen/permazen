@@ -34,7 +34,6 @@ import org.jsimpledb.util.ParseContext;
  *
  * <p>
  * The specification string contains whitespace-separated parameter specifications; see {@link Param} for syntax.
- * </p>
  */
 public class ParamParser implements Parser<Map<String, Object>> {
 
@@ -105,7 +104,6 @@ public class ParamParser implements Parser<Map<String, Object>> {
      * The implementation in {@link ParamParser} supports the Java primitive types, and
      * {@code word} for a {@link String} containing one or more non-whitespace characters.
      * Subclasses should override as required to add additional supported types.
-     * </p>
      *
      * @param typeName name of type
      * @return parser for parameters of the specified type
@@ -244,12 +242,10 @@ public class ParamParser implements Parser<Map<String, Object>> {
      * an option flag, {@code name} is the name of the flag or parameter, and {@code type} is optional as well:
      * if missing, it indicates either an argumment-less option flag or a "word" type ({@link String} that is a
      * sequence of one or more non-whitespace characters). Otherwise {@code type} is the name of the parameter type.
-     * </p>
      *
      * <p>
      * Non-option parameters may have a {@code ?} suffix if optional,
      * or a {@code +}, or {@code *} suffix if repeatable, in which case the result is a {@link List}.
-     * </p>
      *
      * <p>
      * Spec string syntax examples:

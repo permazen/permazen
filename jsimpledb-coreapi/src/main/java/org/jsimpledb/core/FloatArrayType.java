@@ -25,7 +25,6 @@ import org.jsimpledb.util.ByteWriter;
  * <p>
  * Array elements are encoded using {@link FloatType}, and the array is terminated by {@code 0x00000000},
  * which is an encoded value that can never be emitted by {@link FloatType}.
- * </p>
  */
 class FloatArrayType extends Base64ArrayType<float[], Float> {
 

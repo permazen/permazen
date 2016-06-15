@@ -17,7 +17,6 @@ import java.lang.annotation.Target;
  * A composite index is an index on two or more fields (to define a single-field index,
  * just set {@link JField#indexed} to true). All fields indexed in a composite index
  * must be (a) simple and (b) not a sub-field of a complex field.
- * </p>
  *
  * @see JSimpleClass
  */

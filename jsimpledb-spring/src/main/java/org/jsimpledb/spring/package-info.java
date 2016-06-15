@@ -39,7 +39,6 @@
  * <p>
  * JSimpleDB makes available the following XML tags to Spring declarative XML. All elements live in the
  * {@code http://jsimpledb.googlecode.com/schema/jsimpledb} XML namespace:
- * </p>
  *
  * <div style="margin-left: 20px;">
  * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Elements">
@@ -70,7 +69,6 @@
  * The {@code <jsimpledb:jsimpledb>} element requires a nested {@code <jsimpledb:scan-classes>} element to configure
  * the Java model classes. A nested {@code <jsimpledb:scan-field-types>} may also be included.
  * The {@code <jsimpledb:jsimpledb>} element supports the following attributes:
- * </p>
  *
  * <div style="margin-left: 20px;">
  * <table border="1" cellpadding="3" cellspacing="0" summary="Supported Attributes">

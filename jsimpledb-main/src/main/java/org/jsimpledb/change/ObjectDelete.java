@@ -16,7 +16,6 @@ import org.jsimpledb.JTransaction;
  * delivered to {@link org.jsimpledb.annotation.OnDelete &#64;OnDelete} methods, which do not take any parameters.
  * This class exists as a convenience for application code that may want to unify handling of
  * object change and object lifecycle events.
- * </p>
  *
  * @param <T> the type of the object that was deleted
  */

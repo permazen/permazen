@@ -105,12 +105,10 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      * <p>
      * The implementation in {@link AbstractSchemaItem} invokes {@link #readAttributes readAttributes()}
      * followed by {@link #readSubElements readSubElements()}.
-     * </p>
      *
      * <p>
      * Start state: positioned at opening XML tag.
      * Return state: positioned at closing XML tag.
-     * </p>
      */
     void readXML(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.readAttributes(reader, formatVersion);
@@ -122,12 +120,10 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      *
      * <p>
      * The implementation in {@link AbstractSchemaItem} reads in required storage ID and name attributes.
-     * </p>
      *
      * <p>
      * Start state: positioned at opening XML tag.
      * Return state: same.
-     * </p>
      */
     void readAttributes(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         final Integer storageIdAttr = this.getIntAttr(reader, STORAGE_ID_ATTRIBUTE, false);
@@ -143,12 +139,10 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
      *
      * <p>
      * The implementation in {@link AbstractSchemaItem} expects no sub-elements.
-     * </p>
      *
      * <p>
      * Start state: positioned at opening XML tag.
      * Return state: positioned at closing XML tag.
-     * </p>
      */
     void readSubElements(XMLStreamReader reader, int formatVersion) throws XMLStreamException {
         this.expectClose(reader);

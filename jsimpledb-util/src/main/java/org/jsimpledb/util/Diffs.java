@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
  * <p>
  * Each individual difference is a {@link String} (map key) and has optional further detail contained in another
  * {@link Diffs} instance (map value, or null for none). Keys must not be null.
- * </p>
  */
 @SuppressWarnings("serial")
 public class Diffs extends LinkedHashMap<String, Diffs> {

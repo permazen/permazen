@@ -20,7 +20,6 @@ import org.jsimpledb.kv.util.ForwardingKVStore;
  * Instances serve simply to provide access to the underlying {@link org.jsimpledb.kv.KVStore} via the
  * {@link KVTransaction} interface. They cannot be committed or rolled back: all {@link org.jsimpledb.kv.KVStore}
  * methods are supported, but all {@link KVTransaction} methods throw {@link UnsupportedOperationException}.
- * </p>
  */
 class SnapshotKVTransaction extends ForwardingKVStore implements KVTransaction {
 

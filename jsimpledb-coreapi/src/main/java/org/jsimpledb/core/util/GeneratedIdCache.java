@@ -17,7 +17,6 @@ import org.jsimpledb.core.Transaction;
  *
  * <p>
  * Instances are thread safe.
- * </p>
  *
  * @see XMLObjectSerializer
  */
@@ -33,7 +32,6 @@ public class GeneratedIdCache {
      * it will be returned.
      * Otherwise, a random {@link ObjId} for which no object exists in the specified {@link Transaction} is generated
      * and returned.
-     * </p>
      *
      * @param tx transaction from which to allocate new object IDs
      * @param storageId object type storage ID

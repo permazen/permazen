@@ -11,7 +11,6 @@
  * entirely independently from the annotation-based {@link org.jsimpledb.JSimpleDB} Java object model layer;
  * the latter is implemented on top of these classes. In turn, the core API layer is implemented on top
  * of the {@link org.jsimpledb.kv key/value store} layer.
- * </p>
  *
  * @see org.jsimpledb
  * @see org.jsimpledb.kv

@@ -21,7 +21,6 @@ import org.jsimpledb.tuple.Tuple4;
  *
  * <p>
  * Instances are immutable.
- * </p>
  *
  * @param <V1> first index value type
  * @param <V2> second index value type

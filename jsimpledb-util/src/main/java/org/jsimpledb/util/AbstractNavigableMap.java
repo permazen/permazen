@@ -22,17 +22,14 @@ import java.util.NoSuchElementException;
  * For a read-only implementation, subclasses should implement {@link #comparator comparator()}, {@link #get get()},
  * {@link #entrySet entrySet()}, {@link #navigableKeySet navigableKeySet()}, and {@link #createSubMap createSubMap()}
  * to handle reversed and restricted range sub-maps.
- * </p>
  *
  * <p>
  * For a mutable implementation, subclasses should also implement {@link #put put()}, {@link #remove remove()},
  * {@link #clear clear()}, and make the {@link #navigableKeySet navigableKeySet()} and {@link #entrySet entrySet()}
  * iterators mutable.
- * </p>
  *
  * <p>
  * All overridden methods must be aware of the {@linkplain #bounds range restriction bounds}, if any.
- * </p>
  *
  * @param <K> key type
  * @param <V> value type
@@ -214,7 +211,6 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      *
      * <p>
      * The implementation in {@link AbstractNavigableMap} checks the bounds then returns the first entry from a head map.
-     * </p>
      *
      * @param maxKey upper limit for search
      * @param inclusive true if {@code maxKey} itself is a candidate
@@ -236,7 +232,6 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      *
      * <p>
      * The implementation in {@link AbstractNavigableMap} checks the bounds then returns the first entry from a tail map.
-     * </p>
      *
      * @param minKey lower limit for search
      * @param inclusive true if {@code minKey} itself is a candidate
@@ -281,7 +276,6 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      *
      * <p>
      * The implementation in {@link AbstractNavigableMap} returns {@code this.bounds.isWithinLowerBound(this.comparator(), elem)}.
-     * </p>
      *
      * @param key map key
      * @return true if {@code elem} is within this instance's lower bound, or this instance has no lower bound
@@ -295,7 +289,6 @@ public abstract class AbstractNavigableMap<K, V> extends AbstractMap<K, V> imple
      *
      * <p>
      * The implementation in {@link AbstractNavigableMap} returns {@code this.bounds.isWithinUpperBound(this.comparator(), elem)}.
-     * </p>
      *
      * @param key map key
      * @return true if {@code elem} is within this instance's upper bound, or this instance has no upper bound

@@ -15,11 +15,9 @@ import java.util.SortedSet;
  *
  * <p>
  * Null values sort last.
- * </p>
  *
  * <p>
  * Reference fields are always indexed.
- * </p>
  */
 public class ReferenceField extends SimpleField<ObjId> {
 

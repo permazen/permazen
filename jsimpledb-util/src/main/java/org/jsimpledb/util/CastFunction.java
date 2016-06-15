@@ -42,7 +42,6 @@ public class CastFunction<T> implements Function<Object, T> {
      *
      * <p>
      * The implementation in {@link CastFunction} just throws {@code e}.
-     * </p>
      *
      * @param obj object on which cast failed
      * @param e resulting exception

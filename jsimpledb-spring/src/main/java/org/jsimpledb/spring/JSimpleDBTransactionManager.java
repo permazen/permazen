@@ -94,7 +94,6 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      *
      * <p>
      * Required property.
-     * </p>
      *
      * @param jdb associated database
      */
@@ -107,7 +106,6 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      *
      * <p>
      * Default value is false.
-     * </p>
      *
      * @param allowNewSchema whether to allow recording new schema versions
      */
@@ -120,7 +118,6 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      *
      * <p>
      * Default value is {@link ValidationMode#AUTOMATIC}.
-     * </p>
      *
      * @param validationMode validation mode for transactions
      */
@@ -136,7 +133,6 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      *
      * <p>
      * Default true.
-     * </p>
      *
      * @param validateBeforeCommit whether to validate after inner transactions
      */
@@ -265,7 +261,6 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      *
      * <p>
      * The implementation in {@link JSimpleDBTransactionManager} sets the transaction's timeout and read-only properties.
-     * </p>
      *
      * @param jtx transaction to configure
      * @param txDef transaction definition

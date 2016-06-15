@@ -22,12 +22,10 @@ import org.jsimpledb.util.ParseContext;
  * The default value becomes null, for which {@code "null"} is the value returned by {@link #toParseableString toParseableString()}.
  * Therefore, {@code "null"} must not be returned by the wrapped type's {@link #toParseableString toParseableString()}
  * for any value.
- * </p>
  *
  * <p>
  * This class will automatically "inline" the {@code 0xff} for null values if the wrapped {@link FieldType}'s
  * {@link FieldType#hasPrefix0xff} method returns false.
- * </p>
  */
 public class NullSafeType<T> extends FieldType<T> {
 

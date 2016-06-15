@@ -37,7 +37,6 @@ public class JSimpleDBClassScanner extends AnnotatedClassScanner {
      *
      * <p>
      * This method is overridden in {@link JSimpleDBClassScanner} to allow abstract classes.
-     * </p>
      */
     @Override
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {

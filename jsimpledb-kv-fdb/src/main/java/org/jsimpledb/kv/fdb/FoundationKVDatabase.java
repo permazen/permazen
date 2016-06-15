@@ -26,7 +26,6 @@ import org.jsimpledb.kv.KVDatabaseException;
  * <p>
  * Allows specifying a {@linkplain #setKeyPrefix key prefix} for all keys, allowing multiple independent databases.
  * {@linkplain FoundationKVTransaction#watchKey Key watches} are supported.
- * </p>
  */
 public class FoundationKVDatabase implements KVDatabase {
 
@@ -69,7 +68,6 @@ public class FoundationKVDatabase implements KVDatabase {
      *
      * <p>
      * By default, the default thread pool is used to execute the FoundationDB network.
-     * </p>
      *
      * @param executor executor for networking activity
      * @see FDB#startNetwork(Executor) FDB.startNetwork()
@@ -111,7 +109,6 @@ public class FoundationKVDatabase implements KVDatabase {
      *
      * <p>
      * The key prefix may not be changed after this instance has {@linkplain #start started}.
-     * </p>
      *
      * @param keyPrefix new prefix, or null for none
      * @throws IllegalArgumentException if {@code keyPrefix} starts with {@code 0xff}

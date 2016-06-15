@@ -12,7 +12,6 @@ import java.util.List;
  *
  * <p>
  * Two instances of this class are considered compatible only when their ordered lists of identifiers are identical.
- * </p>
  */
 public class EnumField extends SimpleField<EnumValue> {
 

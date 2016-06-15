@@ -12,7 +12,6 @@ import java.util.HashSet;
  *
  * <p>
  * Each instance of this class represents a separate lock owner.
- * </p>
  *
  * @see LockManager
  */

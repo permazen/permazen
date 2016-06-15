@@ -19,7 +19,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseCollectionField caseCollectionField()}.
-     * </p>
      */
     @Override
     public <E> R caseSetField(SetField<E> field) {
@@ -31,7 +30,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseCollectionField caseCollectionField()}.
-     * </p>
      */
     @Override
     public <E> R caseListField(ListField<E> field) {
@@ -43,7 +41,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseComplexField caseComplexField()}.
-     * </p>
      */
     @Override
     public <K, V> R caseMapField(MapField<K, V> field) {
@@ -55,7 +52,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseField caseField()}.
-     * </p>
      */
     @Override
     public <T> R caseSimpleField(SimpleField<T> field) {
@@ -67,7 +63,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseSimpleField caseSimpleField()}.
-     * </p>
      */
     @Override
     public R caseReferenceField(ReferenceField field) {
@@ -79,7 +74,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseField caseField()}.
-     * </p>
      */
     @Override
     public R caseCounterField(CounterField field) {
@@ -91,7 +85,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseSimpleField caseSimpleField()}.
-     * </p>
      */
     @Override
     public R caseEnumField(EnumField field) {
@@ -103,7 +96,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseComplexField caseComplexField()}.
-     * </p>
      *
      * @param field visiting field
      * @param <C> visiting field type
@@ -119,7 +111,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} delegates to {@link #caseField caseField()}.
-     * </p>
      *
      * @param field visiting field
      * @param <T> visiting field type
@@ -134,7 +125,6 @@ public class FieldSwitchAdapter<R> implements FieldSwitch<R> {
      *
      * <p>
      * The implementation in {@link FieldSwitchAdapter} always throws {@link UnsupportedOperationException}.
-     * </p>
      *
      * @param field visiting field
      * @param <T> visiting field type

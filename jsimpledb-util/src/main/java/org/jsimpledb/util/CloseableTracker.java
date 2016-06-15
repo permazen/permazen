@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
  * then tracked by this class using weak references. When a holder object is no longer strongly referenced, the corresponding
  * item is closed. With this scheme, no memory leak occurs due to this tracking, even when arbitrarily many items are created.
  * This of course assumes that when a holder object is no longer referenced, the associated item may be safely closed.
- * </p>
  *
  * <p>
  * A registered {@link Closeable} item is closed at the first occurrence of any of the following:
@@ -47,11 +46,9 @@ import org.slf4j.LoggerFactory;
  * Note that {@link Closeable#close Closeable.close()} is required to be idempotent, so application usage
  * that results in eager closing of items is appropriate and encouraged. Use of this class may occasionally
  * result in {@link Closeable#close Closeable.close()} being invoked more than once for registered items.
- * </p>
  *
  * <p>
  * Instances of this class are thread safe.
- * </p>
  */
 public class CloseableTracker implements Closeable {
 
@@ -87,7 +84,6 @@ public class CloseableTracker implements Closeable {
      *
      * <p>
      * Applications should invoke this method periodically to avoid memory leaks.
-     * </p>
      */
     public void poll() {
 
@@ -118,7 +114,6 @@ public class CloseableTracker implements Closeable {
      *
      * <p>
      * The implementation in {@link CloseableTracker} just invokes {@link #reset}.
-     * </p>
      */
     @Override
     public void close() {
@@ -130,11 +125,9 @@ public class CloseableTracker implements Closeable {
      *
      * <p>
      * Results in the forced closing of all unclosed items associated with this instance.
-     * </p>
      *
      * <p>
      * This instance may be reused after invoking this method.
-     * </p>
      */
     public void reset() {
 
@@ -168,7 +161,6 @@ public class CloseableTracker implements Closeable {
      *
      * <p>
      * The implementation in {@link CloseableTracker} just logs the exception at debug level and returns.
-     * </p>
      *
      * @param item item that was closed
      * @param e exeption thrown

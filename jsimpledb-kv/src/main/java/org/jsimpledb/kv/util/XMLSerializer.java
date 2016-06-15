@@ -70,7 +70,6 @@ public class XMLSerializer extends AbstractXMLStreaming {
      *
      * <p>
      * The {@code input} is not closed by this method.
-     * </p>
      *
      * @param input XML input
      * @return the number of key/value pairs read
@@ -126,7 +125,6 @@ public class XMLSerializer extends AbstractXMLStreaming {
      *
      * <p>
      * The {@code output} is not closed by this method.
-     * </p>
      *
      * @param output XML output; will not be closed by this method
      * @param indent true to indent output, false for all on one line
@@ -148,7 +146,6 @@ public class XMLSerializer extends AbstractXMLStreaming {
      *
      * <p>
      * The {@code writer} is not closed by this method.
-     * </p>
      *
      * @param writer XML output; will not be closed by this method
      * @param indent true to indent output, false for all on one line
@@ -172,11 +169,9 @@ public class XMLSerializer extends AbstractXMLStreaming {
      * This method writes a start element as its first action, allowing the output to be embedded into a larger XML document.
      * Callers not embedding the output may with to precede invocation of this method with a call to
      * {@link XMLStreamWriter#writeStartDocument writer.writeStartDocument()}.
-     * </p>
      *
      * <p>
      * The {@code writer} is not closed by this method.
-     * </p>
      *
      * @param writer XML writer; will not be closed by this method
      * @param minKey minimum key (inclusive), or null for none

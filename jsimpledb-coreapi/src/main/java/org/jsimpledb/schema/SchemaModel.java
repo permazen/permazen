@@ -88,7 +88,6 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      *
      * <p>
      * The {@code output} is not closed by this method.
-     * </p>
      *
      * @param output XML output
      * @param indent true to pretty print the XML
@@ -157,7 +156,6 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      * This performs some basic structural validation. Full validation is not possible without a
      * {@link org.jsimpledb.core.Database} instance (for example, we don't know whether or not a custom
      * {@link SimpleSchemaField} type name is registered with the associated {@link org.jsimpledb.core.FieldTypeRegistry}).
-     * </p>
      *
      * @throws InvalidSchemaException if this instance is detected to be invalid
      */

@@ -20,7 +20,6 @@ import org.jsimpledb.kv.simple.SimpleKVDatabase;
  * <p>
  * If no {@link Database} is configured, newly created {@link JSimpleDB} instances will use an initially empty,
  * in-memory {@link SimpleKVDatabase}.
- * </p>
  *
  * @see JSimpleDB
  */
@@ -38,7 +37,6 @@ public class JSimpleDBFactory {
      * <p>
      * Note: {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass}-annotated super-types of any
      * class in {@code modelClasses} will be included, even if the super-type is not explicitly specified in {@code modelClasses}.
-     * </p>
      *
      * @param modelClasses classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
      * @return this instance
@@ -53,7 +51,6 @@ public class JSimpleDBFactory {
      *
      * <p>
      * Equivalent to {@link #setModelClasses(Iterable) setModelClasses}{@code (Arrays.asList(modelClasses))}.
-     * </p>
      *
      * @param modelClasses classes annotated with {@link org.jsimpledb.annotation.JSimpleClass &#64;JSimpleClass} annotations
      * @return this instance
@@ -68,7 +65,6 @@ public class JSimpleDBFactory {
      *
      * <p>
      * By default this instance will use an initially empty, in-memory {@link SimpleKVDatabase}.
-     * </p>
      *
      * @param database core API database to use
      * @return this instance
@@ -85,7 +81,6 @@ public class JSimpleDBFactory {
      * A value of zero means to use whatever is the highest version already recorded in the database.
      * However, if this instance has no {@link Database} configured, then an empty
      * {@link SimpleKVDatabase} is used and therefore a schema version of {@code 1} is assumed.
-     * </p>
      *
      * @param schemaVersion the schema version number of the schema derived from the configured Java model classes,
      *  or zero to default to the highest version already recorded in the database
@@ -104,7 +99,6 @@ public class JSimpleDBFactory {
      * <p>
      * This instance will initially be configured with a {@link DefaultStorageIdGenerator}.
      * To disable auto-generation of storage ID's altogether, configure a null value here.
-     * </p>
      *
      * @param storageIdGenerator storage ID generator, or null to disable auto-generation of storage ID's
      * @return this instance

@@ -17,7 +17,6 @@ import com.google.common.base.Preconditions;
  * {@link org.jsimpledb.JSimpleDB} instance, it's therefore possible to receive change notifications about changes to fields
  * not present in the current schema. This will not happen unless the lower level core API is used directly, {@link FieldChange}
  * events are being generated manually, etc.
- * </p>
  *
  * @param <T> the type of the object containing the changed field
  */

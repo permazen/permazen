@@ -25,7 +25,6 @@ import java.util.TreeSet;
  * <p>
  * Associated with a {@link Transaction} is a {@linkplain Transaction#getSchema specific schema version}
  * that the transaction uses to access objects.
- * </p>
  */
 public class Schemas {
 

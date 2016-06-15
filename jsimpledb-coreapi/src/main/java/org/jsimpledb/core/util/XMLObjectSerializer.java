@@ -211,7 +211,6 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      *
      * <p>
      * The input format is auto-detected for each {@code <object>} based on the presense of the {@code "type"} attribute.
-     * </p>
      *
      * @param input XML input
      * @return the number of objects read
@@ -231,7 +230,6 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      *
      * <p>
      * The input format is auto-detected for each {@code <object>} based on the presense of the {@code "type"} attribute.
-     * </p>
      *
      * @param reader XML reader
      * @return the number of objects read
@@ -506,7 +504,6 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * This method writes a start element as its first action, allowing the output to be embedded into a larger XML document.
      * Callers not embedding the output may with to precede invocation of this method with a call to
      * {@link XMLStreamWriter#writeStartDocument writer.writeStartDocument()}.
-     * </p>
      *
      * @param writer XML writer; will not be closed by this method
      * @param nameFormat true for Name Format, false for Storage ID Format

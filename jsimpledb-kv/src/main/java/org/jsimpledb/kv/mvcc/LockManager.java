@@ -26,12 +26,10 @@ import org.jsimpledb.util.ByteUtil;
  * <p>
  * This implementation is straightforward: read locks can overlap, but write locks may not, and all locks owned
  * by the same owner remain in force until all are {@linkplain #release released} at the same time.
- * </p>
  *
  * <p>
  * Instances are configured with a monitor object which is used for all internal locking and inter-thread wait/notify
  * handshaking (by default, this instance). A user-supplied monitor object may be provided via the constructor.
- * </p>
  *
  * <p>
  * Two timeout values are supported:
@@ -46,7 +44,6 @@ import org.jsimpledb.util.ByteUtil;
  * <p>
  * Note that if the hold timeout is set to zero (unlimited), then an application bug that leaks locks will result
  * in those locks never being released.
- * </p>
  */
 public class LockManager {
 
@@ -89,7 +86,6 @@ public class LockManager {
      * <p>
      * The hold timeout limits how long a thread may hold on to a contested lock before being forced to release
      * all of its locks; after that, the next call to {@link #lock lock} or {@link #release release} will fail.
-     * </p>
      *
      * @return hold timeout in milliseconds
      */
@@ -120,17 +116,14 @@ public class LockManager {
      * This method will block for up to {@code waitTimeout} milliseconds if the lock is held by
      * another thread, after which point {@link LockResult#WAIT_TIMEOUT_EXPIRED} is returned.
      * The configured locking object will be used for inter-thread wait/notify handshaking.
-     * </p>
      *
      * <p>
      * If {@code owner} already holds one or more locks, but the {@linkplain #getHoldTimeout hold timeout} has expired,
      * then {@link LockResult#HOLD_TIMEOUT_EXPIRED} is returned and all of the other locks are will have already been
      * automatically released.
-     * </p>
      *
      * <p>
      * Once a lock is successfully acquired, it stays acquired until all locks are released together via {@link #release release()}.
-     * </p>
      *
      * @param owner lock owner
      * @param minKey minimum key (inclusive); must not be null
@@ -234,11 +227,9 @@ public class LockManager {
      * <p>
      * If the owner's {@linkplain #getHoldTimeout hold timeout} has already expired, then all locks will have
      * already been released and false is returned.
-     * </p>
      *
      * <p>
      * Does nothing (and returns true) if {@code owner} does not own any locks.
-     * </p>
      *
      * @param owner lock owner
      * @return true if successful, false if {@code owner}'s hold timeout expired
@@ -270,7 +261,6 @@ public class LockManager {
      * <p>
      * If the owner's hold timeout has expired, then {@code -1} is returned and any locks previously held by {@code owner}
      * will have been automatically released.
-     * </p>
      *
      * @param owner lock owner
      * @return milliseconds until {@code owner}'s hold timeout expires, zero if {@code owner} has no hold timeout

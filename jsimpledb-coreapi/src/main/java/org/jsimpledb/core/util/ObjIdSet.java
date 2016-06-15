@@ -18,7 +18,6 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * This implementation is space optimized for the 64-bits of information contained in an {@link ObjId}.
  * Instances do not accept null values and are not thread safe.
- * </p>
  */
 public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
 

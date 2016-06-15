@@ -17,7 +17,6 @@ import org.jsimpledb.tuple.Tuple4;
  *
  * <p>
  * Indexes are read-only and "live", always reflecting the current transaction state.
- * </p>
  *
  * @param <V1> first indexed value type
  * @param <V2> second indexed value type

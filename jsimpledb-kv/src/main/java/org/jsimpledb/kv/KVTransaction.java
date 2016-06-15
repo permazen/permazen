@@ -122,7 +122,6 @@ public interface KVTransaction extends KVStore {
      * Note that if this method throws a {@link RetryTransactionException},
      * the transaction was either successfully committed or rolled back. In either case,
      * this instance is no longer usable.
-     * </p>
      *
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws RetryTransactionException if this transaction must be retried and is no longer usable

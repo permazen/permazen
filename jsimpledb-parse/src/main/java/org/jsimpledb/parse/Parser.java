@@ -20,7 +20,6 @@ public interface Parser<T> {
      * <p>
      * Generally speaking, this method may assume that any whitespace allowed before the item
      * being parsed has already been skipped over (that's a matter for the containing parser).
-     * </p>
      *
      * @param session parse session
      * @param ctx input to parse

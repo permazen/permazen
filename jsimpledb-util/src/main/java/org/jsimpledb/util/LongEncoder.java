@@ -18,7 +18,6 @@ import java.util.Arrays;
  *
  * <p>
  * Encoded values are guaranteed to not start with {@code 0x00} or {@code 0xff}.
- * </p>
  */
 public final class LongEncoder {
 

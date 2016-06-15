@@ -102,7 +102,6 @@ class Lock extends KeyRange {
      *  <li>Either lock is a {@linkplain #isWrite write lock}</li>
      *  <li>The two locks have different {@linkplain #getOwner owners}</li>
      * </ul>
-     * </p>
      *
      * @param that other lock
      * @return true if this lock and {@code that} conflict
@@ -124,7 +123,6 @@ class Lock extends KeyRange {
      *  <li>If one lock is a read lock and the other is a write lock,
      *      the write lock {@linkplain KeyRange#contains contains} the read lock</li>
      * </ul>
-     * </p>
      *
      * @param that lock to merge with this one
      * @return combined lock, or null if this lock is not mergable with {@code that}

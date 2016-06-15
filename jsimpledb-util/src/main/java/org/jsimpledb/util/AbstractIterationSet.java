@@ -35,7 +35,6 @@ public abstract class AbstractIterationSet<E> extends AbstractSet<E> {
      *
      * <p>
      * The implementation in {@link AbstractIterationSet} iterates through all of the elements.
-     * </p>
      */
     @Override
     public int size() {

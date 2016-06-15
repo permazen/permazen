@@ -36,26 +36,21 @@ import org.slf4j.LoggerFactory;
  * Reference paths can be described by the combination of (a) the starting Java object type, and (b) the path of reference
  * fields and final target field in a {@link String} form consisting of field names separated by period ({@code "."}) characters.
  * All of the fields except the last must be reference fields.
- * </p>
  *
  * <p>
  * For example, path {@code "parent.age"} starting from object type {@code Person} might refer to the age of
  * the parent of a {@code Person}.
- * </p>
  *
  * <p>
  * When a complex field appears in a reference path, both the name of the complex field and the specific sub-field
  * being traversed should appear, e.g., {@code "mymap.key.somefield"}. For set and list fields, the (only) sub-field is
  * named {@code "element"}, while for map fields the sub-fields are named {@code "key"} and {@code "value"}.
- * </p>
  *
  * <p>
  * <b>Fields of Sub-Types</b>
- * </p>
  *
  * <p>
  * In some cases, a field may not exist in a Java object type, but it does exist in a some sub-type of that type. For example:
- * </p>
  *
  * <pre>
  * &#64;JSimpleClass(storageId = 10)
@@ -88,11 +83,9 @@ import org.slf4j.LoggerFactory;
  * <p>
  * In cases where multiple sub-types of a common super-type type have fields with the same name but different storage IDs,
  * the storage ID may be explicitly specified as a suffix, for example, {@code "name#123"}.
- * </p>
  *
  * <p>
  * Reference paths are created via {@link JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()}.
- * </p>
  *
  * @see JSimpleDB#parseReferencePath JSimpleDB.parseReferencePath()
  */
@@ -300,7 +293,6 @@ public class ReferencePath {
      * If there are zero {@linkplain #getReferenceFields reference fields} in this path, then this will
      * equal the {@linkplain #getTargetType target object type}, or possibly a super-type if the target
      * field exists only in a sub-type.
-     * </p>
      *
      * @return the Java type at which this reference path starts
      */
@@ -315,7 +307,6 @@ public class ReferencePath {
      * If there are zero {@linkplain #getReferenceFields reference fields} in this path, then this will
      * equal the Java type of the {@linkplain #getStartType starting object type}, or possibly a sub-type
      * if the target field exists only in a sub-type.
-     * </p>
      *
      * @return the Java type at which this reference path ends
      */
@@ -337,7 +328,6 @@ public class ReferencePath {
      *
      * <p>
      * This is just the storage ID of the last field in the path.
-     * </p>
      *
      * @return the storage ID of the field at which this reference path ends
      */
@@ -360,12 +350,10 @@ public class ReferencePath {
      *
      * <p>
      * The path may be empty, i.e., zero references are traversed in the path.
-     * </p>
      *
      * <p>
      * Otherwise, the first field is a field in the {@linkplain #getStartType starting object type} and
      * the last field is field in some object type that refers to the {@linkplain #getTargetType target object type}.
-     * </p>
      *
      * @return zero or more reference field storage IDs
      */

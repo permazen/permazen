@@ -55,7 +55,6 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * See {@link Transaction} for further details on the above functionality.
- * </p>
  *
  * <p>
  * This class defines an abstraction layer that usually sits below a {@link org.jsimpledb.JSimpleDB} but is completely
@@ -223,7 +222,6 @@ public class Database {
      *
      * <p>
      * <b>Schema Versions</b>
-     * </p>
      *
      * <p>
      * Within each {@link Database} is stored a record of all schema versions previously used with the database.
@@ -231,7 +229,6 @@ public class Database {
      * Both of these are optional: a schema version of zero means "use the highest version recorded in the
      * database", and a null {@link SchemaModel} means "use the {@link SchemaModel} already recorded in the database under
      * {@code version}".
-     * </p>
      *
      * <p>
      * When this method is invoked, the following checks are applied:
@@ -256,7 +253,6 @@ public class Database {
      * <p>
      * For two schemas to "match", they must be identical in all respects, except that object, field, and index names may differ.
      * In the core API, objects and fields are identified by storage ID, not name.
-     * </p>
      *
      * <p>
      * Schemas must also be compatible with all other schemas previously recorded in the database.
@@ -269,21 +265,17 @@ public class Database {
      * <p>
      * However, object types and fields may be added or removed across schema versions, field indexing may change,
      * and reference field {@link DeleteAction}s may change.
-     * </p>
      *
      * <p>
      * <b>Object Versions</b>
-     * </p>
      *
      * <p>
      * Each object in a {@link Database} contains an internal version number that indicates its current schema version;
      * this in turn dictates what fields that object contains.
-     * </p>
      *
      * <p>
      * When an object is accessed during a {@link Transaction}, the object's version is compared to the {@code version} associated
      * with that {@link Transaction}. If the versions are the same, no version change occurs and fields are accessed normally.
-     * </p>
      *
      * <p>
      * If the object has a version {@code oldVersion} different from {@code version}, then depending on which {@link Transaction}
@@ -304,12 +296,10 @@ public class Database {
      * version corresponds to a schema in which the field is indexed. Similarly, the {@link DeleteAction} taken when a
      * referenced object is deleted depends on the {@link DeleteAction} configured in the schema version of the object
      * containing the reference.
-     * </p>
      *
      * <p>
      * Note that an object's current schema version can go up as well as down, may change non-consecutively, and in fact
      * nothing requires schema version numbers to be consecutive.
-     * </p>
      *
      * @param schemaModel schema to use with the new transaction, or null to use the schema already recorded in the database
      * @param version the schema version number corresponding to {@code schemaModel}, or zero to use the highest recorded version
@@ -630,12 +620,10 @@ public class Database {
      * This method only performs "static" checks; it does not access the database and therefore
      * does not validate the schema against existing schema versions previously recorded.
      * It does however use the {@link FieldTypeRegistry} associated with this instance to look up field types.
-     * </p>
      *
      * <p>
      * To validate a schema against the database contents as well, simply attempt to create a transaction
      * via {@link #createTransaction createTransaction()}.
-     * </p>
      *
      * @param schemaModel schema to validate
      * @throws InvalidSchemaException if {@code schemaModel} is invalid

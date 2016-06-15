@@ -107,7 +107,6 @@ public class ParseSession extends Session {
      *
      * <p>
      * Each entry should of the form {@code foo.bar.Name} or {@code foo.bar.*}.
-     * </p>
      *
      * @return configured imports
      */

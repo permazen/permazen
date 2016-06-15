@@ -98,7 +98,6 @@ public abstract class Field<T> extends SchemaItem {
      *
      * <p>
      * This method assumes both objects exist and both transactions are locked.
-     * </p>
      */
     abstract void copy(ObjId srcId, ObjId dstId, Transaction srcTx, Transaction dstTx);
 

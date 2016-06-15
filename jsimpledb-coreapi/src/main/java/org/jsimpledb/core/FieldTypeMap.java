@@ -23,7 +23,6 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * This class provides a read-only implementation; subclasses can override as appropriate to make the set mutable.
- * </p>
  *
  * @param <K> key type
  * @param <V> value type

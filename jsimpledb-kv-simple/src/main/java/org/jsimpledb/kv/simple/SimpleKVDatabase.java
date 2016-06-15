@@ -130,7 +130,6 @@ public class SimpleKVDatabase implements KVDatabase {
      * <p>
      * The wait timeout limits how long a thread will wait for a contested lock before giving up and throwing
      * {@link RetryTransactionException}.
-     * </p>
      *
      * @return wait timeout in milliseconds
      */
@@ -156,7 +155,6 @@ public class SimpleKVDatabase implements KVDatabase {
      * <p>
      * The hold timeout limits how long a thread may hold on to a contested lock before being forced to release
      * all of its locks; after that, the next attempted operation will fail with {@link RetryTransactionException}.
-     * </p>
      *
      * @return hold timeout in milliseconds
      */
@@ -210,11 +208,9 @@ public class SimpleKVDatabase implements KVDatabase {
      * <p>
      * {@link SimpleKVDatabase} guarantees this method and {@link #postCommit postCommit()} will be invoked in matching pairs,
      * and that this instance will be locked when these methods are invoked.
-     * </p>
      *
      * <p>
      * The implementation in {@link SimpleKVDatabase} does nothing.
-     * </p>
      *
      * @param tx the transaction about to be committed
      * @throws RetryTransactionException if this transaction must be retried and is no longer usable
@@ -228,16 +224,13 @@ public class SimpleKVDatabase implements KVDatabase {
      * <p>
      * {@link SimpleKVDatabase} guarantees this method and {@link #preCommit preCommit()} will be invoked in matching pairs,
      * and that this instance will be locked when these methods are invoked.
-     * </p>
      *
      * <p>
      * This method is invoked even if the underlying {@link KVStore} throws an exception while changes were being written to it.
      * In that case, {@code successful} will be false.
-     * </p>
      *
      * <p>
      * The implementation in {@link SimpleKVDatabase} does nothing.
-     * </p>
      *
      * @param tx the transaction that was committed
      * @param successful true if all changes were written back successfully,
@@ -285,11 +278,9 @@ public class SimpleKVDatabase implements KVDatabase {
      * methods of the {@link SimpleKVTransaction} associated with this instance. This allows for any checks which depend on
      * a consistent view of the transaction and database together. This instance's lock will be held when this method is invoked.
      * Note: transaction state is also protected by this instance's lock.
-     * </p>
      *
      * <p>
      * The implementation in {@link SimpleKVDatabase} does nothing.
-     * </p>
      *
      * @param tx the transaction being accessed
      * @throws StaleTransactionException if this instance is no longer usable

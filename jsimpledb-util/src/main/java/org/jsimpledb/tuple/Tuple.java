@@ -31,7 +31,6 @@ public interface Tuple {
      *
      * <p>
      * Tuples are equal if they have the same size and the corresponding individual values are equal (or null).
-     * </p>
      */
     @Override
     boolean equals(Object obj);
@@ -41,7 +40,6 @@ public interface Tuple {
      *
      * <p>
      * The hash code of a tuple is the exclusive-OR of the hash codes of the individual values (using zero for null values).
-     * </p>
      */
     @Override
     int hashCode();

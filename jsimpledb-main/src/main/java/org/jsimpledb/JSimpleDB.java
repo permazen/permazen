@@ -151,7 +151,6 @@ public class JSimpleDB {
      *
      * <p>
      * This constructor can also be used just to validate the annotations on the given classes.
-     * </p>
      *
      * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
      * @throws IllegalArgumentException if {@code classes} is null
@@ -167,7 +166,6 @@ public class JSimpleDB {
      *
      * <p>
      * Equivalent to {@link #JSimpleDB(Iterable) JSimpleDB}{@code (Arrays.asList(classes))}.
-     * </p>
      *
      * @param classes classes annotated with {@link JSimpleClass &#64;JSimpleClass} annotations
      * @see #JSimpleDB(Iterable)
@@ -410,17 +408,14 @@ public class JSimpleDB {
      * <p>
      * If no transactions have been created yet, this returns zero. Otherwise, it returns the schema version
      * used by the most recently created transaction.
-     * </p>
      *
      * <p>
      * If the {@code version} passed to the constructor was zero, this method can be used to read the highest schema
      * version seen in the database by the most recently created transaction.
-     * </p>
      *
      * <p>
      * If the {@code version} passed to the constructor was non-zero, and at least one transaction has been created,
      * this method will return the same value.
-     * </p>
      *
      * @return the schema version that this instance used in the most recently created transaction
      */
@@ -486,7 +481,6 @@ public class JSimpleDB {
      * {@link JTransaction#setCurrent JTransaction.setCurrent}{@code (null)} to be invoked as soon as the
      * returned transaction is committed (or rolled back), assuming {@link JTransaction#getCurrent} returns the
      * {@link JTransaction} returned here at that time.
-     * </p>
      *
      * @param allowNewSchema whether creating a new schema version is allowed
      * @param validationMode the {@link ValidationMode} to use for the new transaction
@@ -517,7 +511,6 @@ public class JSimpleDB {
      * {@link JTransaction#setCurrent JTransaction.setCurrent}{@code (null)} to be invoked as soon as the
      * returned transaction is committed (or rolled back), assuming {@link JTransaction#getCurrent} returns the
      * {@link JTransaction} returned here at that time.
-     * </p>
      *
      * @param kvt already opened key/value store transaction
      * @param allowNewSchema whether creating a new schema version is allowed
@@ -803,7 +796,6 @@ public class JSimpleDB {
      * <p>
      * Note: the returned {@link Iterable} may contain duplicates; these can be eliminated using an
      * {@link org.jsimpledb.core.util.ObjIdSet} if necessary.
-     * </p>
      *
      * @param jobj starting object
      * @return all objects directly referenced by {@code jobj}

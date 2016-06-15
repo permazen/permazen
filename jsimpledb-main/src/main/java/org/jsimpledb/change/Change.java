@@ -36,7 +36,6 @@ public abstract class Change<T> {
      * <p>
      * Although not declared as such to allow flexibility in Java model types, the returned object
      * will always be a {@link JObject} instance.
-     * </p>
      *
      * @return the changed object
      */

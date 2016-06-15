@@ -23,7 +23,6 @@ public enum DeleteAction {
      *
      * <p>
      * Note: deleting an object that is only referred to by itself will not cause any exception to be thrown.
-     * </p>
      */
     EXCEPTION,
 

@@ -16,7 +16,6 @@ import com.google.common.reflect.TypeToken;
  * This class provides a convenient way to implement custom {@link FieldType}s.
  * Null values are supported and null is the default value. This type will sort instances according to
  * the lexicographical sort order of their {@link String} encodings; null will sort last.
- * </p>
  *
  * @param <T> The associated Java type
  */

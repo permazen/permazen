@@ -16,20 +16,17 @@ import java.lang.annotation.Target;
  *
  * <p>
  * The annotated method's return type must be {@link java.util.List List}{@code <E>}, where {@code E} is a supported simple type.
- * </p>
  *
  * <p>
  * List fields have a "random access" performance profile similar to an {@link java.util.ArrayList}. In particular,
  * {@link java.util.List#get List.get()} and {@link java.util.List#size List.size()} are constant time, but an insertion
  * in the middle of the list requires shifting all subsequent values by one.
- * </p>
  *
  * <p>
  * Note that both primitive types and their corresponding wrapper types are supported as elements. A list whose
  * elements have primitive type will throw an exception on an attempt to add a null value.
  * To specify a primitive element type, specify the primitive type name (e.g., {@code "int"})
  * as the {@link JField#type} in the {@link #element}.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -41,7 +38,6 @@ public @interface JListField {
      *
      * <p>
      * If empty string (default value), the name is inferred from the name of the annotated Java bean getter method.
-     * </p>
      *
      * @return the list field name
      */

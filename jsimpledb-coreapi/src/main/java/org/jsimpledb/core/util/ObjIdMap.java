@@ -23,7 +23,6 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * This implementation is space optimized for the 64-bits of information contained in an {@link ObjId}.
  * Instances do not accept null keys and are not thread safe.
- * </p>
  */
 public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
 

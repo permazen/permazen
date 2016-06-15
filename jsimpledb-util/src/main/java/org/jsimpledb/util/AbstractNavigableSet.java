@@ -19,16 +19,13 @@ import java.util.NoSuchElementException;
  * <p>
  * For a read-only implementation, subclasses should implement {@link #comparator comparator()}, {@link #contains contains()},
  * {@link #iterator iterator()}, and {@link #createSubSet createSubSet()} to handle reversed and restricted range sub-sets.
- * </p>
  *
  * <p>
  * For a mutable implementation, subclasses should also implement {@link #add add()}, {@link #remove remove()},
  * {@link #clear clear()}, and make the {@link #iterator iterator()} mutable.
- * </p>
  *
  * <p>
  * All overridden methods must be aware of the {@linkplain #bounds range restriction bounds}, if any.
- * </p>
  *
  * @param <E> element type
  */
@@ -157,7 +154,6 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      *
      * <p>
      * The implementation in {@link AbstractNavigableSet} checks the bounds then returns the first element from a head set.
-     * </p>
      *
      * @param elem upper limit for search
      * @param inclusive true if {@code elem} itself is a candidate
@@ -179,7 +175,6 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      *
      * <p>
      * The implementation in {@link AbstractNavigableSet} checks the bounds then returns the first element from a tail set.
-     * </p>
      *
      * @param elem lower limit for search
      * @param inclusive true if {@code elem} itself is a candidate
@@ -224,7 +219,6 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      *
      * <p>
      * The implementation in {@link AbstractNavigableSet} returns {@code this.bounds.isWithinLowerBound(this.comparator(), elem)}.
-     * </p>
      *
      * @param elem set element
      * @return true if {@code elem} is within this instance's lower bound, or this instance has no lower bound
@@ -238,7 +232,6 @@ public abstract class AbstractNavigableSet<E> extends AbstractIterationSet<E> im
      *
      * <p>
      * The implementation in {@link AbstractNavigableSet} returns {@code this.bounds.isWithinUpperBound(this.comparator(), elem)}.
-     * </p>
      *
      * @param elem set element
      * @return true if {@code elem} is within this instance's upper bound, or this instance has no upper bound

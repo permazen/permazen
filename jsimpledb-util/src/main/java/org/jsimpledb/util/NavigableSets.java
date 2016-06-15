@@ -30,7 +30,6 @@ public final class NavigableSets {
      * <p>
      * The returned intersection iterates efficiently: a complete iteration requires <i>O(N * M)</i> queries, where
      * <i>N</i> is the size of the smallest set, and <i>M</i> is the number of sets.
-     * </p>
      *
      * @param sets the sets to intersect
      * @param <E> element type
@@ -53,7 +52,6 @@ public final class NavigableSets {
      * <p>
      * The returned intersection iterates efficiently: a complete iteration takes time <i>O(N * M)</i> where
      * <i>N</i> is the size of the smallest set, and <i>M</i> is the number of sets.
-     * </p>
      *
      * @param sets the sets to intersect
      * @param <E> element type

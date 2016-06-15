@@ -19,11 +19,9 @@ public interface ListFieldChangeListener {
      *
      * <p>
      * Notifications are only delivered when {@code referrers} is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
@@ -42,11 +40,9 @@ public interface ListFieldChangeListener {
      *
      * <p>
      * Notifications are only delivered when {@code referrers} is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
@@ -65,11 +61,9 @@ public interface ListFieldChangeListener {
      *
      * <p>
      * Notifications are only delivered when {@code referrers} is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that changed)
@@ -90,15 +84,12 @@ public interface ListFieldChangeListener {
      * <p>
      * This method is only used when the whole list is cleared; when a sub-range of a list is cleared, individual
      * {@linkplain #onListFieldRemove onListFieldRemove()} invocations for each removed element are made instead.
-     * </p>
      *
      * <p>
      * Notifications are only delivered when {@code referrers} is non-empty.
-     * </p>
      *
      * <p>
      * Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
-     * </p>
      *
      * @param tx associated transaction
      * @param id the ID of the affected object (i.e., the object containing the field that was cleared)

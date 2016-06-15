@@ -54,7 +54,6 @@ public class WordParser implements Parser<String> {
      *
      * <p>
      * The implementation in {@link WordParser} returns the collection provided to the constructor, if any.
-     * </p>
      *
      * @return collection of valid words, or null to not place any restriction
      */

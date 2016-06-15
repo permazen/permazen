@@ -216,7 +216,6 @@ public class ObjId implements Comparable<ObjId> {
      * <p>
      * The hash code of an {@link ObjId} is defined as the hash code of its {@link #asLong} value,
      * which is {@linkplain Long#hashCode defined} as the exclusive-or of the upper and lower 32 bits.
-     * </p>
      */
     @Override
     public int hashCode() {

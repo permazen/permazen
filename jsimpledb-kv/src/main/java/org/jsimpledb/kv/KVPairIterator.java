@@ -22,31 +22,26 @@ import org.jsimpledb.util.ByteUtil;
  * <p>
  * The iteration is instead implemented using {@link KVStore#getAtLeast KVStore.getAtLeast()},
  * {@link KVStore#getAtMost KVStore.getAtMost()}, and {@link KVStore#remove KVStore.remove()}.
- * </p>
  *
  * <p><b>Repositioning</b></p>
  *
  * <p>
  * Instances support arbitrary repositioning via {@link #setNextTarget setNextTarget()}.
- * </p>
  *
  * <p><b>Key Restrictions</b></p>
  *
  * <p>
  * Instances are configured with an (optional) {@link KeyRange} that restricts the iteration to the specified key range.
- * </p>
  *
  * <p>
  * Instances also support filtering visible values using a {@link KeyFilter}.
  * To appear in the iteration, keys must both be in the {@link KeyRange} and pass the {@link KeyFilter}, if any.
- * </p>
  *
  * <p><b>Concurrent Modification</b></p>
  *
  * <p>
  * Instances are thread safe, and always reflect the current state of the underlying {@link KVStore},
  * even if it is mutated concurrently.
- * </p>
  */
 public class KVPairIterator implements Iterator<KVPair> {
 
@@ -182,22 +177,18 @@ public class KVPairIterator implements Iterator<KVPair> {
      * The target key is the key we will use to find the next element via {@link KVStore#getAtLeast KVStore.getAtLeast()}
      * or {@link KVStore#getAtMost KVStore.getAtMost()} if this is a reverse iterator. In the forward case, the target key is an
      * inclusive lower bound on the next key, while in the reverse case it is an exclusive upper bound on the next key.
-     * </p>
      *
      * <p>
      * This method may be used to reposition an interator during iteration or restart an iterator that has been exhausted.
      * Invoking this method does not affect the behavior of {@link #remove}, i.e., you can still {@link #remove} the previously
      * returned element even if you have invoked this method since invoking {@link #next}.
-     * </p>
      *
      * <p>
      * A null {@code targetKey} means to reposition this instance at the beginning of the iteration.
-     * </p>
      *
      * <p>
      * This instance's configured {@link KeyRange} and {@link KeyFilter}, if any, still apply: if {@code targetKey} is not
      * {@link #isVisible visible} to this instance, the next visible key after {@code targetKey} will be next in the iteration.
-     * </p>
      *
      * @param targetKey next lower bound (exclusive) if going forward, or upper bound (exclusive) if going backward;
      *  or null to restart this instance at the beginning of its iteration

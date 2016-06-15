@@ -21,7 +21,6 @@ import org.jsimpledb.util.ByteWriter;
  *
  * <p>
  * JSimpleDB list fields have performance characteristics similar to {@link ArrayList}.
- * </p>
  *
  * @param <E> Java type for the list elements
  */

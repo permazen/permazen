@@ -17,12 +17,10 @@ import java.lang.annotation.Target;
  * <p>
  * Notifications are delivered in the same thread that deletes the object, before the delete actually occurs.
  * At most one delete notification will ever be delivered for any object deletion event.
- * </p>
  *
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
  * It may have any level of access, including {@code private}.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

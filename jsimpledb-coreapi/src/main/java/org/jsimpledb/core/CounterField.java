@@ -15,11 +15,9 @@ import com.google.common.reflect.TypeToken;
  * Counter fields have {@code long} values and can be adjusted concurrently by multiple transactions,
  * typically without locking (depending on the underlying key/value store).
  * Counter fields do not support indexing or change listeners.
- * </p>
  *
  * <p>
  * Note: during schema version change notification, counter field values appear as plain {@code long} values.
- * </p>
  */
 public class CounterField extends Field<Long> {
 
