@@ -12,14 +12,15 @@ import java.util.SortedSet;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JSetField;
+import org.jsimpledb.annotation.JSimpleClass;
 
 /**
  * Scans for {@link JSetField &#64;JSetField} annotations.
  */
 class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
 
-    JSetFieldScanner(JClass<T> jclass, boolean autogenFields, boolean autogenNonAbstract) {
-        super(jclass, JSetField.class, autogenFields, autogenNonAbstract);
+    JSetFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
+        super(jclass, JSetField.class, jsimpleClass);
     }
 
     @Override

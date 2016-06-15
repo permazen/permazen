@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jsimpledb.annotation.JField;
+import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.core.DeleteAction;
 
 /**
@@ -62,8 +63,8 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         }
     };
 
-    JFieldScanner(JClass<T> jclass, boolean autogenFields, boolean autogenNonAbstract) {
-        super(jclass, JField.class, autogenFields, autogenNonAbstract);
+    JFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
+        super(jclass, JField.class, jsimpleClass);
     }
 
     @Override
@@ -96,7 +97,7 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
             } catch (IllegalArgumentException e) {
                 return false;
             }
-            if (!this.autogenNonAbstract && (setter.getModifiers() & Modifier.ABSTRACT) == 0)
+            if (!this.jsimpleClass.autogenNonAbstract() && (setter.getModifiers() & Modifier.ABSTRACT) == 0)
                 return false;
         }
         return true;

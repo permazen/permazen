@@ -140,11 +140,10 @@ public class JClass<T> extends JSchemaObject {
     void createFields(JSimpleDB jdb) {
 
         // Auto-generate properties?
-        final boolean autogenFields = this.type.getAnnotation(JSimpleClass.class).autogenFields();
-        final boolean autogenNonAbstract = this.type.getAnnotation(JSimpleClass.class).autogenNonAbstract();
+        final JSimpleClass jsimpleClass = this.type.getAnnotation(JSimpleClass.class);
 
         // Scan for Simple fields
-        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this, autogenFields, autogenNonAbstract);
+        final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this, jsimpleClass);
         for (JFieldScanner<T>.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -202,7 +201,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Set fields
-        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<T>(this, autogenFields, autogenNonAbstract);
+        final JSetFieldScanner<T> setFieldScanner = new JSetFieldScanner<T>(this, jsimpleClass);
         for (JSetFieldScanner<T>.MethodInfo info : setFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -242,7 +241,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for List fields
-        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<T>(this, autogenFields, autogenNonAbstract);
+        final JListFieldScanner<T> listFieldScanner = new JListFieldScanner<T>(this, jsimpleClass);
         for (JListFieldScanner<T>.MethodInfo info : listFieldScanner.findAnnotatedMethods()) {
 
             // Get info
@@ -282,7 +281,7 @@ public class JClass<T> extends JSchemaObject {
         }
 
         // Scan for Map fields
-        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<T>(this, autogenFields, autogenNonAbstract);
+        final JMapFieldScanner<T> mapFieldScanner = new JMapFieldScanner<T>(this, jsimpleClass);
         for (JMapFieldScanner<T>.MethodInfo info : mapFieldScanner.findAnnotatedMethods()) {
 
             // Get info

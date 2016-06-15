@@ -12,14 +12,15 @@ import java.util.SortedMap;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JMapField;
+import org.jsimpledb.annotation.JSimpleClass;
 
 /**
  * Scans for {@link JMapField &#64;JMapField} annotations.
  */
 class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
 
-    JMapFieldScanner(JClass<T> jclass, boolean autogenFields, boolean autogenNonAbstract) {
-        super(jclass, JMapField.class, autogenFields, autogenNonAbstract);
+    JMapFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
+        super(jclass, JMapField.class, jsimpleClass);
     }
 
     @Override

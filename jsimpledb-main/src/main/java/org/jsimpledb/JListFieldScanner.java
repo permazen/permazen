@@ -10,14 +10,15 @@ import java.util.List;
 
 import org.jsimpledb.annotation.JField;
 import org.jsimpledb.annotation.JListField;
+import org.jsimpledb.annotation.JSimpleClass;
 
 /**
  * Scans for {@link JListField &#64;JListField} annotations.
  */
 class JListFieldScanner<T> extends AbstractFieldScanner<T, JListField> {
 
-    JListFieldScanner(JClass<T> jclass, boolean autogenFields, boolean autogenNonAbstract) {
-        super(jclass, JListField.class, autogenFields, autogenNonAbstract);
+    JListFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
+        super(jclass, JListField.class, jsimpleClass);
     }
 
     @Override

@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
 
+import org.jsimpledb.annotation.JSimpleClass;
 import org.jsimpledb.annotation.JTransient;
 
 /**
@@ -19,13 +20,11 @@ import org.jsimpledb.annotation.JTransient;
  */
 abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationScanner<T, A> {
 
-    protected final boolean autogenFields;
-    protected final boolean autogenNonAbstract;
+    protected final JSimpleClass jsimpleClass;
 
-    AbstractFieldScanner(JClass<T> jclass, Class<A> annotationType, boolean autogenFields, boolean autogenNonAbstract) {
+    AbstractFieldScanner(JClass<T> jclass, Class<A> annotationType, JSimpleClass jsimpleClass) {
         super(jclass, annotationType);
-        this.autogenFields = autogenFields;
-        this.autogenNonAbstract = autogenNonAbstract;
+        this.jsimpleClass = jsimpleClass;
     }
 
     protected abstract A getDefaultAnnotation();
@@ -47,13 +46,13 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
     }
 
     protected boolean isAutoPropertyCandidate(Method method) {
-        if (!this.autogenFields)
+        if (!this.jsimpleClass.autogenFields())
             return false;
         if ((method.getModifiers() & Modifier.STATIC) != 0)
             return false;
         if (this.hasJTransientAnnotation(method))
             return false;
-        if (!this.autogenNonAbstract && this.isOverriddenByConcreteMethod(method))
+        if (!this.jsimpleClass.autogenNonAbstract() && this.isOverriddenByConcreteMethod(method))
             return false;
         if ((method.getModifiers() & (Modifier.PROTECTED | Modifier.PUBLIC)) == 0)
             return false;
