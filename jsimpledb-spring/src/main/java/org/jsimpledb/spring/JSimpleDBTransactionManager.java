@@ -289,6 +289,10 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
     @Override
     protected void prepareForCommit(DefaultTransactionStatus status) {
 
+        // Is there a transaction?
+        if (!status.hasTransaction())
+            return;
+
         // Get transaction
         final JTransaction jtx = ((TxWrapper)status.getTransaction()).getJTransaction();
         if (jtx == null)
@@ -304,6 +308,10 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
     @Override
     protected void doCommit(DefaultTransactionStatus status) {
+
+        // Is there a transaction?
+        if (!status.hasTransaction())
+            return;
 
         // Get transaction
         final JTransaction jtx = ((TxWrapper)status.getTransaction()).getJTransaction();
@@ -329,6 +337,10 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
     @Override
     protected void doRollback(DefaultTransactionStatus status) {
 
+        // Is there a transaction?
+        if (!status.hasTransaction())
+            return;
+
         // Get transaction
         final JTransaction jtx = ((TxWrapper)status.getTransaction()).getJTransaction();
         if (jtx == null)
@@ -350,6 +362,10 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
     @Override
     protected void doSetRollbackOnly(DefaultTransactionStatus status) {
+
+        // Is there a transaction?
+        if (!status.hasTransaction())
+            return;
 
         // Get transaction
         final JTransaction jtx = ((TxWrapper)status.getTransaction()).getJTransaction();
