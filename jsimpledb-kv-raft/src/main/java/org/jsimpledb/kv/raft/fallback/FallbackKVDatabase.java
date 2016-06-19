@@ -90,7 +90,7 @@ public class FallbackKVDatabase implements KVDatabase {
     private ScheduledFuture<?> migrationCheckFuture;
     private int startCount;
     private boolean started;
-    private int currentTargetIndex;
+    private int currentTargetIndex;                     // index of current target, or -1 in standalone mode
     private Date lastStandaloneActiveTime;
 
 // Methods
@@ -384,6 +384,18 @@ public class FallbackKVDatabase implements KVDatabase {
         return new FallbackKVTransaction(this, tx, this.migrationCount);
     }
 
+    /**
+     * Subclass hook to be notified when a migration occurs. This method is invoked after each successful target change.
+     *
+     * <p>
+     * The implementation in {@link FallbackKVDatabase} does nothing.
+     *
+     * @param prevTargetIndex previous fallback target list index, or -1 for standalone mode
+     * @param currTargetIndex current fallback target list index, or -1 for standalone mode
+     */
+    protected void migrationCompleted(int prevTargetIndex, int currTargetIndex) {
+    }
+
 // Object
 
     @Override
@@ -566,6 +578,8 @@ public class FallbackKVDatabase implements KVDatabase {
                             this.migrationCount++;
                         }
 
+                        // Notify subclass
+                        this.migrationCompleted(currIndex, this.currentTargetIndex);
                     } finally {
                         if (!dstCommitted)
                             dst.rollback();
