@@ -32,7 +32,7 @@ public class ParseException extends RuntimeException {
 
     public ParseException(ParseContext ctx, String message, Throwable cause) {
         super((message != null ? message : "parse error") + " at "
-          + (ctx.isEOF() ? "end of input" : "`" + StringEncoder.encode(ParseContext.truncate(ctx.getInput(), 20), true) + "'"),
+          + (ctx.isEOF() ? "end of input" : "`" + StringEncoder.encode(ParseContext.truncate(ctx.getInput(), 50), true) + "'"),
           cause);
         this.ctx = ctx;
     }
