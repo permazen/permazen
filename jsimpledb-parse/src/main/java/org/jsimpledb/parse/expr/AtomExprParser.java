@@ -188,7 +188,6 @@ public class AtomExprParser implements Parser<Node> {
         if (methodMatcher != null) {
 
             // Parse class and method name
-            ctx.setIndex(start);
             final ClassNode classNode = ClassNode.parse(ctx, methodMatcher.group(1), false);
             final String methodName = methodMatcher.group(2);
 

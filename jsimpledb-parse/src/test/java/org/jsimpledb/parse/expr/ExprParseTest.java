@@ -5,6 +5,7 @@
 
 package org.jsimpledb.parse.expr;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.jsimpledb.core.Database;
@@ -107,7 +108,8 @@ public class ExprParseTest extends TestSupport {
     @DataProvider(name = "cases")
     @SuppressWarnings("rawtypes")
     public Object[][] genExprParseCases() {
-        return new Object[][] {
+        final ArrayList<Object[]> list = new ArrayList<>();
+        list.addAll(Arrays.asList(new Object[][] {
 
             // Literals
             { "null", null },
@@ -370,10 +372,6 @@ public class ExprParseTest extends TestSupport {
             { "((Object[])new String[] { \"abc\" }).length",
                ((Object[])new String[] {  "abc"  }).length },
 
-            // Java 8 stuff
-//            { "java.util.Arrays.asList(new String[] { \"abc\", \"d\", \"efghij\" }).stream().mapToInt(String::length).sum()",
-//               java.util.Arrays.asList(new String[] {  "abc",   "d",   "efghij"  }).stream().mapToInt(String::length).sum() },
-
             // Misc
             { "java.lang.annotation.ElementType.FIELD",
                java.lang.annotation.ElementType.FIELD },
@@ -391,11 +389,27 @@ public class ExprParseTest extends TestSupport {
                4 & 7 | 6 << 5 >>> 2 << 1 >>> 2 + 6 * 3 - 7 / 2 ^ 99 },
             { "(null)",
               null },
-            { "System.out.println(\"foobar\")", null }
+            { "System.out.println(\"foobar\")", null },
 
         //CHECKSTYLE ON: SimplifyBooleanExpression
 
-        };
+        }));
+
+        // Java 8 stuff
+        if (System.getProperty("java.version").compareTo("1.8") >= 0) {
+            list.addAll(Arrays.asList(new Object[][] {
+
+                { "java.util.Arrays.asList(new String[] { \"abc\", \"d\", \"efghij\" }).stream().mapToInt(String::length).sum()",
+                   10 },
+                { "java.util.Arrays.asList(new String[] { \"abc\", \"def\" }).stream().map(Object::hashCode)"
+                  + ".collect(java.util.stream.Collectors.toList()).toString()",
+                   "[96354, 99333]" },
+
+            }));
+        }
+
+        // Done
+        return list.toArray(new Object[list.size()][]);
     }
 
     @Test(dataProvider = "multiCases")

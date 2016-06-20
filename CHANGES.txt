@@ -8,7 +8,8 @@ Version 2.1.0
       - @Command and @Function annotations converted to interfaces
       - registerStandardFunctions() replaced by loadFunctionsFromClasspath()
       - registerStandardCommands() replaced by loadCommandsFromClasspath()
-    - Fix bug in JSimpleDBTransactionManager when Propagation.SUPPORTS used
+    - Fixed bug in JSimpleDBTransactionManager when Propagation.SUPPORTS used
+    - Fixed bug when parsing method references like `Object::hashCode'
 
 Version 2.0.1 Released May 28, 2016
 
