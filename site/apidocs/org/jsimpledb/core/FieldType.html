@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>FieldType (JSimpleDB 2.0.1 API)</title>
+<title>FieldType (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="FieldType (JSimpleDB 2.0.1 API)";
+        parent.document.title="FieldType (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -113,12 +113,10 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
  A <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> maps between instances of its supported Java type and the self-delimited <code>byte[]</code> encoding of
  those instances used in the database. The <code>byte[]</code> encoding also implicitly defines the database sort order
  (via unsigned lexicographical ordering). This ordering is also reflected via <a href="../../../org/jsimpledb/core/FieldType.html#compare(T, T)"><code>compare()</code></a>.
- </p>
 
  <p>
  A <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> also defines a mapping between Java instances and <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> values.
  There are two separate <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> forms, a regular form and a self-delimiting form.
- </p>
 
  <p>
  <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a>s have these requirements and properties:
@@ -143,11 +141,9 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
  <p>
  Two <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> instances should be equal according to <a href="../../../org/jsimpledb/core/FieldType.html#equals(java.lang.Object)"><code>equals()</code></a> if only if they behave identically
  with respect to all of the above.
- </p>
 
  <p>
- A <a href="../../../org/jsimpledb/core/FieldTypeRegistry.html" title="class in org.jsimpledb.core"><code>FieldTypeRegistry</code></a> contains a registry of <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a>s indexed by name.
- </p></div>
+ A <a href="../../../org/jsimpledb/core/FieldTypeRegistry.html" title="class in org.jsimpledb.core"><code>FieldTypeRegistry</code></a> contains a registry of <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a>s indexed by name.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/FieldTypeRegistry.html" title="class in org.jsimpledb.core"><code>FieldTypeRegistry</code></a></dd></dl>
 </li>
 </ul>
@@ -473,12 +469,10 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
  implementation changes its binary encoding, but not it's name, it <b>must</b> use a new, different binary encoding
  signature to eliminate the possibility of mixing incompatible encodings in software vs. persistent storage.
  Typically a value of zero is used until if/when such a change occurs.
- </p>
 
  <p>
  Note that another option when encodings change is simply to change the <a href="../../../org/jsimpledb/core/FieldType.html#getName()">name</a> of the type
- (encoding signatures are scoped to a single <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> name).
- </p></div>
+ (encoding signatures are scoped to a single <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> name).</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>binary encoding signature</dd></dl>
 </li>
 </ul>
@@ -563,12 +557,10 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
  <p>
  Each of the characters in the returned <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> must be one of the valid XML characters
  (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
- </p>
 
  <p>
  The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> checks that <code>value</code> is not null, then delegates to <a href="../../../org/jsimpledb/core/FieldType.html#toParseableString(T)"><code>toParseableString(T)</code></a>.
- Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a>.
- </p></div>
+ Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - actual value, never null</dd>
 <dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code> acceptable to <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a></dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -587,8 +579,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
  <p>
  The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> creates a new <a href="../../../org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util"><code>ParseContext</code></a> based on <code>string</code>,
  delegates to <a href="../../../org/jsimpledb/core/FieldType.html#toParseableString(T)"><code>toParseableString(T)</code></a> to parse it, and verifies that all of <code>string</code> was consumed
- during the parse. Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#toString(T)"><code>toString(T)</code></a>.
- </p></div>
+ during the parse. Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#toString(T)"><code>toString(T)</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>string</code> - non-null value previously encoded as a <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> by <a href="../../../org/jsimpledb/core/FieldType.html#toString(T)"><code>toString(T)</code></a></dd>
 <dt><span class="strong">Returns:</span></dt><dd>actual value</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -610,8 +601,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
 
  <p>
  In addition, each of the characters in the returned <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> must be one of the valid XML characters
- (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
- </p></div>
+ (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - actual value (possibly null)</dd>
 <dt><span class="strong">Returns:</span></dt><dd>string encoding of <code>value</code> acceptable to <a href="../../../org/jsimpledb/core/FieldType.html#fromParseableString(org.jsimpledb.util.ParseContext)"><code>fromParseableString()</code></a></dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -645,17 +635,14 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
  <p>
  Note that this method must throw <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang"><code>IllegalArgumentException</code></a>, not <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/ClassCastException.html?is-external=true" title="class or interface in java.lang"><code>ClassCastException</code></a>
  or <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang"><code>NullPointerException</code></a>, if <code>obj</code> does not have the correct type, or is an illegal null value.
- </p>
 
  <p>
  This method is allowed to perform widening conversions of the object that lose no information, e.g.,
  from <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang"><code>Integer</code></a> to <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang"><code>Long</code></a>.
- </p>
 
  <p>
  The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> simply casts the value using this instance's raw Java type.
- Subclasses should override this method to implement any other restrictions, e.g., disallowing null values.
- </p></div>
+ Subclasses should override this method to implement any other restrictions, e.g., disallowing null values.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>obj</code> - object to validate</dd>
 <dt><span class="strong">Returns:</span></dt><dd><code>obj</code> cast to this field's type</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -706,11 +693,9 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
  <p>
  Note: changing the return value of this method usually means changing the binary encoding, resulting in
  an incompatible type.
- </p>
 
  <p>
- The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> returns <code>true</code>.
- </p></div>
+ The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> returns <code>true</code>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if an encoded value starting with <code>0x00</code> exists</dd></dl>
 </li>
 </ul>
@@ -727,11 +712,9 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Comparato
  <p>
  Note: changing the return value of this method usually means changing the binary encoding, resulting in
  an incompatible type.
- </p>
 
  <p>
- The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> returns <code>true</code>.
- </p></div>
+ The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> returns <code>true</code>.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if an encoded value starting with <code>0xff</code> exists</dd></dl>
 </li>
 </ul>

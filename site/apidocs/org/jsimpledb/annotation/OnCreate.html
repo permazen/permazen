@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>OnCreate (JSimpleDB 2.0.1 API)</title>
+<title>OnCreate (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="OnCreate (JSimpleDB 2.0.1 API)";
+        parent.document.title="OnCreate (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -97,12 +97,10 @@ public @interface <span class="strong">OnCreate</span></pre>
  instantiated to represent database objects that already exist in the database. Also, it's possible for a Java model
  object to be instantiated when no corresponding database object exists in the database (e.g., via
  <a href="../../../org/jsimpledb/JTransaction.html#get(org.jsimpledb.core.ObjId)"><code>JTransaction.get(org.jsimpledb.core.ObjId)</code></a>).
- </p>
 
  <p>
  As a consequence, for any database fields that require default initialization, this initialization should be
  performed not in a Java constructor but rather in an <a href="../../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a>-annotated method.
- </p>
 
  <p>
  For example, instead of this:
@@ -141,7 +139,6 @@ public @interface <span class="strong">OnCreate</span></pre>
 
  <p>
  Notifications are delivered in the same thread that created the object, immediately after the object is created.
- </p>
 
  <p>
  The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.

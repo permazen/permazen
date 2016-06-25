@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SQLiteKVDatabase (JSimpleDB 2.0.1 API)</title>
+<title>SQLiteKVDatabase (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SQLiteKVDatabase (JSimpleDB 2.0.1 API)";
+        parent.document.title="SQLiteKVDatabase (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -36,7 +36,7 @@
 <div class="subNav">
 <ul class="navList">
 <li>Prev Class</li>
-<li>Next Class</li>
+<li><a href="../../../../org/jsimpledb/kv/sqlite/SQLiteKVImplementation.html" title="class in org.jsimpledb.kv.sqlite"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" target="_top">Frames</a></li>
@@ -142,13 +142,19 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
  causes SQLite to use an in-memory database.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html#SQLITE_DRIVER_CLASS_NAME">SQLITE_DRIVER_CLASS_NAME</a></strong></code>
+<div class="block">The name of the SQLite JDBC driver class ("org.sqlite.JDBC").</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="fields_inherited_from_class_org.jsimpledb.kv.sql.SQLKVDatabase">
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;org.jsimpledb.kv.sql.<a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></h3>
-<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#dataSource">dataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_KEY_COLUMN_NAME">DEFAULT_KEY_COLUMN_NAME</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_TABLE_NAME">DEFAULT_TABLE_NAME</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_VALUE_COLUMN_NAME">DEFAULT_VALUE_COLUMN_NAME</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#isolationLevel">isolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#keyColumnName">keyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#log">log</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#tableName">tableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#valueColumnName">valueColumnName</a></code></li>
+<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#dataSource">dataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_KEY_COLUMN_NAME">DEFAULT_KEY_COLUMN_NAME</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_TABLE_NAME">DEFAULT_TABLE_NAME</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#DEFAULT_VALUE_COLUMN_NAME">DEFAULT_VALUE_COLUMN_NAME</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#isolationLevel">isolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#keyColumnName">keyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#log">log</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#OPTION_ISOLATION">OPTION_ISOLATION</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#tableName">tableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#valueColumnName">valueColumnName</a></code></li>
 </ul>
 </li>
 </ul>
@@ -248,7 +254,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.kv.sql.<a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></h3>
-<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#beginTransaction(java.sql.Connection)">beginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAllStatement(boolean)">createGetAllStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAtLeastStatement(boolean)">createGetAtLeastStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAtMostStatement(boolean)">createGetAtMostStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetRangeStatement(boolean)">createGetRangeStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetStatement()">createGetStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAllStatement()">createRemoveAllStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAtLeastStatement()">createRemoveAtLeastStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAtMostStatement()">createRemoveAtMostStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveRangeStatement()">createRemoveRangeStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveStatement()">createRemoveStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createSQLKVTransaction(java.sql.Connection)">createSQLKVTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction()">createTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransactionConnection()">createTransactionConnection</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getDataSource()">getDataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getIsolationLevel()">getIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getKeyColumnName()">getKeyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getTableName()">getTableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getValueColumnName()">getValueColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#postBeginTransaction(java.sql.Connection)">postBeginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">preBeginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setDataSource(javax.sql.DataSource)">setDataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setIsolationLevel(org.jsimpledb.kv.sql.IsolationLevel)">setIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setKeyColumnName(java.lang.String)">setKeyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setTableName(java.lang.String)">setTableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setValueColumnName(java.lang.String)">setValueColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#stop()">stop</a></code></li>
+<code><a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#beginTransaction(java.sql.Connection)">beginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAllStatement(boolean)">createGetAllStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAtLeastStatement(boolean)">createGetAtLeastStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetAtMostStatement(boolean)">createGetAtMostStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetRangeStatement(boolean)">createGetRangeStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createGetStatement()">createGetStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAllStatement()">createRemoveAllStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAtLeastStatement()">createRemoveAtLeastStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveAtMostStatement()">createRemoveAtMostStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveRangeStatement()">createRemoveRangeStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createRemoveStatement()">createRemoveStatement</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createSQLKVTransaction(java.sql.Connection)">createSQLKVTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction()">createTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransactionConnection()">createTransactionConnection</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getDataSource()">getDataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getIsolationLevel()">getIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getIsolationLevel(java.util.Map)">getIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getKeyColumnName()">getKeyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getTableName()">getTableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#getValueColumnName()">getValueColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#postBeginTransaction(java.sql.Connection)">postBeginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#preBeginTransaction(java.sql.Connection)">preBeginTransaction</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setDataSource(javax.sql.DataSource)">setDataSource</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setIsolationLevel(org.jsimpledb.kv.sql.IsolationLevel)">setIsolationLevel</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setKeyColumnName(java.lang.String)">setKeyColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setTableName(java.lang.String)">setTableName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#setValueColumnName(java.lang.String)">setValueColumnName</a>, <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html#stop()">stop</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -271,6 +277,17 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="SQLITE_DRIVER_CLASS_NAME">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SQLITE_DRIVER_CLASS_NAME</h4>
+<pre>public static final&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> SQLITE_DRIVER_CLASS_NAME</pre>
+<div class="block">The name of the SQLite JDBC driver class ("org.sqlite.JDBC").</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.sqlite.SQLiteKVDatabase.SQLITE_DRIVER_CLASS_NAME">Constant Field Values</a></dd></dl>
+</li>
+</ul>
 <a name="MEMORY_FILE">
 <!--   -->
 </a>
@@ -479,7 +496,7 @@ extends <a href="../../../../org/jsimpledb/kv/sql/SQLKVDatabase.html" title="cla
 <div class="subNav">
 <ul class="navList">
 <li>Prev Class</li>
-<li>Next Class</li>
+<li><a href="../../../../org/jsimpledb/kv/sqlite/SQLiteKVImplementation.html" title="class in org.jsimpledb.kv.sqlite"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" target="_top">Frames</a></li>

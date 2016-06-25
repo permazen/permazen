@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Database (JSimpleDB 2.0.1 API)</title>
+<title>Database (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Database (JSimpleDB 2.0.1 API)";
+        parent.document.title="Database (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -115,7 +115,6 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  See <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> for further details on the above functionality.
- </p>
 
  <p>
  This class defines an abstraction layer that usually sits below a <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> but is completely
@@ -375,7 +374,6 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  <b>Schema Versions</b>
- </p>
 
  <p>
  Within each <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> is stored a record of all schema versions previously used with the database.
@@ -383,7 +381,6 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  Both of these are optional: a schema version of zero means "use the highest version recorded in the
  database", and a null <a href="../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema"><code>SchemaModel</code></a> means "use the <a href="../../../org/jsimpledb/schema/SchemaModel.html" title="class in org.jsimpledb.schema"><code>SchemaModel</code></a> already recorded in the database under
  <code>version</code>".
- </p>
 
  <p>
  When this method is invoked, the following checks are applied:
@@ -408,7 +405,6 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  For two schemas to "match", they must be identical in all respects, except that object, field, and index names may differ.
  In the core API, objects and fields are identified by storage ID, not name.
- </p>
 
  <p>
  Schemas must also be compatible with all other schemas previously recorded in the database.
@@ -421,21 +417,17 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  However, object types and fields may be added or removed across schema versions, field indexing may change,
  and reference field <a href="../../../org/jsimpledb/core/DeleteAction.html" title="enum in org.jsimpledb.core"><code>DeleteAction</code></a>s may change.
- </p>
 
  <p>
  <b>Object Versions</b>
- </p>
 
  <p>
  Each object in a <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> contains an internal version number that indicates its current schema version;
  this in turn dictates what fields that object contains.
- </p>
 
  <p>
  When an object is accessed during a <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a>, the object's version is compared to the <code>version</code> associated
  with that <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a>. If the versions are the same, no version change occurs and fields are accessed normally.
- </p>
 
  <p>
  If the object has a version <code>oldVersion</code> different from <code>version</code>, then depending on which <a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a>
@@ -456,12 +448,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  version corresponds to a schema in which the field is indexed. Similarly, the <a href="../../../org/jsimpledb/core/DeleteAction.html" title="enum in org.jsimpledb.core"><code>DeleteAction</code></a> taken when a
  referenced object is deleted depends on the <a href="../../../org/jsimpledb/core/DeleteAction.html" title="enum in org.jsimpledb.core"><code>DeleteAction</code></a> configured in the schema version of the object
  containing the reference.
- </p>
 
  <p>
  Note that an object's current schema version can go up as well as down, may change non-consecutively, and in fact
- nothing requires schema version numbers to be consecutive.
- </p></div>
+ nothing requires schema version numbers to be consecutive.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>schemaModel</code> - schema to use with the new transaction, or null to use the schema already recorded in the database</dd><dd><code>version</code> - the schema version number corresponding to <code>schemaModel</code>, or zero to use the highest recorded version</dd><dd><code>allowNewSchema</code> - whether creating a new schema version is allowed</dd><dd><code>kvoptions</code> - optional <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>-specific transaction options; may be null</dd>
 <dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -566,12 +556,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  This method only performs "static" checks; it does not access the database and therefore
  does not validate the schema against existing schema versions previously recorded.
  It does however use the <a href="../../../org/jsimpledb/core/FieldTypeRegistry.html" title="class in org.jsimpledb.core"><code>FieldTypeRegistry</code></a> associated with this instance to look up field types.
- </p>
 
  <p>
  To validate a schema against the database contents as well, simply attempt to create a transaction
- via <a href="../../../org/jsimpledb/core/Database.html#createTransaction(org.jsimpledb.schema.SchemaModel, int, boolean)"><code>createTransaction()</code></a>.
- </p></div>
+ via <a href="../../../org/jsimpledb/core/Database.html#createTransaction(org.jsimpledb.schema.SchemaModel, int, boolean)"><code>createTransaction()</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>schemaModel</code> - schema to validate</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/InvalidSchemaException.html" title="class in org.jsimpledb.core">InvalidSchemaException</a></code> - if <code>schemaModel</code> is invalid</dd>

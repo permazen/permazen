@@ -21,6 +21,7 @@ org.jsimpledb.kv.leveldb
 org.jsimpledb.kv.mvcc
 org.jsimpledb.kv.mysql
 org.jsimpledb.kv.raft
+org.jsimpledb.kv.raft.cmd
 org.jsimpledb.kv.raft.fallback
 org.jsimpledb.kv.raft.msg
 org.jsimpledb.kv.rocksdb

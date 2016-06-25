@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KeyRanges (JSimpleDB 2.0.1 API)</title>
+<title>KeyRanges (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KeyRanges (JSimpleDB 2.0.1 API)";
+        parent.document.title="KeyRanges (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -105,8 +105,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <div class="block">A fixed set of <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> instances that can be treated as a unified whole, in particular as a <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a>.
 
  <p>
- Instances are immutable.
- </p></div>
+ Instances are immutable.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a></dd></dl>
 </li>
 </ul>
@@ -418,8 +417,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
  <p>
  Creates an instance that contains all keys contained by any of the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s in <code>ranges</code>.
  The given <code>ranges</code> may be adjacent, overlap, and/or be listed in any order; this constructor
- will normalize them.
- </p></div>
+ will normalize them.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ranges</code> - individual key ranges</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>ranges</code> or any <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> therein is null</dd></dl>
@@ -437,8 +435,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
  <p>
  Creates an instance that contains all keys contained by any of the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s in <code>ranges</code>.
  The given <code>ranges</code> may be adjacent, overlap, and/or be listed in any order; this constructor
- will normalize them.
- </p></div>
+ will normalize them.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ranges</code> - individual key ranges</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>ranges</code> or any <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> therein is null</dd></dl>
@@ -516,8 +513,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
 <div class="block">Get the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s underlying with this instance as a list.
 
  <p>
- The returned <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s will be listed in order.
- </p></div>
+ The returned <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s will be listed in order.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>minimal, unmodifiable list of <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>s sorted by key range</dd></dl>
 </li>
 </ul>
@@ -646,8 +642,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
  same Java object, namely, the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that contains <code>key</code>; otherwise, the first element is
  the nearest <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> to the left of <code>key</code>, or null if none exists, and the second element is
  the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> to the right of <code>key</code>, or null if none exists. Note if this instance is empty
- then <code>{ null, null }</code> is returned.
- </p></div>
+ then <code>{ null, null }</code> is returned.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>key</code> - key to find</dd>
 <dt><span class="strong">Returns:</span></dt><dd>array with the containing <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> or nearest neighbor to the left (or null) and
   the containing <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> or nearest neighbor to the right (or null)</dd>
@@ -832,16 +827,13 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
  <p>
  This method should return an inclusive lower bound on all keys greater than or equal to <code>key</code>
  that are contained by this instance. The bound does not have to be tight, but the tighter the better.
- </p>
 
  <p>
  A value of null may be returned to indicate that no key greater than or equal to <code>key</code> is contained by this instance.
- </p>
 
  <p>
  If <code>key</code> is contained by this instance, this method must return <code>key</code>;
- if <code>key</code> is not contained by this instance, this method must return a key strictly higher than <code>key</code> or null.
- </p></div>
+ if <code>key</code> is not contained by this instance, this method must return a key strictly higher than <code>key</code> or null.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/kv/KeyFilter.html#seekHigher(byte[])">seekHigher</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv">KeyFilter</a></code></dd>
@@ -863,17 +855,14 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Iterable.
  <p>
  This method should return an exclusive upper bound on all keys strictly less than <code>key</code>
  that are contained by this instance. The bound does not have to be tight, but the tighter the better.
- </p>
 
  <p>
  A value of null may be returned to indicate that no key strictly less than <code>key</code> is contained by this instance.
- </p>
 
  <p>
  For the purposes of this method, an empty <code>byte[]</code> array represents an upper bound greater than all
  <code>byte[]</code> keys. This interpretation applies both to the <code>key</code> parameter and returned value. Note that
- this implies an empty array cannot be returned to indicate that no keys exist (instead, return null).
- </p></div>
+ this implies an empty array cannot be returned to indicate that no keys exist (instead, return null).</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/kv/KeyFilter.html#seekLower(byte[])">seekLower</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv">KeyFilter</a></code></dd>

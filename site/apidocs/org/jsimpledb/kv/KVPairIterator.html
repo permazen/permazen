@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KVPairIterator (JSimpleDB 2.0.1 API)</title>
+<title>KVPairIterator (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KVPairIterator (JSimpleDB 2.0.1 API)";
+        parent.document.title="KVPairIterator (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -110,31 +110,26 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.
  <p>
  The iteration is instead implemented using <a href="../../../org/jsimpledb/kv/KVStore.html#getAtLeast(byte[])"><code>KVStore.getAtLeast()</code></a>,
  <a href="../../../org/jsimpledb/kv/KVStore.html#getAtMost(byte[])"><code>KVStore.getAtMost()</code></a>, and <a href="../../../org/jsimpledb/kv/KVStore.html#remove(byte[])"><code>KVStore.remove()</code></a>.
- </p>
 
  <p><b>Repositioning</b></p>
 
  <p>
  Instances support arbitrary repositioning via <a href="../../../org/jsimpledb/kv/KVPairIterator.html#setNextTarget(byte[])"><code>setNextTarget()</code></a>.
- </p>
 
  <p><b>Key Restrictions</b></p>
 
  <p>
  Instances are configured with an (optional) <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> that restricts the iteration to the specified key range.
- </p>
 
  <p>
  Instances also support filtering visible values using a <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a>.
  To appear in the iteration, keys must both be in the <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> and pass the <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a>, if any.
- </p>
 
  <p><b>Concurrent Modification</b></p>
 
  <p>
  Instances are thread safe, and always reflect the current state of the underlying <a href="../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>,
- even if it is mutated concurrently.
- </p></div>
+ even if it is mutated concurrently.</div>
 </li>
 </ul>
 </div>
@@ -412,22 +407,18 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.
  The target key is the key we will use to find the next element via <a href="../../../org/jsimpledb/kv/KVStore.html#getAtLeast(byte[])"><code>KVStore.getAtLeast()</code></a>
  or <a href="../../../org/jsimpledb/kv/KVStore.html#getAtMost(byte[])"><code>KVStore.getAtMost()</code></a> if this is a reverse iterator. In the forward case, the target key is an
  inclusive lower bound on the next key, while in the reverse case it is an exclusive upper bound on the next key.
- </p>
 
  <p>
  This method may be used to reposition an interator during iteration or restart an iterator that has been exhausted.
  Invoking this method does not affect the behavior of <a href="../../../org/jsimpledb/kv/KVPairIterator.html#remove()"><code>remove()</code></a>, i.e., you can still <a href="../../../org/jsimpledb/kv/KVPairIterator.html#remove()"><code>remove()</code></a> the previously
  returned element even if you have invoked this method since invoking <a href="../../../org/jsimpledb/kv/KVPairIterator.html#next()"><code>next()</code></a>.
- </p>
 
  <p>
  A null <code>targetKey</code> means to reposition this instance at the beginning of the iteration.
- </p>
 
  <p>
  This instance's configured <a href="../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> and <a href="../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a>, if any, still apply: if <code>targetKey</code> is not
- <a href="../../../org/jsimpledb/kv/KVPairIterator.html#isVisible(byte[])"><code>visible</code></a> to this instance, the next visible key after <code>targetKey</code> will be next in the iteration.
- </p></div>
+ <a href="../../../org/jsimpledb/kv/KVPairIterator.html#isVisible(byte[])"><code>visible</code></a> to this instance, the next visible key after <code>targetKey</code> will be next in the iteration.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>targetKey</code> - next lower bound (exclusive) if going forward, or upper bound (exclusive) if going backward;
   or null to restart this instance at the beginning of its iteration</dd></dl>
 </li>

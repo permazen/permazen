@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>PrefixKVTransaction (JSimpleDB 2.0.1 API)</title>
+<title>PrefixKVTransaction (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="PrefixKVTransaction (JSimpleDB 2.0.1 API)";
+        parent.document.title="PrefixKVTransaction (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -118,8 +118,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
  Instances are normally created indirectly from <a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util"><code>PrefixKVDatabase</code></a> instances via <a href="../../../../org/jsimpledb/kv/util/PrefixKVDatabase.html#createTransaction(java.util.Map)"><code>PrefixKVDatabase.createTransaction(java.util.Map&lt;java.lang.String, ?&gt;)</code></a>.
  Instances may also be created directly from an existing <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a>; in that case,
  <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#setTimeout(long)"><code>setTimeout()</code></a>, <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#commit()"><code>commit()</code></a>, and <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#rollback()"><code>rollback()</code></a> forward to the containing transaction,
- while <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#getKVDatabase()"><code>getKVDatabase()</code></a> throws <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.
- </p></div>
+ while <a href="../../../../org/jsimpledb/kv/util/PrefixKVTransaction.html#getKVDatabase()"><code>getKVDatabase()</code></a> throws <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -377,8 +376,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
  <p>
  Note that if this method throws a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>,
  the transaction was either successfully committed or rolled back. In either case,
- this instance is no longer usable.
- </p></div>
+ this instance is no longer usable.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()">commit</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></dd>

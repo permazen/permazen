@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Package org.jsimpledb.cli (JSimpleDB 2.0.1 API)</title>
+<title>Uses of Package org.jsimpledb.cli (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Package org.jsimpledb.cli (JSimpleDB 2.0.1 API)";
+        parent.document.title="Uses of Package org.jsimpledb.cli (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -83,19 +83,25 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.cli.cmd">org.jsimpledb.cli.cmd</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB CLI <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+<div class="block">JSimpleDB CLI <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.cli.func">org.jsimpledb.cli.func</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB CLI pre-defined <a href="../../../org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>Function</code></a>s.</div>
+<div class="block">JSimpleDB CLI pre-defined <a href="../../../org/jsimpledb/parse/func/Function.html" title="interface in org.jsimpledb.parse.func"><code>Function</code></a>s.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.cli.telnet">org.jsimpledb.cli.telnet</a></td>
 <td class="colLast">
 <div class="block">Support for JSimpleDB Command Line Interface (CLI) over telnet connections.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.raft.cmd">org.jsimpledb.kv.raft.cmd</a></td>
+<td class="colLast">
+<div class="block">Raft-related CLI <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s.</div>
 </td>
 </tr>
 </tbody>
@@ -155,11 +161,6 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><a href="../../../org/jsimpledb/cli/class-use/CliSession.TransactionalAction.html#org.jsimpledb.cli.cmd">CliSession.TransactionalAction</a>
-<div class="block">Tagging interface indicating an <a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli"><code>CliSession.Action</code></a> that requires there to be an open transaction.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/cli/class-use/ParamParser.html#org.jsimpledb.cli.cmd">ParamParser</a>
 <div class="block">Parses command line parameters, including optional flags, based on a specification string.</div>
 </td>
@@ -196,6 +197,34 @@
 <tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/cli/class-use/Console.html#org.jsimpledb.cli.telnet">Console</a>
 <div class="block">CLI console.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.raft.cmd">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../org/jsimpledb/cli/package-summary.html">org.jsimpledb.cli</a> used by <a href="../../../org/jsimpledb/kv/raft/cmd/package-summary.html">org.jsimpledb.kv.raft.cmd</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/cli/class-use/CliSession.html#org.jsimpledb.kv.raft.cmd">CliSession</a>
+<div class="block">Represents one CLI console session.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/cli/class-use/CliSession.Action.html#org.jsimpledb.kv.raft.cmd">CliSession.Action</a>
+<div class="block">Callback interface used by <a href="../../../org/jsimpledb/cli/CliSession.html#performCliSessionAction(org.jsimpledb.cli.CliSession.Action)"><code>CliSession.performCliSessionAction()</code></a>
+ and <a href="../../../org/jsimpledb/cli/CliSession.html#performCliSessionActionWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)"><code>CliSession.performCliSessionActionWithCurrentTransaction()</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/cli/class-use/CliSession.TransactionalAction.html#org.jsimpledb.kv.raft.cmd">CliSession.TransactionalAction</a>
+<div class="block">Tagging interface indicating an <a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli"><code>CliSession.Action</code></a> that requires there to be an open transaction.</div>
 </td>
 </tr>
 </tbody>

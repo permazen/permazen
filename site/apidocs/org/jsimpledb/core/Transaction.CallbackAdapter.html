@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Transaction.CallbackAdapter (JSimpleDB 2.0.1 API)</title>
+<title>Transaction.CallbackAdapter (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Transaction.CallbackAdapter (JSimpleDB 2.0.1 API)";
+        parent.document.title="Transaction.CallbackAdapter (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -109,8 +109,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
 <div class="block">Adapter class for <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a>.
 
  <p>
- All the implementations in this class do nothing.
- </p></div>
+ All the implementations in this class do nothing.</div>
 </li>
 </ul>
 </div>
@@ -221,8 +220,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
  This method is invoked when a transaction is intended to be committed; it may however still be rolled back.
 
  <p>
- Any exceptions thrown will result in a transaction rollback and be propagated to the caller.
- </p></div>
+ Any exceptions thrown will result in a transaction rollback and be propagated to the caller.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/Transaction.Callback.html#beforeCommit(boolean)">beforeCommit</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a></code></dd>
@@ -243,8 +241,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
  Typically used to clean up resources before transaction completion.
 
  <p>
- Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.
- </p></div>
+ Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/Transaction.Callback.html#beforeCompletion()">beforeCompletion</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a></code></dd>
@@ -262,8 +259,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
 <div class="block">Invoked after successful transaction commit (and before <a href="../../../org/jsimpledb/core/Transaction.Callback.html#afterCompletion(boolean)"><code>afterCompletion()</code></a>).
 
  <p>
- Any exceptions thrown will propagate to the caller.
- </p></div>
+ Any exceptions thrown will propagate to the caller.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/Transaction.Callback.html#afterCommit()">afterCommit</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a></code></dd>
@@ -283,8 +279,7 @@ implements <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title
  Typically used to clean up resources after transaction completion.
 
  <p>
- Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.
- </p></div>
+ Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/Transaction.Callback.html#afterCompletion(boolean)">afterCompletion</a></code>&nbsp;in interface&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core">Transaction.Callback</a></code></dd>

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SetSessionModeCommand (JSimpleDB 2.0.1 API)</title>
+<title>SetSessionModeCommand (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SetSessionModeCommand (JSimpleDB 2.0.1 API)";
+        parent.document.title="SetSessionModeCommand (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -100,12 +100,11 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;</dd>
+<dd><a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a>, <a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse">Parser</a>&lt;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&gt;</dd>
 </dl>
 <hr>
 <br>
-<pre><a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd">@Command</a>(<a href="../../../../org/jsimpledb/cli/cmd/Command.html#modes()">modes</a>={<a href="../../../../org/jsimpledb/SessionMode.html#KEY_VALUE">KEY_VALUE</a>,<a href="../../../../org/jsimpledb/SessionMode.html#CORE_API">CORE_API</a>,<a href="../../../../org/jsimpledb/SessionMode.html#JSIMPLEDB">JSIMPLEDB</a>})
-public class <span class="strong">SetSessionModeCommand</span>
+<pre>public class <span class="strong">SetSessionModeCommand</span>
 extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></pre>
 </li>
 </ul>
@@ -184,13 +183,19 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <div class="block">Convert parameter spec type name into a <a href="../../../../org/jsimpledb/parse/Parser.html" title="interface in org.jsimpledb.parse"><code>Parser</code></a>.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getSessionModes()">getSessionModes</a></strong>()</code>
+<div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this command.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.cli.cmd.AbstractCommand">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.cli.cmd.<a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></h3>
-<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getName()">getName</a>, <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getSessionModes()">getSessionModes</a>, <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getUsage()">getUsage</a>, <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#parse(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean)">parse</a></code></li>
+<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getName()">getName</a>, <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getUsage()">getUsage</a>, <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#parse(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean)">parse</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -241,6 +246,8 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <div class="block">Get summarized help (typically a single line).</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/cli/cmd/Command.html#getHelpSummary()">getHelpSummary</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a></code></dd>
+<dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getHelpSummary()">getHelpSummary</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></code></dd>
 <dt><span class="strong">Returns:</span></dt><dd>one line command summary</dd></dl>
 </li>
@@ -256,12 +263,34 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <div class="block">Get expanded help (typically multiple lines).
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a> delegates to <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getHelpSummary()"><code>getHelpSummary()</code></a>.
- </p></div>
+ The implementation in <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a> delegates to <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getHelpSummary()"><code>getHelpSummary()</code></a>.</div>
 <dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/cli/cmd/Command.html#getHelpDetail()">getHelpDetail</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a></code></dd>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getHelpDetail()">getHelpDetail</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></code></dd>
 <dt><span class="strong">Returns:</span></dt><dd>detailed command description</dd></dl>
+</li>
+</ul>
+<a name="getSessionModes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSessionModes</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;&nbsp;getSessionModes()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getSessionModes()">AbstractCommand</a></code></strong></div>
+<div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this command.
+
+ <p>
+ The implementation in <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a> returns an <a href="http://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util"><code>EnumSet</code></a> containing
+ <a href="../../../../org/jsimpledb/SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a> and <a href="../../../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a>.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/cli/cmd/Command.html#getSessionModes()">getSessionModes</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a></code></dd>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getSessionModes()">getSessionModes</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>set of supported <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>s</dd></dl>
 </li>
 </ul>
 <a name="getParser(java.lang.String)">
@@ -277,8 +306,7 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
  <p>
  The implementation in <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a> supports all <a href="../../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a>s registered with the
  database, <code>type</code> for an object type name (returns <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang"><code>Integer</code></a>), and <code>objid</code> for an object ID
- (returns <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a>).
- </p></div>
+ (returns <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a>).</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getParser(java.lang.String)">getParser</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></code></dd>

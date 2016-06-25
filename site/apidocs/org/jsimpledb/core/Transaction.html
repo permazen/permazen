@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Transaction (JSimpleDB 2.0.1 API)</title>
+<title>Transaction (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Transaction (JSimpleDB 2.0.1 API)";
+        parent.document.title="Transaction (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -107,11 +107,9 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  Note: this is the lower level, core API for <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>. In most cases this API
  will only be used indirectly through the higher level <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a>, <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a>,
  and <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> APIs.
- </p>
 
  <p>
  Methods in this class can be divided into the following categories:
- </p>
 
  <p>
  <b>Transaction Meta-Data</b>
@@ -226,8 +224,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  The <a href="../../../org/jsimpledb/util/NavigableSets.html" title="class in org.jsimpledb.util"><code>NavigableSets</code></a> utility class provides methods for the efficient <a href="../../../org/jsimpledb/util/NavigableSets.html#intersection(java.lang.Iterable)"><code>intersection</code></a>,
  <a href="../../../org/jsimpledb/util/NavigableSets.html#union(java.util.NavigableSet...)"><code>union</code></a>, <a href="../../../org/jsimpledb/util/NavigableSets.html#difference(java.util.NavigableSet, java.util.NavigableSet)"><code>difference</code></a>, and
  <a href="../../../org/jsimpledb/util/NavigableSets.html#symmetricDifference(java.util.NavigableSet, java.util.NavigableSet)"><code>symmetric difference</code></a> of <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a>s containing the same element type,
- thereby providing the equivalent of traditional database joins.
- </p></div>
+ thereby providing the equivalent of traditional database joins.</div>
 </li>
 </ul>
 </div>
@@ -810,8 +807,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  <b>Warning:</b> making changes to the key/value store directly is not supported. If any changes
- are made, all future behavior is undefined.
- </p></div>
+ are made, all future behavior is undefined.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the associated key/value transaction</dd></dl>
 </li>
 </ul>
@@ -935,8 +931,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  Note: if you are using Spring for transaction demarcation (via <a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring"><code>JSimpleDBTransactionManager</code></a>),
  then you may also use Spring's
- <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/TransactionSynchronizationManager.html?is-external=true#registerSynchronization(org.springframework.transaction.support.TransactionSynchronization)" title="class or interface in org.springframework.transaction.support"><code>TransactionSynchronizationManager.registerSynchronization()</code></a> instead of this method.
- </p></div>
+ <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/TransactionSynchronizationManager.html?is-external=true#registerSynchronization(org.springframework.transaction.support.TransactionSynchronization)" title="class or interface in org.springframework.transaction.support"><code>TransactionSynchronizationManager.registerSynchronization()</code></a> instead of this method.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>callback</code> - callback to invoke</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>callback</code> is null</dd>
@@ -971,8 +966,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  If the object doesn't already exist, all fields are set to their default values and the object's
- schema version is set to <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the version associated with this transaction</a>.
- </p></div>
+ schema version is set to <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the version associated with this transaction</a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if the object did not exist and was created, false if the object already existed</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -993,8 +987,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  If the object doesn't already exist, all fields are set to their default values and the object's
- schema version is set to the specified version.
- </p></div>
+ schema version is set to the specified version.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID</dd><dd><code>versionNumber</code> - schema version number to use for newly created object</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if the object did not exist and was created, false if the object already existed</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1015,8 +1008,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  All fields will be set to their default values.
- The object's schema version will be set to <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the version associated with this transaction</a>.
- </p></div>
+ The object's schema version will be set to <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the version associated with this transaction</a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - object type storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>object id of newly created object</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1036,8 +1028,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  All fields will be set to their default values.
- The object's schema version will be set to the specified version.
- </p></div>
+ The object's schema version will be set to the specified version.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - object type storage ID</dd><dd><code>versionNumber</code> - schema version number to use for newly created object</dd>
 <dt><span class="strong">Returns:</span></dt><dd>object id of newly created object</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1072,7 +1063,6 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  This method does <i>not</i> change the object's schema version if it has a different version that this transaction.
- </p>
 
  <p><b>Secondary Deletions</b></p>
 
@@ -1081,7 +1071,6 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  (a) if the object contains reference fields with <a href="../../../org/jsimpledb/core/ReferenceField.html#cascadeDelete">delete cascade</a> enabled,
  any objects referred to through those fields will also be deleted, and (b) if the object is referred to by any other objects
  through fields configured for <a href="../../../org/jsimpledb/core/DeleteAction.html#DELETE"><code>DeleteAction.DELETE</code></a>, those referring objects will be deleted.
- </p>
 
  <p>
  In any case, deletions occur one at a time, and only when an object is actually deleted are any associated secondary
@@ -1089,8 +1078,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  processed is unspecified. For an example of where this ordering matters, consider an object <code>A</code> referring to objects
  <code>B</code> and <code>C</code> with delete cascading references, where B also refers to C with a <a href="../../../org/jsimpledb/core/DeleteAction.html#EXCEPTION"><code>DeleteAction.EXCEPTION</code></a>
  reference. Then if <code>A</code> is deleted, it's indeterminate whether a <a href="../../../org/jsimpledb/core/ReferencedObjectException.html" title="class in org.jsimpledb.core"><code>ReferencedObjectException</code></a> will be thrown,
- as that depends on whether <code>B</code> or <code>C</code> is deleted first (with the answer being, respectively, no and yes).
- </p></div>
+ as that depends on whether <code>B</code> or <code>C</code> is deleted first (with the answer being, respectively, no and yes).</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object to delete</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if object was found and deleted, false if object was not found,
   or if <code>id</code> specifies an unknown object type</dd>
@@ -1112,8 +1100,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  This method does <i>not</i> change the object's schema version if it exists
- and has a different version that this transaction.
- </p></div>
+ and has a different version that this transaction.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object to find</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if object was found, false if object was not found, or if <code>id</code> specifies an unknown object type</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1136,7 +1123,6 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If necessary, <code>source</code> object is first upgraded to <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with
  this transaction</a>, which must be identical in this transaction and <code>dest</code>.
- </p>
 
  <p>
  Only the object's fields are copied; any other objects they reference are not copied. If the <code>target</code> object
@@ -1144,16 +1130,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  does exist in <code>dest</code>, it's schema version will be upgraded if necessary to match <code>source</code> (and any registered
  <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a>s notified).
  (Meaningful) changes to <code>target</code>'s fields generate change listener notifications.
- </p>
 
  <p>
  Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
  deadlock could result.
- </p>
 
  <p>
- If <code>dest</code> is this instance, and <code>source</code> equals <code>target</code>, no changes are made and false is returned.
- </p></div>
+ If <code>dest</code> is this instance, and <code>source</code> equals <code>target</code>, no changes are made and false is returned.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - object ID of the source object in this transaction</dd><dd><code>target</code> - object ID of the target object in <code>dest</code></dd><dd><code>dest</code> - destination transaction containing <code>target</code> (possibly same as this transaction)</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Returns:</span></dt><dd>false if object already existed in <code>dest</code>, true if <code>target</code> did not exist in <code>dest</code></dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1254,8 +1237,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  If a schema change occurs, any registered <a href="../../../org/jsimpledb/core/VersionChangeListener.html" title="interface in org.jsimpledb.core"><code>VersionChangeListener</code></a>s will be notified prior
- to this method returning.
- </p></div>
+ to this method returning.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object to delete</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if the object schema version was changed, otherwise false</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1320,12 +1302,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  The returned set includes objects from all schema versions. Use <a href="../../../org/jsimpledb/core/Transaction.html#queryVersion()"><code>queryVersion()</code></a> to
  find objects with a specific schema version.
- </p>
 
  <p>
  The returned set is mutable, with the exception that <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#add(E)" title="class or interface in java.util"><code>add()</code></a> is not supported.
- Deleting an element results in <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">deleting</a> the corresponding object.
- </p></div>
+ Deleting an element results in <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">deleting</a> the corresponding object.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>a live view of all database objects</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/Transaction.html#getAll(int)"><code>getAll(int)</code></a></dd></dl>
@@ -1342,8 +1322,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  The returned set is mutable, with the exception that <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true#add(E)" title="class or interface in java.util"><code>add()</code></a> is not supported.
- Deleting an element results in <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">deleting</a> the corresponding object.
- </p></div>
+ Deleting an element results in <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">deleting</a> the corresponding object.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - object type storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>a live view of all database objects having the specified storage ID</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1365,8 +1344,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
  <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
- reading the field.
- </p></div>
+ reading the field.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Returns:</span></dt><dd>value of the field in the object</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1394,8 +1372,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
  <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
- writing the field.
- </p></div>
+ writing the field.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a></dd><dd><code>value</code> - new value for the field</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
@@ -1422,8 +1399,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
  <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
- reading the field.
- </p></div>
+ reading the field.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Returns:</span></dt><dd>value of the counter in the object</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1451,8 +1427,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
  <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
- writing the field.
- </p></div>
+ writing the field.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a></dd><dd><code>value</code> - new counter value</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
@@ -1479,8 +1454,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
  <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary, prior to
- writing the field.
- </p></div>
+ writing the field.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a></dd><dd><code>offset</code> - offset value to add to counter value</dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></code> - if this transaction is no longer usable</dd>
@@ -1505,8 +1479,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
- <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.
- </p></div>
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Returns:</span></dt><dd>set field value</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1532,8 +1505,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
- <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.
- </p></div>
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Returns:</span></dt><dd>list field value</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1559,8 +1531,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  If <code>updateVersion</code> is true, the schema version of the object will be automatically changed to match
- <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.
- </p></div>
+ <a href="../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>, if necessary.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - object ID of the object</dd><dd><code>storageId</code> - storage ID of the <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a></dd><dd><code>updateVersion</code> - true to first automatically update the object's schema version, false to not change it</dd>
 <dt><span class="strong">Returns:</span></dt><dd>map field value</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1642,23 +1613,19 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  performs additional mutation(s) which are themselves being listened for, those notifications will also be delivered
  prior to the returning to the original caller. Therefore, care must be taken to avoid change notification dependency
  loops when listeners can themselves mutate fields, to avoid infinite loops.
- </p>
 
  <p>
  If a non-null <code>types</code> is provided, then only objects whose types have one of the specified storage ID's
  will trigger notifications to <code>listener</code>.
- </p>
 
  <p>
  A referring object may refer to the changed object through more than one actual path of references matching <code>path</code>;
  if so, it will still appear only once in the <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a> provided to the listener (this is of course required
  by set semantics).
- </p>
 
  <p>
  Although the reference back-tracking algorithm does consolidate multiple paths between the same two objects,
  be careful to avoid an explosion of notifications when objects in the <code>path</code> have a high degree of fan-in.
- </p>
 
  <p>
  When a <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a> in <code>path</code> also happens to be the field being changed, then there is ambiguity
@@ -1666,12 +1633,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  This API guarantees that the answer is "after the change"; however, if another listener on the same field is
  invoked before <code>listener</code> and mutates any reference field(s) in <code>path</code>, then whether that additional
  change is also be included in the calculation is undefined.
- </p>
 
  <p>
  Therefore, for consistency, avoid changing any <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a> from within a listener callback when that
- field is also in some other listener's reference path, and both listeners are watching the same field.
- </p></div>
+ field is also in some other listener's reference path, and both listeners are watching the same field.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> corresponding to <code>storageId</code> exists</dd>
@@ -1694,8 +1659,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> as seen through a path of references.
 
  <p>
- See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.
- </p></div>
+ See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> corresponding to <code>storageId</code> exists</dd>
@@ -1718,8 +1682,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> as seen through a path of references.
 
  <p>
- See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.
- </p></div>
+ See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> corresponding to <code>storageId</code> exists</dd>
@@ -1742,8 +1705,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Monitor for changes within this transaction to the specified <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> as seen through a path of references.
 
  <p>
- See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.
- </p></div>
+ See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>addSimpleFieldChangeListener()</code></a> for details on how notifications are delivered.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - storage ID of the field to monitor</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) through which to monitor field</dd><dd><code>types</code> - set of allowed storage IDs for the changed object, or null for no restriction</dd><dd><code>listener</code> - callback for notifications on changes in value</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/UnknownFieldException.html" title="class in org.jsimpledb.core">UnknownFieldException</a></code> - if no <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> corresponding to <code>storageId</code> exists</dd>
@@ -1864,17 +1826,14 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  The <code>storageId</code> may refer to any <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a>, whether part of an object or a sub-field
  of a <a href="../../../org/jsimpledb/core/ComplexField.html" title="class in org.jsimpledb.core"><code>ComplexField</code></a>.
- </p>
 
  <p>
  The returned index contains objects from all recorded schema versions for which the field is indexed;
  this method does not check whether any such schema versions exist.
- </p>
 
  <p>
  Only objects having schema versions in which the field is indexed will be found;
- this method does not check whether any such schema versions exist.
- </p></div>
+ this method does not check whether any such schema versions exist.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a>'s storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of field values mapped to sets of objects with the value in the field</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1894,8 +1853,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  The returned index contains objects from all recorded schema versions for which the list element field is indexed;
- this method does not check whether any such schema versions exist.
- </p></div>
+ this method does not check whether any such schema versions exist.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - <a href="../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a>'s storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of list element values, objects with the value in the list, and corresponding indicies</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1915,8 +1873,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  The returned index contains objects from all recorded schema versions for which the map value field is indexed;
- this method does not check whether any such schema versions exist.
- </p></div>
+ this method does not check whether any such schema versions exist.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - <a href="../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a>'s storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of map values, objects with the value in the map, and corresponding keys</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1934,8 +1891,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Access a composite index on two fields.
 
  <p>
- The returned index contains objects from all recorded schema versions in which the composite index is defined.
- </p></div>
+ The returned index contains objects from all recorded schema versions in which the composite index is defined.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - composite index's storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of the fields' values and the objects having those values in the fields</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1953,8 +1909,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Access a composite index on three fields.
 
  <p>
- The returned index contains objects from all recorded schema versions in which the composite index is defined.
- </p></div>
+ The returned index contains objects from all recorded schema versions in which the composite index is defined.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - composite index's storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of the fields' values and the objects having those values in the fields</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1972,8 +1927,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Access a composite index on four fields.
 
  <p>
- The returned index contains objects from all recorded schema versions in which the composite index is defined.
- </p></div>
+ The returned index contains objects from all recorded schema versions in which the composite index is defined.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - composite index's storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of the fields' values and the objects having those values in the fields</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -1991,8 +1945,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Access any composite index by storage ID, regardless of the number of fields indexed.
 
  <p>
- The returned index contains objects from all recorded schema versions in which the composite index is defined.
- </p></div>
+ The returned index contains objects from all recorded schema versions in which the composite index is defined.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageId</code> - composite index's storage ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>read-only, real-time view of the fields' values and the objects having those values in the fields</dd>
 <dt><span class="strong">Throws:</span></dt>

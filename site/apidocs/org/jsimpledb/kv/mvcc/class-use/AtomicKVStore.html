@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Interface org.jsimpledb.kv.mvcc.AtomicKVStore (JSimpleDB 2.0.1 API)</title>
+<title>Uses of Interface org.jsimpledb.kv.mvcc.AtomicKVStore (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Interface org.jsimpledb.kv.mvcc.AtomicKVStore (JSimpleDB 2.0.1 API)";
+        parent.document.title="Uses of Interface org.jsimpledb.kv.mvcc.AtomicKVStore (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -75,15 +75,27 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="#org.jsimpledb.app">org.jsimpledb.app</a></td>
+<td class="colFirst"><a href="#org.jsimpledb.kv">org.jsimpledb.kv</a></td>
 <td class="colLast">
-<div class="block">Support for JSimpleDB command line applications.</div>
+<div class="block"><code>byte[]</code> array key/value store API and related utility classes.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.array">org.jsimpledb.kv.array</a></td>
 <td class="colLast">
 <div class="block">A simple <a href="../../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.bdb">org.jsimpledb.kv.bdb</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on Oracle's Berkeley DB Java Edition.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.fdb">org.jsimpledb.kv.fdb</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on FoundationDB.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -111,6 +123,24 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.simple">org.jsimpledb.kv.simple</a></td>
+<td class="colLast">
+<div class="block">A simple in-memory implementation of the <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.sql">org.jsimpledb.kv.sql</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.sqlite">org.jsimpledb.kv.sqlite</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on SQLite.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.test">org.jsimpledb.kv.test</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB key/value unit test support classes.</div>
@@ -121,12 +151,12 @@
 </li>
 <li class="blockList">
 <ul class="blockList">
-<li class="blockList"><a name="org.jsimpledb.app">
+<li class="blockList"><a name="org.jsimpledb.kv">
 <!--   -->
 </a>
-<h3>Uses of <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> in <a href="../../../../../org/jsimpledb/app/package-summary.html">org.jsimpledb.app</a></h3>
+<h3>Uses of <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> in <a href="../../../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a></h3>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
-<caption><span>Methods in <a href="../../../../../org/jsimpledb/app/package-summary.html">org.jsimpledb.app</a> that return <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a> that return <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -134,7 +164,26 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></code></td>
-<td class="colLast"><span class="strong">AbstractMain.DBType.</span><code><strong><a href="../../../../../org/jsimpledb/app/AbstractMain.DBType.html#createAtomicKVStore()">createAtomicKVStore</a></strong>()</code>&nbsp;</td>
+<td class="colLast"><span class="strong">KVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/KVImplementation.html#createAtomicKVStore(java.lang.Object)">createAtomicKVStore</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration)</code>
+<div class="block">Create an <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> using the specified configuration.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>abstract <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></td>
+<td class="colLast"><span class="strong">KVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/KVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>
+<div class="block">Create an <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> using the specified configuration.</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -158,6 +207,61 @@
 </tr>
 </tbody>
 </table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/array/package-summary.html">org.jsimpledb.kv.array</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/array/ArrayKVDatabase.html" title="class in org.jsimpledb.kv.array">ArrayKVDatabase</a></code></td>
+<td class="colLast"><span class="strong">ArrayKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/array/ArrayKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.bdb">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> in <a href="../../../../../org/jsimpledb/kv/bdb/package-summary.html">org.jsimpledb.kv.bdb</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/bdb/package-summary.html">org.jsimpledb.kv.bdb</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" title="class in org.jsimpledb.kv.bdb">BerkeleyKVDatabase</a></code></td>
+<td class="colLast"><span class="strong">BerkeleyKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/bdb/BerkeleyKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.fdb">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> in <a href="../../../../../org/jsimpledb/kv/fdb/package-summary.html">org.jsimpledb.kv.fdb</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/fdb/package-summary.html">org.jsimpledb.kv.fdb</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a></code></td>
+<td class="colLast"><span class="strong">FoundationKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/fdb/FoundationKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
 </li>
 <li class="blockList"><a name="org.jsimpledb.kv.leveldb">
 <!--   -->
@@ -175,6 +279,21 @@
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/leveldb/LevelDBAtomicKVStore.html" title="class in org.jsimpledb.kv.leveldb">LevelDBAtomicKVStore</a></strong></code>
 <div class="block">An <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of a LevelDB database.</div>
 </td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/leveldb/package-summary.html">org.jsimpledb.kv.leveldb</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/leveldb/LevelDBKVDatabase.html" title="class in org.jsimpledb.kv.leveldb">LevelDBKVDatabase</a></code></td>
+<td class="colLast"><span class="strong">LevelDBKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/leveldb/LevelDBKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
 </tr>
 </tbody>
 </table>
@@ -255,6 +374,12 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></td>
+<td class="colLast"><span class="strong">RaftKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/raft/RaftKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">RaftKVDatabase.</span><code><strong><a href="../../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#setKVStore(org.jsimpledb.kv.mvcc.AtomicKVStore)">setKVStore</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>
 <div class="block">Configure the <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> in which local persistent state is stored.</div>
@@ -279,6 +404,87 @@
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/rocksdb/RocksDBAtomicKVStore.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBAtomicKVStore</a></strong></code>
 <div class="block">An <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a> view of a RocksDB database.</div>
 </td>
+</tr>
+</tbody>
+</table>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/rocksdb/RocksDBKVDatabase.html" title="class in org.jsimpledb.kv.rocksdb">RocksDBKVDatabase</a></code></td>
+<td class="colLast"><span class="strong">RocksDBKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/rocksdb/RocksDBKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.simple">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> in <a href="../../../../../org/jsimpledb/kv/simple/package-summary.html">org.jsimpledb.kv.simple</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/simple/package-summary.html">org.jsimpledb.kv.simple</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple">XMLKVDatabase</a></code></td>
+<td class="colLast"><span class="strong">XMLKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/simple/XMLKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></code></td>
+<td class="colLast"><span class="strong">MemoryKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/simple/MemoryKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.sql">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> in <a href="../../../../../org/jsimpledb/kv/sql/package-summary.html">org.jsimpledb.kv.sql</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/sql/package-summary.html">org.jsimpledb.kv.sql</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></td>
+<td class="colLast"><span class="strong">SQLDriverKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/sql/SQLDriverKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.sqlite">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a> in <a href="../../../../../org/jsimpledb/kv/sqlite/package-summary.html">org.jsimpledb.kv.sqlite</a></h3>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../../../org/jsimpledb/kv/sqlite/package-summary.html">org.jsimpledb.kv.sqlite</a> with parameters of type <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/sqlite/SQLiteKVDatabase.html" title="class in org.jsimpledb.kv.sqlite">SQLiteKVDatabase</a></code></td>
+<td class="colLast"><span class="strong">SQLiteKVImplementation.</span><code><strong><a href="../../../../../org/jsimpledb/kv/sqlite/SQLiteKVImplementation.html#createKVDatabase(java.lang.Object, org.jsimpledb.kv.KVDatabase, org.jsimpledb.kv.mvcc.AtomicKVStore)">createKVDatabase</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;configuration,
+                <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;kvdb,
+                <a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc">AtomicKVStore</a>&nbsp;kvstore)</code>&nbsp;</td>
 </tr>
 </tbody>
 </table>

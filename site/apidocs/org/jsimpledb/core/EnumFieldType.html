@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>EnumFieldType (JSimpleDB 2.0.1 API)</title>
+<title>EnumFieldType (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="EnumFieldType (JSimpleDB 2.0.1 API)";
+        parent.document.title="EnumFieldType (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -116,11 +116,9 @@ extends <a href="../../../org/jsimpledb/core/NullSafeType.html" title="class in 
  <p>
  Each <a href="../../../org/jsimpledb/core/EnumFieldType.html" title="class in org.jsimpledb.core"><code>EnumFieldType</code></a> instance has an ordered list of <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> identifiers; two <a href="../../../org/jsimpledb/core/EnumFieldType.html" title="class in org.jsimpledb.core"><code>EnumFieldType</code></a>
  instances are not compatible unless they have identical identifier lists. The identifiers must be valid Java identifiers.
- </p>
 
  <p>
- Null values are supported by this class.
- </p></div>
+ Null values are supported by this class.</div>
 </li>
 </ul>
 </div>
@@ -371,8 +369,7 @@ extends <a href="../../../org/jsimpledb/core/NullSafeType.html" title="class in 
 
  <p>
  If <code>name</code> is the name of an <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> class with matching identifiers, then it will
- associated with the created instance and returned by its <a href="../../../org/jsimpledb/core/EnumFieldType.html#getEnumType()"><code>getEnumType()</code></a> method.
- </p></div>
+ associated with the created instance and returned by its <a href="../../../org/jsimpledb/core/EnumFieldType.html#getEnumType()"><code>getEnumType()</code></a> method.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - name of the type</dd><dd><code>idents</code> - ordered list of identifiers</dd>
 <dt><span class="strong">Returns:</span></dt><dd>an <a href="../../../org/jsimpledb/core/EnumFieldType.html" title="class in org.jsimpledb.core"><code>EnumFieldType</code></a> based on the specified <code>idents</code></dd>
 <dt><span class="strong">Throws:</span></dt>

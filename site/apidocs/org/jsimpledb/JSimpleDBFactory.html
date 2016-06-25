@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JSimpleDBFactory (JSimpleDB 2.0.1 API)</title>
+<title>JSimpleDBFactory (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JSimpleDBFactory (JSimpleDB 2.0.1 API)";
+        parent.document.title="JSimpleDBFactory (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -101,8 +101,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  If no <a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> is configured, newly created <a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> instances will use an initially empty,
- in-memory <a href="../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a>.
- </p></div>
+ in-memory <a href="../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a>.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a></dd></dl>
 </li>
 </ul>
@@ -234,8 +233,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  Note: <a href="../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>-annotated super-types of any
- class in <code>modelClasses</code> will be included, even if the super-type is not explicitly specified in <code>modelClasses</code>.
- </p></div>
+ class in <code>modelClasses</code> will be included, even if the super-type is not explicitly specified in <code>modelClasses</code>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>modelClasses</code> - classes annotated with <a href="../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a> annotations</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this instance</dd></dl>
 </li>
@@ -250,8 +248,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Configure the Java model classes.
 
  <p>
- Equivalent to <a href="../../org/jsimpledb/JSimpleDBFactory.html#setModelClasses(java.lang.Iterable)"><code>setModelClasses</code></a><code>(Arrays.asList(modelClasses))</code>.
- </p></div>
+ Equivalent to <a href="../../org/jsimpledb/JSimpleDBFactory.html#setModelClasses(java.lang.Iterable)"><code>setModelClasses</code></a><code>(Arrays.asList(modelClasses))</code>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>modelClasses</code> - classes annotated with <a href="../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a> annotations</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this instance</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../org/jsimpledb/JSimpleDBFactory.html#setModelClasses(java.lang.Iterable)"><code>setModelClasses(Iterable)</code></a></dd></dl>
 </li>
@@ -266,8 +263,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Configure the underlying <a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> for this instance.
 
  <p>
- By default this instance will use an initially empty, in-memory <a href="../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a>.
- </p></div>
+ By default this instance will use an initially empty, in-memory <a href="../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>database</code> - core API database to use</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this instance</dd></dl>
 </li>
@@ -284,8 +280,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  A value of zero means to use whatever is the highest version already recorded in the database.
  However, if this instance has no <a href="../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> configured, then an empty
- <a href="../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a> is used and therefore a schema version of <code>1</code> is assumed.
- </p></div>
+ <a href="../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a> is used and therefore a schema version of <code>1</code> is assumed.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>schemaVersion</code> - the schema version number of the schema derived from the configured Java model classes,
   or zero to default to the highest version already recorded in the database</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this instance</dd></dl>
@@ -304,8 +299,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  This instance will initially be configured with a <a href="../../org/jsimpledb/DefaultStorageIdGenerator.html" title="class in org.jsimpledb"><code>DefaultStorageIdGenerator</code></a>.
- To disable auto-generation of storage ID's altogether, configure a null value here.
- </p></div>
+ To disable auto-generation of storage ID's altogether, configure a null value here.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>storageIdGenerator</code> - storage ID generator, or null to disable auto-generation of storage ID's</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this instance</dd></dl>
 </li>

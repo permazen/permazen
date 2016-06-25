@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Package org.jsimpledb.kv.mvcc (JSimpleDB 2.0.1 API)</title>
+<title>Uses of Package org.jsimpledb.kv.mvcc (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Package org.jsimpledb.kv.mvcc (JSimpleDB 2.0.1 API)";
+        parent.document.title="Uses of Package org.jsimpledb.kv.mvcc (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -75,15 +75,27 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="#org.jsimpledb.app">org.jsimpledb.app</a></td>
+<td class="colFirst"><a href="#org.jsimpledb.kv">org.jsimpledb.kv</a></td>
 <td class="colLast">
-<div class="block">Support for JSimpleDB command line applications.</div>
+<div class="block"><code>byte[]</code> array key/value store API and related utility classes.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.array">org.jsimpledb.kv.array</a></td>
 <td class="colLast">
 <div class="block">A simple <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> implementation based on a sorted array of key/value pairs.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.bdb">org.jsimpledb.kv.bdb</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on Oracle's Berkeley DB Java Edition.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.fdb">org.jsimpledb.kv.fdb</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on FoundationDB.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -117,12 +129,30 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.simple">org.jsimpledb.kv.simple</a></td>
+<td class="colLast">
+<div class="block">A simple in-memory implementation of the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.sql">org.jsimpledb.kv.sql</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.sqlite">org.jsimpledb.kv.sqlite</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on SQLite.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.test">org.jsimpledb.kv.test</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB key/value unit test support classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.util">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
@@ -131,17 +161,17 @@
 </tbody>
 </table>
 </li>
-<li class="blockList"><a name="org.jsimpledb.app">
+<li class="blockList"><a name="org.jsimpledb.kv">
 <!--   -->
 </a>
 <table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
-<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> used by <a href="../../../../org/jsimpledb/app/package-summary.html">org.jsimpledb.app</a></span><span class="tabEnd">&nbsp;</span></caption>
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> used by <a href="../../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a></span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colOne" scope="col">Class and Description</th>
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/AtomicKVStore.html#org.jsimpledb.app">AtomicKVStore</a>
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/AtomicKVStore.html#org.jsimpledb.kv">AtomicKVStore</a>
 <div class="block">Extension of the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> interface for implementations that support atomic, batched reads and writes.</div>
 </td>
 </tr>
@@ -182,6 +212,40 @@
 <tr class="altColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/SnapshotVersion.html#org.jsimpledb.kv.array">SnapshotVersion</a>
 <div class="block">Represents one <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVDatabase</code></a> MVCC version.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.bdb">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> used by <a href="../../../../org/jsimpledb/kv/bdb/package-summary.html">org.jsimpledb.kv.bdb</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/AtomicKVStore.html#org.jsimpledb.kv.bdb">AtomicKVStore</a>
+<div class="block">Extension of the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> interface for implementations that support atomic, batched reads and writes.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.fdb">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> used by <a href="../../../../org/jsimpledb/kv/fdb/package-summary.html">org.jsimpledb.kv.fdb</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/AtomicKVStore.html#org.jsimpledb.kv.fdb">AtomicKVStore</a>
+<div class="block">Extension of the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> interface for implementations that support atomic, batched reads and writes.</div>
 </td>
 </tr>
 </tbody>
@@ -369,6 +433,57 @@
 <tr class="altColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/SnapshotVersion.html#org.jsimpledb.kv.rocksdb">SnapshotVersion</a>
 <div class="block">Represents one <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVDatabase.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVDatabase</code></a> MVCC version.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.simple">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> used by <a href="../../../../org/jsimpledb/kv/simple/package-summary.html">org.jsimpledb.kv.simple</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/AtomicKVStore.html#org.jsimpledb.kv.simple">AtomicKVStore</a>
+<div class="block">Extension of the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> interface for implementations that support atomic, batched reads and writes.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.sql">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> used by <a href="../../../../org/jsimpledb/kv/sql/package-summary.html">org.jsimpledb.kv.sql</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/AtomicKVStore.html#org.jsimpledb.kv.sql">AtomicKVStore</a>
+<div class="block">Extension of the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> interface for implementations that support atomic, batched reads and writes.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.sqlite">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/kv/mvcc/package-summary.html">org.jsimpledb.kv.mvcc</a> used by <a href="../../../../org/jsimpledb/kv/sqlite/package-summary.html">org.jsimpledb.kv.sqlite</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/kv/mvcc/class-use/AtomicKVStore.html#org.jsimpledb.kv.sqlite">AtomicKVStore</a>
+<div class="block">Extension of the <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> interface for implementations that support atomic, batched reads and writes.</div>
 </td>
 </tr>
 </tbody>

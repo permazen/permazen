@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Package org.jsimpledb.cli.cmd (JSimpleDB 2.0.1 API)</title>
+<title>Uses of Package org.jsimpledb.cli.cmd (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Package org.jsimpledb.cli.cmd (JSimpleDB 2.0.1 API)";
+        parent.document.title="Uses of Package org.jsimpledb.cli.cmd (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -83,7 +83,13 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.cli.cmd">org.jsimpledb.cli.cmd</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+<div class="block">JSimpleDB CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.raft.cmd">org.jsimpledb.kv.raft.cmd</a></td>
+<td class="colLast">
+<div class="block">Raft-related CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s.</div>
 </td>
 </tr>
 </tbody>
@@ -99,8 +105,8 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/AbstractCommand.html#org.jsimpledb.cli">AbstractCommand</a>
-<div class="block">Superclass of all CLI commands.</div>
+<td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/Command.html#org.jsimpledb.cli">Command</a>
+<div class="block"><a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> command.</div>
 </td>
 </tr>
 </tbody>
@@ -117,24 +123,37 @@
 <tbody>
 <tr class="altColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/AbstractCommand.html#org.jsimpledb.cli.cmd">AbstractCommand</a>
-<div class="block">Superclass of all CLI commands.</div>
+<div class="block">Support superclass for CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> implementations.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/AbstractKVCommand.html#org.jsimpledb.cli.cmd">AbstractKVCommand</a>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/AbstractRaftCommand.html#org.jsimpledb.cli.cmd">AbstractRaftCommand</a>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/AbstractRaftCommand.RaftAction.html#org.jsimpledb.cli.cmd">AbstractRaftCommand.RaftAction</a>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/AbstractTransactionRaftCommand.html#org.jsimpledb.cli.cmd">AbstractTransactionRaftCommand</a>&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/Command.html#org.jsimpledb.cli.cmd">Command</a>
-<div class="block">Java annotation for classes that define custom <a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> commands.</div>
+<div class="block"><a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> command.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.raft.cmd">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../../org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a> used by <a href="../../../../org/jsimpledb/kv/raft/cmd/package-summary.html">org.jsimpledb.kv.raft.cmd</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/AbstractCommand.html#org.jsimpledb.kv.raft.cmd">AbstractCommand</a>
+<div class="block">Support superclass for CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> implementations.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../../org/jsimpledb/cli/cmd/class-use/Command.html#org.jsimpledb.kv.raft.cmd">Command</a>
+<div class="block"><a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> command.</div>
 </td>
 </tr>
 </tbody>

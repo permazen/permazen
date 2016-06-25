@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>OnChange (JSimpleDB 2.0.1 API)</title>
+<title>OnChange (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="OnChange (JSimpleDB 2.0.1 API)";
+        parent.document.title="OnChange (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -102,21 +102,18 @@ public @interface <span class="strong">OnChange</span></pre>
  taking a <a href="../../../org/jsimpledb/change/SetFieldChange.html" title="class in org.jsimpledb.change"><code>SetFieldChange</code></a> will receive notifications about all changes to a set field,
  while a method taking a <a href="../../../org/jsimpledb/change/SetFieldAdd.html" title="class in org.jsimpledb.change"><code>SetFieldAdd</code></a> will receive notification only when an element
  is added to the set.
- </p>
 
  <p>
  Multiple reference paths may be specified; if so, all of the specified paths are monitored together, and they all
  must emit <a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change"><code>FieldChange</code></a>s compatible with the method's parameter type. Therefore, when
  mutiple fields are monitored, the method's parameter type may need to be widened (either in raw type, generic type
  parameters, or both).
- </p>
 
  <p>
  As a special case, if zero fields are specified, then "wildcard" monitoring of every field in the local object occurs.
  However in this case, only fields that emit changes compatible with the method's parameter type will be monitored.
  So for example, a method taking a <a href="../../../org/jsimpledb/change/SetFieldChange.html" title="class in org.jsimpledb.change"><code>SetFieldChange</code></a> would receive notifications about
  changes to all <code>Set</code> fields in the class, but not any other fields.
- </p>
 
  <p><b>Instance vs. Static Methods</b></p>
 
@@ -124,18 +121,15 @@ public @interface <span class="strong">OnChange</span></pre>
  If the method is an instance method, then <a href="../../../org/jsimpledb/annotation/OnChange.html#startType()"><code>startType()</code></a> must be left unset; if the instance is a static
  method, then <a href="../../../org/jsimpledb/annotation/OnChange.html#startType()"><code>startType()</code></a> may be explicitly set, or if left unset it defaults to the class containing
  the annotated method.
- </p>
 
  <p>
  For an instance method, the method will be invoked on <i>each object</i> for which the changed field is
  found at the end of the specified reference path <i>starting from that object</i>.
- </p>
 
  <p>
  If the annotated method is a static method, the method is invoked <i>once</i> if any instance exists for which the
  changed field is found at the end of the specified reference path, no matter how many such instances there are.
  Otherwise the behavior is the same.
- </p>
 
  <p><b>Notification Delivery</b></p>
 
@@ -146,30 +140,25 @@ public @interface <span class="strong">OnChange</span></pre>
  are also handled prior to returning to the original caller. Therefore, infinite loops are possible if an
  <a href="../../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> handler method modifies the field it's monitoring (directly, or indirectly via
  other <a href="../../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> handler methods).
- </p>
 
  <p>
  <a href="../../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> functions within a single transaction; it does not notify about changes that
  may have occurred in a different transaction.
- </p>
 
  <p><b>Other Notes</b></p>
 
  <p>
  No notifications are delivered for "changes" that do not actually change anything (e.g., setting a simple field to
  the value already contained in that field, or adding an element to a set which is already contained in the set).
- </p>
 
  <p>
  For any given field change and path, only one notification will be delivered per recipient object, even if the changed field
  is seen through the path in multiple ways (e.g., via reference path <code>"mylist.element.myfield"</code> where the changed object
  containing <code>myfield</code> appears multiple times in <code>mylist</code>).
- </p>
 
  <p>
  See <a href="../../../org/jsimpledb/core/Transaction.html#addSimpleFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.SimpleFieldChangeListener)"><code>Transaction.addSimpleFieldChangeListener()</code></a>
- for further information on other special corner cases.
- </p></div>
+ for further information on other special corner cases.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/ReferencePath.html" title="class in org.jsimpledb"><code>ReferencePath</code></a>, 
 <a href="../../../org/jsimpledb/change/package-summary.html"><code>org.jsimpledb.change</code></a></dd></dl>
 </li>

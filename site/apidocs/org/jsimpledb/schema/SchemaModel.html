@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SchemaModel (JSimpleDB 2.0.1 API)</title>
+<title>SchemaModel (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SchemaModel (JSimpleDB 2.0.1 API)";
+        parent.document.title="SchemaModel (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -278,8 +278,7 @@ implements <a href="../../../org/jsimpledb/schema/XMLConstants.html" title="inte
 <div class="block">Serialize an instance to the given XML output.
 
  <p>
- The <code>output</code> is not closed by this method.
- </p></div>
+ The <code>output</code> is not closed by this method.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>output</code> - XML output</dd><dd><code>indent</code> - true to pretty print the XML</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurs</dd></dl>
@@ -314,8 +313,7 @@ implements <a href="../../../org/jsimpledb/schema/XMLConstants.html" title="inte
  <p>
  This performs some basic structural validation. Full validation is not possible without a
  <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> instance (for example, we don't know whether or not a custom
- <a href="../../../org/jsimpledb/schema/SimpleSchemaField.html" title="class in org.jsimpledb.schema"><code>SimpleSchemaField</code></a> type name is registered with the associated <a href="../../../org/jsimpledb/core/FieldTypeRegistry.html" title="class in org.jsimpledb.core"><code>FieldTypeRegistry</code></a>).
- </p></div>
+ <a href="../../../org/jsimpledb/schema/SimpleSchemaField.html" title="class in org.jsimpledb.schema"><code>SimpleSchemaField</code></a> type name is registered with the associated <a href="../../../org/jsimpledb/core/FieldTypeRegistry.html" title="class in org.jsimpledb.core"><code>FieldTypeRegistry</code></a>).</div>
 <dl><dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/InvalidSchemaException.html" title="class in org.jsimpledb.core">InvalidSchemaException</a></code> - if this instance is detected to be invalid</dd></dl>
 </li>

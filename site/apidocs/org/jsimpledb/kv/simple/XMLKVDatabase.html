@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>XMLKVDatabase (JSimpleDB 2.0.1 API)</title>
+<title>XMLKVDatabase (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="XMLKVDatabase (JSimpleDB 2.0.1 API)";
+        parent.document.title="XMLKVDatabase (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -36,7 +36,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../org/jsimpledb/kv/simple/XMLKVTransaction.html" title="class in org.jsimpledb.kv.simple"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/simple/XMLKVImplementation.html" title="class in org.jsimpledb.kv.simple"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html" target="_top">Frames</a></li>
@@ -399,8 +399,7 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
 
  <p>
  The implementation in <a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>XMLKVDatabase</code></a> opens and returns the <a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io"><code>File</code></a> configured by
- <a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html#setInitialContentFile(java.io.File)"><code>setInitialContentFile()</code></a>, if any, otherwise null.
- </p></div>
+ <a href="../../../../org/jsimpledb/kv/simple/XMLKVDatabase.html#setInitialContentFile(java.io.File)"><code>setInitialContentFile()</code></a>, if any, otherwise null.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>default initial XML database content, or null for none</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an error occurs accessing the initial content file</dd></dl>
@@ -468,8 +467,7 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
 <div class="block">Forcibly reload this database by re-reading the XML file.
 
  <p>
- Any transactions that are in-progress when this method is called immediately become unusable.
- </p></div>
+ Any transactions that are in-progress when this method is called immediately become unusable.</div>
 </li>
 </ul>
 <a name="getGeneration()">
@@ -512,11 +510,9 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
  methods of the <a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVTransaction</code></a> associated with this instance. This allows for any checks which depend on
  a consistent view of the transaction and database together. This instance's lock will be held when this method is invoked.
  Note: transaction state is also protected by this instance's lock.
- </p>
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a> does nothing.
- </p></div>
+ The implementation in <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a> does nothing.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#checkState(org.jsimpledb.kv.simple.SimpleKVTransaction)">checkState</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></code></dd>
@@ -537,16 +533,13 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
  <p>
  <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a> guarantees this method and <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#preCommit(org.jsimpledb.kv.simple.SimpleKVTransaction)"><code>preCommit()</code></a> will be invoked in matching pairs,
  and that this instance will be locked when these methods are invoked.
- </p>
 
  <p>
  This method is invoked even if the underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> throws an exception while changes were being written to it.
  In that case, <code>successful</code> will be false.
- </p>
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a> does nothing.
- </p></div>
+ The implementation in <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple"><code>SimpleKVDatabase</code></a> does nothing.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html#postCommit(org.jsimpledb.kv.simple.SimpleKVTransaction, boolean)">postCommit</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></code></dd>
@@ -599,7 +592,7 @@ extends <a href="../../../../org/jsimpledb/kv/simple/SimpleKVDatabase.html" titl
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../org/jsimpledb/kv/simple/SimpleKVTransaction.html" title="class in org.jsimpledb.kv.simple"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../org/jsimpledb/kv/simple/XMLKVTransaction.html" title="class in org.jsimpledb.kv.simple"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/simple/XMLKVImplementation.html" title="class in org.jsimpledb.kv.simple"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/kv/simple/XMLKVDatabase.html" target="_top">Frames</a></li>

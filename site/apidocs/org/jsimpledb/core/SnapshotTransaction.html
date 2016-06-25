@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SnapshotTransaction (JSimpleDB 2.0.1 API)</title>
+<title>SnapshotTransaction (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SnapshotTransaction (JSimpleDB 2.0.1 API)";
+        parent.document.title="SnapshotTransaction (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -252,8 +252,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <div class="block">Delete all objects contained in this snapshot transaction.
 
  <p>
- It will contain schema meta-data but no objects.
- </p></div>
+ It will contain schema meta-data but no objects.</div>
 </li>
 </ul>
 <a name="commit()">
@@ -266,8 +265,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <div class="block">Commit this transaction.
 
  <p>
- <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s do not support this method and will always throw <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.
- </p></div>
+ <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s do not support this method and will always throw <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/Transaction.html#commit()">commit</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></dd>
@@ -285,8 +283,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <div class="block">Roll back this transaction.
 
  <p>
- <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s do not support this method and will always throw <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.
- </p></div>
+ <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s do not support this method and will always throw <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/Transaction.html#rollback()">rollback</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></dd>
@@ -305,8 +302,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 
  <p>
  <a href="../../../org/jsimpledb/core/Transaction.Callback.html" title="interface in org.jsimpledb.core"><code>Transaction.Callback</code></a>s registered with a <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a> will by definition never be invoked.
- Therefore, this method simply discards <code>callback</code>.
- </p></div>
+ Therefore, this method simply discards <code>callback</code>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/Transaction.html#addCallback(org.jsimpledb.core.Transaction.Callback)">addCallback</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></dd>
@@ -323,8 +319,7 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <div class="block">Determine whether this transaction is still valid.
 
  <p>
- <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s are always valid.
- </p></div>
+ <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>s are always valid.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/Transaction.html#isValid()">isValid</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></dd>

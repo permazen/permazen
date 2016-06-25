@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ObjIdBiMultiMap (JSimpleDB 2.0.1 API)</title>
+<title>ObjIdBiMultiMap (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ObjIdBiMultiMap (JSimpleDB 2.0.1 API)";
+        parent.document.title="ObjIdBiMultiMap (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -102,11 +102,9 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  Instances can be thought of as containing a set of <i>source, target</i> ordered pairs.
  The many-to-many mapping can be efficiently queried and modified from either direction.
- </p>
 
  <p>
- Instances of this class are thread-safe.
- </p></div>
+ Instances of this class are thread-safe.</div>
 </li>
 </ul>
 </div>
@@ -360,8 +358,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Get all sources associated with this instance that have one or more associated targets.
 
  <p>
- The returned <a href="../../../../org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util"><code>ObjIdSet</code></a> is mutable, but changes to it do not affect this instance.
- </p></div>
+ The returned <a href="../../../../org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util"><code>ObjIdSet</code></a> is mutable, but changes to it do not affect this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>all source ID's associated with this instance, possibly empty</dd></dl>
 </li>
 </ul>
@@ -375,8 +372,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Get all targets associated with this instance that have one or more associated sources.
 
  <p>
- The returned <a href="../../../../org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util"><code>ObjIdSet</code></a> is mutable, but changes to it do not affect this instance.
- </p></div>
+ The returned <a href="../../../../org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util"><code>ObjIdSet</code></a> is mutable, but changes to it do not affect this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>all targets ID's associated with this instance, possibly empty</dd></dl>
 </li>
 </ul>
@@ -390,8 +386,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Get the sources associated with the given target, if any.
 
  <p>
- The returned <a href="../../../../org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util"><code>ObjIdSet</code></a> is mutable, but changes to it do not affect this instance.
- </p></div>
+ The returned <a href="../../../../org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util"><code>ObjIdSet</code></a> is mutable, but changes to it do not affect this instance.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>target</code> - target ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>one or more source ID's associated with <code>target</code>, or null if there are none</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -408,8 +403,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Get the targets associated with the given source, if any.
 
  <p>
- The returned <a href="../../../../org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util"><code>ObjIdSet</code></a> is mutable, but changes to it do not affect this instance.
- </p></div>
+ The returned <a href="../../../../org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util"><code>ObjIdSet</code></a> is mutable, but changes to it do not affect this instance.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - source ID</dd>
 <dt><span class="strong">Returns:</span></dt><dd>one or more target ID's associated with <code>source</code>, or null if there are none</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -554,11 +548,9 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  The returned <a href="../../../../org/jsimpledb/core/util/ObjIdBiMultiMap.html" title="class in org.jsimpledb.core.util"><code>ObjIdBiMultiMap</code></a> is a <i>view</i> in which sources become targets and vice-versa;
  any changes are reflected back in this instance.
- </p>
 
  <p>
- This method is efficient, requiring only constant time.
- </p></div>
+ This method is efficient, requiring only constant time.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>inverse view of this instance</dd></dl>
 </li>
 </ul>

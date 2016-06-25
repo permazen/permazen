@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Transaction.Callback (JSimpleDB 2.0.1 API)</title>
+<title>Transaction.Callback (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Transaction.Callback (JSimpleDB 2.0.1 API)";
+        parent.document.title="Transaction.Callback (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -101,8 +101,7 @@
  and are executed in the order registered, in the same thread that just committed (or rolled back) the transaction.
 
  <p>
- Modeled after Spring's <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html?is-external=true" title="class or interface in org.springframework.transaction.support"><code>TransactionSynchronization</code></a> interface.
- </p></div>
+ Modeled after Spring's <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html?is-external=true" title="class or interface in org.springframework.transaction.support"><code>TransactionSynchronization</code></a> interface.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/core/Transaction.html#addCallback(org.jsimpledb.core.Transaction.Callback)"><code>Transaction.addCallback()</code></a></dd></dl>
 </li>
 </ul>
@@ -172,8 +171,7 @@
  This method is invoked when a transaction is intended to be committed; it may however still be rolled back.
 
  <p>
- Any exceptions thrown will result in a transaction rollback and be propagated to the caller.
- </p></div>
+ Any exceptions thrown will result in a transaction rollback and be propagated to the caller.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>readOnly</code> - true if the transaction <a href="../../../org/jsimpledb/core/Transaction.html#isReadOnly()">is marked read-only</a></dd></dl>
 </li>
 </ul>
@@ -190,8 +188,7 @@
  Typically used to clean up resources before transaction completion.
 
  <p>
- Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.
- </p></div>
+ Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.</div>
 </li>
 </ul>
 <a name="afterCommit()">
@@ -204,8 +201,7 @@
 <div class="block">Invoked after successful transaction commit (and before <a href="../../../org/jsimpledb/core/Transaction.Callback.html#afterCompletion(boolean)"><code>afterCompletion()</code></a>).
 
  <p>
- Any exceptions thrown will propagate to the caller.
- </p></div>
+ Any exceptions thrown will propagate to the caller.</div>
 </li>
 </ul>
 <a name="afterCompletion(boolean)">
@@ -220,8 +216,7 @@
  Typically used to clean up resources after transaction completion.
 
  <p>
- Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.
- </p></div>
+ Any exceptions thrown will be logged but will <b>not</b> propagate to the caller.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>committed</code> - true if transaction was commited, false if transaction was rolled back</dd></dl>
 </li>
 </ul>

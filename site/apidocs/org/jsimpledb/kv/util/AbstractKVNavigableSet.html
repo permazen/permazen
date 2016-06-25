@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>AbstractKVNavigableSet (JSimpleDB 2.0.1 API)</title>
+<title>AbstractKVNavigableSet (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="AbstractKVNavigableSet (JSimpleDB 2.0.1 API)";
+        parent.document.title="AbstractKVNavigableSet (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -138,18 +138,15 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
  methods to convert elements to/from <code>byte[]</code> keys (associated values are ignored), and
  <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#createSubSet(boolean, org.jsimpledb.kv.KeyRange, org.jsimpledb.kv.KeyFilter, org.jsimpledb.util.Bounds)"><code>createSubSet()</code></a>
  to allow creating reversed and restricted range sub-sets.
- </p>
 
  <p>
  Subclasses must also implement <a href="http://docs.oracle.com/javase/7/docs/api/java/util/SortedSet.html?is-external=true#comparator()" title="class or interface in java.util"><code>comparator()</code></a>, and the resulting sort order must be consistent with
  the sort order of the encoded <code>byte[]</code> keys (possibly <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#reversed"><code>reversed</code></a>).
- </p>
 
  <p>
  This class provides a read-only implementation; for a mutable implementation, subclasses should also implement
  <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#add(E)" title="class or interface in java.util"><code>add()</code></a> (if appropriate), <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#remove(java.lang.Object)"><code>remove()</code></a>, and <a href="http://docs.oracle.com/javase/7/docs/api/java/util/AbstractCollection.html?is-external=true#clear()" title="class or interface in java.util"><code>AbstractCollection.clear()</code></a>; note, these methods must verify
  the key <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#isVisible(byte[])"><code>isVisible()</code></a> before making any changes.
- </p>
 
  <p>
  Additional subclass notes:
@@ -165,26 +162,22 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
  and so by definition no key can be a prefix of any other key. The length of the prefix is determined implicitly by the
  number of bytes produced by <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#encode(org.jsimpledb.util.ByteWriter, java.lang.Object)"><code>encode()</code></a> or consumed by <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#decode(org.jsimpledb.util.ByteReader)"><code>decode()</code></a>.
  When not in prefix mode, <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#decode(org.jsimpledb.util.ByteReader)"><code>decode()</code></a> <b>must</b> consume the entire key to preserve correct semantics.
- </p>
 
  <p><b>Key Restrictions</b></p>
 
  <p>
  Instances are configured with an (optional) <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a>; when <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html#bounds">range restriction</a> is in
  effect, this key range corresponds to the bounds.
- </p>
 
  <p>
  Instances also support filtering visible values using a <a href="../../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a>; see <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#filterKeys(org.jsimpledb.kv.KeyFilter)"><code>filterKeys()</code></a>.
  To be <a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html#isVisible(byte[])">isVisible(byte[])</a> in the set, keys must both be in the <a href="../../../../org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv"><code>KeyRange</code></a> and pass the <a href="../../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a>.
- </p>
 
  <p><b>Concurrent Modifications</b></p>
 
  <p>
  This implementation never throws <a href="http://docs.oracle.com/javase/7/docs/api/java/util/ConcurrentModificationException.html?is-external=true" title="class or interface in java.util"><code>ConcurrentModificationException</code></a>; instead, iterators always
- see the most up-to-date state of the associated <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.
- </p></div>
+ see the most up-to-date state of the associated <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a>.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableMap.html" title="class in org.jsimpledb.kv.util"><code>AbstractKVNavigableMap</code></a></dd></dl>
 </li>
 </ul>
@@ -562,8 +555,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 <div class="block">Internal constructor. Used for creating sub-sets and reversed views.
 
  <p>
- Note: if <code>bounds</code> are set, then <code>keyRange</code> must exclude all keys outside of those bounds.
- </p></div>
+ Note: if <code>bounds</code> are set, then <code>keyRange</code> must exclude all keys outside of those bounds.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>kv</code> - underlying <a href="../../../../org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a></dd><dd><code>prefixMode</code> - whether to allow keys to have trailing garbage</dd><dd><code>reversed</code> - whether ordering is reversed (implies <code>bounds</code> are also inverted, but <i>not</i> <code>keyRange</code>)</dd><dd><code>keyRange</code> - key range restriction, or null for none</dd><dd><code>keyFilter</code> - key filter, or null for none</dd><dd><code>bounds</code> - range restriction</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>kv</code> or <code>bounds</code> is null</dd></dl>
@@ -644,8 +636,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 
  <p>
  The restrictions of the given <a href="../../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a> will be added to any current <a href="../../../../org/jsimpledb/kv/KeyFilter.html" title="interface in org.jsimpledb.kv"><code>KeyFilter</code></a> restrictions on this instance.
- The <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html#bounds"><code>AbstractNavigableSet.bounds</code></a> associated with this instance will not change.
- </p></div>
+ The <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html#bounds"><code>AbstractNavigableSet.bounds</code></a> associated with this instance will not change.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>keyFilter</code> - additional key filtering to apply</dd>
 <dt><span class="strong">Returns:</span></dt><dd>filtered view of this instance</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -665,8 +656,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 <div class="block">Determine if the given element is within this instance's lower bound (if any).
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util"><code>AbstractNavigableSet</code></a> returns <code>this.bounds.isWithinLowerBound(this.comparator(), elem)</code>.
- </p></div>
+ The implementation in <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util"><code>AbstractNavigableSet</code></a> returns <code>this.bounds.isWithinLowerBound(this.comparator(), elem)</code>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html#isWithinLowerBound(E)">isWithinLowerBound</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util">AbstractNavigableSet</a>&lt;<a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="type parameter in AbstractKVNavigableSet">E</a>&gt;</code></dd>
@@ -687,8 +677,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 <div class="block">Determine if the given element is within this instance's upper bound (if any).
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util"><code>AbstractNavigableSet</code></a> returns <code>this.bounds.isWithinUpperBound(this.comparator(), elem)</code>.
- </p></div>
+ The implementation in <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util"><code>AbstractNavigableSet</code></a> returns <code>this.bounds.isWithinUpperBound(this.comparator(), elem)</code>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html#isWithinUpperBound(E)">isWithinUpperBound</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util">AbstractNavigableSet</a>&lt;<a href="../../../../org/jsimpledb/kv/util/AbstractKVNavigableSet.html" title="type parameter in AbstractKVNavigableSet">E</a>&gt;</code></dd>
@@ -764,8 +753,7 @@ extends <a href="../../../../org/jsimpledb/util/AbstractNavigableSet.html" title
 
  <p>
  If not in prefix mode, all of <code>reader</code> must be consumed; otherwise, the consumed portion
- is the prefix and any following keys with the same prefix are ignored.
- </p></div>
+ is the prefix and any following keys with the same prefix are ignored.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>reader</code> - input for encoded bytes</dd>
 <dt><span class="strong">Returns:</span></dt><dd>decoded set element</dd></dl>
 </li>

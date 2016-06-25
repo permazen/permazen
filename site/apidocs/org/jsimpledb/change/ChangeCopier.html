@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ChangeCopier (JSimpleDB 2.0.1 API)</title>
+<title>ChangeCopier (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ChangeCopier (JSimpleDB 2.0.1 API)";
+        parent.document.title="ChangeCopier (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -107,8 +107,7 @@ implements <a href="../../../org/jsimpledb/change/ChangeSwitch.html" title="inte
  change information to be accessed after the transaction in which the change occured has completed.
 
  <p>
- Each instance has an internal <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb"><code>CopyState</code></a> used to avoid redundant copies, accessible via <a href="../../../org/jsimpledb/change/ChangeCopier.html#getCopyState()"><code>getCopyState()</code></a>.
- </p></div>
+ Each instance has an internal <a href="../../../org/jsimpledb/CopyState.html" title="class in org.jsimpledb"><code>CopyState</code></a> used to avoid redundant copies, accessible via <a href="../../../org/jsimpledb/change/ChangeCopier.html#getCopyState()"><code>getCopyState()</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -625,8 +624,7 @@ implements <a href="../../../org/jsimpledb/change/ChangeSwitch.html" title="inte
  The implementation in <a href="../../../org/jsimpledb/change/ChangeCopier.html" title="class in org.jsimpledb.change"><code>ChangeCopier</code></a> invokes <code>jobj.copyTo(this.dest, null, this.getCopyState())</code> unless
  <code>jobj</code> does not exist, in which case it is not copied (but the
  <a href="../../../org/jsimpledb/JTransaction.html#get(org.jsimpledb.core.ObjId)">corresponding</a> <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a> is still returned).
- Subclasses may override to copy additional objects referenced by <code>jobj</code> as needed.
- </p></div>
+ Subclasses may override to copy additional objects referenced by <code>jobj</code> as needed.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jobj</code> - original object</dd>
 <dt><span class="strong">Returns:</span></dt><dd>copied object in <a href="../../../org/jsimpledb/change/ChangeCopier.html#dest"><code>dest</code></a></dd>
 <dt><span class="strong">Throws:</span></dt>

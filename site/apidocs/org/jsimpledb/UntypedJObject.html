@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>UntypedJObject (JSimpleDB 2.0.1 API)</title>
+<title>UntypedJObject (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="UntypedJObject (JSimpleDB 2.0.1 API)";
+        parent.document.title="UntypedJObject (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -109,12 +109,10 @@ implements <a href="../../org/jsimpledb/JObject.html" title="interface in org.js
  but not in the current schema version. This situation can occur when a new schema is added that drops a previously
  defined Java model type, yet for which objects of that type still exist in the database. If encountered, these
  objects will be represented by instances of this class.
- </p>
 
  <p>
  All object fields are still accessible, but they must be accessed directly via the <a href="../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> field access methods
- with <code>upgradeVersion</code> set to false (otherwise, a <a href="../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core"><code>TypeNotInSchemaVersionException</code></a> is thrown).
- </p></div>
+ with <code>upgradeVersion</code> set to false (otherwise, a <a href="../../org/jsimpledb/core/TypeNotInSchemaVersionException.html" title="class in org.jsimpledb.core"><code>TypeNotInSchemaVersionException</code></a> is thrown).</div>
 </li>
 </ul>
 </div>

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ListFieldChangeListener (JSimpleDB 2.0.1 API)</title>
+<title>ListFieldChangeListener (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ListFieldChangeListener (JSimpleDB 2.0.1 API)";
+        parent.document.title="ListFieldChangeListener (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -189,11 +189,9 @@
 
  <p>
  Notifications are only delivered when <code>referrers</code> is non-empty.
- </p>
 
  <p>
- Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
- </p></div>
+ Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - Java type for <code>field</code>'s elements</dd><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the affected object (i.e., the object containing the field that changed)</dd><dd><code>field</code> - the field that changed</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) that lead to <code>id</code></dd><dd><code>referrers</code> - all objects that (indirectly) refer to the affected object via <code>path</code></dd><dd><code>index</code> - the position in the list at which <code>value</code> was added or inserted</dd><dd><code>value</code> - the value added to the list</dd></dl>
 </li>
 </ul>
@@ -216,11 +214,9 @@
 
  <p>
  Notifications are only delivered when <code>referrers</code> is non-empty.
- </p>
 
  <p>
- Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
- </p></div>
+ Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - Java type for <code>field</code>'s elements</dd><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the affected object (i.e., the object containing the field that changed)</dd><dd><code>field</code> - the field that changed</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) that lead to <code>id</code></dd><dd><code>referrers</code> - all objects that (indirectly) refer to the affected object via <code>path</code></dd><dd><code>index</code> - the position in the list at which <code>value</code> was removed</dd><dd><code>value</code> - the value removed from the list</dd></dl>
 </li>
 </ul>
@@ -244,11 +240,9 @@
 
  <p>
  Notifications are only delivered when <code>referrers</code> is non-empty.
- </p>
 
  <p>
- Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
- </p></div>
+ Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>E</code> - Java type for <code>field</code>'s elements</dd><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the affected object (i.e., the object containing the field that changed)</dd><dd><code>field</code> - the field that changed</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) that lead to <code>id</code></dd><dd><code>referrers</code> - all objects that (indirectly) refer to the affected object via <code>path</code></dd><dd><code>index</code> - the position in the list at which the change occurred</dd><dd><code>oldValue</code> - the old value at list position <code>index</code></dd><dd><code>newValue</code> - the new value at list position <code>index</code></dd></dl>
 </li>
 </ul>
@@ -268,15 +262,12 @@
  <p>
  This method is only used when the whole list is cleared; when a sub-range of a list is cleared, individual
  <a href="../../../org/jsimpledb/core/ListFieldChangeListener.html#onListFieldRemove(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.ListField, int[], java.util.NavigableSet, int, E)">onListFieldRemove()</a> invocations for each removed element are made instead.
- </p>
 
  <p>
  Notifications are only delivered when <code>referrers</code> is non-empty.
- </p>
 
  <p>
- Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
- </p></div>
+ Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the affected object (i.e., the object containing the field that was cleared)</dd><dd><code>field</code> - the field that changed</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) that lead to <code>id</code></dd><dd><code>referrers</code> - all objects that (indirectly) refer to the affected object via <code>path</code></dd></dl>
 </li>
 </ul>

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>MapFieldChangeListener (JSimpleDB 2.0.1 API)</title>
+<title>MapFieldChangeListener (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="MapFieldChangeListener (JSimpleDB 2.0.1 API)";
+        parent.document.title="MapFieldChangeListener (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -189,11 +189,9 @@
 
  <p>
  Notifications are only delivered when the set of referring objects is non-empty.
- </p>
 
  <p>
- Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
- </p></div>
+ Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>K</code> - Java type for <code>field</code>'s keys</dd><dd><code>V</code> - Java type for <code>field</code>'s values</dd><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the affected object (i.e., the object containing the field that changed)</dd><dd><code>field</code> - the field that changed</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) that lead to <code>id</code></dd><dd><code>referrers</code> - all objects that (indirectly) refer to the affected object via <code>path</code></dd><dd><code>key</code> - the new map entry's key</dd><dd><code>value</code> - the new map entry's value</dd></dl>
 </li>
 </ul>
@@ -216,11 +214,9 @@
 
  <p>
  Notifications are only delivered when the set of referring objects is non-empty.
- </p>
 
  <p>
- Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
- </p></div>
+ Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>K</code> - Java type for <code>field</code>'s keys</dd><dd><code>V</code> - Java type for <code>field</code>'s values</dd><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the affected object (i.e., the object containing the field that changed)</dd><dd><code>field</code> - the field that changed</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) that lead to <code>id</code></dd><dd><code>referrers</code> - all objects that (indirectly) refer to the affected object via <code>path</code></dd><dd><code>key</code> - the removed map entry's key</dd><dd><code>value</code> - the removed map entry's value</dd></dl>
 </li>
 </ul>
@@ -244,11 +240,9 @@
 
  <p>
  Notifications are only delivered when the set of referring objects is non-empty.
- </p>
 
  <p>
- Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
- </p></div>
+ Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.</div>
 <dl><dt><span class="strong">Type Parameters:</span></dt><dd><code>K</code> - Java type for <code>field</code>'s keys</dd><dd><code>V</code> - Java type for <code>field</code>'s values</dd><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the affected object (i.e., the object containing the field that changed)</dd><dd><code>field</code> - the field that changed</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) that lead to <code>id</code></dd><dd><code>referrers</code> - all objects that (indirectly) refer to the affected object via <code>path</code></dd><dd><code>key</code> - the map entry key</dd><dd><code>oldValue</code> - the previous value associated with <code>key</code></dd><dd><code>newValue</code> - the new value associated with <code>key</code></dd></dl>
 </li>
 </ul>
@@ -268,15 +262,12 @@
  <p>
  This method is only used when the whole map is cleared; when a range restricted submap is cleared, individual
  <a href="../../../org/jsimpledb/core/MapFieldChangeListener.html#onMapFieldRemove(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.MapField, int[], java.util.NavigableSet, K, V)">onMapFieldRemove()</a> invocations for each removed entry are made instead.
- </p>
 
  <p>
  Notifications are only delivered when the set of referring objects is non-empty.
- </p>
 
  <p>
- Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.
- </p></div>
+ Notifications are delivered in the same thread that made the change, before the outermost mutation operation returns.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the affected object (i.e., the object containing the field that was cleared)</dd><dd><code>field</code> - the field that changed</dd><dd><code>path</code> - path of reference fields (represented by storage IDs) that lead to <code>id</code></dd><dd><code>referrers</code> - all objects that (indirectly) refer to the affected object via <code>path</code></dd></dl>
 </li>
 </ul>

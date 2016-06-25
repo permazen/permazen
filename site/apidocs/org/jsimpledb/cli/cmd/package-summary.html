@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>org.jsimpledb.cli.cmd (JSimpleDB 2.0.1 API)</title>
+<title>org.jsimpledb.cli.cmd (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="org.jsimpledb.cli.cmd (JSimpleDB 2.0.1 API)";
+        parent.document.title="org.jsimpledb.cli.cmd (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -64,12 +64,29 @@
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;org.jsimpledb.cli.cmd</h1>
 <div class="docSummary">
-<div class="block">JSimpleDB CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+<div class="block">JSimpleDB CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
 </div>
 <p>See:&nbsp;<a href="#package_description">Description</a></p>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
+<li class="blockList">
+<table class="packageSummary" border="0" cellpadding="3" cellspacing="0" summary="Interface Summary table, listing interfaces, and an explanation">
+<caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> command.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
 <li class="blockList">
 <table class="packageSummary" border="0" cellpadding="3" cellspacing="0" summary="Class Summary table, listing classes, and an explanation">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
@@ -81,19 +98,11 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></td>
 <td class="colLast">
-<div class="block">Superclass of all CLI commands.</div>
+<div class="block">Support superclass for CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> implementations.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/AbstractKVCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractKVCommand</a></td>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/AbstractRaftCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractRaftCommand</a></td>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/AbstractTransactionRaftCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractTransactionRaftCommand</a></td>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
@@ -149,30 +158,6 @@
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/RaftAddCommand.html" title="class in org.jsimpledb.cli.cmd">RaftAddCommand</a></td>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/RaftFallbackStatusCommand.html" title="class in org.jsimpledb.cli.cmd">RaftFallbackStatusCommand</a></td>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/RaftRemoveCommand.html" title="class in org.jsimpledb.cli.cmd">RaftRemoveCommand</a></td>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/RaftStartElectionCommand.html" title="class in org.jsimpledb.cli.cmd">RaftStartElectionCommand</a></td>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/RaftStatusCommand.html" title="class in org.jsimpledb.cli.cmd">RaftStatusCommand</a></td>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/RaftStepDownCommand.html" title="class in org.jsimpledb.cli.cmd">RaftStepDownCommand</a></td>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/RegisterCommandCommand.html" title="class in org.jsimpledb.cli.cmd">RegisterCommandCommand</a></td>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -215,29 +200,12 @@
 </tbody>
 </table>
 </li>
-<li class="blockList">
-<table class="packageSummary" border="0" cellpadding="3" cellspacing="0" summary="Annotation Types Summary table, listing annotation types, and an explanation">
-<caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Annotation Type</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tbody>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd">Command</a></td>
-<td class="colLast">
-<div class="block">Java annotation for classes that define custom <a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> commands.</div>
-</td>
-</tr>
-</tbody>
-</table>
-</li>
 </ul>
 <a name="package_description">
 <!--   -->
 </a>
 <h2 title="Package org.jsimpledb.cli.cmd Description">Package org.jsimpledb.cli.cmd Description</h2>
-<div class="block">JSimpleDB CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+<div class="block">JSimpleDB CLI <a href="../../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
 </div>
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <div class="bottomNav"><a name="navbar_bottom">

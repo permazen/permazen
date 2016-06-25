@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JSimpleDBTransactionManager (JSimpleDB 2.0.1 API)</title>
+<title>JSimpleDBTransactionManager (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JSimpleDBTransactionManager (JSimpleDB 2.0.1 API)";
+        parent.document.title="JSimpleDBTransactionManager (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -118,43 +118,7 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 
  <p>
  For some key/value stores, the <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Transactional.html?is-external=true#isolation()" title="class or interface in org.springframework.transaction.annotation"><code>&#64;isolation()</code></a>
- value is significant:
-
- <p><b><a href="../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a></b>
-
- <p>
- For <a href="../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> underlying key/value stores, configurable <a href="../../../org/jsimpledb/kv/raft/Consistency.html" title="enum in org.jsimpledb.kv.raft"><code>Consistency</code></a> levels are supported.
- Although the mapping between Spring's defined isolation levels and <a href="../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> consistency levels
- is only semantically approximate, all Raft consistency levels are made available through the following isolation values:
-
- <div style="margin-left: 20px;">
- <table border="1" cellpadding="3" cellspacing="0" summary="Isolation Level Mapping">
- <tr style="bgcolor:#ccffcc">
-  <th align="left">Spring isolation level</th>
-  <th align="left"><a href="../../../org/jsimpledb/kv/raft/RaftKVDatabase.html" title="class in org.jsimpledb.kv.raft"><code>RaftKVDatabase</code></a> consistency level</th>
- </tr>
- <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#DEFAULT" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.DEFAULT</code></a></td>
-  <td><a href="../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>Consistency.LINEARIZABLE</code></a></td>
- </tr>
- <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#SERIALIZABLE" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.SERIALIZABLE</code></a></td>
-  <td><a href="../../../org/jsimpledb/kv/raft/Consistency.html#LINEARIZABLE"><code>Consistency.LINEARIZABLE</code></a></td>
- </tr>
- <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#REPEATABLE_READ" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.REPEATABLE_READ</code></a></td>
-  <td><a href="../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL"><code>Consistency.EVENTUAL</code></a></td>
- </tr>
- <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#READ_COMMITTED" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.READ_COMMITTED</code></a></td>
-  <td><a href="../../../org/jsimpledb/kv/raft/Consistency.html#EVENTUAL_COMMITTED"><code>Consistency.EVENTUAL_COMMITTED</code></a></td>
- </tr>
- <tr>
-  <td><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true#READ_UNCOMMITTED" title="class or interface in org.springframework.transaction.annotation"><code>Isolation.READ_UNCOMMITTED</code></a></td>
-  <td><a href="../../../org/jsimpledb/kv/raft/Consistency.html#UNCOMMITTED"><code>Consistency.UNCOMMITTED</code></a></td>
- </tr>
- </table>
- </div></div>
+ value is significant; see the documentation for the specific <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/spring/package-summary.html"><code>org.jsimpledb.spring</code></a>, 
 <a href="../../../serialized-form.html#org.jsimpledb.spring.JSimpleDBTransactionManager">Serialized Form</a></dd></dl>
 </li>
@@ -217,12 +181,21 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#ISOLATION_OPTION">ISOLATION_OPTION</a></strong></code>
+<div class="block">The name of the transaction option passed to
+ <a href="../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)"><code>KVDatabase.createTransaction()</code></a>
+ containing the <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/TransactionDefinition.html?is-external=true#getIsolationLevel()" title="class or interface in org.springframework.transaction">isolation level</a> from the
+ transaction definition.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#jdb">jdb</a></strong></code>
 <div class="block">The configured <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> from which transactions are created.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#validationMode">validationMode</a></strong></code>
 <div class="block">The <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb"><code>ValidationMode</code></a> to use for transactions.</div>
@@ -400,6 +373,20 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="ISOLATION_OPTION">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ISOLATION_OPTION</h4>
+<pre>public static final&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> ISOLATION_OPTION</pre>
+<div class="block">The name of the transaction option passed to
+ <a href="../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)"><code>KVDatabase.createTransaction()</code></a>
+ containing the <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/TransactionDefinition.html?is-external=true#getIsolationLevel()" title="class or interface in org.springframework.transaction">isolation level</a> from the
+ transaction definition. Some key/value databases may interpret this option.
+ The value of this option is an <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/annotation/Isolation.html?is-external=true" title="class or interface in org.springframework.transaction.annotation"><code>Isolation</code></a> instance.</div>
+</li>
+</ul>
 <a name="DEFAULT_VALIDATION_MODE">
 <!--   -->
 </a>
@@ -490,8 +477,7 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 <div class="block">Configure the <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> that this instance will operate on.
 
  <p>
- Required property.
- </p></div>
+ Required property.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jdb</code> - associated database</dd></dl>
 </li>
 </ul>
@@ -505,8 +491,7 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 <div class="block">Configure whether a new schema version may be created.
 
  <p>
- Default value is false.
- </p></div>
+ Default value is false.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>allowNewSchema</code> - whether to allow recording new schema versions</dd></dl>
 </li>
 </ul>
@@ -520,8 +505,7 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 <div class="block">Configure the <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb"><code>ValidationMode</code></a> to use for transactions.
 
  <p>
- Default value is <a href="../../../org/jsimpledb/ValidationMode.html#AUTOMATIC"><code>ValidationMode.AUTOMATIC</code></a>.
- </p></div>
+ Default value is <a href="../../../org/jsimpledb/ValidationMode.html#AUTOMATIC"><code>ValidationMode.AUTOMATIC</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>validationMode</code> - validation mode for transactions</dd></dl>
 </li>
 </ul>
@@ -538,8 +522,7 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
  If set to false, validation still occurs, but only when the outermost transaction commits.
 
  <p>
- Default true.
- </p></div>
+ Default true.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>validateBeforeCommit</code> - whether to validate after inner transactions</dd></dl>
 </li>
 </ul>
@@ -636,8 +619,7 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 <div class="block">Configure a new transaction.
 
  <p>
- The implementation in <a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring"><code>JSimpleDBTransactionManager</code></a> sets the transaction's timeout and read-only properties.
- </p></div>
+ The implementation in <a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring"><code>JSimpleDBTransactionManager</code></a> sets the transaction's timeout and read-only properties.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jtx</code> - transaction to configure</dd><dd><code>txDef</code> - transaction definition</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../org/jsimpledb/core/DatabaseException.html" title="class in org.jsimpledb.core">DatabaseException</a></code> - if an error occurs</dd></dl>

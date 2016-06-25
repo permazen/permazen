@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JSetField (JSimpleDB 2.0.1 API)</title>
+<title>JSetField (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JSetField (JSimpleDB 2.0.1 API)";
+        parent.document.title="JSetField (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -94,14 +94,12 @@ public @interface <span class="strong">JSetField</span></pre>
  The annotated method's return type must be either <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util"><code>Set</code></a><code>&lt;E&gt;</code>,
  <a href="http://docs.oracle.com/javase/7/docs/api/java/util/SortedSet.html?is-external=true" title="class or interface in java.util"><code>SortedSet</code></a><code>&lt;E&gt;</code>, or <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a><code>&lt;E&gt;</code>,
  where <code>E</code> is a supported simple type.
- </p>
 
  <p>
  Note that both primitive types and their corresponding wrapper types are supported as elements. A set whose
  elements have primitive type will throw an exception on an attempt to add a null value.
  To specify a primitive element type, specify the type name (e.g., <code>"int"</code>)
- as the <a href="../../../org/jsimpledb/annotation/JField.html#type()"><code>JField.type()</code></a> in the <a href="../../../org/jsimpledb/annotation/JSetField.html#element()"><code>element()</code></a>.
- </p></div>
+ as the <a href="../../../org/jsimpledb/annotation/JField.html#type()"><code>JField.type()</code></a> in the <a href="../../../org/jsimpledb/annotation/JSetField.html#element()"><code>element()</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -163,8 +161,7 @@ public @interface <span class="strong">JSetField</span></pre>
 <div class="block">The name of this field.
 
  <p>
- If empty string (default value), the name is inferred from the name of the annotated Java bean getter method.
- </p></div>
+ If empty string (default value), the name is inferred from the name of the annotated Java bean getter method.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the set field name</dd></dl>
 <dl>
 <dt>Default:</dt>

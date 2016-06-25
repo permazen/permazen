@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>BerkeleyKVDatabase (JSimpleDB 2.0.1 API)</title>
+<title>BerkeleyKVDatabase (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="BerkeleyKVDatabase (JSimpleDB 2.0.1 API)";
+        parent.document.title="BerkeleyKVDatabase (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -36,7 +36,7 @@
 <div class="subNav">
 <ul class="navList">
 <li>Prev Class</li>
-<li><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVImplementation.html" title="class in org.jsimpledb.kv.bdb"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" target="_top">Frames</a></li>
@@ -107,8 +107,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  <p>
  A <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setDirectory(java.io.File)">database directory</a> is the only required configuration property, but the
  <code>Environment</code>, <code>Database</code>, and <code>Transaction</code>s may all be configured.
- Instances may be stopped and (re)started multiple times.
- </p></div>
+ Instances may be stopped and (re)started multiple times.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index-093405.html"
   >Oracle Berkeley DB Java Edition</a></dd></dl>
 </li>
@@ -386,8 +385,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <div class="block">Get the <code>EnvironmentConfig</code> to be used by this instance.
 
  <p>
- This method returns a copy; use <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setEnvironmentConfig(com.sleepycat.je.EnvironmentConfig)"><code>setEnvironmentConfig()</code></a> to change.
- </p></div>
+ This method returns a copy; use <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setEnvironmentConfig(com.sleepycat.je.EnvironmentConfig)"><code>setEnvironmentConfig()</code></a> to change.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>environment config</dd></dl>
 </li>
 </ul>
@@ -405,11 +403,9 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  serializable
  transactional operation and with
  allowCreate set to true.
- </p>
 
  <p>
- The given <code>config</code> must at least be configured for transactional operation.
- </p></div>
+ The given <code>config</code> must at least be configured for transactional operation.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>config</code> - environment config</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>config</code> is not configured to be
@@ -427,8 +423,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <div class="block">Get the default <code>TransactionConfig</code> to be used by this instance.
 
  <p>
- This method returns a copy; use <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setTransactionConfig(com.sleepycat.je.TransactionConfig)"><code>setTransactionConfig()</code></a> to change.
- </p></div>
+ This method returns a copy; use <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setTransactionConfig(com.sleepycat.je.TransactionConfig)"><code>setTransactionConfig()</code></a> to change.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>transaction config</dd></dl>
 </li>
 </ul>
@@ -444,11 +439,9 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  <p>
  Note: this configures the default; this default config can be overridden <i>for the next transaction in the
  current thread only</i> via <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setNextTransactionConfig(com.sleepycat.je.TransactionConfig)"><code>setNextTransactionConfig()</code></a>.
- </p>
 
  <p>
- The default setting for this property is <code>TransactionConfig.DEFAULT</code>.
- </p></div>
+ The default setting for this property is <code>TransactionConfig.DEFAULT</code>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>config</code> - transaction config</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>config</code> is null</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setNextTransactionConfig(com.sleepycat.je.TransactionConfig)"><code>setNextTransactionConfig()</code></a></dd></dl>
@@ -480,8 +473,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <div class="block">Get the <code>DatabaseConfig</code> to be used by this instance.
 
  <p>
- This method returns a copy; use <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setDatabaseConfig(com.sleepycat.je.DatabaseConfig)"><code>setDatabaseConfig()</code></a> to change.
- </p></div>
+ This method returns a copy; use <a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html#setDatabaseConfig(com.sleepycat.je.DatabaseConfig)"><code>setDatabaseConfig()</code></a> to change.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>database config</dd></dl>
 </li>
 </ul>
@@ -498,7 +490,6 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  <p>
  The default <code>DatabaseConfig</code> is configured for transactional operation and with
  allowCreate set to true.
- </p>
 
  Only certain allowed configuration properties are copied. The copied properties are:
  <ul>
@@ -639,7 +630,7 @@ public&nbsp;void&nbsp;stop()</pre>
 <div class="subNav">
 <ul class="navList">
 <li>Prev Class</li>
-<li><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVTransaction.html" title="class in org.jsimpledb.kv.bdb"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/kv/bdb/BerkeleyKVImplementation.html" title="class in org.jsimpledb.kv.bdb"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/kv/bdb/BerkeleyKVDatabase.html" target="_top">Frames</a></li>

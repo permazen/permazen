@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Package org.jsimpledb.util (JSimpleDB 2.0.1 API)</title>
+<title>Uses of Package org.jsimpledb.util (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Package org.jsimpledb.util (JSimpleDB 2.0.1 API)";
+        parent.document.title="Uses of Package org.jsimpledb.util (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -83,7 +83,7 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.cli.cmd">org.jsimpledb.cli.cmd</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB CLI <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+<div class="block">JSimpleDB CLI <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -111,42 +111,48 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.raft.cmd">org.jsimpledb.kv.raft.cmd</a></td>
+<td class="colLast">
+<div class="block">Raft-related CLI <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.util">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse">org.jsimpledb.parse</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB parsing related classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse.expr">org.jsimpledb.parse.expr</a></td>
 <td class="colLast">
 <div class="block">Classes for parsing Java expressions with JSimpleDB-specific extensions.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse.func">org.jsimpledb.parse.func</a></td>
 <td class="colLast">
-<div class="block"><a href="../../../org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>Function</code></a> used in a <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a>, including built-ins.</div>
+<div class="block"><a href="../../../org/jsimpledb/parse/func/Function.html" title="interface in org.jsimpledb.parse.func"><code>Function</code></a> used in a <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a>, including built-ins.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.parse.util">org.jsimpledb.parse.util</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB parsing utility classes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.schema">org.jsimpledb.schema</a></td>
 <td class="colLast">
 <div class="block">Classes for modeling JSimpleDB <a href="../../../org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> schemas.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.util">org.jsimpledb.util</a></td>
 <td class="colLast">
 <div class="block">General utility classes used with JSimpleDB.</div>
@@ -272,6 +278,23 @@
 <tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/SizeEstimator.html#org.jsimpledb.kv.mvcc">SizeEstimator</a>
 <div class="block">Used to estimate Java object memory usage in bytes.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.raft.cmd">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a> used by <a href="../../../org/jsimpledb/kv/raft/cmd/package-summary.html">org.jsimpledb.kv.raft.cmd</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/util/class-use/ParseContext.html#org.jsimpledb.kv.raft.cmd">ParseContext</a>
+<div class="block">Utility class supporting parsing of strings.</div>
 </td>
 </tr>
 </tbody>
@@ -454,42 +477,47 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/util/class-use/AbstractXMLStreaming.html#org.jsimpledb.util">AbstractXMLStreaming</a>
+<div class="block">Support superclass for classes that serialize and deserialize via XML.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/Bounds.html#org.jsimpledb.util">Bounds</a>
 <div class="block">Utility class used by <a href="../../../org/jsimpledb/util/AbstractNavigableSet.html" title="class in org.jsimpledb.util"><code>AbstractNavigableSet</code></a> and <a href="../../../org/jsimpledb/util/AbstractNavigableMap.html" title="class in org.jsimpledb.util"><code>AbstractNavigableMap</code></a> to define
  the (optional) upper and lower bounds of a restricted range.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/BoundType.html#org.jsimpledb.util">BoundType</a>
 <div class="block">Upper and lower bound types.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/ByteReader.html#org.jsimpledb.util">ByteReader</a>
 <div class="block">Reads bytes from a buffer.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/ByteWriter.html#org.jsimpledb.util">ByteWriter</a>
 <div class="block">Writes bytes to a buffer.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/Diffs.html#org.jsimpledb.util">Diffs</a>
 <div class="block">Used to report difference(s) between two hierarchical structures.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/ParseContext.html#org.jsimpledb.util">ParseContext</a>
 <div class="block">Utility class supporting parsing of strings.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/SizeEstimating.html#org.jsimpledb.util">SizeEstimating</a>
 <div class="block">Implemented by classes that are capable of estimating their memory usage.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/util/class-use/SizeEstimator.html#org.jsimpledb.util">SizeEstimator</a>
 <div class="block">Used to estimate Java object memory usage in bytes.</div>
 </td>

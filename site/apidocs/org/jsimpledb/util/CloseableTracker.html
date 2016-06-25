@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>CloseableTracker (JSimpleDB 2.0.1 API)</title>
+<title>CloseableTracker (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="CloseableTracker (JSimpleDB 2.0.1 API)";
+        parent.document.title="CloseableTracker (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -116,7 +116,6 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
  then tracked by this class using weak references. When a holder object is no longer strongly referenced, the corresponding
  item is closed. With this scheme, no memory leak occurs due to this tracking, even when arbitrarily many items are created.
  This of course assumes that when a holder object is no longer referenced, the associated item may be safely closed.
- </p>
 
  <p>
  A registered <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io"><code>Closeable</code></a> item is closed at the first occurrence of any of the following:
@@ -132,11 +131,9 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
  Note that <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io"><code>Closeable.close()</code></a> is required to be idempotent, so application usage
  that results in eager closing of items is appropriate and encouraged. Use of this class may occasionally
  result in <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io"><code>Closeable.close()</code></a> being invoked more than once for registered items.
- </p>
 
  <p>
- Instances of this class are thread safe.
- </p></div>
+ Instances of this class are thread safe.</div>
 </li>
 </ul>
 </div>
@@ -310,8 +307,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
 <div class="block">Poll the internal weak reference queue and close any unclosed items whose holders are no longer reachable.
 
  <p>
- Applications should invoke this method periodically to avoid memory leaks.
- </p></div>
+ Applications should invoke this method periodically to avoid memory leaks.</div>
 </li>
 </ul>
 <a name="close()">
@@ -324,8 +320,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
 <div class="block">Close all unclosed items associated with this instance.
 
  <p>
- The implementation in <a href="../../../org/jsimpledb/util/CloseableTracker.html" title="class in org.jsimpledb.util"><code>CloseableTracker</code></a> just invokes <a href="../../../org/jsimpledb/util/CloseableTracker.html#reset()"><code>reset()</code></a>.
- </p></div>
+ The implementation in <a href="../../../org/jsimpledb/util/CloseableTracker.html" title="class in org.jsimpledb.util"><code>CloseableTracker</code></a> just invokes <a href="../../../org/jsimpledb/util/CloseableTracker.html#reset()"><code>reset()</code></a>.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io">close</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a></code></dd>
@@ -345,11 +340,9 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
 
  <p>
  Results in the forced closing of all unclosed items associated with this instance.
- </p>
 
  <p>
- This instance may be reused after invoking this method.
- </p></div>
+ This instance may be reused after invoking this method.</div>
 </li>
 </ul>
 <a name="exceptionDuringClose(java.io.Closeable, java.lang.Throwable)">
@@ -363,8 +356,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
 <div class="block">Handle an exception thrown while attempting to <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io"><code>close()</code></a> and item.
 
  <p>
- The implementation in <a href="../../../org/jsimpledb/util/CloseableTracker.html" title="class in org.jsimpledb.util"><code>CloseableTracker</code></a> just logs the exception at debug level and returns.
- </p></div>
+ The implementation in <a href="../../../org/jsimpledb/util/CloseableTracker.html" title="class in org.jsimpledb.util"><code>CloseableTracker</code></a> just logs the exception at debug level and returns.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>item</code> - item that was closed</dd><dd><code>e</code> - exeption thrown</dd></dl>
 </li>
 </ul>

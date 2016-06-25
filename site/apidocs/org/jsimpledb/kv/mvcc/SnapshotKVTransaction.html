@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SnapshotKVTransaction (JSimpleDB 2.0.1 API)</title>
+<title>SnapshotKVTransaction (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SnapshotKVTransaction (JSimpleDB 2.0.1 API)";
+        parent.document.title="SnapshotKVTransaction (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -342,8 +342,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
  <p>
  <a href="../../../../org/jsimpledb/kv/mvcc/SnapshotKVTransaction.html" title="class in org.jsimpledb.kv.mvcc"><code>SnapshotKVTransaction</code></a>s do not perform any locking while the transaction is open. Therefore, the configured
  value is used instead as a timeout on the overall transaction duration. If the transaction is kept open for longer
- than <code>timeout</code> milliseconds, a <a href="../../../../org/jsimpledb/kv/TransactionTimeoutException.html" title="class in org.jsimpledb.kv"><code>TransactionTimeoutException</code></a> will be thrown.
- </p></div>
+ than <code>timeout</code> milliseconds, a <a href="../../../../org/jsimpledb/kv/TransactionTimeoutException.html" title="class in org.jsimpledb.kv"><code>TransactionTimeoutException</code></a> will be thrown.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#setTimeout(long)">setTimeout</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></dd>
@@ -418,8 +417,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
  <p>
  Note that if this method throws a <a href="../../../../org/jsimpledb/kv/RetryTransactionException.html" title="class in org.jsimpledb.kv"><code>RetryTransactionException</code></a>,
  the transaction was either successfully committed or rolled back. In either case,
- this instance is no longer usable.
- </p></div>
+ this instance is no longer usable.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../org/jsimpledb/kv/KVTransaction.html#commit()">commit</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv">KVTransaction</a></code></dd>

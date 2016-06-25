@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>org.jsimpledb.index (JSimpleDB 2.0.1 API)</title>
+<title>org.jsimpledb.index (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="org.jsimpledb.index (JSimpleDB 2.0.1 API)";
+        parent.document.title="org.jsimpledb.index (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -119,51 +119,42 @@
  <code>User</code> will be represented by a <a href="../../../org/jsimpledb/index/Index.html" title="interface in org.jsimpledb.index"><code>Index</code></a><code>&lt;Integer, User&gt;</code>, and may be viewed
  either as a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a><code>&lt;</code><a href="../../../org/jsimpledb/tuple/Tuple2.html" title="class in org.jsimpledb.tuple"><code>Tuple2</code></a><code>&lt;Integer, User&gt;&gt;</code>
  or a <a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util"><code>NavigableMap</code></a><code>&lt;Integer, </code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util"><code>NavigableSet</code></a><code>&lt;User&gt;&gt;</code>.
- </p>
 
  <p>
  <b>Simple and Composite Indexes</b>
- </p>
 
  <p>
  A simple index on a single field value is created by setting <code>indexed="true"</code> on the
  <a href="../../../org/jsimpledb/annotation/JField.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JField</code></a> annotation.
- </p>
 
  <p>
  Composite indexes on multiple fields are also supported. These are useful when the target type needs to be sorted
  on multiple fields; for simple searching on multiple fields, it suffices to have independent, single-field indexes,
  which can be intersected via <a href="../../../org/jsimpledb/util/NavigableSets.html#intersection(java.lang.Iterable)"><code>NavigableSets.intersection()</code></a>, etc.
- </p>
 
  <p>
  A composite index on two fields <code>String getUsername()</code> and <code>float getBalance()</code> of type <code>User</code>
  will be represented by a <a href="../../../org/jsimpledb/index/Index2.html" title="interface in org.jsimpledb.index"><code>Index2</code></a><code>&lt;String, Float, User&gt;</code>; a composite index on
  three fields of type <code>X</code>, <code>Y</code>, and <code>Z</code> by a <a href="../../../org/jsimpledb/index/Index3.html" title="interface in org.jsimpledb.index"><code>Index3</code></a><code>&lt;X, Y, Z, User&gt;</code>, etc.
- </p>
 
  <p>
  A composite index may be viewed as a set of tuples of indexed and target values, or as various mappings from one
  or more indexed field values to subsequent values. A composite index may also be viewed as a simpler index on
  any prefix of the indexed fields.
- </p>
 
  <p>
  <b>Complex Sub-Fields</b>
- </p>
 
  <p>
  Only simple fields may be indexed, but the indexed field can be either a normal object field or a sub-field of
  a complex <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util"><code>Set</code></a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util"><code>List</code></a>, or <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util"><code>Map</code></a> field. However,
  complex sub-fields may not appear in composite indexes.
- </p>
 
  <p>
  For those complex sub-fields that can contain duplicate values (namely, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util"><code>List</code></a> element and
  <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util"><code>Map</code></a> value), the associated distinguishing value (respectively, <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util"><code>List</code></a> index
  and <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util"><code>Map</code></a> key) is appended to the index and becomes the new target type.
  Therefore the resulting index types associated with indexes on complex sub-fields are follows:
- </p>
 
  <div style="margin-left: 20px;">
  <table border="1" cellpadding="3" cellspacing="0" summary="Index Types">

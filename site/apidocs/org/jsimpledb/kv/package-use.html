@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Package org.jsimpledb.kv (JSimpleDB 2.0.1 API)</title>
+<title>Uses of Package org.jsimpledb.kv (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Package org.jsimpledb.kv (JSimpleDB 2.0.1 API)";
+        parent.document.title="Uses of Package org.jsimpledb.kv (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -147,12 +147,18 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.mysql">org.jsimpledb.kv.mysql</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on MySQL.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.raft">org.jsimpledb.kv.raft</a></td>
 <td class="colLast">
 <div class="block">A distributed <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> based on the Raft consensus algorithm.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.raft.fallback">org.jsimpledb.kv.raft.fallback</a></td>
 <td class="colLast">
 <div class="block">A partition-tolerant <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> that automatically migrates between a clustered
@@ -160,22 +166,28 @@
  <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>, based on availability of the Raft cluster.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.rocksdb">org.jsimpledb.kv.rocksdb</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.simple">org.jsimpledb.kv.simple</a></td>
 <td class="colLast">
 <div class="block">A simple in-memory implementation of the <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="#org.jsimpledb.kv.sql">org.jsimpledb.kv.sql</a></td>
 <td class="colLast">
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="#org.jsimpledb.kv.sqlite">org.jsimpledb.kv.sqlite</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on SQLite.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -362,26 +374,31 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransactionException.html#org.jsimpledb.kv">KVTransactionException</a>
 <div class="block">Thrown when an operation on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> fails.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/StaleTransactionException.html#org.jsimpledb.kv">StaleTransactionException</a>
 <div class="block">Thrown when an operation is attempted on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> that is no longer usable.</div>
 </td>
@@ -414,16 +431,21 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.array">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv.array">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.array">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.array">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
@@ -456,21 +478,26 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.bdb">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv.bdb">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.bdb">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.bdb">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransactionException.html#org.jsimpledb.kv.bdb">KVTransactionException</a>
 <div class="block">Thrown when an operation on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> fails.</div>
 </td>
@@ -493,6 +520,11 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.cockroach">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransactionException.html#org.jsimpledb.kv.cockroach">KVTransactionException</a>
 <div class="block">Thrown when an operation on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> fails.</div>
 </td>
@@ -520,21 +552,26 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.fdb">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv.fdb">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.fdb">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.fdb">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransactionException.html#org.jsimpledb.kv.fdb">KVTransactionException</a>
 <div class="block">Thrown when an operation on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> fails.</div>
 </td>
@@ -567,16 +604,21 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.leveldb">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv.leveldb">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.leveldb">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.leveldb">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
@@ -647,6 +689,33 @@
 </tbody>
 </table>
 </li>
+<li class="blockList"><a name="org.jsimpledb.kv.mysql">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a> used by <a href="../../../org/jsimpledb/kv/mysql/package-summary.html">org.jsimpledb.kv.mysql</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVDatabase.html#org.jsimpledb.kv.mysql">KVDatabase</a>
+<div class="block">A transactional database with a simple key/value API.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.mysql">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransactionException.html#org.jsimpledb.kv.mysql">KVTransactionException</a>
+<div class="block">Thrown when an operation on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> fails.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
 <li class="blockList"><a name="org.jsimpledb.kv.raft">
 <!--   -->
 </a>
@@ -667,11 +736,16 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.raft">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.raft">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.raft">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
@@ -736,16 +810,21 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.rocksdb">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv.rocksdb">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.rocksdb">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.rocksdb">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
@@ -778,16 +857,21 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.simple">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv.simple">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.simple">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.simple">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
@@ -820,22 +904,54 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.sql">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVPair.html#org.jsimpledb.kv.sql">KVPair</a>
 <div class="block">A key/value pair.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVStore.html#org.jsimpledb.kv.sql">KVStore</a>
 <div class="block">General API into a key/value store where the keys are sorted lexicographically as unsigned bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransaction.html#org.jsimpledb.kv.sql">KVTransaction</a>
 <div class="block"><a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> transaction API.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransactionException.html#org.jsimpledb.kv.sql">KVTransactionException</a>
+<div class="block">Thrown when an operation on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> fails.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList"><a name="org.jsimpledb.kv.sqlite">
+<!--   -->
+</a>
+<table border="0" cellpadding="3" cellspacing="0" summary="Use table, listing classes, and an explanation">
+<caption><span>Classes in <a href="../../../org/jsimpledb/kv/package-summary.html">org.jsimpledb.kv</a> used by <a href="../../../org/jsimpledb/kv/sqlite/package-summary.html">org.jsimpledb.kv.sqlite</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Class and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVDatabase.html#org.jsimpledb.kv.sqlite">KVDatabase</a>
+<div class="block">A transactional database with a simple key/value API.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVImplementation.html#org.jsimpledb.kv.sqlite">KVImplementation</a>
+<div class="block">Descriptor for a <a href="../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><a href="../../../org/jsimpledb/kv/class-use/KVTransactionException.html#org.jsimpledb.kv.sqlite">KVTransactionException</a>
 <div class="block">Thrown when an operation on a <a href="../../../org/jsimpledb/kv/KVTransaction.html" title="interface in org.jsimpledb.kv"><code>KVTransaction</code></a> fails.</div>
 </td>
 </tr>

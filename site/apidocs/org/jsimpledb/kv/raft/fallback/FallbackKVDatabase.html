@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>FallbackKVDatabase (JSimpleDB 2.0.1 API)</title>
+<title>FallbackKVDatabase (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="FallbackKVDatabase (JSimpleDB 2.0.1 API)";
+        parent.document.title="FallbackKVDatabase (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -236,42 +236,49 @@ implements <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="inte
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#migrationCompleted(int, int)">migrationCompleted</a></strong>(int&nbsp;prevTargetIndex,
+                  int&nbsp;currTargetIndex)</code>
+<div class="block">Subclass hook to be notified when a migration occurs.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#setFallbackTarget(org.jsimpledb.kv.raft.fallback.FallbackTarget)">setFallbackTarget</a></strong>(<a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackTarget</a>&nbsp;target)</code>
 <div class="block">Configure a single <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackTarget</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#setFallbackTargets(java.util.List)">setFallbackTargets</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackTarget</a>&gt;&nbsp;targets)</code>
 <div class="block">Configure multiple <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackTarget</code></a>(s).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#setStandaloneTarget(org.jsimpledb.kv.KVDatabase)">setStandaloneTarget</a></strong>(<a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a>&nbsp;standaloneKV)</code>
 <div class="block">Configure the local "standalone mode" <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> to be used when all <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackTarget</code></a>s are unavailable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#setStateFile(java.io.File)">setStateFile</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;stateFile)</code>
 <div class="block">Configure this instance's persistent state file.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#start()">start</a></strong>()</code>
 <div class="block">Start this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#stop()">stop</a></strong>()</code>
 <div class="block">Stop this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
@@ -537,6 +544,21 @@ implements <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="inte
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
 <dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
+</li>
+</ul>
+<a name="migrationCompleted(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>migrationCompleted</h4>
+<pre>protected&nbsp;void&nbsp;migrationCompleted(int&nbsp;prevTargetIndex,
+                      int&nbsp;currTargetIndex)</pre>
+<div class="block">Subclass hook to be notified when a migration occurs. This method is invoked after each successful target change.
+
+ <p>
+ The implementation in <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackKVDatabase</code></a> does nothing.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>prevTargetIndex</code> - previous fallback target list index, or -1 for standalone mode</dd><dd><code>currTargetIndex</code> - current fallback target list index, or -1 for standalone mode</dd></dl>
 </li>
 </ul>
 <a name="toString()">

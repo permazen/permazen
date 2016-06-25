@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>LockManager (JSimpleDB 2.0.1 API)</title>
+<title>LockManager (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="LockManager (JSimpleDB 2.0.1 API)";
+        parent.document.title="LockManager (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -103,12 +103,10 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  This implementation is straightforward: read locks can overlap, but write locks may not, and all locks owned
  by the same owner remain in force until all are <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#release(org.jsimpledb.kv.mvcc.LockOwner)">released</a> at the same time.
- </p>
 
  <p>
  Instances are configured with a monitor object which is used for all internal locking and inter-thread wait/notify
  handshaking (by default, this instance). A user-supplied monitor object may be provided via the constructor.
- </p>
 
  <p>
  Two timeout values are supported:
@@ -122,8 +120,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  Note that if the hold timeout is set to zero (unlimited), then an application bug that leaks locks will result
- in those locks never being released.
- </p></div>
+ in those locks never being released.</div>
 </li>
 </ul>
 </div>
@@ -294,8 +291,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  The hold timeout limits how long a thread may hold on to a contested lock before being forced to release
- all of its locks; after that, the next call to <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#lock(org.jsimpledb.kv.mvcc.LockOwner, byte[], byte[], boolean, long)"><code>lock</code></a> or <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#release(org.jsimpledb.kv.mvcc.LockOwner)"><code>release</code></a> will fail.
- </p></div>
+ all of its locks; after that, the next call to <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#lock(org.jsimpledb.kv.mvcc.LockOwner, byte[], byte[], boolean, long)"><code>lock</code></a> or <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#release(org.jsimpledb.kv.mvcc.LockOwner)"><code>release</code></a> will fail.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>hold timeout in milliseconds</dd></dl>
 </li>
 </ul>
@@ -331,17 +327,14 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  This method will block for up to <code>waitTimeout</code> milliseconds if the lock is held by
  another thread, after which point <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html#WAIT_TIMEOUT_EXPIRED"><code>LockManager.LockResult.WAIT_TIMEOUT_EXPIRED</code></a> is returned.
  The configured locking object will be used for inter-thread wait/notify handshaking.
- </p>
 
  <p>
  If <code>owner</code> already holds one or more locks, but the <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#getHoldTimeout()">hold timeout</a> has expired,
  then <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html#HOLD_TIMEOUT_EXPIRED"><code>LockManager.LockResult.HOLD_TIMEOUT_EXPIRED</code></a> is returned and all of the other locks are will have already been
  automatically released.
- </p>
 
  <p>
- Once a lock is successfully acquired, it stays acquired until all locks are released together via <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#release(org.jsimpledb.kv.mvcc.LockOwner)"><code>release()</code></a>.
- </p></div>
+ Once a lock is successfully acquired, it stays acquired until all locks are released together via <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#release(org.jsimpledb.kv.mvcc.LockOwner)"><code>release()</code></a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>owner</code> - lock owner</dd><dd><code>minKey</code> - minimum key (inclusive); must not be null</dd><dd><code>maxKey</code> - maximum key (exclusive), or null for no maximum</dd><dd><code>write</code> - true for a write lock, false for a read lock</dd><dd><code>waitTimeout</code> - how long to wait before returning <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html#WAIT_TIMEOUT_EXPIRED"><code>LockManager.LockResult.WAIT_TIMEOUT_EXPIRED</code></a>
   in milliseconds, or zero for unlimited</dd>
 <dt><span class="strong">Returns:</span></dt><dd>a <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.LockResult.html" title="enum in org.jsimpledb.kv.mvcc"><code>LockManager.LockResult</code></a></dd>
@@ -379,11 +372,9 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <p>
  If the owner's <a href="../../../../org/jsimpledb/kv/mvcc/LockManager.html#getHoldTimeout()">hold timeout</a> has already expired, then all locks will have
  already been released and false is returned.
- </p>
 
  <p>
- Does nothing (and returns true) if <code>owner</code> does not own any locks.
- </p></div>
+ Does nothing (and returns true) if <code>owner</code> does not own any locks.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>owner</code> - lock owner</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if successful, false if <code>owner</code>'s hold timeout expired</dd>
 <dt><span class="strong">Throws:</span></dt>
@@ -402,8 +393,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 
  <p>
  If the owner's hold timeout has expired, then <code>-1</code> is returned and any locks previously held by <code>owner</code>
- will have been automatically released.
- </p></div>
+ will have been automatically released.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>owner</code> - lock owner</dd>
 <dt><span class="strong">Returns:</span></dt><dd>milliseconds until <code>owner</code>'s hold timeout expires, zero if <code>owner</code> has no hold timeout
   (e.g., nothing is locked or hold timeout disabled), or -1 if <code>owner</code>'s hold timeout has expired</dd>

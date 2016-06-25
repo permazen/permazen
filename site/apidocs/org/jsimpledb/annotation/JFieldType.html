@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JFieldType (JSimpleDB 2.0.1 API)</title>
+<title>JFieldType (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JFieldType (JSimpleDB 2.0.1 API)";
+        parent.document.title="JFieldType (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -95,15 +95,13 @@ public @interface <span class="strong">JFieldType</span></pre>
 
  <p>
  Annotated classes must extend <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> and have a zero-parameter constructor.
- </p>
 
  <p>
  Note that once a certain encoding has been used for a given type name in a database, the encoding should not
  be changed without creating a new type (and type name), or changing the
  <a href="../../../org/jsimpledb/core/FieldType.html#getEncodingSignature()">encoding signature</a>.
  Otherwise, <a href="../../../org/jsimpledb/core/InconsistentDatabaseException.html" title="class in org.jsimpledb.core"><code>InconsistentDatabaseException</code></a>s can result when the new type unexpectedly
- encounters the old encoding or vice-versa.
- </p></div>
+ encounters the old encoding or vice-versa.</div>
 </li>
 </ul>
 </div>

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ReferenceFieldType (JSimpleDB 2.0.1 API)</title>
+<title>ReferenceFieldType (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ReferenceFieldType (JSimpleDB 2.0.1 API)";
+        parent.document.title="ReferenceFieldType (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -114,8 +114,7 @@ extends <a href="../../../org/jsimpledb/core/NullSafeType.html" title="class in 
 <div class="block">The <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> for <a href="../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core"><code>ReferenceField</code></a>s. Instances support object type restriction.
 
  <p>
- Null values are supported by this class.
- </p></div>
+ Null values are supported by this class.</div>
 </li>
 </ul>
 </div>
@@ -263,8 +262,7 @@ extends <a href="../../../org/jsimpledb/core/NullSafeType.html" title="class in 
 <div class="block">Constructor.
 
  <p>
- No restrictions will be placed on encoded references.
- </p></div>
+ No restrictions will be placed on encoded references.</div>
 </li>
 </ul>
 <a name="ReferenceFieldType(java.util.Set)">
@@ -326,17 +324,14 @@ extends <a href="../../../org/jsimpledb/core/NullSafeType.html" title="class in 
  <p>
  Note that this method must throw <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang"><code>IllegalArgumentException</code></a>, not <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/ClassCastException.html?is-external=true" title="class or interface in java.lang"><code>ClassCastException</code></a>
  or <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang"><code>NullPointerException</code></a>, if <code>obj</code> does not have the correct type, or is an illegal null value.
- </p>
 
  <p>
  This method is allowed to perform widening conversions of the object that lose no information, e.g.,
  from <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang"><code>Integer</code></a> to <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang"><code>Long</code></a>.
- </p>
 
  <p>
  The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> simply casts the value using this instance's raw Java type.
- Subclasses should override this method to implement any other restrictions, e.g., disallowing null values.
- </p></div>
+ Subclasses should override this method to implement any other restrictions, e.g., disallowing null values.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#validate(java.lang.Object)">validate</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&gt;</code></dd>

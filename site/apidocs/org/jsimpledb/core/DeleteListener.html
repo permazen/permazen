@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>DeleteListener (JSimpleDB 2.0.1 API)</title>
+<title>DeleteListener (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="DeleteListener (JSimpleDB 2.0.1 API)";
+        parent.document.title="DeleteListener (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -143,8 +143,7 @@
  <p>
  Notifications are delivered in the same thread that is deleting object, before the delete actually occurs.
  At most one notification will be delivered for any object, even if <a href="../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)"><code>Transaction.delete()</code></a>
- is invoked reentrantly from within this listener.
- </p></div>
+ is invoked reentrantly from within this listener.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - associated transaction</dd><dd><code>id</code> - the ID of the object about to be deleted</dd></dl>
 </li>
 </ul>

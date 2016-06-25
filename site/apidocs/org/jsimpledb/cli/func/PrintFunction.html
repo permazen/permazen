@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>PrintFunction (JSimpleDB 2.0.1 API)</title>
+<title>PrintFunction (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="PrintFunction (JSimpleDB 2.0.1 API)";
+        parent.document.title="PrintFunction (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -108,10 +108,13 @@
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../org/jsimpledb/parse/func/Function.html" title="interface in org.jsimpledb.parse.func">Function</a></dd>
+</dl>
 <hr>
 <br>
-<pre><a href="../../../../org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func">@Function</a>(<a href="../../../../org/jsimpledb/parse/func/Function.html#modes()">modes</a>={<a href="../../../../org/jsimpledb/SessionMode.html#KEY_VALUE">KEY_VALUE</a>,<a href="../../../../org/jsimpledb/SessionMode.html#CORE_API">CORE_API</a>,<a href="../../../../org/jsimpledb/SessionMode.html#JSIMPLEDB">JSIMPLEDB</a>})
-public class <span class="strong">PrintFunction</span>
+<pre>public class <span class="strong">PrintFunction</span>
 extends <a href="../../../../org/jsimpledb/cli/func/SimpleCliFunction.html" title="class in org.jsimpledb.cli.func">SimpleCliFunction</a></pre>
 </li>
 </ul>
@@ -184,6 +187,12 @@ extends <a href="../../../../org/jsimpledb/cli/func/SimpleCliFunction.html" titl
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/func/PrintFunction.html#getSessionModes()">getSessionModes</a></strong>()</code>
+<div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/func/PrintFunction.html#getUsage()">getUsage</a></strong>()</code>
 <div class="block">Get function usage string.</div>
@@ -209,7 +218,7 @@ extends <a href="../../../../org/jsimpledb/cli/func/SimpleCliFunction.html" titl
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.parse.func.<a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func">AbstractFunction</a></h3>
-<code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getHelpDetail()">getHelpDetail</a>, <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getName()">getName</a>, <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getSessionModes()">getSessionModes</a>, <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseExpressionParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, int, int)">parseExpressionParams</a></code></li>
+<code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getHelpDetail()">getHelpDetail</a>, <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getName()">getName</a>, <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseExpressionParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, int, int)">parseExpressionParams</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -256,12 +265,9 @@ extends <a href="../../../../org/jsimpledb/cli/func/SimpleCliFunction.html" titl
 <li class="blockList">
 <h4>getHelpSummary</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;getHelpSummary()</pre>
-<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getHelpSummary()">AbstractFunction</a></code></strong></div>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/Function.html#getHelpSummary()">Function</a></code></strong></div>
 <div class="block">Get summarized help (typically a single line).</div>
-<dl>
-<dt><strong>Specified by:</strong></dt>
-<dd><code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getHelpSummary()">getHelpSummary</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func">AbstractFunction</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>one line summarized description of this function</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>one line summarized description of this function</dd></dl>
 </li>
 </ul>
 <a name="getUsage()">
@@ -271,12 +277,30 @@ extends <a href="../../../../org/jsimpledb/cli/func/SimpleCliFunction.html" titl
 <li class="blockList">
 <h4>getUsage</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;getUsage()</pre>
-<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getUsage()">AbstractFunction</a></code></strong></div>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/Function.html#getUsage()">Function</a></code></strong></div>
 <div class="block">Get function usage string. For example: <code>pow(base, exponent)</code>.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>function usage string</dd></dl>
+</li>
+</ul>
+<a name="getSessionModes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSessionModes</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util">EnumSet</a>&lt;<a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb">SessionMode</a>&gt;&nbsp;getSessionModes()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getSessionModes()">AbstractFunction</a></code></strong></div>
+<div class="block">Get the <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>(s) supported by this instance.
+
+ <p>
+ The implementation in <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func"><code>AbstractFunction</code></a> returns an <a href="http://docs.oracle.com/javase/7/docs/api/java/util/EnumSet.html?is-external=true" title="class or interface in java.util"><code>EnumSet</code></a> containing
+ <a href="../../../../org/jsimpledb/SessionMode.html#CORE_API"><code>SessionMode.CORE_API</code></a> and <a href="../../../../org/jsimpledb/SessionMode.html#JSIMPLEDB"><code>SessionMode.JSIMPLEDB</code></a>.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
-<dd><code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getUsage()">getUsage</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func">AbstractFunction</a></code></dd>
-<dt><span class="strong">Returns:</span></dt><dd>function usage string</dd></dl>
+<dd><code><a href="../../../../org/jsimpledb/parse/func/Function.html#getSessionModes()">getSessionModes</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/Function.html" title="interface in org.jsimpledb.parse.func">Function</a></code></dd>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#getSessionModes()">getSessionModes</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func">AbstractFunction</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>supported <a href="../../../../org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><code>SessionMode</code></a>s</dd></dl>
 </li>
 </ul>
 <a name="apply(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.expr.Value[])">

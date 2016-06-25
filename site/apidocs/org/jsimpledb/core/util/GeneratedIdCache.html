@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>GeneratedIdCache (JSimpleDB 2.0.1 API)</title>
+<title>GeneratedIdCache (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="GeneratedIdCache (JSimpleDB 2.0.1 API)";
+        parent.document.title="GeneratedIdCache (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -100,8 +100,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="block">Cache for randomly generated object IDs based on unique strings.
 
  <p>
- Instances are thread safe.
- </p></div>
+ Instances are thread safe.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jsimpledb/core/util/XMLObjectSerializer.html" title="class in org.jsimpledb.core.util"><code>XMLObjectSerializer</code></a></dd></dl>
 </li>
 </ul>
@@ -206,8 +205,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  If an <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a> has already been created for the specified <code>storageId</code> and <code>string</code> by this instance,
  it will be returned.
  Otherwise, a random <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a> for which no object exists in the specified <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a> is generated
- and returned.
- </p></div>
+ and returned.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>tx</code> - transaction from which to allocate new object IDs</dd><dd><code>storageId</code> - object type storage ID</dd><dd><code>string</code> - unique string</dd>
 <dt><span class="strong">Returns:</span></dt><dd>unique, unallocated object ID corresponding to <code>storageId</code> and <code>string</code></dd>
 <dt><span class="strong">Throws:</span></dt>

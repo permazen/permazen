@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>NullSafeType (JSimpleDB 2.0.1 API)</title>
+<title>NullSafeType (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="NullSafeType (JSimpleDB 2.0.1 API)";
+        parent.document.title="NullSafeType (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -120,12 +120,10 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
  The default value becomes null, for which <code>"null"</code> is the value returned by <a href="../../../org/jsimpledb/core/NullSafeType.html#toParseableString(T)"><code>toParseableString()</code></a>.
  Therefore, <code>"null"</code> must not be returned by the wrapped type's <a href="../../../org/jsimpledb/core/NullSafeType.html#toParseableString(T)"><code>toParseableString()</code></a>
  for any value.
- </p>
 
  <p>
  This class will automatically "inline" the <code>0xff</code> for null values if the wrapped <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a>'s
- <a href="../../../org/jsimpledb/core/FieldType.html#hasPrefix0xff()"><code>FieldType.hasPrefix0xff()</code></a> method returns false.
- </p></div>
+ <a href="../../../org/jsimpledb/core/FieldType.html#hasPrefix0xff()"><code>FieldType.hasPrefix0xff()</code></a> method returns false.</div>
 </li>
 </ul>
 </div>
@@ -443,8 +441,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
  <p>
  The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> creates a new <a href="../../../org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util"><code>ParseContext</code></a> based on <code>string</code>,
  delegates to <a href="../../../org/jsimpledb/core/FieldType.html#toParseableString(T)"><code>FieldType.toParseableString(T)</code></a> to parse it, and verifies that all of <code>string</code> was consumed
- during the parse. Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#toString(T)"><code>toString(T)</code></a>.
- </p></div>
+ during the parse. Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#toString(T)"><code>toString(T)</code></a>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)">fromString</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>
@@ -467,12 +464,10 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
  <p>
  Each of the characters in the returned <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> must be one of the valid XML characters
  (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
- </p>
 
  <p>
  The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> checks that <code>value</code> is not null, then delegates to <a href="../../../org/jsimpledb/core/FieldType.html#toParseableString(T)"><code>FieldType.toParseableString(T)</code></a>.
- Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a>.
- </p></div>
+ Subclasses that override this method should also override <a href="../../../org/jsimpledb/core/FieldType.html#fromString(java.lang.String)"><code>fromString()</code></a>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#toString(T)">toString</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>
@@ -513,8 +508,7 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
 
  <p>
  In addition, each of the characters in the returned <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> must be one of the valid XML characters
- (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).
- </p></div>
+ (tab, newline, carriage return, <code>&#92;u0020 - &#92;ud7ff</code>, and <code>&#92;ue000 - &#92;fffdf</code>).</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#toParseableString(T)">toParseableString</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>
@@ -567,11 +561,9 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
  <p>
  Note: changing the return value of this method usually means changing the binary encoding, resulting in
  an incompatible type.
- </p>
 
  <p>
- The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> returns <code>true</code>.
- </p></div>
+ The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> returns <code>true</code>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#hasPrefix0xff()">hasPrefix0xff</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>
@@ -592,11 +584,9 @@ extends <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org
  <p>
  Note: changing the return value of this method usually means changing the binary encoding, resulting in
  an incompatible type.
- </p>
 
  <p>
- The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> returns <code>true</code>.
- </p></div>
+ The implementation in <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> returns <code>true</code>.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/core/FieldType.html#hasPrefix0x00()">hasPrefix0x00</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core">FieldType</a>&lt;<a href="../../../org/jsimpledb/core/NullSafeType.html" title="type parameter in NullSafeType">T</a>&gt;</code></dd>

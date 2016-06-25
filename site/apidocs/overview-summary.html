@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Overview (JSimpleDB 2.0.1 API)</title>
+<title>Overview (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Overview (JSimpleDB 2.0.1 API)";
+        parent.document.title="Overview (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -62,7 +62,7 @@
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
 <div class="header">
-<h1 class="title">JSimpleDB 2.0.1 API</h1>
+<h1 class="title">JSimpleDB 2.1.0 API</h1>
 </div>
 <div class="header">
 <div class="subTitle">
@@ -126,13 +126,13 @@ This is the API documentation for the <a href="https://github.com/archiecobbs/js
 <tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB CLI <a href="org/jsimpledb/cli/cmd/Command.html" title="annotation in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
+<div class="block">JSimpleDB CLI <a href="org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> related classes, including pre-defined commands.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/cli/func/package-summary.html">org.jsimpledb.cli.func</a></td>
 <td class="colLast">
-<div class="block">JSimpleDB CLI pre-defined <a href="org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>Function</code></a>s.</div>
+<div class="block">JSimpleDB CLI pre-defined <a href="org/jsimpledb/parse/func/Function.html" title="interface in org.jsimpledb.parse.func"><code>Function</code></a>s.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -220,6 +220,12 @@ This is the API documentation for the <a href="https://github.com/archiecobbs/js
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="org/jsimpledb/kv/raft/cmd/package-summary.html">org.jsimpledb.kv.raft.cmd</a></td>
+<td class="colLast">
+<div class="block">Raft-related CLI <a href="org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a></td>
 <td class="colLast">
 <div class="block">A partition-tolerant <a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> that automatically migrates between a clustered
@@ -227,117 +233,119 @@ This is the API documentation for the <a href="https://github.com/archiecobbs/js
  <a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a>, based on availability of the Raft cluster.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/kv/raft/msg/package-summary.html">org.jsimpledb.kv.raft.msg</a></td>
 <td class="colLast">
 <div class="block">Raft inter-node messages.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/kv/rocksdb/package-summary.html">org.jsimpledb.kv.rocksdb</a></td>
 <td class="colLast">
 <div class="block"><a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on RocksDB.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/kv/simple/package-summary.html">org.jsimpledb.kv.simple</a></td>
 <td class="colLast">
 <div class="block">A simple in-memory implementation of the <a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/kv/sql/package-summary.html">org.jsimpledb.kv.sql</a></td>
 <td class="colLast">
 <div class="block"><a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementations based on SQL connections.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/kv/sqlite/package-summary.html">org.jsimpledb.kv.sqlite</a></td>
 <td class="colLast">
 <div class="block"><a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> implementation based on SQLite.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/kv/test/package-summary.html">org.jsimpledb.kv.test</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB key/value unit test support classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/kv/util/package-summary.html">org.jsimpledb.kv.util</a></td>
 <td class="colLast">
 <div class="block">Utility classes relating to the <a href="org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> interface.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/maven/package-summary.html">org.jsimpledb.maven</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB Maven plugins.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/parse/package-summary.html">org.jsimpledb.parse</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB parsing related classes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/parse/expr/package-summary.html">org.jsimpledb.parse.expr</a></td>
 <td class="colLast">
 <div class="block">Classes for parsing Java expressions with JSimpleDB-specific extensions.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/parse/func/package-summary.html">org.jsimpledb.parse.func</a></td>
 <td class="colLast">
-<div class="block"><a href="org/jsimpledb/parse/func/Function.html" title="annotation in org.jsimpledb.parse.func"><code>Function</code></a> used in a <a href="org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a>, including built-ins.</div>
+<div class="block"><a href="org/jsimpledb/parse/func/Function.html" title="interface in org.jsimpledb.parse.func"><code>Function</code></a> used in a <a href="org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse"><code>ParseSession</code></a>, including built-ins.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/parse/util/package-summary.html">org.jsimpledb.parse.util</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB parsing utility classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/schema/package-summary.html">org.jsimpledb.schema</a></td>
 <td class="colLast">
 <div class="block">Classes for modeling JSimpleDB <a href="org/jsimpledb/core/Database.html" title="class in org.jsimpledb.core"><code>Database</code></a> schemas.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/spring/package-summary.html">org.jsimpledb.spring</a></td>
 <td class="colLast">
 <div class="block">Spring Framework integration classes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/test/package-summary.html">org.jsimpledb.test</a></td>
 <td class="colLast">
 <div class="block">JSimpleDB unit test support classes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/tuple/package-summary.html">org.jsimpledb.tuple</a></td>
 <td class="colLast">
 <div class="block">Generic typed classes holding ordered "tuples" of objects.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></td>
 <td class="colLast">
 <div class="block">General utility classes used with JSimpleDB.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="org/jsimpledb/vaadin/package-summary.html">org.jsimpledb.vaadin</a></td>
 <td class="colLast">
 <div class="block">Classes to facilitate Vaadin applications that interact with a JSimpleDB database.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="org/jsimpledb/vaadin/app/package-summary.html">org.jsimpledb.vaadin.app</a></td>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Support for JSimpleDB GUI applications based on Vaadin.</div>
+</td>
 </tr>
 </tbody>
 </table>

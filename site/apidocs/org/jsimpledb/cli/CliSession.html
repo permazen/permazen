@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>CliSession (JSimpleDB 2.0.1 API)</title>
+<title>CliSession (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="CliSession (JSimpleDB 2.0.1 API)";
+        parent.document.title="CliSession (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -61,13 +61,13 @@
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#fields_inherited_from_class_org.jsimpledb.Session">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
@@ -148,6 +148,26 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <!--   -->
 </a>
 <h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#CLI_COMMANDS_DESCRIPTOR_RESOURCE">CLI_COMMANDS_DESCRIPTOR_RESOURCE</a></strong></code>
+<div class="block">Classpath XML file resource describing available <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s: "META-INF/jsimpledb/cli-command-implementations.xml".</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jsimpledb.parse.ParseSession">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jsimpledb.parse.<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></h3>
+<code><a href="../../../org/jsimpledb/parse/ParseSession.html#PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE">PARSE_FUNCTIONS_DESCRIPTOR_RESOURCE</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a name="fields_inherited_from_class_org.jsimpledb.Session">
 <!--   -->
@@ -205,9 +225,9 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a>&gt;</code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#getCommands()">getCommands</a></strong>()</code>
-<div class="block">Get the <a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a>s registered with this instance.</div>
+<div class="block">Get the <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s registered with this instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -235,55 +255,49 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#isVerbose()">isVerbose</a></strong>()</code>&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#loadCommandsFromClasspath()">loadCommandsFromClasspath</a></strong>()</code>
+<div class="block">Scan the classpath for <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s and register them.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#performCliSessionAction(org.jsimpledb.cli.CliSession.Action)">performCliSessionAction</a></strong>(<a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;action)</code>
 <div class="block">Perform the given action in the context of this session.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#performCliSessionActionWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)">performCliSessionActionWithCurrentTransaction</a></strong>(<a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;action)</code>
 <div class="block">Associate the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance, if not already associated,
  while performing the given action.</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><code><a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a></code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#registerCommand(java.lang.Class)">registerCommand</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;cl)</code>
-<div class="block">Create an instance of the specified class and register it as a <a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a>.</div>
-</td>
-</tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#registerStandardCommands()">registerStandardCommands</a></strong>()</code>
-<div class="block">Register the standard CLI built-in commands.</div>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#registerCommand(org.jsimpledb.cli.cmd.Command)">registerCommand</a></strong>(<a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a>&nbsp;command)</code>
+<div class="block">Register the given <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#registerStandardFunctions()">registerStandardFunctions</a></strong>()</code>
-<div class="block">Register the standard CLI built-in functions such as <code>print()</code>, <code>dump()</code>, etc.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#reportException(java.lang.Exception)">reportException</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</code>
 <div class="block">Handle an exception thrown during an invocation of <a href="../../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)"><code>performSessionAction()</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#setDone(boolean)">setDone</a></strong>(boolean&nbsp;done)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#setLineLimit(int)">setLineLimit</a></strong>(int&nbsp;lineLimit)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#setVerbose(boolean)">setVerbose</a></strong>(boolean&nbsp;verbose)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#showStackTrace(java.lang.Exception)">showStackTrace</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</code>&nbsp;</td>
 </tr>
@@ -293,7 +307,7 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;org.jsimpledb.parse.<a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></h3>
-<code><a href="../../../org/jsimpledb/parse/ParseSession.html#getFunctions()">getFunctions</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#getIdentifierParser()">getIdentifierParser</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#getImports()">getImports</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#getVars()">getVars</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionAction</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionActionWithCurrentTransaction</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#registerFunction(java.lang.Class)">registerFunction</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#relativizeClassName(java.lang.Class)">relativizeClassName</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#resolveClass(java.lang.String, boolean)">resolveClass</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#setIdentifierParser(org.jsimpledb.parse.Parser)">setIdentifierParser</a></code></li>
+<code><a href="../../../org/jsimpledb/parse/ParseSession.html#getFunctions()">getFunctions</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#getIdentifierParser()">getIdentifierParser</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#getImports()">getImports</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#getVars()">getVars</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#loadFunctionsFromClasspath()">loadFunctionsFromClasspath</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionAction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionAction</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#performParseSessionActionWithCurrentTransaction(org.jsimpledb.parse.ParseSession.Action)">performParseSessionActionWithCurrentTransaction</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#registerFunction(org.jsimpledb.parse.func.Function)">registerFunction</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#relativizeClassName(java.lang.Class)">relativizeClassName</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#resolveClass(java.lang.String, boolean)">resolveClass</a>, <a href="../../../org/jsimpledb/parse/ParseSession.html#setIdentifierParser(org.jsimpledb.parse.Parser)">setIdentifierParser</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_org.jsimpledb.Session">
@@ -317,6 +331,37 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="CLI_COMMANDS_DESCRIPTOR_RESOURCE">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CLI_COMMANDS_DESCRIPTOR_RESOURCE</h4>
+<pre>public static final&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> CLI_COMMANDS_DESCRIPTOR_RESOURCE</pre>
+<div class="block">Classpath XML file resource describing available <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s: "META-INF/jsimpledb/cli-command-implementations.xml".
+
+ <p>
+ Example:
+ <blockquote><pre>
+  &lt;cli-command-implementations&gt;
+      &lt;cli-command-implementation class="com.example.MyCliCommand"/&gt;
+  &lt;/cli-command-implementations&gt;
+ </pre></blockquote>
+
+ <p>
+ Instances must have a public constructor taking either zero parameters or one <a href="../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> parameter.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/cli/CliSession.html#loadCommandsFromClasspath()"><code>loadCommandsFromClasspath()</code></a>, 
+<a href="../../../constant-values.html#org.jsimpledb.cli.CliSession.CLI_COMMANDS_DESCRIPTOR_RESOURCE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor_detail">
@@ -404,8 +449,8 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <ul class="blockList">
 <li class="blockList">
 <h4>getCommands</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a>&gt;&nbsp;getCommands()</pre>
-<div class="block">Get the <a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a>s registered with this instance.</div>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/SortedMap.html?is-external=true" title="class or interface in java.util">SortedMap</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a>&gt;&nbsp;getCommands()</pre>
+<div class="block">Get the <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s registered with this instance.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>registered commands indexed by name</dd></dl>
 </li>
 </ul>
@@ -463,46 +508,31 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <pre>public&nbsp;void&nbsp;setDone(boolean&nbsp;done)</pre>
 </li>
 </ul>
-<a name="registerStandardFunctions()">
+<a name="loadCommandsFromClasspath()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>registerStandardFunctions</h4>
-<pre>public&nbsp;void&nbsp;registerStandardFunctions()</pre>
-<div class="block">Register the standard CLI built-in functions such as <code>print()</code>, <code>dump()</code>, etc.</div>
-<dl>
-<dt><strong>Overrides:</strong></dt>
-<dd><code><a href="../../../org/jsimpledb/parse/ParseSession.html#registerStandardFunctions()">registerStandardFunctions</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a></code></dd>
-</dl>
+<h4>loadCommandsFromClasspath</h4>
+<pre>public&nbsp;void&nbsp;loadCommandsFromClasspath()</pre>
+<div class="block">Scan the classpath for <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s and register them.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/cli/CliSession.html#CLI_COMMANDS_DESCRIPTOR_RESOURCE"><code>CLI_COMMANDS_DESCRIPTOR_RESOURCE</code></a></dd></dl>
 </li>
 </ul>
-<a name="registerStandardCommands()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>registerStandardCommands</h4>
-<pre>public&nbsp;void&nbsp;registerStandardCommands()</pre>
-<div class="block">Register the standard CLI built-in commands.</div>
-</li>
-</ul>
-<a name="registerCommand(java.lang.Class)">
+<a name="registerCommand(org.jsimpledb.cli.cmd.Command)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>registerCommand</h4>
-<pre>public&nbsp;<a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd">AbstractCommand</a>&nbsp;registerCommand(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;cl)</pre>
-<div class="block">Create an instance of the specified class and register it as a <a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a>.
- The class must have a public constructor taking either a single <a href="../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> parameter
- or no parameters; they will be tried in that order.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cl</code> - command class</dd>
-<dt><span class="strong">Returns:</span></dt><dd>the newly instantiated command</dd>
+<pre>public&nbsp;void&nbsp;registerCommand(<a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a>&nbsp;command)</pre>
+<div class="block">Register the given <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>.
+
+ <p>
+ Any existing <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a> with the same name will be replaced.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>command</code> - new command</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>cl</code> has no suitable constructor</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>cl</code> instantiation fails</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>cl</code> does not subclass <a href="../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="class in org.jsimpledb.cli.cmd"><code>AbstractCommand</code></a></dd></dl>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>command</code> is null</dd></dl>
 </li>
 </ul>
 <a name="reportException(java.lang.Exception)">
@@ -517,8 +547,7 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 
  <p>
  The implementation in <code>Session</code> logs an error message. Subclasses are encouraged to
- handle errors more gracefully within the context of the associated application.
- </p></div>
+ handle errors more gracefully within the context of the associated application.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="../../../org/jsimpledb/Session.html#reportException(java.lang.Exception)">reportException</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></code></dd>
@@ -627,13 +656,13 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#fields_inherited_from_class_org.jsimpledb.Session">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>

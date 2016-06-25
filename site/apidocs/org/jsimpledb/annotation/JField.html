@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JField (JSimpleDB 2.0.1 API)</title>
+<title>JField (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JField (JSimpleDB 2.0.1 API)";
+        parent.document.title="JField (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -87,7 +87,7 @@
 <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Target.html?is-external=true" title="class or interface in java.lang.annotation">@Target</a>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Target.html?is-external=true#value()" title="class or interface in java.lang.annotation">value</a>=<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/annotation/ElementType.html?is-external=true#METHOD" title="class or interface in java.lang.annotation">METHOD</a>)
 <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/annotation/Documented.html?is-external=true" title="class or interface in java.lang.annotation">@Documented</a>
 public @interface <span class="strong">JField</span></pre>
-<div class="block">Java annotation for creating simple fields, including reference fields that refer to other Java model object types.
+<div class="block">Java annotation for defining simple fields, including reference fields that refer to other Java model object types.
 
  <p>
  This annotation is used in two scenarios:
@@ -101,12 +101,10 @@ public @interface <span class="strong">JField</span></pre>
  <p>
  Note that this annotation can be applied to superclass and interface methods to have the corresponding
  field defined in all sub-types.
- </p>
 
  <p>
- This annotation is not required when auto-generation of properties is enabled (unless you need to override
- defaults); see <a href="../../../org/jsimpledb/annotation/JSimpleClass.html#autogenFields()"><code>JSimpleClass.autogenFields()</code></a>.
- </p>
+ When auto-generation of properties is enabled, use of this annotation is not required unless you need to override
+ the defaults; see <a href="../../../org/jsimpledb/annotation/JSimpleClass.html#autogenFields()"><code>JSimpleClass.autogenFields()</code></a>.
 
  <p><b>Non-Reference Fields</b></p>
 
@@ -116,29 +114,24 @@ public @interface <span class="strong">JField</span></pre>
  must be registered in the <a href="../../../org/jsimpledb/core/FieldTypeRegistry.html" title="class in org.jsimpledb.core"><code>FieldTypeRegistry</code></a> (perhaps via <a href="../../../org/jsimpledb/annotation/JFieldType.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JFieldType</code></a>),
  and the corresponding <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> is then used to encode/decode field values.
  The type name may also be specified explicitly by <a href="../../../org/jsimpledb/annotation/JField.html#name()"><code>name()</code></a>.
- </p>
 
  <p>
  Simple fields may be <a href="../../../org/jsimpledb/annotation/JField.html#indexed()"><code>indexed()</code></a>; see <a href="../../../org/jsimpledb/index/package-summary.html"><code>org.jsimpledb.index</code></a> for information on querying indexes.
- </p>
 
  <p><b>Reference Fields</b></p>
 
  <p>
  If the type of the field is (assignable to) a <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JsimpleClass</code></a>-annotated Java model object type,
  then the field is a reference field.
- </p>
 
  <p>
  Reference fields are always indexed; the value of <a href="../../../org/jsimpledb/annotation/JField.html#indexed()"><code>indexed()</code></a> is ignored.
- </p>
 
  <p><b>Delete Cascades</b></p>
 
  <p>
  Reference fields have configurable behavior when the referring object or the referred-to object is deleted;
  see <a href="../../../org/jsimpledb/annotation/JField.html#onDelete()"><code>onDelete()</code></a> and <a href="../../../org/jsimpledb/annotation/JField.html#cascadeDelete()"><code>cascadeDelete()</code></a>.
- </p>
 
  <p><b>Uniqueness Constraints</b></p>
 
@@ -147,13 +140,11 @@ public @interface <span class="strong">JField</span></pre>
  Fields with uniqueness constraints must be indexed. Uniqueness constraints are handled at the JSimpleDB layer and function as
  an implicit validation constraint. In other words, the constraint is verified when the validation queue is processed
  and is affected by the transaction's configured <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb"><code>ValidationMode</code></a>.
- </p>
 
  <p>
  Optionally, specific field values may be marked as excluded from the uniqueness constraint via <a href="../../../org/jsimpledb/annotation/JField.html#uniqueExclude()"><code>uniqueExclude()</code></a>.
  If so, the specified values may appear in multiple objects without violating the constraint. Because null values
  are not allowed in annotations, <a href="../../../org/jsimpledb/annotation/JField.html#uniqueExcludeNull()"><code>uniqueExcludeNull()</code></a> is provided to exclude the null value.
- </p>
 
  <p>
  In <a href="../../../org/jsimpledb/ValidationMode.html#AUTOMATIC"><code>ValidationMode.AUTOMATIC</code></a>, any upgraded <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s are automatically
@@ -163,8 +154,7 @@ public @interface <span class="strong">JField</span></pre>
  <p>
  Note however, that uniqueness constraints can be added or changed on a field without a schema version change.
  Therefore, after such changes, pre-existing database objects that were previously valid could become suddenly invalid.
- To avoid this possibililty, change the schema version number and update them manually.
- </p></div>
+ To avoid this possibililty, change the schema version number and update them manually.</div>
 </li>
 </ul>
 </div>
@@ -265,11 +255,9 @@ public @interface <span class="strong">JField</span></pre>
 
  <p>
  If equal to the empty string (default value), the name is inferred from the name of the annotated Java bean getter method.
- </p>
 
  <p>
- For sub-fields of complex fields, this property must be left unset.
- </p></div>
+ For sub-fields of complex fields, this property must be left unset.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the name of the field</dd></dl>
 <dl>
 <dt>Default:</dt>
@@ -295,12 +283,10 @@ public @interface <span class="strong">JField</span></pre>
  If equal to the empty string (default value), then the Java type is inferred from the return type of the getter method
  and the <a href="../../../org/jsimpledb/core/FieldType.html" title="class in org.jsimpledb.core"><code>FieldType</code></a> is found via
  <a href="../../../org/jsimpledb/core/FieldTypeRegistry.html#getFieldType(com.google.common.reflect.TypeToken)"><code>FieldTypeRegistry.getFieldType()</code></a>.
- </p>
 
  <p>
  For reference fields (i.e., methods with return value equal to a <a href="../../../org/jsimpledb/annotation/JSimpleClass.html" title="annotation in org.jsimpledb.annotation"><code>&#64;JSimpleClass</code></a>-annotated class),
  this property must be left unset.
- </p>
 
  <p>
  For sub-fields of complex fields, this property can be used to force a primitive sub-field type instead of a
@@ -349,11 +335,9 @@ public @interface <span class="strong">JField</span></pre>
  <p>
  Setting this property to true creates a simple index on this field. To have this field participate in
  a composite index on multiple fields, use <a href="../../../org/jsimpledb/annotation/JSimpleClass.html#compositeIndexes()"><code>JSimpleClass.compositeIndexes()</code></a>.
- </p>
 
  <p>
- Note: reference fields are always indexed (for reference fields, this property is ignored).
- </p></div>
+ Note: reference fields are always indexed (for reference fields, this property is ignored).</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether the field is indexed</dd></dl>
 <dl>
 <dt>Default:</dt>
@@ -372,8 +356,7 @@ public @interface <span class="strong">JField</span></pre>
  <a href="../../../org/jsimpledb/JObject.html#delete()">deleted</a>.
 
  <p>
- For non-reference fields this property must be equal to its default value.
- </p></div>
+ For non-reference fields this property must be equal to its default value.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>desired behavior when a referenced object is deleted</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#cascadeDelete()"><code>cascadeDelete()</code></a>, 
 <a href="../../../org/jsimpledb/JObject.html#delete()"><code>JObject.delete()</code></a></dd></dl>
 <dl>
@@ -394,8 +377,7 @@ public @interface <span class="strong">JField</span></pre>
  is automatically deleted as well.
 
  <p>
- For non-reference fields this property must be equal to its default value.
- </p></div>
+ For non-reference fields this property must be equal to its default value.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether deletion should cascade to the referred-to object</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#onDelete()"><code>onDelete()</code></a>, 
 <a href="../../../org/jsimpledb/JObject.html#delete()"><code>JObject.delete()</code></a></dd></dl>
 <dl>
@@ -452,8 +434,7 @@ public @interface <span class="strong">JField</span></pre>
  </pre>
 
  <p>
- This property must be left empty when <a href="../../../org/jsimpledb/annotation/JField.html#unique()"><code>unique()</code></a> is false.
- </p></div>
+ This property must be left empty when <a href="../../../org/jsimpledb/annotation/JField.html#unique()"><code>unique()</code></a> is false.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>values to exclude from the uniqueness constraint</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#unique()"><code>unique()</code></a>, 
 <a href="../../../org/jsimpledb/annotation/JField.html#uniqueExcludeNull()"><code>uniqueExcludeNull()</code></a></dd></dl>
 <dl>
@@ -472,8 +453,7 @@ public @interface <span class="strong">JField</span></pre>
 <div class="block">Specify that the null value is excluded from the uniqueness constraint.
 
  <p>
- This property must be left false when <a href="../../../org/jsimpledb/annotation/JField.html#unique()"><code>unique()</code></a> is false or the field has primitive type.
- </p></div>
+ This property must be left false when <a href="../../../org/jsimpledb/annotation/JField.html#unique()"><code>unique()</code></a> is false or the field has primitive type.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether null should be excluded from the uniqueness constraint</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#unique()"><code>unique()</code></a>, 
 <a href="../../../org/jsimpledb/annotation/JField.html#uniqueExclude()"><code>uniqueExclude()</code></a></dd></dl>
 <dl>

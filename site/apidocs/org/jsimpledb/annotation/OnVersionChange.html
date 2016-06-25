@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>OnVersionChange (JSimpleDB 2.0.1 API)</title>
+<title>OnVersionChange (JSimpleDB 2.1.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="OnVersionChange (JSimpleDB 2.0.1 API)";
+        parent.document.title="OnVersionChange (JSimpleDB 2.1.0 API)";
     }
 //-->
 </script>
@@ -104,7 +104,6 @@ public @interface <span class="strong">OnVersionChange</span></pre>
  <p>
  If a class has multiple <a href="../../../org/jsimpledb/annotation/OnVersionChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnVersionChange</code></a>-annotated methods, methods with more specific
  constraint(s) (i.e., non-zero <a href="../../../org/jsimpledb/annotation/OnVersionChange.html#oldVersion()"><code>oldVersion()</code></a> and/or <a href="../../../org/jsimpledb/annotation/OnVersionChange.html#newVersion()"><code>newVersion()</code></a>) will be invoked first.
- </p>
 
  <p><b>Incompatible Schema Changes</b></p>
 
@@ -134,8 +133,7 @@ public @interface <span class="strong">OnVersionChange</span></pre>
  Java code than it was in the previous Java code. If an object held a reference in such a field to another object outside
  the new, narrower type, then upgrading the object without change would represent a violation of Java type safety.
  Therefore, when any object is upgraded, all references that would otherwise be illegal are cleared (in the manner of
- <a href="../../../org/jsimpledb/core/DeleteAction.html#UNREFERENCE"><code>DeleteAction.UNREFERENCE</code></a>); use <code>oldValues</code> to access the previous field value(s) if needed.
- </p></div>
+ <a href="../../../org/jsimpledb/core/DeleteAction.html#UNREFERENCE"><code>DeleteAction.UNREFERENCE</code></a>); use <code>oldValues</code> to access the previous field value(s) if needed.</div>
 </li>
 </ul>
 </div>
@@ -195,11 +193,9 @@ public @interface <span class="strong">OnVersionChange</span></pre>
  for which the previous schema version equals the specified version will result in notification,
  and the annotated method must have the corresponding parameter omitted. Otherwise notifications
  are delivered for any previous schema version and the <code>oldVersion</code> method parameter is required.
- </p>
 
  <p>
- Negative values are not allowed.
- </p></div>
+ Negative values are not allowed.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>old schema version, or zero for no restriction</dd></dl>
 <dl>
 <dt>Default:</dt>
@@ -221,11 +217,9 @@ public @interface <span class="strong">OnVersionChange</span></pre>
  for which the new schema version equals the specified version will result in notification,
  and the annotated method must have the corresponding parameter omitted. Otherwise notifications
  are delivered for any new schema version and the <code>newVersion</code> method parameter is required.
- </p>
 
  <p>
- Negative values are not allowed.
- </p></div>
+ Negative values are not allowed.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>new schema version, or zero for no restriction</dd></dl>
 <dl>
 <dt>Default:</dt>
