@@ -4,12 +4,14 @@ Version 2.1.0
     - Discover parse function implementations from classpath
     - Discover CLI command implementations from classpath
     - Handle fields declared in multiple incomparable supertypes
-    - API changes:
+    - Pass @Transaction.isolation() property through to SQL k/v stores
+    - Fixed bug in JSimpleDBTransactionManager when using Propagation.SUPPORTS
+    - Fixed parsing bug handling method references like `Object::hashCode'
+    - Incompatible API changes:
+      - Deprecated JTransaction.getJObject() methods have been removed
       - @Command and @Function annotations converted to interfaces
       - registerStandardFunctions() replaced by loadFunctionsFromClasspath()
       - registerStandardCommands() replaced by loadCommandsFromClasspath()
-    - Fixed bug in JSimpleDBTransactionManager when Propagation.SUPPORTS used
-    - Fixed bug when parsing method references like `Object::hashCode'
 
 Version 2.0.1 Released May 28, 2016
 
