@@ -100,7 +100,7 @@ public class FallbackTarget implements Cloneable {
     }
 
     /**
-     * Get the interval between availability checks.
+     * Get the transaction timeout used when determining database availability.
      *
      * @return transaction timeout in milliseconds
      */
@@ -109,7 +109,7 @@ public class FallbackTarget implements Cloneable {
     }
 
     /**
-     * Configure the transaction timeout used to determine database availability.
+     * Configure the transaction timeout used when determining database availability.
      *
      * <p>
      * Default is {@link #DEFAULT_TRANSACTION_TIMEOUT}.
