@@ -5,7 +5,6 @@
 
 package org.jsimpledb.kv.mvcc;
 
-import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
@@ -179,7 +178,6 @@ public class Reads implements Cloneable, SizeEstimating {
 
     @Override
     public String toString() {
-        final Converter<String, byte[]> byteConverter = ByteUtil.STRING_CONVERTER.reverse();
         return this.getClass().getSimpleName()
           + "[reads=" + reads
           + "]";
