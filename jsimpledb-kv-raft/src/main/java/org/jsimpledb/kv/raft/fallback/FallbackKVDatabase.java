@@ -682,7 +682,7 @@ public class FallbackKVDatabase implements KVDatabase {
         @Override
         public Thread newThread(Runnable action) {
             final Thread thread = new Thread(action);
-            thread.setName("Executor#" + this.id.incrementAndGet() + " for " + FallbackKVDatabase.this);
+            thread.setName("Executor#" + this.id.incrementAndGet() + " for " + FallbackKVDatabase.class.getSimpleName());
             return thread;
         }
     }
