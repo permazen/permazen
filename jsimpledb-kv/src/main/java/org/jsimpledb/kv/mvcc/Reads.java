@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.jsimpledb.kv.KeyRange;
@@ -115,6 +116,48 @@ public class Reads implements Cloneable, SizeEstimating {
 
         // No conflicts
         return false;
+    }
+
+    /**
+     * List the conflicts between the given mutations and any of the keys read by this instance.
+     *
+     * <p>
+     * This gives descriptive details about the conflicts reported by {@link #isConflict isConflict()};
+     * see that method for information on these conflicts. This method returns an empty list if and only
+     * if {@link #isConflict isConflict()} returns false.
+     *
+     * @return a description of each conflict between this instance and the given mutations
+     * @throws IllegalArgumentException if {@code mutations} is null
+     */
+    public List<String> getConflicts(Mutations mutations) {
+
+        // Sanity check
+        Preconditions.checkArgument(mutations != null, "null mutations");
+
+        // Prepare list
+        final ArrayList<String> conflicts = new ArrayList<>();
+
+        // Check removes
+        final ArrayList<KeyRange> removes = new ArrayList<KeyRange>();
+        for (KeyRange remove : mutations.getRemoveRanges())
+            removes.add(remove);
+        if (!this.reads.intersection(new KeyRanges(removes)).isEmpty())
+            conflicts.add("read/remove conflict: " + this.reads.intersection(new KeyRanges(removes)));
+
+        // Check puts
+        for (Map.Entry<byte[], byte[]> entry : mutations.getPutPairs()) {
+            if (this.reads.contains(entry.getKey()))
+                conflicts.add("read/write conflict: " + ByteUtil.toString(entry.getKey()));
+        }
+
+        // Check adjusts
+        for (Map.Entry<byte[], Long> entry : mutations.getAdjustPairs()) {
+            if (this.reads.contains(entry.getKey()))
+                conflicts.add("read/adjust conflict: " + ByteUtil.toString(entry.getKey()));
+        }
+
+        // Return conflicts
+        return conflicts;
     }
 
 // Serialization
