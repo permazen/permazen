@@ -64,7 +64,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
     }
 
     /**
-     * Constructor using caller-provided {@link Reads} (optional} and {@link Writes}.
+     * Constructor using caller-provided {@link Reads} (optional) and {@link Writes}.
      *
      * @param kv underlying {@link KVStore}
      * @param reads recorded reads, or null for none
