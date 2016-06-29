@@ -1,3 +1,7 @@
+Version 2.1.1
+
+    - Fixed bug in MutableView leading to excessive MVCC conflicts
+
 Version 2.1.0 Released June 25, 2016
 
     - Discover key/value implementations by scanning the classpath

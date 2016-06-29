@@ -525,11 +525,11 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
             final byte[] skipMin;
             final byte[] skipMax;
             if (this.reverse) {
-                skipMin = this.next != null ? this.next.getKey() : ByteUtil.EMPTY;
+                skipMin = this.next != null ? this.next.getKey() : this.limit;
                 skipMax = this.cursor;
             } else {
                 skipMin = this.cursor;
-                skipMax = this.next != null ? ByteUtil.getNextKey(this.next.getKey()) : null;
+                skipMax = this.next != null ? ByteUtil.getNextKey(this.next.getKey()) : this.limit;
             }
             if (skipMax == null || ByteUtil.compare(skipMin, skipMax) < 0)
                 MutableView.this.recordReads(skipMin, skipMax);
