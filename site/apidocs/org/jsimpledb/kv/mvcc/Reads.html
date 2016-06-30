@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Reads (JSimpleDB 2.1.0 API)</title>
+<title>Reads (JSimpleDB 2.1.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Reads (JSimpleDB 2.1.0 API)";
+        parent.document.title="Reads (JSimpleDB 2.1.1 API)";
     }
 //-->
 </script>
@@ -168,36 +168,42 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#getConflicts(org.jsimpledb.kv.mvcc.Mutations)">getConflicts</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)</code>
+<div class="block">List the conflicts between the given mutations and any of the keys read by this instance.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#getReads()">getReads</a></strong>()</code>
 <div class="block">Get the ranges of keys read.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#isConflict(org.jsimpledb.kv.mvcc.Mutations)">isConflict</a></strong>(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)</code>
 <div class="block">Determine whether any of the given mutations conflict with any of the keys read by this instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#serialize(java.io.OutputStream)">serialize</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;out)</code>
 <div class="block">Serialize this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#serializedLength()">serializedLength</a></strong>()</code>
 <div class="block">Calculate the number of bytes required to serialize this instance via <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#serialize(java.io.OutputStream)"><code>serialize()</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#setReads(org.jsimpledb.kv.KeyRanges)">setReads</a></strong>(<a href="../../../../org/jsimpledb/kv/KeyRanges.html" title="class in org.jsimpledb.kv">KeyRanges</a>&nbsp;reads)</code>
 <div class="block">Set the ranges of keys read.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#toString()">toString</a></strong>()</code>&nbsp;</td>
 </tr>
@@ -297,6 +303,24 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
  This method guarantees that it will access the given <code>mutations</code> in this order: removes, puts, adjusts.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>mutations</code> - mutations to check for conflicts</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if the <code>mutations</code> are invisible to this instance, false if there is a read/write conflict</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>mutations</code> is null</dd></dl>
+</li>
+</ul>
+<a name="getConflicts(org.jsimpledb.kv.mvcc.Mutations)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getConflicts</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getConflicts(<a href="../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)</pre>
+<div class="block">List the conflicts between the given mutations and any of the keys read by this instance.
+
+ <p>
+ This gives descriptive details about the conflicts reported by <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#isConflict(org.jsimpledb.kv.mvcc.Mutations)"><code>isConflict()</code></a>;
+ see that method for information on these conflicts. This method returns an empty list if and only
+ if <a href="../../../../org/jsimpledb/kv/mvcc/Reads.html#isConflict(org.jsimpledb.kv.mvcc.Mutations)"><code>isConflict()</code></a> returns false.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a description of each conflict between this instance and the given mutations</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>mutations</code> is null</dd></dl>
 </li>

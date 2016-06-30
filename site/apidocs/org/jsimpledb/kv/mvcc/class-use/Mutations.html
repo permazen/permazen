@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Interface org.jsimpledb.kv.mvcc.Mutations (JSimpleDB 2.1.0 API)</title>
+<title>Uses of Interface org.jsimpledb.kv.mvcc.Mutations (JSimpleDB 2.1.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Interface org.jsimpledb.kv.mvcc.Mutations (JSimpleDB 2.1.0 API)";
+        parent.document.title="Uses of Interface org.jsimpledb.kv.mvcc.Mutations (JSimpleDB 2.1.1 API)";
     }
 //-->
 </script>
@@ -189,19 +189,25 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
+<td class="colLast"><span class="strong">Reads.</span><code><strong><a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html#getConflicts(org.jsimpledb.kv.mvcc.Mutations)">getConflicts</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)</code>
+<div class="block">List the conflicts between the given mutations and any of the keys read by this instance.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">Reads.</span><code><strong><a href="../../../../../org/jsimpledb/kv/mvcc/Reads.html#isConflict(org.jsimpledb.kv.mvcc.Mutations)">isConflict</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations)</code>
 <div class="block">Determine whether any of the given mutations conflict with any of the keys read by this instance.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">AtomicKVStore.</span><code><strong><a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVStore.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">mutate</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
       boolean&nbsp;sync)</code>
 <div class="block">Apply a set of mutations to this instance atomically.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">AtomicKVDatabase.</span><code><strong><a href="../../../../../org/jsimpledb/kv/mvcc/AtomicKVDatabase.html#mutate(org.jsimpledb.kv.mvcc.Mutations, boolean)">mutate</a></strong>(<a href="../../../../../org/jsimpledb/kv/mvcc/Mutations.html" title="interface in org.jsimpledb.kv.mvcc">Mutations</a>&nbsp;mutations,
       boolean&nbsp;sync)</code>&nbsp;</td>
