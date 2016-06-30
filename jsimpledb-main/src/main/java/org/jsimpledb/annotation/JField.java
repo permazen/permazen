@@ -191,11 +191,11 @@ public @interface JField {
      * Require this field's value to be unique among all database objects.
      *
      * <p>
-     * When set, this causes this field's value to be checked for uniqueness any time normal validation is
-     * performed on an object containing the field.
+     * This property creates an implicit uniqueness validation constraint.
      *
      * <p>
-     * More precisely, a uniqueness constraint behaves like a
+     * The constraint will be checked any time normal validation is performed on an object containing the field.
+     * More precisely, a uniqueness constraint behaves like a JSR 303
      * validation constraint with {@code groups() = }<code>{ </code>{@link javax.validation.groups.Default}{@code .class,
      * }{@link org.jsimpledb.UniquenessConstraints}{@code .class}<code> }</code>. Therefore, uniqueness constraints
      * are included in default validation, but you can also validate <i>only</i> uniqueness constraints via
