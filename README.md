@@ -69,17 +69,17 @@ JSimpleDB is availble from [Maven Central](http://search.maven.org/#search|ga|1|
 
 or from the [Ivy RoundUp](https://github.com/archiecobbs/ivyroundup/) ivy repository:
 
-Note you should also add the key/value store module for whatever key/value store you want to use, e.g.:
+```xml
+<dependency org="org.jsimpledb" name="jsimpledb"/>
+```
+
+You should also add the key/value store module(s) for whatever key/value store(s) you want to use, e.g.:
 
 ```xml
     <dependency>
         <groupId>org.jsimpledb</groupId>
         <artifactId>jsimpledb-kv-mysql</artifactId>
     </dependency>
-```
-
-```xml
-<dependency org="org.jsimpledb" name="jsimpledb"/>
 ```
 
 There is a [demo distribution ZIP file](http://search.maven.org/#search|ga|1|jsimpledb-demo) that lets you play with the JSimpleDB command line and GUI, using a simple database of the solar system.
