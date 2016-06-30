@@ -40,11 +40,11 @@ class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
             }
             @Override
             public JField key() {
-                return JFieldScanner.DEFAULT_JFIELD;
+                return JFieldScanner.getDefaultJField(JMapFieldScanner.this.jsimpleClass);
             }
             @Override
             public JField value() {
-                return JFieldScanner.DEFAULT_JFIELD;
+                return JFieldScanner.getDefaultJField(JMapFieldScanner.this.jsimpleClass);
             }
         };
     }

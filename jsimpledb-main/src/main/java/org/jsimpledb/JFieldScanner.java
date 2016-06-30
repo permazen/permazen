@@ -20,56 +20,13 @@ import org.jsimpledb.core.DeleteAction;
  */
 class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
 
-    public static final JField DEFAULT_JFIELD = new JField() {
-        @Override
-        public Class<JField> annotationType() {
-            return JField.class;
-        }
-        @Override
-        public String name() {
-            return "";
-        }
-        @Override
-        public String type() {
-            return "";
-        }
-        @Override
-        public int storageId() {
-            return 0;
-        }
-        @Override
-        public boolean indexed() {
-            return false;
-        }
-        @Override
-        public boolean unique() {
-            return false;
-        }
-        @Override
-        public String[] uniqueExclude() {
-            return new String[0];
-        }
-        @Override
-        public boolean uniqueExcludeNull() {
-            return false;
-        }
-        @Override
-        public DeleteAction onDelete() {
-            return DeleteAction.EXCEPTION;
-        }
-        @Override
-        public boolean cascadeDelete() {
-            return false;
-        }
-    };
-
     JFieldScanner(JClass<T> jclass, JSimpleClass jsimpleClass) {
         super(jclass, JField.class, jsimpleClass);
     }
 
     @Override
     protected JField getDefaultAnnotation() {
-        return DEFAULT_JFIELD;
+        return JFieldScanner.getDefaultJField(this.jsimpleClass);
     }
 
     @Override
@@ -102,5 +59,49 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         }
         return true;
     }
-}
 
+    public static final JField getDefaultJField(final JSimpleClass jsimpleClass) {
+        return new JField() {
+            @Override
+            public Class<JField> annotationType() {
+                return JField.class;
+            }
+            @Override
+            public String name() {
+                return "";
+            }
+            @Override
+            public String type() {
+                return "";
+            }
+            @Override
+            public int storageId() {
+                return 0;
+            }
+            @Override
+            public boolean indexed() {
+                return false;
+            }
+            @Override
+            public boolean unique() {
+                return false;
+            }
+            @Override
+            public String[] uniqueExclude() {
+                return new String[0];
+            }
+            @Override
+            public boolean uniqueExcludeNull() {
+                return false;
+            }
+            @Override
+            public DeleteAction onDelete() {
+                return DeleteAction.EXCEPTION;
+            }
+            @Override
+            public boolean cascadeDelete() {
+                return false;
+            }
+        };
+    }
+}

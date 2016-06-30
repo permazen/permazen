@@ -38,7 +38,7 @@ class JListFieldScanner<T> extends AbstractFieldScanner<T, JListField> {
             }
             @Override
             public JField element() {
-                return JFieldScanner.DEFAULT_JFIELD;
+                return JFieldScanner.getDefaultJField(JListFieldScanner.this.jsimpleClass);
             }
         };
     }

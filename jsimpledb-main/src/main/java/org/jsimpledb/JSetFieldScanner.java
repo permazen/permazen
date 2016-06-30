@@ -40,7 +40,7 @@ class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
             }
             @Override
             public JField element() {
-                return JFieldScanner.DEFAULT_JFIELD;
+                return JFieldScanner.getDefaultJField(JSetFieldScanner.this.jsimpleClass);
             }
         };
     }
