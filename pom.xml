@@ -79,10 +79,10 @@
 
         <!-- Dependency versions -->
         <ant.version>1.8.1</ant.version>
+        <asm.version>5.1</asm.version>
         <aspectj.version>1.8.9</aspectj.version>
         <bdb.version>6.4.9</bdb.version>
         <commons-codec.version>1.10</commons-codec.version>
-        <asm.version>5.1</asm.version>
         <dellroad-stuff.version>2.0.0</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
         <guava.version>18.0</guava.version>
@@ -91,11 +91,13 @@
         <javax.el-api.version>2.2.4</javax.el-api.version>
         <jetty.version>9.2.7.v20150116</jetty.version>
         <jline.version>2.14.1</jline.version>
+        <leveldb.version>0.8.1</leveldb.version>
         <log4j.version>1.2.17</log4j.version>
         <mysql.version>5.1.38</mysql.version>
         <nvt4j.version>1.2.0</nvt4j.version>
         <plugin-api.version>3.3.9</plugin-api.version>
         <postgresql.version>9.4.1208.jre7</postgresql.version>
+        <rocksdb.version>4.5.1</rocksdb.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.21</slf4j.version>
         <spring.version>4.1.9.RELEASE</spring.version>
@@ -104,8 +106,6 @@
         <vaadin7.version.prefix>7.5</vaadin7.version.prefix>
         <vaadin7.version>7.5.5</vaadin7.version>
         <validation-api.version>1.1.0.Final</validation-api.version>
-        <rocksdb.version>4.5.1</rocksdb.version>
-        <leveldb.version>0.8.1</leveldb.version>
 
     </properties>
 
