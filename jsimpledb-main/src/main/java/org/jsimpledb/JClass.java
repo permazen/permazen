@@ -501,7 +501,7 @@ public class JClass<T> extends JSchemaObject {
         description += " in " + this.type;
 
         // Complex sub-field?
-        final boolean isSubField = getter == null;
+        final boolean isSubField = setter == null;
 
         // Sanity check annotation
         if (isSubField && annotation.unique())
