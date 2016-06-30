@@ -1,6 +1,7 @@
 Version 2.1.1
 
     - Fixed bug in MutableView leading to excessive MVCC conflicts
+    - More reliable detection of retry exceptions in CockroachDB
 
 Version 2.1.0 Released June 25, 2016
 
