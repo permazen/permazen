@@ -64,11 +64,19 @@ JSimpleDB is availble from [Maven Central](http://search.maven.org/#search|ga|1|
     <dependency>
         <groupId>org.jsimpledb</groupId>
         <artifactId>jsimpledb-main</artifactId>
-        <version>2.1.0</version>
     </dependency>
 ```
 
 or from the [Ivy RoundUp](https://github.com/archiecobbs/ivyroundup/) ivy repository:
+
+Note you should also add the key/value store module for whatever key/value store you want to use, e.g.:
+
+```xml
+    <dependency>
+        <groupId>org.jsimpledb</groupId>
+        <artifactId>jsimpledb-kv-mysql</artifactId>
+    </dependency>
+```
 
 ```xml
 <dependency org="org.jsimpledb" name="jsimpledb"/>
