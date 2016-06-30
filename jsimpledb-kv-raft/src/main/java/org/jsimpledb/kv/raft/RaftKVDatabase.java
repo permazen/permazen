@@ -1181,6 +1181,10 @@ public class RaftKVDatabase implements KVDatabase {
     @Override
     public RaftKVTransaction createTransaction(Map<String, ?> options) {
 
+        // Any options?
+        if (options == null)
+            return this.createTransaction(Consistency.LINEARIZABLE);
+
         // Look for options from the JSimpleDBTransactionManager
         Consistency consistency = null;
         Object isolation = options.get("org.springframework.transaction.annotation.Isolation");

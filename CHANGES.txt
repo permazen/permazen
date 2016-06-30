@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed NPE in RaftKVDatabase when null transaction options given
+
 Version 2.1.1 Released June 30, 2016
 
     - Fixed bug in MutableView leading to excessive MVCC conflicts
