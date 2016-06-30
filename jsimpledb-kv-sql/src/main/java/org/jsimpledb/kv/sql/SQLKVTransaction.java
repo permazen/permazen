@@ -275,7 +275,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
             }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
-                this.log.trace("executing SQL query: " + preparedStatement);
+                this.log.trace("executing SQL query: " + preparedStatement + " in " + this);
             final ResultSet resultSet = preparedStatement.executeQuery();
             final T result = resultSetFunction.apply(preparedStatement, resultSet);
             if (close) {
@@ -298,7 +298,7 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
             }
             preparedStatement.setQueryTimeout((int)((this.timeout + 999) / 1000));
             if (this.log.isTraceEnabled())
-                this.log.trace("executing SQL update: " + preparedStatement);
+                this.log.trace("executing SQL update: " + preparedStatement + " in " + this);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw this.handleException(e);

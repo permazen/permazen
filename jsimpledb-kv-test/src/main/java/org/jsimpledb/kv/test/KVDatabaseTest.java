@@ -385,7 +385,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             }
         });
 
-        // Multiple concurrent read-only transactions with overlapping read ranges and non-intersecting write ranges
+        // Multiple concurrent transactions with overlapping read ranges and non-intersecting write ranges
         int done = 0;
         KVTransaction[] txs = new KVTransaction[10];
         for (int i = 0; i < txs.length; i++)
@@ -858,12 +858,16 @@ public abstract class KVDatabaseTest extends KVTestSupport {
         @Override
         public byte[] call() {
             if (this.range) {
+                if (KVDatabaseTest.this.log.isTraceEnabled())
+                    KVDatabaseTest.this.log.trace("reading at least " + s(this.key) + " in " + this.tx);
                 final KVPair pair = this.tx.getAtLeast(this.key);
-                KVDatabaseTest.this.log.info("reading at least " + s(this.key) + " -> " + pair + " in " + this.tx);
+                KVDatabaseTest.this.log.info("finished reading at least " + s(this.key) + " -> " + pair + " in " + this.tx);
                 return pair != null ? pair.getValue() : null;
             } else {
+                if (KVDatabaseTest.this.log.isTraceEnabled())
+                    KVDatabaseTest.this.log.trace("reading " + s(this.key) + " in " + this.tx);
                 final byte[] value = this.tx.get(this.key);
-                KVDatabaseTest.this.log.info("reading " + s(this.key) + " -> " + s(value) + " in " + this.tx);
+                KVDatabaseTest.this.log.info("finished reading " + s(this.key) + " -> " + s(value) + " in " + this.tx);
                 return value;
             }
         }
