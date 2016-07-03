@@ -53,7 +53,7 @@ public class EvalCommand extends AbstractCommand {
                 } catch (EvalException e) {
                     if (!force && session.getMode().hasCoreAPI())
                         session.getTransaction().setRollbackOnly();
-                    writer.println("Error: " + e.getMessage());
+                    writer.println(session.getErrorMessagePrefix() + e.getMessage());
                     if (session.isVerbose())
                         e.printStackTrace(writer);
                     return;

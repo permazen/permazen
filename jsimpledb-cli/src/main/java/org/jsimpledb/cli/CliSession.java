@@ -51,6 +51,7 @@ public class CliSession extends ParseSession {
     private boolean done;
     private boolean verbose;
     private int lineLimit = 16;
+    private String errorMessagePrefix = "Error: ";
 
 // Constructors
 
@@ -186,15 +187,38 @@ public class CliSession extends ParseSession {
     protected void reportException(Exception e) {
         final String message = e.getLocalizedMessage();
         if (e instanceof ParseException && message != null)
-            this.writer.println("Error: " + message);
-        else
-            this.writer.println("Error: " + e.getClass().getSimpleName() + (message != null ? ": " + message : ""));
+            this.writer.println(this.getErrorMessagePrefix() + message);
+        else {
+            this.writer.println(this.getErrorMessagePrefix()
+              + e.getClass().getSimpleName() + (message != null ? ": " + message : ""));
+        }
         if (this.verbose || this.showStackTrace(e))
             e.printStackTrace(this.writer);
     }
 
     protected boolean showStackTrace(Exception e) {
         return e instanceof NullPointerException || (e instanceof ParseException && e.getLocalizedMessage() == null);
+    }
+
+    /**
+     * Get prefix for error messages.
+     *
+     * <p>
+     * Default prefix is {@code "Error: "}.
+     *
+     * @return error message prefix
+     */
+    public String getErrorMessagePrefix() {
+        return this.errorMessagePrefix;
+    }
+
+    /**
+     * Set prefix for error messages.
+     *
+     * @param prefix error message prefix
+     */
+    public void setErrorMessagePrefix(String prefix) {
+        this.errorMessagePrefix = prefix;
     }
 
 // Action
