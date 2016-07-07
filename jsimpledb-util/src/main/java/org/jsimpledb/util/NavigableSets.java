@@ -63,7 +63,7 @@ public final class NavigableSets {
     @SuppressWarnings("varargs")
     public static <E> NavigableSet<E> intersection(NavigableSet<E>... sets) {
         Preconditions.checkArgument(sets != null, "null sets");
-        return new IntersectionNavigableSet<E>(Arrays.asList(sets));
+        return NavigableSets.<E>intersection(Arrays.asList(sets));
     }
 
     /**
@@ -81,7 +81,7 @@ public final class NavigableSets {
     @SuppressWarnings("varargs")
     public static <E> NavigableSet<E> union(NavigableSet<E>... sets) {
         Preconditions.checkArgument(sets != null, "null sets");
-        return new UnionNavigableSet<E>(Arrays.asList(sets));
+        return NavigableSets.<E>union(Arrays.asList(sets));
     }
 
     /**
