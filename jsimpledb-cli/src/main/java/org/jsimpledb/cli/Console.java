@@ -105,6 +105,7 @@ public class Console {
         this.console.setBellEnabled(true);
         this.console.setHistoryEnabled(true);
         this.console.setHandleUserInterrupt(true);
+        this.console.setExpandEvents(false);
         final PrintWriter writer = new PrintWriter(console.getOutput(), true);
         this.session = jdb != null ? new CliSession(jdb, writer, this) :
           db != null ? new CliSession(db, writer, this) : new CliSession(kvdb, writer, this);
