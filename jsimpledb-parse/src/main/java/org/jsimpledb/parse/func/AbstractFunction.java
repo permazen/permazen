@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.parse.ParseException;
@@ -123,11 +124,29 @@ public abstract class AbstractFunction implements Function {
                 }
                 this.spaceParser.parse(ctx, complete);
             }
-            params.add(ExprParser.INSTANCE.parse(session, ctx, complete));
+            params.add(this.parseNextParameter(session, ctx, complete, skippedArgs, params));
             ctx.skipWhitespace();
         }
 
         // Done
         return params.toArray(new Node[params.size()]);
+    }
+
+    /**
+     * Parse the next function parameter. Invoked by {@link #parseExpressionParams parseExpressionParams()}.
+     *
+     * <p>
+     * The implementation in {@link AbstractFunction} delegates to {@link ExprParser#parse ExprParser.parse()}.
+     *
+     * @param ctx parse context
+     * @param complete false if parse is "for real", true if only for tab completion calculation
+     * @param skippedArgs the number of arguments parsed prior to {@link #parseExpressionParams parseExpressionParams()}
+     * @param paramList the parameters already parsed by {@link #parseExpressionParams parseExpressionParams()}
+     * @return parsed parameter
+     * @throws ParseException if parse fails, or if {@code complete} is true and there are valid completions
+     */
+    protected Node parseNextParameter(ParseSession session,
+      ParseContext ctx, boolean complete, int skippedArgs, List<Node> paramList) {
+        return ExprParser.INSTANCE.parse(session, ctx, complete);
     }
 }

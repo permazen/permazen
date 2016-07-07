@@ -3,6 +3,7 @@ Version Next
     - Fixed NPE in RaftKVDatabase when null transaction options given
     - Fixed bug in NavigableSets union/intersection with empty sets
     - Added new method FallbackKVDatabase.setInitialTargetIndex()
+    - Added new method AbstractFunction.parseNextParameter()
 
 Version 2.1.1 Released June 30, 2016
 
