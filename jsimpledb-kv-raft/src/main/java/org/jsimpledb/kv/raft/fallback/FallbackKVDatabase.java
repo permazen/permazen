@@ -82,6 +82,7 @@ public class FallbackKVDatabase implements KVDatabase {
     private final ArrayList<FallbackTarget> targets = new ArrayList<>();
     private File stateFile;
     private KVDatabase standaloneKV;
+    private int initialTargetIndex = Integer.MAX_VALUE;
 
     // Runtime state
     private boolean migrating;
@@ -207,6 +208,20 @@ public class FallbackKVDatabase implements KVDatabase {
     }
 
     /**
+     * Configure the index of the currently active database when starting up for the very first time.
+     * After the initial startup, the current fallback target is persisted across restarts.
+     *
+     * <p>
+     * Default value is the most highly preferred target. Use -1 to change the default to standalone mode;
+     * this is appropriate when the Raft cluster is not yet configured on initial startup.
+     *
+     * @param initialTargetIndex initial target index; out of range values will be clipped
+     */
+    public void setInitialTargetIndex(int initialTargetIndex) {
+        this.initialTargetIndex = initialTargetIndex;
+    }
+
+    /**
      * Get the index of the currently active database.
      *
      * @return index into fallback target list, or -1 for standalone mode
@@ -263,7 +278,7 @@ public class FallbackKVDatabase implements KVDatabase {
                 target.available = true;
                 target.lastChangeTimestamp = null;
             }
-            this.currentTargetIndex = this.targets.size() - 1;
+            this.currentTargetIndex = Math.max(-1, Math.min(this.targets.size() - 1, this.initialTargetIndex));
             this.migrationCount = 0;
 
             // Read state file, if present
