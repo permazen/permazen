@@ -6,6 +6,7 @@ Version Next
     - Added new method AbstractFunction.parseNextParameter()
     - Fixed bug with `import' CLI command when used without wildcard
     - Added `--file' and `--batch' CLI command line flags
+    - Added capacity and lifetime limits to key watch tracker
 
 Version 2.1.1 Released June 30, 2016
 
