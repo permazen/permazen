@@ -213,7 +213,7 @@ public class ParseSession extends Session {
 
         // Parse base class and search in package imports
         final int firstDot = baseName.indexOf('.');
-        final String firstPart = firstDot != -1 ? baseName.substring(0, firstDot - 1) : baseName;
+        final String firstPart = firstDot != -1 ? baseName.substring(0, firstDot) : baseName;
         final ArrayList<String> packages = new ArrayList<>(this.imports.size() + 1);
         packages.add(null);
         packages.addAll(this.imports);
@@ -228,9 +228,10 @@ public class ParseSession extends Session {
             else if (pkg.endsWith(".*"))
                 className = pkg.substring(0, pkg.length() - 1) + baseName;
             else {
-                if (!firstPart.equals(pkg.substring(pkg.lastIndexOf('.') + 1, pkg.length() - 2)))
+                final int simpleNameStart = pkg.lastIndexOf('.') + 1;
+                if (!firstPart.equals(pkg.substring(simpleNameStart)))
                     continue;
-                className = pkg.substring(0, pkg.length() - 2 - firstPart.length()) + baseName;
+                className = pkg.substring(0, simpleNameStart) + baseName.replaceAll("\\.", "\\$");
             }
 
             // Try package vs. nested classes
