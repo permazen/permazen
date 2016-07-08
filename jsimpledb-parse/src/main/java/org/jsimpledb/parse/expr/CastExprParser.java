@@ -27,7 +27,8 @@ public class CastExprParser implements Parser<Node> {
 
         // Try cast
         final int start = ctx.getIndex();
-        final Matcher castMatcher = ctx.tryPattern("\\(\\s*(" + LiteralExprParser.CLASS_NAME_PATTERN + ")\\s*\\)\\s*(?=.)");
+        final Matcher castMatcher = ctx.tryPattern("(?s)\\(\\s*("
+          + LiteralExprParser.CLASS_NAME_PATTERN + ")\\s*\\)\\s*(?=.)");
         while (castMatcher != null) {
             final String className = castMatcher.group(1).replaceAll("\\s", "");
 
