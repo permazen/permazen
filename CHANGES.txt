@@ -5,6 +5,7 @@ Version Next
     - Added new method FallbackKVDatabase.setInitialTargetIndex()
     - Added new method AbstractFunction.parseNextParameter()
     - Fixed bug with `import' CLI command when used without wildcard
+    - Added `--file' and `--batch' CLI command line flags
 
 Version 2.1.1 Released June 30, 2016
 

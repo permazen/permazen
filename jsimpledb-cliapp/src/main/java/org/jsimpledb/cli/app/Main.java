@@ -9,12 +9,17 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.Reader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.fusesource.jansi.internal.CLibrary;          // jansi is bundled into the jline jar
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.app.AbstractMain;
@@ -22,7 +27,6 @@ import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.cli.Console;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.schema.SchemaModel;
-import org.jsimpledb.util.ParseContext;
 
 /**
  * CLI main entry point.
@@ -33,7 +37,10 @@ public class Main extends AbstractMain {
 
     private File schemaFile;
     private SessionMode mode = SessionMode.JSIMPLEDB;
-    private final ArrayList<String> oneShotCommands = new ArrayList<>();
+    private final ArrayList<String> execCommands = new ArrayList<>();
+    private final ArrayList<String> execFiles = new ArrayList<>();
+    private boolean keyboardInput = CLibrary.isatty(0) != 0;             // i.e., if stdin is a terminal
+    private boolean batchMode = !keyboardInput;
 
     @Override
     protected boolean parseOption(String option, ArrayDeque<String> params) {
@@ -44,11 +51,17 @@ public class Main extends AbstractMain {
         } else if (option.equals("--command") || option.equals("-c")) {
             if (params.isEmpty())
                 this.usageError();
-            this.oneShotCommands.add(params.removeFirst());
+            this.execCommands.add(params.removeFirst());
+        } else if (option.equals("--file") || option.equals("-f")) {
+            if (params.isEmpty())
+                this.usageError();
+            this.execFiles.add(params.removeFirst());
         } else if (option.equals("--core-mode"))
             this.mode = SessionMode.CORE_API;
         else if (option.equals("--kv-mode"))
             this.mode = SessionMode.KEY_VALUE;
+        else if (option.equals("--batch") || option.equals("-n"))
+            this.batchMode = true;
         else
             return false;
         return true;
@@ -130,7 +143,8 @@ public class Main extends AbstractMain {
             assert false;
             break;
         }
-        console.setHistoryFile(new File(new File(System.getProperty("user.home")), HISTORY_FILE));
+        if (this.keyboardInput)
+            console.setHistoryFile(new File(new File(System.getProperty("user.home")), HISTORY_FILE));
 
         // Set up CLI session
         final CliSession session = console.getSession();
@@ -143,34 +157,48 @@ public class Main extends AbstractMain {
         session.loadFunctionsFromClasspath();
         session.loadCommandsFromClasspath();
 
-        // Handle one-shot command mode
-        if (!this.oneShotCommands.isEmpty()) {
-            for (String text : this.oneShotCommands) {
-
-                // Parse command(s)
-                final List<CliSession.Action> actions = console.parseCommand(text);
-                if (actions == null) {
-                    session.getWriter().println("Error: failed to parse command `" + ParseContext.truncate(text, 40) + "'");
+        // Handle file input
+        for (String filename : this.execFiles) {
+            final File file = new File(filename);
+            try (final InputStream input = new FileInputStream(file)) {
+                if (!this.parseAndExecuteCommands(console, new InputStreamReader(input), file.getName()))
                     return 1;
-                }
-
-                // Execute command(s)
-                for (CliSession.Action action : console.parseCommand(text)) {
-                    if (!session.performCliSessionAction(action))
-                        return 1;
-                }
+            } catch (IOException e) {
+                session.getWriter().println("Error: error opening " + file.getName() + ": " + e);
+                return 1;
             }
-            return 0;
         }
 
-        // Run console
-        console.run();
+        // Handle command-line commands
+        for (String command : this.execCommands) {
+            if (!this.parseAndExecuteCommands(console, new StringReader(command), null))
+                return 1;
+        }
+
+        // Handle standard input
+        if (!this.keyboardInput) {
+            if (!this.parseAndExecuteCommands(console, new InputStreamReader(System.in), "(stdin)"))
+                return 1;
+        }
+
+        // Run console if not in batch mode
+        if (!this.batchMode)
+            console.run();
 
         // Shut down KV database
         this.shutdownKVDatabase();
 
         // Done
         return 0;
+    }
+
+    private boolean parseAndExecuteCommands(Console console, Reader input, String inputDescription) {
+        try {
+            return console.runNonInteractive(input, inputDescription);
+        } catch (IOException e) {
+            console.getSession().getWriter().println("Error: error reading " + inputDescription + ": " + e);
+            return false;
+        }
     }
 
     @Override
@@ -187,7 +215,9 @@ public class Main extends AbstractMain {
           { "--schema-file file",       "Load core database schema from XML file" },
           { "--core-mode",              "Force core API mode (default if neither Java model classes nor schema are provided)" },
           { "--kv-mode",                "Force key/value mode" },
-          { "--command, -c command",    "Execute the given command and then exit (may be repeated)" },
+          { "--command, -c command",    "Execute the given command (may be repeated)" },
+          { "--file, -f file",          "Read and execute commands from `file' (may be repeated)" },
+          { "--batch, -n",              "Batch mode: do not start the interactive CLI console" },
         });
     }
 

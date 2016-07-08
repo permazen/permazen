@@ -8,15 +8,19 @@ package org.jsimpledb.cli;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jsimpledb.JSimpleDB;
+import org.jsimpledb.cli.cmd.EvalCommand;
 import org.jsimpledb.core.Database;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.parse.ParseException;
@@ -145,6 +149,81 @@ public class Console {
     }
 
     /**
+     * Run this instance in non-interactive (or "batch") mode on the given input.
+     *
+     * @param input command input; is not closed by this method
+     * @param inputDescription description of input (e.g., file name) used for error reporting, or null for none
+     * @return true if successful, false if an error occurred
+     * @throws IOException if an I/O error occurs
+     */
+    public boolean runNonInteractive(Reader input, String inputDescription) throws IOException {
+
+        // Read entire input in as a string XXX currently we don't have the capability to parse streams
+        final StringWriter data = new StringWriter();
+        final char[] buf = new char[1024];
+        int r;
+        while ((r = input.read(buf)) != -1)
+            data.write(buf, 0, r);
+        String text = data.toString();
+
+        // Remove comments
+        text = text.replaceAll("(?m)^[\\s&&[^\\n]]*#.*$", "");
+
+        // Parse and execute commands one at a time
+        final ParseContext ctx = new ParseContext(text);
+        final CommandParser commandParser = new CommandParser();
+        final CliSession.Action[] action = new CliSession.Action[1];
+        while (true) {
+
+            // Skip whitespace
+            ctx.skipWhitespace();
+            if (ctx.isEOF())
+                break;
+
+            // Set new error prefix while handling the next command
+            final String previousErrorMessagePrefix = this.session.getErrorMessagePrefix();
+            final int lineNumber = text.substring(0, ctx.getIndex()).replaceAll("[^\\n]", "").length() + 1;
+            this.session.setErrorMessagePrefix(previousErrorMessagePrefix
+              + (inputDescription != null ? inputDescription + ": " : "") + "line " + lineNumber + ": ");
+            try {
+
+                // Parse next command
+                if (!this.session.performCliSessionAction(new CliSession.Action() {
+                    @Override
+                    public void run(CliSession session) {
+                        action[0] = commandParser.parse(session, ctx, false);
+                    }
+                }))
+                    return false;
+
+                // Execute command
+                if (!this.session.performCliSessionAction(action[0])
+                  || action[0] instanceof EvalCommand.EvalAction && ((EvalCommand.EvalAction)action[0]).getEvalException() != null)
+                    return false;
+            } finally {
+                this.session.setErrorMessagePrefix(previousErrorMessagePrefix);
+            }
+
+            // Flush output
+            this.console.flush();
+
+            // Skip whitespace
+            ctx.skipWhitespace();
+            if (ctx.isEOF())
+                break;
+
+            // Expecte semi-colon separator
+            if (!ctx.tryLiteral(";")) {
+                this.session.reportException(new ParseException(ctx, "expected `;'"));
+                return false;
+            }
+        }
+
+        // Done
+        return true;
+    }
+
+    /**
      * Run this instance. This method blocks until the connected user exits the console.
      *
      * @throws IOException if an I/O error occurs
@@ -155,7 +234,7 @@ public class Console {
         final StringBuilder lineBuffer = new StringBuilder();
 
         // Set up tab completion
-        console.addCompleter(new ConsoleCompleter(lineBuffer));
+        this.console.addCompleter(new ConsoleCompleter(lineBuffer));
 
         // Get prompt
         final String prompt;
