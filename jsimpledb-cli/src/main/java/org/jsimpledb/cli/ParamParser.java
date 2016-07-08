@@ -20,7 +20,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.dellroad.stuff.java.Primitive;
+import org.jsimpledb.core.FieldType;
+import org.jsimpledb.core.FieldTypeRegistry;
 import org.jsimpledb.parse.ParseException;
 import org.jsimpledb.parse.ParseSession;
 import org.jsimpledb.parse.ParseUtil;
@@ -39,6 +40,7 @@ public class ParamParser implements Parser<Map<String, Object>> {
 
     private final LinkedHashSet<Param> optionFlags = new LinkedHashSet<>();
     private final ArrayList<Param> params = new ArrayList<>();
+    private final FieldTypeRegistry fieldTypeRegistry = new FieldTypeRegistry();
 
     public ParamParser(String spec) {
         if (spec.length() > 0) {
@@ -101,8 +103,8 @@ public class ParamParser implements Parser<Map<String, Object>> {
      * Convert parameter spec type name into a {@link Parser}.
      *
      * <p>
-     * The implementation in {@link ParamParser} supports the Java primitive types, and
-     * {@code word} for a {@link String} containing one or more non-whitespace characters.
+     * The implementation in {@link ParamParser} supports all of the pre-defined types of {@link FieldTypeRegistry}
+     * (identified by their names), plus {@code word} to parse a {@link String} containing one or more non-whitespace characters.
      * Subclasses should override as required to add additional supported types.
      *
      * @param typeName name of type
@@ -113,27 +115,20 @@ public class ParamParser implements Parser<Map<String, Object>> {
         Preconditions.checkArgument(typeName != null, "null typeName");
         if (typeName.equals("word"))
             return new WordParser("parameter");
-        for (Primitive<?> prim : Primitive.values()) {
-            if (prim == Primitive.VOID)
-                continue;
-            if (typeName.equals(prim.getName()))
-                return this.createPrimitiveParser(prim);
+        final FieldType<?> fieldType = this.fieldTypeRegistry.getFieldType(typeName);
+        if (fieldType != null) {
+            return new Parser<Object>() {
+                @Override
+                public Object parse(ParseSession session, ParseContext ctx, boolean complete) {
+                    try {
+                        return fieldType.fromParseableString(ctx);
+                    } catch (IllegalArgumentException e) {
+                        throw new ParseException(ctx, "invalid " + fieldType.getName() + " value", e);
+                    }
+                }
+            };
         }
         throw new IllegalArgumentException("unknown parameter type `" + typeName + "'");
-    }
-
-    // This method exists solely to bind the generic type parameters
-    private <T> Parser<T> createPrimitiveParser(final Primitive<T> prim) {
-        return new Parser<T>() {
-            @Override
-            public T parse(ParseSession session, ParseContext ctx, boolean complete) {
-                try {
-                    return prim.parseValue(ctx.matchPrefix("[^\\s]+").group());
-                } catch (IllegalArgumentException e) {
-                    throw new ParseException(ctx, "invalid " + prim.getName() + " value", e);
-                }
-            }
-        };
     }
 
     /**
@@ -241,7 +236,8 @@ public class ParamParser implements Parser<Map<String, Object>> {
      * {@link String} form is {@code -flag:name:type}, where the {@code -flag} is optional and indicates
      * an option flag, {@code name} is the name of the flag or parameter, and {@code type} is optional as well:
      * if missing, it indicates either an argumment-less option flag or a "word" type ({@link String} that is a
-     * sequence of one or more non-whitespace characters). Otherwise {@code type} is the name of the parameter type.
+     * sequence of one or more non-whitespace characters). Otherwise {@code type} is the name of a parameter type
+     * supported by {@link ParamParser#getParser ParamParser.getParser()}.
      *
      * <p>
      * Non-option parameters may have a {@code ?} suffix if optional,
