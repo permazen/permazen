@@ -6,6 +6,11 @@
 package org.jsimpledb.kv.raft.fallback;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.AbstractFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -17,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -93,6 +99,7 @@ public class FallbackKVDatabase implements KVDatabase {
     private boolean started;
     private int currentTargetIndex;                     // index of current target, or -1 in standalone mode
     private Date lastStandaloneActiveTime;
+    private final HashSet<FallbackFuture> futures = new HashSet<>();
 
 // Methods
 
@@ -430,6 +437,17 @@ public class FallbackKVDatabase implements KVDatabase {
         return this.migrationCount;
     }
 
+    synchronized boolean registerFallbackFutures(List<FallbackFuture> futureList, int migrationCount) {
+
+        // Check freshness
+        if (this.migrating || migrationCount != this.migrationCount)
+            return false;
+
+        // Record these futures
+        FallbackKVDatabase.this.futures.addAll(futureList);
+        return true;
+    }
+
 // Internal methods
 
     // Perform availability check on the specified target
@@ -537,6 +555,7 @@ public class FallbackKVDatabase implements KVDatabase {
             // Start migration
             this.migrating = true;
         }
+        final FallbackFuture[] oldFutures;
         try {
             final String desc = "migration from "
               + (currIndex != -1 ? "fallback target #" + currIndex : "standalone database")
@@ -612,6 +631,8 @@ public class FallbackKVDatabase implements KVDatabase {
             synchronized (this) {
                 this.migrating = false;
                 this.notifyAll();
+                oldFutures = this.futures.toArray(new FallbackFuture[this.futures.size()]);
+                this.futures.clear();
             }
         }
 
@@ -621,6 +642,10 @@ public class FallbackKVDatabase implements KVDatabase {
         } catch (IOException e) {
             this.log.error("error writing state to state file " + this.stateFile, e);
         }
+
+        // Trigger spurious notifications for all futures associated with previous target
+        for (FallbackFuture future : oldFutures)
+            future.set(null);
     }
 
     private void readStateFile() throws IOException {
@@ -684,6 +709,48 @@ public class FallbackKVDatabase implements KVDatabase {
             for (int i = 0; i < this.targets.size(); i++) {
                 final FallbackTarget target = this.targets.get(i);
                 output.writeLong(target.lastActiveTime != null ? target.lastActiveTime.getTime() : 0);
+            }
+        }
+    }
+
+// FallbackFuture
+
+    class FallbackFuture extends AbstractFuture<Void> {
+
+        FallbackFuture(ListenableFuture<Void> innerFuture) {
+            Futures.addCallback(innerFuture, new FutureCallback<Void>() {
+                @Override
+                public void onFailure(Throwable t) {
+                    FallbackFuture.this.forget();
+                    FallbackFuture.this.setException(t);
+                }
+                @Override
+                public void onSuccess(Void value) {
+                    FallbackFuture.this.forget();
+                    FallbackFuture.this.set(null);
+                }
+            });
+        }
+
+        @Override
+        protected boolean set(Void value) {
+            return super.set(value);
+        }
+
+        @Override
+        protected boolean setException(Throwable t) {
+            return super.setException(t);
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            this.forget();
+            return super.cancel(mayInterruptIfRunning);
+        }
+
+        private void forget() {
+            synchronized (FallbackKVDatabase.this) {
+                FallbackKVDatabase.this.futures.remove(this);
             }
         }
     }

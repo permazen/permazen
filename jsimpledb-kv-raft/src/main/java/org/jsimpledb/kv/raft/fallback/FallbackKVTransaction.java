@@ -5,6 +5,9 @@
 
 package org.jsimpledb.kv.raft.fallback;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.ArrayList;
 import java.util.concurrent.Future;
 
 import org.jsimpledb.kv.CloseableKVStore;
@@ -14,6 +17,7 @@ import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.util.ForwardingKVStore;
+import org.jsimpledb.kv.util.KeyWatchTracker;
 
 /**
  * A {@link KVTransaction} associated with a {@link FallbackKVDatabase}.
@@ -25,6 +29,8 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
     private final FallbackKVDatabase db;
     private final KVTransaction kvt;
     private final int migrationCount;
+
+    private ArrayList<FallbackKVDatabase.FallbackFuture> futureList;
 
     private boolean stale;              // protected by this.db's monitor
 
@@ -64,8 +70,28 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     @Override
-    public Future<Void> watchKey(byte[] key) {
-        return this.kvt.watchKey(key);
+    public ListenableFuture<Void> watchKey(byte[] key) {
+
+        // Get target's future - it must be a ListenableFuture or we can't do this
+        final ListenableFuture<Void> innerFuture;
+        try {
+            innerFuture = (ListenableFuture<Void>)this.kvt.watchKey(key);
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("nested transaction does not support ListenableFuture's", e);
+        }
+
+        // Create outer future
+        final FallbackKVDatabase.FallbackFuture outerFuture = this.db.new FallbackFuture(innerFuture);
+
+        // Add outer future to our pending list
+        synchronized (this) {
+            if (this.futureList == null)
+                this.futureList = new ArrayList<>();
+            this.futureList.add(outerFuture);
+        }
+
+        // Done
+        return outerFuture;
     }
 
     @Override
@@ -75,14 +101,36 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
 
     @Override
     public void commit() {
+
+        // Check freshness
         synchronized (this.db) {
             if (this.stale)
                 throw new StaleTransactionException(this);
             this.stale = true;
         }
+
+        // Check to see if migration occurred
         this.retryIfMigrating();
+
+        // Commit nested transaction
         this.kvt.commit();
-        this.retryIfMigrating();    // required to close a window where database would appear to revert to an earlier version
+
+        // Snapshot our pending futures (if any)
+        final ArrayList<FallbackKVDatabase.FallbackFuture> fallbackFutures;
+        synchronized (this) {
+            fallbackFutures = this.futureList;
+            this.futureList = null;
+        }
+
+        // Check again to see if migration occurred - this is required to close
+        // a race where the database could appear to revert to an earlier version
+        this.retryIfMigrating();
+
+        // Register futures, but if they are already out-of-date, trigger spurious notifications instead
+        if (fallbackFutures != null && !this.db.registerFallbackFutures(fallbackFutures, this.migrationCount)) {
+            for (FallbackKVDatabase.FallbackFuture future : fallbackFutures)
+                future.set(null);
+        }
     }
 
     @Override
