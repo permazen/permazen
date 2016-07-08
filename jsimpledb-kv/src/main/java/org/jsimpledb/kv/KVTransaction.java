@@ -80,10 +80,11 @@ public interface KVTransaction extends KVStore {
      *
      * <p>
      * Key watches are not without overhead; applications should avoid overuse. For example, consider creating a
-     * single key that is used to consolidate modifications to a set of keys; at the JSimpleDB layer, modification
-     * of multiple objects and/or fields could detected by an {@link org.jsimpledb.annotation.OnChange &#64;OnChange}
-     * method that increments a single {@link org.jsimpledb.Counter} whose key is then watched (to determine which
-     * key to watch, use {@link org.jsimpledb.JTransaction#getKey(org.jsimpledb.JObject, String) JTransaction.getKey()}).
+     * single key that is used to consolidate modifications to some set of keys; at the JSimpleDB layer, modification
+     * to multiple objects and/or fields can detected and consolidated using an
+     * {@link org.jsimpledb.annotation.OnChange &#64;OnChange} method that increments a single {@link org.jsimpledb.Counter}
+     * field, whose key is then watched (to determine the key corresponding to a Java model object field, use
+     * {@link org.jsimpledb.JTransaction#getKey(org.jsimpledb.JObject, String) JTransaction.getKey()}).
      *
      * <p>
      * Conceptually, detection of changes behaves as if by a background thread that periodically creates a new transaction
@@ -93,6 +94,9 @@ public interface KVTransaction extends KVStore {
      *
      * <p>
      * A key watch is only guaranteed to be valid if the transaction in which it was created successfully commits.
+     * In particular, nothing is specified about how or whether {@link Future}s associated with failed transactions complete,
+     * so the use of {@link Future}s returned by this method should normally be deferred until after commit using a
+     * transaction callback.
      *
      * <p>
      * Key watch support is optional; instances that don't support key watches throw {@link UnsupportedOperationException}.
@@ -102,6 +106,10 @@ public interface KVTransaction extends KVStore {
      * Note: many {@link KVDatabase} implementations actually return a
      * {@link com.google.common.util.concurrent.ListenableFuture}. However, listeners must not perform any
      * long running or blocking operations.
+     *
+     * <p>
+     * Key watch {@link Future}s that have not completed yet, but are no longer needed, must be {@link Future#cancel cancel()}'ed
+     * to avoid memory leaks.
      *
      * @param key the key to watch
      * @return a {@link Future} that returns {@code key} when the value associated with {@code key} is modified
