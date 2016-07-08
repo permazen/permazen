@@ -25,10 +25,10 @@ public class FieldTypeParser<T> implements Parser<T> {
      */
     public FieldTypeParser(FieldType<?> fieldType) {
         this(fieldType, null);
+        Preconditions.checkArgument(fieldType != null, "null fieldType");
     }
 
     private FieldTypeParser(FieldType<?> fieldType, String typeName) {
-        Preconditions.checkArgument(fieldType != null, "null fieldType");
         this.fieldType = fieldType;
         this.typeName = typeName;
     }
