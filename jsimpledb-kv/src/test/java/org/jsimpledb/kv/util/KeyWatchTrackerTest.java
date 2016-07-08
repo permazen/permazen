@@ -37,17 +37,12 @@ public class KeyWatchTrackerTest extends TestSupport {
         tracker.trigger(B2);
 
         // Should still block
-        try {
-            f1.get(100, TimeUnit.MILLISECONDS);
-            assert false;
-        } catch (TimeoutException e) {
-            // expected
-        }
+        this.verifyNotComplete(f1);
 
         tracker.trigger(B1);
 
         // Now should have an immediate trigger
-        f1.get(100, TimeUnit.MILLISECONDS);
+        this.verifyComplete(f1);
         Assert.assertTrue(flag[0]);
     }
 
@@ -66,16 +61,10 @@ public class KeyWatchTrackerTest extends TestSupport {
         tracker.trigger(B1);
 
         for (int i = 0; i < futures1.length; i++)
-            futures1[i].get(10, TimeUnit.MILLISECONDS);
+            this.verifyComplete(futures1[i]);
 
-        for (int i = 0; i < futures2.length; i++) {
-            try {
-                futures2[i].get(10, TimeUnit.MILLISECONDS);
-                assert false;
-            } catch (TimeoutException e) {
-                // expected
-            }
-        }
+        for (int i = 0; i < futures2.length; i++)
+            this.verifyNotComplete(futures2[i]);
     }
 
     @Test
@@ -86,21 +75,11 @@ public class KeyWatchTrackerTest extends TestSupport {
         final ListenableFuture<?> f3 = tracker.register(B3);
 
         // This should have an immediate spurious trigger
-        f1.get(100, TimeUnit.MILLISECONDS);
+        this.verifyComplete(f1);
 
         // These should still block
-        try {
-            f2.get(100, TimeUnit.MILLISECONDS);
-            assert false;
-        } catch (TimeoutException e) {
-            // expected
-        }
-        try {
-            f3.get(100, TimeUnit.MILLISECONDS);
-            assert false;
-        } catch (TimeoutException e) {
-            // expected
-        }
+        this.verifyNotComplete(f2);
+        this.verifyNotComplete(f3);
     }
 
     @Test
@@ -114,6 +93,70 @@ public class KeyWatchTrackerTest extends TestSupport {
         Thread.sleep(1100);
 
         // This should have an immediate spurious trigger
-        f1.get(250, TimeUnit.MILLISECONDS);
+        this.verifyComplete(f1);
+    }
+
+    @Test
+    private void testAbsorb() throws Exception {
+        final KeyWatchTracker tracker1 = new KeyWatchTracker();
+        final ListenableFuture<?> f1 = tracker1.register(B1);
+
+        final KeyWatchTracker tracker2 = new KeyWatchTracker();
+        final ListenableFuture<?> f2a = tracker2.register(B1);
+        final ListenableFuture<?> f2b = tracker2.register(B2);
+
+        final KeyWatchTracker tracker3 = new KeyWatchTracker();
+        final ListenableFuture<?> f3a = tracker3.register(B2);
+        final ListenableFuture<?> f3b = tracker3.register(B3);
+
+        tracker1.absorb(tracker2);
+        tracker3.absorb(tracker1);
+
+        // Triggering absorbed trackers should have no effect because they're empty
+        tracker1.triggerAll();
+        tracker2.triggerAll();
+
+        this.verifyNotComplete(f1);
+        this.verifyNotComplete(f2a);
+        this.verifyNotComplete(f2b);
+        this.verifyNotComplete(f3a);
+        this.verifyNotComplete(f3b);
+
+        tracker3.trigger(B2);
+
+        this.verifyNotComplete(f1);
+        this.verifyNotComplete(f2a);
+        this.verifyComplete(f2b);
+        this.verifyComplete(f3a);
+        this.verifyNotComplete(f3b);
+
+        tracker3.trigger(B1);
+
+        this.verifyComplete(f1);
+        this.verifyComplete(f2a);
+        this.verifyComplete(f2b);
+        this.verifyComplete(f3a);
+        this.verifyNotComplete(f3b);
+
+        tracker3.trigger(B3);
+
+        this.verifyComplete(f1);
+        this.verifyComplete(f2a);
+        this.verifyComplete(f2b);
+        this.verifyComplete(f3a);
+        this.verifyComplete(f3b);
+    }
+
+    void verifyComplete(ListenableFuture<?> future) throws Exception {
+        future.get(100, TimeUnit.MILLISECONDS);
+    }
+
+    void verifyNotComplete(ListenableFuture<?> future) throws Exception {
+        try {
+            future.get(25, TimeUnit.MILLISECONDS);
+            assert false;
+        } catch (TimeoutException e) {
+            // expected
+        }
     }
 }

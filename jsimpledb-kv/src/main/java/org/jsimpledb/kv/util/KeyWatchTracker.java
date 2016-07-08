@@ -9,7 +9,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.collect.Iterables;
@@ -75,7 +74,7 @@ public class KeyWatchTracker implements Closeable {
      */
     public static final boolean DEFAULT_WEAK_REFERENCE = false;
 
-    private final TreeMap<byte[], KeyInfo> keyInfos = new TreeMap<>(ByteUtil.COMPARATOR);
+    private final TreeMap<byte[], KeyInfo> keyInfos = new TreeMap<>(ByteUtil.COMPARATOR);   // protected by synchronized (this)
     private final Cache<KeyFuture, KeyInfo> futureMap;
 
     /**
@@ -110,7 +109,7 @@ public class KeyWatchTracker implements Closeable {
           .removalListener(new RemovalListener<KeyFuture, KeyInfo>() {
             @Override
             public void onRemoval(RemovalNotification<KeyFuture, KeyInfo> notification) {
-                KeyWatchTracker.this.handleFutureRemoval(notification.getKey(), notification.getValue(), notification.getCause());
+                notification.getValue().handleRemoval(notification.getKey());
             }
           });
         if (weakReferences)
@@ -292,17 +291,49 @@ public class KeyWatchTracker implements Closeable {
         // Sanity check
         Preconditions.checkArgument(e != null, "null e");
 
-        // Extract KeyInfo objects for all keys
-        final KeyInfo[] array;
-        synchronized (this) {
-            final Collection<KeyInfo> allKeyInfos = this.keyInfos.values();
-            array = allKeyInfos.toArray(new KeyInfo[allKeyInfos.size()]);
-            this.keyInfos.clear();
+        // Extract KeyInfo objects for all keys and fail all associated futures
+        for (KeyInfo keyInfo : this.removeAllKeyInfos())
+            keyInfo.failAll(e);
+    }
+
+    /**
+     * Absorb all of the watches from the given instance into this one.
+     * On return, this instance will contain all of the given instance's watches, and the given instance will be empty.
+     *
+     * @param that the instance to absorb into this one
+     */
+    public void absorb(KeyWatchTracker that) {
+
+        // Grab all KeyInfo objects from 'that'
+        final KeyInfo[] thatKeyInfos = that.removeAllKeyInfos();
+
+        // Add all of their futures to this instance
+        for (KeyInfo thatKeyInfo : thatKeyInfos) {
+            final byte[] key = thatKeyInfo.getKey();
+            KeyInfo thisKeyInfo;
+            synchronized (this) {
+                if ((thisKeyInfo = this.keyInfos.get(key)) == null) {
+                    thisKeyInfo = new KeyInfo(key);
+                    this.keyInfos.put(key, thisKeyInfo);
+                }
+            }
+            for (KeyFuture future : thatKeyInfo.removeAllFutures()) {
+                thisKeyInfo.addFuture(future);
+                future.setOwner(this.futureMap);
+                if (future.isDone())
+                    this.futureMap.invalidate(future);          // handle race with future's owner vs. future completion
+            }
         }
 
-        // Fail associated futures
-        for (KeyInfo keyInfo : array)
-            keyInfo.failAll(e);
+        // Empty that's future map
+        that.futureMap.invalidateAll();
+    }
+
+    private synchronized KeyInfo[] removeAllKeyInfos() {
+        final Collection<KeyInfo> allKeyInfos = this.keyInfos.values();
+        final KeyInfo[] result = allKeyInfos.toArray(new KeyInfo[allKeyInfos.size()]);
+        this.keyInfos.clear();
+        return result;
     }
 
 // Closeable
@@ -318,52 +349,39 @@ public class KeyWatchTracker implements Closeable {
         this.failAll(new Exception("key watch tracker closed"));
     }
 
-// Internal methods
-
-    private void handleFutureRemoval(KeyFuture future, KeyInfo keyInfo, RemovalCause cause) {
-        switch (cause) {
-        case COLLECTED:                 // was automatically removed, so generate a spurious notification
-        case EXPIRED:
-        case SIZE:
-            keyInfo.handleRemoval(future);
-            break;
-        case EXPLICIT:                  // we explicitly removed it, so it's already taken care of
-        case REPLACED:                  // this should never happen
-        default:
-            break;
-        }
-    }
-
 // KeyInfo
 
     // Note locking order: KeyInfo, then KeyWatchTracker
     private class KeyInfo {
 
         private final byte[] key;
-        private final HashSet<KeyFuture> futures = new HashSet<>(1);
+        private final HashSet<KeyFuture> futures = new HashSet<>(1);        // protected by synchronized (this)
 
         KeyInfo(byte[] key) {
             assert key != null;
             this.key = key;
         }
 
+        public byte[] getKey() {
+            return this.key;
+        }
+
         KeyFuture createFuture() {
-            final KeyFuture future = new KeyFuture(this);
-            synchronized (this) {
-                this.futures.add(future);
-            }
-            KeyWatchTracker.this.futureMap.put(future, this);
+            final KeyFuture future = new KeyFuture(KeyWatchTracker.this.futureMap);
+            this.addFuture(future);
             return future;
         }
 
-        void handleRemoval(KeyFuture future) {
-            if (this.removeFuture(future))
-                future.set(null);
+        void addFuture(KeyFuture future) {
+            KeyWatchTracker.this.futureMap.put(future, this);
+            synchronized (this) {
+                this.futures.add(future);
+            }
         }
 
-        void handleCancel(KeyFuture future) {
-            KeyWatchTracker.this.futureMap.invalidate(future);
-            this.removeFuture(future);
+        void handleRemoval(KeyFuture future) {
+            if (this.removeFuture(future) && future.getOwner() == KeyWatchTracker.this.futureMap)
+                future.set(null);                           // if future has not completed yet, trigger a spurious notification
         }
 
         // This assumes this instance is already removed from KeyWatchTracker.this.keyInfos
@@ -401,7 +419,7 @@ public class KeyWatchTracker implements Closeable {
          *
          * We assume this instance is already removed from {@code KeyWatchTracker.this.keyInfos}.
          */
-        private ArrayList<KeyFuture> removeAllFutures() {
+        ArrayList<KeyFuture> removeAllFutures() {
             final ArrayList<KeyFuture> futureList;
             synchronized (this) {
                 futureList = new ArrayList<>(this.futures);
@@ -416,27 +434,35 @@ public class KeyWatchTracker implements Closeable {
 
     private static class KeyFuture extends AbstractFuture<Void> {
 
-        private final KeyInfo keyInfo;
+        private volatile Cache<KeyFuture, KeyInfo> futureMap;
 
-        KeyFuture(KeyInfo keyInfo) {
-            assert keyInfo != null;
-            this.keyInfo = keyInfo;
+        KeyFuture(Cache<KeyFuture, KeyInfo> futureMap) {
+            this.futureMap = futureMap;
         }
 
         @Override
         protected boolean set(Void value) {
+            this.futureMap.invalidate(this);
             return super.set(value);
         }
 
         @Override
         protected boolean setException(Throwable t) {
+            this.futureMap.invalidate(this);
             return super.setException(t);
         }
 
         @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
-            this.keyInfo.handleCancel(this);
+            this.futureMap.invalidate(this);
             return super.cancel(mayInterruptIfRunning);
+        }
+
+        Cache<KeyFuture, KeyInfo> getOwner() {
+            return this.futureMap;
+        }
+        void setOwner(Cache<KeyFuture, KeyInfo> futureMap) {
+            this.futureMap = futureMap;
         }
     }
 
