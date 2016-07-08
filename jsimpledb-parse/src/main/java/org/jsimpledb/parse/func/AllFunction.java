@@ -41,7 +41,7 @@ public class AllFunction extends AbstractFunction {
     public String getHelpDetail() {
         return "Retrieves all instances of the specified type, or all database objects if no type is given. The type may either"
           + " be the name of a JSimpleDB Java model type (as an identifier) or any expression which evaluates to a java.lang.Class"
-          + " object (when not in core database mode) or an integer storage ID.";
+          + " object (when in JSimpleDB mode) or an integer storage ID.";
     }
 
     @Override
