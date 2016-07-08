@@ -36,6 +36,8 @@ public class CompareSchemasCommand extends AbstractCommand {
                 final Schema schema2 = session.getTransaction().getSchemas().getVersions().get(version2);
                 if (schema2 == null)
                     session.getWriter().println("Schema version " + version2 + " " + "not found");
+                if (schema1 == null || schema2 == null)
+                    return;
                 final Diffs diffs = schema2.getSchemaModel().differencesFrom(schema1.getSchemaModel());
                 if (diffs.isEmpty())
                     session.getWriter().println("No differences found between schema versions " + version1 + " and " + version2);
