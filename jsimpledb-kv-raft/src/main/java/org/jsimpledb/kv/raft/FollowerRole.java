@@ -214,7 +214,7 @@ public class FollowerRole extends NonLeaderRole {
         this.leader = null;
         this.leaderAddress = null;
 
-        // Is probing enabled?
+        // Is probing enabled? If not convert immediately into a candidate
         if (!this.raft.followerProbingEnabled) {
             if (this.log.isDebugEnabled())
                 this.debug("follower election timeout: probing is disabled, so converting immediately to candidate");
@@ -222,25 +222,8 @@ public class FollowerRole extends NonLeaderRole {
             return;
         }
 
-        // If we are already probing, check probe results
-        if (this.probeTimestamps != null) {
-
-            // Get the number of nodes successfully probed this round, and the minimum number required (a majority)
-            final int numProbed = this.calculateProbedNodes();
-            final int numRequired = this.raft.currentConfig.size() / 2 + 1;
-
-            // Once we have successfully probed a majority we can finally become a candidate
-            if (this.log.isTraceEnabled())
-                this.trace("now we have probed " + numProbed + "/" + numRequired + " required nodes");
-            if (numProbed >= numRequired) {
-                if (this.log.isDebugEnabled())
-                    this.debug("successfully probed " + numProbed + " nodes, now converting to candidate");
-                this.raft.changeRole(new CandidateRole(this.raft));
-                return;
-            }
-        } else {
-
-            // Enter probing mode
+        // If not probing, start probing; if already probing, then we never heard from a majority, so keep on trying
+        if (this.probeTimestamps == null) {
             if (this.log.isDebugEnabled())
                 this.debug("follower election timeout: attempting to probe a majority before becoming candidate");
             this.probeTimestamps = new HashMap<>(this.raft.currentConfig.size() - 1);
@@ -876,8 +859,21 @@ public class FollowerRole extends NonLeaderRole {
             return;
         }
 
-        // Update peer's ping timestamp and re-check probe status
+        // Update peer's ping timestamp
         this.probeTimestamps.put(msg.getSenderId(), msg.getTimestamp());
+
+        // Get the number of nodes successfully probed so far (including ourselves), and the minimum number required (a majority)
+        final int numProbed = this.calculateProbedNodes();
+        final int numRequired = this.raft.currentConfig.size() / 2 + 1;
+        if (this.log.isTraceEnabled())
+            this.trace("now we have probed " + numProbed + "/" + numRequired + " required nodes");
+
+        // If we have successfully probed a majority, then we can finally become a candidate
+        if (numProbed >= numRequired) {
+            if (this.log.isDebugEnabled())
+                this.debug("successfully probed " + numProbed + " nodes, now converting to candidate");
+            this.raft.changeRole(new CandidateRole(this.raft));
+        }
     }
 
 // Helper methods

@@ -638,7 +638,7 @@
                         <raftMaxElectionTimeout>150</raftMaxElectionTimeout>
                         <raftHeartbeatTimeout>50</raftHeartbeatTimeout>
                         <raftMaxTransactionDuration>500</raftMaxTransactionDuration>
-                        <raftFollowerProbingEnabled>false</raftFollowerProbingEnabled>
+                        <raftFollowerProbingEnabled>true</raftFollowerProbingEnabled>
                         <raftNetworkDelayMillis>10</raftNetworkDelayMillis>
                         <raftNetworkDropRatio>0.05</raftNetworkDropRatio>
                         -->
