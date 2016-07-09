@@ -109,6 +109,9 @@ public interface JObject {
      * or at the next invocation of {@link JTransaction#validate}, whichever occurs first.
      * The specified validation groups, if any, will be used.
      *
+     * <p>
+     * If the associated transaction was opened with {@link ValidationMode#DISABLED}, no validation will be performed.
+     *
      * @param groups validation group(s) to use for validation; if empty, {@link javax.validation.groups.Default} is assumed
      * @throws org.jsimpledb.core.DeletedObjectException
      *  if this object does not exist in the {@link JTransaction} associated with this instance
