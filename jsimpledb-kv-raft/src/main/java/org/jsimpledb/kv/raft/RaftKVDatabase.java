@@ -79,7 +79,10 @@ import org.slf4j.LoggerFactory;
  * As long as as a node is part of a majority, the state machine is fully operational.
  *
  * <p>
- * {@link RaftKVDatabase} turns this into a transactional key/value database with linearizable ACID semantics as follows:
+ * {@link RaftKVDatabase} turns this into a transactional key/value database with linearizable ACID semantics.
+ *
+ * <p><b>Implementation Details</b></p>
+ *
  *  <ul>
  *  <li>The Raft state machine is the key/value store data.</li>
  *  <li>Unapplied log entries are stored on disk as serialized mutations, and also cached in memory.</li>
