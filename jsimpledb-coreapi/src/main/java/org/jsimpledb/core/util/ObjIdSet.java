@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.jsimpledb.core.ObjId;
 
@@ -59,6 +60,16 @@ public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
     // Internal constructor
     ObjIdSet(ObjIdMap<?> map) {
         this.map = map;
+    }
+
+    /**
+     * Remove a single, arbitrary {@link ObjId} from this instance and return it.
+     *
+     * @return the removed {@link ObjId}, or null if this instance is empty
+     */
+    public ObjId removeOne() {
+        final Map.Entry<ObjId, ?> entry = this.map.removeOne();
+        return entry != null ? entry.getKey() : null;
     }
 
 // Methods

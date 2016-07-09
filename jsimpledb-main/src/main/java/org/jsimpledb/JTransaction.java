@@ -18,13 +18,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -177,7 +175,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #delete delete()} - Delete an object from this transaction</li>
  *  <li>{@link #exists exists()} - Test whether an object exists in this transaction</li>
  *  <li>{@link #recreate recreate()} - Recreate an object in this transaction</li>
- *  <li>{@link #revalidate revalidate()} - Add an object to the validation queue</li>
+ *  <li>{@link #revalidate revalidate()} - Manually add an object to the validation queue</li>
  *  <li>{@link #getSchemaVersion getSchemaVersion()} - Get this schema version of an object</li>
  *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version</li>
  * </ul>
@@ -199,7 +197,7 @@ public class JTransaction {
     private final InternalCreateListener internalCreateListener = new InternalCreateListener();
     private final InternalDeleteListener internalDeleteListener = new InternalDeleteListener();
     private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
-    private final ObjIdMap<Class<?>[]> validationQueue = new ObjIdMap<>();
+    private final ObjIdMap<Class<?>[]> validationQueue = new ObjIdMap<>();  // maps object -> groups for pending validation
     private final JObjectCache jobjectCache = new JObjectCache(this);
 
     private SnapshotJTransaction snapshotTransaction;
@@ -1512,18 +1510,13 @@ public class JTransaction {
             final ObjId id;
             final Class<?>[] validationGroups;
             synchronized (this) {
-                final Iterator<Map.Entry<ObjId, Class<?>[]>> i = this.validationQueue.entrySet().iterator();
-                final Map.Entry<ObjId, Class<?>[]> entry;
-                try {
-                    entry = i.next();
-                } catch (NoSuchElementException e) {
+                final Map.Entry<ObjId, Class<?>[]> entry = this.validationQueue.removeOne();
+                if (entry == null)
                     return;
-                }
                 id = entry.getKey();
                 validationGroups = entry.getValue();
                 assert id != null;
                 assert validationGroups != null;
-                i.remove();
             }
 
             // Does it still exist?

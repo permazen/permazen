@@ -169,6 +169,24 @@ public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
     }
 
     /**
+     * Remove a single, arbitrary entry from this instance and return it.
+     *
+     * @return the removed entry, or null if this instance is empty
+     */
+    public Map.Entry<ObjId, V> removeOne() {
+        if (this.size == 0)
+            return null;
+        for (int slot = 0; slot < this.keys.length; slot++) {
+            if (ObjIdMap.this.keys[slot] != 0) {
+                final Entry entry = new Entry(slot);
+                this.exsert(slot);
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Produce a debug dump of this instance's keys.
      */
     String debugDump() {
