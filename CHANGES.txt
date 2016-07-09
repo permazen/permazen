@@ -1,4 +1,4 @@
-Version Next
+Version 2.1.2 Released July 8, 2016
 
     - Fixed NPE in RaftKVDatabase when null transaction options given
     - Fixed bug in NavigableSets union/intersection with empty sets
