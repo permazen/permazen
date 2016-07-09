@@ -30,7 +30,7 @@ public interface JObject {
      * Get this instance's unique JSimpleDB object identifier.
      *
      * <p>
-     * This method always succeeds.
+     * This method always succeeds, even if the object does not {@linkplain #exists exist}.
      *
      * @return unique database identifier for this instance
      */
