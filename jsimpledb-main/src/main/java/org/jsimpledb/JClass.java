@@ -6,7 +6,6 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.AnnotatedElement;
@@ -401,15 +400,15 @@ public class JClass<T> extends JSchemaObject {
         this.elementRequiringJSR303Validation = Util.hasValidation(this.type);
 
         // Check for JSR 303 or @OnValidate annotations in default group
-        if ((this.requiresDefaultValidation = Util.requiresDefaultValidation(this.type)))
+        if (Util.requiresDefaultValidation(this.type)) {
+            this.requiresDefaultValidation = true;
             return;
+        }
 
         // Check for any uniqueness constraints
-        for (JSimpleField jfield : Iterables.filter(this.jfields.values(), JSimpleField.class)) {
-            if (jfield.unique) {
-                this.requiresDefaultValidation = true;
-                return;
-            }
+        if (!this.uniqueConstraintFields.isEmpty()) {
+            this.requiresDefaultValidation = true;
+            return;
         }
     }
 
