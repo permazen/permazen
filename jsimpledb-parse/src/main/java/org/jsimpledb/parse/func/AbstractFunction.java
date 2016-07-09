@@ -138,6 +138,7 @@ public abstract class AbstractFunction implements Function {
      * <p>
      * The implementation in {@link AbstractFunction} delegates to {@link ExprParser#parse ExprParser.parse()}.
      *
+     * @param session parse session
      * @param ctx parse context
      * @param complete false if parse is "for real", true if only for tab completion calculation
      * @param skippedArgs the number of arguments parsed prior to {@link #parseExpressionParams parseExpressionParams()}

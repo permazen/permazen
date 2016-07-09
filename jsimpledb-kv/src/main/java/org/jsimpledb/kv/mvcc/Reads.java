@@ -126,6 +126,7 @@ public class Reads implements Cloneable, SizeEstimating {
      * see that method for information on these conflicts. This method returns an empty list if and only
      * if {@link #isConflict isConflict()} returns false.
      *
+     * @param mutations mutations to check for conflicts with this instance
      * @return a description of each conflict between this instance and the given mutations
      * @throws IllegalArgumentException if {@code mutations} is null
      */
