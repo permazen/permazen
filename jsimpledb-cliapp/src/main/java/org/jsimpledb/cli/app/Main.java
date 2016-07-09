@@ -12,12 +12,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.fusesource.jansi.internal.CLibrary;          // jansi is bundled into the jline jar
 import org.jsimpledb.JSimpleDB;

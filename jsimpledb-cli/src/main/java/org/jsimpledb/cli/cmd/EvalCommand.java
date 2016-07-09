@@ -56,7 +56,7 @@ public class EvalCommand extends AbstractCommand {
      * thrown during expression evaluation itself, swallowing them, making it appear as if the
      * command were always successful.
      */
-    public static class EvalAction implements CliSession.TransactionalAction {
+    public static final class EvalAction implements CliSession.TransactionalAction {
 
         private final Node expr;
         private final boolean force;

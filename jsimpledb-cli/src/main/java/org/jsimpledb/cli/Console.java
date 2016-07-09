@@ -8,7 +8,6 @@ package org.jsimpledb.cli;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -171,7 +170,6 @@ public class Console {
 
         // Parse and execute commands one at a time
         final ParseContext ctx = new ParseContext(text);
-        final CommandParser commandParser = new CommandParser();
         final CliSession.Action[] action = new CliSession.Action[1];
         while (true) {
 
@@ -191,7 +189,7 @@ public class Console {
                 if (!this.session.performCliSessionAction(new CliSession.Action() {
                     @Override
                     public void run(CliSession session) {
-                        action[0] = commandParser.parse(session, ctx, false);
+                        action[0] = Console.this.commandParser.parse(session, ctx, false);
                     }
                 }))
                     return false;

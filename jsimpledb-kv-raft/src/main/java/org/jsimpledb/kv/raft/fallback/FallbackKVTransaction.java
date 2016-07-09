@@ -8,7 +8,6 @@ package org.jsimpledb.kv.raft.fallback;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
-import java.util.concurrent.Future;
 
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVDatabase;
@@ -17,7 +16,6 @@ import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.RetryTransactionException;
 import org.jsimpledb.kv.StaleTransactionException;
 import org.jsimpledb.kv.util.ForwardingKVStore;
-import org.jsimpledb.kv.util.KeyWatchTracker;
 
 /**
  * A {@link KVTransaction} associated with a {@link FallbackKVDatabase}.
