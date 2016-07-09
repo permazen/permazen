@@ -879,7 +879,7 @@ public class RaftKVDatabase implements KVDatabase {
                 @Override
                 public Thread newThread(Runnable action) {
                     final Thread thread = new Thread(action);
-                    thread.setName(RaftKVDatabase.this + " Service");
+                    thread.setName("RaftKVDatabase[" + RaftKVDatabase.this.logDir + "] Service");
                     return thread;
                 }
             });
