@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>EvalCommand (JSimpleDB 2.1.1 API)</title>
+<title>EvalCommand (JSimpleDB 2.1.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="EvalCommand (JSimpleDB 2.1.1 API)";
+        parent.document.title="EvalCommand (JSimpleDB 2.1.2 API)";
     }
 //-->
 </script>
@@ -36,7 +36,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../org/jsimpledb/cli/cmd/DeleteSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../org/jsimpledb/cli/cmd/HelpCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/cli/cmd/EvalCommand.html" target="_top">Frames</a></li>
@@ -60,7 +60,7 @@
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#fields_inherited_from_class_org.jsimpledb.cli.cmd.AbstractCommand">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
@@ -112,6 +112,28 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd">EvalCommand.EvalAction</a></strong></code>
+<div class="block">Special <code>CliSession.TransactionalAction</code> used by the <a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
+ <a href="../../../../org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><code>EvalException</code></a> that occurred, if any.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field_summary">
@@ -157,7 +179,7 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a></code></td>
+<td class="colFirst"><code><a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd">EvalCommand.EvalAction</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction</a></strong>(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
          <a href="../../../../org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util">ParseContext</a>&nbsp;ctx,
          boolean&nbsp;complete,
@@ -293,10 +315,10 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getAction</h4>
-<pre>public&nbsp;<a href="../../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;getAction(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
-                          <a href="../../../../org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util">ParseContext</a>&nbsp;ctx,
-                          boolean&nbsp;complete,
-                          <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</pre>
+<pre>public&nbsp;<a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd">EvalCommand.EvalAction</a>&nbsp;getAction(<a href="../../../../org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a>&nbsp;session,
+                               <a href="../../../../org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util">ParseContext</a>&nbsp;ctx,
+                               boolean&nbsp;complete,
+                               <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;params)</pre>
 <div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">AbstractCommand</a></code></strong></div>
 <div class="block">Process command line parameters and return action.</div>
 <dl>
@@ -333,7 +355,7 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../org/jsimpledb/cli/cmd/DeleteSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">Prev Class</span></a></li>
-<li><a href="../../../../org/jsimpledb/cli/cmd/HelpCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">Next Class</span></a></li>
+<li><a href="../../../../org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">Next Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?org/jsimpledb/cli/cmd/EvalCommand.html" target="_top">Frames</a></li>
@@ -357,7 +379,7 @@ extends <a href="../../../../org/jsimpledb/cli/cmd/AbstractCommand.html" title="
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#fields_inherited_from_class_org.jsimpledb.cli.cmd.AbstractCommand">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>

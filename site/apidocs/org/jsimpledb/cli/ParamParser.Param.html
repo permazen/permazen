@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ParamParser.Param (JSimpleDB 2.1.1 API)</title>
+<title>ParamParser.Param (JSimpleDB 2.1.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ParamParser.Param (JSimpleDB 2.1.1 API)";
+        parent.document.title="ParamParser.Param (JSimpleDB 2.1.2 API)";
     }
 //-->
 </script>
@@ -107,7 +107,8 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
  <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> form is <code>-flag:name:type</code>, where the <code>-flag</code> is optional and indicates
  an option flag, <code>name</code> is the name of the flag or parameter, and <code>type</code> is optional as well:
  if missing, it indicates either an argumment-less option flag or a "word" type (<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang"><code>String</code></a> that is a
- sequence of one or more non-whitespace characters). Otherwise <code>type</code> is the name of the parameter type.
+ sequence of one or more non-whitespace characters). Otherwise <code>type</code> is the name of a parameter type
+ supported by <a href="../../../org/jsimpledb/cli/ParamParser.html#getParser(java.lang.String)"><code>ParamParser.getParser()</code></a>.
 
  <p>
  Non-option parameters may have a <code>?</code> suffix if optional,

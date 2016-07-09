@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>AbstractFunction (JSimpleDB 2.1.1 API)</title>
+<title>AbstractFunction (JSimpleDB 2.1.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="AbstractFunction (JSimpleDB 2.1.1 API)";
+        parent.document.title="AbstractFunction (JSimpleDB 2.1.2 API)";
     }
 //-->
 </script>
@@ -203,6 +203,16 @@ implements <a href="../../../../org/jsimpledb/parse/func/Function.html" title="i
 <div class="block">Parse some number of Java expression function arguments.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr">Node</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseNextParameter(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, java.util.List)">parseNextParameter</a></strong>(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+                  <a href="../../../../org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util">ParseContext</a>&nbsp;ctx,
+                  boolean&nbsp;complete,
+                  int&nbsp;skippedArgs,
+                  <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr">Node</a>&gt;&nbsp;paramList)</code>
+<div class="block">Parse the next function parameter.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
@@ -342,7 +352,7 @@ implements <a href="../../../../org/jsimpledb/parse/func/Function.html" title="i
 <a name="parseExpressionParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, int, int)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>parseExpressionParams</h4>
 <pre>protected&nbsp;<a href="../../../../org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr">Node</a>[]&nbsp;parseExpressionParams(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
@@ -356,6 +366,27 @@ implements <a href="../../../../org/jsimpledb/parse/func/Function.html" title="i
  the closing parenthesis.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - parse session</dd><dd><code>ctx</code> - parse context</dd><dd><code>complete</code> - false if parse is "for real", true if only for tab completion calculation</dd><dd><code>skippedArgs</code> - the number of arguments already parsed</dd><dd><code>minArgs</code> - minimum number of arguments</dd><dd><code>maxArgs</code> - maximum number of arguments</dd>
 <dt><span class="strong">Returns:</span></dt><dd>parsed expressions</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../../org/jsimpledb/parse/ParseException.html" title="class in org.jsimpledb.parse">ParseException</a></code> - if parse fails, or if <code>complete</code> is true and there are valid completions</dd></dl>
+</li>
+</ul>
+<a name="parseNextParameter(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, java.util.List)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>parseNextParameter</h4>
+<pre>protected&nbsp;<a href="../../../../org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr">Node</a>&nbsp;parseNextParameter(<a href="../../../../org/jsimpledb/parse/ParseSession.html" title="class in org.jsimpledb.parse">ParseSession</a>&nbsp;session,
+                      <a href="../../../../org/jsimpledb/util/ParseContext.html" title="class in org.jsimpledb.util">ParseContext</a>&nbsp;ctx,
+                      boolean&nbsp;complete,
+                      int&nbsp;skippedArgs,
+                      <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/parse/expr/Node.html" title="interface in org.jsimpledb.parse.expr">Node</a>&gt;&nbsp;paramList)</pre>
+<div class="block">Parse the next function parameter. Invoked by <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseExpressionParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, int, int)"><code>parseExpressionParams()</code></a>.
+
+ <p>
+ The implementation in <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func"><code>AbstractFunction</code></a> delegates to <a href="../../../../org/jsimpledb/parse/expr/ExprParser.html#parse(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean)"><code>ExprParser.parse()</code></a>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>session</code> - parse session</dd><dd><code>ctx</code> - parse context</dd><dd><code>complete</code> - false if parse is "for real", true if only for tab completion calculation</dd><dd><code>skippedArgs</code> - the number of arguments parsed prior to <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseExpressionParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, int, int)"><code>parseExpressionParams()</code></a></dd><dd><code>paramList</code> - the parameters already parsed by <a href="../../../../org/jsimpledb/parse/func/AbstractFunction.html#parseExpressionParams(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, int, int)"><code>parseExpressionParams()</code></a></dd>
+<dt><span class="strong">Returns:</span></dt><dd>parsed parameter</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="../../../../org/jsimpledb/parse/ParseException.html" title="class in org.jsimpledb.parse">ParseException</a></code> - if parse fails, or if <code>complete</code> is true and there are valid completions</dd></dl>
 </li>

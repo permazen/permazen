@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>CliSession (JSimpleDB 2.1.1 API)</title>
+<title>CliSession (JSimpleDB 2.1.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="CliSession (JSimpleDB 2.1.1 API)";
+        parent.document.title="CliSession (JSimpleDB 2.1.2 API)";
     }
 //-->
 </script>
@@ -237,57 +237,69 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#getErrorMessagePrefix()">getErrorMessagePrefix</a></strong>()</code>
+<div class="block">Get prefix for error messages.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#getLineLimit()">getLineLimit</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/PrintWriter.html?is-external=true" title="class or interface in java.io">PrintWriter</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#getWriter()">getWriter</a></strong>()</code>
 <div class="block">Get the output <a href="http://docs.oracle.com/javase/7/docs/api/java/io/PrintWriter.html?is-external=true" title="class or interface in java.io"><code>PrintWriter</code></a> for this CLI session.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#isDone()">isDone</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#isVerbose()">isVerbose</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#loadCommandsFromClasspath()">loadCommandsFromClasspath</a></strong>()</code>
 <div class="block">Scan the classpath for <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>s and register them.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#performCliSessionAction(org.jsimpledb.cli.CliSession.Action)">performCliSessionAction</a></strong>(<a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;action)</code>
 <div class="block">Perform the given action in the context of this session.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#performCliSessionActionWithCurrentTransaction(org.jsimpledb.cli.CliSession.Action)">performCliSessionActionWithCurrentTransaction</a></strong>(<a href="../../../org/jsimpledb/cli/CliSession.Action.html" title="interface in org.jsimpledb.cli">CliSession.Action</a>&nbsp;action)</code>
 <div class="block">Associate the current <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> with this instance, if not already associated,
  while performing the given action.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#registerCommand(org.jsimpledb.cli.cmd.Command)">registerCommand</a></strong>(<a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd">Command</a>&nbsp;command)</code>
 <div class="block">Register the given <a href="../../../org/jsimpledb/cli/cmd/Command.html" title="interface in org.jsimpledb.cli.cmd"><code>Command</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#reportException(java.lang.Exception)">reportException</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</code>
 <div class="block">Handle an exception thrown during an invocation of <a href="../../../org/jsimpledb/Session.html#performSessionAction(org.jsimpledb.Session.Action)"><code>performSessionAction()</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#setDone(boolean)">setDone</a></strong>(boolean&nbsp;done)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/CliSession.html#setErrorMessagePrefix(java.lang.String)">setErrorMessagePrefix</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;prefix)</code>
+<div class="block">Set prefix for error messages.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
@@ -561,6 +573,31 @@ extends <a href="../../../org/jsimpledb/parse/ParseSession.html" title="class in
 <li class="blockList">
 <h4>showStackTrace</h4>
 <pre>protected&nbsp;boolean&nbsp;showStackTrace(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</pre>
+</li>
+</ul>
+<a name="getErrorMessagePrefix()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getErrorMessagePrefix</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;getErrorMessagePrefix()</pre>
+<div class="block">Get prefix for error messages.
+
+ <p>
+ Default prefix is <code>"Error: "</code>.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>error message prefix</dd></dl>
+</li>
+</ul>
+<a name="setErrorMessagePrefix(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setErrorMessagePrefix</h4>
+<pre>public&nbsp;void&nbsp;setErrorMessagePrefix(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;prefix)</pre>
+<div class="block">Set prefix for error messages.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>prefix</code> - error message prefix</dd></dl>
 </li>
 </ul>
 <a name="performCliSessionAction(org.jsimpledb.cli.CliSession.Action)">

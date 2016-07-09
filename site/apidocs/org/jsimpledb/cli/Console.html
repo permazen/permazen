@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Console (JSimpleDB 2.1.1 API)</title>
+<title>Console (JSimpleDB 2.1.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Console (JSimpleDB 2.1.1 API)";
+        parent.document.title="Console (JSimpleDB 2.1.2 API)";
     }
 //-->
 </script>
@@ -219,6 +219,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/Console.html#runNonInteractive(java.io.Reader, java.lang.String)">runNonInteractive</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</a>&nbsp;input,
+                 <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;inputDescription)</code>
+<div class="block">Run this instance in non-interactive (or "batch") mode on the given input.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/Console.html#setHistoryFile(java.io.File)">setHistoryFile</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;historyFile)</code>
 <div class="block">Configure the command history file.</div>
@@ -390,6 +397,22 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <pre>public&nbsp;void&nbsp;setHistoryFile(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;historyFile)</pre>
 <div class="block">Configure the command history file.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>historyFile</code> - file for storing command history</dd></dl>
+</li>
+</ul>
+<a name="runNonInteractive(java.io.Reader, java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>runNonInteractive</h4>
+<pre>public&nbsp;boolean&nbsp;runNonInteractive(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</a>&nbsp;input,
+                        <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;inputDescription)
+                          throws <a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block">Run this instance in non-interactive (or "batch") mode on the given input.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>input</code> - command input; is not closed by this method</dd><dd><code>inputDescription</code> - description of input (e.g., file name) used for error reporting, or null for none</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if successful, false if an error occurred</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if an I/O error occurs</dd></dl>
 </li>
 </ul>
 <a name="run()">

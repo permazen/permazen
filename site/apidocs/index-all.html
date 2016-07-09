@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Index (JSimpleDB 2.1.1 API)</title>
+<title>Index (JSimpleDB 2.1.2 API)</title>
 <link rel="stylesheet" type="text/css" href="./stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (JSimpleDB 2.1.1 API)";
+        parent.document.title="Index (JSimpleDB 2.1.2 API)";
     }
 //-->
 </script>
@@ -66,6 +66,10 @@
 </a>
 <h2 class="title">A</h2>
 <dl>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#absorb(org.jsimpledb.kv.util.KeyWatchTracker)">absorb(KeyWatchTracker)</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a></dt>
+<dd>
+<div class="block">Absorb all of the watches from the given instance into this one.</div>
+</dd>
 <dt><a href="./org/jsimpledb/demo/AbstractBody.html" title="class in org.jsimpledb.demo"><span class="strong">AbstractBody</span></a> - Class in <a href="./org/jsimpledb/demo/package-summary.html">org.jsimpledb.demo</a></dt>
 <dd>
 <div class="block">Support superclass for <code>Body</code> implementations.</div>
@@ -2028,6 +2032,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/CloseableForwardingKVStore.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/CloseableForwardingKVStore.html" title="class in org.jsimpledb.kv.util">CloseableForwardingKVStore</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#close()">close()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a></dt>
+<dd>
+<div class="block">Close this instance.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/util/CloseableTracker.html#close()">close()</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/CloseableTracker.html" title="class in org.jsimpledb.util">CloseableTracker</a></dt>
 <dd>
 <div class="block">Close all unclosed items associated with this instance.</div>
@@ -2966,6 +2974,10 @@
 <dd>
 <div class="block">Decrement this counter's value by one.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_CAPACITY">DEFAULT_CAPACITY</a></span> - Static variable in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a></dt>
+<dd>
+<div class="block">Default capacity (10000L).</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/FallbackTarget.html#DEFAULT_CHECK_INTERVAL">DEFAULT_CHECK_INTERVAL</a></span> - Static variable in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackTarget</a></dt>
 <dd>
 <div class="block">Default check interval (2000ms).</div>
@@ -3018,6 +3030,10 @@
 <dd>
 <div class="block">Default maximum supported applied log entry memory usage (104857600L bytes).</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_MAXIMUM_LIFETIME">DEFAULT_MAXIMUM_LIFETIME</a></span> - Static variable in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a></dt>
+<dd>
+<div class="block">Default maximum lifetime in seconds (2592000L).</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#DEFAULT_MIME_TYPE">DEFAULT_MIME_TYPE</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
 <dd>
 <div class="block">Default MIME type supported by this instance: <code>application/x-jsimpledb-kvstore</code>.</div>
@@ -3062,6 +3078,10 @@
 <dd>
 <div class="block">Default <a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html#getWaitTimeout()">wait timeout</a> for newly created transactions in milliseconds
  (500L).</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_WEAK_REFERENCE">DEFAULT_WEAK_REFERENCE</a></span> - Static variable in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a></dt>
+<dd>
+<div class="block">Default for the weak reference option (<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_MAXIMUM_LIFETIME">2592000L</a>).</div>
 </dd>
 <dt><a href="./org/jsimpledb/DefaultStorageIdGenerator.html" title="class in org.jsimpledb"><span class="strong">DefaultStorageIdGenerator</span></a> - Class in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
 <dd>
@@ -3529,6 +3549,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/EvalCommand.html#EvalCommand()">EvalCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd">EvalCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">EvalCommand.EvalAction</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>
+<div class="block">Special <code>CliSession.TransactionalAction</code> used by the <a href="./org/jsimpledb/cli/cmd/EvalCommand.html" title="class in org.jsimpledb.cli.cmd"><code>EvalCommand</code></a> allowing access to the
+ <a href="./org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><code>EvalException</code></a> that occurred, if any.</div>
+</dd>
 <dt><a href="./org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><span class="strong">EvalException</span></a> - Exception in <a href="./org/jsimpledb/parse/expr/package-summary.html">org.jsimpledb.parse.expr</a></dt>
 <dd>
 <div class="block">Thrown when an error occurs evaluating an expression.</div>
@@ -4728,6 +4753,14 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/msg/CommitResponse.html#getErrorMessage()">getErrorMessage()</a></span> - Method in class org.jsimpledb.kv.raft.msg.<a href="./org/jsimpledb/kv/raft/msg/CommitResponse.html" title="class in org.jsimpledb.kv.raft.msg">CommitResponse</a></dt>
 <dd>
 <div class="block">Get the error message in case of failure.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#getErrorMessagePrefix()">getErrorMessagePrefix()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dd>
+<div class="block">Get prefix for error messages.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html#getEvalException()">getEvalException()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd">EvalCommand.EvalAction</a></dt>
+<dd>
+<div class="block">Get the <a href="./org/jsimpledb/parse/expr/EvalException.html" title="class in org.jsimpledb.parse.expr"><code>EvalException</code></a> that occurred when evaluating the expression, if any.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVDatabaseTest.RandomTask.html#getFail()">getFail()</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVDatabaseTest.RandomTask.html" title="class in org.jsimpledb.kv.test">KVDatabaseTest.RandomTask</a></dt>
 <dd>&nbsp;</dd>
@@ -8108,7 +8141,13 @@
 <div class="block">Utility class used to track key watches.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#KeyWatchTracker()">KeyWatchTracker()</a></span> - Constructor for class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Default constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#KeyWatchTracker(long, long, boolean)">KeyWatchTracker(long, long, boolean)</a></span> - Constructor for class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html#kv">kv</a></span> - Variable in class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/SimpleKVDatabase.html" title="class in org.jsimpledb.kv.simple">SimpleKVDatabase</a></dt>
 <dd>
 <div class="block">The <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> for the committed data.</div>
@@ -9816,6 +9855,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/func/QueryMapValueIndexFunction.html#parseName(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean)">parseName(ParseSession, ParseContext, boolean)</a></span> - Method in class org.jsimpledb.parse.func.<a href="./org/jsimpledb/parse/func/QueryMapValueIndexFunction.html" title="class in org.jsimpledb.parse.func">QueryMapValueIndexFunction</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/parse/func/AbstractFunction.html#parseNextParameter(org.jsimpledb.parse.ParseSession, org.jsimpledb.util.ParseContext, boolean, int, java.util.List)">parseNextParameter(ParseSession, ParseContext, boolean, int, List&lt;Node&gt;)</a></span> - Method in class org.jsimpledb.parse.func.<a href="./org/jsimpledb/parse/func/AbstractFunction.html" title="class in org.jsimpledb.parse.func">AbstractFunction</a></dt>
+<dd>
+<div class="block">Parse the next function parameter.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/app/AbstractMain.html#parseOption(java.lang.String, java.util.ArrayDeque)">parseOption(String, ArrayDeque&lt;String&gt;)</a></span> - Method in class org.jsimpledb.app.<a href="./org/jsimpledb/app/AbstractMain.html" title="class in org.jsimpledb.app">AbstractMain</a></dt>
 <dd>
 <div class="block">Subclass hook to parse unrecognized command line options.</div>
@@ -10730,6 +10773,14 @@
 <dd>
 <div class="block">Remove a monitor previously added via <a href="./org/jsimpledb/core/Transaction.html#addMapFieldChangeListener(int, int[], java.lang.Iterable, org.jsimpledb.core.MapFieldChangeListener)"><code>addMapFieldChangeListener()</code></a>.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/util/ObjIdMap.html#removeOne()">removeOne()</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/ObjIdMap.html" title="class in org.jsimpledb.core.util">ObjIdMap</a></dt>
+<dd>
+<div class="block">Remove a single, arbitrary entry from this instance and return it.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/util/ObjIdSet.html#removeOne()">removeOne()</a></span> - Method in class org.jsimpledb.core.util.<a href="./org/jsimpledb/core/util/ObjIdSet.html" title="class in org.jsimpledb.core.util">ObjIdSet</a></dt>
+<dd>
+<div class="block">Remove a single, arbitrary <a href="./org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core"><code>ObjId</code></a> from this instance and return it.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/AbstractKVStore.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/AbstractKVStore.html" title="class in org.jsimpledb.kv">AbstractKVStore</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/array/ArrayKVStore.html#removeRange(byte[], byte[])">removeRange(byte[], byte[])</a></span> - Method in class org.jsimpledb.kv.array.<a href="./org/jsimpledb/kv/array/ArrayKVStore.html" title="class in org.jsimpledb.kv.array">ArrayKVStore</a></dt>
@@ -11025,6 +11076,8 @@
 <dd>
 <div class="block">Perform some action using the given <a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli"><code>CliSession</code></a> while a transaction is open.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/EvalCommand.EvalAction.html" title="class in org.jsimpledb.cli.cmd">EvalCommand.EvalAction</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/InfoCommand.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/InfoCommand.html" title="class in org.jsimpledb.cli.cmd">InfoCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/QuitCommand.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/QuitCommand.html" title="class in org.jsimpledb.cli.cmd">QuitCommand</a></dt>
@@ -11059,6 +11112,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/app/Main.html#run(java.lang.String[])">run(String[])</a></span> - Method in class org.jsimpledb.vaadin.app.<a href="./org/jsimpledb/vaadin/app/Main.html" title="class in org.jsimpledb.vaadin.app">Main</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/Console.html#runNonInteractive(java.io.Reader, java.lang.String)">runNonInteractive(Reader, String)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli">Console</a></dt>
+<dd>
+<div class="block">Run this instance in non-interactive (or "batch") mode on the given input.</div>
+</dd>
 </dl>
 <a name="_S_">
 <!--   -->
@@ -11434,6 +11491,10 @@
 <dd>
 <div class="block">Configure whether to throw an error if the database already exists.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#setErrorMessagePrefix(java.lang.String)">setErrorMessagePrefix(String)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dd>
+<div class="block">Set prefix for error messages.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html#setExecutor(java.util.concurrent.Executor)">setExecutor(Executor)</a></span> - Method in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/FoundationKVDatabase.html" title="class in org.jsimpledb.kv.fdb">FoundationKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executor.html?is-external=true" title="class or interface in java.util.concurrent"><code>Executor</code></a> used for the FoundationDB networking event loop.</div>
@@ -11554,6 +11615,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/spring/SpringXMLKVDatabase.html#setInitialContentResource(org.springframework.core.io.Resource)">setInitialContentResource(Resource)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/SpringXMLKVDatabase.html" title="class in org.jsimpledb.spring">SpringXMLKVDatabase</a></dt>
 <dd>
 <div class="block">Configure the <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/core/io/Resource.html?is-external=true" title="class or interface in org.springframework.core.io"><code>Resource</code></a> containing default initial content for an uninitialized database.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#setInitialTargetIndex(int)">setInitialTargetIndex(int)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVDatabase</a></dt>
+<dd>
+<div class="block">Configure the index of the currently active database when starting up for the very first time.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mysql/MySQLKVDatabase.html#setInnodbLargePrefix(boolean)">setInnodbLargePrefix(boolean)</a></span> - Method in class org.jsimpledb.kv.mysql.<a href="./org/jsimpledb/kv/mysql/MySQLKVDatabase.html" title="class in org.jsimpledb.kv.mysql">MySQLKVDatabase</a></dt>
 <dd>

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KeyWatchTracker (JSimpleDB 2.1.1 API)</title>
+<title>KeyWatchTracker (JSimpleDB 2.1.2 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KeyWatchTracker (JSimpleDB 2.1.1 API)";
+        parent.document.title="KeyWatchTracker (JSimpleDB 2.1.2 API)";
     }
 //-->
 </script>
@@ -61,13 +61,13 @@
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
@@ -93,14 +93,33 @@
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a>, <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang">AutoCloseable</a></dd>
+</dl>
 <hr>
 <br>
 <pre>public class <span class="strong">KeyWatchTracker</span>
-extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a></pre>
 <div class="block">Utility class used to track key watches.
 
  <p>
- For space efficiency, this class does not track original values. Therefore, spurious notifications can result.
+ To limit memory consumption, instances are configured with a maximum maximum number of key watches supported,
+ as well as a maximum lifetime for each key watch. When these limits are exceeded, one or more key watches
+ is evicted and a corresponding spurious notification occurs.
+
+ <p>
+ Instances can optionally be configured to only weakly reference the returned <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a>'s.
+ This prevents memory leaks if the user of this class is sloppy and fails to <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true#cancel(boolean)" title="class or interface in java.util.concurrent"><code>cancel()</code></a>
+ them when no longer needed; however, it can also lead to missed notifications if the user of this class relies
+ on the <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true#addListener(java.lang.Runnable, java.util.concurrent.Executor)" title="class or interface in com.google.common.util.concurrent">listener registration functionality</a> provided in the
+ <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a> interface, because with a listener registration, there is no longer any need
+ to directly reference the <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a>. Therefore, by default strong references are used.
+
+ <p>
+ For space efficiency, this class does not track the original values associated with a key. Therefore,
+ spurious notifications can also occur if a value is changed, and then changed back to its original value.
 
  <p>
  Instances are thread safe.</div>
@@ -111,6 +130,39 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_CAPACITY">DEFAULT_CAPACITY</a></strong></code>
+<div class="block">Default capacity (10000L).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_MAXIMUM_LIFETIME">DEFAULT_MAXIMUM_LIFETIME</a></strong></code>
+<div class="block">Default maximum lifetime in seconds (2592000L).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_WEAK_REFERENCE">DEFAULT_WEAK_REFERENCE</a></strong></code>
+<div class="block">Default for the weak reference option (<a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_MAXIMUM_LIFETIME">2592000L</a>).</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor_summary">
@@ -123,7 +175,16 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#KeyWatchTracker()">KeyWatchTracker</a></strong>()</code>&nbsp;</td>
+<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#KeyWatchTracker()">KeyWatchTracker</a></strong>()</code>
+<div class="block">Default constructor.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#KeyWatchTracker(long, long, boolean)">KeyWatchTracker</a></strong>(long&nbsp;capacity,
+               long&nbsp;maxLifetime,
+               boolean&nbsp;weakReferences)</code>
+<div class="block">Constructor.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -139,6 +200,18 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#absorb(org.jsimpledb.kv.util.KeyWatchTracker)">absorb</a></strong>(<a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a>&nbsp;that)</code>
+<div class="block">Absorb all of the watches from the given instance into this one.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#close()">close</a></strong>()</code>
+<div class="block">Close this instance.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
@@ -183,7 +256,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>void</code></td>
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#triggerAll()">triggerAll</a></strong>()</code>
 <div class="block">Trigger all watches.</div>
 </td>
@@ -204,6 +277,47 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="DEFAULT_CAPACITY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_CAPACITY</h4>
+<pre>public static final&nbsp;long DEFAULT_CAPACITY</pre>
+<div class="block">Default capacity (10000L).</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.util.KeyWatchTracker.DEFAULT_CAPACITY">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="DEFAULT_MAXIMUM_LIFETIME">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_MAXIMUM_LIFETIME</h4>
+<pre>public static final&nbsp;long DEFAULT_MAXIMUM_LIFETIME</pre>
+<div class="block">Default maximum lifetime in seconds (2592000L).</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.util.KeyWatchTracker.DEFAULT_MAXIMUM_LIFETIME">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="DEFAULT_WEAK_REFERENCE">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_WEAK_REFERENCE</h4>
+<pre>public static final&nbsp;boolean DEFAULT_WEAK_REFERENCE</pre>
+<div class="block">Default for the weak reference option (<a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_MAXIMUM_LIFETIME">2592000L</a>).</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jsimpledb.kv.util.KeyWatchTracker.DEFAULT_WEAK_REFERENCE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor_detail">
@@ -213,10 +327,30 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <a name="KeyWatchTracker()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>KeyWatchTracker</h4>
 <pre>public&nbsp;KeyWatchTracker()</pre>
+<div class="block">Default constructor.
+
+ <p>
+ Configures capacity <a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_CAPACITY">10000L</a>, lifetime <a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#DEFAULT_MAXIMUM_LIFETIME">2592000L</a> seconds,
+ and strong references.</div>
+</li>
+</ul>
+<a name="KeyWatchTracker(long, long, boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>KeyWatchTracker</h4>
+<pre>public&nbsp;KeyWatchTracker(long&nbsp;capacity,
+               long&nbsp;maxLifetime,
+               boolean&nbsp;weakReferences)</pre>
+<div class="block">Constructor.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>capacity</code> - maximum number of key watches allowed</dd><dd><code>maxLifetime</code> - maximum lifetime for a key watch in seconds</dd><dd><code>weakReferences</code> - true to only weakly reference registered <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a>s</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>capacity</code> or <code>maxLifetime</code> is zero or negative</dd></dl>
 </li>
 </ul>
 </li>
@@ -321,19 +455,51 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>triggerAll</h4>
-<pre>public&nbsp;void&nbsp;triggerAll()</pre>
+<pre>public&nbsp;boolean&nbsp;triggerAll()</pre>
 <div class="block">Trigger all watches.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if any watches were triggered, otherwise false</dd></dl>
 </li>
 </ul>
 <a name="failAll(java.lang.Exception)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>failAll</h4>
 <pre>public&nbsp;void&nbsp;failAll(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</pre>
 <div class="block">Discard all outstanding key watches and fail them with the given exception.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>e</code> - failing exception</dd></dl>
+</li>
+</ul>
+<a name="absorb(org.jsimpledb.kv.util.KeyWatchTracker)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>absorb</h4>
+<pre>public&nbsp;void&nbsp;absorb(<a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a>&nbsp;that)</pre>
+<div class="block">Absorb all of the watches from the given instance into this one.
+ On return, this instance will contain all of the given instance's watches, and the given instance will be empty.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>that</code> - the instance to absorb into this one</dd></dl>
+</li>
+</ul>
+<a name="close()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>close</h4>
+<pre>public&nbsp;void&nbsp;close()</pre>
+<div class="block">Close this instance.
+
+ <p>
+ The implementation in <a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util"><code>KeyWatchTracker</code></a> invokes <a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#failAll(java.lang.Exception)"><code>failAll()</code></a>.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io">close</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a></code></dd>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/AutoCloseable.html?is-external=true#close()" title="class or interface in java.lang">close</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang">AutoCloseable</a></code></dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -388,13 +554,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method_detail">Method</a></li>
 </ul>
