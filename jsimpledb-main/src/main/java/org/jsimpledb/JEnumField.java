@@ -88,7 +88,7 @@ public class JEnumField extends JSimpleField {
     @Override
     void outputFields(ClassGenerator<?> generator, ClassWriter cw) {
         final FieldVisitor valueField = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
-          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(EnumConverter.class), null, null);
+          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(Converter.class), null, null);
         valueField.visitEnd();
     }
 
@@ -101,8 +101,9 @@ public class JEnumField extends JSimpleField {
     void outputClassInitializerBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
         mv.visitLdcInsn(Type.getType(this.typeToken.getRawType()));
         generator.emitInvoke(mv, ClassGenerator.ENUM_CONVERTER_CREATE_METHOD);
+        generator.emitInvoke(mv, ClassGenerator.CONVERTER_REVERSE_METHOD);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, generator.getClassName(),
-          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(EnumConverter.class));
+          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(Converter.class));
     }
 
     @Override
@@ -113,8 +114,7 @@ public class JEnumField extends JSimpleField {
           this.getter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
           this.getter.getName(), Type.getMethodDescriptor(this.getter), null, generator.getExceptionNames(this.getter));
         mv.visitFieldInsn(Opcodes.GETSTATIC, generator.getClassName(),
-          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(EnumConverter.class));
-        generator.emitInvoke(mv, ClassGenerator.CONVERTER_REVERSE_METHOD);
+          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(Converter.class));
         this.outputReadCoreValueBytecode(generator, mv);
         generator.emitInvoke(mv, ClassGenerator.CONVERTER_CONVERT_METHOD);
         mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.getter.getReturnType()));
@@ -127,7 +127,8 @@ public class JEnumField extends JSimpleField {
           this.setter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
           this.setter.getName(), Type.getMethodDescriptor(this.setter), null, generator.getExceptionNames(this.setter));
         mv.visitFieldInsn(Opcodes.GETSTATIC, generator.getClassName(),
-          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(EnumConverter.class));
+          ClassGenerator.ENUM_CONVERTER_FIELD_PREFIX + this.storageId, Type.getDescriptor(Converter.class));
+        generator.emitInvoke(mv, ClassGenerator.CONVERTER_REVERSE_METHOD);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         generator.emitInvoke(mv, ClassGenerator.CONVERTER_CONVERT_METHOD);
         this.outputWriteCoreValueBytecode(generator, mv);
