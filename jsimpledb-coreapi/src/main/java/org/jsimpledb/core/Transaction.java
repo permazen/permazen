@@ -2000,20 +2000,11 @@ public class Transaction {
         ObjInfo info = this.objInfoCache.getIfPresent(id);
         if (info == null) {
 
-            // Verify object type encoded within object ID is valid
+            // Verify that the object type encoded within the object ID is valid
             this.schemas.verifyStorageInfo(id.getStorageId(), ObjTypeStorageInfo.class);
 
-            // Load object into cache; if object doesn't exist, we'll get an exception here
-            try {
-                info = this.objInfoCache.getUnchecked(id);
-            } catch (UncheckedExecutionException e) {
-                final Throwable t = e.getCause();
-                if (t instanceof RuntimeException)
-                    throw (RuntimeException)t;
-                if (t instanceof Error)
-                    throw (Error)t;
-                throw e;
-            }
+            // Load the object's info into the cache (if object doesn't exist, we'll get an exception here)
+            info = this.loadIntoCache(id);
         }
 
         // Is a schema udpate required?
@@ -2030,7 +2021,16 @@ public class Transaction {
             }
         });
 
-        // Get updated object info
+        // Load (updated) object info into cache
+        return this.loadIntoCache(id);
+    }
+
+    /**
+     * Load the specified object's info into the object cache.
+     *
+     * @throws DeletedObjectException if object does not exist
+     */
+    private ObjInfo loadIntoCache(ObjId id) {
         try {
             return this.objInfoCache.getUnchecked(id);
         } catch (UncheckedExecutionException e) {
