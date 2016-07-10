@@ -19,8 +19,7 @@ public class DeletedObjectException extends DatabaseException {
      * @param id the ID of the object that was not found
      */
     public DeletedObjectException(ObjId id) {
-        super("object with ID " + id + " not found");
-        this.id = id;
+        this(id, "object with ID " + id + " not found");
     }
 
     /**
@@ -30,7 +29,18 @@ public class DeletedObjectException extends DatabaseException {
      * @param id the ID of the object that was not found
      */
     public DeletedObjectException(Transaction tx, ObjId id) {
-        super("object with ID " + id + " (" + DeletedObjectException.getTypeDescription(tx, id) + ") not found");
+        this(id, "object with ID " + id + " (" + DeletedObjectException.getTypeDescription(tx, id) + ") not found");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param tx the transaction within which this exception was generated
+     * @param id the ID of the object that was not found
+     * @param message detail message
+     */
+    public DeletedObjectException(ObjId id, String message) {
+        super(message);
         this.id = id;
     }
 
@@ -43,11 +53,11 @@ public class DeletedObjectException extends DatabaseException {
         return this.id;
     }
 
-    private static String getTypeDescription(Transaction tx, ObjId id) {
+    static String getTypeDescription(Transaction tx, ObjId id) {
         final int storageId = id.getStorageId();
         final ObjType type = tx != null ? tx.schema.objTypeMap.get(id.getStorageId()) : null;
         if (type == null)
-            return "storage ID " + storageId;
+            return "type having storage ID " + storageId;
         return "type `" + type.getName() + "' having storage ID " + storageId;
     }
 }
