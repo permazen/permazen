@@ -966,9 +966,10 @@ public class Transaction {
             throw new RuntimeException("internal error");
 
         // Verify objects have the same type
-        if (srcId.getStorageId() != dstId.getStorageId()) {
+        final int typeStorageId = srcId.getStorageId();
+        if (dstId.getStorageId() != typeStorageId) {
             throw new IllegalArgumentException("can't copy " + srcId + " to " + dstId
-              + " due to non-equal object types (" + srcId.getStorageId() + " != " + dstId.getStorageId() + ")");
+              + " due to non-equal object types (" + typeStorageId + " != " + dstId.getStorageId() + ")");
         }
 
         // Upgrade source object if necessary
@@ -988,26 +989,30 @@ public class Transaction {
         if (!Arrays.equals(srcTx.schema.encodedXML, dstTx.schema.encodedXML))
             throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
 
-        // Create destination object if it doesn't already exist
-        final boolean existed = !dstTx.create(dstId, objectVersion);
-        final ObjInfo dstInfo = dstTx.getObjectInfo(dstId, false);
-        final boolean needUpgrade = dstInfo.getVersion() != objectVersion;      // can only happen if object already existed
+        // Determine if destination object already exists, and if so get info about it
+        ObjInfo dstInfo = dstTx.getObjectInfoIfExists(dstId, false);
+        final boolean existed = dstInfo != null;
+        final boolean needUpgrade = dstInfo != null && dstInfo.getVersion() != objectVersion;
 
         // Do field-by-field copy if there are change or version listeners, otherwise do fast copy of key/value pairs
-        final ObjType type = srcInfo.getObjType();
-        if (dstTx.hasFieldMonitor(type) || (needUpgrade && !dstTx.versionChangeListeners.isEmpty())) {
+        final ObjType srcType = srcInfo.getObjType();
+        final ObjType dstType = dstSchema.getObjType(typeStorageId);
+        if (dstTx.hasFieldMonitor(dstType) || (needUpgrade && !dstTx.versionChangeListeners.isEmpty())) {
 
-            // Upgrade object first
-            if (needUpgrade)
+            // Create destination object if it does not exist, otherwise upgrade it if needed
+            if (dstInfo == null)
+                dstTx.createObjectData(dstId, objectVersion, dstSchema, dstType);
+            else if (needUpgrade)
                 dstTx.updateVersion(dstInfo, dstSchema);
 
             // Copy fields
-            for (Field<?> field : type.fields.values())
+            for (Field<?> field : srcType.fields.values())
                 field.copy(srcId, dstId, srcTx, dstTx);
         } else {
 
-            // Delete pre-existing object's field content, if any
-            dstTx.deleteObjectData(dstInfo);
+            // Nuke previous destination object, if any
+            if (dstInfo != null)
+                dstTx.deleteObjectData(dstInfo);
 
             // Add schema version index entry
             dstTx.kvt.put(Database.buildVersionIndexKey(dstId, objectVersion), ByteUtil.EMPTY);
@@ -1031,7 +1036,7 @@ public class Transaction {
             Database.closeIfPossible(i);
 
             // Create object's simple field index entries
-            for (SimpleField<?> field : type.simpleFields.values()) {
+            for (SimpleField<?> field : dstType.simpleFields.values()) {
                 if (field.indexed) {
                     final byte[] fieldValue = dstTx.kvt.get(field.buildKey(dstId));     // can be null (if field has default value)
                     final byte[] indexKey = Transaction.buildSimpleIndexEntry(field, dstId, fieldValue);
@@ -1040,11 +1045,11 @@ public class Transaction {
             }
 
             // Create object's composite index entries
-            for (CompositeIndex index : type.compositeIndexes.values())
+            for (CompositeIndex index : dstType.compositeIndexes.values())
                 dstTx.kvt.put(Transaction.buildCompositeIndexEntry(dstTx, dstId, index), ByteUtil.EMPTY);
 
             // Create object's complex field index entries
-            for (ComplexField<?> field : type.complexFields.values()) {
+            for (ComplexField<?> field : dstType.complexFields.values()) {
                 for (SimpleField<?> subField : field.getSubFields()) {
                     if (subField.indexed)
                         field.addIndexEntries(dstTx, dstId, subField);
