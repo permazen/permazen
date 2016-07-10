@@ -570,7 +570,7 @@ public class Transaction {
         // Initialize object
         final Schema objSchema = versionNumber == this.schema.versionNumber ? this.schema : this.schemas.getVersion(versionNumber);
         final ObjType objType = objSchema.getObjType(id.getStorageId());
-        this.initialize(id, versionNumber, objSchema, objType);
+        this.createObjectData(id, versionNumber, objSchema, objType);
 
         // Done
         return true;
@@ -618,7 +618,7 @@ public class Transaction {
         final ObjId id = this.generateIdValidated(storageId);
 
         // Initialize object
-        this.initialize(id, versionNumber, objSchema, objType);
+        this.createObjectData(id, versionNumber, objSchema, objType);
 
         // Done
         return id;
@@ -660,15 +660,21 @@ public class Transaction {
           + MAX_GENERATED_KEY_ATTEMPTS + " attempts; is our source of randomness truly random?");
     }
 
-    private synchronized void initialize(ObjId id, int versionNumber, Schema schema, ObjType objType) {
+    /**
+     * Initialize key/value pairs for a new object. The object must not already exist.
+     */
+    private synchronized ObjInfo createObjectData(ObjId id, int versionNumber, Schema schema, ObjType objType) {
 
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
+        assert this.kvt.get(id.getBytes()) == null;
+        assert this.objInfoCache.getIfPresent(id) == null;
 
         // Write object meta-data and update object info cache
         ObjInfo.write(this, id, versionNumber, false);
-        this.objInfoCache.put(id, new ObjInfo(this, id, versionNumber, false, schema, objType));
+        final ObjInfo info = new ObjInfo(this, id, versionNumber, false, schema, objType);
+        this.objInfoCache.put(id, info);
 
         // Write object version index entry
         this.kvt.put(Database.buildVersionIndexKey(id, objType.schema.versionNumber), ByteUtil.EMPTY);
@@ -692,6 +698,9 @@ public class Transaction {
         // Notify listeners
         for (CreateListener listener : this.createListeners.toArray(new CreateListener[this.createListeners.size()]))
             listener.onCreate(this, id);
+
+        // Done
+        return info;
     }
 
     /**
@@ -731,12 +740,9 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
 
-        // Get object info
-        try {
-            this.getObjectInfo(id, false);
-        } catch (DeletedObjectException | UnknownTypeException e) {
+        // Does object exist?
+        if (!this.exists(id))
             return false;
-        }
 
         // Handle delete cascade and recurive DeleteAction.DELETE without hogging Java stack
         final ObjIdSet deletables = new ObjIdSet();
@@ -825,11 +831,17 @@ public class Transaction {
         return true;
     }
 
-    // Delete all of an object's data
+    /**
+     * Delete all of an object's data. The object must exist.
+     *
+     * <p>
+     * This is the opposite of {@link #createObjectData}.
+     */
     private void deleteObjectData(ObjInfo info) {
 
         // Sanity check
         assert Thread.holdsLock(this);
+        assert this.kvt.get(info.getId().getBytes()) != null;
 
         // Delete object's simple field index entries
         final ObjId id = info.getId();
@@ -872,12 +884,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code id} is null
      */
     public synchronized boolean exists(ObjId id) {
-        try {
-            this.getObjectInfo(id, false);
-        } catch (DeletedObjectException | UnknownTypeException e) {
-            return false;
-        }
-        return true;
+        return this.getObjectInfoIfExists(id, false) != null;
     }
 
     /**
@@ -904,9 +911,9 @@ public class Transaction {
      * @param source object ID of the source object in this transaction
      * @param target object ID of the target object in {@code dest}
      * @param dest destination transaction containing {@code target} (possibly same as this transaction)
-     * @param updateVersion true to first automatically update the object's schema version, false to not change it
+     * @param updateVersion true to first automatically update {@code source}'s schema version, false to not change it
      * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
-     * @throws DeletedObjectException if no object with ID equal to {@code id} is found in this transaction
+     * @throws DeletedObjectException if no object with ID equal to {@code source} is found in this transaction
      * @throws UnknownTypeException if {@code source} or {@code target} specifies an unknown object type
      * @throws IllegalArgumentException if {@code source} and {@code target} specify different object types
      * @throws IllegalArgumentException if any parameter is null
@@ -926,12 +933,12 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
 
+        // Get source object info
+        final ObjInfo srcInfo = this.getObjectInfo(source, updateVersion);
+
         // Do nothing if nothing to do
         if (this == dest && source.equals(target))
             return false;
-
-        // Get object info
-        final ObjInfo srcInfo = this.getObjectInfo(source, updateVersion);
 
         // Do the copy while both transactions are locked
         synchronized (dest) {
@@ -1979,6 +1986,23 @@ public class Transaction {
 
         // Return view
         return valueType.cast(field.getValueInternal(this, id));
+    }
+
+    /**
+     * If an object exists, read in its meta-data, also updating its schema version it in the process if requested.
+     *
+     * @param id object ID of the object
+     * @param update true to update object's schema version to match this transaction, false to leave it alone
+     * @return object info if object exists, otherwise null
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    private ObjInfo getObjectInfoIfExists(ObjId id, boolean update) {
+        assert Thread.holdsLock(this);
+        try {
+            return this.getObjectInfo(id, update);
+        } catch (DeletedObjectException | UnknownTypeException e) {
+            return null;
+        }
     }
 
     /**
