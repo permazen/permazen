@@ -961,6 +961,8 @@ public class Transaction {
     private static boolean doCopyFields(ObjInfo srcInfo, ObjId dstId, Transaction srcTx, Transaction dstTx, boolean updateVersion) {
 
         // Sanity check
+        assert Thread.holdsLock(srcTx);
+        assert Thread.holdsLock(dstTx);
         final ObjId srcId = srcInfo.getId();
         if (srcId.equals(dstId) && srcTx == dstTx)
             throw new RuntimeException("internal error");

@@ -90,15 +90,40 @@ public class ObjType extends SchemaItem {
     /**
      * Get the {@link Field} in this instance with the given storage ID.
      *
+     * <p>
+     * This version does not find sub-fields of {@link ComplexField}s; use {@link #getField(int, boolean)} for that.
+     *
+     * @param storageId storage ID
+     * @return the {@link Field} with storage ID {@code storageID}
+     * @throws UnknownFieldException if no top-level {@link Field} with storage ID {@code storageId} exists
+     * @see #getField(int, boolean)
+     */
+    public Field<?> getField(int storageId) {
+        return this.getField(storageId, false);
+    }
+
+    /**
+     * Get the {@link Field} in this instance with the given storage ID, including sub-fields.
+     *
      * @param storageId storage ID
      * @return the {@link Field} with storage ID {@code storageID}
      * @throws UnknownFieldException if no {@link Field} with storage ID {@code storageId} exists
      */
-    public Field<?> getField(int storageId) {
+    public Field<?> getField(int storageId, boolean includeSubFields) {
         final Field<?> field = this.fields.get(storageId);
-        if (field == null)
-            throw new UnknownFieldException(this, storageId, "field");
-        return field;
+        if (field != null)
+            return field;
+        if (includeSubFields) {
+            for (Field<?> parent : this.fields.values()) {
+                if (!(parent instanceof ComplexField))
+                    continue;
+                for (SimpleField<?> subField : ((ComplexField<?>)parent).getSubFields()) {
+                    if (subField.storageId == storageId)
+                        return subField;
+                }
+            }
+        }
+        throw new UnknownFieldException(this, storageId, "field");
     }
 
     /**

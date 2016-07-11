@@ -62,6 +62,7 @@ public abstract class Field<T> extends SchemaItem {
      * @throws UnknownFieldException if this field does not exist in the specified object
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if either parameter is null
+     * @throws IllegalArgumentException if this field is a sub-field of a {@link ComplexField}
      */
     public abstract T getValue(Transaction tx, ObjId id);
 
@@ -75,6 +76,7 @@ public abstract class Field<T> extends SchemaItem {
      * @throws UnknownTypeException if {@code id} specifies an unknown object type
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if either parameter is null
+     * @throws IllegalArgumentException if this field is a sub-field of a {@link ComplexField}
      */
     public abstract boolean hasDefaultValue(Transaction tx, ObjId id);
 

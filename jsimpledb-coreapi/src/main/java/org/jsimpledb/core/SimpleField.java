@@ -82,9 +82,11 @@ public class SimpleField<T> extends Field<T> {
      * @throws DeletedObjectException if no object with ID equal to {@code id} is found
      * @throws StaleTransactionException if this transaction is no longer usable
      * @throws IllegalArgumentException if {@code tx} or {@code id} is null
+     * @throws IllegalArgumentException if this field is a sub-field of a {@link ComplexField}
      */
     public void setValue(Transaction tx, ObjId id, T value) {
         Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(this.parent == null, "field is a sub-field of " + this.parent);
         tx.writeSimpleField(id, this.storageId, value, false);
     }
 
@@ -92,12 +94,14 @@ public class SimpleField<T> extends Field<T> {
     @SuppressWarnings("unchecked")
     public T getValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(this.parent == null, "field is a sub-field of " + this.parent);
         return (T)tx.readSimpleField(id, this.storageId, false);
     }
 
     @Override
     public boolean hasDefaultValue(Transaction tx, ObjId id) {
         Preconditions.checkArgument(tx != null, "null tx");
+        Preconditions.checkArgument(this.parent == null, "field is a sub-field of " + this.parent);
         return tx.hasDefaultValue(id, this);
     }
 
