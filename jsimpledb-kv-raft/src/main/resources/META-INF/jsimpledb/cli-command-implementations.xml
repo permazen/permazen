@@ -2,6 +2,7 @@
 
 <cli-command-implementations>
     <cli-command-implementation class="org.jsimpledb.kv.raft.cmd.RaftAddCommand"/>
+    <cli-command-implementation class="org.jsimpledb.kv.raft.cmd.RaftFallbackForceStandaloneCommand"/>
     <cli-command-implementation class="org.jsimpledb.kv.raft.cmd.RaftFallbackStatusCommand"/>
     <cli-command-implementation class="org.jsimpledb.kv.raft.cmd.RaftRemoveCommand"/>
     <cli-command-implementation class="org.jsimpledb.kv.raft.cmd.RaftStartElectionCommand"/>

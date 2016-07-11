@@ -49,8 +49,6 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
 
     private void displayStatus(PrintWriter writer, FallbackKVDatabase db) {
 
-    // TODO show configuration here...
-
         final List<FallbackTarget> targets = db.getFallbackTargets();
         final Date lastStandaloneActiveTime = db.getLastStandaloneActiveTime();
 
@@ -61,6 +59,10 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
         writer.println();
         writer.println(String.format("%15s: %s", "Standalone KV", db.getStandaloneTarget()));
         writer.println(String.format("%15s: %s", "State file", db.getStateFile()));
+        writer.println(String.format("%15s: %s", "Initial Target", db.getInitialTargetIndex()));
+        writer.println(String.format("%15s: %s%s", "Maximum Target",
+          Math.min(db.getFallbackTargets().size() - 1, db.getMaximumTargetIndex()),
+          db.getMaximumTargetIndex() == -1 ? " [STANDALONE MODE]" : ""));
         writer.println();
         writer.println("Raft Targets");
         writer.println("============");

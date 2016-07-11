@@ -88,6 +88,7 @@ public class FallbackKVDatabase implements KVDatabase {
     private File stateFile;
     private KVDatabase standaloneKV;
     private int initialTargetIndex = Integer.MAX_VALUE;
+    private int maximumTargetIndex = Integer.MAX_VALUE;
 
     // Runtime state
     private boolean migrating;
@@ -214,14 +215,24 @@ public class FallbackKVDatabase implements KVDatabase {
     }
 
     /**
+     * Get the configured target index to use when starting up for the very first time.
+     *
+     * @param initialTargetIndex initial target index, -1 meaning standalone mode; out of range values will be clipped
+     */
+    public int getInitialTargetIndex() {
+        return this.initialTargetIndex;
+    }
+
+    /**
      * Configure the index of the currently active database when starting up for the very first time.
-     * After the initial startup, the current fallback target is persisted across restarts.
+     * This value is only used on the initial startup; after that, the current fallback target is
+     * persisted across restarts.
      *
      * <p>
      * Default value is the most highly preferred target. Use -1 to change the default to standalone mode;
      * this is appropriate when the Raft cluster is not yet configured on initial startup.
      *
-     * @param initialTargetIndex initial target index; out of range values will be clipped
+     * @param initialTargetIndex initial target index, -1 meaning standalone mode; out of range values will be clipped
      */
     public void setInitialTargetIndex(int initialTargetIndex) {
         this.initialTargetIndex = initialTargetIndex;
@@ -234,6 +245,33 @@ public class FallbackKVDatabase implements KVDatabase {
      */
     public synchronized int getCurrentTargetIndex() {
         return this.currentTargetIndex;
+    }
+
+    /**
+     * Configure the maximum allowed target index. This is a dynamic control that can be changed at runtime
+     * to force this instance into a lower index target (or standalone mode) than it would otherwise be in.
+     *
+     * <p>
+     * Default value is {@link Integer#MAX_VALUE}.
+     *
+     * @param maximumTargetIndex maximum target index, -1 meaning standalone mode; out of range values will be clipped
+     */
+    public synchronized void setMaximumTargetIndex(int maximumTargetIndex) {
+        maximumTargetIndex = Math.max(-1, maximumTargetIndex);
+        if (this.maximumTargetIndex != maximumTargetIndex) {
+            this.log.info("adjusting maximum target index to " + maximumTargetIndex);
+            this.maximumTargetIndex = maximumTargetIndex;
+            this.executor.submit(new MigrationCheckTask());
+        }
+    }
+
+    /**
+     * Get the maximum allowed target index.
+     *
+     * @return maximum allowed target index; -1 for standalone mode
+     */
+    public synchronized int getMaximumTargetIndex() {
+        return this.maximumTargetIndex;
     }
 
     /**
@@ -511,11 +549,14 @@ public class FallbackKVDatabase implements KVDatabase {
                 this.log.trace("performing migration check");
 
             // Allow only one migration at a time
-            if (this.migrating)
+            if (this.migrating) {
+                if (this.log.isTraceEnabled())
+                    this.log.trace("migration check canceled: migration in progress");
                 return;
+            }
 
             // Get the highest priority (i.e., best choice) database that is currently available
-            bestIndex = this.targets.size() - 1;
+            bestIndex = Math.max(-1, Math.min(this.maximumTargetIndex, this.targets.size() - 1));
             while (bestIndex >= 0) {
                 final FallbackTarget target = this.targets.get(bestIndex);
 

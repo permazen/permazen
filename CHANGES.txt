@@ -1,6 +1,7 @@
 Version Next
 
     - Fixed bug in the Raft follower algorithm when probing is enabled.
+    - Added new CLI command `raft-fallback-force-standalone'
 
 Version 2.1.2 Released July 8, 2016
 
