@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -160,7 +161,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     private File valsFile;
     private File modsFile;
     private FileOutputStream modsFileOutput;
-    private FileChannel directoryChannel;
+    private FileChannel directoryChannel;                               // not used on Windows
     private long modsFileLength;
     private long modsFileSyncPoint;
     private ByteBuffer indx;
@@ -350,7 +351,12 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 throw new ArrayKVException("file `" + this.directory + "' is not a directory");
 
             // Get directory channel we can fsync()
-            this.directoryChannel = FileChannel.open(this.directory.toPath());
+            try {
+                this.directoryChannel = FileChannel.open(this.directory.toPath());
+            } catch (IOException e) {
+                if (!this.isWindows())
+                    throw e;
+            }
 
             // Open and lock the lock file
             this.lockFile = new File(this.directory, LOCK_FILE_NAME);
@@ -396,14 +402,16 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                     keysOutput.getChannel().force(false);
                     indxOutput.getChannel().force(false);
                 }
-                this.directoryChannel.force(false);
+                if (this.directoryChannel != null)
+                    this.directoryChannel.force(false);
 
                 // Create generation file
                 try (FileOutputStream output = new FileOutputStream(this.generationFile)) {
                     new PrintStream(output, true).println(0);
                     output.getChannel().force(false);
                 }
-                this.directoryChannel.force(false);
+                if (this.directoryChannel != null)
+                    this.directoryChannel.force(false);
             }
 
             // Read current generation number
@@ -1179,7 +1187,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 assert newModsFile.exists();
 
                 // Sync directory
-                this.directoryChannel.force(false);
+                if (this.directoryChannel != null)
+                    this.directoryChannel.force(false);
 
                 // We're done creating files
                 success = true;
@@ -1285,10 +1294,12 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         this.mods = new MutableView(this.kvstore, null, this.mods.getWrites());
 
                         // Sync directory prior to deleting files
-                        try {
-                            this.directoryChannel.force(false);
-                        } catch (IOException e) {
-                            this.log.error("error syncing directory " + this.directory + " (ignoring)", e);
+                        if (this.directoryChannel != null) {
+                            try {
+                                this.directoryChannel.force(false);
+                            } catch (IOException e) {
+                                this.log.error("error syncing directory " + this.directory + " (ignoring)", e);
+                            }
                         }
 
                         // Delete old files
@@ -1353,6 +1364,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 this.writeLock.unlock();
             }
         }
+    }
+
+    private boolean isWindows() {
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
     }
 
 // Compaction

@@ -1,5 +1,6 @@
 Version Next
 
+    - Don't try to sync directories on Windows (issue #7)
     - Fixed bug in the Raft follower algorithm when probing is enabled.
     - Added new CLI command `raft-fallback-force-standalone'
 
