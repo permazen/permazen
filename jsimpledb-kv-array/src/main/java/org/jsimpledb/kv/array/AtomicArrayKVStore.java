@@ -13,12 +13,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -142,6 +143,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     private final ReentrantReadWriteLock.ReadLock readLock = this.lock.readLock();
     private final ReentrantReadWriteLock.WriteLock writeLock = this.lock.writeLock();
     private final Condition hotCopyFinishedCondition = this.writeLock.newCondition();
+    private final boolean suckyOS = this.isWindows();
 
     // Configuration state
     private File directory;
@@ -354,7 +356,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             try {
                 this.directoryChannel = FileChannel.open(this.directory.toPath());
             } catch (IOException e) {
-                if (!this.isWindows())
+                if (!this.suckyOS)
                     throw e;
             }
 
@@ -407,7 +409,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
                 // Create generation file
                 try (FileOutputStream output = new FileOutputStream(this.generationFile)) {
-                    new PrintStream(output, true).println(0);
+                    new PrintStream(output, true, "UTF-8").println(0);
                     output.getChannel().force(false);
                 }
                 if (this.directoryChannel != null)
@@ -415,9 +417,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             }
 
             // Read current generation number
-            try {
-                this.generation = Long.parseLong(
-                  new String(Files.readAllBytes(this.generationFile.toPath()), StandardCharsets.UTF_8).trim(), 10);
+            try (LineNumberReader reader = new LineNumberReader(
+              new InputStreamReader(new FileInputStream(this.generationFile), "UTF-8"))) {
+                this.generation = Long.parseLong(reader.readLine().trim(), 10);
                 if (this.generation < 0)
                     throw new ArrayKVException("read negative generation number from " + this.generationFile);
             } catch (Exception e) {
@@ -1254,18 +1256,19 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                             }
                         }
 
-                        // Atomically update new generation file contents
-                        final AtomicUpdateFileOutputStream genOutput = new AtomicUpdateFileOutputStream(this.generationFile);
+                        // Atomically update new generation file contents, except on Windows where that's impossible
+                        final FileOutputStream genOutput = !this.suckyOS ?
+                          new AtomicUpdateFileOutputStream(this.generationFile) : new FileOutputStream(this.generationFile);
                         boolean genSuccess = false;
                         try {
-                            new PrintStream(genOutput, true).println(newGeneration);
+                            new PrintStream(genOutput, true, "UTF-8").println(newGeneration);
                             genOutput.getChannel().force(false);
                             genSuccess = true;
                         } finally {
                             if (genSuccess)
                                 genOutput.close();
-                            else
-                                genOutput.cancel();
+                            else if (genOutput instanceof AtomicUpdateFileOutputStream)
+                                ((AtomicUpdateFileOutputStream)genOutput).cancel();
                         }
 
                         // Declare success
