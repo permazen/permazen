@@ -17,12 +17,14 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -739,8 +741,9 @@ public class FallbackKVDatabase implements KVDatabase {
         assert Thread.holdsLock(this);
 
         // Write data
-        try (DataOutputStream output = new DataOutputStream(
-          new BufferedOutputStream(new AtomicUpdateFileOutputStream(this.stateFile)))) {
+        final FileOutputStream fileOutput = !this.isWindows() ?
+          new AtomicUpdateFileOutputStream(this.stateFile) : new FileOutputStream(this.stateFile);
+        try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(fileOutput))) {
             output.writeInt(STATE_FILE_COOKIE);
             output.writeInt(CURRENT_FORMAT_VERSION);
             output.writeInt(this.targets.size());
@@ -751,6 +754,10 @@ public class FallbackKVDatabase implements KVDatabase {
                 output.writeLong(target.lastActiveTime != null ? target.lastActiveTime.getTime() : 0);
             }
         }
+    }
+
+    private boolean isWindows() {
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
     }
 
 // FallbackFuture

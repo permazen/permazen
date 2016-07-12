@@ -1,7 +1,8 @@
 Version Next
 
     - Don't try to sync directories on Windows (issue #7)
-    - Fixed bug in the Raft follower algorithm when probing is enabled.
+    - Avoid use of AtomicUpdateFileOutputStream on Windows (issue #8)
+    - Fixed bug in the Raft follower algorithm when probing is enabled
     - Added new CLI command `raft-fallback-force-standalone'
 
 Version 2.1.2 Released July 8, 2016

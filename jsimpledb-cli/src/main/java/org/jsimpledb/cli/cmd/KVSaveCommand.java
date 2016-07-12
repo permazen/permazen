@@ -7,8 +7,10 @@ package org.jsimpledb.cli.cmd;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.Map;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
@@ -61,7 +63,8 @@ public class KVSaveCommand extends AbstractCommand {
         return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
-                final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);
+                final FileOutputStream updateOutput = !this.isWindows() ?
+                  new AtomicUpdateFileOutputStream(file) : new FileOutputStream(file);
                 final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
                 boolean success = false;
                 final int count;
@@ -77,10 +80,14 @@ public class KVSaveCommand extends AbstractCommand {
                         } catch (IOException e) {
                             // ignore
                         }
-                    } else
-                        updateOutput.cancel();
+                    } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
+                        ((AtomicUpdateFileOutputStream)updateOutput).cancel();
                 }
                 session.getWriter().println("Wrote " + count + " key/value pairs to `" + file + "'");
+            }
+
+            private boolean isWindows() {
+                return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
             }
         };
     }

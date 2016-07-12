@@ -8,12 +8,16 @@ package org.jsimpledb.kv.simple;
 import com.google.common.base.Preconditions;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -95,7 +99,8 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      * @throws IllegalArgumentException if {@code file} is null
      */
     public XMLKVDatabase(File file, long waitTimeout, long holdTimeout) {
-        this(new FileStreamRepository(file), waitTimeout, holdTimeout);
+        this(XMLKVDatabase.isWindows() ? XMLKVDatabase.buildWindowsStreamRepository(file) : new FileStreamRepository(file),
+          waitTimeout, holdTimeout, file);
     }
 
     /**
@@ -127,11 +132,16 @@ public class XMLKVDatabase extends SimpleKVDatabase {
      * @throws IllegalArgumentException if {@code repository} is null
      */
     public XMLKVDatabase(StreamRepository repository, long waitTimeout, long holdTimeout) {
+        this(repository, waitTimeout, holdTimeout,
+          repository instanceof FileStreamRepository ? ((FileStreamRepository)repository).getFile() : null);
+    }
+
+    private XMLKVDatabase(StreamRepository repository, long waitTimeout, long holdTimeout, File file) {
         super(waitTimeout, holdTimeout);
         Preconditions.checkArgument(repository != null, "null repository");
         this.repository = repository;
         this.serializer = new XMLSerializer(this.kv);
-        this.file = repository instanceof FileStreamRepository ? ((FileStreamRepository)repository).getFile() : null;
+        this.file = file;
     }
 
     /**
@@ -298,8 +308,8 @@ public class XMLKVDatabase extends SimpleKVDatabase {
             final OutputStream output = this.repository.getOutputStream();
             try {
                 this.serializer.write(output, true);
-                if (output instanceof AtomicUpdateFileOutputStream)
-                    ((AtomicUpdateFileOutputStream)output).getFD().sync();
+                if (output instanceof FileOutputStream)
+                    ((FileOutputStream)output).getFD().sync();
                 output.close();
                 if (this.file != null)
                     this.timestamp = this.file.lastModified();
@@ -313,6 +323,52 @@ public class XMLKVDatabase extends SimpleKVDatabase {
         } catch (XMLStreamException e) {
             throw new KVDatabaseException(this, "error writing XML content", e);
         }
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+    }
+
+    // Windows workaround crap
+    private static StreamRepository buildWindowsStreamRepository(final File file) {
+        final Object lock = new Object();
+        return new StreamRepository() {
+
+            @Override
+            public InputStream getInputStream() throws IOException {
+                synchronized (lock) {
+                    final ByteArrayOutputStream data = new ByteArrayOutputStream();
+                    try (FileInputStream input = new FileInputStream(file)) {
+                        final byte[] buf = new byte[1024];
+                        int r;
+                        while ((r = input.read(buf)) != -1)
+                            data.write(buf, 0, r);
+                    }
+                    return new ByteArrayInputStream(data.toByteArray());
+                }
+            }
+
+            @Override
+            public OutputStream getOutputStream() {
+                return new ByteArrayOutputStream() {
+
+                    private boolean closed;
+
+                    @Override
+                    public void close() throws IOException {
+                        synchronized (lock) {
+                            if (this.closed)
+                                return;
+                            try (FileOutputStream output = new FileOutputStream(file)) {
+                                output.write(this.toByteArray());
+                                output.getChannel().force(false);
+                            }
+                            this.closed = true;
+                        }
+                    }
+                };
+            }
+        };
     }
 }
 

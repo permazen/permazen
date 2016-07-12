@@ -9,7 +9,9 @@ import com.google.common.collect.Iterables;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -63,7 +65,8 @@ public class SaveCommand extends AbstractCommand {
             public void run(CliSession session) throws Exception {
                 final Value value = expr.evaluate(session);
                 final Iterable<?> i = value.checkType(session, "save", Iterable.class);
-                final AtomicUpdateFileOutputStream updateOutput = new AtomicUpdateFileOutputStream(file);
+                final FileOutputStream updateOutput = !this.isWindows() ?
+                  new AtomicUpdateFileOutputStream(file) : new FileOutputStream(file);
                 final BufferedOutputStream output = new BufferedOutputStream(updateOutput);
                 boolean success = false;
                 final int count;
@@ -86,10 +89,14 @@ public class SaveCommand extends AbstractCommand {
                         } catch (IOException e) {
                             // ignore
                         }
-                    } else
-                        updateOutput.cancel();
+                    } else if (updateOutput instanceof AtomicUpdateFileOutputStream)
+                        ((AtomicUpdateFileOutputStream)updateOutput).cancel();
                 }
                 session.getWriter().println("Wrote " + count + " objects to `" + file + "'");
+            }
+
+            private boolean isWindows() {
+                return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
             }
         };
     }
