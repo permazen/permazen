@@ -870,8 +870,8 @@ public class RaftKVDatabase implements KVDatabase {
         try {
 
             // Create/verify log directory
-            if (!this.logDir.exists() && !this.logDir.isDirectory())
-                throw new IOException("failed to create directory `" + this.logDir + "'");
+            if (!this.logDir.exists())
+                Files.createDirectories(this.logDir.toPath());
             if (!this.logDir.isDirectory())
                 throw new IOException("file `" + this.logDir + "' is not a directory");
 
