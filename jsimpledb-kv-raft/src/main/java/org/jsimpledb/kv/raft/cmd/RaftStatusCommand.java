@@ -6,6 +6,7 @@
 package org.jsimpledb.kv.raft.cmd;
 
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -96,6 +97,11 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println(String.format("%-24s: %dt%d", "Last applied log entry", db.getLastAppliedIndex(), db.getLastAppliedTerm()));
         writer.println(String.format("%-24s: %d", "Commit Index", db.getCommitIndex()));
         writer.println(String.format("%-24s: %d", "Current term", db.getCurrentTerm()));
+        final long currentTermStartTime = db.getCurrentTermStartTime();
+        writer.println(String.format("%-24s: %s", "Term started", currentTermStartTime != 0 ?
+          new Date(currentTermStartTime)
+           + " (" + this.serializeTimeInterval(System.currentTimeMillis() - currentTermStartTime) + ")" :
+          "Unknown"));
         final Role role = db.getCurrentRole();
         writer.println(String.format("%-24s: %s", "Current Role",
           role instanceof LeaderRole ? "Leader" :
@@ -195,6 +201,34 @@ public class RaftStatusCommand extends AbstractRaftCommand {
     private String describe(String[] change) {
         return change != null ?
           (change[1] != null ? String.format("+\"%s\"@%s", change[0], change[1]) : "-\"" + change[0] + "\"") : "";
+    }
+
+    private static String serializeTimeInterval(long value) {
+        StringBuilder b = new StringBuilder(32);
+        if (value < 0) {
+            b.append('-');
+            value = -value;
+        }
+        long days = value / (24 * 60 * 60 * 1000);
+        value = value % (24 * 60 * 60 * 1000);
+        if (days > 0)
+            b.append(days).append('d');
+        long hours = value / (60 * 60 * 1000);
+        value = value % (60 * 60 * 1000);
+        if (hours > 0)
+            b.append(hours).append('h');
+        long minutes = value / (60 * 1000);
+        value = value % (60 * 1000);
+        if (minutes > 0)
+            b.append(minutes).append('m');
+        long millis = value;
+        if (millis != 0 || b.length() == 0) {
+            if (millis >= 1000 && millis % 1000 == 0)
+                b.append(String.format("%ds", millis / 1000));
+            else
+                b.append(String.format("%.3fs", millis / 1000.0));
+        }
+        return b.toString();
     }
 }
 

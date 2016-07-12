@@ -376,6 +376,7 @@ public class RaftKVDatabase implements KVDatabase {
     boolean flipflop;                                                   // determines which state machine prefix we are using
     int clusterId;                                                      // cluster ID (zero if unconfigured - usually)
     long currentTerm;                                                   // current Raft term (zero if unconfigured)
+    long currentTermStartTime;                                          // timestamp of the start of the current Raft term
     long commitIndex;                                                   // current Raft commit index (zero if unconfigured)
     long keyWatchIndex;                                                 // index of last log entry that triggered key watches
     long lastAppliedTerm;                                               // key/value store last applied term (zero if unconfigured)
@@ -766,6 +767,15 @@ public class RaftKVDatabase implements KVDatabase {
     }
 
     /**
+     * Get the time at which this instance's current term advanced to its current value.
+     *
+     * @return current term's start time in milliseconds since the epoch, or zero if unknown
+     */
+    public synchronized long getCurrentTermStartTime() {
+        return this.currentTermStartTime;
+    }
+
+    /**
      * Get this instance's current commit index..
      *
      * @return current commit index
@@ -903,6 +913,7 @@ public class RaftKVDatabase implements KVDatabase {
             // Reload persistent raft info
             this.clusterId = (int)this.decodeLong(CLUSTER_ID_KEY, 0);
             this.currentTerm = this.decodeLong(CURRENT_TERM_KEY, 0);
+            this.currentTermStartTime = System.currentTimeMillis();
             final String votedFor = this.decodeString(VOTED_FOR_KEY, null);
             this.lastAppliedTerm = this.decodeLong(LAST_APPLIED_TERM_KEY, 0);
             this.lastAppliedIndex = this.decodeLong(LAST_APPLIED_INDEX_KEY, 0);
@@ -1057,6 +1068,7 @@ public class RaftKVDatabase implements KVDatabase {
         this.random = null;
         this.network.stop();
         this.currentTerm = 0;
+        this.currentTermStartTime = 0;
         this.commitIndex = 0;
         this.keyWatchIndex = 0;
         this.clusterId = 0;
@@ -1576,6 +1588,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Update in-memory copy
         this.currentTerm = newTerm;
+        this.currentTermStartTime = System.currentTimeMillis();
         return true;
     }
 
@@ -2067,6 +2080,7 @@ public class RaftKVDatabase implements KVDatabase {
         if (this.role == null) {
             assert this.random == null;
             assert this.currentTerm == 0;
+            assert this.currentTermStartTime == 0;
             assert this.commitIndex == 0;
             assert this.lastAppliedTerm == 0;
             assert this.lastAppliedIndex == 0;
