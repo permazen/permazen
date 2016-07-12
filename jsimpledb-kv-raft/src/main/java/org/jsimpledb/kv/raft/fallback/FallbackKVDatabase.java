@@ -217,7 +217,7 @@ public class FallbackKVDatabase implements KVDatabase {
     /**
      * Get the configured target index to use when starting up for the very first time.
      *
-     * @param initialTargetIndex initial target index, -1 meaning standalone mode; out of range values will be clipped
+     * @return initial target index, with -1 meaning standalone mode
      */
     public int getInitialTargetIndex() {
         return this.initialTargetIndex;
