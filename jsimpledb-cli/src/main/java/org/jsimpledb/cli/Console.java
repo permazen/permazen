@@ -17,7 +17,9 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+import org.dellroad.stuff.java.ProcessRunner;
 import org.jsimpledb.JSimpleDB;
 import org.jsimpledb.cli.cmd.EvalCommand;
 import org.jsimpledb.core.Database;
@@ -29,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jline.Terminal;
+import jline.TerminalFactory;
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
 import jline.console.completer.Completer;
@@ -104,6 +107,8 @@ public class Console {
           "exactly one of kvdb, db or jdb must be not null");
         Preconditions.checkArgument(input != null, "null input");
         Preconditions.checkArgument(output != null, "null output");
+        if (terminal == null)
+            terminal = Console.getTerminal();
         this.console = new ConsoleReader(appName, input, output, terminal, encoding);
         this.console.setBellEnabled(true);
         this.console.setHistoryEnabled(true);
@@ -171,6 +176,7 @@ public class Console {
         // Parse and execute commands one at a time
         final ParseContext ctx = new ParseContext(text);
         final CliSession.Action[] action = new CliSession.Action[1];
+        boolean error = false;
         while (true) {
 
             // Skip whitespace
@@ -191,19 +197,21 @@ public class Console {
                     public void run(CliSession session) {
                         action[0] = Console.this.commandParser.parse(session, ctx, false);
                     }
-                }))
-                    return false;
+                })) {
+                    error = true;
+                    break;
+                }
 
                 // Execute command
                 if (!this.session.performCliSessionAction(action[0])
-                  || action[0] instanceof EvalCommand.EvalAction && ((EvalCommand.EvalAction)action[0]).getEvalException() != null)
-                    return false;
+                  || (action[0] instanceof EvalCommand.EvalAction
+                   && ((EvalCommand.EvalAction)action[0]).getEvalException() != null)) {
+                    error = true;
+                    break;
+                }
             } finally {
                 this.session.setErrorMessagePrefix(previousErrorMessagePrefix);
             }
-
-            // Flush output
-            this.console.flush();
 
             // Skip whitespace
             ctx.skipWhitespace();
@@ -213,12 +221,16 @@ public class Console {
             // Expecte semi-colon separator
             if (!ctx.tryLiteral(";")) {
                 this.session.reportException(new ParseException(ctx, "expected `;'"));
-                return false;
+                error = true;
+                break;
             }
         }
 
+        // Flush output
+        this.console.flush();
+
         // Done
-        return true;
+        return !error;
     }
 
     /**
@@ -352,6 +364,43 @@ public class Console {
                 actions.addAll(commandListParser.parse(session, ctx, false));
             }
         }) ? actions : null;
+    }
+
+    /**
+     * Get the {@link Terminal} instance appropriate for this operating system.
+     *
+     * @return JLine {@link Terminal} to use
+     */
+    public static Terminal getTerminal() throws IOException {
+
+        // Are we running on Windows under Cygwin? If so use UNIX flavor instead of Windows
+        final boolean windows = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+        while (windows) {
+            final ProcessRunner runner;
+            try {
+                runner = new ProcessRunner(Runtime.getRuntime().exec(new String[] { "uname", "-s" }));
+            } catch (IOException e) {
+                break;
+            }
+            runner.setDiscardStandardError(true);
+            final int result;
+            try {
+                result = runner.run();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            if (!new String(runner.getStandardOutput()).trim().matches("(?is)^cygwin.*"))
+                break;
+            try {
+                return TerminalFactory.getFlavor(TerminalFactory.Flavor.UNIX);
+            } catch (Exception e) {
+                break;
+            }
+        }
+
+        // Do the normal thing
+        return TerminalFactory.get();
     }
 
 // ConsoleCompleter

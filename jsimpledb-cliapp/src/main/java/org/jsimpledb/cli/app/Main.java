@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.fusesource.jansi.internal.CLibrary;          // jansi is bundled into the jline jar
 import org.jsimpledb.JSimpleDB;
@@ -38,7 +39,7 @@ public class Main extends AbstractMain {
     private SessionMode mode = SessionMode.JSIMPLEDB;
     private final ArrayList<String> execCommands = new ArrayList<>();
     private final ArrayList<String> execFiles = new ArrayList<>();
-    private boolean keyboardInput = CLibrary.isatty(0) != 0;             // i.e., if stdin is a terminal
+    private boolean keyboardInput = this.isWindows() || CLibrary.isatty(0) != 0;                // i.e., if stdin is a terminal
     private boolean batchMode = !keyboardInput;
 
     @Override
@@ -59,9 +60,11 @@ public class Main extends AbstractMain {
             this.mode = SessionMode.CORE_API;
         else if (option.equals("--kv-mode"))
             this.mode = SessionMode.KEY_VALUE;
-        else if (option.equals("--batch") || option.equals("-n"))
+        else if (option.equals("--batch") || option.equals("-n")) {
             this.batchMode = true;
-        else
+            if (this.isWindows())
+                keyboardInput = false;
+        } else
             return false;
         return true;
     }
@@ -142,7 +145,7 @@ public class Main extends AbstractMain {
             assert false;
             break;
         }
-        if (this.keyboardInput)
+        if (this.keyboardInput && !this.batchMode)
             console.setHistoryFile(new File(new File(System.getProperty("user.home")), HISTORY_FILE));
 
         // Set up CLI session
@@ -181,7 +184,7 @@ public class Main extends AbstractMain {
         }
 
         // Run console if not in batch mode
-        if (!this.batchMode)
+        if (this.keyboardInput && !this.batchMode)
             console.run();
 
         // Shut down KV database
@@ -222,5 +225,9 @@ public class Main extends AbstractMain {
 
     public static void main(String[] args) throws Exception {
         new Main().doMain(args);
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
     }
 }
