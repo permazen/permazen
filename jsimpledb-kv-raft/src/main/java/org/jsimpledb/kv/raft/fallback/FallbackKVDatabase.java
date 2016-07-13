@@ -493,22 +493,28 @@ public class FallbackKVDatabase implements KVDatabase {
     private void performCheck(FallbackTarget target, final int startCount) {
 
         // Check for shutdown race condition
+        final boolean wasAvailable;
         synchronized (this) {
             if (!this.started || startCount != this.startCount)
                 return;
+            wasAvailable = target.available;
         }
 
         // Logging
-        if (this.log.isTraceEnabled())
-            this.log.trace("performing availability check for " + target);
+        if (this.log.isTraceEnabled()) {
+            this.log.trace("performing availability check for " + target
+              + " (currently " + (wasAvailable ? "" : "un") + "available)");
+        }
 
         // Perform check
         boolean available = false;
         try {
             available = target.checkAvailability();
         } catch (Exception e) {
-            if (this.log.isDebugEnabled())
-                this.log.debug("checkAvailable() for " + target + " threw exception", e);
+            if (this.log.isTraceEnabled())
+                this.log.trace("checkAvailable() for " + target + " threw exception", e);
+            else if (wasAvailable && this.log.isDebugEnabled())
+                this.log.debug("checkAvailable() for " + target + " threw exception: " + e);
         }
 
         // Handle result
