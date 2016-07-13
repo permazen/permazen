@@ -42,12 +42,19 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
             public void run(CliSession session) throws Exception {
                 if (!(session.getKVDatabase() instanceof FallbackKVDatabase))
                     throw new Exception("key/value store is not Raft fallback");
-                RaftFallbackStatusCommand.this.displayStatus(session.getWriter(), (FallbackKVDatabase)session.getKVDatabase());
+                RaftFallbackStatusCommand.printStatus(session.getWriter(), (FallbackKVDatabase)session.getKVDatabase());
             }
         };
     }
 
-    private void displayStatus(PrintWriter writer, FallbackKVDatabase db) {
+    /**
+     * Print the fallback status status to the given destination.
+     *
+     * @param writer destination for status
+     * @param db Raft database
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static void printStatus(PrintWriter writer, FallbackKVDatabase db) {
 
         final List<FallbackTarget> targets = db.getFallbackTargets();
         final Date lastStandaloneActiveTime = db.getLastStandaloneActiveTime();
@@ -76,8 +83,8 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
             writer.println(String.format("  %5s %10s %10s %9s %11s %-20.20s %-20.20s %.38s",
               i, target.getCheckInterval() + "ms", target.getTransactionTimeout() + "ms",
               target.getMinAvailableTime() + "ms", target.getMinUnavailableTime() + "ms",
-              this.objString(target.getUnavailableMergeStrategy()), this.objString(target.getRejoinMergeStrategy()),
-              target));
+              RaftFallbackStatusCommand.objString(target.getUnavailableMergeStrategy()),
+              RaftFallbackStatusCommand.objString(target.getRejoinMergeStrategy()), target));
         }
 
         // Show status
@@ -93,20 +100,20 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
             final boolean available = target == null || target.isAvailable();
             writer.println(String.format("  %3d   %3s    %6s    %-20s %s",
               i, active ? "*" : "", available ? "Yes" : "No ",
-              this.date(target != null ? target.getLastChangeTime() : null),
-              active ? "Now" : this.date(target != null ? target.getLastActiveTime() : null)));
+              RaftFallbackStatusCommand.date(target != null ? target.getLastChangeTime() : null),
+              active ? "Now" : RaftFallbackStatusCommand.date(target != null ? target.getLastActiveTime() : null)));
         }
         writer.println();
     }
 
-    private String date(Date date) {
+    private static String date(Date date) {
         if (date == null)
             return "N/A";
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
     }
 
     // Strip package name from default toString() output: "foo.bar.Jam@1234" -> "Jam@1234"
-    private String objString(Object obj) {
+    private static String objString(Object obj) {
         return String.valueOf(obj).replaceAll("^(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)*"
           + "(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*@)", "$2");
     }

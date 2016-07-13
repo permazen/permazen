@@ -5,6 +5,8 @@
 
 package org.jsimpledb.kv.raft.cmd;
 
+import com.google.common.base.Preconditions;
+
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
@@ -39,12 +41,23 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         return new RaftAction() {
             @Override
             protected void run(CliSession session, RaftKVDatabase db) throws Exception {
-                RaftStatusCommand.this.displayStatus(session.getWriter(), db);
+                RaftStatusCommand.printStatus(session.getWriter(), db);
             }
         };
     }
 
-    private void displayStatus(PrintWriter writer, RaftKVDatabase db) {
+    /**
+     * Print the local Raft node's status to the given destination.
+     *
+     * @param writer destination for status
+     * @param db Raft database
+     * @throws IllegalArgumentException if either parameter is null
+     */
+    public static void printStatus(PrintWriter writer, RaftKVDatabase db) {
+
+        // Sanity check
+        Preconditions.checkArgument(writer != null, "null writer");
+        Preconditions.checkArgument(db != null, "null db");
 
         // Configuration info
         writer.println();
@@ -100,7 +113,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         final long currentTermStartTime = db.getCurrentTermStartTime();
         writer.println(String.format("%-24s: %s", "Term started", currentTermStartTime != 0 ?
           new Date(currentTermStartTime)
-           + " (" + this.serializeTimeInterval(System.currentTimeMillis() - currentTermStartTime) + ")" :
+           + " (" + RaftStatusCommand.serializeTimeInterval(System.currentTimeMillis() - currentTermStartTime) + ")" :
           "Unknown"));
         final Role role = db.getCurrentRole();
         writer.println(String.format("%-24s: %s", "Current Role",
@@ -118,7 +131,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
                 writer.println(String.format("%-10s %-6s %-10d %-8s %s", entry.getIndex() + "t" + entry.getTerm(),
                   entry.getIndex() <= db.getCommitIndex() ? "Yes" : "No",
                   entry.getFileSize(), String.format("%d.%03ds", entry.getAge() / 1000, entry.getAge() % 1000),
-                  this.describe(entry.getConfigChange())));
+                  RaftStatusCommand.describe(entry.getConfigChange())));
             }
         }
 
@@ -184,21 +197,21 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println("Open Transactions");
         writer.println("=================");
         writer.println();
-        writer.println(String.format("%1s %-6s %-10s %-5s %-12s %-8s %-8s %s",
+        writer.println(String.format("%1s %-6s %-12s %-5s %-12s %-8s %-8s %s",
           "", "ID", "State", "Type", "Consistency", "Base", "Commit", "Config Change"));
-        writer.println(String.format("%1s %-6s %-10s %-5s %-12s %-8s %-8s %s",
+        writer.println(String.format("%1s %-6s %-12s %-5s %-12s %-8s %-8s %s",
           "", "--", "-----", "----", "-----------", "----", "------", "-------------"));
         for (RaftKVTransaction tx2 : db.getOpenTransactions()) {
-            writer.println(String.format("  %-6d %-10s %-5s %-12s %-8s %-8s %s", tx2.getTxId(),
+            writer.println(String.format("  %-6d %-12s %-5s %-12s %-8s %-8s %s", tx2.getTxId(),
               tx2.getState(), tx2.isReadOnly() ? "R/O" : "R/W", tx2.getConsistency(), tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
               tx2.getState().compareTo(TxState.COMMIT_WAITING) >= 0 ? tx2.getCommitIndex() + "t" + tx2.getCommitTerm() : "",
-              this.describe(tx2.getConfigChange())));
+              RaftStatusCommand.describe(tx2.getConfigChange())));
         }
         writer.println();
     }
 
     // Describe a config change
-    private String describe(String[] change) {
+    private static String describe(String[] change) {
         return change != null ?
           (change[1] != null ? String.format("+\"%s\"@%s", change[0], change[1]) : "-\"" + change[0] + "\"") : "";
     }
