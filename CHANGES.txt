@@ -1,7 +1,9 @@
-Version Next
+Version 2.1.3 Released July 12, 2016
 
-    - Don't try to sync directories on Windows (issue #7)
-    - Avoid use of AtomicUpdateFileOutputStream on Windows (issue #8)
+    - Fixes for Windows:
+      - Don't try to sync directories on Windows (issue #7)
+      - Avoid use of AtomicUpdateFileOutputStream on Windows (issue #8)
+      - Make the CLI console work (mostly) when running under Cygwin
     - Fixed bug in the Raft follower algorithm when probing is enabled
     - Added new CLI command `raft-fallback-force-standalone'
 
