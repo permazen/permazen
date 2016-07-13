@@ -18,7 +18,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
@@ -387,7 +387,7 @@ public class RaftKVDatabase implements KVDatabase {
 
     // Non-Raft runtime state
     AtomicKVStore kv;
-    FileChannel logDirChannel;
+    FileChannel logDirChannel;                                          // null on Windows - no support for sync'ing directories
     String returnAddress;                                               // return address for message currently being processed
     ScheduledExecutorService serviceExecutor;
     final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
@@ -880,7 +880,12 @@ public class RaftKVDatabase implements KVDatabase {
 
             // Open directory containing log entry files so we have a way to fsync() it
             assert this.logDirChannel == null;
-            this.logDirChannel = FileChannel.open(this.logDir.toPath(), StandardOpenOption.READ);
+            try {
+                this.logDirChannel = FileChannel.open(this.logDir.toPath());
+            } catch (IOException e) {
+                if (!this.isWindows())
+                    throw e;
+            }
 
             // Create randomizer
             assert this.random == null;
@@ -1697,7 +1702,8 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Atomically rename file and fsync() directory to durably persist
         Files.move(tempFile.toPath(), logEntry.getFile().toPath(), StandardCopyOption.ATOMIC_MOVE);
-        this.logDirChannel.force(true);
+        if (this.logDirChannel != null)
+            this.logDirChannel.force(true);
 
         // Add new log entry to in-memory log
         this.raftLog.add(logEntry);
@@ -2102,7 +2108,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.kv != null;
         assert this.random != null;
         assert this.serviceExecutor != null;
-        assert this.logDirChannel != null;
+        assert this.logDirChannel != null || this.isWindows();
         assert !this.serviceExecutor.isShutdown() || this.shuttingDown;
 
         assert this.currentTerm >= 0;
@@ -2149,6 +2155,10 @@ public class RaftKVDatabase implements KVDatabase {
         // Check transactions
         for (RaftKVTransaction tx : this.openTransactions.values())
             tx.checkStateOpen(this.currentTerm, this.getLastLogIndex(), this.commitIndex);
+    }
+
+    private boolean isWindows() {
+        return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
     }
 }
 

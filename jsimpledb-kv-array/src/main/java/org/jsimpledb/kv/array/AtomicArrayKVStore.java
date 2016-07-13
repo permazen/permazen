@@ -946,6 +946,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             // Sync directory
             try (FileChannel dirChannel = FileChannel.open(dir)) {
                 dirChannel.force(false);
+            } catch (IOException e) {
+                if (!this.suckyOS)
+                    throw e;
             }
         } finally {
             this.writeLock.lock();
