@@ -239,6 +239,9 @@ public class FollowerRole extends NonLeaderRole {
 
         // Restart election timeout (now it's really a ping timer)
         this.restartElectionTimer();
+
+        // Handle the case where I am the only node
+        this.checkProbeResult();
     }
 
     /**
@@ -861,6 +864,13 @@ public class FollowerRole extends NonLeaderRole {
 
         // Update peer's ping timestamp
         this.probeTimestamps.put(msg.getSenderId(), msg.getTimestamp());
+
+        // Check new status
+        this.checkProbeResult();
+    }
+
+    private void checkProbeResult() {
+        assert this.probeTimestamps != null;
 
         // Get the number of nodes successfully probed so far (including ourselves), and the minimum number required (a majority)
         final int numProbed = this.calculateProbedNodes();
