@@ -25,24 +25,7 @@ class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
 
     @Override
     protected JSetField getDefaultAnnotation() {
-        return new JSetField() {
-            @Override
-            public Class<JSetField> annotationType() {
-                return JSetField.class;
-            }
-            @Override
-            public String name() {
-                return "";
-            }
-            @Override
-            public int storageId() {
-                return 0;
-            }
-            @Override
-            public JField element() {
-                return JFieldScanner.getDefaultJField(JSetFieldScanner.this.jsimpleClass);
-            }
-        };
+        return new DefaultJSetField(this.jsimpleClass);
     }
 
     @Override
@@ -56,6 +39,34 @@ class JSetFieldScanner<T> extends AbstractFieldScanner<T, JSetField> {
     @Override
     protected boolean isAutoPropertyCandidate(Method method) {
         return super.isAutoPropertyCandidate(method) && Set.class.isAssignableFrom(method.getReturnType());
+    }
+
+// DefaultJSetField
+
+    private static class DefaultJSetField implements JSetField {
+
+        private JSimpleClass jsimpleClass;
+
+        DefaultJSetField(JSimpleClass jsimpleClass) {
+            this.jsimpleClass = jsimpleClass;
+        }
+
+        @Override
+        public Class<JSetField> annotationType() {
+            return JSetField.class;
+        }
+        @Override
+        public String name() {
+            return "";
+        }
+        @Override
+        public int storageId() {
+            return 0;
+        }
+        @Override
+        public JField element() {
+            return JFieldScanner.getDefaultJField(this.jsimpleClass);
+        }
     }
 }
 

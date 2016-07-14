@@ -25,28 +25,7 @@ class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
 
     @Override
     protected JMapField getDefaultAnnotation() {
-        return new JMapField() {
-            @Override
-            public Class<JMapField> annotationType() {
-                return JMapField.class;
-            }
-            @Override
-            public String name() {
-                return "";
-            }
-            @Override
-            public int storageId() {
-                return 0;
-            }
-            @Override
-            public JField key() {
-                return JFieldScanner.getDefaultJField(JMapFieldScanner.this.jsimpleClass);
-            }
-            @Override
-            public JField value() {
-                return JFieldScanner.getDefaultJField(JMapFieldScanner.this.jsimpleClass);
-            }
-        };
+        return new DefaultJMapField(this.jsimpleClass);
     }
 
     @Override
@@ -61,5 +40,36 @@ class JMapFieldScanner<T> extends AbstractFieldScanner<T, JMapField> {
     protected boolean isAutoPropertyCandidate(Method method) {
         return super.isAutoPropertyCandidate(method) && Map.class.isAssignableFrom(method.getReturnType());
     }
-}
 
+// DefaultJMapField
+
+    private static class DefaultJMapField implements JMapField {
+
+        private JSimpleClass jsimpleClass;
+
+        DefaultJMapField(JSimpleClass jsimpleClass) {
+            this.jsimpleClass = jsimpleClass;
+        }
+
+        @Override
+        public Class<JMapField> annotationType() {
+            return JMapField.class;
+        }
+        @Override
+        public String name() {
+            return "";
+        }
+        @Override
+        public int storageId() {
+            return 0;
+        }
+        @Override
+        public JField key() {
+            return JFieldScanner.getDefaultJField(this.jsimpleClass);
+        }
+        @Override
+        public JField value() {
+            return JFieldScanner.getDefaultJField(this.jsimpleClass);
+        }
+    }
+}
