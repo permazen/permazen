@@ -439,9 +439,12 @@ public class JTransaction {
     }
 
     /**
-     * Copy the specified object into the specified destination transaction. If the target object already exists, it's
-     * schema version will be updated to match the source object if necessary, otherwise it will be created.
-     * {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
+     * Copy the specified object, and any other objects referneced through the specified reference paths,
+     * into the specified destination transaction.
+     *
+     * <p>
+     * If the target object already exists, it's schema version will be updated to match the source object if necessary,
+     * otherwise it will be created.  {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly
      * (however, for create and change notifications in {@code dest}, these annotations must have
@@ -453,7 +456,7 @@ public class JTransaction {
      * along some reference path (however, if an object is marked as copied in {@code copyState} and is traversed, but does not
      * actually already exist in {@code dest}, an exception is thrown).
      * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
-     * of a previous copy, {@code copyState} may be reused.
+     * of a previous copy, reuse the previous {@code copyState}.
      *
      * <p>
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions
@@ -474,7 +477,7 @@ public class JTransaction {
      * @param refPaths zero or more reference paths that refer to additional objects to be copied (including intermediate objects)
      * @return the copied object, i.e., the object having ID {@code dstId} in {@code dest}
      * @throws DeletedObjectException if {@code srcObj} does not exist in this transaction
-     * @throws org.jsimpledb.core.DeletedObjectException if an object in {@code copyState} is traversed but does not actually exist
+     * @throws DeletedObjectException if an object in {@code copyState} is traversed but does not actually exist
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcObj}'s object's version
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
@@ -555,8 +558,8 @@ public class JTransaction {
      * Copy the objects in the specified {@link Iterable} into the specified destination transaction.
      *
      * <p>
-     * This instance will first be {@link JObject#upgrade}ed if necessary. If a target object already exists,
-     * it's schema version will be updated to match the source object if necessary, otherwise it will be created.
+     * The source instances will be {@link JObject#upgrade}ed if necessary. If a target object already exists,
+     * it's schema version will be updated to match the source object if needed.
      * {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly
@@ -566,7 +569,7 @@ public class JTransaction {
      * <p>
      * The {@code copyState} parameter tracks which objects that have already been copied. For a "fresh" copy operation,
      * pass a newly created {@code CopyState}; for a copy operation that is a continuation of a previous copy,
-     * the previous {@link CopyState} may be reused.
+     * reuse the previous {@link CopyState}.
      *
      * <p>
      * This instance and {@code dest} must be compatible in that for any schema versions encountered, those schema versions

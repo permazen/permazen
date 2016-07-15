@@ -18,6 +18,9 @@ import org.jsimpledb.core.util.ObjIdSet;
 /**
  * Keeps tracks of which objects have already been copied when copying objects between transactions.
  *
+ * <p>
+ * Instances are not thread safe.
+ *
  * @see JObject#copyTo JObject.copyTo()
  * @see JTransaction#copyTo(JTransaction, JObject, ObjId, CopyState, String...) JTransaction.copyTo()
  */
