@@ -906,7 +906,8 @@ public class Transaction {
      * deadlock could result.
      *
      * <p>
-     * If {@code dest} is this instance, and {@code source} equals {@code target}, no changes are made and false is returned.
+     * If {@code dest} is this instance, and {@code source} equals {@code target}, no fields are changed and false is returned;
+     * however, a schema update may occur (if {@code updateVersion} is true).
      *
      * @param source object ID of the source object in this transaction
      * @param target object ID of the target object in {@code dest}
@@ -936,10 +937,6 @@ public class Transaction {
         // Get source object info
         final ObjInfo srcInfo = this.getObjectInfo(source, updateVersion);
 
-        // Do nothing if nothing to do
-        if (this == dest && source.equals(target))
-            return false;
-
         // Do the copy while both transactions are locked
         synchronized (dest) {
 
@@ -963,11 +960,9 @@ public class Transaction {
         // Sanity check
         assert Thread.holdsLock(srcTx);
         assert Thread.holdsLock(dstTx);
-        final ObjId srcId = srcInfo.getId();
-        if (srcId.equals(dstId) && srcTx == dstTx)
-            throw new RuntimeException("internal error");
 
         // Verify objects have the same type
+        final ObjId srcId = srcInfo.getId();
         final int typeStorageId = srcId.getStorageId();
         if (dstId.getStorageId() != typeStorageId) {
             throw new IllegalArgumentException("can't copy " + srcId + " to " + dstId
@@ -995,6 +990,10 @@ public class Transaction {
         ObjInfo dstInfo = dstTx.getObjectInfoIfExists(dstId, false);
         final boolean existed = dstInfo != null;
         final boolean needUpgrade = dstInfo != null && dstInfo.getVersion() != objectVersion;
+
+        // We can short circuit here if source and target are the same object in the same transaction
+        if (srcId.equals(dstId) && srcTx.equals(dstTx))
+            return false;
 
         // Do field-by-field copy if there are change or version listeners, otherwise do fast copy of key/value pairs
         final ObjType srcType = srcInfo.getObjType();
