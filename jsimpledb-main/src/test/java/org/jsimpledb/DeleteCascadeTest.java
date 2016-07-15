@@ -108,6 +108,33 @@ public class DeleteCascadeTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testDeleteCircular() {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(Person.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            Person p1 = jtx.create(Person.class);
+            Person p2 = jtx.create(Person.class);
+            Person p3 = jtx.create(Person.class);
+
+            p1.setRef(p2);
+            p2.setRef(p3);
+            p3.setRef(p1);
+
+            p1.delete();
+
+            Assert.assertTrue(jtx.getAll(Person.class).isEmpty());
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     @JSimpleClass
