@@ -98,5 +98,16 @@ class ObjInfo {
         FieldTypeRegistry.BOOLEAN.write(writer, deleteNotified);
         tx.kvt.put(id.getBytes(), writer.getBytes());
     }
+
+    @Override
+    public String toString() {
+        return "ObjInfo"
+          + "[id=" + this.id
+          + ",version=" + this.version
+          + (this.deleteNotified ? ",deleteNotified" : "")
+          + ",schema=" + this.schema
+          + ",objType=" + this.objType
+          + "]";
+    }
 }
 
