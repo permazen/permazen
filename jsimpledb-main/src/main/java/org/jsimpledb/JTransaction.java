@@ -1538,33 +1538,33 @@ public class JTransaction {
             }
 
             // Do uniqueness validation
-            if (jclass.uniqueConstraintFields.isEmpty()
-              || !Util.isAnyGroupBeingValidated(DEFAULT_AND_UNIQUENESS_CLASS_ARRAY, validationGroups))
-                continue;
-            for (JSimpleField jfield : jclass.uniqueConstraintFields) {
-                assert jfield.indexed;
-                assert jfield.unique;
+            if (!jclass.uniqueConstraintFields.isEmpty()
+              && Util.isAnyGroupBeingValidated(DEFAULT_AND_UNIQUENESS_CLASS_ARRAY, validationGroups)) {
+                for (JSimpleField jfield : jclass.uniqueConstraintFields) {
+                    assert jfield.indexed;
+                    assert jfield.unique;
 
-                // Get field's (core API) value
-                final Object value = this.tx.readSimpleField(id, jfield.storageId, false);
+                    // Get field's (core API) value
+                    final Object value = this.tx.readSimpleField(id, jfield.storageId, false);
 
-                // Compare to excluded value list
-                if (jfield.uniqueExcludes != null
-                  && Collections.binarySearch(jfield.uniqueExcludes, value, (Comparator<Object>)jfield.fieldType) >= 0)
-                    continue;
-
-                // Seach for other objects with the same value in the field and report violation if any are found
-                final ArrayList<ObjId> conflictors = new ArrayList<>(MAX_UNIQUE_CONFLICTORS);
-                for (ObjId conflictor : this.tx.queryIndex(jfield.storageId).asMap().get(value)) {
-                    if (conflictor.equals(id))                          // ignore jobj's own index entry
+                    // Compare to excluded value list
+                    if (jfield.uniqueExcludes != null
+                      && Collections.binarySearch(jfield.uniqueExcludes, value, (Comparator<Object>)jfield.fieldType) >= 0)
                         continue;
-                    conflictors.add(conflictor);
-                    if (conflictors.size() >= MAX_UNIQUE_CONFLICTORS)
-                        break;
-                }
-                if (!conflictors.isEmpty()) {
-                    throw new ValidationException(jobj, "uniqueness constraint on " + jfield + " failed: field value "
-                      + value + " is also shared by object(s) " + conflictors);
+
+                    // Seach for other objects with the same value in the field and report violation if any are found
+                    final ArrayList<ObjId> conflictors = new ArrayList<>(MAX_UNIQUE_CONFLICTORS);
+                    for (ObjId conflictor : this.tx.queryIndex(jfield.storageId).asMap().get(value)) {
+                        if (conflictor.equals(id))                          // ignore jobj's own index entry
+                            continue;
+                        conflictors.add(conflictor);
+                        if (conflictors.size() >= MAX_UNIQUE_CONFLICTORS)
+                            break;
+                    }
+                    if (!conflictors.isEmpty()) {
+                        throw new ValidationException(jobj, "uniqueness constraint on " + jfield + " failed: field value "
+                          + value + " is also shared by object(s) " + conflictors);
+                    }
                 }
             }
         }
