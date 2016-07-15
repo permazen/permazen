@@ -887,8 +887,10 @@ public class Transaction {
      * Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
      *
      * <p>
-     * If necessary, {@code source} object is first upgraded to {@linkplain #getSchema() the schema version associated with
-     * this transaction}, which must be identical in this transaction and {@code dest}.
+     * If {@code updateVersion} is true, the {@code source} object is first upgraded to
+     * {@linkplain #getSchema() the schema version associated with this transaction}.
+     * In any case, the schema version associated with {@code source} when copied must be identical
+     * in this transaction and {@code dest}.
      *
      * <p>
      * Only the object's fields are copied; any other objects they reference are not copied. If the {@code target} object
@@ -967,46 +969,53 @@ public class Transaction {
 
         // Upgrade source object if necessary
         if (updateVersion && srcInfo.getVersion() != srcTx.schema.versionNumber) {
-            srcTx.updateVersion(srcInfo, srcTx.schema);
-            srcInfo = new ObjInfo(srcTx, srcId);
+            srcTx.changeVersion(srcInfo, srcTx.schema);
+            srcInfo = srcTx.loadIntoCache(srcId);
         }
+        final Schema srcSchema = srcInfo.getSchema();
 
-        // Find and verify source object's schema version in destination transaction
-        final int objectVersion = srcInfo.getVersion();
+        // Find and verify the expected schema version in the destination transaction
+        final int objectVersion = srcSchema.versionNumber;
         final Schema dstSchema;
         try {
             dstSchema = dstTx.schemas.getVersion(objectVersion);
         } catch (IllegalArgumentException e) {
             throw new SchemaMismatchException("destination transaction has no schema version " + objectVersion);
         }
-        if (!Arrays.equals(srcTx.schema.encodedXML, dstTx.schema.encodedXML))
-            throw new SchemaMismatchException("destination transaction schema version " + objectVersion + " does not match");
+        if (!Arrays.equals(srcSchema.encodedXML, dstSchema.encodedXML)) {
+            throw new SchemaMismatchException("destination transaction schema version "
+              + objectVersion + " does not match source schema version " + objectVersion + "\n"
+              + dstSchema.schemaModel.differencesFrom(srcSchema.schemaModel));
+        }
 
         // Determine if destination object already exists, and if so get info about it
         ObjInfo dstInfo = dstTx.getObjectInfoIfExists(dstId, false);
         final boolean existed = dstInfo != null;
-        final boolean needUpgrade = dstInfo != null && dstInfo.getVersion() != objectVersion;
 
-        // We can short circuit here if source and target are the same object in the same transaction
-        if (srcId.equals(dstId) && srcTx.equals(dstTx))
-            return false;
+        // If destination object already exists and has upgrade listeners, go through the normal upgrade process first
+        if (existed && dstInfo.getVersion() != objectVersion && !dstTx.versionChangeListeners.isEmpty()) {
+            dstTx.changeVersion(dstInfo, dstSchema);
+            dstInfo = dstTx.loadIntoCache(dstId);
+        }
 
-        // Do field-by-field copy if there are change or version listeners, otherwise do fast copy of key/value pairs
-        final ObjType srcType = srcInfo.getObjType();
+        // Do field-by-field copy if there are change listeners, otherwise do fast copy of key/value pairs directly
+        final ObjType srcType = srcSchema.getObjType(typeStorageId);
         final ObjType dstType = dstSchema.getObjType(typeStorageId);
-        if (dstTx.hasFieldMonitor(dstType) || (needUpgrade && !dstTx.versionChangeListeners.isEmpty())) {
+        if (dstTx.hasFieldMonitor(dstType)) {
 
-            // Create destination object if it does not exist, otherwise upgrade it if needed
-            if (dstInfo == null)
+            // Create destination object if it does not exist
+            if (!existed)
                 dstTx.createObjectData(dstId, objectVersion, dstSchema, dstType);
-            else if (needUpgrade)
-                dstTx.updateVersion(dstInfo, dstSchema);
 
             // Copy fields
             for (Field<?> field : srcType.fields.values())
                 field.copy(srcId, dstId, srcTx, dstTx);
         } else {
             assert srcType.schema.versionNumber == dstType.schema.versionNumber;
+
+            // We can short circuit here if source and target are the same object in the same transaction
+            if (srcId.equals(dstId) && srcTx.equals(dstTx))
+                return !existed;
 
             // Nuke previous destination object, if any
             if (dstInfo != null)
@@ -1172,20 +1181,22 @@ public class Transaction {
         this.mutateAndNotify(new Mutation<Void>() {
             @Override
             public Void mutate() {
-                Transaction.this.updateVersion(info, Transaction.this.schema);
+                Transaction.this.changeVersion(info, Transaction.this.schema);
                 return null;
             }
         });
+
+        // Done
         return true;
     }
 
     /**
-     * Update object to the current schema version.
+     * Migrate object's schema to the version specified and notify listeners. This assumes we are locked.
      *
      * @param info original object info
      * @param targetVersion version to change to
      */
-    private synchronized void updateVersion(final ObjInfo info, final Schema targetVersion) {
+    private void changeVersion(final ObjInfo info, final Schema targetVersion) {
 
         // Get version numbers
         final ObjId id = info.getId();
@@ -1193,6 +1204,7 @@ public class Transaction {
         final int newVersion = targetVersion.versionNumber;
 
         // Sanity check
+        assert Thread.holdsLock(this);
         assert this.schemas.getVersion(targetVersion.versionNumber) == targetVersion;
         Preconditions.checkArgument(newVersion != oldVersion, "object already at version");
 
@@ -2056,7 +2068,7 @@ public class Transaction {
         this.mutateAndNotify(new Mutation<Void>() {
             @Override
             public Void mutate() {
-                Transaction.this.updateVersion(info2, Transaction.this.schema);
+                Transaction.this.changeVersion(info2, Transaction.this.schema);
                 return null;
             }
         });
