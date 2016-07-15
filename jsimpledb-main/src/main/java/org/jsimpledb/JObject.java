@@ -170,12 +170,7 @@ public interface JObject {
      * along some reference path (however, if an object is marked as copied in {@code copyState} and is traversed, but does not
      * actually already exist in {@code dest}, an exception is thrown).
      * For a "fresh" copy operation, pass a newly created {@code CopyState}; for a copy operation that is a continuation
-     * of a previous copy, {@code copyState} may be reused.
-     *
-     * <p>
-     * Note: if {@code target} is not equal to this instance's object ID, and through one of the {@code refPaths} there
-     * is a circular reference back to this instance, then that reference is copied as-is (i.e., it is not copied
-     * onto {@code target}).
+     * of a previous copy, reuse the previous {@link CopyState}.
      *
      * <p>
      * Warning: if two threads attempt to copy objects between the same two transactions at the same time
