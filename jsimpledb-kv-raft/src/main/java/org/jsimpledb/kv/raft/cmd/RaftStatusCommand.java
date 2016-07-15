@@ -75,6 +75,7 @@ public class RaftStatusCommand extends AbstractRaftCommand {
           db.getCommitTimeout() / 1000, db.getCommitTimeout() % 1000));
         writer.println(String.format("%-24s: %d.%03d sec", "Max transaction duration",
           db.getMaxTransactionDuration() / 1000, db.getMaxTransactionDuration() % 1000));
+        writer.println(String.format("%-24s: %s", "Follower probing enabled", db.isFollowerProbingEnabled()));
 
         // Cluster info
         writer.println();
@@ -117,18 +118,18 @@ public class RaftStatusCommand extends AbstractRaftCommand {
           "Unknown"));
         final Role role = db.getCurrentRole();
         writer.println(String.format("%-24s: %s", "Current Role",
-          role instanceof LeaderRole ? "Leader" :
-          role instanceof FollowerRole ? "Follower" :
-          role instanceof CandidateRole ? "Candidate" : "?" + role));
+          role instanceof LeaderRole ? "LEADER" :
+          role instanceof FollowerRole ? "FOLLOWER" :
+          role instanceof CandidateRole ? "CANDIDATE" : "?" + role));
         writer.println(String.format("%-24s: %d", "Unapplied memory usage", db.getUnappliedLogMemoryUsage()));
         final List<LogEntry> log = db.getUnappliedLog();
         writer.println(String.format("%-24s: %d", "Unapplied log entries", log.size()));
         if (!log.isEmpty()) {
             writer.println();
-            writer.println(String.format("%-10s %-6s %-10s %-8s %s", "Entry", "Commit", "Size", "Age", "Config Change"));
-            writer.println(String.format("%-10s %-6s %-10s %-8s %s", "-----", "------", "----", "---", "-------------"));
+            writer.println(String.format("  %-10s %-6s %-10s %-8s %s", "Entry", "Commit", "Size", "Age", "Config Change"));
+            writer.println(String.format("  %-10s %-6s %-10s %-8s %s", "-----", "------", "----", "---", "-------------"));
             for (LogEntry entry : log) {
-                writer.println(String.format("%-10s %-6s %-10d %-8s %s", entry.getIndex() + "t" + entry.getTerm(),
+                writer.println(String.format("  %-10s %-6s %-10d %-8s %s", entry.getIndex() + "t" + entry.getTerm(),
                   entry.getIndex() <= db.getCommitIndex() ? "Yes" : "No",
                   entry.getFileSize(), String.format("%d.%03ds", entry.getAge() / 1000, entry.getAge() % 1000),
                   RaftStatusCommand.describe(entry.getConfigChange())));
@@ -197,12 +198,12 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println("Open Transactions");
         writer.println("=================");
         writer.println();
-        writer.println(String.format("%1s %-6s %-12s %-5s %-12s %-13s %-13s %s",
+        writer.println(String.format("%1s %-6s %-14s %-5s %-12s %-13s %-13s %s",
           "", "ID", "State", "Type", "Consistency", "Base", "Commit", "Config Change"));
-        writer.println(String.format("%1s %-6s %-12s %-5s %-12s %-13s %-13s %s",
+        writer.println(String.format("%1s %-6s %-14s %-5s %-12s %-13s %-13s %s",
           "", "--", "-----", "----", "-----------", "----", "------", "-------------"));
         for (RaftKVTransaction tx2 : db.getOpenTransactions()) {
-            writer.println(String.format("  %-6d %-12s %-5s %-12s %-13s %-13s %s", tx2.getTxId(),
+            writer.println(String.format("  %-6d %-14s %-5s %-12s %-13s %-13s %s", tx2.getTxId(),
               tx2.getState(), tx2.isReadOnly() ? "R/O" : "R/W", tx2.getConsistency(), tx2.getBaseIndex() + "t" + tx2.getBaseTerm(),
               tx2.getState().compareTo(TxState.COMMIT_WAITING) >= 0 ? tx2.getCommitIndex() + "t" + tx2.getCommitTerm() : "",
               RaftStatusCommand.describe(tx2.getConfigChange())));
