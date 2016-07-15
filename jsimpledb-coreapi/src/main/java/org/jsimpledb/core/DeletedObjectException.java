@@ -36,7 +36,6 @@ public class DeletedObjectException extends DatabaseException {
     /**
      * Constructor.
      *
-     * @param tx the transaction within which this exception was generated
      * @param id the ID of the object that was not found
      * @param message detail message
      */
