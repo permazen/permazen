@@ -1707,6 +1707,19 @@ public class Transaction {
     }
 
     /**
+     * Get a description of the given object's type.
+     *
+     * @param id object ID
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public String getTypeDescription(ObjId id) {
+        Preconditions.checkArgument(id != null, "null id");
+        final int storageId = id.getStorageId();
+        final ObjType type = this.schema.objTypeMap.get(id.getStorageId());
+        return type != null ? "type " + type.getName() + "#" + storageId : "type with storage ID #" + storageId;
+    }
+
+    /**
      * Read the value of a {@link CounterField} from an object, optionally updating the object's schema version.
      *
      * <p>

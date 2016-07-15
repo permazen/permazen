@@ -27,9 +27,10 @@ public class DeletedObjectException extends DatabaseException {
      *
      * @param tx the transaction within which this exception was generated
      * @param id the ID of the object that was not found
+     * @throws NullPointerException if {@code tx} is null
      */
     public DeletedObjectException(Transaction tx, ObjId id) {
-        this(id, "object with ID " + id + " (" + DeletedObjectException.getTypeDescription(tx, id) + ") not found");
+        this(id, "object with ID " + id + " (" + tx.getTypeDescription(id) + ") not found");
     }
 
     /**
@@ -51,14 +52,6 @@ public class DeletedObjectException extends DatabaseException {
      */
     public ObjId getId() {
         return this.id;
-    }
-
-    static String getTypeDescription(Transaction tx, ObjId id) {
-        final int storageId = id.getStorageId();
-        final ObjType type = tx != null ? tx.schema.objTypeMap.get(id.getStorageId()) : null;
-        if (type == null)
-            return "type having storage ID " + storageId;
-        return "type `" + type.getName() + "' having storage ID " + storageId;
     }
 }
 
