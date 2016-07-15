@@ -460,9 +460,6 @@ public class JTransaction {
      * must be identical in both transactions.
      *
      * <p>
-     * Does nothing if this instance and {@code dest} are the same instance and {@code srcObj}'s object ID is {@code dstId}.
-     *
-     * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
      *
@@ -504,10 +501,6 @@ public class JTransaction {
         final ObjId srcId = srcObj.getObjId();
         if (dstId == null)
             dstId = srcId;
-
-        // Check trivial case
-        if (this.tx == dest.tx && srcId.equals(dstId))
-            return dest.get(dstId);
 
         // Parse paths
         final Class<?> startType = this.jdb.getJClass(srcId).type;
@@ -580,9 +573,6 @@ public class JTransaction {
      * must be identical in both transactions.
      *
      * <p>
-     * Does nothing if this instance and {@code dest} are the same instance.
-     *
-     * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
      *
@@ -602,10 +592,6 @@ public class JTransaction {
         Preconditions.checkArgument(dest != null, "null dest");
         Preconditions.checkArgument(copyState != null, "null copyState");
         Preconditions.checkArgument(jobjs != null, "null jobjs");
-
-        // Check trivial case
-        if (this.tx == dest.tx)
-            return;
 
         // Copy objects
         for (JObject jobj : jobjs) {
@@ -843,7 +829,7 @@ public class JTransaction {
      */
     public void revalidate(ObjId id, Class<?>... groups) {
         if (!this.tx.exists(id))
-            throw new DeletedObjectException(this.getTransaction(), id);
+            throw new DeletedObjectException(this.tx, id);
         this.revalidate(Collections.singleton(id), groups);
     }
 
