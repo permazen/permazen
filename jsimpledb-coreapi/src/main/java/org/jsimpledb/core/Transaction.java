@@ -1010,6 +1010,7 @@ public class Transaction {
             for (Field<?> field : srcType.fields.values())
                 field.copy(srcId, dstId, srcTx, dstTx);
         } else {
+            assert srcType.schema.versionNumber == dstType.schema.versionNumber;
 
             // Nuke previous destination object, if any
             if (dstInfo != null)
@@ -2357,7 +2358,7 @@ public class Transaction {
     }
 
     /**
-     * Perform some action and, when entirely done (including re-entrant invocation), issue pending notifications to monitors.
+     * Verify the given object exists before proceeding with the given mutation via {@link #mutateAndNotify(Mutation}}.
      *
      * @param id object containing the mutated field; will be validated
      * @param mutation change to apply
@@ -2370,13 +2371,20 @@ public class Transaction {
         Preconditions.checkArgument(id != null, "null id");
         if (this.stale)
             throw new StaleTransactionException(this);
-        if (this.kvt.get(id.getBytes()) == null)
+        if (!this.exists(id))
             throw new DeletedObjectException(this, id);
 
         // Perform mutation
         return this.mutateAndNotify(mutation);
     }
 
+    /**
+     * Perform some action and, when entirely done (including re-entrant invocation), issue pending notifications to monitors.
+     *
+     * @param mutation change to apply
+     * @throws StaleTransactionException if this transaction is no longer usable
+     * @throws NullPointerException if {@code mutation} is null
+     */
     private synchronized <V> V mutateAndNotify(Mutation<V> mutation) {
 
         // Validate transaction
