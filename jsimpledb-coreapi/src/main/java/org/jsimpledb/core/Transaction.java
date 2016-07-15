@@ -663,7 +663,7 @@ public class Transaction {
     /**
      * Initialize key/value pairs for a new object. The object must not already exist.
      */
-    private synchronized ObjInfo createObjectData(ObjId id, int versionNumber, Schema schema, ObjType objType) {
+    private synchronized void createObjectData(ObjId id, int versionNumber, Schema schema, ObjType objType) {
 
         // Sanity check
         if (this.stale)
@@ -673,8 +673,7 @@ public class Transaction {
 
         // Write object meta-data and update object info cache
         ObjInfo.write(this, id, versionNumber, false);
-        final ObjInfo info = new ObjInfo(this, id, versionNumber, false, schema, objType);
-        this.objInfoCache.put(id, info);
+        this.objInfoCache.put(id, new ObjInfo(this, id, versionNumber, false, schema, objType));
 
         // Write object version index entry
         this.kvt.put(Database.buildVersionIndexKey(id, objType.schema.versionNumber), ByteUtil.EMPTY);
@@ -698,9 +697,6 @@ public class Transaction {
         // Notify listeners
         for (CreateListener listener : this.createListeners.toArray(new CreateListener[this.createListeners.size()]))
             listener.onCreate(this, id);
-
-        // Done
-        return info;
     }
 
     /**
