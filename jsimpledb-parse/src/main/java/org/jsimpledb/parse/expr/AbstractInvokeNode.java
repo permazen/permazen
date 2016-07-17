@@ -133,10 +133,12 @@ abstract class AbstractInvokeNode<T extends Executable<?>> implements Node {
             }
 
             // Resolve parameter
-            final Node paramNode = this.paramNodes.get(i);
-            if (paramNode instanceof TypeInferringNode) {
-                assert params[i] == null;
-                params[i] = this.resolveAndEvaluate(session, (TypeInferringNode)paramNode, formalTypes[i]);
+            if (i < this.paramNodes.size()) {
+                final Node paramNode = this.paramNodes.get(i);
+                if (paramNode instanceof TypeInferringNode) {
+                    assert params[i] == null;
+                    params[i] = this.resolveAndEvaluate(session, (TypeInferringNode)paramNode, formalTypes[i]);
+                }
             }
         }
     }

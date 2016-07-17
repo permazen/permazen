@@ -43,6 +43,7 @@ public class ExprParseTest extends TestSupport {
         final SimpleKVDatabase kvstore = new SimpleKVDatabase();
         final Database db = new Database(kvstore);
         this.session = new ParseSession(db);
+        this.session.getImports().add(this.getClass().getName());
     }
 
     @Test(dataProvider = "cases")
@@ -391,6 +392,17 @@ public class ExprParseTest extends TestSupport {
               null },
             { "System.out.println(\"foobar\")", null },
 
+            // Varargs
+            { "String.format(\"abc\")", String.format("abc") },
+            { "String.format(\"%s\", 123)", String.format("%s", 123) },
+            { "String.format(\"%s %s\", 123, 456)", String.format("%s %s", 123, 456) },
+            { "String.format(\"%s %s %s\", 123, 456, 789)", String.format("%s %s %s", 123, 456, 789) },
+            { "new ExprParseTest.VarargsConstructor()", new ExprParseTest.VarargsConstructor() },
+            { "new ExprParseTest.VarargsConstructor(\"a\")", new ExprParseTest.VarargsConstructor("a") },
+            { "new ExprParseTest.VarargsConstructor(\"a\", \"b\")", new ExprParseTest.VarargsConstructor("a", "b") },
+            { "new ExprParseTest.VarargsConstructor(1, 2)", new ExprParseTest.VarargsConstructor(1, 2) },
+            { "new ExprParseTest.VarargsConstructor(1, 2, \"x\")", new ExprParseTest.VarargsConstructor(1, 2, "x") },
+
         //CHECKSTYLE ON: SimplifyBooleanExpression
 
         }));
@@ -435,6 +447,38 @@ public class ExprParseTest extends TestSupport {
                 "def"
             }
         };
+    }
+
+    public static class VarargsConstructor {
+
+        private final int x;
+        private final int y;
+        private final String[] array;
+
+        public VarargsConstructor(String... array) {
+            this(0, 0, array);
+        }
+
+        public VarargsConstructor(int x, int y, String... array) {
+            this.x = x;
+            this.y = y;
+            this.array = array;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return this.toString().equals(String.valueOf(obj));
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public String toString() {
+            return this.x + "," + this.y + "," + Arrays.<String>asList(this.array).toString();
+        }
     }
 }
 

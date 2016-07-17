@@ -2,9 +2,6 @@
 SHORT TERM
 ==========
 
-- Bug:
-    - "eval String.join("x")" fails to recognize zero length varargs
-
 - CLI:
     - New CLI flags:
         - `--console-port': accept console telnet connections on port

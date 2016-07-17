@@ -129,10 +129,17 @@ final class MethodUtil {
             if (returnType != null && !MethodUtil.isCompatible(returnType, executable.getReturnType()))
                 continue;
 
-            // Check parameter types
+            // Check parameter count
             final Class<?>[] mparamTypes = executable.getParameterTypes();
-            if (mparamTypes.length > paramTypes.length || (!executable.isVarArgs() && mparamTypes.length != paramTypes.length))
-                continue;
+            if (!executable.isVarArgs()) {
+                if (mparamTypes.length != paramTypes.length)
+                    continue;
+            } else {
+                if (mparamTypes.length > paramTypes.length + 1)
+                    continue;
+            }
+
+            // Check parameter types
             for (int i = 0; i < paramTypes.length; i++) {
 
                 // Handle varargs
