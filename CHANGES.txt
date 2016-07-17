@@ -1,4 +1,4 @@
-Version Next
+Version 2.1.4 Released July 17, 2016
 
     - Fixed expression parsing bug with varargs methods given zero parameters
     - Fixed bug in previous Raft follower probe bug fix when only one node
