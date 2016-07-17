@@ -774,13 +774,11 @@ public class FallbackKVDatabase implements KVDatabase {
             Futures.addCallback(innerFuture, new FutureCallback<Void>() {
                 @Override
                 public void onFailure(Throwable t) {
-                    FallbackFuture.this.forget();
-                    FallbackFuture.this.setException(t);
+                    FallbackFuture.this.notifyAsync(t);
                 }
                 @Override
                 public void onSuccess(Void value) {
-                    FallbackFuture.this.forget();
-                    FallbackFuture.this.set(null);
+                    FallbackFuture.this.notifyAsync(null);
                 }
             });
         }
@@ -809,6 +807,25 @@ public class FallbackKVDatabase implements KVDatabase {
         public boolean cancel(boolean mayInterruptIfRunning) {
             this.forget();
             return super.cancel(mayInterruptIfRunning);
+        }
+
+        private void notifyAsync(final Throwable t) {
+            if (FallbackKVDatabase.this.executor == null)                   // small shutdown race window here
+                return;
+            FallbackKVDatabase.this.executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    FallbackFuture.this.forget();
+                    FallbackFuture.this.notify(t);
+                }
+            });
+        }
+
+        private void notify(Throwable t) {
+            if (t != null)
+                this.setException(t);
+            else
+                this.set(null);
         }
 
         private void forget() {
