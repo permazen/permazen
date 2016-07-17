@@ -70,6 +70,12 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
     @Override
     public ListenableFuture<Void> watchKey(byte[] key) {
 
+        // Check freshness
+        synchronized (this.db) {
+            if (this.stale)
+                throw new StaleTransactionException(this);
+        }
+
         // Get target's future - it must be a ListenableFuture or we can't do this
         final ListenableFuture<Void> innerFuture;
         try {

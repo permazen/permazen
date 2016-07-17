@@ -1178,8 +1178,10 @@ public class RaftKVDatabase implements KVDatabase {
 
 // Key Watches
 
-    synchronized ListenableFuture<Void> watchKey(byte[] key) {
+    synchronized ListenableFuture<Void> watchKey(RaftKVTransaction tx, byte[] key) {
         Preconditions.checkState(this.role != null, "not started");
+        if (tx.getState() != TxState.EXECUTING)
+            throw new StaleTransactionException(tx);
         return this.keyWatchTracker.register(key);
     }
 

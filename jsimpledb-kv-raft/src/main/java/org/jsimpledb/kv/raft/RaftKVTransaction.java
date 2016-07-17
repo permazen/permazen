@@ -326,7 +326,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      */
     @Override
     public ListenableFuture<Void> watchKey(byte[] key) {
-        return this.kvdb.watchKey(key);
+        return this.kvdb.watchKey(this, key);
     }
 
     @Override
