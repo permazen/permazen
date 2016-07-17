@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.mvcc.Mutations;
 import org.jsimpledb.util.ByteUtil;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class used to track key watches.
@@ -439,13 +440,23 @@ public class KeyWatchTracker implements Closeable {
         @Override
         protected boolean set(Void value) {
             this.futureMap.invalidate(this);
-            return super.set(value);
+            try {
+                return super.set(value);
+            } catch (Throwable t2) {
+                LoggerFactory.getLogger(this.getClass()).error("exception from key watch listener", t2);
+                return true;
+            }
         }
 
         @Override
         protected boolean setException(Throwable t) {
             this.futureMap.invalidate(this);
-            return super.setException(t);
+            try {
+                return super.setException(t);
+            } catch (Throwable t2) {
+                LoggerFactory.getLogger(this.getClass()).error("exception from key watch listener", t2);
+                return true;
+            }
         }
 
         @Override

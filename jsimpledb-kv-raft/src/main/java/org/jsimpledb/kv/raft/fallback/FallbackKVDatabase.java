@@ -787,12 +787,22 @@ public class FallbackKVDatabase implements KVDatabase {
 
         @Override
         protected boolean set(Void value) {
-            return super.set(value);
+            try {
+                return super.set(value);
+            } catch (Throwable t2) {
+                FallbackKVDatabase.this.log.error("exception from key watch listener", t2);
+                return true;
+            }
         }
 
         @Override
         protected boolean setException(Throwable t) {
-            return super.setException(t);
+            try {
+                return super.setException(t);
+            } catch (Throwable t2) {
+                FallbackKVDatabase.this.log.error("exception from key watch listener", t2);
+                return true;
+            }
         }
 
         @Override
