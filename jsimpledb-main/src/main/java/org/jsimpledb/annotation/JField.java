@@ -202,7 +202,7 @@ public @interface JField {
      * {@link org.jsimpledb.JObject#revalidate myobj.revalidate(UniquenessConstraints.class)}.
      *
      * <p>
-     * This property must be false for sub-fields of complex fields.
+     * This property must be false for sub-fields of complex fields, and for any field that is not indexed.
      *
      * @return whether the field's value should be unique
      * @see #uniqueExclude
