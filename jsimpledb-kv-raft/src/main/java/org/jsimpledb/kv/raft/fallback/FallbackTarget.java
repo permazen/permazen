@@ -295,6 +295,13 @@ public class FallbackTarget implements Cloneable {
      */
     protected boolean checkAvailability() {
 
+        // Check whether we're even configured first - a read-only tx is allowed when unconfigured
+        if (!this.raft.isConfigured()) {
+            if (this.log.isTraceEnabled())
+                this.log.trace("checking availability of " + this.raft + " - cluster is not configured");
+            return false;
+        }
+
         // Setup
         if (this.log.isTraceEnabled())
             this.log.trace("checking availability of " + this.raft + " with timeout of " + this.transactionTimeout + "ms");
