@@ -4,6 +4,7 @@ Version 2.1.4 Released July 17, 2016
     - Fixed bug in previous Raft follower probe bug fix when only one node
     - Fixed possible deadlock in Raft fallback key watch listener notification
     - Added new core API utility class ObjDumper
+    - Added isSnapshot() method to JTransaction and Transaction
 
 Version 2.1.3 Released July 12, 2016
 

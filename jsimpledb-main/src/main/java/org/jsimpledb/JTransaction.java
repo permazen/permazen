@@ -138,6 +138,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #getSnapshotTransaction getSnapshotTransaction()} - Get the default in-memory snapshot transaction
  *      associated with this transaction</li>
  *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a new in-memory snapshot transaction</li>
+ *  <li>{@link #isSnapshot} - Determine whether this transaction is a snapshot transaction</li>
  *  <li>{@link #copyTo(JTransaction, JObject, ObjId, CopyState, String[]) copyTo()}
  *      - Copy an object into another transaction</li>
  *  <li>{@link #copyTo(JTransaction, CopyState, Iterable) copyTo()}
@@ -407,6 +408,15 @@ public class JTransaction {
     }
 
 // Snapshots
+
+    /**
+     * Determine whether this instance is a {@link SnapshotJTransaction}.
+     *
+     * @return true if this instance is a {@link SnapshotJTransaction}, otherwise false
+     */
+    public boolean isSnapshot() {
+        return this instanceof SnapshotJTransaction;
+    }
 
     /**
      * Get the default {@link SnapshotJTransaction} associated with this instance.

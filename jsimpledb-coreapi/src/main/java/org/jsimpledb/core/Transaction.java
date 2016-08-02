@@ -75,6 +75,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #setRollbackOnly setRollbackOnly()} - Set transaction for rollack only</li>
  *  <li>{@link #addCallback addCallback()} - Register a {@link Callback} on transaction completion</li>
  *  <li>{@link #createSnapshotTransaction createSnapshotTransaction()} - Create a empty, in-memory copy of this transaction</li>
+ *  <li>{@link #isSnapshot} - Determine whether this transaction is a snapshot transaction</li>
  * </ul>
  *
  * <p>
@@ -520,6 +521,15 @@ public class Transaction {
         final NavigableMapKVStore kvstore = new NavigableMapKVStore();
         this.db.copyMetaData(this, kvstore);
         return new SnapshotTransaction(this.db, kvstore, this.schemas, this.schema);
+    }
+
+    /**
+     * Determine whether this instance is a {@link SnapshotTransaction}.
+     *
+     * @return true if this instance is a {@link SnapshotTransaction}, otherwise false
+     */
+    public boolean isSnapshot() {
+        return this instanceof SnapshotTransaction;
     }
 
 // Object Lifecycle
