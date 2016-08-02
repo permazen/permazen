@@ -3,6 +3,7 @@ Version 2.1.4 Released July 17, 2016
     - Fixed expression parsing bug with varargs methods given zero parameters
     - Fixed bug in previous Raft follower probe bug fix when only one node
     - Fixed possible deadlock in Raft fallback key watch listener notification
+    - Added new core API utility class ObjDumper
 
 Version 2.1.3 Released July 12, 2016
 
