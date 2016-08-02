@@ -38,7 +38,7 @@ import org.jsimpledb.core.UnknownTypeException;
  * <p>
  * To use this class for implementing {@link Object#toString}, add a method like this to your Java model classes:
  * <blockquote><pre>
- *  @Override
+ *  &#64;Override
  *  public String toString() {
  *      return ObjDumper.toString(this.getTransaction().getTransaction(), this.getObjId(), 16);
  *  }
@@ -50,7 +50,7 @@ public final class ObjDumper {
     }
 
     /**
-     * Helper method for implementations of {@link JObject#toString} that wish to display all fields in an object.
+     * Helper for Java model object {@link Object#toString} methods that wish to display all fields in the object.
      *
      * @param tx transaction containing the object
      * @param id the ID of the object
