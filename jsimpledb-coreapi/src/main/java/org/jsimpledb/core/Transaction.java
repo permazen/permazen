@@ -173,8 +173,10 @@ import org.slf4j.LoggerFactory;
  */
 public class Transaction {
 
-    private static final int MAX_GENERATED_KEY_ATTEMPTS = 1000;
-    private static final int MAX_OBJ_INFO_CACHE_ENTRIES = 1000;
+    private static final int MAX_GENERATED_KEY_ATTEMPTS
+      = Integer.parseInt(System.getProperty(Transaction.class.getName() + ".MAX_GENERATED_KEY_ATTEMPTS", "64"));
+    private static final int MAX_OBJ_INFO_CACHE_ENTRIES
+      = Integer.parseInt(System.getProperty(Transaction.class.getName() + ".MAX_OBJ_INFO_CACHE_ENTRIES", "1000"));
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
