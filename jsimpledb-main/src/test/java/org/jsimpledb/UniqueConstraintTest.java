@@ -157,12 +157,80 @@ public class UniqueConstraintTest extends TestSupport {
 
     }
 
+    @Test
+    public void testSameStorageIdUnique() throws Exception {
+
+        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName.class, UniqueName2.class);
+        JTransaction jtx;
+
+        // test 1
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName u1a = jtx.create(UniqueName.class);
+            final UniqueName u1b = jtx.create(UniqueName.class);
+            u1a.setName("joe");
+            u1b.setName("joe");
+
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                // expected
+            }
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
+        // test 2
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName2 u2a = jtx.create(UniqueName2.class);
+            final UniqueName2 u2b = jtx.create(UniqueName2.class);
+            u2a.setName("joe");
+            u2b.setName("joe");
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
+        // test 3
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName u1 = jtx.create(UniqueName.class);
+            final UniqueName2 u2 = jtx.create(UniqueName2.class);
+            u1.setName("fred");
+            u2.setName("fred");
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     @JSimpleClass
     public abstract static class UniqueName implements JObject {
 
         @JField(indexed = true, uniqueExclude = "frob", unique = true)
+        public abstract String getName();
+        public abstract void setName(String name);
+    }
+
+    @JSimpleClass
+    public abstract static class UniqueName2 implements JObject {
+
+        @JField(indexed = true, unique = false)
         public abstract String getName();
         public abstract void setName(String name);
     }

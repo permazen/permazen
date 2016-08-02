@@ -1562,9 +1562,15 @@ public class JTransaction {
                       && Collections.binarySearch(jfield.uniqueExcludes, value, (Comparator<Object>)jfield.fieldType) >= 0)
                         continue;
 
+                    // Query core API index to find other objects with the same value in the field, but restrict the search to
+                    // only include those types having the annotated method, not some other method with the same name/storage ID.
+                    final IndexInfo info = this.jdb.getIndexInfo(new IndexInfoKey(jfield.name,
+                      false, jfield.getter.getDeclaringClass(), jfield.typeToken.wrap().getRawType()));
+                    final CoreIndex<?, ObjId> index = info.applyFilters(this.tx.queryIndex(jfield.storageId));
+
                     // Seach for other objects with the same value in the field and report violation if any are found
                     final ArrayList<ObjId> conflictors = new ArrayList<>(MAX_UNIQUE_CONFLICTORS);
-                    for (ObjId conflictor : this.tx.queryIndex(jfield.storageId).asMap().get(value)) {
+                    for (ObjId conflictor : index.asMap().get(value)) {
                         if (conflictor.equals(id))                          // ignore jobj's own index entry
                             continue;
                         conflictors.add(conflictor);
@@ -1572,8 +1578,8 @@ public class JTransaction {
                             break;
                     }
                     if (!conflictors.isEmpty()) {
-                        throw new ValidationException(jobj, "uniqueness constraint on " + jfield + " failed: field value "
-                          + value + " is also shared by object(s) " + conflictors);
+                        throw new ValidationException(jobj, "uniqueness constraint on " + jfield + " failed for object "
+                          + id + ": field value " + value + " is also shared by object(s) " + conflictors);
                     }
                 }
             }
