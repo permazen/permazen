@@ -7,12 +7,8 @@ package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +25,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.core.util.ObjIdSet;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVTransaction;
@@ -195,14 +192,7 @@ public class Transaction {
     private final HashSet<DeleteListener> deleteListeners = new HashSet<>();
     private final TreeMap<Integer, HashSet<FieldMonitor>> monitorMap = new TreeMap<>();
     private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
-    private final LoadingCache<ObjId, ObjInfo> objInfoCache = CacheBuilder.newBuilder()
-      .maximumSize(MAX_OBJ_INFO_CACHE_ENTRIES)
-      .build(new CacheLoader<ObjId, ObjInfo>() {
-        @Override
-        public ObjInfo load(ObjId id) {
-            return new ObjInfo(Transaction.this, id);
-        }
-      });
+    private final ObjIdMap<ObjInfo> objInfoCache = new ObjIdMap<>();
 
 // Constructors
 
@@ -681,10 +671,12 @@ public class Transaction {
         if (this.stale)
             throw new StaleTransactionException(this);
         assert this.kvt.get(id.getBytes()) == null;
-        assert this.objInfoCache.getIfPresent(id) == null;
+        assert this.objInfoCache.get(id) == null;
 
         // Write object meta-data and update object info cache
         ObjInfo.write(this, id, versionNumber, false);
+        if (this.objInfoCache.size() >= MAX_OBJ_INFO_CACHE_ENTRIES)
+            this.objInfoCache.removeOne();
         this.objInfoCache.put(id, new ObjInfo(this, id, versionNumber, false, schema, objType));
 
         // Write object version index entry
@@ -876,7 +868,7 @@ public class Transaction {
         this.kvt.remove(Database.buildVersionIndexKey(id, info.getVersion()));
 
         // Update ObjInfo cache
-        this.objInfoCache.invalidate(id);
+        this.objInfoCache.remove(id);
     }
 
     /**
@@ -2061,7 +2053,7 @@ public class Transaction {
         assert Thread.holdsLock(this);
 
         // Load object info into cache, if not already there
-        ObjInfo info = this.objInfoCache.getIfPresent(id);
+        ObjInfo info = this.objInfoCache.get(id);
         if (info == null) {
 
             // Verify that the object type encoded within the object ID is valid
@@ -2090,21 +2082,23 @@ public class Transaction {
     }
 
     /**
-     * Load the specified object's info into the object cache.
+     * Get the specified object's info from the object info cache, loading it if necessary.
      *
      * @throws DeletedObjectException if object does not exist
      */
     private ObjInfo loadIntoCache(ObjId id) {
-        try {
-            return this.objInfoCache.getUnchecked(id);
-        } catch (UncheckedExecutionException e) {
-            final Throwable t = e.getCause();
-            if (t instanceof RuntimeException)
-                throw (RuntimeException)t;
-            if (t instanceof Error)
-                throw (Error)t;
-            throw e;
+        ObjInfo info = this.objInfoCache.get(id);
+        if (info == null) {
+
+            // Create info; we'll get an exception here if object does not exist
+            info = new ObjInfo(this, id);
+
+            // Add object info to the cache
+            if (this.objInfoCache.size() >= MAX_OBJ_INFO_CACHE_ENTRIES)
+                this.objInfoCache.removeOne();
+            this.objInfoCache.put(id, info);
         }
+        return info;
     }
 
 // Field Change Notifications
