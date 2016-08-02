@@ -6,19 +6,35 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.MapMaker;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.util.ObjIdMap;
 
 class JObjectCache {
 
     private final JTransaction jtx;
-    private final ThreadLocal<HashMap<ObjId, JObject>> instantiating = new ThreadLocal<>();
-    private final ConcurrentMap<ObjId, JObject> cache = new MapMaker().weakValues().makeMap();
+    private final ReferenceQueue<JObject> referenceQueue = new ReferenceQueue<>();
+
+    /**
+     * Mapping from object ID to {@link JObject}.
+     *
+     * <p>
+     * As a special case, null values in this map indicate that the corresponding {@link JObject}
+     * is currently under construction by some thread.
+     */
+    private final ObjIdMap<JObjRef> cache = new ObjIdMap<>();
+
+    /**
+     * Mapping of {@link JObject}s currently under construction by the current thread.
+     *
+     * <p>
+     * These {@link JObject}s are kept private to each thread until the Java constructor successfully returns.
+     */
+    private final ThreadLocal<ObjIdMap<JObject>> instantiations = new ThreadLocal<>();
 
     JObjectCache(JTransaction jtx) {
         this.jtx = jtx;
@@ -37,53 +53,116 @@ class JObjectCache {
         // Sanity check
         Preconditions.checkArgument(id != null, "null id");
 
-        // Check current instantiations to avoid "recursive load" exception
-        final HashMap<ObjId, JObject> currentInvocations = this.instantiating.get();
-        if (currentInvocations != null) {
-            final JObject jobj = currentInvocations.get(id);
-            if (jobj != null)
-                return jobj;
-        }
+        // Check for existing entry
+        boolean interrupted = false;
+        synchronized (this.cache) {
 
-        // Query cache
-        JObject jobj = this.cache.get(id);
-        if (jobj == null) {
-            synchronized (this.cache) {
-                if ((jobj = this.cache.get(id)) == null) {
-                    jobj = this.createJObject(id);
-                    this.cache.put(id, jobj);
+            // Check for existing JObject, or null if object is being instantiated
+            while (true) {
+
+                // Garbage collect
+                this.gc();
+
+                // Get weak reference
+                final JObjRef ref = this.cache.get(id);
+                if (ref != null) {
+
+                    // If weak reference still valid, return corresponding JObject
+                    final JObject jobj = ref.get();
+                    if (jobj != null)
+                        return jobj;
+
+                    // The weak reference has been cleared; we will construct a new JObject replacement
+                    // this.cache.remove(id);   // not necessary; see below
+                } else if (this.cache.containsKey(id)) {    // null value indicates object is being instantiated by some thread
+
+                    // Is the current thread the one instantiating the object?
+                    final ObjIdMap<JObject> threadInstantiations = this.instantiations.get();
+                    if (threadInstantiations != null && threadInstantiations.containsKey(id)) {
+                        final JObject jobj = threadInstantiations.get(id);
+                        if (jobj != null)
+                            return jobj;
+                        throw new RuntimeException("illegal reentrant query for object " + id + " during object construction");
+                    }
+
+                    // Some other thread is instantiating the object, so wait for it to finish doing so
+                    try {
+                        this.cache.wait();
+                    } catch (InterruptedException e) {
+                        interrupted = true;
+                    }
+                    continue;
                 }
+
+                // Set a null value in the cache to indicate that some thread (i.e., this one) is instantiating the object
+                this.cache.put(id, null);
+                break;
             }
         }
+
+        // Instantiate new JObject instance
+        JObject jobj = null;
+        try {
+            jobj = this.createJObject(id);
+        } finally {
+            synchronized (this.cache) {
+                assert this.cache.containsKey(id) && this.cache.get(id) == null;
+                this.gc();
+
+                // Add JObject to the cache, or else remove the 'under construction' flag
+                if (jobj != null)
+                    this.cache.put(id, new JObjRef(jobj, this.referenceQueue));
+                else
+                    this.cache.remove(id);
+
+                // Wakeup any waiting threads
+                this.cache.notifyAll();
+            }
+        }
+
+        // Re-interrupt the current thread if needed
+        if (interrupted)
+            Thread.currentThread().interrupt();
 
         // Done
         return jobj;
     }
 
     /**
-     * Register the given {@link JObject} with this instance in the case that the Java model class construtor invokes
-     * a {@link JTransaction} method before returning (and so we won't have registered it yet). This allows re-entrant
-     * invocations of {@link #get} involving Java model class constructors to work properly. Otherwise,
-     * a "recursive load" exception is thrown by Guava's {@link LoadingCache}.
+     * Register the given {@link JObject} with this instance.
+     *
+     * Use of this method is required to handle the case where the Java model class construtor invokes, before the constructor
+     * has even returned, a {@link JTransaction} method that needs to find the {@link JObject} being constructed by its object ID.
+     * In that case, we don't have the {@link JObject} in our cache yet. This methods puts it in there if necessary.
      */
     void register(JObject jobj) {
 
-        // Are we currently instantiating this JObject?
-        if (jobj == null)
-            return;
-        final HashMap<ObjId, JObject> currentInvocations = this.instantiating.get();
-        if (currentInvocations == null)
-            return;
+        // Sanity check
+        Preconditions.checkArgument(jobj != null, "null jobj");
+        Preconditions.checkArgument(jobj.getTransaction() == this.jtx, "wrong tx");
+
+        // Get object ID
         final ObjId id = jobj.getObjId();
-        if (!currentInvocations.containsKey(id))
+
+        // Is the JObject under construction by the current thread? If not, don't do anything.
+        final ObjIdMap<JObject> threadInstantiations = this.instantiations.get();
+        if (threadInstantiations == null || !threadInstantiations.containsKey(id))
             return;
 
-        // Associate the JObject in our thread-local map until it can be properly loaded into the cache
-        final JObject previous = currentInvocations.put(jobj.getObjId(), jobj);
-        if (previous != null && previous != jobj)
-            throw new IllegalArgumentException("conflicting jobj registration: " + jobj + " != " + previous);
+        // Add JObject to this thread's 'under construction' map; also check for weird conflict
+        final JObject previous = threadInstantiations.put(id, jobj);
+        if (previous != null && previous != jobj) {
+            threadInstantiations.put(id, previous);
+            throw new IllegalArgumentException("conflicting JObject registration: " + jobj + " != " + previous);
+        }
     }
 
+    /**
+     * Create the {@lin JObject} for the given object ID.
+     *
+     * <p>
+     * Put an entry in this thread's instantiation map while doing so.
+     */
     private JObject createJObject(ObjId id) {
 
         // Get ClassGenerator
@@ -91,21 +170,18 @@ class JObjectCache {
         final ClassGenerator<?> classGenerator = jclass != null ?
           jclass.getClassGenerator() : this.jtx.jdb.getUntypedClassGenerator();
 
-        // Set up currently instantiating objects map, if not already set up
-        HashMap<ObjId, JObject> currentInvocations = this.instantiating.get();
-        boolean cleanup = false;
-        if (currentInvocations == null) {
-            currentInvocations = new HashMap<ObjId, JObject>();
-            this.instantiating.set(currentInvocations);
-            cleanup = true;
+        // Set flag indicating that the object is being instantiated by this thread
+        ObjIdMap<JObject> threadInstantiations = this.instantiations.get();
+        if (threadInstantiations == null) {
+            threadInstantiations = new ObjIdMap<JObject>(1);
+            this.instantiations.set(threadInstantiations);
         }
+        threadInstantiations.put(id, null);
 
-        // Set flag indicating that we are instantiating this JObject
-        currentInvocations.put(id, null);
-
-        // Instantiate new JObject
+        // Instantiate the JObject
+        JObject jobj = null;
         try {
-            return (JObject)classGenerator.getConstructor().newInstance(this.jtx, id);
+            jobj = (JObject)classGenerator.getConstructor().newInstance(this.jtx, id);
         } catch (Exception e) {
             Throwable cause = e;
             if (cause instanceof InvocationTargetException)
@@ -116,10 +192,50 @@ class JObjectCache {
                 throw (Error)cause;
             throw new JSimpleDBException("can't instantiate object for ID " + id, cause);
         } finally {
-            if (cleanup)
-                this.instantiating.remove();
-            else
-                currentInvocations.remove(id);
+
+            // Get object registered in the meantime, if any
+            final JObject registered = threadInstantiations.remove(id);
+
+            // Discard thread local if no longer needed
+            if (threadInstantiations.isEmpty())
+                this.instantiations.remove();
+
+            // Sanity check we didn't register the wrong object
+            if (jobj != null && registered != null && registered != jobj)
+                throw new IllegalArgumentException("conflicting JObject registration: " + jobj + " != " + registered);
+        }
+
+        // Done
+        assert jobj.getObjId().equals(id);
+        return jobj;
+    }
+
+    private void gc() {
+        assert Thread.holdsLock(this.cache);
+        while (true) {
+            final JObjRef ref = (JObjRef)this.referenceQueue.poll();
+            if (ref == null)
+                break;
+            assert ref.get() == null;
+            final ObjId id = ref.getObjId();
+            if (this.cache.get(id) == ref)  // avoid race where old reference is cleared after being replaced in the cache
+                this.cache.remove(id);
+        }
+    }
+
+// JObjRef
+
+    private static class JObjRef extends WeakReference<JObject> {
+
+        private final long id;                                  // try to be memory efficient, avoiding extra objects
+
+        JObjRef(JObject jobj, ReferenceQueue<JObject> queue) {
+            super(jobj, queue);
+            this.id = jobj.getObjId().asLong();
+        }
+
+        public ObjId getObjId() {
+            return new ObjId(this.id);
         }
     }
 }
