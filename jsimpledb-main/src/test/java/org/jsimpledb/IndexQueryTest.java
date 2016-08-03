@@ -80,6 +80,24 @@ public class IndexQueryTest extends TestSupport {
         }
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testQueryIndexType() throws Exception {
+
+        final JSimpleDB jdb = BasicTest.getJSimpleDB(HasNameImpl.class);
+        final JTransaction jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            jtx.queryIndex(HasName.class, "name", String.class);
+
+            jtx.commit();
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     public interface FooBar {
@@ -161,6 +179,22 @@ public class IndexQueryTest extends TestSupport {
         public String toString() {
             return "Bar@" + this.getObjId();
         }
+    }
+
+    public interface HasName {
+
+        @JField(indexed = true)
+        String getName();
+        void setName(String name);
+    }
+
+    @JSimpleClass
+    public abstract static class HasNameImpl implements JObject, HasName {
+
+        @Override
+        public abstract String getName();
+        @Override
+        public abstract void setName(String name);
     }
 }
 

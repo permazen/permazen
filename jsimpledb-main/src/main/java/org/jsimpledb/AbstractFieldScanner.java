@@ -37,12 +37,32 @@ abstract class AbstractFieldScanner<T, A extends Annotation> extends AnnotationS
         if (annotation != null)
             return annotation;
 
-        // Check for auto-generated bean property getter method
-        if (this.isAutoPropertyCandidate(method))
+        // Check for auto-generated bean property getter method, but only if no overridden annotated method exists
+        if (!this.hasAnnotatedOverriddenMethod(method.getDeclaringClass(), method.getName(), method.getParameterTypes())
+          && this.isAutoPropertyCandidate(method))
             return this.getDefaultAnnotation();
 
         // Skip this method
         return null;
+    }
+
+    protected boolean hasAnnotatedOverriddenMethod(Class<?> klass, String name, Class<?>[] parameterTypes) {
+        if (this.hasAnnotatedMethod(klass, name, parameterTypes))
+            return true;
+        for (Class<?> iface : klass.getInterfaces()) {
+            if (this.hasAnnotatedMethod(iface, name, parameterTypes))
+                return true;
+        }
+        final Class<?> superclass = klass.getSuperclass();
+        return superclass != null && this.hasAnnotatedOverriddenMethod(superclass, name, parameterTypes);
+    }
+
+    private boolean hasAnnotatedMethod(Class<?> klass, String name, Class<?>[] parameterTypes) {
+        try {
+            return klass.getMethod(name, parameterTypes).isAnnotationPresent(this.annotationType);
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     protected boolean isAutoPropertyCandidate(Method method) {
