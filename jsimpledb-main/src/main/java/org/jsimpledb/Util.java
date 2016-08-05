@@ -386,12 +386,7 @@ public final class Util {
                 return supertype;
         }
 
-        // There are now only interfaces to choose from (or Object)... try JObject
-        final TypeToken<JObject> jobjectType = TypeToken.of(JObject.class);
-        if (supertypes.contains(jobjectType))
-            return jobjectType;
-
-        // Last resort is Object
+        // There are now only mutually incompatible interfaces to choose from, so our last resort is Object
         return objectType;
     }
 
