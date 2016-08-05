@@ -5,6 +5,7 @@ Version 2.1.4 Released July 17, 2016
     - Fixed possible deadlock in Raft fallback key watch listener notification
     - Fixed bug where unique constraints were sometimes applied too widely
     - Fixed bug where annotations were not inherited if method overridden
+    - Fixed incompatible type error from certain index queries.
     - Added new core API utility class ObjDumper
     - Added isSnapshot() method to JTransaction and Transaction
 
