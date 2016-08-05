@@ -217,6 +217,73 @@ public class UniqueConstraintTest extends TestSupport {
         }
     }
 
+    @Test
+    public void testSameStorageIdInherited() throws Exception {
+
+        JSimpleDB jdb = BasicTest.getJSimpleDB(UniqueName3.class, UniqueName4.class);
+        JTransaction jtx;
+
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName3 u3a = jtx.create(UniqueName3.class);
+            final UniqueName3 u3b = jtx.create(UniqueName3.class);
+            u3a.setName("joe");
+            u3b.setName("joe");
+
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                // expected
+            }
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName4 u4a = jtx.create(UniqueName4.class);
+            final UniqueName4 u4b = jtx.create(UniqueName4.class);
+            u4a.setName("joe");
+            u4b.setName("joe");
+
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                // expected
+            }
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+
+        jtx = jdb.createTransaction(true, ValidationMode.AUTOMATIC);
+        JTransaction.setCurrent(jtx);
+        try {
+
+            final UniqueName3 u3 = jtx.create(UniqueName3.class);
+            final UniqueName4 u4 = jtx.create(UniqueName4.class);
+            u3.setName("fred");
+            u4.setName("fred");
+
+            try {
+                jtx.commit();
+                assert false;
+            } catch (ValidationException e) {
+                // expected
+            }
+
+        } finally {
+            JTransaction.setCurrent(null);
+        }
+    }
+
 // Model Classes
 
     @JSimpleClass
@@ -264,6 +331,28 @@ public class UniqueConstraintTest extends TestSupport {
         GREEN,
         BLUE,
         YELLOW;
+    }
+
+// Inherited unique constraint
+
+    public interface HasName {
+
+        @JField(indexed = true, unique = true)
+        String getName();
+        void setName(String name);
+    }
+
+    @JSimpleClass
+    public abstract static class UniqueName3 implements JObject, HasName {
+    }
+
+    @JSimpleClass
+    public abstract static class UniqueName4 implements JObject, HasName {
+
+        @Override
+        public abstract String getName();
+        @Override
+        public abstract void setName(String name);
     }
 }
 
