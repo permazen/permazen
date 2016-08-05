@@ -173,7 +173,7 @@ public class ReferencePath {
             if (this.log.isTraceEnabled())
                 this.log.trace("RefPath: [" + searchName + "] currentType=" + currentType + " storageId=" + explicitStorageId);
 
-            // Find all JFields matching 'fieldName' in some JClass whose type matches 'typeToken'
+            // Find all JFields matching 'fieldName' in some JClass whose type matches 'currentType'
             final HashMap<JClass<?>, JField> matchingFields = new HashMap<>();
             for (JClass<?> jclass : jdb.jclasses.values()) {
                 if (!currentType.isAssignableFrom(jclass.type))
