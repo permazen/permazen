@@ -61,6 +61,17 @@ public class CopyState implements Cloneable {
     }
 
     /**
+     * Determine if an object has been marked as copied.
+     *
+     * @return true if {@code id} has been marked copied, otherwise false
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public boolean isCopied(ObjId id) {
+        Preconditions.checkArgument(id != null, "null id");
+        return this.copied.contains(id);
+    }
+
+    /**
      * Determine if the specified reference path has already been traversed starting at the given object, and if not mark it so.
      *
      * @param id object ID of object being copied
