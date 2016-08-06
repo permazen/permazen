@@ -175,15 +175,23 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * Set the consistency level for this transaction.
      *
      * <p>
-     * This setting may be modified freely during a transaction; it only determines behavior at {@link #commit} time.
+     * This setting may be modified freely during a transaction while it is still open;
+     * it only determines the behavior of the transaction after {@link #commit} is invoked.
      *
      * @param consistency desired consistency level
      * @see <a href="https://aphyr.com/posts/313-strong-consistency-models">Strong consistency models</a>
+     * @throws IllegalStateException if {@code consistency} is different from the {@linkplain #getConsistency currently configured
+     *  consistency} but this transaction is no longer open (i.e., in state {@link TxState#EXECUTING})
      * @throws IllegalArgumentException if {@code consistency} is null
      */
     public void setConsistency(Consistency consistency) {
         Preconditions.checkArgument(consistency != null, "null consistency");
-        this.consistency = consistency;
+        synchronized (this.kvdb) {
+            if (this.consistency.equals(consistency))
+                return;
+            Preconditions.checkState(TxState.EXECUTING.equals(this.state), "transaction is no longer open");
+            this.consistency = consistency;
+        }
     }
 
     /**
