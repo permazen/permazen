@@ -220,7 +220,7 @@ public class BaseExprParser implements Parser<Node> {
         // Try instance field
         /*final*/ Field javaField;
         try {
-            javaField = cl.getField(name);
+            javaField = AtomExprParser.findField(cl, name, false);
         } catch (NoSuchFieldException e) {
             javaField = null;
         }
@@ -258,7 +258,7 @@ public class BaseExprParser implements Parser<Node> {
         // Try instance field
         /*final*/ Field javaField;
         try {
-            javaField = cl.getField(name);
+            javaField = AtomExprParser.findField(cl, name, false);
         } catch (NoSuchFieldException e) {
             javaField = null;
         }

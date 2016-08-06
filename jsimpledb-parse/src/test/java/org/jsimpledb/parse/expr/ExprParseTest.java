@@ -219,6 +219,16 @@ public class ExprParseTest extends TestSupport {
             { "\"abc\".length()", 3 },
             { "\"abc\".bytes", new byte[] { (byte)'a', (byte)'b', (byte)'c' } },
 
+            // Fields
+            { "new ExprParseTest.ClassWithFields().private_instance",
+               new ExprParseTest.ClassWithFields().private_instance },
+            { "new ExprParseTest.ClassWithFields().public_instance",
+               new ExprParseTest.ClassWithFields().public_instance },
+            { "ExprParseTest.ClassWithFields.private_static",
+               ExprParseTest.ClassWithFields.private_static },
+            { "ExprParseTest.ClassWithFields.public_static",
+               ExprParseTest.ClassWithFields.public_static },
+
         //CHECKSTYLE OFF: SimplifyBooleanExpression
 
             // Operators
@@ -479,6 +489,15 @@ public class ExprParseTest extends TestSupport {
         public String toString() {
             return this.x + "," + this.y + "," + Arrays.<String>asList(this.array).toString();
         }
+    }
+
+    public static class ClassWithFields {
+
+        public static int public_static = 123;
+        public int public_instance = 456;
+        private static int private_static = 789;
+        private int private_instance = 333;
+
     }
 }
 

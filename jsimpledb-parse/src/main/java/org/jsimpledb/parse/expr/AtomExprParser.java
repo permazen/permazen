@@ -288,47 +288,58 @@ public class AtomExprParser implements Parser<Node> {
                 return new MethodInvokeNode(cl, member, AtomExprParser.parseParams(session, ctx, complete));
 
             // Handle static field access
-            return new ConstNode(new StaticFieldValue(this.findStaticField(ctx, cl, member)));
+            try {
+                return new ConstNode(new StaticFieldValue(AtomExprParser.findField(cl, member, true)));
+            } catch (NoSuchFieldException e) {
+                throw new ParseException(ctx, e.getMessage());
+            }
         }
 
         // Can't parse this
         throw new ParseException(ctx);
     }
 
-    // Find static field
-    private Field findStaticField(ParseContext ctx, Class<?> cl, String fieldName) {
-        final Field field = this.findStaticField(ctx, cl, fieldName, null);
-        if (field == null)
-            throw new ParseException(ctx, "class `" + cl.getName() + "' has no field named `" + fieldName + "'");
-        if ((field.getModifiers() & Modifier.STATIC) == 0)
-            throw new ParseException(ctx, "field `" + fieldName + "' in class `" + cl.getName() + "' is not a static field");
-        return field;
+    // Find field
+    static Field findField(Class<?> cl, String fieldName, boolean isStatic) throws NoSuchFieldException {
+        final Field bestMatch = AtomExprParser.findField(cl, fieldName, null, isStatic);
+        if (bestMatch == null)
+            throw new NoSuchFieldException("class `" + cl.getName() + "' has no field named `" + fieldName + "'");
+        if (((bestMatch.getModifiers() & Modifier.STATIC) != 0) != isStatic) {
+            throw new NoSuchFieldException("field `" + fieldName
+              + "' in class `" + cl.getName() + "' is not " + (isStatic ? "a static" : "an instance") + " field");
+        }
+        try {
+            bestMatch.setAccessible(true);
+        } catch (SecurityException e) {
+            // ignore
+        }
+        return bestMatch;
     }
 
-    // Helper method for findStaticField()
-    private Field findStaticField(ParseContext ctx, Class<?> cl, String fieldName, Field field) {
+    // Helper method for findField()
+    private static Field findField(Class<?> cl, String fieldName, Field bestSoFar, boolean isStatic) {
 
         // Find field with the given name declared in class, if any
+        final int mask = Modifier.STATIC;
+        final int flags = isStatic ? Modifier.STATIC : 0;
         for (Field candidate : cl.getDeclaredFields()) {
-            if (candidate.getName().equals(fieldName)) {
-                if (field == null || (field.getModifiers() & Modifier.STATIC) == 0)
-                    field = candidate;
-                else {
-                    throw new ParseException(ctx, "field `" + fieldName + "' in class `" + cl.getName()
-                      + "' is ambiguous, found in both " + field.getDeclaringClass() + " and " + cl);
-                }
-                break;
-            }
+            if (!candidate.getName().equals(fieldName))
+                continue;
+            if (bestSoFar == null || (bestSoFar.getModifiers() & mask) != flags)
+                bestSoFar = candidate;
+            if (bestSoFar != null && (bestSoFar.getModifiers() & mask) == flags)
+                return bestSoFar;
+            break;
         }
 
         // Recurse on supertypes
         if (cl.getSuperclass() != null)
-            field = this.findStaticField(ctx, cl.getSuperclass(), fieldName, field);
+            bestSoFar = AtomExprParser.findField(cl.getSuperclass(), fieldName, bestSoFar, isStatic);
         for (Class<?> iface : cl.getInterfaces())
-            field = this.findStaticField(ctx, iface, fieldName, field);
+            bestSoFar = AtomExprParser.findField(iface, fieldName, bestSoFar, isStatic);
 
         // Done
-        return field;
+        return bestSoFar;
     }
 
     /**
@@ -368,16 +379,18 @@ public class AtomExprParser implements Parser<Node> {
 
     private static Iterable<String> getMemberNames(Class<?> cl, TreeSet<String> names, boolean isStatic) {
 
-        // Setup flags
-        final int mask = Modifier.PUBLIC | Modifier.STATIC;
-        final int flags = Modifier.PUBLIC | (isStatic ? Modifier.STATIC : 0);
-
-        // Add public fields and methods
+        // Add public and private fields
+        int mask = Modifier.STATIC;
+        int flags = isStatic ? Modifier.STATIC : 0;
         for (Field field : cl.getDeclaredFields()) {
             if ((field.getModifiers() & mask) != flags)
                 continue;
             names.add(field.getName());
         }
+
+        // Add public methods only
+        mask |= Modifier.PUBLIC;
+        flags |= Modifier.PUBLIC;
         for (Method method : cl.getDeclaredMethods()) {
             if ((method.getModifiers() & mask) != flags)
                 continue;
