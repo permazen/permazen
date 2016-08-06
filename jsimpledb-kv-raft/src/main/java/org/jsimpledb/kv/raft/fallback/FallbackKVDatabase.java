@@ -426,12 +426,12 @@ public class FallbackKVDatabase implements KVDatabase {
     }
 
     @Override
-    public FallbackKVTransaction createTransaction(Map<String, ?> options) {
-        return this.createTransaction();                                            // no options supported yet
+    public FallbackKVTransaction createTransaction() {
+        return this.createTransaction(null);
     }
 
     @Override
-    public synchronized FallbackKVTransaction createTransaction() {
+    public synchronized FallbackKVTransaction createTransaction(Map<String, ?> options) {
 
         // Sanity check
         Preconditions.checkState(this.started, "not started");
@@ -439,7 +439,7 @@ public class FallbackKVDatabase implements KVDatabase {
         // Create inner transaction from current database
         final KVDatabase currentKV = this.currentTargetIndex == -1 ?
           this.standaloneKV : this.targets.get(this.currentTargetIndex).getRaftKVDatabase();
-        KVTransaction tx = currentKV.createTransaction();
+        KVTransaction tx = currentKV.createTransaction(options);
 
         // Wrap it
         return new FallbackKVTransaction(this, tx, this.migrationCount);
@@ -469,10 +469,12 @@ public class FallbackKVDatabase implements KVDatabase {
 // Package methods
 
     boolean isMigrating() {
+        assert Thread.holdsLock(this);
         return this.migrating;
     }
 
     int getMigrationCount() {
+        assert Thread.holdsLock(this);
         return this.migrationCount;
     }
 
