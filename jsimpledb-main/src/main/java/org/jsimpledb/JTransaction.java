@@ -651,7 +651,6 @@ public class JTransaction {
             final JComplexFieldInfo parentInfo = this.jdb.getJFieldInfo(parentStorageId, JComplexFieldInfo.class);
             parentInfo.copyRecurse(copyState, this, dest, srcId, storageId, fieldIndex, fields);
         } else {
-            assert referenceFieldInfo instanceof JReferenceFieldInfo;
             final ObjId referrent = (ObjId)this.tx.readSimpleField(srcId, storageId, false);
             if (referrent != null)
                 this.copyTo(copyState, dest, referrent, referrent, false, fieldIndex, fields);
