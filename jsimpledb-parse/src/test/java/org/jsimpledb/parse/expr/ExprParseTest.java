@@ -229,7 +229,7 @@ public class ExprParseTest extends TestSupport {
             { "ExprParseTest.ClassWithFields.public_static",
                ExprParseTest.ClassWithFields.public_static },
             { "ExprParseTest.ClassWithFields.public_instance", PARSE_FAIL },
-            { "new ExprParseTest.ClassWithFields().public_static", PARSE_FAIL },
+            { "new ExprParseTest.ClassWithFields().public_static", EVAL_FAIL },
 
         //CHECKSTYLE OFF: SimplifyBooleanExpression
 
