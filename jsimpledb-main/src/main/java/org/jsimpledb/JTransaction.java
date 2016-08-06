@@ -233,7 +233,7 @@ public class JTransaction {
         // Register listeners for @OnChange
         for (JClass<?> jclass : this.jdb.jclasses.values()) {
             for (OnChangeScanner<?>.MethodInfo info : jclass.onChangeMethods) {
-                if (this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
+                if (this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
                     continue;
                 final OnChangeScanner<?>.ChangeMethodInfo changeInfo = (OnChangeScanner<?>.ChangeMethodInfo)info;
                 changeInfo.registerChangeListener(this);
@@ -415,7 +415,7 @@ public class JTransaction {
      * @return true if this instance is a {@link SnapshotJTransaction}, otherwise false
      */
     public boolean isSnapshot() {
-        return this instanceof SnapshotJTransaction;
+        return false;
     }
 
     /**
@@ -1610,7 +1610,7 @@ public class JTransaction {
             // Notify @OnCreate methods
             Object jobj = null;
             for (OnCreateScanner<T>.MethodInfo info : jclass.onCreateMethods) {
-                if (JTransaction.this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
+                if (JTransaction.this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
                     continue;
                 if (jobj == null)
                     jobj = JTransaction.this.get(id);
@@ -1638,7 +1638,7 @@ public class JTransaction {
         private <T> void doOnDelete(JClass<T> jclass, ObjId id) {
             Object jobj = null;
             for (OnDeleteScanner<T>.MethodInfo info : jclass.onDeleteMethods) {
-                if (JTransaction.this instanceof SnapshotJTransaction && !info.getAnnotation().snapshotTransactions())
+                if (JTransaction.this.isSnapshot() && !info.getAnnotation().snapshotTransactions())
                     continue;
                 if (jobj == null)
                     jobj = JTransaction.this.get(id);

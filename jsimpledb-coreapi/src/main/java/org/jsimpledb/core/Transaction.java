@@ -521,7 +521,7 @@ public class Transaction {
      * @return true if this instance is a {@link SnapshotTransaction}, otherwise false
      */
     public boolean isSnapshot() {
-        return this instanceof SnapshotTransaction;
+        return false;
     }
 
 // Object Lifecycle

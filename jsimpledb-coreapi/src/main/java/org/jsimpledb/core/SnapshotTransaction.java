@@ -44,6 +44,11 @@ public class SnapshotTransaction extends Transaction {
 
 // Methods
 
+    @Override
+    public boolean isSnapshot() {
+        return true;
+    }
+
     /**
      * Get the underlying {@link KVStore} that holds this snapshot transaction's state.
      *

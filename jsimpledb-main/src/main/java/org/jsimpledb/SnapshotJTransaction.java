@@ -37,6 +37,11 @@ public class SnapshotJTransaction extends JTransaction {
         super(jdb, tx, validationMode);
     }
 
+    @Override
+    public boolean isSnapshot() {
+        return true;
+    }
+
     /**
      * Get the {@link SnapshotTransaction} associated with this instance.
      *
