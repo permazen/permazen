@@ -44,17 +44,6 @@ class FieldTypesFilter implements KeyFilter {
      * @param fieldTypes field types
      * @throws IllegalArgumentException if {@code fieldTypes} is null
      */
-    FieldTypesFilter(byte[] prefix, List<FieldType<?>> fieldTypes) {
-        this(prefix, fieldTypes != null ? fieldTypes.toArray(new FieldType<?>[fieldTypes.size()]) : null);
-    }
-
-    /**
-     * Construct an instance that has no per-field {@link KeyFilter}s applied yet.
-     *
-     * @param prefix mandatory prefix, or null for none
-     * @param fieldTypes field types
-     * @throws IllegalArgumentException if {@code fieldTypes} is null
-     */
     FieldTypesFilter(byte[] prefix, FieldType<?>... fieldTypes) {
         Preconditions.checkArgument(fieldTypes != null, "null fieldTypes");
         this.prefix = prefix != null ? prefix.clone() : ByteUtil.EMPTY;
