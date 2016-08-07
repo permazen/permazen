@@ -145,22 +145,10 @@ public class SchemaObjectType extends AbstractSchemaItem implements DiffGenerati
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
         final SchemaObjectType that = (SchemaObjectType)that0;
-        if (!this.schemaFields.keySet().equals(that.schemaFields.keySet()))
+        if (!AbstractSchemaItem.allAreCompatible(this.schemaFields, that.schemaFields))
             return false;
-        for (int storageId : this.schemaFields.keySet()) {
-            final SchemaField thisSchemaField = this.schemaFields.get(storageId);
-            final SchemaField thatSchemaField = that.schemaFields.get(storageId);
-            if (!thisSchemaField.isCompatibleWith(thatSchemaField))
-                return false;
-        }
-        if (!this.schemaCompositeIndexes.keySet().equals(that.schemaCompositeIndexes.keySet()))
+        if (!AbstractSchemaItem.allAreCompatible(this.schemaCompositeIndexes, that.schemaCompositeIndexes))
             return false;
-        for (int storageId : this.schemaCompositeIndexes.keySet()) {
-            final SchemaCompositeIndex thisSchemaIndex = this.schemaCompositeIndexes.get(storageId);
-            final SchemaCompositeIndex thatSchemaIndex = that.schemaCompositeIndexes.get(storageId);
-            if (!thisSchemaIndex.isCompatibleWith(thatSchemaIndex))
-                return false;
-        }
         return true;
     }
 

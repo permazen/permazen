@@ -83,6 +83,19 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
     abstract boolean isCompatibleWithInternal(AbstractSchemaItem that);
 
+    static <K> boolean allAreCompatible(Map<K, ? extends AbstractSchemaItem> map1, Map<K, ? extends AbstractSchemaItem> map2) {
+        if (!map1.keySet().equals(map2.keySet()))
+            return false;
+        for (Map.Entry<K, ? extends AbstractSchemaItem> entry : map1.entrySet()) {
+            final K key = entry.getKey();
+            final AbstractSchemaItem item1 = entry.getValue();
+            final AbstractSchemaItem item2 = map2.get(key);
+            if (!item1.isCompatibleWith(item2))
+                return false;
+        }
+        return true;
+    }
+
 // DiffGenerating
 
     protected Diffs differencesFrom(AbstractSchemaItem that) {

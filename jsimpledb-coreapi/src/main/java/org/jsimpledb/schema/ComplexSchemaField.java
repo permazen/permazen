@@ -40,14 +40,8 @@ public abstract class ComplexSchemaField extends SchemaField {
     @Override
     boolean isCompatibleWithInternal(AbstractSchemaItem that0) {
         final ComplexSchemaField that = (ComplexSchemaField)that0;
-        if (!this.getSubFields().keySet().equals(that.getSubFields().keySet()))
+        if (!AbstractSchemaItem.allAreCompatible(this.getSubFields(), that.getSubFields()))
             return false;
-        for (String subFieldName : this.getSubFields().keySet()) {
-            final SimpleSchemaField thisSubField = this.getSubFields().get(subFieldName);
-            final SimpleSchemaField thatSubField = that.getSubFields().get(subFieldName);
-            if (!thisSubField.isCompatibleWith(thatSubField))
-                return false;
-        }
         return true;
     }
 

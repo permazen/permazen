@@ -9,7 +9,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,8 +144,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
      */
     public static Map<String, EnumValue> validateIdentifiers(List<String> idents) {
         Preconditions.checkArgument(idents != null, "null idents");
-        final LinkedHashMap<String, EnumValue> identifierMap = idents instanceof Collection ?
-          new LinkedHashMap<String, EnumValue>(((Collection<?>)idents).size()) : new LinkedHashMap<String, EnumValue>();
+        final LinkedHashMap<String, EnumValue> identifierMap = new LinkedHashMap<>(idents.size());
         for (String ident : idents) {
             final int index = identifierMap.size();
             Preconditions.checkArgument(ident != null, "invalid null enum identifier at index " + index);

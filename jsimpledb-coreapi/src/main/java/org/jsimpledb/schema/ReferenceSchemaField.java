@@ -126,7 +126,9 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         final String text = this.getAttr(reader, ON_DELETE_ATTRIBUTE, false);
         final DeleteAction action;
         if (text != null) {
-            if ((action = Enum.valueOf(DeleteAction.class, text)) == null) {
+            try {
+                action = Enum.valueOf(DeleteAction.class, text);
+            } catch (IllegalArgumentException e) {
                 throw new XMLStreamException("invalid value `" + text
                   + " for \"" + ON_DELETE_ATTRIBUTE.getLocalPart() + "\" attribute in " + this, reader.getLocation());
             }

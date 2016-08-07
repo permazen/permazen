@@ -1,0 +1,8 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="org.jsimpledb.schema.SchemaObjectType"/>
+        <Method name="differencesFrom"/>
+        <Local name="thisField"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH"/>
+    </Match>
+</FindBugsFilter>

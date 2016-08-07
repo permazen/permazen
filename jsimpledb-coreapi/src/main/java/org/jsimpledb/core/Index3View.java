@@ -163,7 +163,6 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
         final KeyFilter value1Filter = this.getFilter(0);
         final KeyFilter value2Filter = this.getFilter(1);
         final KeyFilter value3Filter = this.getFilter(2);
-        final KeyFilter targetFilter = this.getFilter(3);
 
         // Apply filters
         if (value1Filter != null)
@@ -186,7 +185,6 @@ class Index3View<V1, V2, V3, T> extends AbstractIndexView {
           this.prefixMode, this.getValue2Type(), this.getValue3Type(), this.getTargetType());
 
         // Get filters
-        final KeyFilter value1Filter = this.getFilter(0);
         final KeyFilter value2Filter = this.getFilter(1);
         final KeyFilter value3Filter = this.getFilter(2);
         final KeyFilter targetFilter = this.getFilter(3);

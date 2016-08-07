@@ -123,7 +123,9 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
                 throw (IOException)e.getCause();
             throw new RuntimeException("internal error", e);
         }
-        new PrintStream(output, true).println();
+
+        // Output final newline
+        new PrintStream(output, true, "UTF-8").println();
         output.flush();
     }
 
@@ -214,14 +216,8 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
      */
     public boolean isCompatibleWith(SchemaModel that) {
         Preconditions.checkArgument(that != null, "null that");
-        if (!this.schemaObjectTypes.keySet().equals(that.schemaObjectTypes.keySet()))
+        if (!AbstractSchemaItem.allAreCompatible(this.schemaObjectTypes, that.schemaObjectTypes))
             return false;
-        for (int storageId : this.schemaObjectTypes.keySet()) {
-            final SchemaObjectType thisSchemaObjectType = this.schemaObjectTypes.get(storageId);
-            final SchemaObjectType thatSchemaObjectType = that.schemaObjectTypes.get(storageId);
-            if (!thisSchemaObjectType.isCompatibleWith(thatSchemaObjectType))
-                return false;
-        }
         return true;
     }
 

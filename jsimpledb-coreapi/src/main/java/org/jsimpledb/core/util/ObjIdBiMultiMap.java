@@ -19,10 +19,10 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * Instances of this class are thread-safe.
  */
-public class ObjIdBiMultiMap {
+public class ObjIdBiMultiMap implements Cloneable {
 
-    private final Object lock;                      // we always synchronized on this object
-    private final ObjIdBiMultiMap inverse;          // if not null, this is my inverse
+    private /*final*/ Object lock;                      // we always synchronize on this object
+    private /*final*/ ObjIdBiMultiMap inverse;          // if not null, this is my inverse
     private /*final*/ ObjIdMap<ObjIdSet> forward;
     private /*final*/ ObjIdMap<ObjIdSet> reverse;
 
@@ -420,6 +420,8 @@ public class ObjIdBiMultiMap {
         synchronized (this.lock) {
             clone.forward = ObjIdBiMultiMap.deepClone(clone.forward);
             clone.reverse = ObjIdBiMultiMap.deepClone(clone.reverse);
+            clone.inverse = null;
+            clone.lock = new Object();
         }
         return clone;
     }
@@ -459,7 +461,7 @@ public class ObjIdBiMultiMap {
         for (int i = 0; i < numSlots; i++) {
             final ObjIdSet set = map.getValue(i);
             if (set != null)
-                map.setValue(i, set.clone());
+                clone.setValue(i, set.clone());
         }
         return clone;
     }

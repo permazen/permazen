@@ -470,7 +470,7 @@ public class Transaction {
      * @throws IllegalArgumentException if {@code timeout} is negative
      * @throws StaleTransactionException if this transaction is no longer usable
      */
-    public void setTimeout(long timeout) {
+    public synchronized void setTimeout(long timeout) {
         if (this.stale)
             throw new StaleTransactionException(this);
         this.kvt.setTimeout(timeout);
@@ -1227,11 +1227,6 @@ public class Transaction {
 
     //////// Remove the index entries corresponding to removed composite indexes
 
-        // Get composite index storage IDs (old or new)
-        final TreeSet<Integer> compositeIndexStorageIds = new TreeSet<>();
-        compositeIndexStorageIds.addAll(oldType.compositeIndexes.keySet());
-        compositeIndexStorageIds.addAll(newType.compositeIndexes.keySet());
-
         // Remove index entries for composite indexes that are going away
         for (CompositeIndex index : oldType.compositeIndexes.values()) {
             if (!newType.compositeIndexes.containsKey(index.storageId))
@@ -1332,7 +1327,7 @@ public class Transaction {
                 continue;
 
             // Save old field's value
-            if (oldField != null && oldValueMap != null)
+            if (oldValueMap != null)
                 oldValueMap.put(storageId, oldField.getValueReadOnlyCopy(this, id));
 
             // If field is being removed, delete old field content, otherwise check if index entries should be added/removed
@@ -1416,9 +1411,6 @@ public class Transaction {
      * schema version and therefore need to be scrubbed during the upgrade.
      */
     private TreeSet<Integer> findRemovedObjectTypes(ObjInfo info, Schema newVersion, int storageId) {
-
-        // Get old schema version
-        final Schema oldVersion = info.getSchema();
 
         // Get old and new object types
         final ObjType oldType = info.getObjType();
@@ -1993,8 +1985,9 @@ public class Transaction {
             throw new StaleTransactionException(this);
         Preconditions.checkArgument(id != null, "null id");
 
-        // Get object info to verify object exists
-        final ObjInfo info = this.getObjectInfo(id, false);
+        // Verify object exists
+        if (!this.exists(id))
+            throw new DeletedObjectException(this, id);
 
         // Check whether non-default value stored in field
         return this.kvt.get(field.buildKey(id)) == null;
@@ -2876,7 +2869,7 @@ public class Transaction {
 // Predicates & Functions
 
     // Matches FieldMonitors who monitor the specified field in the specified object type
-    private final class MonitoredPredicate implements Predicate<FieldMonitor> {
+    private static final class MonitoredPredicate implements Predicate<FieldMonitor> {
 
         private final ObjId id;
         private final int storageId;
@@ -2893,7 +2886,7 @@ public class Transaction {
     }
 
     // Matches ReferenceFields that have cascadeDelete = true
-    private final class HasCascadeDelete implements Predicate<ReferenceField> {
+    private static final class HasCascadeDelete implements Predicate<ReferenceField> {
 
         @Override
         public boolean apply(ReferenceField field) {
