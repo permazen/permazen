@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SnapshotTransaction (JSimpleDB 2.1.4 API)</title>
+<title>SnapshotTransaction (JSimpleDB 2.1.5 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SnapshotTransaction (JSimpleDB 2.1.4 API)";
+        parent.document.title="SnapshotTransaction (JSimpleDB 2.1.5 API)";
     }
 //-->
 </script>
@@ -186,17 +186,23 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#isSnapshot()">isSnapshot</a></strong>()</code>
+<div class="block">Determine whether this instance is a <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#isValid()">isValid</a></strong>()</code>
 <div class="block">Determine whether this transaction is still valid.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#reset()">reset</a></strong>()</code>
 <div class="block">Delete all objects contained in this snapshot transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/SnapshotTransaction.html#rollback()">rollback</a></strong>()</code>
 <div class="block">Roll back this transaction.</div>
@@ -231,6 +237,21 @@ extends <a href="../../../org/jsimpledb/core/Transaction.html" title="class in o
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="isSnapshot()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSnapshot</h4>
+<pre>public&nbsp;boolean&nbsp;isSnapshot()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.html#isSnapshot()">Transaction</a></code></strong></div>
+<div class="block">Determine whether this instance is a <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../org/jsimpledb/core/Transaction.html#isSnapshot()">isSnapshot</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if this instance is a <a href="../../../org/jsimpledb/core/SnapshotTransaction.html" title="class in org.jsimpledb.core"><code>SnapshotTransaction</code></a>, otherwise false</dd></dl>
+</li>
+</ul>
 <a name="getKVStore()">
 <!--   -->
 </a>

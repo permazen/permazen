@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JField (JSimpleDB 2.1.4 API)</title>
+<title>JField (JSimpleDB 2.1.5 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JField (JSimpleDB 2.1.4 API)";
+        parent.document.title="JField (JSimpleDB 2.1.5 API)";
     }
 //-->
 </script>
@@ -407,7 +407,7 @@ public @interface <span class="strong">JField</span></pre>
  <a href="../../../org/jsimpledb/JObject.html#revalidate(java.lang.Class...)"><code>myobj.revalidate(UniquenessConstraints.class)</code></a>.
 
  <p>
- This property must be false for sub-fields of complex fields.</div>
+ This property must be false for sub-fields of complex fields, and for any field that is not indexed.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether the field's value should be unique</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jsimpledb/annotation/JField.html#uniqueExclude()"><code>uniqueExclude()</code></a>, 
 <a href="../../../org/jsimpledb/annotation/JField.html#uniqueExcludeNull()"><code>uniqueExcludeNull()</code></a>, 
 <a href="../../../org/jsimpledb/UniquenessConstraints.html" title="interface in org.jsimpledb"><code>UniquenessConstraints</code></a></dd></dl>

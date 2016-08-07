@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>FallbackKVDatabase (JSimpleDB 2.1.4 API)</title>
+<title>FallbackKVDatabase (JSimpleDB 2.1.5 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="FallbackKVDatabase (JSimpleDB 2.1.4 API)";
+        parent.document.title="FallbackKVDatabase (JSimpleDB 2.1.5 API)";
     }
 //-->
 </script>
@@ -593,6 +593,21 @@ implements <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="inte
 </dl>
 </li>
 </ul>
+<a name="createTransaction()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre>public&nbsp;<a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVTransaction.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVTransaction</a>&nbsp;createTransaction()</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">KVDatabase</a></code></strong></div>
+<div class="block">Create a new transaction.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
+</li>
+</ul>
 <a name="createTransaction(java.util.Map)">
 <!--   -->
 </a>
@@ -606,21 +621,6 @@ implements <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="inte
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - optional transaction options; may be null</dd>
-<dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
-</li>
-</ul>
-<a name="createTransaction()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createTransaction</h4>
-<pre>public&nbsp;<a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVTransaction.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVTransaction</a>&nbsp;createTransaction()</pre>
-<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">KVDatabase</a></code></strong></div>
-<div class="block">Create a new transaction.</div>
-<dl>
-<dt><strong>Specified by:</strong></dt>
-<dd><code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction()">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
 <dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
 </li>
 </ul>
