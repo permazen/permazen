@@ -1,0 +1,7 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="org.jsimpledb.util.AbstractXMLStreaming"/>
+        <Method name="getBooleanAttr"/>
+        <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+    </Match>
+</FindBugsFilter>

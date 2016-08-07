@@ -75,8 +75,11 @@ public class CloseableTracker implements Closeable {
      * @param item item to track
      * @throws IllegalArgumentException if either parameter is null
      */
-    public synchronized void add(Object holder, Closeable item) {
-        this.unclosedItems.add(new HolderRef(holder, item, this.queue));
+    public void add(Object holder, Closeable item) {
+        final HolderRef holderRef = new HolderRef(holder, item, this.queue);
+        synchronized (this) {
+            this.unclosedItems.add(holderRef);
+        }
     }
 
     /**
