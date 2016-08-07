@@ -1,4 +1,4 @@
-Version Next
+Version 2.1.5 Released August 7, 2016
 
     - Fixed bug where unique constraints were sometimes applied too widely
     - Fixed bug where annotations were not inherited if method overridden
