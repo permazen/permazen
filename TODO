@@ -22,6 +22,7 @@ SHORT TERM
         - https://cloud.google.com/datastore/docs/concepts/overview
     - LMDB
         - https://github.com/deephacks/lmdbjni
+        - https://github.com/lmdbjava/lmdbjava
     - Sphia
         - http://sphia.org/
 
