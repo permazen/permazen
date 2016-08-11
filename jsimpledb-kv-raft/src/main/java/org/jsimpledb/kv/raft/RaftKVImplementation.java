@@ -167,7 +167,6 @@ public class RaftKVImplementation extends KVImplementation {
     @Override
     public String getDescription(Object configuration) {
         final Config config = (Config)configuration;
-        final StringBuilder buf = new StringBuilder();
         return "Raft " + config.getRaft().getLogDirectory().getName() + (config.isFallback() ? "/Fallback" : "");
     }
 

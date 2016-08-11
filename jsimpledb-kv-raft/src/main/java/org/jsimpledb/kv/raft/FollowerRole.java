@@ -297,7 +297,6 @@ public class FollowerRole extends NonLeaderRole {
         if (!this.raft.isConfigured()) {
 
             // Get transaction mutations
-            final Writes writes = tx.getMutableView().getWrites();
             final String[] configChange = tx.getConfigChange();
 
             // Allow an empty read-only transaction when unconfigured
@@ -466,7 +465,6 @@ public class FollowerRole extends NonLeaderRole {
                 this.debug("heard from leader before we probed a majority, reverting back to normal follower");
             this.probeTimestamps = null;
         }
-        final Timestamp now = new Timestamp();
 
         // Record new cluster ID if we haven't done so already
         if (this.raft.clusterId == 0)

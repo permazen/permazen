@@ -57,7 +57,6 @@ public class RaftFallbackStatusCommand extends AbstractCommand {
     public static void printStatus(PrintWriter writer, FallbackKVDatabase db) {
 
         final List<FallbackTarget> targets = db.getFallbackTargets();
-        final Date lastStandaloneActiveTime = db.getLastStandaloneActiveTime();
 
         // Show configuration
         writer.println();

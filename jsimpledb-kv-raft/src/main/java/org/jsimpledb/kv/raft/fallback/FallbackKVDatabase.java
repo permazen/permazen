@@ -282,7 +282,7 @@ public class FallbackKVDatabase implements KVDatabase {
      * @return last active time of the standalone database, or null if never active
      */
     public synchronized Date getLastStandaloneActiveTime() {
-        return this.lastStandaloneActiveTime;
+        return (Date)this.lastStandaloneActiveTime.clone();
     }
 
 // KVDatabase

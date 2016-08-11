@@ -677,7 +677,6 @@ public class LeaderRole extends Role {
 
         UpdateFollowerService(Follower follower) {
             super(LeaderRole.this, "update follower \"" + follower.getIdentity() + "\"");
-            assert follower != null;
             this.follower = follower;
         }
 
