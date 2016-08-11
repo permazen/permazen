@@ -1,3 +1,7 @@
+Version Next
+
+    - Fixed Raft fallback bug: rollback inner tx on migration retry exception
+
 Version 2.1.5 Released August 7, 2016
 
     - Fixed bug where unique constraints were sometimes applied too widely
