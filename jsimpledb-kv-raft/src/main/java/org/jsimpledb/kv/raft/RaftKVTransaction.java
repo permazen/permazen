@@ -51,7 +51,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     private final long baseIndex;                       // index of the log entry on which this transaction is based
 
     private TxState state = TxState.EXECUTING;
-    private volatile Consistency consistency = Consistency.LINEARIZABLE;
+    private Consistency consistency = Consistency.LINEARIZABLE;
     private volatile boolean readOnly;
     private volatile int timeout;
     private volatile String[] configChange;             // cluster config change associated with this transaction
@@ -168,7 +168,9 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
      * @return transaction consistency level
      */
     public Consistency getConsistency() {
-        return this.consistency;
+        synchronized (this.kvdb) {
+            return this.consistency;
+        }
     }
 
     /**
