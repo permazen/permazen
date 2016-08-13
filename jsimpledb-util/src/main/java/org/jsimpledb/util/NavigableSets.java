@@ -204,14 +204,26 @@ public final class NavigableSets {
      * @return a non-null {@link Comparator}
      */
     static <T> Comparator<T> getComparator(Comparator<T> comparator, boolean reversed) {
-        return comparator != null ?
-          (reversed ? Collections.<T>reverseOrder(comparator) : comparator) :
-          (reversed ? Collections.<T>reverseOrder() : new NaturalComparator<T>());
+        if (comparator == null)
+            comparator = NaturalComparator.<T>getInstance();
+        if (!reversed)
+            return comparator;
+        return NaturalComparator.INSTANCE.equals(comparator) ?
+          Collections.<T>reverseOrder() : Collections.<T>reverseOrder(comparator);
     }
 
 // NaturalComparator
 
-    private static class NaturalComparator<T> implements Comparator<T> {
+    // JAVA8: replace by Collections.naturalOrder().
+    @SuppressWarnings("rawtypes")
+    private static final class NaturalComparator<T> implements Comparator<T> {
+
+        private static final NaturalComparator<Object> INSTANCE = new NaturalComparator<>();
+
+        @SuppressWarnings("unchecked")
+        public static <T> NaturalComparator<T> getInstance() {
+            return (NaturalComparator<T>)INSTANCE;
+        }
 
         @Override
         @SuppressWarnings("unchecked")
