@@ -226,7 +226,7 @@ public class OpenTransactionInViewFilter extends OncePerRequestFilter {
             if (t instanceof Error)
                 throw (Error)t;
             if (t instanceof RuntimeException)
-                throw (Error)t;
+                throw (RuntimeException)t;
             if (t instanceof ServletException)
                 throw (ServletException)t;
             if (t instanceof IOException)
