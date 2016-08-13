@@ -7,6 +7,7 @@ package org.jsimpledb.core.util;
 
 import com.google.common.base.Preconditions;
 
+import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -20,7 +21,9 @@ import org.jsimpledb.core.ObjId;
  * This implementation is space optimized for the 64-bits of information contained in an {@link ObjId}.
  * Instances do not accept null values and are not thread safe.
  */
-public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable {
+public class ObjIdSet extends AbstractSet<ObjId> implements Cloneable, Serializable {
+
+    private static final long serialVersionUID = -8245070561628904936L;
 
     private /*final*/ ObjIdMap<?> map;
 

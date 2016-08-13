@@ -7,6 +7,10 @@ package org.jsimpledb.core.util;
 
 import com.google.common.base.Preconditions;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+
 import org.jsimpledb.core.ObjId;
 
 /**
@@ -19,10 +23,12 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * Instances of this class are thread-safe.
  */
-public class ObjIdBiMultiMap implements Cloneable {
+public class ObjIdBiMultiMap implements Cloneable, Serializable {
 
-    private /*final*/ Object lock;                      // we always synchronize on this object
-    private /*final*/ ObjIdBiMultiMap inverse;          // if not null, this is my inverse
+    private static final long serialVersionUID = 2063318188143069113L;
+
+    private /*final*/ transient Object lock;                // we always synchronize on this object
+    private /*final*/ transient ObjIdBiMultiMap inverse;    // if not null, this is my inverse
     private /*final*/ ObjIdMap<ObjIdSet> forward;
     private /*final*/ ObjIdMap<ObjIdSet> reverse;
 
@@ -465,5 +471,11 @@ public class ObjIdBiMultiMap implements Cloneable {
         }
         return clone;
     }
-}
 
+// Serialization
+
+    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
+        input.defaultReadObject();
+        this.lock = new Object();
+    }
+}

@@ -7,6 +7,7 @@ package org.jsimpledb.core;
 
 import com.google.common.base.Preconditions;
 
+import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
@@ -19,7 +20,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 /**
  * Object IDs. Instances identify individual {@link Database} objects.
  */
-public class ObjId implements Comparable<ObjId> {
+public class ObjId implements Comparable<ObjId>, Serializable {
 
     /**
      * The number of bytes in the binary encoding of an {@link ObjId}.
@@ -30,6 +31,8 @@ public class ObjId implements Comparable<ObjId> {
      * Regular expression that matches the string encoding of an {@link ObjId}.
      */
     public static final Pattern PATTERN = Pattern.compile("\\p{XDigit}{" + (NUM_BYTES * 2) + "}");
+
+    private static final long serialVersionUID = 1598203254073015116L;
 
     private static final ThreadLocal<SecureRandom> RANDOM = new ThreadLocal<SecureRandom>() {
         @Override

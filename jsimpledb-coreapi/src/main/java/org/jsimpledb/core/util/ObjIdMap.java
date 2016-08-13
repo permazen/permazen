@@ -7,6 +7,7 @@ package org.jsimpledb.core.util;
 
 import com.google.common.base.Preconditions;
 
+import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ConcurrentModificationException;
@@ -23,10 +24,15 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * This implementation is space optimized for the 64-bits of information contained in an {@link ObjId}.
  * Instances do not accept null keys and are not thread safe.
+ *
+ * <p>
+ * Instances are {@link Serializable} if the map values.
  */
-public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable {
+public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable, Serializable {
 
     // Algorithm described here: http://en.wikipedia.org/wiki/Open_addressing
+
+    private static final long serialVersionUID = -4931628136892145403L;
 
     private static final float EXPAND_THRESHOLD = 0.70f;    // expand array when > 70% full
     private static final float SHRINK_THRESHOLD = 0.25f;    // shrink array when < 25% full
