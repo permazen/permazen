@@ -9,6 +9,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -22,7 +23,9 @@ import org.jsimpledb.util.ByteUtil;
  * Provides a {@link org.jsimpledb.kv.KVStore} view of an underlying
  * {@link ConcurrentSkipListMap NavigableMap&lt;byte[], byte[]&gt;} whose keys are sorted lexicographically as unsigned bytes.
  */
-public class NavigableMapKVStore extends AbstractKVStore implements Cloneable {
+public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, Serializable {
+
+    private static final long serialVersionUID = -8112493152056118516L;
 
     private /*final*/ ConcurrentSkipListMap<byte[], byte[]> map;
 

@@ -10,6 +10,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,9 +55,14 @@ import org.slf4j.LoggerFactory;
  * <p>
  * {@linkplain SimpleKVTransaction#watchKey Key watches} are supported.
  *
+ * <p>
+ * Instances implement {@link Serializable} if the underlying {@link KVStore} is; this is the case when the default
+ * constructor, which uses a {@link NavigableMapKVStore}, is used. However, key watches and open transactions are not
+ * remembered across a (de)serialization cycle.
+ *
  * @see LockManager
  */
-public class SimpleKVDatabase implements KVDatabase {
+public class SimpleKVDatabase implements KVDatabase, Serializable {
 
     /**
      * Default {@linkplain #getWaitTimeout wait timeout} for newly created transactions in milliseconds
@@ -67,15 +75,17 @@ public class SimpleKVDatabase implements KVDatabase {
      */
     public static final long DEFAULT_HOLD_TIMEOUT = 5000;
 
+    private static final long serialVersionUID = -6960954436594742251L;
+
     /**
      * The {@link KVStore} for the committed data.
      */
     protected final KVStore kv;
 
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    protected /*final*/ transient Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final LockManager lockManager = new LockManager(this);
-    private final KeyWatchTracker keyWatchTracker = new KeyWatchTracker();
+    private /*final*/ transient LockManager lockManager = new LockManager(this);
+    private /*final*/ transient KeyWatchTracker keyWatchTracker = new KeyWatchTracker();
 
     private long waitTimeout;
 
@@ -639,5 +649,13 @@ public class SimpleKVDatabase implements KVDatabase {
             throw new RuntimeException("internal error");
         }
     }
-}
 
+// Serialization
+
+    private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
+        input.defaultReadObject();
+        this.log = LoggerFactory.getLogger(this.getClass());
+        this.lockManager = new LockManager(this);
+        this.keyWatchTracker = new KeyWatchTracker();
+    }
+}

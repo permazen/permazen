@@ -1,7 +1,7 @@
 Version Next
 
     - Fixed Raft fallback bug: rollback inner tx on migration retry exception
-    - Made classes ObjId{,Set,Map,BiMultiMap} implement Serializable
+    - Enhanced several classes to implement Serializable
 
 Version 2.1.5 Released August 7, 2016
 
