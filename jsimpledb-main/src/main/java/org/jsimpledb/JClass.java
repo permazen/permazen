@@ -56,7 +56,6 @@ public class JClass<T> extends JSchemaObject {
     Set<OnValidateScanner<T>.MethodInfo> onValidateMethods;
     ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
 
-    int[] subtypeStorageIds;
     boolean requiresDefaultValidation;
     AnnotatedElement elementRequiringJSR303Validation;
 

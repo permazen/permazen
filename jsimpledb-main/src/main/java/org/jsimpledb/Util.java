@@ -200,8 +200,12 @@ public final class Util {
             final Class<?>[] groups;
             try {
                 groups = (Class<?>[])annotation.getClass().getMethod("groups").invoke(annotation);
-            } catch (Exception e) {
+            } catch (NoSuchMethodException e) {
                 return true;
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
             if (groups == null || groups.length == 0)
                 return true;
@@ -318,12 +322,15 @@ public final class Util {
      *
      * @param types sub-types
      * @return narrowest common super-type
+     * @throws IllegalArgumentException if any type in {@code types} is null
      * @see #findLowestCommonAncestor findLowestCommonAncestor()
      */
     public static TypeToken<?> findLowestCommonAncestorOfClasses(Iterable<Class<?>> types) {
         return Util.findLowestCommonAncestor(Iterables.transform(types, new Function<Class<?>, TypeToken<?>>() {
             @Override
             public TypeToken<?> apply(Class<?> type) {
+                if (type == null)
+                    throw new IllegalArgumentException("null type");
                 return TypeToken.of(type);
             }
         }));

@@ -186,6 +186,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void outputQueueEmpty(String address) {
+        assert Thread.holdsLock(this.raft);
         if (address.equals(this.leaderAddress))
             this.raft.requestService(this.checkReadyTransactionsService);       // TODO: track specific transactions
     }
@@ -193,6 +194,7 @@ public class FollowerRole extends NonLeaderRole {
     // Check whether the required minimum leader lease timeout has been seen, if any
     @Override
     boolean mayCommit(RaftKVTransaction tx) {
+        assert Thread.holdsLock(this.raft);
 
         // Is there a required minimum leader lease timeout associated with the transaction?
         final Timestamp commitLeaderLeaseTimeout = this.commitLeaderLeaseTimeoutMap.get(tx.getTxId());
@@ -209,6 +211,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void handleElectionTimeout() {
+        assert Thread.holdsLock(this.raft);
 
         // Invalidate current leader
         this.leader = null;
@@ -256,6 +259,7 @@ public class FollowerRole extends NonLeaderRole {
      * </ul>
      */
     private void updateElectionTimer() {
+        assert Thread.holdsLock(this.raft);
         final boolean isClusterMember = this.raft.isClusterMember();
         final boolean electionTimerRunning = this.electionTimer.isRunning();
         if (isClusterMember && !electionTimerRunning) {
@@ -434,6 +438,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void cleanupForTransaction(RaftKVTransaction tx) {
+        assert Thread.holdsLock(this.raft);
         this.pendingRequests.remove(tx.getTxId());
         final PendingWrite pendingWrite = this.pendingWrites.remove(tx.getTxId());
         if (pendingWrite != null)
@@ -445,6 +450,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     boolean mayAdvanceCurrentTerm(Message msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Deny vote if we have heard from our leader within the minimum election timeout (dissertation, section 4.2.3)
         if (msg instanceof RequestVote
@@ -458,6 +464,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void caseAppendRequest(AppendRequest msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Cancel probing
         if (this.probeTimestamps != null) {
@@ -679,6 +686,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void caseCommitResponse(CommitResponse msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Find transaction
         final RaftKVTransaction tx = this.raft.openTransactions.get(msg.getTxId());
@@ -714,6 +722,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void caseInstallSnapshot(InstallSnapshot msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Restart election timer (if running)
         if (this.electionTimer.isRunning())
@@ -804,6 +813,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void caseRequestVote(RequestVote msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Record new cluster ID if we haven't done so already
         if (this.raft.clusterId == 0)
@@ -844,6 +854,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void caseGrantVote(GrantVote msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Ignore - we already lost the election to the real leader
         if (this.log.isDebugEnabled())
@@ -852,6 +863,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void casePingResponse(PingResponse msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Are we probing?
         if (this.probeTimestamps == null) {
@@ -868,6 +880,7 @@ public class FollowerRole extends NonLeaderRole {
     }
 
     private void checkProbeResult() {
+        assert Thread.holdsLock(this.raft);
         assert this.probeTimestamps != null;
 
         // Get the number of nodes successfully probed so far (including ourselves), and the minimum number required (a majority)
@@ -914,19 +927,22 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     public String toString() {
-        return this.toStringPrefix()
-          + (this.leader != null ? ",leader=\"" + this.leader + "\"" : "")
-          + (this.votedFor != null ? ",votedFor=\"" + this.votedFor + "\"" : "")
-          + (!this.pendingRequests.isEmpty() ? ",pendingRequests=" + this.pendingRequests.keySet() : "")
-          + (!this.pendingWrites.isEmpty() ? ",pendingWrites=" + this.pendingWrites.keySet() : "")
-          + (!this.commitLeaderLeaseTimeoutMap.isEmpty() ? ",leaseTimeouts=" + this.commitLeaderLeaseTimeoutMap.keySet() : "")
-          + "]";
+        synchronized (this.raft) {
+            return this.toStringPrefix()
+              + (this.leader != null ? ",leader=\"" + this.leader + "\"" : "")
+              + (this.votedFor != null ? ",votedFor=\"" + this.votedFor + "\"" : "")
+              + (!this.pendingRequests.isEmpty() ? ",pendingRequests=" + this.pendingRequests.keySet() : "")
+              + (!this.pendingWrites.isEmpty() ? ",pendingWrites=" + this.pendingWrites.keySet() : "")
+              + (!this.commitLeaderLeaseTimeoutMap.isEmpty() ? ",leaseTimeouts=" + this.commitLeaderLeaseTimeoutMap.keySet() : "")
+              + "]";
+        }
     }
 
 // Debug
 
     @Override
     boolean checkState() {
+        assert Thread.holdsLock(this.raft);
         if (!super.checkState())
             return false;
         assert this.leaderAddress != null || this.leader == null;

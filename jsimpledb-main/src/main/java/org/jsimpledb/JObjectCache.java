@@ -11,9 +11,13 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.util.ObjIdMap;
 
+@ThreadSafe
 class JObjectCache {
 
     private final JTransaction jtx;
@@ -26,6 +30,7 @@ class JObjectCache {
      * As a special case, null values in this map indicate that the corresponding {@link JObject}
      * is currently under construction by some thread.
      */
+    @GuardedBy("itself")
     private final ObjIdMap<JObjRef> cache = new ObjIdMap<>();
 
     /**
@@ -206,6 +211,7 @@ class JObjectCache {
         }
 
         // Done
+        assert jobj != null;
         assert jobj.getObjId().equals(id);
         return jobj;
     }

@@ -14,6 +14,8 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -116,7 +118,7 @@ public class JSimpleDB {
     final ReferencePathCache referencePathCache = new ReferencePathCache(this);
     final ClassGenerator<UntypedJObject> untypedClassGenerator;
     final ArrayList<ClassGenerator<?>> classGenerators;
-    final ClassLoader loader = new Loader();
+    final ClassLoader loader;
     final Database db;
     final int configuredVersion;
     final StorageIdGenerator storageIdGenerator;
@@ -196,6 +198,11 @@ public class JSimpleDB {
         this.db = database;
         this.configuredVersion = version;
         this.storageIdGenerator = storageIdGenerator;
+        this.loader = AccessController.doPrivileged(new PrivilegedAction<Loader>() {
+            public Loader run() {
+                return JSimpleDB.this.new Loader();
+            }
+        });
 
         // Inventory classes; automatically add all @JSimpleClass-annotated superclasses of @JSimpleClass-annotated classes
         final HashSet<Class<?>> jsimpleClasses = new HashSet<>();

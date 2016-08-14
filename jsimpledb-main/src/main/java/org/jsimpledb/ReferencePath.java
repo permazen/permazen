@@ -149,7 +149,6 @@ public class ReferencePath {
         }
 
         // Parse field names
-        final ArrayList<Integer> storageIds = new ArrayList<>();
         assert !fieldNames.isEmpty();
         while (!fieldNames.isEmpty()) {
             final String fieldName = fieldNames.removeFirst();

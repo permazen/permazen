@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.jcip.annotations.NotThreadSafe;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.util.ObjIdSet;
 
@@ -24,6 +26,7 @@ import org.jsimpledb.core.util.ObjIdSet;
  * @see JObject#copyTo JObject.copyTo()
  * @see JTransaction#copyTo(JTransaction, JObject, ObjId, CopyState, String...) JTransaction.copyTo()
  */
+@NotThreadSafe
 public class CopyState implements Cloneable {
 
     private final TreeMap<int[], ObjIdSet> traversedMap = new TreeMap<>(Ints.lexicographicalComparator());
@@ -45,7 +48,6 @@ public class CopyState implements Cloneable {
     public CopyState(ObjIdSet copied) {
         Preconditions.checkArgument(copied != null, "null copied");
         this.copied = copied.clone();
-        synchronized (this) { }
     }
 
     /**

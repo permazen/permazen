@@ -233,9 +233,6 @@ public class JSimpleField extends JField {
 
     void outputReadCoreValueBytecode(ClassGenerator<?> generator, MethodVisitor mv) {
 
-        // Get field info
-        final TypeToken<?> propertyType = TypeToken.of(this.getter.getReturnType());
-
         // this.$tx.getTransaction().readSimpleField(this.id, STORAGEID, true)
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, generator.getClassName(),

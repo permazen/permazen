@@ -132,6 +132,22 @@ class OnVersionChangeScanner<T> extends AnnotationScanner<T, OnVersionChange>
                 break;
             }
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            final OnVersionChangeScanner<?>.VersionChangeMethodInfo that = (OnVersionChangeScanner<?>.VersionChangeMethodInfo)obj;
+            return this.byName == that.byName;
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode()
+              ^ (this.byName ? 1 : 0);
+        }
     }
 }
 

@@ -494,7 +494,6 @@ class ClassGenerator<T> {
      * Emit code that unwraps the primitive value on the top of the stack.
      */
     void unwrap(MethodVisitor mv, Primitive<?> primitive) {
-        final Type wrapperType = Type.getType(primitive.getWrapperType());
         final Method unwrapMethod = primitive.getUnwrapMethod();
         this.emitInvoke(mv, unwrapMethod);
     }

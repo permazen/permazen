@@ -30,6 +30,9 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.groups.Default;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.dellroad.stuff.validation.ValidationContext;
 import org.dellroad.stuff.validation.ValidationUtil;
 import org.jsimpledb.core.CoreIndex;
@@ -181,6 +184,7 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #updateSchemaVersion updateSchemaVersion()} - Update an object's schema version</li>
  * </ul>
  */
+@ThreadSafe
 public class JTransaction {
 
     private static final ThreadLocal<JTransaction> CURRENT = new ThreadLocal<>();
@@ -198,10 +202,13 @@ public class JTransaction {
     private final InternalCreateListener internalCreateListener = new InternalCreateListener();
     private final InternalDeleteListener internalDeleteListener = new InternalDeleteListener();
     private final InternalVersionChangeListener internalVersionChangeListener = new InternalVersionChangeListener();
+    @GuardedBy("this")
     private final ObjIdMap<Class<?>[]> validationQueue = new ObjIdMap<>();  // maps object -> groups for pending validation
     private final JObjectCache jobjectCache = new JObjectCache(this);
 
+    @GuardedBy("this")
     private SnapshotJTransaction snapshotTransaction;
+    @GuardedBy("this")
     private boolean commitInvoked;
 
 // Constructor

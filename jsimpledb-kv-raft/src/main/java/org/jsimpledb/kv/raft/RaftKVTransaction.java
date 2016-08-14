@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.KVTransaction;
@@ -28,6 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * {@link RaftKVDatabase} transaction.
  */
+@ThreadSafe
 public class RaftKVTransaction extends ForwardingKVStore implements KVTransaction {
 
     static final Comparator<RaftKVTransaction> SORT_BY_ID = new Comparator<RaftKVTransaction>() {
@@ -50,13 +54,18 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     private final long baseTerm;                        // term of the log entry on which this transaction is based
     private final long baseIndex;                       // index of the log entry on which this transaction is based
 
+    @GuardedBy("kvdb")
     private TxState state = TxState.EXECUTING;
+    @GuardedBy("kvdb")
     private Consistency consistency = Consistency.LINEARIZABLE;
     private volatile boolean readOnly;
     private volatile int timeout;
     private volatile String[] configChange;             // cluster config change associated with this transaction
+    @GuardedBy("kvdb")
     private Timer commitTimer;
+    @GuardedBy("kvdb")
     private long commitTerm;                            // term of the log entry representing this transaction's commit
+    @GuardedBy("kvdb")
     private long commitIndex;                           // index of the log entry representing this transaction's commit
 
     /**
@@ -400,16 +409,18 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName()
-          + "[txId=" + this.txId
-          + ",state=" + this.state
-          + ",base=" + this.baseIndex + "t" + this.baseTerm
-          + ",consistency=" + this.consistency
-          + (this.readOnly ? ",readOnly" : "")
-          + (this.configChange != null ? ",configChange=" + Arrays.<String>asList(this.configChange) : "")
-          + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")
-          + (this.timeout != 0 ? ",timeout=" + this.timeout : "")
-          + "]";
+        synchronized (this.kvdb) {
+            return this.getClass().getSimpleName()
+              + "[txId=" + this.txId
+              + ",state=" + this.state
+              + ",base=" + this.baseIndex + "t" + this.baseTerm
+              + ",consistency=" + this.consistency
+              + (this.readOnly ? ",readOnly" : "")
+              + (this.configChange != null ? ",configChange=" + Arrays.<String>asList(this.configChange) : "")
+              + (this.state.compareTo(TxState.COMMIT_WAITING) >= 0 ? ",commit=" + this.commitIndex + "t" + this.commitTerm : "")
+              + (this.timeout != 0 ? ",timeout=" + this.timeout : "")
+              + "]";
+        }
     }
 
     @Override

@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
+import net.jcip.annotations.Immutable;
+
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteUtil;
@@ -20,6 +22,7 @@ import org.jsimpledb.util.UnsignedIntEncoder;
 /**
  * Object IDs. Instances identify individual {@link Database} objects.
  */
+@Immutable
 public class ObjId implements Comparable<ObjId>, Serializable {
 
     /**

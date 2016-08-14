@@ -208,6 +208,23 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 path.targetFieldInfo.registerChangeListener(jtx.tx, path.getReferenceFields(), objectTypeStorageIds, listener);
             }
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            final OnChangeScanner<?>.ChangeMethodInfo that = (OnChangeScanner<?>.ChangeMethodInfo)obj;
+            return this.isStatic == that.isStatic && this.paths.equals(that.paths);
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode()
+              ^ (this.isStatic ? 1 : 0)
+              ^ this.paths.hashCode();
+        }
     }
 
 // ChangeMethodListener
