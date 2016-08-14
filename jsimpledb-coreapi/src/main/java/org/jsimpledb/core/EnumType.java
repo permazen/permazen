@@ -5,7 +5,6 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.dellroad.stuff.java.EnumUtil;
 import org.jsimpledb.util.ByteReader;
 import org.jsimpledb.util.ByteWriter;
 import org.jsimpledb.util.ParseContext;
@@ -124,16 +122,6 @@ class EnumType extends NonNullFieldType<EnumValue> {
               + ordinal + " != " + sameName.getOrdinal());
         }
         throw new IllegalArgumentException("unknown enum value " + value);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Enum<T>> List<String> getIdentifiers(Class<T> enumType) {
-        return Lists.transform(EnumUtil.getValues(enumType), new Function<T, String>() {
-            @Override
-            public String apply(T value) {
-                return value.name();
-            }
-        });
     }
 
 // Object
