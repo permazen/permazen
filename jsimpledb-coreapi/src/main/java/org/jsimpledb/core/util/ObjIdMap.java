@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import net.jcip.annotations.NotThreadSafe;
+
 import org.jsimpledb.core.ObjId;
 
 /**
@@ -28,6 +30,7 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * Instances are {@link Serializable} if the map values.
  */
+@NotThreadSafe
 public class ObjIdMap<V> extends AbstractMap<ObjId, V> implements Cloneable, Serializable {
 
     // Algorithm described here: http://en.wikipedia.org/wiki/Open_addressing

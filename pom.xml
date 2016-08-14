@@ -89,6 +89,7 @@
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <hibernate.version>4.3.3.Final</hibernate.version>
         <javax.el-api.version>2.2.4</javax.el-api.version>
+        <jcip.version>1.0</jcip.version>
         <jetty.version>9.2.7.v20150116</jetty.version>
         <jline.version>2.14.1</jline.version>
         <leveldb.version>0.8.1</leveldb.version>
@@ -110,6 +111,13 @@
     </properties>
 
     <dependencies>
+
+        <!-- JCIP annotations - not needed at runtime -->
+        <dependency>
+            <groupId>net.jcip</groupId>
+            <artifactId>jcip-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Standard test dependencies -->
         <dependency>
@@ -255,6 +263,13 @@
                 <groupId>org.dellroad</groupId>
                 <artifactId>nvt4j</artifactId>
                 <version>${nvt4j.version}</version>
+            </dependency>
+
+            <!-- JCIP annotations -->
+            <dependency>
+                <groupId>net.jcip</groupId>
+                <artifactId>jcip-annotations</artifactId>
+                <version>${jcip.version}</version>
             </dependency>
 
             <!-- ASM -->

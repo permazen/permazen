@@ -25,6 +25,9 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.core.util.ObjIdSet;
 import org.jsimpledb.kv.KVPair;
@@ -168,6 +171,7 @@ import org.slf4j.LoggerFactory;
  * {@link NavigableSets#symmetricDifference symmetric difference} of {@link NavigableSet}s containing the same element type,
  * thereby providing the equivalent of traditional database joins.
  */
+@ThreadSafe
 public class Transaction {
 
     private static final int MAX_GENERATED_KEY_ATTEMPTS
@@ -182,16 +186,26 @@ public class Transaction {
     final Schemas schemas;
     final Schema schema;
 
+    @GuardedBy("this")
     boolean stale;
+    @GuardedBy("this")
     boolean readOnly;
+    @GuardedBy("this")
     boolean rollbackOnly;
 
+    @GuardedBy("this")
     private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier>>> pendingNotifications = new ThreadLocal<>();
+    @GuardedBy("this")
     private final HashSet<VersionChangeListener> versionChangeListeners = new HashSet<>();
+    @GuardedBy("this")
     private final HashSet<CreateListener> createListeners = new HashSet<>();
+    @GuardedBy("this")
     private final HashSet<DeleteListener> deleteListeners = new HashSet<>();
+    @GuardedBy("this")
     private final TreeMap<Integer, HashSet<FieldMonitor>> monitorMap = new TreeMap<>();
+    @GuardedBy("this")
     private final LinkedHashSet<Callback> callbacks = new LinkedHashSet<>();
+    @GuardedBy("this")
     private final ObjIdMap<ObjInfo> objInfoCache = new ObjIdMap<>();
 
 // Constructors
@@ -1493,7 +1507,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see #getAll(int)
      */
-    public NavigableSet<ObjId> getAll() {
+    public synchronized NavigableSet<ObjId> getAll() {
 
         // Sanity check
         if (this.stale)
@@ -1516,7 +1530,7 @@ public class Transaction {
      * @throws StaleTransactionException if this transaction is no longer usable
      * @see #getAll()
      */
-    public NavigableSet<ObjId> getAll(int storageId) {
+    public synchronized NavigableSet<ObjId> getAll(int storageId) {
 
         // Sanity check
         if (this.stale)
@@ -2881,6 +2895,7 @@ public class Transaction {
 
         @Override
         public boolean apply(FieldMonitor monitor) {
+            assert monitor != null;
             return monitor.storageId == this.storageId && (monitor.types == null || monitor.types.contains(this.id.getBytes()));
         }
     }
@@ -2890,6 +2905,7 @@ public class Transaction {
 
         @Override
         public boolean apply(ReferenceField field) {
+            assert field != null;
             return field.cascadeDelete;
         }
     }

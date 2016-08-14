@@ -166,6 +166,7 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
         return Lists.transform(EnumUtil.getValues(enumType), new Function<T, String>() {
             @Override
             public String apply(T value) {
+                assert value != null;
                 return value.name();
             }
         });

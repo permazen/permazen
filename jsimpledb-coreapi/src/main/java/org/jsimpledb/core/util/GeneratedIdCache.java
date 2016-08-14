@@ -9,6 +9,9 @@ import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.core.Transaction;
 
@@ -20,8 +23,10 @@ import org.jsimpledb.core.Transaction;
  *
  * @see XMLObjectSerializer
  */
+@ThreadSafe
 public class GeneratedIdCache {
 
+    @GuardedBy("this")
     private final HashMap<String, ObjId> map = new HashMap<>();
 
     /**

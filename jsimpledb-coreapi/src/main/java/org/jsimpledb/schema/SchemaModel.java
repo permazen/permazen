@@ -63,6 +63,7 @@ public class SchemaModel extends AbstractXMLStreaming implements XMLConstants, C
       }), new Function<Class<? extends SchemaField>, Class<? extends SimpleSchemaField>>() {
         @Override
         public Class<? extends SimpleSchemaField> apply(Class<? extends SchemaField> type) {
+            assert type != null;
             return type.asSubclass(SimpleSchemaField.class);
         }
       });

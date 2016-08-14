@@ -64,7 +64,7 @@ public class SnapshotTransaction extends Transaction {
      * <p>
      * It will contain schema meta-data but no objects.
      */
-    public void reset() {
+    public synchronized void reset() {
 
         // Sanity check
         if (this.stale)

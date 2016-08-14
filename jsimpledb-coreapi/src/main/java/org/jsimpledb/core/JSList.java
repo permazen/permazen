@@ -385,7 +385,6 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         Iter() {
             this.i = JSList.this.tx.kvt.getRange(JSList.this.contentPrefix,
               ByteUtil.getKeyAfterPrefix(JSList.this.contentPrefix), false);
-            synchronized (this) { }
         }
 
         @Override

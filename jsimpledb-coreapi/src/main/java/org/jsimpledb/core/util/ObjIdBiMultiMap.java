@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.core.ObjId;
 
 /**
@@ -23,13 +26,18 @@ import org.jsimpledb.core.ObjId;
  * <p>
  * Instances of this class are thread-safe.
  */
+@ThreadSafe
 public class ObjIdBiMultiMap implements Cloneable, Serializable {
 
     private static final long serialVersionUID = 2063318188143069113L;
 
+    @GuardedBy("this")
     private /*final*/ transient Object lock;                // we always synchronize on this object
+    @GuardedBy("this")
     private /*final*/ transient ObjIdBiMultiMap inverse;    // if not null, this is my inverse
+    @GuardedBy("this")
     private /*final*/ ObjIdMap<ObjIdSet> forward;
+    @GuardedBy("this")
     private /*final*/ ObjIdMap<ObjIdSet> reverse;
 
 // Constructors
@@ -63,7 +71,6 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
         }
         this.forward = forward;
         this.reverse = reverse;
-        synchronized (this) { }
     }
 
 // Public methods
@@ -423,11 +430,13 @@ public class ObjIdBiMultiMap implements Cloneable, Serializable {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        synchronized (this.lock) {
-            clone.forward = ObjIdBiMultiMap.deepClone(clone.forward);
-            clone.reverse = ObjIdBiMultiMap.deepClone(clone.reverse);
+        clone.lock = new Object();
+        synchronized (clone.lock) {
+            synchronized (this.lock) {
+                clone.forward = ObjIdBiMultiMap.deepClone(this.forward);
+                clone.reverse = ObjIdBiMultiMap.deepClone(this.reverse);
+            }
             clone.inverse = null;
-            clone.lock = new Object();
         }
         return clone;
     }
