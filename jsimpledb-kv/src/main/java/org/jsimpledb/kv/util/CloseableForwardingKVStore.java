@@ -78,13 +78,15 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
     }
 
     /**
-     * Ensure the associated resoruce is {@link #close}'d before reclaiming memory.
+     * Ensure the associated resource is {@link #close}'d before reclaiming memory.
      */
     @Override
     protected void finalize() throws Throwable {
         try {
-            if (!this.closed)
-                LoggerFactory.getLogger(this.getClass()).warn(this + " leaked without invoking close()");
+            synchronized (this) {
+                if (!this.closed)
+                    LoggerFactory.getLogger(this.getClass()).warn(this + " leaked without invoking close()");
+            }
             this.close();
         } finally {
             super.finalize();

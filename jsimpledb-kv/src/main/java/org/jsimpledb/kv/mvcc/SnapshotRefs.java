@@ -8,6 +8,9 @@ package org.jsimpledb.kv.mvcc;
 import com.google.common.base.Preconditions;
 
 import java.io.Closeable;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import net.jcip.annotations.ThreadSafe;
 
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVStore;
@@ -20,10 +23,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Instances are thread safe.
  */
+@ThreadSafe
 public class SnapshotRefs {
 
     private final CloseableKVStore snapshot;
-    private int refs;
+    private final AtomicInteger refs;
 
     /**
      * Constructor.
@@ -36,24 +40,22 @@ public class SnapshotRefs {
     public SnapshotRefs(CloseableKVStore snapshot) {
         Preconditions.checkArgument(snapshot != null, "null snapshot");
         this.snapshot = snapshot;
-        this.refs = 1;
-        synchronized (this) { }
+        this.refs = new AtomicInteger(1);
     }
 
-    public synchronized KVStore getKVStore() {
-        Preconditions.checkState(this.refs > 0, "no longer referenced");
+    public KVStore getKVStore() {
+        Preconditions.checkState(this.refs.get() > 0, "no longer referenced");
         return this.snapshot;
     }
 
-    public synchronized void ref() {
-        Preconditions.checkState(this.refs > 0, "no longer referenced");
-        this.refs++;
+    public void ref() {
+        Preconditions.checkState(this.refs.get() > 0, "no longer referenced");
+        this.refs.incrementAndGet();
     }
 
-    public synchronized void unref() {
-        Preconditions.checkState(this.refs > 0, "no longer referenced");
-        if (--this.refs == 0)
-            this.snapshot.close();
+    public void unref() {
+        if (this.refs.getAndDecrement() <= 0)
+            throw new IllegalStateException("no longer referenced");
     }
 
     /**
@@ -63,7 +65,9 @@ public class SnapshotRefs {
      */
     public Closeable getUnrefCloseable() {
         return new Closeable() {
+
             private boolean closed;
+
             @Override
             public synchronized void close() {
                 if (this.closed)
@@ -77,9 +81,10 @@ public class SnapshotRefs {
     @Override
     protected void finalize() throws Throwable {
         try {
-            if (this.refs > 0) {
-                LoggerFactory.getLogger(this.getClass()).warn(this + " leaked with " + this.refs + " remaining references");
-                this.refs = 0;
+            final int remaining = this.refs.get();
+            if (remaining > 0) {
+                LoggerFactory.getLogger(this.getClass()).warn(this + " leaked with " + remaining + " remaining reference(s)");
+                this.refs.set(0);
                 this.snapshot.close();
             }
         } finally {

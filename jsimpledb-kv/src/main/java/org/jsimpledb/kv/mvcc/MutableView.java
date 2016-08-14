@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.kv.KVStore;
@@ -45,10 +48,13 @@ import org.jsimpledb.util.SizeEstimator;
  * Instances are thread safe; however, directly accessing the associated {@link Reads} or {@link Writes} is not thread safe
  * without first locking this instance.
  */
+@ThreadSafe
 public class MutableView extends AbstractKVStore implements Cloneable, SizeEstimating {
 
     private final KVStore kv;
+    @GuardedBy("this")
     private /*final*/ Writes writes;
+    @GuardedBy("this")
     private Reads reads;
 
 // Constructors
@@ -78,7 +84,6 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
         this.kv = kv;
         this.reads = reads;
         this.writes = writes;
-        synchronized (this) { }                                     // because this.reads and this.writes are not final
     }
 
 // Public methods
@@ -261,7 +266,7 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
      * @param estimator size estimator
      */
     @Override
-    public void addTo(SizeEstimator estimator) {
+    public synchronized void addTo(SizeEstimator estimator) {
         estimator
           .addObjectOverhead()
           .addReferenceField()                              // kv
@@ -507,9 +512,9 @@ public class MutableView extends AbstractKVStore implements Cloneable, SizeEstim
                 this.next = this.kvnext;
                 this.kvnext = null;
             } else {
-                int diff = ByteUtil.compare(this.putnext.getKey(), this.kvnext.getKey());
-                if (reverse)
-                    diff = -diff;
+                final int diff = reverse ?
+                  ByteUtil.compare(this.kvnext.getKey(), this.putnext.getKey()) :
+                  ByteUtil.compare(this.putnext.getKey(), this.kvnext.getKey());
                 if (diff <= 0) {
                     this.next = this.putnext;
                     this.putnext = null;

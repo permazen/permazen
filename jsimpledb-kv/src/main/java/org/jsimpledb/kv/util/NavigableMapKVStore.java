@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.kv.AbstractKVStore;
 import org.jsimpledb.kv.KVPair;
 import org.jsimpledb.util.ByteUtil;
@@ -23,6 +25,7 @@ import org.jsimpledb.util.ByteUtil;
  * Provides a {@link org.jsimpledb.kv.KVStore} view of an underlying
  * {@link ConcurrentSkipListMap NavigableMap&lt;byte[], byte[]&gt;} whose keys are sorted lexicographically as unsigned bytes.
  */
+@ThreadSafe
 public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, Serializable {
 
     private static final long serialVersionUID = -8112493152056118516L;
@@ -60,7 +63,6 @@ public class NavigableMapKVStore extends AbstractKVStore implements Cloneable, S
         Preconditions.checkArgument(map.comparator() != null
           && map.comparator().compare(ByteUtil.parse("00"), ByteUtil.parse("ff")) < 0, "invalid comparator");
         this.map = map;
-        synchronized (this) { }
     }
 
     /**

@@ -81,7 +81,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      * @throws IllegalArgumentException if {@code ranges} or any {@link KeyRange} therein is null
      */
     public KeyRanges(KeyRange... ranges) {
-        this(ranges != null ? Arrays.asList(ranges) : null);
+        Preconditions.checkArgument(ranges != null, "null ranges");
+        this.ranges = KeyRanges.minimize(Lists.<KeyRange>newArrayList(ranges));
     }
 
     /**

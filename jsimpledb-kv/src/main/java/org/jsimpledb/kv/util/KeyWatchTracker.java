@@ -24,6 +24,9 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
+
 import org.jsimpledb.kv.KeyRange;
 import org.jsimpledb.kv.mvcc.Mutations;
 import org.jsimpledb.util.ByteUtil;
@@ -54,6 +57,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see org.jsimpledb.kv.KVTransaction#watchKey
  */
+@ThreadSafe
 public class KeyWatchTracker implements Closeable {
 
     /**
@@ -71,7 +75,8 @@ public class KeyWatchTracker implements Closeable {
      */
     public static final boolean DEFAULT_WEAK_REFERENCE = false;
 
-    private final TreeMap<byte[], KeyInfo> keyInfos = new TreeMap<>(ByteUtil.COMPARATOR);   // protected by synchronized (this)
+    @GuardedBy("this")
+    private final TreeMap<byte[], KeyInfo> keyInfos = new TreeMap<>(ByteUtil.COMPARATOR);
     private final Cache<KeyFuture, KeyInfo> futureMap;
 
     /**

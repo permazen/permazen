@@ -314,8 +314,7 @@ public class LockManager {
               this.locksByMin.headSet(Lock.getMinKey(lockMax, false), false);
 
             // Get locks whose max is > lockMin
-            final NavigableSet<Lock> rhs = lockMin == null ? this.locksByMax : this.locksByMax.tailSet(
-              Lock.getMaxKey(ByteUtil.getNextKey(lockMin), false), true);
+            final NavigableSet<Lock> rhs = this.locksByMax.tailSet(Lock.getMaxKey(ByteUtil.getNextKey(lockMin), false), true);
 
             // Find overlapping locks and check for conflicts
             final HashSet<Lock> overlaps = new HashSet<>();
