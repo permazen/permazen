@@ -7,6 +7,7 @@ package org.jsimpledb.schema;
 
 import com.google.common.base.Preconditions;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -239,7 +240,7 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
 // NameComparator
 
-    static class NameComparator implements Comparator<AbstractSchemaItem> {
+    static class NameComparator implements Comparator<AbstractSchemaItem>, Serializable {
 
         @Override
         public int compare(AbstractSchemaItem item1, AbstractSchemaItem item2) {
