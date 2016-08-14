@@ -24,6 +24,8 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  */
 class EnumType extends NonNullFieldType<EnumValue> {
 
+    private static final long serialVersionUID = -5645700883023141035L;
+
     final Class<? extends Enum<?>> enumType;
     final Map<String, EnumValue> identifierMap;
     final List<EnumValue> enumValueList;

@@ -39,6 +39,8 @@ public class NullSafeType<T> extends FieldType<T> {
      */
     public static final int NULL_SENTINEL = 0xff;
 
+    private static final long serialVersionUID = -6420381330755516561L;
+
     /**
      * The inner {@link FieldType} that this instance wraps.
      */

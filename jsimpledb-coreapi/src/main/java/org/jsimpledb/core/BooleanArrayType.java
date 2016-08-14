@@ -22,6 +22,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 class BooleanArrayType extends ArrayType<boolean[], Boolean> {
 
+    private static final long serialVersionUID = -7254445869697946454L;
+
     private static final int END = 0x00;
     private static final int FALSE = 0x01;
     private static final int TRUE = 0x02;

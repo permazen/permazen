@@ -15,6 +15,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 class FloatType extends PrimitiveType<Float> {
 
+    private static final long serialVersionUID = 4726406311612739536L;
+
     private static final byte[] DEFAULT_VALUE = new byte[] {
       (byte)0x80, (byte)0x00, (byte)0x00, (byte)0x00
     };

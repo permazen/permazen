@@ -15,6 +15,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 class DoubleType extends PrimitiveType<Double> {
 
+    private static final long serialVersionUID = 7124114664265270273L;
+
     private static final long POS_XOR = 0x8000000000000000L;
     private static final long NEG_XOR = 0xffffffffffffffffL;
     private static final long SIGN_BIT = 0x8000000000000000L;

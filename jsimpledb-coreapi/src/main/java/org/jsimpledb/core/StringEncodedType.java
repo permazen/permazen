@@ -17,16 +17,22 @@ import com.google.common.reflect.TypeToken;
  * Null values are supported and null is the default value. This type will sort instances according to
  * the lexicographical sort order of their {@link String} encodings; null will sort last.
  *
+ * <p>
+ * The supplied {@link Converter} must be {@link java.io.Serializable} in order for an instance of this
+ * class to also be {@link java.io.Serializable}.
+ *
  * @param <T> The associated Java type
  */
 public class StringEncodedType<T> extends NullSafeType<T> {
+
+    private static final long serialVersionUID = 6224434959455483181L;
 
     /**
      * Convenience constructor. Uses the name of the {@code type} as this {@link FieldType}'s type name.
      *
      * @param type represented Java type
      * @param signature binary encoding signature (in this case, {@link String} encoding signature)
-     * @param converter converts between native form and {@link String} form
+     * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if {@code converter} does not convert null to null
      * @throws IllegalArgumentException if any parameter is null
      */
@@ -40,7 +46,7 @@ public class StringEncodedType<T> extends NullSafeType<T> {
      * @param name the name for this {@link FieldType}
      * @param type represented Java type
      * @param signature binary encoding signature (in this case, {@link String} encoding signature)
-     * @param converter converts between native form and {@link String} form
+     * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if {@code converter} does not convert null to null
      * @throws IllegalArgumentException if any parameter is null
      */

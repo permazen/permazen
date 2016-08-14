@@ -7,6 +7,7 @@ package org.jsimpledb.core;
 
 import com.google.common.base.Converter;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 /**
@@ -16,23 +17,31 @@ import java.util.regex.Pattern;
  */
 class PatternType extends StringEncodedType<Pattern> {
 
+    private static final long serialVersionUID = -6406385779194286899L;
+
     PatternType() {
-        super(Pattern.class, 0, new Converter<Pattern, String>() {
+        super(Pattern.class, 0, new PatternConverter());
+    }
 
-            @Override
-            protected String doForward(Pattern pattern) {
-                if (pattern == null)
-                    return null;
-                return pattern.toString();
-            }
+// PatternConverter
 
-            @Override
-            protected Pattern doBackward(String string) {
-                if (string == null)
-                    return null;
-                return Pattern.compile(string);
-            }
-        });
+    private static class PatternConverter extends Converter<Pattern, String> implements Serializable {
+
+        private static final long serialVersionUID = -809996726052177917L;
+
+        @Override
+        protected String doForward(Pattern pattern) {
+            if (pattern == null)
+                return null;
+            return pattern.toString();
+        }
+
+        @Override
+        protected Pattern doBackward(String string) {
+            if (string == null)
+                return null;
+            return Pattern.compile(string);
+        }
     }
 }
 

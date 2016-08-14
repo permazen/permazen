@@ -28,6 +28,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 class FloatArrayType extends Base64ArrayType<float[], Float> {
 
+    private static final long serialVersionUID = 2791855034086017414L;
+
     private static final int NUM_BYTES = 4;
     private static final byte[] END = new byte[NUM_BYTES];
 

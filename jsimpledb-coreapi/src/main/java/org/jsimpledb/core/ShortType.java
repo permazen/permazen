@@ -12,6 +12,8 @@ import org.dellroad.stuff.java.Primitive;
  */
 class ShortType extends IntegralType<Short> {
 
+    private static final long serialVersionUID = 3817308228385115418L;
+
     ShortType() {
        super(Primitive.SHORT);
     }

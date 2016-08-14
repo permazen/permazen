@@ -23,6 +23,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 class ObjectArrayType<E> extends ArrayType<E[], E> {
 
+    private static final long serialVersionUID = -2337331922923184256L;
+
     private static final int END = 0x00;
     private static final int VALUE = 0x01;
 

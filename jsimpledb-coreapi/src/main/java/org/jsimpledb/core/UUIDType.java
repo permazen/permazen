@@ -19,6 +19,8 @@ import org.jsimpledb.util.ParseContext;
  */
 class UUIDType extends NonNullFieldType<UUID> {
 
+    private static final long serialVersionUID = -7426558458120883995L;
+
     private static final long MASK = 0x8000000000000000L;
     private static final String PATTERN = "\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}";
 

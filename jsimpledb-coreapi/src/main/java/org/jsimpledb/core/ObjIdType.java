@@ -14,6 +14,8 @@ import org.jsimpledb.util.ParseContext;
  */
 class ObjIdType extends NonNullFieldType<ObjId> {
 
+    private static final long serialVersionUID = 6921359865864012847L;
+
     ObjIdType() {
         super(ObjId.class, 0);
     }

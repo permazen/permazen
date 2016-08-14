@@ -17,6 +17,8 @@ import java.util.List;
  */
 class IntegerArrayType extends IntegralArrayType<int[], Integer> {
 
+    private static final long serialVersionUID = 2097437088172327725L;
+
     IntegerArrayType() {
        super(FieldTypeRegistry.INTEGER, int[].class);
     }

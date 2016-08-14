@@ -20,6 +20,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 public class ReferenceFieldType extends NullSafeType<ObjId> {
 
+    private static final long serialVersionUID = -5980288575339951079L;
+
     private final TreeSet<Integer> objectTypes;
 
     /**

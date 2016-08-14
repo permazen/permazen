@@ -12,6 +12,8 @@ import org.jsimpledb.tuple.Tuple2;
 
 class Tuple2FieldType<V1, V2> extends TupleFieldType<Tuple2<V1, V2>> {
 
+    private static final long serialVersionUID = 8336238765491523439L;
+
     @SuppressWarnings("serial")
     Tuple2FieldType(FieldType<V1> value1Type, FieldType<V2> value2Type) {
         super(new TypeToken<Tuple2<V1, V2>>() { }

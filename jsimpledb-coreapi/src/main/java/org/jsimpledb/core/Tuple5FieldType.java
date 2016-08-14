@@ -12,6 +12,8 @@ import org.jsimpledb.tuple.Tuple5;
 
 class Tuple5FieldType<V1, V2, V3, V4, V5> extends TupleFieldType<Tuple5<V1, V2, V3, V4, V5>> {
 
+    private static final long serialVersionUID = -3834483329232587435L;
+
     @SuppressWarnings("serial")
     Tuple5FieldType(FieldType<V1> value1Type, FieldType<V2> value2Type, FieldType<V3> value3Type,
       FieldType<V4> value4Type, FieldType<V5> value5Type) {

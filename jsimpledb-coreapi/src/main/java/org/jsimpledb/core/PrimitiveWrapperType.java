@@ -10,6 +10,8 @@ package org.jsimpledb.core;
  */
 class PrimitiveWrapperType<T> extends NullSafeType<T> {
 
+    private static final long serialVersionUID = 3988749140485792884L;
+
     PrimitiveWrapperType(PrimitiveType<T> primitiveType) {
         super(primitiveType.primitive.getWrapperType().getName(), primitiveType);
     }

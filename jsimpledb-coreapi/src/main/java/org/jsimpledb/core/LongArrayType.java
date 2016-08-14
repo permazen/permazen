@@ -17,6 +17,8 @@ import java.util.List;
  */
 class LongArrayType extends IntegralArrayType<long[], Long> {
 
+    private static final long serialVersionUID = 7577070533837522681L;
+
     LongArrayType() {
        super(FieldTypeRegistry.LONG, long[].class);
     }

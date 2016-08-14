@@ -28,6 +28,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 class DoubleArrayType extends Base64ArrayType<double[], Double> {
 
+    private static final long serialVersionUID = 7502947488125172882L;
+
     private static final int NUM_BYTES = 8;
     private static final byte[] END = new byte[NUM_BYTES];
 

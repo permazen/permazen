@@ -17,6 +17,8 @@ import java.util.List;
  */
 class ByteArrayType extends IntegralArrayType<byte[], Byte> {
 
+    private static final long serialVersionUID = -5978203098536001843L;
+
     ByteArrayType() {
        super(FieldTypeRegistry.BYTE, byte[].class);
     }

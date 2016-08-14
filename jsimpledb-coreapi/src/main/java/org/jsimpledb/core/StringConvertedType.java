@@ -22,9 +22,15 @@ import org.jsimpledb.util.ParseContext;
  * Null values are not supported by this class; instead, use {@link StringEncodedType}, which is the
  * null-supporting wrapper around this class.
  *
+ * <p>
+ * The given {@link Converter} must be {@link java.io.Serializable} in order for an instance of this
+ * class to also be {@link java.io.Serializable}.
+ *
  * @param <T> The associated Java type
  */
 class StringConvertedType<T> extends NonNullFieldType<T> {
+
+    private static final long serialVersionUID = -2432755812735736593L;
 
     private final StringType stringType = new StringType();
     private final Converter<T, String> converter;
@@ -35,7 +41,7 @@ class StringConvertedType<T> extends NonNullFieldType<T> {
      * @param name the name for this {@link FieldType}
      * @param type represented Java type
      * @param signature binary encoding signature (in this case, {@link String} encoding signature)
-     * @param converter converts between native form and {@link String} form
+     * @param converter converts between native form and {@link String} form; should be {@link java.io.Serializable}
      * @throws IllegalArgumentException if any parameter is null
      */
     protected StringConvertedType(String name, TypeToken<T> type, long signature, Converter<T, String> converter) {

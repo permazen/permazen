@@ -17,6 +17,8 @@ import java.util.List;
  */
 class ShortArrayType extends IntegralArrayType<short[], Short> {
 
+    private static final long serialVersionUID = 2001467018347663363L;
+
     ShortArrayType() {
        super(FieldTypeRegistry.SHORT, short[].class);
     }

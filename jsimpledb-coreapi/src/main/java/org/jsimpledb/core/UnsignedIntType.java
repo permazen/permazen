@@ -19,6 +19,8 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  */
 class UnsignedIntType extends NonNullFieldType<Integer> {
 
+    private static final long serialVersionUID = 4653435311425384497L;
+
     UnsignedIntType() {
         super("uint", TypeToken.of(Integer.class), 0, 0);
     }

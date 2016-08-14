@@ -12,6 +12,8 @@ import org.dellroad.stuff.java.Primitive;
  */
 class IntegerType extends IntegralType<Integer> {
 
+    private static final long serialVersionUID = 1978611631822982974L;
+
     IntegerType() {
        super(Primitive.INTEGER);
     }

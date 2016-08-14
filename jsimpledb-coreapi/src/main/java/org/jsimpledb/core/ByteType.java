@@ -12,6 +12,8 @@ import org.dellroad.stuff.java.Primitive;
  */
 class ByteType extends IntegralType<Byte> {
 
+    private static final long serialVersionUID = 7891495286075980831L;
+
     ByteType() {
        super(Primitive.BYTE);
     }

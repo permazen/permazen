@@ -18,6 +18,8 @@ import org.jsimpledb.util.ParseContext;
  */
 class CharacterType extends PrimitiveType<Character> {
 
+    private static final long serialVersionUID = -3328818464598650353L;
+
     CharacterType() {
        super(Primitive.CHARACTER);
     }

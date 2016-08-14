@@ -20,6 +20,8 @@ import org.jsimpledb.util.ParseContext;
  */
 class DateType extends NonNullFieldType<Date> {
 
+    private static final long serialVersionUID = 825120832596893074L;
+
     DateType() {
         super(Date.class, 0);
     }

@@ -12,6 +12,8 @@ import org.dellroad.stuff.java.Primitive;
  */
 class LongType extends IntegralType<Long> {
 
+    private static final long serialVersionUID = -1090469104525478415L;
+
     LongType() {
        super(Primitive.LONG);
     }

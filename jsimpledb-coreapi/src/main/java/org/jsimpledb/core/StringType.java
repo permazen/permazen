@@ -24,6 +24,8 @@ import org.jsimpledb.util.UnsignedIntEncoder;
  */
 class StringType extends NonNullFieldType<String> {
 
+    private static final long serialVersionUID = -7808183397158645337L;
+
     private static final int END = 0x00;
     private static final int ESCAPE = 0x01;
 

@@ -8,6 +8,7 @@ package org.jsimpledb.core;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.jsimpledb.util.ByteReader;
@@ -53,10 +54,13 @@ import org.jsimpledb.util.ParseContext;
  * <p>
  * A {@link FieldTypeRegistry} contains a registry of {@link FieldType}s indexed by name.
  *
+ * <p>
+ * Instances are {@link Serializable} if their default values are (typically the default value is null, making this the case).
+ *
  * @param <T> The associated Java type
  * @see FieldTypeRegistry
  */
-public abstract class FieldType<T> implements Comparator<T> {
+public abstract class FieldType<T> implements Comparator<T>, Serializable {
 
     /**
      * The regular expression that {@link FieldType} names must match. This pattern is the same as is required

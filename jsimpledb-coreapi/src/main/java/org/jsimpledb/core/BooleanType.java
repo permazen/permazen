@@ -13,6 +13,8 @@ import org.jsimpledb.util.ByteWriter;
 
 class BooleanType extends PrimitiveType<Boolean> {
 
+    private static final long serialVersionUID = 5941222137600409101L;
+
     private static final byte FALSE_VALUE = (byte)0;
     private static final byte TRUE_VALUE = (byte)1;
 

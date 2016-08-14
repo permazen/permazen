@@ -14,6 +14,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 class VoidType extends PrimitiveType<Void> {
 
+    private static final long serialVersionUID = -1158051649344218848L;
+
     VoidType() {
        super(Primitive.VOID);
     }

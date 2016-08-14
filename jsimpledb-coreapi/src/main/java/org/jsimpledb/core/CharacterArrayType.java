@@ -21,6 +21,8 @@ import org.jsimpledb.util.ByteWriter;
  */
 class CharacterArrayType extends ArrayType<char[], Character> {
 
+    private static final long serialVersionUID = 968583366001367828L;
+
     private final StringType stringType = new StringType();
 
     @SuppressWarnings("serial")

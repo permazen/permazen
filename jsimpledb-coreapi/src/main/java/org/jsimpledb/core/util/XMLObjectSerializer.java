@@ -10,6 +10,7 @@ import com.google.common.collect.Iterables;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -780,7 +781,9 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
 
 // NameComparator
 
-    private static class NameComparator implements Comparator<SchemaItem> {
+    private static class NameComparator implements Comparator<SchemaItem>, Serializable {
+
+        private static final long serialVersionUID = 2149002751789000360L;
 
         @Override
         public int compare(SchemaItem item1, SchemaItem item2) {

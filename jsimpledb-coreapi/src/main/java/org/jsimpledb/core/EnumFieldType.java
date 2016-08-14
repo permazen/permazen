@@ -29,6 +29,8 @@ public class EnumFieldType extends NullSafeType<EnumValue> {
 
     public static final String IDENT_PATTERN = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
 
+    private static final long serialVersionUID = -968533056184967301L;
+
     /**
      * Constructor to use when there is an associated {@link Enum} type;
      * {@link #getEnumType} will return {@code enumType}.
