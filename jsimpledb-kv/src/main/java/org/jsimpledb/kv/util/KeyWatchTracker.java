@@ -105,10 +105,10 @@ public class KeyWatchTracker implements Closeable {
         Preconditions.checkArgument(maxLifetime > 0, "maxLifetime <= 0");
 
         // Initialize
-        CacheBuilder cacheBuilder = CacheBuilder.newBuilder()
+        CacheBuilder<KeyFuture, KeyInfo> cacheBuilder = CacheBuilder.newBuilder()
           .maximumSize(capacity)
           .expireAfterWrite(maxLifetime, TimeUnit.SECONDS)
-          .removalListener(new RemovalListener<KeyFuture, KeyInfo>() {
+          .<KeyFuture, KeyInfo>removalListener(new RemovalListener<KeyFuture, KeyInfo>() {
             @Override
             public void onRemoval(RemovalNotification<KeyFuture, KeyInfo> notification) {
                 notification.getValue().handleRemoval(notification.getKey());
@@ -116,7 +116,7 @@ public class KeyWatchTracker implements Closeable {
           });
         if (weakReferences)
             cacheBuilder = cacheBuilder.weakKeys();
-        this.futureMap = cacheBuilder.<KeyFuture, KeyInfo>build();
+        this.futureMap = cacheBuilder.build();
     }
 
     /**
