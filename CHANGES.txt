@@ -2,6 +2,7 @@ Version Next
 
     - Fixed Raft fallback bug: rollback inner tx on migration retry exception
     - Enhanced several classes to implement Serializable
+    - Fixed bug parsing lambda bodies
 
 Version 2.1.5 Released August 7, 2016
 

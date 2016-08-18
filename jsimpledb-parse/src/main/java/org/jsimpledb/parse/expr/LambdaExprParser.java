@@ -49,7 +49,10 @@ public class LambdaExprParser implements Parser<LambdaNode> {
         session.setIdentifierParser(new Parser<Node>() {
             @Override
             public Node parse(ParseSession session, ParseContext ctx, boolean complete) {
-                final String name = ctx.tryPattern(ParseUtil.IDENT_PATTERN).group();
+                final Matcher matcher = ctx.tryPattern(ParseUtil.IDENT_PATTERN);
+                if (matcher == null)
+                    throw new ParseException(ctx);
+                final String name = matcher.group();
                 final LambdaNode.Param paramNode = paramMap.get(name);
                 if (paramNode == null) {
                     throw new ParseException(ctx, "unknown lambda parameter `" + name + "'")

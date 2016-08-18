@@ -428,6 +428,8 @@ public class ExprParseTest extends TestSupport {
                 { "java.util.Arrays.asList(new String[] { \"abc\", \"def\" }).stream().map(Object::hashCode)"
                   + ".collect(java.util.stream.Collectors.toList()).toString()",
                    "[96354, 99333]" },
+                { "new java.util.ArrayList().stream().filter(a -> a == b).collect(java.util.stream.Collectors.toList())",
+                   "[]" }
 
             }));
         }
