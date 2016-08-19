@@ -1009,7 +1009,7 @@ public class LeaderRole extends Role {
     private long findMostRecentConfigChangeMatching(Predicate<String[]> predicate) {
         for (long index = this.raft.getLastLogIndex(); index > this.raft.lastAppliedIndex; index--) {
             final String[] configChange = this.raft.getLogEntryAtIndex(index).getConfigChange();
-            if (configChange == null && predicate.apply(configChange))
+            if (configChange != null && predicate.apply(configChange))
                 return index;
         }
         return 0;
