@@ -255,7 +255,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
             default:
                 throw new RuntimeException("internal error");
             }
-    }
+        }
 
     // SimpleFieldChangeListener
 
