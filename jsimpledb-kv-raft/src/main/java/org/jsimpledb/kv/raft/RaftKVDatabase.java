@@ -1118,8 +1118,7 @@ public class RaftKVDatabase implements KVDatabase {
             if (TEMP_FILE_PATTERN.matcher(file.getName()).matches()) {
                 if (this.log.isDebugEnabled())
                     this.debug("deleting leftover temporary file " + file.getName());
-                if (!file.delete())
-                    this.error("failed to delete leftover temporary file " + file);
+                Util.delete(file, "leftover temporary file");
                 continue;
             }
 
@@ -1142,8 +1141,7 @@ public class RaftKVDatabase implements KVDatabase {
                 error = "index " + logEntry.getIndex() + " != expected index " + expectedIndex;
             if (error != null) {
                 this.warn("deleting bogus log file " + logEntry.getFile().getName() + ": " + error);
-                if (!logEntry.getFile().delete())
-                    this.error("failed to delete bogus log file " + logEntry.getFile());
+                Util.delete(logEntry.getFile(), "bogus log file");
                 i.remove();
             } else {
                 expectedIndex++;
@@ -1548,8 +1546,8 @@ public class RaftKVDatabase implements KVDatabase {
         // Delete all unapplied log files (no longer applicable)
         this.raftLog.clear();
         for (File file : this.logDir.listFiles()) {
-            if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches() && !file.delete())
-                this.error("failed to delete log file " + file);
+            if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches())
+                Util.delete(file, "unapplied log file");
         }
 
         // Update in-memory copy of persistent state

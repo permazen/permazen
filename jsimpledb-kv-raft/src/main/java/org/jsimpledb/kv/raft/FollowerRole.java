@@ -404,8 +404,8 @@ public class FollowerRole extends NonLeaderRole {
                 LogEntry.writeData(fileWriter, new LogEntry.Data(writes, tx.getConfigChange()));
                 fileWriter.flush();
             } catch (IOException e) {
-                fileWriter.getFile().delete();
                 Util.closeIfPossible(fileWriter);
+                Util.delete(fileWriter.getFile(), "pending write temp file");
                 throw new KVTransactionException(tx, "error saving transaction mutations to temporary file", e);
             }
 
@@ -414,8 +414,8 @@ public class FollowerRole extends NonLeaderRole {
             try {
                 mutationData = Util.readFile(fileWriter.getFile(), writeLength);
             } catch (IOException e) {
-                fileWriter.getFile().delete();
                 Util.closeIfPossible(fileWriter);
+                Util.delete(fileWriter.getFile(), "pending write temp file");
                 throw new KVTransactionException(tx, "error reading transaction mutations from temporary file", e);
             }
 
@@ -552,8 +552,7 @@ public class FollowerRole extends NonLeaderRole {
                 for (LogEntry logEntry : conflictList) {
                     if (this.log.isDebugEnabled())
                         this.debug("deleting log entry " + logEntry + " overrwritten by " + msg);
-                    if (!logEntry.getFile().delete())
-                        this.error("failed to delete log file " + logEntry.getFile());
+                    Util.delete(logEntry.getFile(), "overwritten log file");
                 }
                 try {
                     this.raft.logDirChannel.force(true);
@@ -1010,8 +1009,8 @@ public class FollowerRole extends NonLeaderRole {
         }
 
         public void cleanup() {
-            this.fileWriter.getFile().delete();
             Util.closeIfPossible(this.fileWriter);
+            Util.delete(this.fileWriter.getFile(), "pending write temp file");
         }
     }
 }

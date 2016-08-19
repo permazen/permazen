@@ -40,8 +40,13 @@ class NewLogEntry {
         this.data = new LogEntry.Data(tx.getMutableView().getWrites(), tx.getConfigChange());
         this.tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX,
           RaftKVDatabase.TEMP_FILE_SUFFIX, tx.getKVDatabase().logDir);
+        boolean success = false;
         try (FileWriter output = new FileWriter(this.tempFile)) {
             LogEntry.writeData(output, data);
+            success = true;
+        } finally {
+            if (!success)
+                Util.delete(this.tempFile, "new log entry temp file");
         }
     }
 
@@ -54,8 +59,13 @@ class NewLogEntry {
     NewLogEntry(RaftKVDatabase raft, LogEntry.Data data) throws IOException {
         this.data = data;
         this.tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX, RaftKVDatabase.TEMP_FILE_SUFFIX, raft.logDir);
+        boolean success = false;
         try (FileWriter output = new FileWriter(this.tempFile)) {
             LogEntry.writeData(output, data);
+            success = true;
+        } finally {
+            if (!success)
+                Util.delete(this.tempFile, "new log entry temp file");
         }
     }
 
@@ -67,20 +77,28 @@ class NewLogEntry {
      */
     NewLogEntry(RaftKVDatabase raft, ByteBuffer dataBuf) throws IOException {
 
-        // Copy data to temporary file
-        this.tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX,
-          RaftKVDatabase.TEMP_FILE_SUFFIX, raft.logDir);
-        try (FileWriter output = new FileWriter(this.tempFile)) {
-            while (dataBuf.hasRemaining())
-                output.getFileOutputStream().getChannel().write(dataBuf);
-        }
+        // Create temporary file
+        this.tempFile = File.createTempFile(RaftKVDatabase.TEMP_FILE_PREFIX, RaftKVDatabase.TEMP_FILE_SUFFIX, raft.logDir);
+        boolean success = false;
+        try {
 
-        // Avoid having two copies of the data in memory at once
-        dataBuf = null;
+            // Copy data to temporary file
+            try (FileWriter output = new FileWriter(this.tempFile)) {
+                while (dataBuf.hasRemaining())
+                    output.getFileOutputStream().getChannel().write(dataBuf);
+            }
 
-        // Deserialize data from file back into memory
-        try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(tempFile), 4096)) {
-            this.data = LogEntry.readData(input);
+            // Avoid having two copies of the data in memory at once
+            dataBuf = null;
+
+            // Deserialize data from file back into memory
+            try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(tempFile), 4096)) {
+                this.data = LogEntry.readData(input);
+            }
+            success = true;
+        } finally {
+            if (!success)
+                Util.delete(this.tempFile, "new log entry temp file");
         }
     }
 
@@ -93,7 +111,7 @@ class NewLogEntry {
     }
 
     public void cancel() {
-        this.tempFile.delete();
+        Util.delete(this.tempFile, "new log entry temp file");
     }
 }
 

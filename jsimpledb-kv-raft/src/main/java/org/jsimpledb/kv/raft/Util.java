@@ -14,6 +14,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * Utility methods.
  */
@@ -100,6 +102,22 @@ final class Util {
                     throw new IOException("file length was " + length + " but only read " + buf.position() + " bytes");
             }
             return (ByteBuffer)buf.flip();
+        }
+    }
+
+    /**
+     * Delete a file. If the operation fails, log an error.
+     *
+     * @param file file to delete
+     * @param description short description of what file is
+     * @throws IllegalArgumentException if {@code file} is null
+     */
+    public static void delete(File file, String description) {
+        Preconditions.checkArgument(file != null, "null file");
+        try {
+            Files.delete(file.toPath());
+        } catch (IOException e) {
+            LoggerFactory.getLogger(Util.class).warn("error deleting " + description + " " + file + " (proceeding anyway): " + e);
         }
     }
 }

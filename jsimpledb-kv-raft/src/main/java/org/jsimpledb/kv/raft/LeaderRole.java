@@ -1015,33 +1015,31 @@ public class LeaderRole extends Role {
         return 0;
     }
 
-    // Apply a new log entry to the Raft log
+    // Apply a new log entry to the Raft log; if operation fails, cancel() newLogEntry
     private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws Exception {
 
-        // Do a couple of extra checks if a config change is included
-        final String[] configChange = newLogEntry.getData().getConfigChange();
-        if (configChange != null) {
-
-            // If a config change is involved, check whether we can safely apply it
-            if (!this.mayApplyNewConfigChange()) {
-                newLogEntry.cancel();
-                throw new IllegalStateException("config change cannot be safely applied at this time");
-            }
-
-            // Disallow a configuration change that removes the last node in a cluster
-            if (this.raft.currentConfig.size() == 1 && configChange[1] == null) {
-                final String lastNode = this.raft.currentConfig.keySet().iterator().next();
-                if (configChange[0].equals(lastNode)) {
-                    newLogEntry.cancel();
-                    throw new IllegalArgumentException("can't remove the last node in a cluster (\"" + lastNode + "\")");
-                }
-            }
-        }
-
-        // Append a new entry to the Raft log
+        // Create log entry
         final LogEntry logEntry;
+        final String[] configChange;
         boolean success = false;
         try {
+
+            // Do a couple of extra checks if a config change is included
+            if ((configChange = newLogEntry.getData().getConfigChange()) != null) {
+
+                // If a config change is involved, check whether we can safely apply it
+                if (!this.mayApplyNewConfigChange())
+                    throw new IllegalStateException("config change cannot be safely applied at this time");
+
+                // Disallow a configuration change that removes the last node in a cluster
+                if (this.raft.currentConfig.size() == 1 && configChange[1] == null) {
+                    final String lastNode = this.raft.currentConfig.keySet().iterator().next();
+                    if (configChange[0].equals(lastNode))
+                        throw new IllegalArgumentException("can't remove the last node in a cluster (\"" + lastNode + "\")");
+                }
+            }
+
+            // Append new log entry to the Raft log
             logEntry = this.raft.appendLogEntry(this.raft.currentTerm, newLogEntry);
             success = true;
         } finally {

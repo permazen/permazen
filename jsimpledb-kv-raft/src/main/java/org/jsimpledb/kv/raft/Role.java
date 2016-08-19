@@ -186,8 +186,7 @@ public abstract class Role {
 
             // Delete the log entry
             this.raft.raftLog.remove(0);
-            if (!logEntry.getFile().delete())
-                this.error("failed to delete log file " + logEntry.getFile());
+            Util.delete(logEntry.getFile(), "applied log file");
         }
     }
 
