@@ -16,7 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -1099,31 +1101,34 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Scan for log entry files
         this.raftLog.clear();
-        for (File file : this.logDir.listFiles()) {
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(this.logDir.toPath())) {
+            for (Path path : files) {
+                final File file = path.toFile();
 
-            // Ignore sub-directories (typically owned by the underlying k/v store)
-            if (file.isDirectory())
-                continue;
+                // Ignore sub-directories (typically owned by the underlying k/v store)
+                if (file.isDirectory())
+                    continue;
 
-            // Is this a log entry file?
-            if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches()) {
-                if (this.log.isDebugEnabled())
-                    this.debug("recovering log file " + file.getName());
-                final LogEntry logEntry = LogEntry.fromFile(file);
-                this.raftLog.add(logEntry);
-                continue;
+                // Is this a log entry file?
+                if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches()) {
+                    if (this.log.isDebugEnabled())
+                        this.debug("recovering log file " + file.getName());
+                    final LogEntry logEntry = LogEntry.fromFile(file);
+                    this.raftLog.add(logEntry);
+                    continue;
+                }
+
+                // Is this a leftover temporary file?
+                if (TEMP_FILE_PATTERN.matcher(file.getName()).matches()) {
+                    if (this.log.isDebugEnabled())
+                        this.debug("deleting leftover temporary file " + file.getName());
+                    Util.delete(file, "leftover temporary file");
+                    continue;
+                }
+
+                // Unknown
+                this.warn("ignoring unrecognized file " + file.getName() + " in my log directory");
             }
-
-            // Is this a leftover temporary file?
-            if (TEMP_FILE_PATTERN.matcher(file.getName()).matches()) {
-                if (this.log.isDebugEnabled())
-                    this.debug("deleting leftover temporary file " + file.getName());
-                Util.delete(file, "leftover temporary file");
-                continue;
-            }
-
-            // Unknown
-            this.warn("ignoring unrecognized file " + file.getName() + " in my log directory");
         }
 
         // Verify we have a contiguous range of log entries starting from the snapshot index; discard bogus log files
@@ -1545,9 +1550,14 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Delete all unapplied log files (no longer applicable)
         this.raftLog.clear();
-        for (File file : this.logDir.listFiles()) {
-            if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches())
-                Util.delete(file, "unapplied log file");
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(this.logDir.toPath())) {
+            for (Path path : files) {
+                final File file = path.toFile();
+                if (LogEntry.LOG_FILE_PATTERN.matcher(file.getName()).matches())
+                    Util.delete(file, "unapplied log file");
+            }
+        } catch (IOException e) {
+            this.error("error deleting unapplied log files in " + this.logDir + " (ignoring)", e);
         }
 
         // Update in-memory copy of persistent state

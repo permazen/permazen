@@ -460,7 +460,7 @@ public class FallbackKVDatabase implements KVDatabase {
 // Object
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return this.getClass().getSimpleName()
           + "[standalone=" + this.standaloneKV
           + ",targets=" + this.targets + "]";
@@ -614,9 +614,14 @@ public class FallbackKVDatabase implements KVDatabase {
             try {
 
                 // Gather info
-                final KVDatabase currKV = currTarget != null ? currTarget.getRaftKVDatabase() : this.standaloneKV;
-                final KVDatabase bestKV = bestTarget != null ? bestTarget.getRaftKVDatabase() : this.standaloneKV;
-                final Date lastActiveTime = bestTarget != null ? bestTarget.lastActiveTime : this.lastStandaloneActiveTime;
+                final KVDatabase currKV;
+                final KVDatabase bestKV;
+                final Date lastActiveTime;
+                synchronized (this) {
+                    currKV = currTarget != null ? currTarget.getRaftKVDatabase() : this.standaloneKV;
+                    bestKV = bestTarget != null ? bestTarget.getRaftKVDatabase() : this.standaloneKV;
+                    lastActiveTime = bestTarget != null ? bestTarget.lastActiveTime : this.lastStandaloneActiveTime;
+                }
                 final MergeStrategy mergeStrategy = bestIndex < currIndex ?
                   currTarget.getUnavailableMergeStrategy() : bestTarget.getRejoinMergeStrategy();
 
@@ -812,9 +817,13 @@ public class FallbackKVDatabase implements KVDatabase {
         }
 
         private void notifyAsync(final Throwable t) {
-            if (FallbackKVDatabase.this.executor == null)                   // small shutdown race window here
+            final ScheduledExecutorService notifyExecutor;
+            synchronized (FallbackKVDatabase.this) {
+                notifyExecutor = FallbackKVDatabase.this.executor;
+            }
+            if (notifyExecutor == null)                             // small shutdown race window here
                 return;
-            FallbackKVDatabase.this.executor.submit(new Runnable() {
+            notifyExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
                     FallbackFuture.this.forget();
@@ -839,7 +848,7 @@ public class FallbackKVDatabase implements KVDatabase {
 
 // ExecutorThreadFactory
 
-    private class ExecutorThreadFactory implements ThreadFactory {
+    private static class ExecutorThreadFactory implements ThreadFactory {
 
         private final AtomicInteger id = new AtomicInteger();
 

@@ -213,6 +213,7 @@ public class LeaderRole extends Role {
 
     @Override
     boolean mayApplyLogEntry(LogEntry logEntry) {
+        assert Thread.holdsLock(this.raft);
 
         // Are we running out of memory, or keeping around too many log entries? If so, go ahead.
         final long logEntryMemoryUsage = this.raft.getUnappliedLogMemoryUsage();
@@ -362,6 +363,7 @@ public class LeaderRole extends Role {
      * </ul>
      */
     private void updateLeaseTimeout() {
+        assert Thread.holdsLock(this.raft);
 
         // Only needed when we have followers
         final int numFollowers = this.followerMap.size();
@@ -526,6 +528,7 @@ public class LeaderRole extends Role {
      * </ul>
      */
     private void updateFollower(Follower follower) {
+        assert Thread.holdsLock(this.raft);
 
         // If follower has an in-progress snapshot that has become too stale, abort it
         final String peer = follower.getIdentity();
@@ -954,6 +957,7 @@ public class LeaderRole extends Role {
     }
 
     private void failDuplicateLeader(Message msg) {
+        assert Thread.holdsLock(this.raft);
 
         // This should never happen - same term but two different leaders
         final boolean defer = this.raft.identity.compareTo(msg.getSenderId()) <= 0;

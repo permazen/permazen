@@ -524,8 +524,7 @@ public class FollowerRole extends NonLeaderRole {
         if (this.electionTimer.isRunning())
             this.restartElectionTimer();
 
-        // Get my last log entry's index and term
-        long lastLogTerm = this.raft.getLastLogTerm();
+        // Get my last log entry's index
         long lastLogIndex = this.raft.getLastLogIndex();
 
         // Check whether our previous log entry term matches that of leader; if not, or it doesn't exist, request fails
@@ -564,8 +563,7 @@ public class FollowerRole extends NonLeaderRole {
                 // Rebuild current config
                 this.raft.currentConfig = this.raft.buildCurrentConfig();
 
-                // Update last log entry info
-                lastLogTerm = this.raft.getLastLogTerm();
+                // Update last log entry index
                 lastLogIndex = this.raft.getLastLogIndex();
             }
 
@@ -645,8 +643,7 @@ public class FollowerRole extends NonLeaderRole {
                 // Success?
                 success = logEntry != null;
 
-                // Update last log entry info
-                lastLogTerm = this.raft.getLastLogTerm();
+                // Update last log entry index
                 lastLogIndex = this.raft.getLastLogIndex();
             }
         }

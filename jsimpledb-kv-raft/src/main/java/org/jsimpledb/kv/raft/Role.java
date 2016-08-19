@@ -122,6 +122,7 @@ public abstract class Role {
      * We invoke this service method whenever log entries are added or our {@code commitIndex} advances.
      */
     void applyCommittedLogEntries() {
+        assert Thread.holdsLock(this.raft);
 
         // Apply committed log entries to the state machine
         while (this.raft.lastAppliedIndex < this.raft.commitIndex) {
