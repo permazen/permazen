@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.concurrent.Callable;
 
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
@@ -126,6 +127,77 @@ public class RaftKVDatabaseTest extends KVDatabaseTest {
                 }
             });
         }
+    }
+
+    @Override
+    public void testSimpleStuff(final KVDatabase store) throws Exception {
+        this.disruptCluster(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                RaftKVDatabaseTest.super.testSimpleStuff(store);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void testConflictingTransactions(final KVDatabase store) throws Exception {
+        this.disruptCluster(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                RaftKVDatabaseTest.super.testConflictingTransactions(store);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void testNonconflictingTransactions(final KVDatabase store) throws Exception {
+        this.disruptCluster(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                RaftKVDatabaseTest.super.testNonconflictingTransactions(store);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void testParallelTransactions(final KVDatabase store) throws Exception {
+        this.disruptCluster(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                RaftKVDatabaseTest.super.testParallelTransactions(store);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void testSequentialTransactions(final KVDatabase store) throws Exception {
+        this.disruptCluster(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                RaftKVDatabaseTest.super.testSequentialTransactions(store);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void testKeyWatch(final KVDatabase store) throws Exception {
+        this.disruptCluster(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                RaftKVDatabaseTest.super.testKeyWatch(store);
+                return null;
+            }
+        });
+    }
+
+    private <T> T disruptCluster(Callable<T> test) throws Exception {
+        // TODO: randomly add/remove nodes
+        return test.call();
     }
 
     @AfterClass
