@@ -668,7 +668,7 @@ public class FallbackKVDatabase implements KVDatabase {
                         }
 
                         // Notify subclass
-                        this.migrationCompleted(currIndex, this.currentTargetIndex);
+                        this.migrationCompleted(currIndex, bestIndex);
                     } finally {
                         if (!dstCommitted)
                             dst.rollback();
@@ -692,10 +692,12 @@ public class FallbackKVDatabase implements KVDatabase {
         }
 
         // Update state file
-        try {
-            this.writeStateFile();
-        } catch (IOException e) {
-            this.log.error("error writing state to state file " + this.stateFile, e);
+        synchronized (this) {
+            try {
+                this.writeStateFile();
+            } catch (IOException e) {
+                this.log.error("error writing state to state file " + this.stateFile, e);
+            }
         }
 
         // Trigger spurious notifications for all futures associated with previous target
