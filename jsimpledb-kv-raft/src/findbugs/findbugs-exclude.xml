@@ -1,1 +1,20 @@
-<FindBugsFilter/>
+<FindBugsFilter>
+    <!-- https://sourceforge.net/p/findbugs/bugs/1463/ -->
+    <Match>
+        <Class name="org.jsimpledb.kv.raft.Role"/>
+        <Method name="applyCommittedLogEntries"/>
+        <Bug pattern="BC_VACUOUS_INSTANCEOF"/>
+    </Match>
+    <!-- https://mailman.cs.umd.edu/pipermail/findbugs-discuss/2016-August/004305.html -->
+    <Match>
+        <Or>
+            <Class name="org.jsimpledb.kv.raft.FollowerRole"/>
+            <Class name="org.jsimpledb.kv.raft.LeaderRole"/>
+            <Class name="org.jsimpledb.kv.raft.NonLeaderRole"/>
+            <Class name="org.jsimpledb.kv.raft.RaftKVDatabase"/>
+            <Class name="org.jsimpledb.kv.raft.Role"/>
+            <Class name="org.jsimpledb.kv.raft.Timer"/>
+        </Or>
+        <Bug pattern="IS2_INCONSISTENT_SYNC"/>
+    </Match>
+</FindBugsFilter>
