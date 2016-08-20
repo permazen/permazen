@@ -8,6 +8,7 @@ package org.jsimpledb.kv.array;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ForwardingFuture;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,11 +16,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,6 +42,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.jsimpledb.kv.AbstractKVStore;
@@ -111,6 +115,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Instances may be stopped and (re)started multiple times.
  */
+@ThreadSafe
 public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore {
 
     /**
@@ -146,33 +151,59 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
     private final boolean suckyOS = this.isWindows();
 
     // Configuration state
+    @GuardedBy("lock")
     private File directory;
+    @GuardedBy("lock")
     private ScheduledExecutorService scheduledExecutorService;
+    @GuardedBy("lock")
     private int compactMaxDelay = DEFAULT_COMPACTION_MAX_DELAY;
+    @GuardedBy("lock")
     private int compactLowWater = DEFAULT_COMPACTION_LOW_WATER;
+    @GuardedBy("lock")
     private int compactHighWater = DEFAULT_COMPACTION_HIGH_WATER;
 
     // Runtime state
+    @GuardedBy("lock")
     private long generation;
+    @GuardedBy("lock")
     private boolean createdExecutorService;
+    @GuardedBy("lock")
     private File generationFile;
+    @GuardedBy("lock")
     private File lockFile;
+    @GuardedBy("lock")
     private FileChannel lockFileChannel;
+    @GuardedBy("lock")
     private File indxFile;
+    @GuardedBy("lock")
     private File keysFile;
+    @GuardedBy("lock")
     private File valsFile;
+    @GuardedBy("lock")
     private File modsFile;
+    @GuardedBy("lock")
     private FileOutputStream modsFileOutput;
+    @GuardedBy("lock")
     private FileChannel directoryChannel;                               // not used on Windows
+    @GuardedBy("lock")
     private long modsFileLength;
+    @GuardedBy("lock")
     private long modsFileSyncPoint;
+    @GuardedBy("lock")
     private ByteBuffer indx;
+    @GuardedBy("lock")
     private ByteBuffer keys;
+    @GuardedBy("lock")
     private ByteBuffer vals;
+    @GuardedBy("lock")
     private ArrayKVStore kvstore;
+    @GuardedBy("lock")
     private MutableView mods;
+    @GuardedBy("lock")
     private Compaction compaction;
+    @GuardedBy("lock")
     private long firstModTimestamp;
+    @GuardedBy("lock")
     private int hotCopiesInProgress;
 
 // Accessors
@@ -182,8 +213,13 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
      *
      * @return database directory, or null for none
      */
-    public synchronized File getDirectory() {
-        return this.directory;
+    public File getDirectory() {
+        this.readLock.lock();
+        try {
+            return this.directory;
+        } finally {
+            this.readLock.unlock();
+        }
     }
 
     /**
@@ -383,13 +419,16 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             if (!this.generationFile.exists()) {
 
                 // Verify no index, keys, or values file exists
-                for (File file : this.directory.listFiles()) {
-                    final String name = file.getName();
-                    if (name.startsWith(INDX_FILE_NAME_BASE)
-                      || name.startsWith(KEYS_FILE_NAME_BASE)
-                      || name.startsWith(VALS_FILE_NAME_BASE)) {
-                        throw new ArrayKVException("database file inconsistency: found "
-                          + name + " but not " + GENERATION_FILE_NAME + " in " + this.directory);
+                try (DirectoryStream<Path> paths = Files.newDirectoryStream(this.directory.toPath())) {
+                    for (Path path : paths) {
+                        final File file = path.toFile();
+                        final String name = file.getName();
+                        if (name.startsWith(INDX_FILE_NAME_BASE)
+                          || name.startsWith(KEYS_FILE_NAME_BASE)
+                          || name.startsWith(VALS_FILE_NAME_BASE)) {
+                            throw new ArrayKVException("database file inconsistency: found "
+                              + name + " but not " + GENERATION_FILE_NAME + " in " + this.directory);
+                        }
                     }
                 }
 
@@ -409,7 +448,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
                 // Create generation file
                 try (FileOutputStream output = new FileOutputStream(this.generationFile)) {
-                    new PrintStream(output, true, "UTF-8").println(0);
+                    output.write("0\n".getBytes(StandardCharsets.UTF_8));
+                    output.flush();
                     output.getChannel().force(false);
                 }
                 if (this.directoryChannel != null)
@@ -419,7 +459,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             // Read current generation number
             try (LineNumberReader reader = new LineNumberReader(
               new InputStreamReader(new FileInputStream(this.generationFile), "UTF-8"))) {
-                this.generation = Long.parseLong(reader.readLine().trim(), 10);
+                final String line = reader.readLine();
+                if (line == null)
+                    throw new ArrayKVException("generation file " + this.generationFile + " is empty");
+                this.generation = Long.parseLong(line.trim(), 10);
                 if (this.generation < 0)
                     throw new ArrayKVException("read negative generation number from " + this.generationFile);
             } catch (Exception e) {
@@ -435,9 +478,12 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
             // Scan directory for unexpected files
             final List<File> expectedFiles = Arrays.asList(this.lockFile, this.generationFile,
               this.indxFile, this.keysFile, this.valsFile, this.modsFile);
-            for (File file : this.directory.listFiles()) {
-                if (!expectedFiles.contains(file))
-                    this.log.warn("ignoring unexpected file " + file.getName() + " in my database directory");
+            try (DirectoryStream<Path> paths = Files.newDirectoryStream(this.directory.toPath())) {
+                for (Path path : paths) {
+                    final File file = path.toFile();
+                    if (!expectedFiles.contains(file))
+                        this.log.warn("ignoring unexpected file " + file.getName() + " in my database directory");
+                }
             }
 
             // Create buffers that wrap the index, keys, and values files
@@ -562,14 +608,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
         }
 
         // Close files
-        for (Closeable closeable : new Closeable[] { this.modsFileOutput, this.directoryChannel, this.lockFileChannel }) {
-            if (closeable != null) {
-                try {
-                    closeable.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
+        for (Closeable resource : new Closeable[] { this.modsFileOutput, this.directoryChannel, this.lockFileChannel }) {
+            if (resource != null)
+                this.closeIgnoreException(resource);
         }
 
         // Reset state
@@ -789,8 +830,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
             // Append mutations to uncompacted mods file
             try {
-                writes.serialize(this.modsFileOutput);
-                this.modsFileOutput.flush();
+                final BufferedOutputStream buf = new BufferedOutputStream(this.modsFileOutput);
+                writes.serialize(buf);
+                buf.flush();
             } catch (IOException e) {
                 try {
                     this.modsFileOutput.getChannel().truncate(this.modsFileLength);              // undo append
@@ -1187,7 +1229,6 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                 }
 
                 // Create new, empty mods file
-                newModsFile.delete();                                           // shouldn't exist, but just in case...
                 newModsFileOutput = new FileOutputStream(newModsFile, true);
                 assert newModsFile.exists();
 
@@ -1237,10 +1278,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         long newModsFileLength = 0;
                         long newModsFileSyncPoint = 0;
                         if (additionalModsLength > 0) {
-                            try (
-                              final FileChannel modsFileChannel = FileChannel.open(this.modsFile.toPath());
-                              final FileChannel newModsFileChannel = FileChannel.open(newModsFile.toPath(),
-                               StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
+                            try (FileChannel modsFileChannel = FileChannel.open(this.modsFile.toPath(), StandardOpenOption.READ)) {
+                                final FileChannel newModsFileChannel = newModsFileOutput.getChannel();
 
                                 // Append new data in old mods file to new mods file
                                 while (newModsFileLength < additionalModsLength) {
@@ -1264,7 +1303,8 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                           new AtomicUpdateFileOutputStream(this.generationFile) : new FileOutputStream(this.generationFile);
                         boolean genSuccess = false;
                         try {
-                            new PrintStream(genOutput, true, "UTF-8").println(newGeneration);
+                            genOutput.write((newGeneration + "\n").getBytes(StandardCharsets.UTF_8));
+                            genOutput.flush();
                             genOutput.getChannel().force(false);
                             genSuccess = true;
                         } finally {
@@ -1294,6 +1334,7 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         this.valsFile = newValsFile;
                         this.modsFile = newModsFile;
                         this.modsFileOutput = newModsFileOutput;
+                        newModsFileOutput = null;
                         this.modsFileLength = newModsFileLength;
                         this.modsFileSyncPoint = newModsFileSyncPoint;
                         this.kvstore = new ArrayKVStore(this.indx, this.keys, this.vals);
@@ -1308,18 +1349,14 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                             }
                         }
 
-                        // Delete old files
-                        oldIndxFile.delete();
-                        oldKeysFile.delete();
-                        oldValsFile.delete();
-                        oldModsFile.delete();
-
                         // Close old mods file output stream
-                        try {
-                            oldModsFileOutput.close();
-                        } catch (IOException e) {
-                            // ignore
-                        }
+                        this.closeIgnoreException(oldModsFileOutput);
+
+                        // Delete old files
+                        this.deleteWarnException(oldIndxFile);
+                        this.deleteWarnException(oldKeysFile);
+                        this.deleteWarnException(oldValsFile);
+                        this.deleteWarnException(oldModsFile);
                     }
                 } finally {
                     try {
@@ -1332,6 +1369,10 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                         }
 
                         // Cleanup/undo on failure
+                        if (newModsFileOutput != null) {
+                            this.closeIgnoreException(newModsFileOutput);
+                            this.deleteWarnException(newModsFile);
+                        }
                         if (!success) {
 
                             // Put back the old uncompacted modifications, and merge any new mods into them
@@ -1340,17 +1381,9 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
                             writesDuringCompaction.applyTo(this.mods);
 
                             // Delete the files we were creating
-                            newIndxFile.delete();
-                            newKeysFile.delete();
-                            newValsFile.delete();
-                            if (newModsFileOutput != null) {
-                                newModsFile.delete();
-                                try {
-                                    newModsFileOutput.close();
-                                } catch (Exception e) {
-                                    // ignore
-                                }
-                            }
+                            this.deleteWarnException(newIndxFile);
+                            this.deleteWarnException(newKeysFile);
+                            this.deleteWarnException(newValsFile);
                         }
                     } finally {
                         this.writeLock.unlock();
@@ -1374,6 +1407,22 @@ public class AtomicArrayKVStore extends AbstractKVStore implements AtomicKVStore
 
     private boolean isWindows() {
         return System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH).indexOf("win") != -1;
+    }
+
+    private void deleteWarnException(File file) {
+        try {
+            Files.delete(file.toPath());
+        } catch (IOException e) {
+            this.log.warn("error deleting " + file + " (proceeding anyway): " + e);
+        }
+    }
+
+    private void closeIgnoreException(Closeable resource) {
+        try {
+            resource.close();
+        } catch (IOException e) {
+            // ignore
+        }
     }
 
 // Compaction

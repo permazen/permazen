@@ -118,7 +118,7 @@ public class ArrayKVWriter implements Closeable {
             // Write a base key index entry every 32 entries
             this.writeIndxValue(this.keysLength);
             this.baseKeyOffset = this.keysLength;
-            this.baseKey = key;
+            this.baseKey = this.cloneOrCopy(this.baseKey, key);
 
             // Write key data
             this.keysOutput.write(key);
@@ -151,7 +151,7 @@ public class ArrayKVWriter implements Closeable {
         this.valsLength += val.length;
 
         // Update state
-        this.prevKey = key;
+        this.prevKey = this.cloneOrCopy(this.prevKey, key);
         this.nextIndex++;
     }
 
@@ -299,6 +299,15 @@ public class ArrayKVWriter implements Closeable {
         this.indxOutput.close();
         this.keysOutput.close();
         this.valsOutput.close();
+    }
+
+    // Copy array if we have to, otherwise just overwrite the previous copy if the array length hasn't chagned
+    private byte[] cloneOrCopy(byte[] dest, byte[] src) {
+        assert src != null;
+        if (dest == null || dest.length != src.length)
+            return src.clone();
+        System.arraycopy(src, 0, dest, 0, src.length);
+        return dest;
     }
 }
 
