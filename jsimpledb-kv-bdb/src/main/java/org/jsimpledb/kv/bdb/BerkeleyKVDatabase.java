@@ -307,10 +307,9 @@ public class BerkeleyKVDatabase implements KVDatabase {
     @Override
     @PostConstruct
     public synchronized void start() {
-        if (this.environment != null) {
-            assert this.database != null;
+        assert (this.environment == null) == (this.database == null);
+        if (this.environment != null)                                                   // already started
             return;
-        }
         assert this.openTransactions.isEmpty();
         Preconditions.checkState(this.directory != null, "no directory configured");
         Preconditions.checkState(this.databaseName != null, "no database name configured");
@@ -348,6 +347,7 @@ public class BerkeleyKVDatabase implements KVDatabase {
         final Database oldDatabase;
         final ArrayList<BerkeleyKVTransaction> oldTransactions;
         synchronized (this) {
+            assert (this.environment == null) == (this.database == null);
             oldEnvironment = this.environment;
             oldDatabase = this.database;
             oldTransactions = new ArrayList<BerkeleyKVTransaction>(this.openTransactions);
@@ -357,10 +357,8 @@ public class BerkeleyKVDatabase implements KVDatabase {
         }
 
         // Were we already stopped?
-        if (oldEnvironment == null) {
-            assert this.database == null;
+        if (oldEnvironment == null)
             return;
-        }
 
         // Rollback any open transactions so cursors are cleaned up and transactions closed
         for (BerkeleyKVTransaction tx : oldTransactions) {
