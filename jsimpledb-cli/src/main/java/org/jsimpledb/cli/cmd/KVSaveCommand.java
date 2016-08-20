@@ -13,7 +13,11 @@ import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
+import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
 import org.jsimpledb.kv.util.XMLSerializer;
@@ -23,7 +27,7 @@ import org.jsimpledb.util.ParseContext;
 public class KVSaveCommand extends AbstractCommand {
 
     public KVSaveCommand() {
-        super("kvsave -i:indent file.xml:file minKey? maxKey? limit?");
+        super("kvsave -i:indent file.xml:file minKey? maxKey?");
     }
 
     @Override
@@ -34,8 +38,8 @@ public class KVSaveCommand extends AbstractCommand {
     @Override
     public String getHelpDetail() {
         return "Writes all key/value pairs to the specified XML file. Data can be read back in later via `kvload'."
-          + "\n\nIf `minKey', `maxKey', and/or `limit' are specified, the keys are restricted to the specified range"
-          + " and/or count limit. `minKey' and `maxKey' may be given as hexadecimal strings or C-style doubly-quoted strings."
+          + "\n\nIf `minKey' and/or `maxKey' are specified, the keys are restricted to the specified range."
+          + " `minKey' and `maxKey' may be given as hexadecimal strings or C-style doubly-quoted strings."
           + " The `-i' flag causes the output XML to be indented.";
     }
 
@@ -55,9 +59,8 @@ public class KVSaveCommand extends AbstractCommand {
         // Parse parameters
         final File file = (File)params.get("file.xml");
         final boolean indent = params.containsKey("indent");
-        final byte[] key = (byte[])params.get("key");
+        final byte[] minKey = (byte[])params.get("minKey");
         final byte[] maxKey = (byte[])params.get("maxKey");
-        final Integer limit = (Integer)params.get("limit");
 
         // Return action
         return new CliSession.TransactionalAction() {
@@ -69,8 +72,12 @@ public class KVSaveCommand extends AbstractCommand {
                 boolean success = false;
                 final int count;
                 try {
+                    XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
+                    if (indent)
+                        writer = new IndentXMLStreamWriter(writer);
+                    writer.writeStartDocument("UTF-8", "1.0");
                     final XMLSerializer serializer = new XMLSerializer(session.getKVTransaction());
-                    count = serializer.write(output, indent);
+                    count = serializer.write(writer, minKey, maxKey);
                     output.flush();
                     success = true;
                 } finally {
