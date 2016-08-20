@@ -216,7 +216,7 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
 // ForwardingKVStore
 
     @Override
-    protected RocksDBKVStore delegate() {
+    protected synchronized RocksDBKVStore delegate() {
         Preconditions.checkState(this.db != null && this.kv != null, "closed");
         return this.kv;
     }
