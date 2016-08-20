@@ -5,6 +5,8 @@
 
 package org.jsimpledb.vaadin.app;
 
+import com.google.common.base.Preconditions;
+
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayDeque;
@@ -58,7 +60,10 @@ public class Main extends AbstractMain implements GUIConfig {
     public int run(String[] args) throws Exception {
 
         // Set singleton
-        Main.instance = this;
+        synchronized (Main.class) {
+            Preconditions.checkState(Main.instance == null, "only one instance of this class is expected");
+            Main.instance = this;
+        }
 
         // Parse command line
         final ArrayDeque<String> params = new ArrayDeque<String>(Arrays.asList(args));
@@ -164,7 +169,7 @@ public class Main extends AbstractMain implements GUIConfig {
         new Main().doMain(args);
     }
 
-    public static Main getInstance() {
+    public static synchronized Main getInstance() {
         return Main.instance;
     }
 }

@@ -1,1 +1,31 @@
-<FindBugsFilter/>
+<FindBugsFilter>
+    <Match>
+        <Class name="org.jsimpledb.vaadin.app.MainUI"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.vaadin.app.MainUI"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.vaadin.app.MainPanel"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.vaadin.app.MainPanel"/>
+        <Bug pattern="SE_BAD_FIELD_STORE"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.vaadin.app.MainPanel"/>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.vaadin.app.ReferenceFieldField"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.vaadin.app.JObjectEditorWindow$CounterProperty"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+</FindBugsFilter>
