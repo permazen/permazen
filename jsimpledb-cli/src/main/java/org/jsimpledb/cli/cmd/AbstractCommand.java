@@ -130,9 +130,11 @@ public abstract class AbstractCommand implements Command {
      * @return action to perform for the parsed command
      * @throws org.jsimpledb.parse.ParseException if parse fails, or if {@code complete} is true and there are valid completions
      * @throws org.jsimpledb.parse.ParseException if parameters are invalid
+     * @throws IllegalArgumentException if {@code session} is not a {@link CliSession}
      */
     @Override
     public CliSession.Action parse(ParseSession session, ParseContext ctx, boolean complete) {
+        Preconditions.checkArgument(session instanceof CliSession, "session is not a CliSession");
         return this.getAction((CliSession)session, ctx, complete, this.paramParser.parse(session, ctx, complete));
     }
 

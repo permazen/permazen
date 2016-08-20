@@ -100,7 +100,7 @@ public class KVGetCommand extends AbstractKVCommand {
             }
             writer.print("   ");
             for (int j = 0; j < 32 && i + j < value.length; j++) {
-                final int ch = value[i + j];
+                final int ch = value[i + j] & 0xff;
                 writer.print(i + j < value.length ? (ch < 0x20 || ch > 0x7f ? '.' : (char)ch) : ' ');
             }
             writer.println();

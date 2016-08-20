@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -383,14 +384,13 @@ public class Console {
                 break;
             }
             runner.setDiscardStandardError(true);
-            final int result;
             try {
-                result = runner.run();
+                runner.run();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
             }
-            if (!new String(runner.getStandardOutput()).trim().matches("(?is)^cygwin.*"))
+            if (!new String(runner.getStandardOutput(), StandardCharsets.UTF_8).trim().matches("(?is)^cygwin.*"))
                 break;
             try {
                 return TerminalFactory.getFlavor(TerminalFactory.Flavor.UNIX);

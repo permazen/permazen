@@ -5,13 +5,11 @@
 
 package org.jsimpledb.cli.cmd;
 
-import java.io.PrintWriter;
 import java.util.EnumSet;
 import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
-import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.util.ParseContext;
 
 public class KVPutCommand extends AbstractKVCommand {
@@ -44,9 +42,7 @@ public class KVPutCommand extends AbstractKVCommand {
         return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
-                final PrintWriter writer = session.getWriter();
-                final KVTransaction kvt = session.getKVTransaction();
-                kvt.put(key, value);
+                session.getKVTransaction().put(key, value);
             }
         };
     }

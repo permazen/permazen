@@ -181,7 +181,7 @@ public abstract class AbstractKVCommand extends AbstractCommand {
 
 // BytesParser
 
-    private class BytesParser implements Parser<byte[]> {
+    private static class BytesParser implements Parser<byte[]> {
 
         @Override
         public byte[] parse(ParseSession session, ParseContext ctx, boolean complete) {

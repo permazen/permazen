@@ -5,7 +5,6 @@
 
 package org.jsimpledb.cli.cmd;
 
-import java.io.PrintWriter;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -50,7 +49,6 @@ public class KVRemoveCommand extends AbstractKVCommand {
         return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
-                final PrintWriter writer = session.getWriter();
                 final KVTransaction kvt = session.getKVTransaction();
                 if (!range)
                     kvt.remove(key);
