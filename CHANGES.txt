@@ -1,5 +1,6 @@
 Version Next
 
+    - Updated to rocksdbjni version 4.9.0
     - Fixed Raft fallback bug: rollback inner tx on migration retry exception
     - Enhanced several classes to implement Serializable
     - Fixed bug where leader removed from cluster would not immediately step down

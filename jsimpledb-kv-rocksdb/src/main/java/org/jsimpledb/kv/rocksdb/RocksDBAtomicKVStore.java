@@ -235,12 +235,10 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
         Preconditions.checkState(this.db != null, "closed");
 
         // Apply mutations in a batch
-        final WriteBatch batch = new WriteBatch();
-        try {
+        try (final WriteBatch batch = new WriteBatch()) {
 
             // Apply removes
-            final ReadOptions iteratorOptions = new ReadOptions().setFillCache(false);
-            try {
+            try (final ReadOptions iteratorOptions = new ReadOptions().setFillCache(false)) {
                 for (KeyRange range : mutations.getRemoveRanges()) {
                     final byte[] min = range.getMin();
                     final byte[] max = range.getMax();
@@ -253,8 +251,6 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
                         }
                     }
                 }
-            } finally {
-                iteratorOptions.dispose();
             }
 
             // Apply puts
@@ -266,16 +262,11 @@ public class RocksDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
                 batch.merge(entry.getKey(), this.kv.encodeCounter(entry.getValue()));
 
             // Write the batch
-            final WriteOptions writeOptions = new WriteOptions().setSync(sync);
-            try {
+            try (final WriteOptions writeOptions = new WriteOptions().setSync(sync)) {
                 this.db.write(writeOptions, batch);
-            } finally {
-                writeOptions.dispose();
             }
         } catch (RocksDBException e) {
             throw new RuntimeException("error applying changes to RocksDB", e);
-        } finally {
-            batch.dispose();
         }
     }
 

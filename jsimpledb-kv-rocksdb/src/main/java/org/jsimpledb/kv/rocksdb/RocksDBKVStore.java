@@ -55,7 +55,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
      * Constructor.
      *
      * <p>
-     * The caller is responsible for invoking {@link org.rocksdb.RocksObject#dispose dispose()} on any supplied
+     * The caller is responsible for invoking {@link org.rocksdb.RocksObject#close close()} on any supplied
      * {@code readOptions} and/or {@code writeBatch}, after this instance is {@link #close}'d of course.
      *
      * @param db database
@@ -247,7 +247,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
             this.log.trace("closing " + this);
         this.cursorTracker.close();
         if (this.closeReadOptions)
-            this.readOptions.dispose();
+            this.readOptions.close();
     }
 
 // Iterator
@@ -279,7 +279,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
             RocksDBKVStore.this.cursorTracker.add(this, new Closeable() {
                 @Override
                 public void close() {
-                    cursor.dispose();
+                    cursor.close();
                 }
             });
 
@@ -449,7 +449,7 @@ public class RocksDBKVStore extends AbstractKVStore implements CloseableKVStore 
                 RocksDBKVStore.this.log.trace("closing " + this);
             assert RocksDBUtil.isInitialized(this.cursor);
             try {
-                this.cursor.dispose();
+                this.cursor.close();
             } catch (Throwable e) {
                 RocksDBKVStore.this.log.debug("caught exception closing db iterator (ignoring)", e);
             }

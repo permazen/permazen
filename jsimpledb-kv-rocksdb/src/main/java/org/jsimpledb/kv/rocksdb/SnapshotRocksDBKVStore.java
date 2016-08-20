@@ -52,7 +52,7 @@ public class SnapshotRocksDBKVStore extends RocksDBKVStore implements CloseableK
         this.closed = true;
         super.close();
         try {
-            this.snapshot.dispose();
+            this.snapshot.close();
         } catch (Throwable e) {
             this.log.error("caught exception closing RocksDB snapshot (ignoring)", e);
         }
