@@ -135,7 +135,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     }
 
     /**
-     * Get the index of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)
+     * Get the term of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)
      * before it can complete.
      *
      * @return associated commit log entry index, or zero if this transaction has not yet gotten to {@link TxState#COMMIT_WAITING}
@@ -152,7 +152,7 @@ public class RaftKVTransaction extends ForwardingKVStore implements KVTransactio
     }
 
     /**
-     * Get the term of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)
+     * Get the index of the Raft log entry on which this transaction is waiting to be committed (in the Raft sense)
      * before it can complete.
      *
      * @return associated commit log entry term, or zero if this transaction has not yet gotten to {@link TxState#COMMIT_WAITING}
