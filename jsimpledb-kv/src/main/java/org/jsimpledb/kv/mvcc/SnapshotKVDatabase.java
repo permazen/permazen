@@ -311,8 +311,11 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         final Writes transactionWrites = tx.getMutableView().getWrites();
 
         // If transaction is read-only, no need to create a new version
-        if (transactionWrites.isEmpty())
+        if (transactionWrites.isEmpty()) {
+            if (this.log.isTraceEnabled())
+                this.log.trace("no mutations in " + tx + ", staying at version " + this.currentVersion);
             return;
+        }
 
         // If the current version has advanced past the transaction's version, check for conflicts from intervening commits
         for (long version = transactionVersion; version != this.currentVersion; version++) {
