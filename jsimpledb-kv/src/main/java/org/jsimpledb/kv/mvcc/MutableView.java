@@ -39,7 +39,7 @@ import org.jsimpledb.util.SizeEstimator;
  * Reads may also be optionally recorded.
  *
  * <p>
- * In all cases, then underlying {@link KVStore} is never modified.
+ * In all cases, the underlying {@link KVStore} is never modified.
  *
  * <p>
  * Instances are also capable of performing certain MVCC-related calculations, such as whether two transactions may be re-ordered.
