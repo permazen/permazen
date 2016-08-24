@@ -2,7 +2,15 @@
 SHORT TERM
 ==========
 
+- Don't @OnCreate or @OnChange during a copyTo()
+
+- Relax requirement for consistent storage ID type if there are no indexes?
+    - Would complicate FieldInfo logic
+    - Make check optional for the schema verifier ant task & maven plugin
+
 - CLI:
+    - Add "show-variables" and "show-imports" commands
+    - Add function returning the current CLI session
     - New CLI flags:
         - `--console-port': accept console telnet connections on port
         - `--background': disable console on stdin/stdout, daemonize
