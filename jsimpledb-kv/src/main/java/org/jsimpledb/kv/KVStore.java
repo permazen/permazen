@@ -98,6 +98,11 @@ public interface KVStore {
      * <p>
      * The returned {@link Iterator} itself is not guaranteed to be thread safe.
      *
+     * <p>
+     * Some implementations may return {@link Iterator}s that are also {@link java.io.Closeable}; invokers of this
+     * method are encouraged to detect and {@link java.io.Closeable#close close()} such instances, though this is not
+     * required for correct behavior.
+     *
      * @param minKey minimum key (inclusive), or null for no minimum (start at the smallest key)
      * @param maxKey maximum key (exclusive), or null for no maximum (end at the largest key)
      * @param reverse true to return key/value pairs in reverse order (i.e., keys descending)
