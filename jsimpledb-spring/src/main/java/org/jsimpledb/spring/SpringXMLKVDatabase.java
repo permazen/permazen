@@ -18,9 +18,14 @@ import org.springframework.core.io.Resource;
  * {@link XMLKVDatabase} that adds support for loading the default initial content from any Spring {@link Resource}.
  * For example, this allows initial content to be loaded from the classpath.
  *
+ * <p>
+ * Instances are serializable if the configured {@link StreamRepository} and default initial content resource are.
+ *
  * @see XMLKVDatabase
  */
 public class SpringXMLKVDatabase extends XMLKVDatabase {
+
+    private static final long serialVersionUID = -4186155909343684572L;
 
     private Resource initialContentResource;
 

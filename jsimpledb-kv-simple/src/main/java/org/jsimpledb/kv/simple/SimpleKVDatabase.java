@@ -298,6 +298,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
      * @throws TransactionTimeoutException if the transaction has timed out
      */
     protected void checkState(SimpleKVTransaction tx) {
+        assert Thread.holdsLock(this);
     }
 
     private void checkUsable(SimpleKVTransaction tx) {
@@ -541,9 +542,9 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         }
 
         // Remove all mutations in the middle
-        if (originalMinKey == null && originalMaxKey == null)
+        if (originalMinKey.length == 0 && originalMaxKey == null)
             tx.mutations.clear();
-        else if (originalMinKey == null)
+        else if (originalMinKey.length == 0)
             tx.mutations.headSet(Mutation.key(originalMaxKey)).clear();
         else if (originalMaxKey == null)
             tx.mutations.tailSet(Mutation.key(originalMinKey)).clear();

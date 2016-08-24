@@ -39,7 +39,7 @@ public class Main extends AbstractMain {
     private SessionMode mode = SessionMode.JSIMPLEDB;
     private final ArrayList<String> execCommands = new ArrayList<>();
     private final ArrayList<String> execFiles = new ArrayList<>();
-    private boolean keyboardInput = this.isWindows() || CLibrary.isatty(0) != 0;                // i.e., if stdin is a terminal
+    private boolean keyboardInput = Main.isWindows() || CLibrary.isatty(0) != 0;                // i.e., if stdin is a terminal
     private boolean batchMode = !keyboardInput;
 
     @Override
@@ -62,7 +62,7 @@ public class Main extends AbstractMain {
             this.mode = SessionMode.KEY_VALUE;
         else if (option.equals("--batch") || option.equals("-n")) {
             this.batchMode = true;
-            if (this.isWindows())
+            if (Main.isWindows())
                 keyboardInput = false;
         } else
             return false;

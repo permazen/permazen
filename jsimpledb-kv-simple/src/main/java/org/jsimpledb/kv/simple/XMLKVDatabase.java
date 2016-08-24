@@ -54,14 +54,18 @@ import org.jsimpledb.kv.util.XMLSerializer;
  * <p>
  * {@linkplain XMLKVTransaction#watchKey Key watches} are supported.
  *
+ * <p>
+ * Instances are serializable unless a non-serializable {@link StreamRepository} is provided to the constructor.
+ *
  * @see XMLSerializer
  * @see AtomicUpdateFileOutputStream
  * @see org.jsimpledb.spring.SpringXMLKVDatabase
  */
 public class XMLKVDatabase extends SimpleKVDatabase {
 
-    private final StreamRepository repository;
-    private final XMLSerializer serializer;
+    private static final long serialVersionUID = 5699298282473179002L;
+
+    private /*final*/ StreamRepository repository;
     private final File file;
 
     private int generation;
@@ -140,7 +144,6 @@ public class XMLKVDatabase extends SimpleKVDatabase {
         super(waitTimeout, holdTimeout);
         Preconditions.checkArgument(repository != null, "null repository");
         this.repository = repository;
-        this.serializer = new XMLSerializer(this.kv);
         this.file = file;
     }
 
@@ -226,7 +229,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
     }
 
     @Override
-    protected void checkState(SimpleKVTransaction tx) {
+    protected synchronized void checkState(SimpleKVTransaction tx) {
         this.checkForOutOfBandUpdate();
         final int txGeneration = ((XMLKVTransaction)tx).getGeneration();
         if (txGeneration != this.generation) {
@@ -284,7 +287,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
         // Read XML
         if (input != null) {
             try {
-                this.serializer.read(new BufferedInputStream(input));
+                new XMLSerializer(this.kv).read(new BufferedInputStream(input));
             } catch (XMLStreamException e) {
                 throw new KVDatabaseException(this, "error reading XML content", e);
             } finally {
@@ -307,7 +310,7 @@ public class XMLKVDatabase extends SimpleKVDatabase {
         try {
             final OutputStream output = this.repository.getOutputStream();
             try {
-                this.serializer.write(output, true);
+                new XMLSerializer(this.kv).write(output, true);
                 if (output instanceof FileOutputStream)
                     ((FileOutputStream)output).getFD().sync();
                 output.close();

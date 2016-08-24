@@ -242,6 +242,8 @@ public abstract class AbstractSchemaItem extends AbstractXMLStreaming implements
 
     static class NameComparator implements Comparator<AbstractSchemaItem>, Serializable {
 
+        private static final long serialVersionUID = 3020319677602098674L;
+
         @Override
         public int compare(AbstractSchemaItem item1, AbstractSchemaItem item2) {
             return item1.getName().compareTo(item2.getName());

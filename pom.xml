@@ -86,6 +86,7 @@
         <dellroad-stuff.version>2.0.1</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
         <guava.version>18.0</guava.version>
+        <hawtjni.version>1.14</hawtjni.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <hibernate.version>4.3.3.Final</hibernate.version>
         <javax.el-api.version>2.2.4</javax.el-api.version>
@@ -263,6 +264,12 @@
                 <groupId>org.dellroad</groupId>
                 <artifactId>nvt4j</artifactId>
                 <version>${nvt4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.hawtjni</groupId>
+                <artifactId>hawtjni-runtime</artifactId>
+                <version>${hawtjni.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- JCIP annotations -->
@@ -556,8 +563,10 @@
                 <configuration>
                     <source>${compiler.source}</source>
                     <target>${compiler.target}</target>
+                    <showWarnings>true</showWarnings>
                     <compilerArgs>
-                        <arg>-Xlint:all</arg>
+                        <arg>-Xlint:all,-processing</arg>
+                        <arg>-Werror</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
@@ -722,7 +731,7 @@
                     <findbugsXmlOutput>true</findbugsXmlOutput>
                     <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
                     <excludeFilterFile>src/findbugs/findbugs-exclude.xml</excludeFilterFile>
-                    <failOnError>false</failOnError>
+                    <failOnError>true</failOnError>
                 </configuration>
                 <executions>
                     <execution>

@@ -323,7 +323,7 @@ public class LevelDBAtomicKVStore extends ForwardingKVStore implements AtomicKVS
 // ForwardingKVStore
 
     @Override
-    protected LevelDBKVStore delegate() {
+    protected synchronized LevelDBKVStore delegate() {
         Preconditions.checkState(this.db != null && this.kv != null, "closed");
         return this.kv;
     }

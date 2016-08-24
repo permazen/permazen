@@ -1,1 +1,12 @@
-<FindBugsFilter/>
+<FindBugsFilter>
+    <Match>
+        <Class name="org.jsimpledb.kv.simple.SimpleKVDatabase"/>
+        <Field name="kv"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.jsimpledb.kv.simple.XMLKVDatabase"/>
+        <Field name="repository"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+</FindBugsFilter>

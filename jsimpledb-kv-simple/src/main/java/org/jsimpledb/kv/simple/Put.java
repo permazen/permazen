@@ -7,6 +7,8 @@ package org.jsimpledb.kv.simple;
 
 import com.google.common.base.Preconditions;
 
+import java.util.Arrays;
+
 import org.jsimpledb.kv.KVStore;
 import org.jsimpledb.kv.util.KeyWatchTracker;
 
@@ -42,6 +44,21 @@ class Put extends Mutation {
     @Override
     public boolean trigger(KeyWatchTracker keyWatchTracker) {
         return keyWatchTracker.trigger(this.getKey());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        final Put that = (Put)obj;
+        return Arrays.equals(this.value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() ^ Arrays.hashCode(this.value);
     }
 }
 

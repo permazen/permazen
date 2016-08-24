@@ -37,6 +37,10 @@
             <artifactId>${project.parent.artifactId}-coreapi</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.fusesource.hawtjni</groupId>
+            <artifactId>hawtjni-runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>

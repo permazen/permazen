@@ -8,4 +8,9 @@
         <Class name="org.jsimpledb.spring.JSimpleDBTransactionManager"/>
         <Bug pattern="SE_NO_SERIALVERSIONID"/>
     </Match>
+    <Match>
+        <Class name="org.jsimpledb.spring.SpringXMLKVDatabase"/>
+        <Field name="initialContentResource"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
 </FindBugsFilter>

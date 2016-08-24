@@ -7,10 +7,9 @@ package org.jsimpledb.kv.test;
 
 import com.google.common.base.Converter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -548,9 +547,9 @@ public abstract class KVDatabaseTest extends KVTestSupport {
                 this.test();
                 this.log("succeeded");
             } catch (Throwable t) {
-                final ByteArrayOutputStream buf = new ByteArrayOutputStream();
-                t.printStackTrace(new PrintStream(buf, true));
-                this.log("failed: " + t + "\n" + new String(buf.toByteArray(), StandardCharsets.UTF_8));
+                final StringWriter buf = new StringWriter();
+                t.printStackTrace(new PrintWriter(buf, true));
+                this.log("failed: " + t + "\n" + buf.toString());
                 this.fail = t;
             }
         }
@@ -576,7 +575,7 @@ public abstract class KVDatabaseTest extends KVTestSupport {
             // Save a copy of committed data
             final TreeMap<byte[], byte[]> previousCommittedData = this.committedData != null ?
               (TreeMap<byte[], byte[]>)this.committedData.clone() : null;
-            final NavigableMap<String, String> previousCommittedDataView = this.stringView(previousCommittedData);
+            //final NavigableMap<String, String> previousCommittedDataView = this.stringView(previousCommittedData);
 
             // Verify committed data is accurate before starting
             if (this.committedData != null)
