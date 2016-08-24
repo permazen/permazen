@@ -1,9 +1,10 @@
-Version Next
+Version 2.1.6 Released August 24, 2016
 
     - Updated to rocksdbjni version 4.9.0
     - Fixed Raft fallback bug: rollback inner tx on migration retry exception
+    - Fixed Raft bug where leader removed from cluster would not immediately step down
     - Enhanced several classes to implement Serializable
-    - Fixed bug where leader removed from cluster would not immediately step down
+    - Improved performance of read-only MVCC transactions
     - Fixed bug parsing lambda bodies
 
 Version 2.1.5 Released August 7, 2016
