@@ -198,9 +198,9 @@ public class RaftStatusCommand extends AbstractRaftCommand {
         writer.println("Open Transactions");
         writer.println("=================");
         writer.println();
-        writer.println(String.format("%1s %-6s %-14s %-5s %-12s %-13s %-13s %s",
+        writer.println(String.format("%1s %-10s %-14s %-5s %-12s %-13s %-13s %s",
           "", "ID", "State", "Type", "Consistency", "Base", "Commit", "Config Change"));
-        writer.println(String.format("%1s %-6s %-14s %-5s %-12s %-13s %-13s %s",
+        writer.println(String.format("%1s %-10s %-14s %-5s %-12s %-13s %-13s %s",
           "", "--", "-----", "----", "-----------", "----", "------", "-------------"));
         for (RaftKVTransaction tx2 : db.getOpenTransactions()) {
             writer.println(String.format("  %-6d %-14s %-5s %-12s %-13s %-13s %s", tx2.getTxId(),
