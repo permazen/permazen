@@ -113,6 +113,8 @@ public class SQLKVTransaction extends AbstractKVStore implements KVTransaction {
     public synchronized Iterator<KVPair> getRange(byte[] minKey, byte[] maxKey, boolean reverse) {
         if (this.stale)
             throw new StaleTransactionException(this);
+        if (minKey != null && minKey.length == 0)
+            minKey = null;
         if (minKey == null && maxKey == null)
             return this.queryIterator(reverse ? StmtType.GET_ALL_REVERSE : StmtType.GET_ALL_FORWARD);
         if (minKey == null)
