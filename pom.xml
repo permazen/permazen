@@ -83,7 +83,7 @@
         <aspectj.version>1.8.9</aspectj.version>
         <bdb.version>6.4.9</bdb.version>
         <commons-codec.version>1.10</commons-codec.version>
-        <dellroad-stuff.version>2.0.1</dellroad-stuff.version>
+        <dellroad-stuff.version>2.0.2</dellroad-stuff.version>
         <fdb.version>3.0.2</fdb.version>
         <guava.version>18.0</guava.version>
         <hawtjni.version>1.14</hawtjni.version>
