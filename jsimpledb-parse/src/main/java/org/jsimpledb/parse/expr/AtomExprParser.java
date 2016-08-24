@@ -237,8 +237,8 @@ public class AtomExprParser implements Parser<Node> {
         if (staticMatcher != null) {
 
             // Parse first two identifiers
-            String idents = staticMatcher.group(1);                     // class name so far
-            String member = staticMatcher.group(2);                     // class member name
+            final StringBuilder idents = new StringBuilder(staticMatcher.group(1));     // class name so far
+            String member = staticMatcher.group(2);                                     // class member name
 
             // Keep parsing identifiers as long as we can; after each identifier, try to resolve a class name
             final ArrayList<Integer> indexList = new ArrayList<>();
@@ -247,7 +247,7 @@ public class AtomExprParser implements Parser<Node> {
             Class<?> cl;
             while (true) {
                 try {
-                    cl = session.resolveClass(idents, false);
+                    cl = session.resolveClass(idents.toString(), false);
                 } catch (IllegalArgumentException e) {
                     cl = null;
                 }
@@ -257,7 +257,7 @@ public class AtomExprParser implements Parser<Node> {
                 final Matcher matcher = ctx.tryPattern("\\s*\\.\\s*(" + ParseUtil.IDENT_PATTERN + ")");
                 if (matcher == null)
                     break;
-                idents += "." + member;
+                idents.append('.').append(member);
                 member = matcher.group(1);
             }
             ctx.skipWhitespace();
@@ -275,7 +275,7 @@ public class AtomExprParser implements Parser<Node> {
             if (cl == null) {
                 final ParseException e = new ParseException(ctx, "unknown class `" + idents + "'");
                 if (complete && ctx.isEOF())
-                    e.addCompletions(AtomExprParser.getClassNameCompletions(session, idents));
+                    e.addCompletions(AtomExprParser.getClassNameCompletions(session, idents.toString()));
                 throw e;
             }
 

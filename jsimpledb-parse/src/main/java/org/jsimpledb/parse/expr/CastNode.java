@@ -5,6 +5,7 @@
 
 package org.jsimpledb.parse.expr;
 
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
 import org.dellroad.stuff.java.Primitive;
@@ -26,6 +27,8 @@ public class CastNode implements Node {
      * @param target cast target
      */
     public CastNode(ClassNode typeNode, Node target) {
+        Preconditions.checkArgument(typeNode != null, "null typeNode");
+        Preconditions.checkArgument(target != null, "null target");
         this.typeNode = typeNode;
         this.target = target;
     }
@@ -54,14 +57,14 @@ public class CastNode implements Node {
             final Node node = ((TypeInferringNode)this.target).resolve(session, TypeToken.of(type));
             obj = node.evaluate(session).get(session);
         } else
-            obj = target.evaluate(session).get(session);                        // just evaluate target
+            obj = target.evaluate(session).get(session);                            // just evaluate target
 
         // Handle primitive cast, e.g. "(int)foo"
         if (type.isPrimitive()) {
             final Primitive<?> primitive = Primitive.forName(typeName);
 
             // Check for null
-            if (target == null)
+            if (obj == null)
                 throw new EvalException("invalid cast of null value to " + typeName);
 
             // Handle cast

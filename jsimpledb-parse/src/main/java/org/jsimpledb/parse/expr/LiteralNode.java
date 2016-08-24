@@ -59,7 +59,7 @@ public class LiteralNode implements Node {
 
     @Override
     public int hashCode() {
-        return this.value != null ? this.value.hashCode() : null;
+        return this.value != null ? this.value.hashCode() : 0;
     }
 }
 

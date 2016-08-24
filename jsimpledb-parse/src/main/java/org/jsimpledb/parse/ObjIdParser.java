@@ -10,7 +10,6 @@ import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.NavigableSet;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 
 import org.jsimpledb.core.ObjId;
@@ -76,7 +75,6 @@ public class ObjIdParser implements Parser<ObjId> {
             @Override
             public void run(ParseSession session) throws Exception {
                 final Transaction tx = session.getTransaction();
-                final TreeSet<Integer> storageIds = new TreeSet<>();
                 final ArrayList<NavigableSet<ObjId>> idSets = new ArrayList<>();
                 for (Schema schema : tx.getSchemas().getVersions().values()) {
                     for (ObjType objType : schema.getObjTypes().values()) {

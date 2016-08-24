@@ -154,7 +154,7 @@ public class TypeContainer extends SimpleKeyedContainer<Class<?>, TypeContainer.
         public static final Function<Node, Class<?>> TYPE_FUNCTION = new Function<Node, Class<?>>() {
             @Override
             public Class<?> apply(Node node) {
-                return node.getType();
+                return node != null ? node.getType() : null;
             }
         };
 

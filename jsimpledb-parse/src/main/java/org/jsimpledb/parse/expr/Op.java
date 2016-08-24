@@ -258,10 +258,6 @@ public enum Op {
             final Object rval = rhs.get(session);
             if (lval == null || rval == null)
                 return new ConstValue(lval == rval);
-            if (lval instanceof Boolean && rval instanceof Boolean)
-                return new ConstValue((Boolean)lval == (Boolean)rval);
-            if (lval instanceof Character && rval instanceof Character)
-                return new ConstValue((Character)lval == (Character)rval);
             if (lval instanceof Number || rval instanceof Number)
                 return lhs.compare(session, rhs, Value.EQ);
             return new ConstValue(lval.equals(rval));

@@ -1,1 +1,6 @@
-<FindBugsFilter/>
+<FindBugsFilter>
+    <Match>
+        <Package name="org.jsimpledb.vaadin"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+</FindBugsFilter>

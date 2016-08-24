@@ -72,7 +72,7 @@ public class FoundationKVDatabase implements KVDatabase {
      * @param executor executor for networking activity
      * @see FDB#startNetwork(Executor) FDB.startNetwork()
      */
-    public void setExecutor(Executor executor) {
+    public synchronized void setExecutor(Executor executor) {
         this.executor = executor;
     }
 
@@ -81,7 +81,7 @@ public class FoundationKVDatabase implements KVDatabase {
      *
      * @param clusterFilePath cluster file pathname
      */
-    public void setClusterFilePath(String clusterFilePath) {
+    public synchronized void setClusterFilePath(String clusterFilePath) {
         this.clusterFilePath = clusterFilePath;
     }
 
@@ -89,9 +89,11 @@ public class FoundationKVDatabase implements KVDatabase {
      * Configure the database name. Currently the default value ({@code "DB".getBytes()}) is the only valid value.
      *
      * @param databaseName database name
+     * @throws IllegalArgumentException if {@code databaseName} is null
      */
-    public void setDatabaseName(byte[] databaseName) {
-        this.databaseName = databaseName;
+    public synchronized void setDatabaseName(byte[] databaseName) {
+        Preconditions.checkState(databaseName != null, "null databaseName");
+        this.databaseName = databaseName.clone();
     }
 
     /**
@@ -99,7 +101,7 @@ public class FoundationKVDatabase implements KVDatabase {
      *
      * @return key prefix, or null if there is none configured
      */
-    public byte[] getKeyPrefix() {
+    public synchronized byte[] getKeyPrefix() {
         return this.keyPrefix.clone();
     }
 
@@ -114,7 +116,7 @@ public class FoundationKVDatabase implements KVDatabase {
      * @throws IllegalArgumentException if {@code keyPrefix} starts with {@code 0xff}
      * @throws IllegalStateException if this instance has already been {@linkplain #start started}
      */
-    public void setKeyPrefix(byte[] keyPrefix) {
+    public synchronized void setKeyPrefix(byte[] keyPrefix) {
         Preconditions.checkState(this.database == null, "already started");
         Preconditions.checkArgument(keyPrefix == null || keyPrefix.length == 0 || keyPrefix[0] != (byte)0xff,
           "prefix starts with 0xff");
@@ -127,7 +129,7 @@ public class FoundationKVDatabase implements KVDatabase {
      * @return the associated {@link Database}
      * @throws IllegalStateException if this instance has not yet been {@linkplain #start started}
      */
-    public Database getDatabase() {
+    public synchronized Database getDatabase() {
         Preconditions.checkState(this.database != null, "not started");
         return this.database;
     }
@@ -164,7 +166,7 @@ public class FoundationKVDatabase implements KVDatabase {
     }
 
     @Override
-    public FoundationKVTransaction createTransaction() {
+    public synchronized FoundationKVTransaction createTransaction() {
         Preconditions.checkState(this.database != null, "not started");
         try {
             return new FoundationKVTransaction(this, this.keyPrefix);

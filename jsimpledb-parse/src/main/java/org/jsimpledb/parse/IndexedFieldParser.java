@@ -37,7 +37,6 @@ public class IndexedFieldParser implements Parser<IndexedFieldParser.Result> {
     public Result parse(final ParseSession session, final ParseContext ctx, final boolean complete) {
 
         // Get object type
-        final int typeStart = ctx.getIndex();
         final ObjType objType = new ObjTypeParser().parse(session, ctx, complete);
 
         // Get indexed field

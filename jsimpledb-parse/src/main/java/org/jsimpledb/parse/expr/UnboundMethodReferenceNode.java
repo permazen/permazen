@@ -94,7 +94,7 @@ public class UnboundMethodReferenceNode extends MethodReferenceNode {
 
             // Create proxy
             return new ConstNode(new ConstValue(MethodHandleProxies.asInterfaceInstance(type.getRawType(), handle)));
-        } catch (Exception e) {
+        } catch (NoSuchMethodException | IllegalAccessException | RuntimeException e) {
             throw new EvalException("failed to resolve method " + cl.getName() + "::" + this.name + " for " + type, e);
         }
     }

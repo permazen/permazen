@@ -50,7 +50,7 @@ public final class ConstValue extends AbstractValue {
 
     @Override
     public int hashCode() {
-        return this.value != null ? this.value.hashCode() : null;
+        return this.value != null ? this.value.hashCode() : 0;
     }
 }
 

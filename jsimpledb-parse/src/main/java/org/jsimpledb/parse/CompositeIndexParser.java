@@ -30,7 +30,6 @@ public class CompositeIndexParser implements Parser<CompositeIndex> {
     public CompositeIndex parse(final ParseSession session, final ParseContext ctx, final boolean complete) {
 
         // Get object type
-        final int typeStart = ctx.getIndex();
         final ObjType objType = new ObjTypeParser().parse(session, ctx, complete);
 
         // Get composite index name and resolve index

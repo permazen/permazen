@@ -8,6 +8,7 @@ package org.jsimpledb.parse.expr;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -333,7 +334,9 @@ final class MethodUtil {
 
 // SignatureComparator
 
-    private static class SignatureComparator implements Comparator<Executable<?>> {
+    private static class SignatureComparator implements Comparator<Executable<?>>, Serializable {
+
+        private static final long serialVersionUID = 1169904024798638618L;
 
         @Override
         public int compare(Executable<?> m1, Executable<?> m2) {

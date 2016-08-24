@@ -1,1 +1,7 @@
-<FindBugsFilter/>
+<FindBugsFilter>
+    <Match>
+        <Class name="org.jsimpledb.app.AbstractMain"/>
+        <Field name="verbose"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+</FindBugsFilter>

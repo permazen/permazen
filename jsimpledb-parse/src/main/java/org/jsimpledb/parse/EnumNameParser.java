@@ -43,8 +43,12 @@ public class EnumNameParser<T extends Enum<T>> implements Parser<T> {
 
         // Get name
         final Matcher matcher = ctx.tryPattern("[^\\s;]*");
-        if (matcher == null && ctx.isEOF())
-            throw new ParseException(ctx).addCompletions(Lists.transform(EnumUtil.getValues(this.type), this.nameFunction));
+        if (matcher == null) {
+            final ParseException e = new ParseException(ctx);
+            if (ctx.isEOF() && complete)
+                e.addCompletions(Lists.transform(EnumUtil.getValues(this.type), this.nameFunction));
+            throw e;
+        }
         final String name = matcher.group();
 
         // Match name

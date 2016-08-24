@@ -133,7 +133,7 @@ public class LiteralExprParser implements Parser<Node> {
         // Try to match a string literal
         final Matcher stringMatch = ctx.tryPattern(StringEncoder.ENQUOTE_PATTERN);
         if (stringMatch != null)
-            return new LiteralNode(new String(StringEncoder.dequote(stringMatch.group())));
+            return new LiteralNode(StringEncoder.dequote(stringMatch.group()));
 
         // Try to match the name of a type from the type registry within curly braces, followed by a value of that type
         final Matcher braceMatch = ctx.tryPattern("\\{(" + FieldType.NAME_PATTERN + ")\\}");

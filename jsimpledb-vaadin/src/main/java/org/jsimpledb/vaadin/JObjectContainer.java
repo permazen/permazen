@@ -499,6 +499,21 @@ public class JObjectContainer extends SimpleKeyedContainer<ObjId, JObject> {
             }
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            final ObjFieldPropertyDef that = (ObjFieldPropertyDef)obj;
+            return this.storageId == that.storageId;
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode() ^ this.storageId;
+        }
+
         private Component handleCollectionField(Collection<?> col) {
             return this.handleMultiple(Iterables.transform(col, new Function<Object, Component>() {
                 @Override
