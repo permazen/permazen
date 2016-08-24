@@ -626,12 +626,10 @@
                         <!-- These properties are used by KVDatabase tests. Uncomment one or more to include time-consuming tests. -->
 
                         <!-- kv-array -->
-                        <!--
                         <arrayDirPrefix>ArrayKVStore</arrayDirPrefix>
                         <arrayCompactMaxDelay>3</arrayCompactMaxDelay>
                         <arrayCompactSpaceLowWater>1048576</arrayCompactSpaceLowWater>
                         <arrayCompactSpaceHighWater>16777216</arrayCompactSpaceHighWater>
-                        -->
 
                         <!-- kv-bdb -->
                         <!--
@@ -649,9 +647,7 @@
                         -->
 
                         <!-- kv-leveldb -->
-                        <!--
                         <levelDbDirPrefix>LevelDbJava</levelDbDirPrefix>
-                        -->
 
                         <!-- kv-mysql -->
                         <!--
@@ -659,7 +655,6 @@
                         -->
 
                         <!-- kv-raft -->
-                        <!--
                         <raftDirPrefix>RaftDB</raftDirPrefix>
                         <raftNumNodes>3</raftNumNodes>
                         <raftCommitTimeout>2500</raftCommitTimeout>
@@ -670,21 +665,16 @@
                         <raftFollowerProbingEnabled>true</raftFollowerProbingEnabled>
                         <raftNetworkDelayMillis>10</raftNetworkDelayMillis>
                         <raftNetworkDropRatio>0.05</raftNetworkDropRatio>
-                        -->
 
                         <!-- kv-rocksdb -->
-                        <!--
                         <rocksDbDirPrefix>RocksDbJava</rocksDbDirPrefix>
-                        -->
 
                         <!-- kv-simple -->
                         <testSimpleKV>true</testSimpleKV>
                         <xmlFilePrefix>xmldb</xmlFilePrefix>
 
                         <!-- kv-sqlite -->
-                        <!--
                         <sqliteFilePrefix>SQLiteKV</sqliteFilePrefix>
-                        -->
 
                     </systemPropertyVariables>
                     <properties>
