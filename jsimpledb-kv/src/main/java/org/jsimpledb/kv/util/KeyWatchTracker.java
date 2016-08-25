@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import net.jcip.annotations.GuardedBy;
@@ -78,6 +79,8 @@ public class KeyWatchTracker implements Closeable {
     @GuardedBy("this")
     private final TreeMap<byte[], KeyInfo> keyInfos = new TreeMap<>(ByteUtil.COMPARATOR);
     private final Cache<KeyFuture, KeyInfo> futureMap;
+    @GuardedBy("this")
+    private Executor notifyExecutor;
 
     /**
      * Default constructor.
@@ -117,6 +120,24 @@ public class KeyWatchTracker implements Closeable {
         if (weakReferences)
             cacheBuilder = cacheBuilder.weakKeys();
         this.futureMap = cacheBuilder.build();
+    }
+
+    /**
+     * Configure an {@link Executor} to be used when dispatching key watch notifications.
+     *
+     * <p>
+     * By default no {@link Executor} is configured, which means notifications are delivered in the same thread
+     * that invokes {@link #trigger trigger()}, {@link #triggerAll}, or {@link #failAll failAll()}. If key watchers
+     * are using the {@link ListenableFuture} interface and performing work on the notification thread, that
+     * may cause reentrancy problems, which the use of a separate {@link Executor} can avoid.
+     *
+     * <p>
+     * The configured {@link Executor} is <i>not</i> shutdown when this instance is {@link #close close()}'ed.
+     *
+     * @param notifyExecutor executor for key watch notifications, or null for none
+     */
+    public synchronized void setNotifyExecutor(Executor notifyExecutor) {
+        this.notifyExecutor = notifyExecutor;
     }
 
     /**
@@ -287,6 +308,7 @@ public class KeyWatchTracker implements Closeable {
      * Discard all outstanding key watches and fail them with the given exception.
      *
      * @param e failing exception
+     * @throws IllegalArgumentException if {@code e} is null
      */
     public void failAll(Exception e) {
 
@@ -383,19 +405,20 @@ public class KeyWatchTracker implements Closeable {
 
         void handleRemoval(KeyFuture future) {
             if (this.removeFuture(future) && future.getOwner() == KeyWatchTracker.this.futureMap)
-                future.set(null);                           // if future has not completed yet, trigger a spurious notification
+                this.notifyFuture(future, null);            // if future has not completed yet, trigger a spurious notification
         }
 
         // This assumes this instance is already removed from KeyWatchTracker.this.keyInfos
         void triggerAll() {
             for (KeyFuture future : this.removeAllFutures())
-                future.set(null);
+                this.notifyFuture(future, null);
         }
 
         // This assumes this instance is already removed from KeyWatchTracker.this.keyInfos
         void failAll(Exception e) {
+            assert e != null;
             for (KeyFuture future : this.removeAllFutures())
-                future.setException(e);
+                this.notifyFuture(future, e);
         }
 
         /**
@@ -414,6 +437,42 @@ public class KeyWatchTracker implements Closeable {
                 }
             }
             return removed;
+        }
+
+        // Notify future of result, using the configured notifyExecutor if any
+        private void notifyFuture(final KeyFuture future, final Exception e) {
+
+            // Get the configured notifyExecutor
+            final Executor notifyExecutor;
+            synchronized (KeyWatchTracker.this) {
+                notifyExecutor = KeyWatchTracker.this.notifyExecutor;
+            }
+
+            // If none configured, notify directly in the current thread
+            if (notifyExecutor == null) {
+                this.doNotifyFuture(future, e);
+                return;
+            }
+
+            // Notify using the executor
+            notifyExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    KeyInfo.this.doNotifyFuture(future, e);
+                }
+            });
+        }
+
+        private void doNotifyFuture(final KeyFuture future, final Exception e) {
+            assert future != null;
+            try {
+                if (e != null)
+                    future.setException(e);
+                else
+                    future.set(null);
+            } catch (Throwable t) {
+                LoggerFactory.getLogger(this.getClass()).error("exception from key watch listener", t);
+            }
         }
 
         /**
@@ -445,23 +504,13 @@ public class KeyWatchTracker implements Closeable {
         @Override
         protected boolean set(Void value) {
             this.futureMap.invalidate(this);
-            try {
-                return super.set(value);
-            } catch (Throwable t2) {
-                LoggerFactory.getLogger(this.getClass()).error("exception from key watch listener", t2);
-                return true;
-            }
+            return super.set(value);
         }
 
         @Override
         protected boolean setException(Throwable t) {
             this.futureMap.invalidate(this);
-            try {
-                return super.setException(t);
-            } catch (Throwable t2) {
-                LoggerFactory.getLogger(this.getClass()).error("exception from key watch listener", t2);
-                return true;
-            }
+            return super.setException(t);
         }
 
         @Override

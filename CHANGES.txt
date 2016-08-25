@@ -1,5 +1,6 @@
 Version Next
 
+    - Notify Raft key watches on a separate thread to avoid reentrancy issues
     - Changed JSimpleDBTransactionManager.validateBeforeCommit default to false
     - Fixed NullPointerException in FallbackTarget.getLastActiveTime()
 

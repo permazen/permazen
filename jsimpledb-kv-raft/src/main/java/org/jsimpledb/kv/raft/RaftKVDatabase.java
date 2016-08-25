@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -391,7 +392,8 @@ public class RaftKVDatabase implements KVDatabase {
     AtomicKVStore kv;
     FileChannel logDirChannel;                                          // null on Windows - no support for sync'ing directories
     String returnAddress;                                               // return address for message currently being processed
-    ScheduledExecutorService serviceExecutor;
+    ScheduledExecutorService serviceExecutor;                           // internal service thread
+    ExecutorService keyWatchExecutor;                                   // key watch notification thread
     final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
     final HashMap<Long, RaftKVTransaction> openTransactions = new HashMap<>();
     final LinkedHashSet<Service> pendingService = new LinkedHashSet<>();
@@ -903,6 +905,7 @@ public class RaftKVDatabase implements KVDatabase {
                     return thread;
                 }
             });
+            assert this.keyWatchExecutor == null;               // instantiated on demand
 
             // Start network
             this.network.start(new Network.Handler() {
@@ -1034,17 +1037,26 @@ public class RaftKVDatabase implements KVDatabase {
                 this.warn("open transactions not cleaned up during shutdown");
         }
 
-        // Shut down the service executor and wait for pending tasks to finish
+        // Shut down the executors and wait for pending tasks to finish
         this.serviceExecutor.shutdownNow();
         try {
             this.serviceExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        if (this.keyWatchExecutor != null) {
+            this.keyWatchExecutor.shutdownNow();
+            try {
+                this.keyWatchExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
 
         // Final cleanup
         synchronized (this) {
             this.serviceExecutor = null;
+            this.keyWatchExecutor = null;
             this.cleanup();
         }
 
@@ -1067,6 +1079,15 @@ public class RaftKVDatabase implements KVDatabase {
                 Thread.currentThread().interrupt();
             }
             this.serviceExecutor = null;
+        }
+        if (this.keyWatchExecutor != null) {
+            this.keyWatchExecutor.shutdownNow();
+            try {
+                this.keyWatchExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            this.keyWatchExecutor = null;
         }
         this.kv.stop();
         Util.closeIfPossible(this.logDirChannel);
@@ -1182,9 +1203,26 @@ public class RaftKVDatabase implements KVDatabase {
 // Key Watches
 
     synchronized ListenableFuture<Void> watchKey(RaftKVTransaction tx, byte[] key) {
+
+        // Sanity check
         Preconditions.checkState(this.role != null, "not started");
         if (tx.getState() != TxState.EXECUTING)
             throw new StaleTransactionException(tx);
+
+        // Start up notify executor on demand
+        if (this.keyWatchExecutor == null) {
+            this.keyWatchExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable action) {
+                    final Thread thread = new Thread(action);
+                    thread.setName("RaftKVDatabase Key Watch Notification");
+                    return thread;
+                }
+            });
+            this.keyWatchTracker.setNotifyExecutor(this.keyWatchExecutor);
+        }
+
+        // Register key watch
         return this.keyWatchTracker.register(key);
     }
 
@@ -2106,6 +2144,7 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.raftLog.isEmpty();
             assert this.logDirChannel == null;
             assert this.serviceExecutor == null;
+            assert this.keyWatchExecutor == null;
             assert this.keyWatchTracker.getNumKeysWatched() == 0;
             assert this.transmitting.isEmpty();
             assert this.openTransactions.isEmpty();
@@ -2120,6 +2159,7 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.serviceExecutor != null;
         assert this.logDirChannel != null || this.isWindows();
         assert !this.serviceExecutor.isShutdown() || this.shuttingDown;
+        assert this.keyWatchExecutor == null || (!this.keyWatchExecutor.isShutdown() || this.shuttingDown);
 
         assert this.currentTerm >= 0;
         assert this.commitIndex >= 0;
