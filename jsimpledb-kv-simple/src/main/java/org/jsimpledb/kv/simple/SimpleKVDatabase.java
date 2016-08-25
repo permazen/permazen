@@ -85,7 +85,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
     protected /*final*/ transient Logger log = LoggerFactory.getLogger(this.getClass());
 
     private /*final*/ transient LockManager lockManager = new LockManager(this);
-    private /*final*/ transient KeyWatchTracker keyWatchTracker = new KeyWatchTracker();
+    private /*final*/ transient KeyWatchTracker keyWatchTracker;
 
     private long waitTimeout;
 
@@ -186,12 +186,15 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 // KVDatabase
 
     @Override
-    public void start() {
+    public synchronized void start() {
     }
 
     @Override
-    public void stop() {
-        this.keyWatchTracker.failAll(new Exception("database stopped"));
+    public synchronized void stop() {
+        if (this.keyWatchTracker != null) {
+            this.keyWatchTracker.close();
+            this.keyWatchTracker = null;
+        }
     }
 
     @Override
@@ -207,6 +210,8 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
 // Key Watches
 
     synchronized ListenableFuture<Void> watchKey(byte[] key) {
+        if (this.keyWatchTracker == null)
+            this.keyWatchTracker = new KeyWatchTracker();
         return this.keyWatchTracker.register(key);
     }
 
@@ -657,6 +662,5 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
         input.defaultReadObject();
         this.log = LoggerFactory.getLogger(this.getClass());
         this.lockManager = new LockManager(this);
-        this.keyWatchTracker = new KeyWatchTracker();
     }
 }

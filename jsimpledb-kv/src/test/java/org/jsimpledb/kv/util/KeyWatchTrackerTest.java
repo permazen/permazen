@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jsimpledb.test.TestSupport;
 import org.testng.Assert;
@@ -26,11 +27,11 @@ public class KeyWatchTrackerTest extends TestSupport {
         final KeyWatchTracker tracker = new KeyWatchTracker();
 
         final ListenableFuture<?> f1 = tracker.register(B1);
-        final boolean[] flag = new boolean[1];
+        final AtomicBoolean flag = new AtomicBoolean();
         f1.addListener(new Runnable() {
             @Override
             public void run() {
-                flag[0] = true;
+                flag.set(true);
             }
         }, MoreExecutors.directExecutor());
 
@@ -43,7 +44,11 @@ public class KeyWatchTrackerTest extends TestSupport {
 
         // Now should have an immediate trigger
         this.verifyComplete(f1);
-        Assert.assertTrue(flag[0]);
+        Thread.sleep(100);
+        Assert.assertTrue(flag.get());
+
+        // Done
+        tracker.close();
     }
 
     @Test

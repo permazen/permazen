@@ -216,6 +216,10 @@ public abstract class Role {
         assert this.raft.commitIndex <= this.raft.lastAppliedIndex + this.raft.raftLog.size();
         assert this.raft.keyWatchIndex <= this.raft.commitIndex;
 
+        // If nobody is watching, don't bother
+        if (this.raft.keyWatchTracker == null)
+            return;
+
         // If we have recevied a snapshot install, we may not be able to tell which keys have changed since last notification;
         // in that case, trigger all key watches; otherwise, trigger the keys affected by newly committed log entries
         if (this.raft.keyWatchIndex < this.raft.lastAppliedIndex) {

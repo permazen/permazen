@@ -22,7 +22,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import net.jcip.annotations.GuardedBy;
@@ -48,6 +50,8 @@ import org.slf4j.LoggerFactory;
  * on the {@linkplain ListenableFuture#addListener listener registration functionality} provided in the
  * {@link ListenableFuture} interface, because with a listener registration, there is no longer any need
  * to directly reference the {@link ListenableFuture}. Therefore, by default strong references are used.
+ * In any case, {@link ListenableFuture} notifications are performed on a separate dedicated notification
+ * thread to avoid re-entrancy issues.
  *
  * <p>
  * For space efficiency, this class does not track the original values associated with a key. Therefore,
@@ -80,7 +84,7 @@ public class KeyWatchTracker implements Closeable {
     private final TreeMap<byte[], KeyInfo> keyInfos = new TreeMap<>(ByteUtil.COMPARATOR);
     private final Cache<KeyFuture, KeyInfo> futureMap;
     @GuardedBy("this")
-    private Executor notifyExecutor;
+    private final ExecutorService notifyExecutor;
 
     /**
      * Default constructor.
@@ -120,24 +124,14 @@ public class KeyWatchTracker implements Closeable {
         if (weakReferences)
             cacheBuilder = cacheBuilder.weakKeys();
         this.futureMap = cacheBuilder.build();
-    }
-
-    /**
-     * Configure an {@link Executor} to be used when dispatching key watch notifications.
-     *
-     * <p>
-     * By default no {@link Executor} is configured, which means notifications are delivered in the same thread
-     * that invokes {@link #trigger trigger()}, {@link #triggerAll}, or {@link #failAll failAll()}. If key watchers
-     * are using the {@link ListenableFuture} interface and performing work on the notification thread, that
-     * may cause reentrancy problems, which the use of a separate {@link Executor} can avoid.
-     *
-     * <p>
-     * The configured {@link Executor} is <i>not</i> shutdown when this instance is {@link #close close()}'ed.
-     *
-     * @param notifyExecutor executor for key watch notifications, or null for none
-     */
-    public synchronized void setNotifyExecutor(Executor notifyExecutor) {
-        this.notifyExecutor = notifyExecutor;
+        this.notifyExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable action) {
+                final Thread thread = new Thread(action);
+                thread.setName("Key Watch Notify");
+                return thread;
+            }
+        });
     }
 
     /**
@@ -371,6 +365,12 @@ public class KeyWatchTracker implements Closeable {
     @Override
     public void close() {
         this.failAll(new Exception("key watch tracker closed"));
+        this.notifyExecutor.shutdownNow();
+        try {
+            this.notifyExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
 // KeyInfo
@@ -441,38 +441,19 @@ public class KeyWatchTracker implements Closeable {
 
         // Notify future of result, using the configured notifyExecutor if any
         private void notifyFuture(final KeyFuture future, final Exception e) {
-
-            // Get the configured notifyExecutor
-            final Executor notifyExecutor;
-            synchronized (KeyWatchTracker.this) {
-                notifyExecutor = KeyWatchTracker.this.notifyExecutor;
-            }
-
-            // If none configured, notify directly in the current thread
-            if (notifyExecutor == null) {
-                this.doNotifyFuture(future, e);
-                return;
-            }
-
-            // Notify using the executor
-            notifyExecutor.execute(new Runnable() {
+            KeyWatchTracker.this.notifyExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    KeyInfo.this.doNotifyFuture(future, e);
+                    try {
+                        if (e != null)
+                            future.setException(e);
+                        else
+                            future.set(null);
+                    } catch (Throwable t) {
+                        LoggerFactory.getLogger(this.getClass()).error("exception from key watch listener", t);
+                    }
                 }
             });
-        }
-
-        private void doNotifyFuture(final KeyFuture future, final Exception e) {
-            assert future != null;
-            try {
-                if (e != null)
-                    future.setException(e);
-                else
-                    future.set(null);
-            } catch (Throwable t) {
-                LoggerFactory.getLogger(this.getClass()).error("exception from key watch listener", t);
-            }
         }
 
         /**

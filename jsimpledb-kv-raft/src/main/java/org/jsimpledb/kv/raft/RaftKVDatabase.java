@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -392,12 +391,11 @@ public class RaftKVDatabase implements KVDatabase {
     AtomicKVStore kv;
     FileChannel logDirChannel;                                          // null on Windows - no support for sync'ing directories
     String returnAddress;                                               // return address for message currently being processed
-    ScheduledExecutorService serviceExecutor;                           // internal service thread
-    ExecutorService keyWatchExecutor;                                   // key watch notification thread
+    ScheduledExecutorService serviceExecutor;
     final HashSet<String> transmitting = new HashSet<>();               // network addresses whose output queues are not empty
     final HashMap<Long, RaftKVTransaction> openTransactions = new HashMap<>();
     final LinkedHashSet<Service> pendingService = new LinkedHashSet<>();
-    final KeyWatchTracker keyWatchTracker = new KeyWatchTracker();
+    KeyWatchTracker keyWatchTracker;                                    // instantiated on demand
     boolean performingService;
     boolean shuttingDown;                                               // prevents new transactions from being created
 
@@ -905,7 +903,6 @@ public class RaftKVDatabase implements KVDatabase {
                     return thread;
                 }
             });
-            assert this.keyWatchExecutor == null;               // instantiated on demand
 
             // Start network
             this.network.start(new Network.Handler() {
@@ -1037,26 +1034,17 @@ public class RaftKVDatabase implements KVDatabase {
                 this.warn("open transactions not cleaned up during shutdown");
         }
 
-        // Shut down the executors and wait for pending tasks to finish
+        // Shut down the service executor and wait for pending tasks to finish
         this.serviceExecutor.shutdownNow();
         try {
             this.serviceExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        if (this.keyWatchExecutor != null) {
-            this.keyWatchExecutor.shutdownNow();
-            try {
-                this.keyWatchExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
 
         // Final cleanup
         synchronized (this) {
             this.serviceExecutor = null;
-            this.keyWatchExecutor = null;
             this.cleanup();
         }
 
@@ -1080,15 +1068,6 @@ public class RaftKVDatabase implements KVDatabase {
             }
             this.serviceExecutor = null;
         }
-        if (this.keyWatchExecutor != null) {
-            this.keyWatchExecutor.shutdownNow();
-            try {
-                this.keyWatchExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            this.keyWatchExecutor = null;
-        }
         this.kv.stop();
         Util.closeIfPossible(this.logDirChannel);
         this.logDirChannel = null;
@@ -1104,7 +1083,10 @@ public class RaftKVDatabase implements KVDatabase {
         this.lastAppliedIndex = 0;
         this.lastAppliedConfig = null;
         this.currentConfig = null;
-        this.keyWatchTracker.failAll(new Exception("database stopped"));
+        if (this.keyWatchTracker != null) {
+            this.keyWatchTracker.close();
+            this.keyWatchTracker = null;
+        }
         this.transmitting.clear();
         this.pendingService.clear();
         this.shuttingDown = false;
@@ -1203,26 +1185,11 @@ public class RaftKVDatabase implements KVDatabase {
 // Key Watches
 
     synchronized ListenableFuture<Void> watchKey(RaftKVTransaction tx, byte[] key) {
-
-        // Sanity check
         Preconditions.checkState(this.role != null, "not started");
         if (tx.getState() != TxState.EXECUTING)
             throw new StaleTransactionException(tx);
-
-        // Start up notify executor on demand
-        if (this.keyWatchExecutor == null) {
-            this.keyWatchExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable action) {
-                    final Thread thread = new Thread(action);
-                    thread.setName("RaftKVDatabase Key Watch Notification");
-                    return thread;
-                }
-            });
-            this.keyWatchTracker.setNotifyExecutor(this.keyWatchExecutor);
-        }
-
-        // Register key watch
+        if (this.keyWatchTracker == null)
+            this.keyWatchTracker = new KeyWatchTracker();
         return this.keyWatchTracker.register(key);
     }
 
@@ -2144,8 +2111,7 @@ public class RaftKVDatabase implements KVDatabase {
             assert this.raftLog.isEmpty();
             assert this.logDirChannel == null;
             assert this.serviceExecutor == null;
-            assert this.keyWatchExecutor == null;
-            assert this.keyWatchTracker.getNumKeysWatched() == 0;
+            assert this.keyWatchTracker == null;
             assert this.transmitting.isEmpty();
             assert this.openTransactions.isEmpty();
             assert this.pendingService.isEmpty();
@@ -2159,7 +2125,6 @@ public class RaftKVDatabase implements KVDatabase {
         assert this.serviceExecutor != null;
         assert this.logDirChannel != null || this.isWindows();
         assert !this.serviceExecutor.isShutdown() || this.shuttingDown;
-        assert this.keyWatchExecutor == null || (!this.keyWatchExecutor.isShutdown() || this.shuttingDown);
 
         assert this.currentTerm >= 0;
         assert this.commitIndex >= 0;

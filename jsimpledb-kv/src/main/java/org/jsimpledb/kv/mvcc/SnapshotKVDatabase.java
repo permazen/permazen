@@ -113,7 +113,6 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
             return;
         Preconditions.checkState(this.kvstore != null, "no KVStore configured");
         this.kvstore.start();
-        this.keyWatchTracker = new KeyWatchTracker();
         this.started = true;
     }
 
@@ -136,8 +135,10 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         synchronized (this) {
             assert this.started;
             this.kvstore.stop();
-            this.keyWatchTracker.failAll(new Exception("database stopped"));
-            this.keyWatchTracker = null;
+            if (this.keyWatchTracker != null) {
+                this.keyWatchTracker.close();
+                this.keyWatchTracker = null;
+            }
             this.stopping = false;
             this.started = false;
         }
@@ -179,6 +180,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
 
     synchronized ListenableFuture<Void> watchKey(byte[] key) {
         Preconditions.checkState(this.started, "not started");
+        if (this.keyWatchTracker == null)
+            this.keyWatchTracker = new KeyWatchTracker();
         return this.keyWatchTracker.register(key);
     }
 
@@ -348,7 +351,8 @@ public abstract class SnapshotKVDatabase implements KVDatabase {
         this.currentVersion++;
 
         // Notify watches
-        this.keyWatchTracker.trigger(transactionWrites);
+        if (this.keyWatchTracker != null)
+            this.keyWatchTracker.trigger(transactionWrites);
     }
 
     private void cleanupTransaction(SnapshotKVTransaction tx) {
