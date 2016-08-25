@@ -84,8 +84,10 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
     protected void finalize() throws Throwable {
         try {
             synchronized (this) {
-                if (!this.closed)
-                    LoggerFactory.getLogger(this.getClass()).warn(this + " leaked without invoking close()");
+                if (!this.closed) {
+                    LoggerFactory.getLogger(this.getClass()).warn(this.getClass().getSimpleName()
+                      + "[" + this.closeable + "] leaked without invoking close()");
+                }
             }
             this.close();
         } finally {
