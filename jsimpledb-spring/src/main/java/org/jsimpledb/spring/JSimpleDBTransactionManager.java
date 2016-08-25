@@ -82,7 +82,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      */
     protected ValidationMode validationMode = DEFAULT_VALIDATION_MODE;
 
-    private boolean validateBeforeCommit = true;
+    private boolean validateBeforeCommit;
 
     public void afterPropertiesSet() throws Exception {
         if (this.jdb == null)
@@ -132,7 +132,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
      * If set to false, validation still occurs, but only when the outermost transaction commits.
      *
      * <p>
-     * Default true.
+     * Default false.
      *
      * @param validateBeforeCommit whether to validate after inner transactions
      */

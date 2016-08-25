@@ -1,3 +1,7 @@
+Version Next
+
+    - Changed JSimpleDBTransactionManager.validateBeforeCommit default to false
+
 Version 2.1.6 Released August 24, 2016
 
     - Updated to rocksdbjni version 4.9.0
