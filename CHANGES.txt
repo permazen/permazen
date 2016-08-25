@@ -1,4 +1,4 @@
-Version Next
+Version 2.1.7 Released August 25, 2016
 
     - Notify key watches on a separate thread to avoid reentrancy issues
     - Changed JSimpleDBTransactionManager.validateBeforeCommit default to false
