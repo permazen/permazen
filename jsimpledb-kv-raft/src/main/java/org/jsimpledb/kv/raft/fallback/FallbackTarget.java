@@ -268,7 +268,8 @@ public class FallbackTarget implements Cloneable {
      * @return last active time of this target, or null if never active
      */
     public Date getLastActiveTime() {
-        return (Date)this.lastActiveTime.clone();
+        final Date copy = this.lastActiveTime;
+        return copy != null ? (Date)copy.clone() : null;
     }
 
 // Subclass Methods
