@@ -605,7 +605,7 @@ public class SimpleKVDatabase implements KVDatabase, Serializable {
             successful = true;
 
             // Trigger key watches
-            if (this.keyWatchTracker.getNumKeysWatched() > 0) {
+            if (this.keyWatchTracker != null && this.keyWatchTracker.getNumKeysWatched() > 0) {
                 for (Mutation mutation : tx.mutations)
                     mutation.trigger(this.keyWatchTracker);
             }
