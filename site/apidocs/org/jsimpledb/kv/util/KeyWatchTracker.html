@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KeyWatchTracker (JSimpleDB 2.1.6 API)</title>
+<title>KeyWatchTracker (JSimpleDB 2.1.7 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KeyWatchTracker (JSimpleDB 2.1.6 API)";
+        parent.document.title="KeyWatchTracker (JSimpleDB 2.1.7 API)";
     }
 //-->
 </script>
@@ -117,6 +117,8 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
  on the <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true#addListener(java.lang.Runnable, java.util.concurrent.Executor)" title="class or interface in com.google.common.util.concurrent">listener registration functionality</a> provided in the
  <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a> interface, because with a listener registration, there is no longer any need
  to directly reference the <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a>. Therefore, by default strong references are used.
+ In any case, <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a> notifications are performed on a separate dedicated notification
+ thread to avoid re-entrancy issues.
 
  <p>
  For space efficiency, this class does not track the original values associated with a key. Therefore,
@@ -469,7 +471,9 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
 <h4>failAll</h4>
 <pre>public&nbsp;void&nbsp;failAll(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;e)</pre>
 <div class="block">Discard all outstanding key watches and fail them with the given exception.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>e</code> - failing exception</dd></dl>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>e</code> - failing exception</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>e</code> is null</dd></dl>
 </li>
 </ul>
 <a name="absorb(org.jsimpledb.kv.util.KeyWatchTracker)">
