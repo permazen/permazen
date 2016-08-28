@@ -439,7 +439,7 @@ public class KeyWatchTracker implements Closeable {
             return removed;
         }
 
-        // Notify future of result, using the configured notifyExecutor if any
+        // Notify future of result, using the our notifyExecutor to avoid any re-entrancy from direct listeners on the future
         private void notifyFuture(final KeyFuture future, final Exception e) {
             KeyWatchTracker.this.notifyExecutor.execute(new Runnable() {
                 @Override
