@@ -157,7 +157,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                         if (matchesGeneric != matchesRaw) {
                             throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method)
                               + "method parameter type " + genericParameterType + " will match changes emitted from `"
-                              + stringPath + "' at runtime" + " due to type erasure, but has incompatible generic type "
+                              + stringPath + "' at runtime due to type erasure, but has incompatible generic type "
                               + genericParameterType + "; parameter type should be compatible with "
                               + (changeParameterTypes.size() != 1 ?
                                   "one of: " + changeParameterTypes : changeParameterTypes.get(0)));
