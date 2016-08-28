@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import org.jsimpledb.kv.CloseableKVStore;
 import org.jsimpledb.kv.KVStore;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -20,8 +21,12 @@ import org.slf4j.LoggerFactory;
  */
 public class CloseableForwardingKVStore extends ForwardingKVStore implements CloseableKVStore {
 
+    private static final boolean TRACK_ALLOCATIONS = Boolean.parseBoolean(
+      System.getProperty(CloseableForwardingKVStore.class.getName() + ".TRACK_ALLOCATIONS", "false"));
+
     private final KVStore kvstore;
     private final Closeable closeable;
+    private final Throwable allocation;
 
     private boolean closed;
 
@@ -57,6 +62,7 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
         Preconditions.checkArgument(kvstore != null, "null kvstore");
         this.kvstore = kvstore;
         this.closeable = resource;
+        this.allocation = CloseableForwardingKVStore.TRACK_ALLOCATIONS ? new Throwable("allocated was here") : null;
     }
 
     @Override
@@ -83,13 +89,19 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
     @Override
     protected void finalize() throws Throwable {
         try {
+            final boolean leaked;
             synchronized (this) {
-                if (!this.closed) {
-                    LoggerFactory.getLogger(this.getClass()).warn(this.getClass().getSimpleName()
-                      + "[" + this.closeable + "] leaked without invoking close()");
-                }
+                leaked = !this.closed;
             }
-            this.close();
+            if (leaked) {
+                final Logger log = LoggerFactory.getLogger(this.getClass());
+                final String msg = this.getClass().getSimpleName() + "[" + this.closeable + "] leaked without invoking close()";
+                if (this.allocation != null)
+                    log.warn(msg, this.allocation);
+                else
+                    log.warn(msg);
+                this.close();
+            }
         } finally {
             super.finalize();
         }
