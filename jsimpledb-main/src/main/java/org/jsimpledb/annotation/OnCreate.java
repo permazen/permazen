@@ -17,13 +17,13 @@ import java.lang.annotation.Target;
  * <p>
  * Note that there is a subtle distinction between (a) the creation of database objects in the database, and
  * (b) the instantiation of Java model objects that represent database objects (i.e., {@link org.jsimpledb.JObject}s).
- * These two events do not necessarily always occur at the same time. Methods that are annotated with
- * {@link OnCreate &#64;OnCreate} are invoked only for event (a). In particular, Java model objects are frequently
- * instantiated to represent database objects that already exist in the database. Also, it's possible for a Java model
- * object to be instantiated when no corresponding database object exists in the database (e.g., via
- * {@link org.jsimpledb.JTransaction#get(org.jsimpledb.core.ObjId)}).
+ * These two events do not occur at the same time; in particular, distinct Java model objects are instantiated to
+ * represent the same database object in different transactions. In addition, it's even possible for a Java model
+ * object to be instantiated when no corresponding database object exists in the database, e.g., via
+ * {@link org.jsimpledb.JTransaction#get(org.jsimpledb.core.ObjId)}.
  *
  * <p>
+ * Methods that are annotated with {@link OnCreate &#64;OnCreate} are invoked only for events of type (a).
  * As a consequence, for any database fields that require default initialization, this initialization should be
  * performed not in a Java constructor but rather in an {@link OnCreate &#64;OnCreate}-annotated method.
  *
@@ -37,25 +37,25 @@ import java.lang.annotation.Target;
  *          this.setCreateTime(new Date());
  *      }
  *
+ *      &#64;NotNull
  *      public abstract Date getCreateTime();
  *      public abstract void setCreateTime(Date createTime);
  *
  *      ...
  * </pre>
- * do this:
  *
+ * <p>
+ * do this:
  * <pre>
  *  &#64;JSimpleClass
  *  public abstract class Event {
  *
- *      protected Event() {
- *      }
- *
  *      &#64;OnCreate
- *      private void init() {
+ *      private void initializeCreateTime() {
  *          this.setCreateTime(new Date());
  *      }
  *
+ *      &#64;NotNull
  *      public abstract Date getCreateTime();
  *      public abstract void setCreateTime(Date createTime);
  *
@@ -68,8 +68,7 @@ import java.lang.annotation.Target;
  * <p>
  * The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
  * It may have any level of access, including {@code private}.
-* </p>
-*/
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented

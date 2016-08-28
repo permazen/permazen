@@ -17,16 +17,114 @@ import java.lang.annotation.Target;
  * starting from the object to be notified.
  * See {@link org.jsimpledb.ReferencePath} for more information about reference paths.
  *
+ * <p><b>Overview</b></p>
+ *
+ * There several ways to control which changes are delivered to the annotated method:
+ * <ul>
+ *  <li>By specifying a path of object references, via {@link #value}, to the target object and field</li>
+ *  <li>By widening or narrowing the type of the {@link org.jsimpledb.change.FieldChange} method parameter
+ *      (or omitting it algtogether)</li>
+ *  <li>By declaring an instance method, to monitor changes from the perspective of the associated object,
+ *      or a static method, to monitor changes from a global perspective</li>
+ *  <li>By {@linkplain #snapshotTransactions allowing or disallowing} notifications that occur within
+ *      {@linkplain org.jsimpledb.SnapshotJTransaction snapshot transactions}.</li>
+ * </ul>
+ * A class may have multiple {@link OnChange &#64;OnChange} methods, each with a specific purpose.
+ *
+ * <p><b>Examples</b></p>
+ *
+ * <pre>
+ *   &#64;JSimpleClass
+ *   public abstract class Account implements JObject {
+ *
+ *       public abstract boolean isEnabled();
+ *       public abstract void setEnabled(boolean enabled);
+ *
+ *       &#64;NotNull
+ *       public abstract String getName();
+ *       public abstract void setName(String name);
+ *
+ *       public abstract NavigableSet&lt;AccessLevel&gt; getAccessLevels();
+ *
+ *       &#64;OnChange
+ *       private void handleAnyChange1() {
+ *           // Invoked on any change to ANY field of THIS account
+ *       }
+ *
+ *       &#64;OnChange
+ *       private void handleAnyChange2(FieldChange&lt;Account&gt; change) {
+ *           // Sees any change to ANY field of THIS account
+ *       }
+ *
+ *       &#64;OnChange
+ *       private static void handleAnyChange3(FieldChange&lt;Account&gt; change) {
+ *           // Sees any change to ANY field of ANY account
+ *       }
+ *
+ *       &#64;OnChange("accessLevels")
+ *       private void handleAccessLevelsChange(SetFieldAdd&lt;Account, AccessLevel&gt; change) {
+ *           // Sees any addition to THIS accounts access levels
+ *       }
+ *
+ *       &#64;OnChange
+ *       private void handleSimpleChange(SimpleFieldChange&lt;Account, ?&gt; change) {
+ *           // Sees any change to any SIMPLE field of THIS account (e.g., enabled, name)
+ *       }
+ *
+ *       &#64;OnChange(startType = User.class, value = "account")
+ *       private static void handleMembershipChange(SimpleFieldChange&lt;User, Account&gt; change) {
+ *           // Sees any change to which users are associated with ANY account
+ *       }
+ *   }
+ *
+ *   &#64;JSimpleClass
+ *   public abstract class User implements JObject {
+ *
+ *       &#64;NotNull
+ *       &#64;JField(indexed = true, unique = true)
+ *       public abstract String getUsername();
+ *       public abstract void setUsername(String username);
+ *
+ *       &#64;NotNull
+ *       public abstract Account getAccount();
+ *       public abstract void setAccount(Account account);
+ *
+ *       public abstract NavigableSet&lt;User&gt; getFriends();
+ *
+ *       &#64;OnChange("username")
+ *       private void handleUsernameChange(SimpleFieldChange&lt;User, String&gt; change) {
+ *           // Sees any change to THIS user's username
+ *       }
+ *
+ *       &#64;OnChange("account.enabled")
+ *       private void handleUsernameChange(SimpleFieldChange&lt;Account, Boolean&gt; change) {
+ *           // Sees any change to THIS user's account's enabled status
+ *       }
+ *
+ *       &#64;OnChange("friends.element.friends.element.account.name")
+ *       private void handleFOFAccountNameChange(SimpleFieldChange&lt;Account, String&gt; change) {
+ *           // Sees any change to the name of a friend-of-a-friend's account
+ *       }
+ *   }
+ * </pre>
+ *
  * <p><b>Method Parameter Types</b></p>
  *
  * <p>
- * In all cases the annotated method must return void and take a single parameter, which is compatible with one or more
- * of the {@link org.jsimpledb.change.FieldChange} sub-types appropriate for the field being watched.
- * The method may have any level of access, including {@code private}.
+ * In all cases the annotated method must return void and take zero or one parameter; the parameter must be compatible
+ * with at least one of the {@link org.jsimpledb.change.FieldChange} sub-types appropriate for the field being watched.
  * The method parameter type can be used to restrict which notifications are delivered. For example, an annotated method
  * taking a {@link org.jsimpledb.change.SetFieldChange} will receive notifications about all changes to a set field,
  * while a method taking a {@link org.jsimpledb.change.SetFieldAdd} will receive notification only when an element
  * is added to the set.
+ *
+ * <p>
+ * A method with zero parameters is delivered all possible notifications, which is equivalent to having an ignored
+ * parameter of type {@link org.jsimpledb.change.FieldChange FieldChange<?>}.
+ *
+ * <p>
+ * The method may have any level of access, including {@code private}, and multiple independent {@link OnChange &#64;OnChange}
+ * methods are allowed.
  *
  * <p>
  * Multiple reference paths may be specified; if so, all of the specified paths are monitored together, and they all
