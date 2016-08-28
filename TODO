@@ -2,7 +2,9 @@
 SHORT TERM
 ==========
 
-- Don't @OnCreate or @OnChange during a copyTo()
+- Don't @OnCreate or @OnChange during a copyTo() ?
+
+- Allow explicit @OnChange terminal wildcard, e.g. @OnChange("friends.element.*")
 
 - Relax requirement for consistent storage ID type if there are no indexes?
     - Would complicate FieldInfo logic
