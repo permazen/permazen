@@ -360,7 +360,7 @@ public class KeyWatchTracker implements Closeable {
      * Close this instance.
      *
      * <p>
-     * The implementation in {@link KeyWatchTracker} invokes {@link #failAll failAll()}.
+     * All outstanding key watches will be canceled as if by {@link #failAll failAll()}.
      */
     @Override
     public void close() {
