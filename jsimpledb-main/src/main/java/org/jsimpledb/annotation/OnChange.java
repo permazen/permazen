@@ -136,7 +136,8 @@ import java.lang.annotation.Target;
  * As a special case, if the last field is {@code "*"} (wildcard), then every field in the target object is matched.
  * However, only fields that emit changes compatible with the method's parameter type will be monitored.
  * So for example, a method taking a {@link org.jsimpledb.change.SetFieldChange} would receive notifications about
- * changes to all {@code Set} fields in the class, but not any other fields.
+ * changes to all {@code Set} fields in the class, but not any other fields. Currently, due to type erasure, only
+ * the parameter's raw type is taken into consideration.
  *
  * <p><b>Instance vs. Static Methods</b></p>
  *
