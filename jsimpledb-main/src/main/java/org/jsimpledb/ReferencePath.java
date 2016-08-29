@@ -174,9 +174,7 @@ public class ReferencePath {
 
             // Find all JFields matching 'fieldName' in some JClass whose type matches 'currentType'
             final HashMap<JClass<?>, JField> matchingFields = new HashMap<>();
-            for (JClass<?> jclass : jdb.jclasses.values()) {
-                if (!currentType.isAssignableFrom(jclass.type))
-                    continue;
+            for (JClass<?> jclass : jdb.getJClasses(currentType)) {
                 final JField jfield = jclass.jfieldsByName.get(searchName);
                 if (jfield == null)
                     continue;
