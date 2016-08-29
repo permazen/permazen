@@ -1,3 +1,7 @@
+Version Next
+
+    - Added @OnChange support for explicit wildcards, e.g. "foo.bar.*"
+
 Version 2.1.7 Released August 25, 2016
 
     - Notify key watches on a separate thread to avoid reentrancy issues

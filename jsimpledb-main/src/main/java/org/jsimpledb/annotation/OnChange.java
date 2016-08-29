@@ -46,19 +46,19 @@ import java.lang.annotation.Target;
  *
  *       public abstract NavigableSet&lt;AccessLevel&gt; getAccessLevels();
  *
- *       &#64;OnChange
+ *       &#64;OnChange      // equivalent to &#64;OnChange("*")
  *       private void handleAnyChange1() {
- *           // Invoked on any change to ANY field of THIS account
+ *           // Sees any change to ANY field of THIS account
  *       }
  *
- *       &#64;OnChange
+ *       &#64;OnChange("*")
  *       private void handleAnyChange2(FieldChange&lt;Account&gt; change) {
  *           // Sees any change to ANY field of THIS account
  *       }
  *
- *       &#64;OnChange
+ *       &#64;OnChange("*")
  *       private static void handleAnyChange3(FieldChange&lt;Account&gt; change) {
- *           // Sees any change to ANY field of ANY account
+ *           // Sees any change to ANY field of ANY account (note static method)
  *       }
  *
  *       &#64;OnChange("accessLevels")
@@ -101,9 +101,9 @@ import java.lang.annotation.Target;
  *           // Sees any change to THIS user's account's enabled status
  *       }
  *
- *       &#64;OnChange("friends.element.friends.element.account.name")
- *       private void handleFOFAccountNameChange(SimpleFieldChange&lt;Account, String&gt; change) {
- *           // Sees any change to the name of a friend-of-a-friend's account
+ *       &#64;OnChange("friends.element.friends.element.account.*")
+ *       private void handleFOFAccountNameChange(SimpleFieldChange&lt;Account, ?&gt; change) {
+ *           // Sees any change to any non-collection field in any friend-of-a-friend's Account
  *       }
  *   }
  * </pre>
@@ -133,8 +133,8 @@ import java.lang.annotation.Target;
  * parameters, or both).
  *
  * <p>
- * As a special case, if zero fields are specified, then "wildcard" monitoring of every field in the local object occurs.
- * However in this case, only fields that emit changes compatible with the method's parameter type will be monitored.
+ * As a special case, if the last field is {@code "*"} (wildcard), then every field in the target object is matched.
+ * However, only fields that emit changes compatible with the method's parameter type will be monitored.
  * So for example, a method taking a {@link org.jsimpledb.change.SetFieldChange} would receive notifications about
  * changes to all {@code Set} fields in the class, but not any other fields.
  *

@@ -5,9 +5,7 @@
 
 package org.jsimpledb;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.Method;
@@ -76,6 +74,9 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
         ChangeMethodInfo(Method method, OnChange annotation) {
             super(method, annotation);
 
+            // Get database
+            final JSimpleDB jdb = OnChangeScanner.this.jclass.jdb;
+
             // Get start type
             this.isStatic = (method.getModifiers() & Modifier.STATIC) != 0;
             Class<?> startType = method.getDeclaringClass();
@@ -91,17 +92,62 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
                 startType = annotation.startType();
             }
 
-            // Replace empty reference path list with "all fields in this object"
-            List<String> stringPaths = Arrays.asList(annotation.value());
-            final boolean wildcard = stringPaths.isEmpty();
-            if (wildcard) {
-                stringPaths = Lists.transform(Lists.newArrayList(OnChangeScanner.this.jclass.jfields.values()),
-                  new Function<JField, String>() {
-                    @Override
-                    public String apply(JField jfield) {
-                        return jfield.name + "#" + jfield.storageId;
+            // Initialize path list
+            final List<String> unexpandedPathList = new ArrayList<>(Arrays.asList(annotation.value()));
+
+            // An empty list is the same as @OnChange("*")
+            if (unexpandedPathList.isEmpty())
+                unexpandedPathList.add("*");
+
+            // Replace paths ending in "*" them with an iteration of all fields in the corresponding type
+            final List<String> expandedPathList = new ArrayList<>(unexpandedPathList.size());
+            final HashSet<Integer> expandedPathWasWildcard = new HashSet<>();
+            for (String unexpandedPath : unexpandedPathList) {
+
+                // Check for immediate wildcard: "*"
+                if (unexpandedPath.equals("*")) {
+
+                    // Replace path with non-wildcard paths for every field in the start type
+                    for (JClass<?> jclass : jdb.getJClasses(startType)) {
+                        for (JField jfield : jclass.jfields.values()) {
+                            expandedPathWasWildcard.add(expandedPathList.size());
+                            expandedPathList.add(jfield.name + "#" + jfield.storageId);
+                        }
                     }
-                });
+                    continue;
+                }
+
+                // Check for reference path with wildcard: "foo.bar.*"
+                if (unexpandedPath.length() > 2 && unexpandedPath.endsWith(".*")) {
+
+                    // Parse the reference path up to the wildcard
+                    final String prefixPath = unexpandedPath.substring(0, unexpandedPath.length() - 2);
+                    final ReferencePath prefixReferencePath;
+                    try {
+                        prefixReferencePath = jdb.parseReferencePath(startType, prefixPath, true);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
+                    }
+
+                    // The target field of the prefix reference path must be a reference field
+                    if (!(prefixReferencePath.targetFieldInfo instanceof JReferenceFieldInfo)) {
+                        final String targetFieldName = prefixPath.replaceAll("^.*\\.([^.]+)$", "$1");
+                        throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + "field `"
+                          + targetFieldName + "' in " + prefixReferencePath.getTargetType() + " is not a reference field");
+                    }
+
+                    // Replace path with list of non-wildcard paths for every field in the target field type
+                    for (JClass<?> jclass : jdb.getJClasses(prefixReferencePath.getTargetFieldType().getRawType())) {
+                        for (JField jfield : jclass.jfields.values()) {
+                            expandedPathWasWildcard.add(expandedPathList.size());
+                            expandedPathList.add(prefixPath + "." + jfield.name + "#" + jfield.storageId);
+                        }
+                    }
+                    continue;
+                }
+
+                // Non-wildcard path
+                expandedPathList.add(unexpandedPath);
             }
 
             // Get method parameter type (generic and raw), if any
@@ -122,14 +168,15 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
             // Parse reference paths
             boolean anyFieldsFound = false;
-            this.paths = new HashMap<ReferencePath, HashSet<Integer>>(stringPaths.size());
-            for (int i = 0; i < stringPaths.size(); i++) {
-                final String stringPath = stringPaths.get(i);
+            this.paths = new HashMap<ReferencePath, HashSet<Integer>>(expandedPathList.size());
+            for (int i = 0; i < expandedPathList.size(); i++) {
+                final String stringPath = expandedPathList.get(i);
+                final boolean wildcard = expandedPathWasWildcard.contains(i);           // path was auto-generated from a wildcard
 
                 // Parse reference path
                 final ReferencePath path;
                 try {
-                    path = OnChangeScanner.this.jclass.jdb.parseReferencePath(startType, stringPath, false);
+                    path = jdb.parseReferencePath(startType, stringPath, false);
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(OnChangeScanner.this.getErrorPrefix(method) + e.getMessage(), e);
                 }
@@ -181,7 +228,7 @@ class OnChangeScanner<T> extends AnnotationScanner<T, OnChange> {
 
                 // Determine storage ID's corresponding to matching target types; this filters out obsolete types from old versions
                 final HashSet<Integer> storageIds = new HashSet<Integer>();
-                for (JClass<?> jclass : OnChangeScanner.this.jclass.jdb.getJClasses(path.targetType))
+                for (JClass<?> jclass : jdb.getJClasses(path.targetType))
                     storageIds.add(jclass.storageId);
 
                 // Match
