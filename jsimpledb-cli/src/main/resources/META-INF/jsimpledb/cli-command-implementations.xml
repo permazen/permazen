@@ -18,10 +18,13 @@
     <cli-command-implementation class="org.jsimpledb.cli.cmd.RegisterFunctionCommand"/>
     <cli-command-implementation class="org.jsimpledb.cli.cmd.SaveCommand"/>
     <cli-command-implementation class="org.jsimpledb.cli.cmd.SetAllowNewSchemaCommand"/>
+    <cli-command-implementation class="org.jsimpledb.cli.cmd.SetHistoryFileCommand"/>
     <cli-command-implementation class="org.jsimpledb.cli.cmd.SetSchemaVersionCommand"/>
     <cli-command-implementation class="org.jsimpledb.cli.cmd.SetSessionModeCommand"/>
     <cli-command-implementation class="org.jsimpledb.cli.cmd.SetValidationModeCommand"/>
     <cli-command-implementation class="org.jsimpledb.cli.cmd.SetVerboseCommand"/>
     <cli-command-implementation class="org.jsimpledb.cli.cmd.ShowAllSchemasCommand"/>
+    <cli-command-implementation class="org.jsimpledb.cli.cmd.ShowImportsCommand"/>
     <cli-command-implementation class="org.jsimpledb.cli.cmd.ShowSchemaCommand"/>
+    <cli-command-implementation class="org.jsimpledb.cli.cmd.ShowVariablesCommand"/>
 </cli-command-implementations>

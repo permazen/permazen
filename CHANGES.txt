@@ -1,6 +1,8 @@
 Version Next
 
     - Added @OnChange support for explicit wildcards, e.g. "foo.bar.*"
+    - Added CLI commands set-history-file, show-imports, show-variables
+    - Added CLI function session()
 
 Version 2.1.7 Released August 25, 2016
 

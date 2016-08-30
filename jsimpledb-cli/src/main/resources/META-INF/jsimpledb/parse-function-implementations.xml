@@ -3,4 +3,5 @@
 <parse-function-implementations>
     <parse-function-implementation class="org.jsimpledb.cli.func.DumpFunction"/>
     <parse-function-implementation class="org.jsimpledb.cli.func.PrintFunction"/>
+    <parse-function-implementation class="org.jsimpledb.cli.func.SessionFunction"/>
 </parse-function-implementations>

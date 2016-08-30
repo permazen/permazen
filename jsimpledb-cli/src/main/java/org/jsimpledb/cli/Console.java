@@ -139,17 +139,26 @@ public class Console {
     }
 
     /**
-     * Configure the command history file.
+     * Set/update the command history file. May be reconfigured while executing.
      *
      * @param historyFile file for storing command history
+     * @throws IOException if {@code historyFile} cannot be read
+     * @throws IllegalArgumentException if {@code historyFile} is null
      */
-    public void setHistoryFile(File historyFile) {
-        Preconditions.checkState(this.history == null, "history file already configured");
-        try {
-            this.history = new FileHistory(historyFile);
-        } catch (IOException e) {
-            // ignore
-        }
+    public void setHistoryFile(File historyFile) throws IOException {
+
+        // Sanity check
+        Preconditions.checkArgument(historyFile != null, "null historyFile");
+
+        // Open new history
+        final FileHistory newHistory = new FileHistory(historyFile);
+
+        // Close current history
+        if (this.history != null)
+            this.history.flush();
+
+        // Replace in console
+        this.history = newHistory;
         this.console.setHistory(this.history);
     }
 
