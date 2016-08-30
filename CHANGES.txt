@@ -6,6 +6,7 @@ Version Next
         - Set autogenAllowDeleted() = false on all @JSimpleClass's
         - Set allowDeleted() = false on all reference field @JField's
     - Allow Raft fallback MergeStrategy to perform the commit()'s itself
+    - Corrected the behavior of JTransaction.getAll(UntypedJObject.class)
     - Added @OnChange support for explicit wildcards, e.g. "foo.bar.*"
     - Added CLI commands set-history-file, show-imports, show-variables
     - Added CLI function session()

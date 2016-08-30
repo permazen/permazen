@@ -728,9 +728,15 @@ public class JSimpleDB {
         if (type == null)
             return KeyRanges.FULL;
         final ArrayList<KeyRange> list = new ArrayList<>(this.jclasses.size());
+        boolean invert = false;
+        if (type == UntypedJObject.class) {
+            type = null;
+            invert = true;
+        }
         for (JClass<?> jclass : this.getJClasses(type))
             list.add(ObjId.getKeyRange(jclass.storageId));
-        return new KeyRanges(list);
+        final KeyRanges keyRanges = new KeyRanges(list);
+        return invert ? keyRanges.inverse() : keyRanges;
     }
 
 // Reference Paths

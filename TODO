@@ -20,8 +20,6 @@ SHORT TERM
 
 - New RocksDB transaction support
 
-- Does JTransaction.getAll(UntypedJObject.class) work? queryIndex() ?
-
 - New KVDatabase implementations
     - Amazon DynamoDB ?
     - Google Cloud Datastore ?
