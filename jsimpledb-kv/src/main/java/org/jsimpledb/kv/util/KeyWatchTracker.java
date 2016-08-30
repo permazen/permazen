@@ -49,7 +49,8 @@ import org.slf4j.LoggerFactory;
  * them when no longer needed; however, it can also lead to missed notifications if the user of this class relies
  * on the {@linkplain ListenableFuture#addListener listener registration functionality} provided in the
  * {@link ListenableFuture} interface, because with a listener registration, there is no longer any need
- * to directly reference the {@link ListenableFuture}. Therefore, by default strong references are used.
+ * to directly reference the {@link ListenableFuture}, and so it may be reclaimed before firing. Therefore,
+ * by default strong references are used.
  * In any case, {@link ListenableFuture} notifications are performed on a separate dedicated notification
  * thread to avoid re-entrancy issues.
  *
