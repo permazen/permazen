@@ -37,6 +37,7 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
      * With this construtor, nothing will actually be closed when {@link #close} is invoked.
      *
      * @param kvstore key/value store for forwarding
+     * @throws IllegalArgumentException if {@code kvstore} is null
      */
     public CloseableForwardingKVStore(KVStore kvstore) {
         this(kvstore, null);
@@ -46,6 +47,7 @@ public class CloseableForwardingKVStore extends ForwardingKVStore implements Clo
      * Convenience constructor.
      *
      * @param kvstore key/value store for forwarding; will be closed on {@link #close}
+     * @throws IllegalArgumentException if {@code kvstore} is null
      */
     public CloseableForwardingKVStore(CloseableKVStore kvstore) {
         this(kvstore, kvstore);
