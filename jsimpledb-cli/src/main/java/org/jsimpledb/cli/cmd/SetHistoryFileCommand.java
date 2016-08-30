@@ -27,7 +27,7 @@ public class SetHistoryFileCommand extends AbstractCommand {
 
     @Override
     protected Parser<?> getParser(String typeName) {
-        return "file".equals(typeName) ? new InputFileParser() : super.getParser(typeName);
+        return "file".equals(typeName) ? new OutputFileParser() : super.getParser(typeName);
     }
 
     @Override
