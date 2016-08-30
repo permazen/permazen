@@ -1,4 +1,4 @@
-Version 2.2.0
+Version 2.2.0 Released August 30, 2016
 
     - Added detection of assignment of references to deleted objects:
       - Added JField.allowDeleted() and JField.allowDeletedSnapshot()
