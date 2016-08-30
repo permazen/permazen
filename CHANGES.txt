@@ -10,6 +10,8 @@ Version 2.2.0 Released August 30, 2016
     - Added @OnChange support for explicit wildcards, e.g. "foo.bar.*"
     - Added CLI commands set-history-file, show-imports, show-variables
     - Added CLI function session()
+    - Fixed MVCC resource leak bug added in release 2.1.6
+    - Added `--history-file' CLI command line flag
 
 Version 2.1.7 Released August 25, 2016
 
