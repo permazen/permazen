@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Console (JSimpleDB 2.1.7 API)</title>
+<title>Console (JSimpleDB 2.2.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Console (JSimpleDB 2.1.7 API)";
+        parent.document.title="Console (JSimpleDB 2.2.0 API)";
     }
 //-->
 </script>
@@ -234,7 +234,7 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/cli/Console.html#setHistoryFile(java.io.File)">setHistoryFile</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;historyFile)</code>
-<div class="block">Configure the command history file.</div>
+<div class="block">Set/update the command history file.</div>
 </td>
 </tr>
 </table>
@@ -400,9 +400,13 @@ extends <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?
 <ul class="blockList">
 <li class="blockList">
 <h4>setHistoryFile</h4>
-<pre>public&nbsp;void&nbsp;setHistoryFile(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;historyFile)</pre>
-<div class="block">Configure the command history file.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>historyFile</code> - file for storing command history</dd></dl>
+<pre>public&nbsp;void&nbsp;setHistoryFile(<a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;historyFile)
+                    throws <a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
+<div class="block">Set/update the command history file. May be reconfigured while executing.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>historyFile</code> - file for storing command history</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - if <code>historyFile</code> cannot be read</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>historyFile</code> is null</dd></dl>
 </li>
 </ul>
 <a name="runNonInteractive(java.io.Reader, java.lang.String)">

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ReferenceSchemaField (JSimpleDB 2.1.7 API)</title>
+<title>ReferenceSchemaField (JSimpleDB 2.2.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ReferenceSchemaField (JSimpleDB 2.1.7 API)";
+        parent.document.title="ReferenceSchemaField (JSimpleDB 2.2.0 API)";
     }
 //-->
 </script>
@@ -139,7 +139,7 @@ extends <a href="../../../org/jsimpledb/schema/SimpleSchemaField.html" title="cl
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;org.jsimpledb.schema.<a href="../../../org/jsimpledb/schema/XMLConstants.html" title="interface in org.jsimpledb.schema">XMLConstants</a></h3>
-<code><a href="../../../org/jsimpledb/schema/XMLConstants.html#CASCADE_DELETE_ATTRIBUTE">CASCADE_DELETE_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#COMPOSITE_INDEX_TAG">COMPOSITE_INDEX_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#COUNTER_FIELD_TAG">COUNTER_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#ENCODING_SIGNATURE_ATTRIBUTE">ENCODING_SIGNATURE_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#ENUM_FIELD_TAG">ENUM_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#FORMAT_VERSION_ATTRIBUTE">FORMAT_VERSION_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#IDENTIFIER_TAG">IDENTIFIER_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#INDEXED_ATTRIBUTE">INDEXED_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#INDEXED_FIELD_TAG">INDEXED_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#LIST_FIELD_TAG">LIST_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#MAP_FIELD_TAG">MAP_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#NAME_ATTRIBUTE">NAME_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#OBJECT_TYPE_TAG">OBJECT_TYPE_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#OBJECT_TYPES_TAG">OBJECT_TYPES_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#ON_DELETE_ATTRIBUTE">ON_DELETE_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#REFERENCE_FIELD_TAG">REFERENCE_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#SCHEMA_MODEL_TAG">SCHEMA_MODEL_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#SET_FIELD_TAG">SET_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#SIMPLE_FIELD_TAG">SIMPLE_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#STORAGE_ID_ATTRIBUTE">STORAGE_ID_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#TYPE_ATTRIBUTE">TYPE_ATTRIBUTE</a></code></li>
+<code><a href="../../../org/jsimpledb/schema/XMLConstants.html#ALLOW_DELETED_ATTRIBUTE">ALLOW_DELETED_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#ALLOW_DELETED_SNAPSHOT_ATTRIBUTE">ALLOW_DELETED_SNAPSHOT_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#CASCADE_DELETE_ATTRIBUTE">CASCADE_DELETE_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#COMPOSITE_INDEX_TAG">COMPOSITE_INDEX_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#COUNTER_FIELD_TAG">COUNTER_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#ENCODING_SIGNATURE_ATTRIBUTE">ENCODING_SIGNATURE_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#ENUM_FIELD_TAG">ENUM_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#FORMAT_VERSION_ATTRIBUTE">FORMAT_VERSION_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#IDENTIFIER_TAG">IDENTIFIER_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#INDEXED_ATTRIBUTE">INDEXED_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#INDEXED_FIELD_TAG">INDEXED_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#LIST_FIELD_TAG">LIST_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#MAP_FIELD_TAG">MAP_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#NAME_ATTRIBUTE">NAME_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#OBJECT_TYPE_TAG">OBJECT_TYPE_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#OBJECT_TYPES_TAG">OBJECT_TYPES_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#ON_DELETE_ATTRIBUTE">ON_DELETE_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#REFERENCE_FIELD_TAG">REFERENCE_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#SCHEMA_MODEL_TAG">SCHEMA_MODEL_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#SET_FIELD_TAG">SET_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#SIMPLE_FIELD_TAG">SIMPLE_FIELD_TAG</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#STORAGE_ID_ATTRIBUTE">STORAGE_ID_ATTRIBUTE</a>, <a href="../../../org/jsimpledb/schema/XMLConstants.html#TYPE_ATTRIBUTE">TYPE_ATTRIBUTE</a></code></li>
 </ul>
 </li>
 </ul>
@@ -206,9 +206,29 @@ extends <a href="../../../org/jsimpledb/schema/SimpleSchemaField.html" title="cl
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/schema/ReferenceSchemaField.html#isAllowDeleted()">isAllowDeleted</a></strong>()</code>
+<div class="block">Determine whether this field accepts references to deleted objects in normal (non-snapshot) transactions.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/schema/ReferenceSchemaField.html#isAllowDeletedSnapshot()">isAllowDeletedSnapshot</a></strong>()</code>
+<div class="block">Determine whether this field accepts references to deleted objects in snapshot transactions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/schema/ReferenceSchemaField.html#isCascadeDelete()">isCascadeDelete</a></strong>()</code>
 <div class="block">Determine whether the referred-to object should be deleted when an object containing this field is deleted.</div>
 </td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/schema/ReferenceSchemaField.html#setAllowDeleted(boolean)">setAllowDeleted</a></strong>(boolean&nbsp;allowDeleted)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/schema/ReferenceSchemaField.html#setAllowDeletedSnapshot(boolean)">setAllowDeletedSnapshot</a></strong>(boolean&nbsp;allowDeletedSnapshot)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
@@ -326,6 +346,46 @@ extends <a href="../../../org/jsimpledb/schema/SimpleSchemaField.html" title="cl
 <li class="blockList">
 <h4>setCascadeDelete</h4>
 <pre>public&nbsp;void&nbsp;setCascadeDelete(boolean&nbsp;cascadeDelete)</pre>
+</li>
+</ul>
+<a name="isAllowDeleted()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAllowDeleted</h4>
+<pre>public&nbsp;boolean&nbsp;isAllowDeleted()</pre>
+<div class="block">Determine whether this field accepts references to deleted objects in normal (non-snapshot) transactions.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>whether deleted objects are allowed in normal transactions</dd></dl>
+</li>
+</ul>
+<a name="setAllowDeleted(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAllowDeleted</h4>
+<pre>public&nbsp;void&nbsp;setAllowDeleted(boolean&nbsp;allowDeleted)</pre>
+</li>
+</ul>
+<a name="isAllowDeletedSnapshot()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAllowDeletedSnapshot</h4>
+<pre>public&nbsp;boolean&nbsp;isAllowDeletedSnapshot()</pre>
+<div class="block">Determine whether this field accepts references to deleted objects in snapshot transactions.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>whether deleted objects are allowed in snapshot transactions</dd></dl>
+</li>
+</ul>
+<a name="setAllowDeletedSnapshot(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAllowDeletedSnapshot</h4>
+<pre>public&nbsp;void&nbsp;setAllowDeletedSnapshot(boolean&nbsp;allowDeletedSnapshot)</pre>
 </li>
 </ul>
 <a name="getObjectTypes()">

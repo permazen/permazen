@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>OnCreate (JSimpleDB 2.1.7 API)</title>
+<title>OnCreate (JSimpleDB 2.2.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="OnCreate (JSimpleDB 2.1.7 API)";
+        parent.document.title="OnCreate (JSimpleDB 2.2.0 API)";
     }
 //-->
 </script>
@@ -92,13 +92,13 @@ public @interface <span class="strong">OnCreate</span></pre>
  <p>
  Note that there is a subtle distinction between (a) the creation of database objects in the database, and
  (b) the instantiation of Java model objects that represent database objects (i.e., <a href="../../../org/jsimpledb/JObject.html" title="interface in org.jsimpledb"><code>JObject</code></a>s).
- These two events do not necessarily always occur at the same time. Methods that are annotated with
- <a href="../../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> are invoked only for event (a). In particular, Java model objects are frequently
- instantiated to represent database objects that already exist in the database. Also, it's possible for a Java model
- object to be instantiated when no corresponding database object exists in the database (e.g., via
- <a href="../../../org/jsimpledb/JTransaction.html#get(org.jsimpledb.core.ObjId)"><code>JTransaction.get(org.jsimpledb.core.ObjId)</code></a>).
+ These two events do not occur at the same time; in particular, distinct Java model objects are instantiated to
+ represent the same database object in different transactions. In addition, it's even possible for a Java model
+ object to be instantiated when no corresponding database object exists in the database, e.g., via
+ <a href="../../../org/jsimpledb/JTransaction.html#get(org.jsimpledb.core.ObjId)"><code>JTransaction.get(org.jsimpledb.core.ObjId)</code></a>.
 
  <p>
+ Methods that are annotated with <a href="../../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> are invoked only for events of type (a).
  As a consequence, for any database fields that require default initialization, this initialization should be
  performed not in a Java constructor but rather in an <a href="../../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a>-annotated method.
 
@@ -112,25 +112,25 @@ public @interface <span class="strong">OnCreate</span></pre>
           this.setCreateTime(new Date());
       }
 
+      &#64;NotNull
       public abstract Date getCreateTime();
       public abstract void setCreateTime(Date createTime);
 
       ...
  </pre>
- do this:
 
+ <p>
+ do this:
  <pre>
   &#64;JSimpleClass
   public abstract class Event {
 
-      protected Event() {
-      }
-
       &#64;OnCreate
-      private void init() {
+      private void initializeCreateTime() {
           this.setCreateTime(new Date());
       }
 
+      &#64;NotNull
       public abstract Date getCreateTime();
       public abstract void setCreateTime(Date createTime);
 
@@ -142,8 +142,7 @@ public @interface <span class="strong">OnCreate</span></pre>
 
  <p>
  The annotated method must be an instance method (i.e., not static), return void, and take zero parameters.
- It may have any level of access, including <code>private</code>.
- </p></div>
+ It may have any level of access, including <code>private</code>.</div>
 </li>
 </ul>
 </div>

@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>OnChange (JSimpleDB 2.1.7 API)</title>
+<title>OnChange (JSimpleDB 2.2.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="OnChange (JSimpleDB 2.1.7 API)";
+        parent.document.title="OnChange (JSimpleDB 2.2.0 API)";
     }
 //-->
 </script>
@@ -92,16 +92,114 @@ public @interface <span class="strong">OnChange</span></pre>
  starting from the object to be notified.
  See <a href="../../../org/jsimpledb/ReferencePath.html" title="class in org.jsimpledb"><code>ReferencePath</code></a> for more information about reference paths.
 
+ <p><b>Overview</b></p>
+
+ There several ways to control which changes are delivered to the annotated method:
+ <ul>
+  <li>By specifying a path of object references, via <a href="../../../org/jsimpledb/annotation/OnChange.html#value()"><code>value()</code></a>, to the target object and field</li>
+  <li>By widening or narrowing the type of the <a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change"><code>FieldChange</code></a> method parameter
+      (or omitting it algtogether)</li>
+  <li>By declaring an instance method, to monitor changes from the perspective of the associated object,
+      or a static method, to monitor changes from a global perspective</li>
+  <li>By <a href="../../../org/jsimpledb/annotation/OnChange.html#snapshotTransactions()">allowing or disallowing</a> notifications that occur within
+      <a href="../../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb">snapshot transactions</a>.</li>
+ </ul>
+ A class may have multiple <a href="../../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> methods, each with a specific purpose.
+
+ <p><b>Examples</b></p>
+
+ <pre>
+   &#64;JSimpleClass
+   public abstract class Account implements JObject {
+
+       public abstract boolean isEnabled();
+       public abstract void setEnabled(boolean enabled);
+
+       &#64;NotNull
+       public abstract String getName();
+       public abstract void setName(String name);
+
+       public abstract NavigableSet&lt;AccessLevel&gt; getAccessLevels();
+
+       &#64;OnChange      // equivalent to &#64;OnChange("*")
+       private void handleAnyChange1() {
+           // Sees any change to ANY field of THIS account
+       }
+
+       &#64;OnChange("*")
+       private void handleAnyChange2(FieldChange&lt;Account&gt; change) {
+           // Sees any change to ANY field of THIS account
+       }
+
+       &#64;OnChange("*")
+       private static void handleAnyChange3(FieldChange&lt;Account&gt; change) {
+           // Sees any change to ANY field of ANY account (note static method)
+       }
+
+       &#64;OnChange("accessLevels")
+       private void handleAccessLevelsChange(SetFieldAdd&lt;Account, AccessLevel&gt; change) {
+           // Sees any addition to THIS accounts access levels
+       }
+
+       &#64;OnChange
+       private void handleSimpleChange(SimpleFieldChange&lt;Account, ?&gt; change) {
+           // Sees any change to any SIMPLE field of THIS account (e.g., enabled, name)
+       }
+
+       &#64;OnChange(startType = User.class, value = "account")
+       private static void handleMembershipChange(SimpleFieldChange&lt;User, Account&gt; change) {
+           // Sees any change to which users are associated with ANY account
+       }
+   }
+
+   &#64;JSimpleClass
+   public abstract class User implements JObject {
+
+       &#64;NotNull
+       &#64;JField(indexed = true, unique = true)
+       public abstract String getUsername();
+       public abstract void setUsername(String username);
+
+       &#64;NotNull
+       public abstract Account getAccount();
+       public abstract void setAccount(Account account);
+
+       public abstract NavigableSet&lt;User&gt; getFriends();
+
+       &#64;OnChange("username")
+       private void handleUsernameChange(SimpleFieldChange&lt;User, String&gt; change) {
+           // Sees any change to THIS user's username
+       }
+
+       &#64;OnChange("account.enabled")
+       private void handleUsernameChange(SimpleFieldChange&lt;Account, Boolean&gt; change) {
+           // Sees any change to THIS user's account's enabled status
+       }
+
+       &#64;OnChange("friends.element.friends.element.account.*")
+       private void handleFOFAccountNameChange(SimpleFieldChange&lt;Account, ?&gt; change) {
+           // Sees any change to any non-collection field in any friend-of-a-friend's Account
+       }
+   }
+ </pre>
+
  <p><b>Method Parameter Types</b></p>
 
  <p>
- In all cases the annotated method must return void and take a single parameter, which is compatible with one or more
- of the <a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change"><code>FieldChange</code></a> sub-types appropriate for the field being watched.
- The method may have any level of access, including <code>private</code>.
+ In all cases the annotated method must return void and take zero or one parameter; the parameter must be compatible
+ with at least one of the <a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change"><code>FieldChange</code></a> sub-types appropriate for the field being watched.
  The method parameter type can be used to restrict which notifications are delivered. For example, an annotated method
  taking a <a href="../../../org/jsimpledb/change/SetFieldChange.html" title="class in org.jsimpledb.change"><code>SetFieldChange</code></a> will receive notifications about all changes to a set field,
  while a method taking a <a href="../../../org/jsimpledb/change/SetFieldAdd.html" title="class in org.jsimpledb.change"><code>SetFieldAdd</code></a> will receive notification only when an element
  is added to the set.
+
+ <p>
+ A method with zero parameters is delivered all possible notifications, which is equivalent to having an ignored
+ parameter of type <a href="../../../org/jsimpledb/change/FieldChange.html" title="class in org.jsimpledb.change"><code>FieldChange<?></code></a>.
+
+ <p>
+ The method may have any level of access, including <code>private</code>, and multiple independent <a href="../../../org/jsimpledb/annotation/OnChange.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a>
+ methods are allowed.
 
  <p>
  Multiple reference paths may be specified; if so, all of the specified paths are monitored together, and they all
@@ -110,10 +208,11 @@ public @interface <span class="strong">OnChange</span></pre>
  parameters, or both).
 
  <p>
- As a special case, if zero fields are specified, then "wildcard" monitoring of every field in the local object occurs.
- However in this case, only fields that emit changes compatible with the method's parameter type will be monitored.
+ As a special case, if the last field is <code>"*"</code> (wildcard), then every field in the target object is matched.
+ However, only fields that emit changes compatible with the method's parameter type will be monitored.
  So for example, a method taking a <a href="../../../org/jsimpledb/change/SetFieldChange.html" title="class in org.jsimpledb.change"><code>SetFieldChange</code></a> would receive notifications about
- changes to all <code>Set</code> fields in the class, but not any other fields.
+ changes to all <code>Set</code> fields in the class, but not any other fields. Currently, due to type erasure, only
+ the parameter's raw type is taken into consideration.
 
  <p><b>Instance vs. Static Methods</b></p>
 

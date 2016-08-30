@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>ReferenceField (JSimpleDB 2.1.7 API)</title>
+<title>ReferenceField (JSimpleDB 2.2.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="ReferenceField (JSimpleDB 2.1.7 API)";
+        parent.document.title="ReferenceField (JSimpleDB 2.2.0 API)";
     }
 //-->
 </script>
@@ -166,6 +166,18 @@ extends <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in o
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/ReferenceField.html#isAllowDeleted()">isAllowDeleted</a></strong>()</code>
+<div class="block">Determine whether this field accepts references to deleted objects in normal (non-snapshot) transactions.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/ReferenceField.html#isAllowDeletedSnapshot()">isAllowDeletedSnapshot</a></strong>()</code>
+<div class="block">Determine whether this field accepts references to deleted objects in snapshot transactions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/core/ReferenceField.html#isCascadeDelete()">isCascadeDelete</a></strong>()</code>
 <div class="block">Determine whether the referred-to object should be deleted when an object containing this field is deleted.</div>
 </td>
@@ -243,6 +255,28 @@ extends <a href="../../../org/jsimpledb/core/SimpleField.html" title="class in o
 <pre>public&nbsp;boolean&nbsp;isCascadeDelete()</pre>
 <div class="block">Determine whether the referred-to object should be deleted when an object containing this field is deleted.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>whether deletion should cascade to the referred-to object</dd></dl>
+</li>
+</ul>
+<a name="isAllowDeleted()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAllowDeleted</h4>
+<pre>public&nbsp;boolean&nbsp;isAllowDeleted()</pre>
+<div class="block">Determine whether this field accepts references to deleted objects in normal (non-snapshot) transactions.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>whether deleted objects are allowed in normal transactions</dd></dl>
+</li>
+</ul>
+<a name="isAllowDeletedSnapshot()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAllowDeletedSnapshot</h4>
+<pre>public&nbsp;boolean&nbsp;isAllowDeletedSnapshot()</pre>
+<div class="block">Determine whether this field accepts references to deleted objects in snapshot transactions.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>whether deleted objects are allowed in snapshot transactions</dd></dl>
 </li>
 </ul>
 <a name="getObjectTypes()">

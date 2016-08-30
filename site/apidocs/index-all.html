@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Index (JSimpleDB 2.1.7 API)</title>
+<title>Index (JSimpleDB 2.2.0 API)</title>
 <link rel="stylesheet" type="text/css" href="./stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (JSimpleDB 2.1.7 API)";
+        parent.document.title="Index (JSimpleDB 2.2.0 API)";
     }
 //-->
 </script>
@@ -634,6 +634,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/parse/func/AllFunction.html#AllFunction()">AllFunction()</a></span> - Constructor for class org.jsimpledb.parse.func.<a href="./org/jsimpledb/parse/func/AllFunction.html" title="class in org.jsimpledb.parse.func">AllFunction</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/schema/XMLConstants.html#ALLOW_DELETED_ATTRIBUTE">ALLOW_DELETED_ATTRIBUTE</a></span> - Static variable in interface org.jsimpledb.schema.<a href="./org/jsimpledb/schema/XMLConstants.html" title="interface in org.jsimpledb.schema">XMLConstants</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/schema/XMLConstants.html#ALLOW_DELETED_SNAPSHOT_ATTRIBUTE">ALLOW_DELETED_SNAPSHOT_ATTRIBUTE</a></span> - Static variable in interface org.jsimpledb.schema.<a href="./org/jsimpledb/schema/XMLConstants.html" title="interface in org.jsimpledb.schema">XMLConstants</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVDatabaseTest.html#allowBothTransactionsToFail()">allowBothTransactionsToFail()</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVDatabaseTest.html" title="class in org.jsimpledb.kv.test">KVDatabaseTest</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/app/AbstractMain.html#allowNewSchema">allowNewSchema</a></span> - Variable in class org.jsimpledb.app.<a href="./org/jsimpledb/app/AbstractMain.html" title="class in org.jsimpledb.app">AbstractMain</a></dt>
@@ -751,6 +755,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/DumpFunction.html#apply(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.expr.Value[])">apply(CliSession, Value[])</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/DumpFunction.html" title="class in org.jsimpledb.cli.func">DumpFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/PrintFunction.html#apply(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.expr.Value[])">apply(CliSession, Value[])</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/PrintFunction.html" title="class in org.jsimpledb.cli.func">PrintFunction</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/func/SessionFunction.html#apply(org.jsimpledb.cli.CliSession, org.jsimpledb.parse.expr.Value[])">apply(CliSession, Value[])</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/SessionFunction.html" title="class in org.jsimpledb.cli.func">SessionFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/SimpleCliFunction.html#apply(org.jsimpledb.parse.ParseSession, org.jsimpledb.parse.expr.Value[])">apply(ParseSession, Value[])</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/SimpleCliFunction.html" title="class in org.jsimpledb.cli.func">SimpleCliFunction</a></dt>
 <dd>&nbsp;</dd>
@@ -2451,6 +2457,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)">copy(ObjId, ObjId, Transaction, boolean)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
 <div class="block">Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, org.jsimpledb.core.util.ObjIdMap)">copy(ObjId, ObjId, Transaction, boolean, ObjIdMap&lt;ReferenceField&gt;)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
+<dd>
+<div class="block">Variant of <a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean)</code></a> that allows, but tracks, deleted assignments.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JObject.html#copyIn(java.lang.String...)">copyIn(String...)</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
 <dd>
@@ -4189,6 +4199,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">SetAllowNewSchemaCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html" title="class in org.jsimpledb.cli.cmd">SetHistoryFileCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
@@ -4199,7 +4211,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html" title="class in org.jsimpledb.cli.cmd">ShowImportsCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowSchemaCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">ShowSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html" title="class in org.jsimpledb.cli.cmd">ShowVariablesCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/cmd/RaftAddCommand.html#getAction(org.jsimpledb.cli.CliSession, org.jsimpledb.util.ParseContext, boolean, java.util.Map)">getAction(CliSession, ParseContext, boolean, Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.kv.raft.cmd.<a href="./org/jsimpledb/kv/raft/cmd/RaftAddCommand.html" title="class in org.jsimpledb.kv.raft.cmd">RaftAddCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -5017,6 +5033,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetAllowNewSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">SetAllowNewSchemaCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html" title="class in org.jsimpledb.cli.cmd">SetHistoryFileCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSchemaVersionCommand.html" title="class in org.jsimpledb.cli.cmd">SetSchemaVersionCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
@@ -5027,11 +5045,17 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html" title="class in org.jsimpledb.cli.cmd">ShowImportsCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowSchemaCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">ShowSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html" title="class in org.jsimpledb.cli.cmd">ShowVariablesCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/DumpFunction.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/DumpFunction.html" title="class in org.jsimpledb.cli.func">DumpFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/PrintFunction.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/PrintFunction.html" title="class in org.jsimpledb.cli.func">PrintFunction</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/func/SessionFunction.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/SessionFunction.html" title="class in org.jsimpledb.cli.func">SessionFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/cmd/RaftAddCommand.html#getHelpSummary()">getHelpSummary()</a></span> - Method in class org.jsimpledb.kv.raft.cmd.<a href="./org/jsimpledb/kv/raft/cmd/RaftAddCommand.html" title="class in org.jsimpledb.kv.raft.cmd">RaftAddCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -5431,7 +5455,9 @@
 <div class="block">Get the underlying <a href="./org/jsimpledb/kv/mvcc/AtomicKVStore.html" title="interface in org.jsimpledb.kv.mvcc"><code>AtomicKVStore</code></a>.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html#getKVStore()">getKVStore()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html" title="class in org.jsimpledb.kv.mvcc">SnapshotRefs</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Get the underlying database snapshot as a <a href="./org/jsimpledb/kv/KVStore.html" title="interface in org.jsimpledb.kv"><code>KVStore</code></a> (which should not be closed).</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html#getKVStoreContentLength(org.jsimpledb.kv.KVStore)">getKVStoreContentLength(KVStore)</a></span> - Static method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/KVStoreHttpMessageConverter.html" title="class in org.jsimpledb.spring">KVStoreHttpMessageConverter</a></dt>
 <dd>
 <div class="block">Determine the content length of the given key/value store when encoded as payload.</div>
@@ -5936,6 +5962,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SaveCommand.html#getParser(java.lang.String)">getParser(String)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SaveCommand.html" title="class in org.jsimpledb.cli.cmd">SaveCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html#getParser(java.lang.String)">getParser(String)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html" title="class in org.jsimpledb.cli.cmd">SetHistoryFileCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getParser(java.lang.String)">getParser(String)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getParser(java.lang.String)">getParser(String)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
@@ -6201,11 +6229,19 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/RegisterFunctionCommand.html" title="class in org.jsimpledb.cli.cmd">RegisterFunctionCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html" title="class in org.jsimpledb.cli.cmd">SetHistoryFileCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetSessionModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetSessionModeCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetValidationModeCommand.html" title="class in org.jsimpledb.cli.cmd">SetValidationModeCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html" title="class in org.jsimpledb.cli.cmd">ShowImportsCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html" title="class in org.jsimpledb.cli.cmd">ShowVariablesCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/PrintFunction.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/PrintFunction.html" title="class in org.jsimpledb.cli.func">PrintFunction</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/func/SessionFunction.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/SessionFunction.html" title="class in org.jsimpledb.cli.func">SessionFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/cmd/AbstractRaftCommand.html#getSessionModes()">getSessionModes()</a></span> - Method in class org.jsimpledb.kv.raft.cmd.<a href="./org/jsimpledb/kv/raft/cmd/AbstractRaftCommand.html" title="class in org.jsimpledb.kv.raft.cmd">AbstractRaftCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -6608,6 +6644,8 @@
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/DumpFunction.html#getUsage()">getUsage()</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/DumpFunction.html" title="class in org.jsimpledb.cli.func">DumpFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/func/PrintFunction.html#getUsage()">getUsage()</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/PrintFunction.html" title="class in org.jsimpledb.cli.func">PrintFunction</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/func/SessionFunction.html#getUsage()">getUsage()</a></span> - Method in class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/SessionFunction.html" title="class in org.jsimpledb.cli.func">SessionFunction</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/ParamParser.html#getUsage(java.lang.String)">getUsage(String)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/ParamParser.html" title="class in org.jsimpledb.cli">ParamParser</a></dt>
 <dd>
@@ -7365,6 +7403,22 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/fdb/ErrorCodes.html#IO_ERROR">IO_ERROR</a></span> - Static variable in class org.jsimpledb.kv.fdb.<a href="./org/jsimpledb/kv/fdb/ErrorCodes.html" title="class in org.jsimpledb.kv.fdb">ErrorCodes</a></dt>
 <dd>
 <div class="block">A disk i/o operation failed.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/ReferenceField.html#isAllowDeleted()">isAllowDeleted()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core">ReferenceField</a></dt>
+<dd>
+<div class="block">Determine whether this field accepts references to deleted objects in normal (non-snapshot) transactions.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/schema/ReferenceSchemaField.html#isAllowDeleted()">isAllowDeleted()</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/ReferenceSchemaField.html" title="class in org.jsimpledb.schema">ReferenceSchemaField</a></dt>
+<dd>
+<div class="block">Determine whether this field accepts references to deleted objects in normal (non-snapshot) transactions.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/ReferenceField.html#isAllowDeletedSnapshot()">isAllowDeletedSnapshot()</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core">ReferenceField</a></dt>
+<dd>
+<div class="block">Determine whether this field accepts references to deleted objects in snapshot transactions.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/schema/ReferenceSchemaField.html#isAllowDeletedSnapshot()">isAllowDeletedSnapshot()</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/ReferenceSchemaField.html" title="class in org.jsimpledb.schema">ReferenceSchemaField</a></dt>
+<dd>
+<div class="block">Determine whether this field accepts references to deleted objects in snapshot transactions.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/app/AbstractMain.html#isAllowNewSchema()">isAllowNewSchema()</a></span> - Method in class org.jsimpledb.app.<a href="./org/jsimpledb/app/AbstractMain.html" title="class in org.jsimpledb.app">AbstractMain</a></dt>
 <dd>&nbsp;</dd>
@@ -8923,13 +8977,13 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/simple/MemoryKVImplementation.html#MemoryKVImplementation()">MemoryKVImplementation()</a></span> - Constructor for class org.jsimpledb.kv.simple.<a href="./org/jsimpledb/kv/simple/MemoryKVImplementation.html" title="class in org.jsimpledb.kv.simple">MemoryKVImplementation</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/MergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">merge(KVTransaction, KVTransaction, Date)</a></span> - Method in interface org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft.fallback">MergeStrategy</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/MergeStrategy.html#mergeAndCommit(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">mergeAndCommit(KVTransaction, KVTransaction, Date)</a></span> - Method in interface org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft.fallback">MergeStrategy</a></dt>
 <dd>
-<div class="block">Merge data between databases.</div>
+<div class="block">Merge data from the source database being migrated away from into the destination database being migrated to.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/NullMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">merge(KVTransaction, KVTransaction, Date)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/NullMergeStrategy.html" title="class in org.jsimpledb.kv.raft.fallback">NullMergeStrategy</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/NullMergeStrategy.html#mergeAndCommit(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">mergeAndCommit(KVTransaction, KVTransaction, Date)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/NullMergeStrategy.html" title="class in org.jsimpledb.kv.raft.fallback">NullMergeStrategy</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html#merge(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">merge(KVTransaction, KVTransaction, Date)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft.fallback">OverwriteMergeStrategy</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html#mergeAndCommit(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction, java.util.Date)">mergeAndCommit(KVTransaction, KVTransaction, Date)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft.fallback">OverwriteMergeStrategy</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/kv/raft/fallback/MergeStrategy.html" title="interface in org.jsimpledb.kv.raft.fallback"><span class="strong">MergeStrategy</span></a> - Interface in <a href="./org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a></dt>
 <dd>
@@ -9727,6 +9781,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/kv/KeyRange.html#overlaps(org.jsimpledb.kv.KeyRange)">overlaps(KeyRange)</a></span> - Method in class org.jsimpledb.kv.<a href="./org/jsimpledb/kv/KeyRange.html" title="class in org.jsimpledb.kv">KeyRange</a></dt>
 <dd>
 <div class="block">Determine if this key range overlaps the specified key range.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html#overwrite(org.jsimpledb.kv.KVTransaction, org.jsimpledb.kv.KVTransaction)">overwrite(KVTransaction, KVTransaction)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft.fallback">OverwriteMergeStrategy</a></dt>
+<dd>
+<div class="block">Overwrite one key/value database with another.</div>
 </dd>
 <dt><a href="./org/jsimpledb/kv/raft/fallback/OverwriteMergeStrategy.html" title="class in org.jsimpledb.kv.raft.fallback"><span class="strong">OverwriteMergeStrategy</span></a> - Class in <a href="./org/jsimpledb/kv/raft/fallback/package-summary.html">org.jsimpledb.kv.raft.fallback</a></dt>
 <dd>
@@ -10614,7 +10672,9 @@
 <div class="block">Recreate the given instance in this transaction.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html#ref()">ref()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html" title="class in org.jsimpledb.kv.mvcc">SnapshotRefs</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Increment reference count.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/XMLConstants.html#REFERENCE_FIELD_TAG">REFERENCE_FIELD_TAG</a></span> - Static variable in interface org.jsimpledb.schema.<a href="./org/jsimpledb/schema/XMLConstants.html" title="interface in org.jsimpledb.schema">XMLConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/vaadin/JObjectContainer.html#REFERENCE_LABEL_PROPERTY">REFERENCE_LABEL_PROPERTY</a></span> - Static variable in class org.jsimpledb.vaadin.<a href="./org/jsimpledb/vaadin/JObjectContainer.html" title="class in org.jsimpledb.vaadin">JObjectContainer</a></dt>
@@ -10674,6 +10734,10 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/ReferenceSchemaField.html#ReferenceSchemaField()">ReferenceSchemaField()</a></span> - Constructor for class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/ReferenceSchemaField.html" title="class in org.jsimpledb.schema">ReferenceSchemaField</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html#refs()">refs()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html" title="class in org.jsimpledb.kv.mvcc">SnapshotRefs</a></dt>
+<dd>
+<div class="block">Get current reference count.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/KeyWatchTracker.html#register(byte[])">register(byte[])</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util">KeyWatchTracker</a></dt>
 <dd>
 <div class="block">Register a new watch.</div>
@@ -11157,7 +11221,11 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/QuitCommand.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/QuitCommand.html" title="class in org.jsimpledb.cli.cmd">QuitCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html" title="class in org.jsimpledb.cli.cmd">ShowImportsCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowSchemaCommand.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">ShowSchemaCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html#run(org.jsimpledb.cli.CliSession)">run(CliSession)</a></span> - Method in class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html" title="class in org.jsimpledb.cli.cmd">ShowVariablesCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/Console.html#run()">run()</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli">Console</a></dt>
 <dd>
@@ -11385,6 +11453,10 @@
 <dd>
 <div class="block">Tagging interface indicating an <a href="./org/jsimpledb/Session.Action.html" title="interface in org.jsimpledb"><code>Session.Action</code></a> that requires there to be an open transaction.</div>
 </dd>
+<dt><a href="./org/jsimpledb/cli/func/SessionFunction.html" title="class in org.jsimpledb.cli.func"><span class="strong">SessionFunction</span></a> - Class in <a href="./org/jsimpledb/cli/func/package-summary.html">org.jsimpledb.cli.func</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/func/SessionFunction.html#SessionFunction()">SessionFunction()</a></span> - Constructor for class org.jsimpledb.cli.func.<a href="./org/jsimpledb/cli/func/SessionFunction.html" title="class in org.jsimpledb.cli.func">SessionFunction</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="./org/jsimpledb/SessionMode.html" title="enum in org.jsimpledb"><span class="strong">SessionMode</span></a> - Enum in <a href="./org/jsimpledb/package-summary.html">org.jsimpledb</a></dt>
 <dd>
 <div class="block"><a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb"><code>Session</code></a> modes.</div>
@@ -11414,6 +11486,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/util/ConvertedList.html#set(int, E)">set(int, E)</a></span> - Method in class org.jsimpledb.util.<a href="./org/jsimpledb/util/ConvertedList.html" title="class in org.jsimpledb.util">ConvertedList</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/schema/XMLConstants.html#SET_FIELD_TAG">SET_FIELD_TAG</a></span> - Static variable in interface org.jsimpledb.schema.<a href="./org/jsimpledb/schema/XMLConstants.html" title="interface in org.jsimpledb.schema">XMLConstants</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/schema/ReferenceSchemaField.html#setAllowDeleted(boolean)">setAllowDeleted(boolean)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/ReferenceSchemaField.html" title="class in org.jsimpledb.schema">ReferenceSchemaField</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/schema/ReferenceSchemaField.html#setAllowDeletedSnapshot(boolean)">setAllowDeletedSnapshot(boolean)</a></span> - Method in class org.jsimpledb.schema.<a href="./org/jsimpledb/schema/ReferenceSchemaField.html" title="class in org.jsimpledb.schema">ReferenceSchemaField</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/Session.html#setAllowNewSchema(boolean)">setAllowNewSchema(boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/Session.html" title="class in org.jsimpledb">Session</a></dt>
 <dd>&nbsp;</dd>
@@ -11653,8 +11729,12 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/Console.html#setHistoryFile(java.io.File)">setHistoryFile(File)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/Console.html" title="class in org.jsimpledb.cli">Console</a></dt>
 <dd>
-<div class="block">Configure the command history file.</div>
+<div class="block">Set/update the command history file.</div>
 </dd>
+<dt><a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">SetHistoryFileCommand</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html#SetHistoryFileCommand()">SetHistoryFileCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/SetHistoryFileCommand.html" title="class in org.jsimpledb.cli.cmd">SetHistoryFileCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/LockManager.html#setHoldTimeout(long)">setHoldTimeout(long)</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/LockManager.html" title="class in org.jsimpledb.kv.mvcc">LockManager</a></dt>
 <dd>
 <div class="block">Set the hold timeout for this instance.</div>
@@ -12086,6 +12166,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html#ShowAllSchemasCommand()">ShowAllSchemasCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowAllSchemasCommand.html" title="class in org.jsimpledb.cli.cmd">ShowAllSchemasCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowImportsCommand</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html#ShowImportsCommand()">ShowImportsCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowImportsCommand.html" title="class in org.jsimpledb.cli.cmd">ShowImportsCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/test/KVTestSupport.html#showKV(org.jsimpledb.kv.KVTransaction, java.lang.String)">showKV(KVTransaction, String)</a></span> - Method in class org.jsimpledb.kv.test.<a href="./org/jsimpledb/kv/test/KVTestSupport.html" title="class in org.jsimpledb.kv.test">KVTestSupport</a></dt>
 <dd>
 <div class="block">Dump KV contents to the log.</div>
@@ -12099,6 +12183,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowSchemaCommand.html#ShowSchemaCommand()">ShowSchemaCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowSchemaCommand.html" title="class in org.jsimpledb.cli.cmd">ShowSchemaCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/CliSession.html#showStackTrace(java.lang.Exception)">showStackTrace(Exception)</a></span> - Method in class org.jsimpledb.cli.<a href="./org/jsimpledb/cli/CliSession.html" title="class in org.jsimpledb.cli">CliSession</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html" title="class in org.jsimpledb.cli.cmd"><span class="strong">ShowVariablesCommand</span></a> - Class in <a href="./org/jsimpledb/cli/cmd/package-summary.html">org.jsimpledb.cli.cmd</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html#ShowVariablesCommand()">ShowVariablesCommand()</a></span> - Constructor for class org.jsimpledb.cli.cmd.<a href="./org/jsimpledb/cli/cmd/ShowVariablesCommand.html" title="class in org.jsimpledb.cli.cmd">ShowVariablesCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/app/AbstractMain.html#shutdownKVDatabase()">shutdownKVDatabase()</a></span> - Method in class org.jsimpledb.app.<a href="./org/jsimpledb/app/AbstractMain.html" title="class in org.jsimpledb.app">AbstractMain</a></dt>
 <dd>
@@ -13286,7 +13374,9 @@
 <div class="block">Push back the previously read character.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html#unref()">unref()</a></span> - Method in class org.jsimpledb.kv.mvcc.<a href="./org/jsimpledb/kv/mvcc/SnapshotRefs.html" title="class in org.jsimpledb.kv.mvcc">SnapshotRefs</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Decrement reference count.</div>
+</dd>
 <dt><a href="./org/jsimpledb/util/UnsignedIntEncoder.html" title="class in org.jsimpledb.util"><span class="strong">UnsignedIntEncoder</span></a> - Class in <a href="./org/jsimpledb/util/package-summary.html">org.jsimpledb.util</a></dt>
 <dd>
 <div class="block">Encodes unsigned (i.e., non-negative) <code>int</code> values to/from self-delimited binary, preserving sort order, and such

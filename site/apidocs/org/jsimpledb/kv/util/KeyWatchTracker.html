@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>KeyWatchTracker (JSimpleDB 2.1.7 API)</title>
+<title>KeyWatchTracker (JSimpleDB 2.2.0 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="KeyWatchTracker (JSimpleDB 2.1.7 API)";
+        parent.document.title="KeyWatchTracker (JSimpleDB 2.2.0 API)";
     }
 //-->
 </script>
@@ -116,7 +116,8 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
  them when no longer needed; however, it can also lead to missed notifications if the user of this class relies
  on the <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true#addListener(java.lang.Runnable, java.util.concurrent.Executor)" title="class or interface in com.google.common.util.concurrent">listener registration functionality</a> provided in the
  <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a> interface, because with a listener registration, there is no longer any need
- to directly reference the <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a>. Therefore, by default strong references are used.
+ to directly reference the <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a>, and so it may be reclaimed before firing. Therefore,
+ by default strong references are used.
  In any case, <a href="http://google.github.io/guava/releases/18.0/api/docs/com/google/common/util/concurrent/ListenableFuture.html?is-external=true" title="class or interface in com.google.common.util.concurrent"><code>ListenableFuture</code></a> notifications are performed on a separate dedicated notification
  thread to avoid re-entrancy issues.
 
@@ -498,7 +499,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.h
 <div class="block">Close this instance.
 
  <p>
- The implementation in <a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html" title="class in org.jsimpledb.kv.util"><code>KeyWatchTracker</code></a> invokes <a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#failAll(java.lang.Exception)"><code>failAll()</code></a>.</div>
+ All outstanding key watches will be canceled as if by <a href="../../../../org/jsimpledb/kv/util/KeyWatchTracker.html#failAll(java.lang.Exception)"><code>failAll()</code></a>.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true#close()" title="class or interface in java.io">close</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</a></code></dd>
