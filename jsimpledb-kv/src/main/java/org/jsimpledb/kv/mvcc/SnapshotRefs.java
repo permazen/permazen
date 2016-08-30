@@ -43,19 +43,42 @@ public class SnapshotRefs {
         this.refs = new AtomicInteger(1);
     }
 
+    /**
+     * Get the underlying database snapshot as a {@link KVStore} (which should not be closed).
+     *
+     * @throws IllegalStateException if reference count is already zeroed
+     */
     public KVStore getKVStore() {
         Preconditions.checkState(this.refs.get() > 0, "no longer referenced");
         return this.snapshot;
     }
 
+    /**
+     * Increment reference count.
+     *
+     * @throws IllegalStateException if reference count is already zeroed
+     */
     public void ref() {
         Preconditions.checkState(this.refs.get() > 0, "no longer referenced");
         this.refs.incrementAndGet();
     }
 
+    /**
+     * Decrement reference count.
+     *
+     * @throws IllegalStateException if reference count is already zeroed
+     */
     public void unref() {
-        if (this.refs.getAndDecrement() <= 0)
-            throw new IllegalStateException("no longer referenced");
+        Preconditions.checkState(this.refs.get() > 0, "no longer referenced");
+        if (this.refs.decrementAndGet() == 0)
+            this.snapshot.close();
+    }
+
+    /**
+     * Get current reference count.
+     */
+    public int refs() {
+        return this.refs.get();
     }
 
     /**
