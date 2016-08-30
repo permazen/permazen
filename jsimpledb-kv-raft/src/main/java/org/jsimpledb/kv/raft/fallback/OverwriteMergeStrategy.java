@@ -17,7 +17,23 @@ import org.jsimpledb.kv.KVTransaction;
 public class OverwriteMergeStrategy implements MergeStrategy {
 
     @Override
-    public void merge(KVTransaction src, KVTransaction dst, Date lastActiveTime) {
+    public void mergeAndCommit(KVTransaction src, KVTransaction dst, Date lastActiveTime) {
+        this.overwrite(src, dst);
+        src.commit();
+        dst.commit();
+    }
+
+    /**
+     * Overwrite one key/value database with another.
+     *
+     * <p>
+     * This method deletes every key/value pair in {@code dst}, and then copy every key/value pair
+     * in {@code src} into {@code dst}.
+     *
+     * <p>
+     * Does not commit {@code src} or {@code dst}.
+     */
+    protected void overwrite(KVTransaction src, KVTransaction dst) {
         dst.removeRange(null, null);
         final Iterator<KVPair> i = src.getRange(null, null, false);
         while (i.hasNext()) {

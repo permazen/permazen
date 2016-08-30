@@ -636,25 +636,17 @@ public class FallbackKVDatabase implements KVDatabase {
                     ((RaftKVTransaction)src).setReadOnly(true);
                 } else
                     src = currKV.createTransaction();
-                boolean srcCommitted = false;
                 try {
 
                     // Create destination transaction
                     final KVTransaction dst = bestKV.createTransaction();
-                    boolean dstCommitted = false;
                     try {
 
                         // Get timestamp
                         final Date currentTime = new Date();
 
                         // Perform merge
-                        mergeStrategy.merge(src, dst, lastActiveTime);
-
-                        // Commit transactions
-                        src.commit();
-                        srcCommitted = true;
-                        dst.commit();
-                        dstCommitted = true;
+                        mergeStrategy.mergeAndCommit(src, dst, lastActiveTime);
 
                         // Redirect new transactions
                         this.log.info(desc + " succeeded");
@@ -670,12 +662,10 @@ public class FallbackKVDatabase implements KVDatabase {
                         // Notify subclass
                         this.migrationCompleted(currIndex, bestIndex);
                     } finally {
-                        if (!dstCommitted)
-                            dst.rollback();
+                        dst.rollback();                 // no effect if already committed
                     }
                 } finally {
-                    if (!srcCommitted)
-                        src.rollback();
+                    src.rollback();                     // no effect if already committed
                 }
             } catch (RetryTransactionException e) {
                 this.log.info(desc + " failed (will try again later): " + e);

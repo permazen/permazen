@@ -15,8 +15,9 @@ import org.jsimpledb.kv.KVTransaction;
 public class NullMergeStrategy implements MergeStrategy {
 
     @Override
-    public void merge(KVTransaction src, KVTransaction dst, Date lastActiveTime) {
-        // do nothing
+    public void mergeAndCommit(KVTransaction src, KVTransaction dst, Date lastActiveTime) {
+        src.commit();
+        dst.commit();
     }
 
     @Override
