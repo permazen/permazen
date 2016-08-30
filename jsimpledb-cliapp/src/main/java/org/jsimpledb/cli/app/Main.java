@@ -36,6 +36,7 @@ public class Main extends AbstractMain {
     public static final String HISTORY_FILE = ".jsimpledb_history";
 
     private File schemaFile;
+    private File historyFile = new File(new File(System.getProperty("user.home")), HISTORY_FILE);
     private SessionMode mode = SessionMode.JSIMPLEDB;
     private final ArrayList<String> execCommands = new ArrayList<>();
     private final ArrayList<String> execFiles = new ArrayList<>();
@@ -52,6 +53,10 @@ public class Main extends AbstractMain {
             if (params.isEmpty())
                 this.usageError();
             this.execCommands.add(params.removeFirst());
+        } else if (option.equals("--history-file")) {
+            if (params.isEmpty())
+                this.usageError();
+            this.historyFile = new File(params.removeFirst());
         } else if (option.equals("--file") || option.equals("-f")) {
             if (params.isEmpty())
                 this.usageError();
@@ -146,7 +151,7 @@ public class Main extends AbstractMain {
             break;
         }
         if (this.keyboardInput && !this.batchMode)
-            console.setHistoryFile(new File(new File(System.getProperty("user.home")), HISTORY_FILE));
+            console.setHistoryFile(this.historyFile);
 
         // Set up CLI session
         final CliSession session = console.getSession();
@@ -214,6 +219,7 @@ public class Main extends AbstractMain {
         System.err.println("  " + this.getName() + " [options]");
         System.err.println("Options:");
         this.outputFlags(new String[][] {
+          { "--history-file file",      "Specify file for CLI command history (default ~/" + HISTORY_FILE + ")" },
           { "--schema-file file",       "Load core database schema from XML file" },
           { "--core-mode",              "Force core API mode (default if neither Java model classes nor schema are provided)" },
           { "--kv-mode",                "Force key/value mode" },
