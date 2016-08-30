@@ -621,6 +621,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <deleteTempDirs>true</deleteTempDirs>
+                        <org.jsimpledb.kv.util.CloseableForwardingKVStore.TRACK_ALLOCATIONS>true</org.jsimpledb.kv.util.CloseableForwardingKVStore.TRACK_ALLOCATIONS>
                         <randomSeed/>
 
                         <!-- These properties are used by KVDatabase tests. Uncomment one or more to include time-consuming tests. -->
