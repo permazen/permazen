@@ -367,7 +367,7 @@ public class SnapshotTest extends TestSupport {
     @JSimpleClass(storageId = 200)
     public abstract static class Foo implements JObject {
 
-        @JField(storageId = 201, onDelete = DeleteAction.NOTHING)
+        @JField(storageId = 201, onDelete = DeleteAction.NOTHING, allowDeleted = true)
         public abstract Foo getRef();
         public abstract void setRef(Foo ref);
 

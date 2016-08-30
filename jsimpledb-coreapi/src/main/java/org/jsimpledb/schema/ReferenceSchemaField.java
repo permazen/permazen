@@ -24,11 +24,14 @@ public class ReferenceSchemaField extends SimpleSchemaField {
 
     private DeleteAction onDelete;
     private boolean cascadeDelete;
+    private boolean allowDeleted;
+    private boolean allowDeletedSnapshot;
     private SortedSet<Integer> objectTypes;
 
     public ReferenceSchemaField() {
         this.setType(FieldType.REFERENCE_TYPE_NAME);
         this.setIndexed(true);
+        this.setAllowDeletedSnapshot(true);
     }
 
     /**
@@ -56,6 +59,30 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     }
 
     /**
+     * Determine whether this field accepts references to deleted objects in normal (non-snapshot) transactions.
+     *
+     * @return whether deleted objects are allowed in normal transactions
+     */
+    public boolean isAllowDeleted() {
+        return this.allowDeleted;
+    }
+    public void setAllowDeleted(boolean allowDeleted) {
+        this.allowDeleted = allowDeleted;
+    }
+
+    /**
+     * Determine whether this field accepts references to deleted objects in snapshot transactions.
+     *
+     * @return whether deleted objects are allowed in snapshot transactions
+     */
+    public boolean isAllowDeletedSnapshot() {
+        return this.allowDeletedSnapshot;
+    }
+    public void setAllowDeletedSnapshot(boolean allowDeletedSnapshot) {
+        this.allowDeletedSnapshot = allowDeletedSnapshot;
+    }
+
+    /**
      * Get the object types this field is allowed to reference, if so restricted.
      *
      * @return storage IDs of allowed object types, or null if there is no restriction
@@ -78,6 +105,10 @@ public class ReferenceSchemaField extends SimpleSchemaField {
             throw new IllegalArgumentException("invalid " + this + ": reference fields must always be indexed");
         if (this.onDelete == null)
             throw new InvalidSchemaException("invalid " + this + ": no delete action specified");
+        if (this.onDelete == DeleteAction.NOTHING && (!this.allowDeleted || !this.allowDeletedSnapshot)) {
+            throw new InvalidSchemaException("invalid " + this + ": delete action " + this.onDelete
+              + " is incompatible with disallowing assignment to deleted objects");
+        }
     }
 
     @Override
@@ -93,6 +124,10 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         if (!this.onDelete.equals(that.onDelete))
             return false;
         if (this.cascadeDelete != that.cascadeDelete)
+            return false;
+        if (this.allowDeleted != that.allowDeleted)
+            return false;
+        if (this.allowDeletedSnapshot != that.allowDeletedSnapshot)
             return false;
         if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
             return false;
@@ -113,6 +148,12 @@ public class ReferenceSchemaField extends SimpleSchemaField {
             diffs.add("changed on-delete action from " + that.onDelete + " to " + this.onDelete);
         if (this.cascadeDelete != that.cascadeDelete)
             diffs.add("changed cascade delete from " + that.cascadeDelete + " to " + this.cascadeDelete);
+        if (this.allowDeleted != that.allowDeleted)
+            diffs.add("changed allowing assignement of deleted objects from " + that.allowDeleted + " to " + this.allowDeleted);
+        if (this.allowDeletedSnapshot != that.allowDeletedSnapshot) {
+            diffs.add("changed allowing assignement of deleted objects in snapshot transactions from "
+              + that.allowDeletedSnapshot + " to " + this.allowDeletedSnapshot);
+        }
         if (!(this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null))
             diffs.add("changed allowed object type storage IDs from " + that.objectTypes + " to " + this.objectTypes);
         return diffs;
@@ -138,6 +179,14 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         final Boolean cascadeDeleteAttr = this.getBooleanAttr(reader, CASCADE_DELETE_ATTRIBUTE, false);
         if (cascadeDeleteAttr != null)
             this.setCascadeDelete(cascadeDeleteAttr);
+        this.setAllowDeleted(action == DeleteAction.NOTHING);                   // defaults to false unless DeleteAction.NOTHING
+        final Boolean allowDeletedAttr = this.getBooleanAttr(reader, ALLOW_DELETED_ATTRIBUTE, false);
+        if (allowDeletedAttr != null)
+            this.setAllowDeleted(allowDeletedAttr);
+        this.setAllowDeletedSnapshot(true);                                     // defaults to true
+        final Boolean allowDeletedSnapshotAttr = this.getBooleanAttr(reader, ALLOW_DELETED_SNAPSHOT_ATTRIBUTE, false);
+        if (allowDeletedSnapshotAttr != null)
+            this.setAllowDeletedSnapshot(allowDeletedSnapshotAttr);
     }
 
     @Override
@@ -171,6 +220,14 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         this.writeAttributes(writer, includeName);
         if (this.onDelete != null)
             writer.writeAttribute(ON_DELETE_ATTRIBUTE.getNamespaceURI(), ON_DELETE_ATTRIBUTE.getLocalPart(), this.onDelete.name());
+        if (this.allowDeleted != (this.onDelete == DeleteAction.NOTHING)) {
+            writer.writeAttribute(ALLOW_DELETED_ATTRIBUTE.getNamespaceURI(), ALLOW_DELETED_ATTRIBUTE.getLocalPart(),
+              "" + this.allowDeleted);
+        }
+        if (!this.allowDeletedSnapshot) {
+            writer.writeAttribute(ALLOW_DELETED_SNAPSHOT_ATTRIBUTE.getNamespaceURI(),
+              ALLOW_DELETED_SNAPSHOT_ATTRIBUTE.getLocalPart(), "" + this.allowDeletedSnapshot);
+        }
         if (this.objectTypes != null) {
             writer.writeStartElement(OBJECT_TYPES_TAG.getNamespaceURI(), OBJECT_TYPES_TAG.getLocalPart());
             for (int storageId : this.objectTypes) {
@@ -202,6 +259,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
         final ReferenceSchemaField that = (ReferenceSchemaField)obj;
         return this.onDelete == that.onDelete
           && this.cascadeDelete == that.cascadeDelete
+          && this.allowDeleted == that.allowDeleted
+          && this.allowDeletedSnapshot == that.allowDeletedSnapshot
           && (this.objectTypes != null ? this.objectTypes.equals(that.objectTypes) : that.objectTypes == null);
     }
 
@@ -209,6 +268,8 @@ public class ReferenceSchemaField extends SimpleSchemaField {
     public int hashCode() {
         return super.hashCode()
           ^ (this.cascadeDelete ? 1 : 0)
+          ^ (this.allowDeleted ? 2 : 0)
+          ^ (this.allowDeletedSnapshot ? 4 : 0)
           ^ (this.onDelete != null ? this.onDelete.hashCode() : 0)
           ^ (this.objectTypes != null ? this.objectTypes.hashCode() : 0);
     }

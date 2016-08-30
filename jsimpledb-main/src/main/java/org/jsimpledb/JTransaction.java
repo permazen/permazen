@@ -480,6 +480,12 @@ public class JTransaction {
      * must be identical in both transactions.
      *
      * <p>
+     * If any copied objects contain reference fields configured with {@link JField#allowDeleted}{@code = false},
+     * then any objects referenced by those fields must also be copied, or else must already exist in {@code dest}
+     * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link JField#allowDeletedSnapshot} applies instead).
+     * Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
+     *
+     * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
      *
@@ -495,6 +501,8 @@ public class JTransaction {
      * @return the copied object, i.e., the object having ID {@code dstId} in {@code dest}
      * @throws DeletedObjectException if {@code srcObj} does not exist in this transaction
      * @throws DeletedObjectException if an object in {@code copyState} is traversed but does not actually exist
+     * @throws DeletedObjectException if any copied object contains a reference to another deleted, but not copied, object,
+     *  through a reference field configured to disallow deleted assignment
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema corresponding to {@code srcObj}'s object's version
      *  is not identical in this instance and {@code dest} (as well for any referenced objects)
      * @throws TypeNotInSchemaVersionException if the current schema version does not contain the source object's type
@@ -557,6 +565,9 @@ public class JTransaction {
             }
         }
 
+        // Reset deleted assignments
+        copyState.deletedAssignments.clear();
+
         // Ensure object is copied even when there are zero reference paths
         if (paths.isEmpty())
             this.copyTo(copyState, dest, srcId, dstId, true, 0, new int[0]);
@@ -566,6 +577,9 @@ public class JTransaction {
             this.copyTo(copyState, dest, srcId, dstId, false/*doesn't matter*/,
               0, Ints.concat(path.getReferenceFields(), new int[] { path.getTargetField() }));
         }
+
+        // Check for any remining deleted assignments
+        copyState.checkDeletedAssignments(this);
 
         // Done
         return dest.get(dstId);
@@ -593,6 +607,12 @@ public class JTransaction {
      * must be identical in both transactions.
      *
      * <p>
+     * If any copied objects contain reference fields configured with {@link JField#allowDeleted}{@code = false},
+     * then any objects referenced by those fields must also be copied, or else must already exist in {@code dest}
+     * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link JField#allowDeletedSnapshot} applies instead).
+     * Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
+     *
+     * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
      *
@@ -600,6 +620,8 @@ public class JTransaction {
      * @param jobjs {@link Iterable} returning the objects to copy; null values are ignored
      * @param copyState tracks which objects have already been copied
      * @throws DeletedObjectException if an object in {@code jobjs} does not exist in this transaction
+     * @throws DeletedObjectException if any copied object contains a reference to another deleted, but not copied, object,
+     *  through a reference field configured to disallow deleted assignment
      * @throws org.jsimpledb.core.SchemaMismatchException if the schema version corresponding to an object in
      *  {@code jobjs} is not identical in this instance and {@code dest}
      * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
@@ -612,6 +634,9 @@ public class JTransaction {
         Preconditions.checkArgument(dest != null, "null dest");
         Preconditions.checkArgument(copyState != null, "null copyState");
         Preconditions.checkArgument(jobjs != null, "null jobjs");
+
+        // Reset deleted assignments
+        copyState.deletedAssignments.clear();
 
         // Copy objects
         for (JObject jobj : jobjs) {
@@ -627,18 +652,37 @@ public class JTransaction {
             final ObjId id = jobj.getObjId();
             this.copyTo(copyState, dest, id, id, true, 0, new int[0]);
         }
+
+        // Check for any remining deleted assignments
+        copyState.checkDeletedAssignments(this);
     }
 
     void copyTo(CopyState copyState, JTransaction dest, ObjId srcId, ObjId dstId, boolean required, int fieldIndex, int[] fields) {
 
         // Copy current instance unless already copied, upgrading it in the process
         if (copyState.markCopied(dstId)) {
+
+            // Copy at the core API level
+            final ObjIdMap<ReferenceField> coreDeletedAssignments = new ObjIdMap<>();
+            boolean exists = true;
             try {
-                this.tx.copy(srcId, dstId, dest.tx, true);
+                this.tx.copy(srcId, dstId, dest.tx, true, coreDeletedAssignments);
             } catch (DeletedObjectException e) {
                 if (required)
                     throw e;
+                exists = false;
             }
+
+            // Add any deleted assignments from the core API copy to our copy state
+            for (Map.Entry<ObjId, ReferenceField> entry : coreDeletedAssignments.entrySet()) {
+                assert !copyState.isCopied(entry.getKey());
+                copyState.deletedAssignments.put(entry.getKey(), new DeletedAssignment(dstId, entry.getValue()));
+            }
+
+            // If the copy was successful, remove the copied object from the deleted assignments set in our copy state.
+            // This fixes up "forward reference" deleted assignments that get satisfied later in the overall copy operation.
+            if (exists)
+                copyState.deletedAssignments.remove(dstId);
         }
 
         // Any more fields to traverse?

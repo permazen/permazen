@@ -140,24 +140,24 @@ public class DeleteCascadeTest extends TestSupport {
     @JSimpleClass
     public abstract static class Person implements JObject {
 
-        @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true)
+        @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true)
         public abstract Person getRef();
         public abstract void setRef(Person ref);
 
-        @JSetField(element = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true))
+        @JSetField(element = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true))
         public abstract Set<Person> getSet();
 
         @JListField(element = @JField(onDelete = DeleteAction.UNREFERENCE, cascadeDelete = true))
         public abstract List<Person> getList();
 
         @JMapField(
-          key = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true),
-          value = @JField(onDelete = DeleteAction.NOTHING))
+          key = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true),
+          value = @JField(onDelete = DeleteAction.NOTHING, allowDeleted = true))
         public abstract Map<Person, Person> getMap1();
 
         @JMapField(
-          key = @JField(onDelete = DeleteAction.NOTHING),
-          value = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true))
+          key = @JField(onDelete = DeleteAction.NOTHING, allowDeleted = true),
+          value = @JField(onDelete = DeleteAction.NOTHING, cascadeDelete = true, allowDeleted = true))
         public abstract Map<Person, Person> getMap2();
     }
 }

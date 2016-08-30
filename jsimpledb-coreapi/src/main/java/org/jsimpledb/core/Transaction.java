@@ -208,6 +208,9 @@ public class Transaction {
     @GuardedBy("this")
     private final ObjIdMap<ObjInfo> objInfoCache = new ObjIdMap<>();
 
+    // Recording of deleted assignments used during a copy() operation (otherwise should be null)
+    private ObjIdMap<ReferenceField> deletedAssignments;
+
 // Constructors
 
     Transaction(Database db, KVTransaction kvt, Schemas schemas) {
@@ -918,12 +921,18 @@ public class Transaction {
      * (Meaningful) changes to {@code target}'s fields generate change listener notifications.
      *
      * <p>
+     * If {@code source} contains references to any objects that don't exist in {@code dest} through fields configured
+     * to {@linkplain ReferenceField#isAllowDeleted disallow deleted assignments}, then a {@link DeletedObjectException}
+     * is thrown and no copy is performed. To perform a copy that allows such deleted assignments, use
+     * {@link #copy(ObjId, ObjId, Transaction, boolean, ObjIdMap)}.
+     *
+     * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
      * deadlock could result.
      *
      * <p>
      * If {@code dest} is this instance, and {@code source} equals {@code target}, no fields are changed and false is returned;
-     * however, a schema update may occur (if {@code updateVersion} is true).
+     * however, a schema update may occur (if {@code updateVersion} is true), and deleted assignment checks are applied.
      *
      * @param source object ID of the source object in this transaction
      * @param target object ID of the target object in {@code dest}
@@ -931,6 +940,8 @@ public class Transaction {
      * @param updateVersion true to first automatically update {@code source}'s schema version, false to not change it
      * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code source} is found in this transaction
+     * @throws DeletedObjectException if a non-null reference field in {@code source} that disallows deleted assignments
+     *  contains a reference to an object that does not exist in {@code dest}
      * @throws UnknownTypeException if {@code source} or {@code target} specifies an unknown object type
      * @throws IllegalArgumentException if {@code source} and {@code target} specify different object types
      * @throws IllegalArgumentException if any parameter is null
@@ -941,7 +952,50 @@ public class Transaction {
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      */
-    public synchronized boolean copy(ObjId source, final ObjId target, final Transaction dest, final boolean updateVersion) {
+    public boolean copy(ObjId source, ObjId target, Transaction dest, boolean updateVersion) {
+        return this.copy(source, target, dest, updateVersion, null);
+    }
+
+    /**
+     * Variant of {@link #copy(ObjId, ObjId, Transaction, boolean)} that allows, but tracks, deleted assignments.
+     *
+     * <p>
+     * When multiple objects need to be copied, {@link #copy(ObjId, ObjId, Transaction, boolean) copy()} can throw a
+     * {@link DeletedObjectException} if an object is copied before some other object that it references through a
+     * {@link ReferenceField} with {@link ReferenceField#allowDeleted} set to false. If there are cycles in the
+     * graph of references between objects, this situation is impossible to avoid.
+     *
+     * <p>
+     * In this variant, instead of triggering an exception, illegal references to deleted objects are collected in
+     * {@code deletedAssignments}, which maps each deleted object to (some) referring field in {@code target}.
+     * This allows the caller to decide what to do about them.
+     *
+     * <p>
+     * If a null {@link deletedAssignments} is given, and any illegal deleted assignment would occur, then an immediate
+     * {@link DeletedObjectException} is thrown and no copy is performed.
+     *
+     * @param source object ID of the source object in this transaction
+     * @param target object ID of the target object in {@code dest}
+     * @param dest destination transaction containing {@code target} (possibly same as this transaction)
+     * @param updateVersion true to first automatically update {@code source}'s schema version, false to not change it
+     * @param deletedAssignments if not null, collect assignments to deleted objects here instead of throwing
+     *  {@link DeletedObjectException}s, where the map key is the deleted object and the map value is some referring field
+     * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
+     * @throws DeletedObjectException if no object with ID equal to {@code source} exists in this transaction
+     * @throws DeletedObjectException if {@code deletedAssignments} is null, and a non-null reference field in {@code source}
+     *  that disallows deleted assignments contains a reference to an object that does not exist in {@code dest}
+     * @throws UnknownTypeException if {@code source} or {@code target} specifies an unknown object type
+     * @throws IllegalArgumentException if {@code source} and {@code target} specify different object types
+     * @throws IllegalArgumentException if any parameter is null
+     * @throws IllegalArgumentException if any {@code source} and {@code target} have different object types
+     * @throws StaleTransactionException if this transaction or {@code dest} is no longer usable
+     * @throws SchemaMismatchException if the schema version associated with {@code source} differs between
+     *  this transaction and {@code dest}
+     * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
+     *   the object's type does not exist in the schema version associated with this transaction
+     */
+    public synchronized boolean copy(ObjId source, final ObjId target, final Transaction dest, final boolean updateVersion,
+      final ObjIdMap<ReferenceField> deletedAssignments) {
 
         // Sanity check
         Preconditions.checkArgument(source != null, "null source");
@@ -964,7 +1018,13 @@ public class Transaction {
             return dest.mutateAndNotify(new Mutation<Boolean>() {
                 @Override
                 public Boolean mutate() {
-                    return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest, updateVersion);
+                    final ObjIdMap<ReferenceField> previousCopyDeletedAssignments = dest.deletedAssignments;
+                    dest.deletedAssignments = deletedAssignments;
+                    try {
+                        return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest, updateVersion);
+                    } finally {
+                        dest.deletedAssignments = previousCopyDeletedAssignments;
+                    }
                 }
             });
         }
@@ -1030,6 +1090,10 @@ public class Transaction {
                 field.copy(srcId, dstId, srcTx, dstTx);
         } else {
             assert srcType.schema.versionNumber == dstType.schema.versionNumber;
+
+            // Check for any deleted reference assignments
+            for (ReferenceField field : dstType.referenceFields.values())
+                field.findAnyDeletedAssignments(srcTx, dstTx, dstId);
 
             // We can short circuit here if source and target are the same object in the same transaction
             if (srcId.equals(dstId) && srcTx.equals(dstTx))
@@ -1625,6 +1689,10 @@ public class Transaction {
         if (field == null)
             throw new UnknownFieldException(info.getObjType(), storageId, "simple field");
 
+        // Check for deleted assignment
+        if (field instanceof ReferenceField)
+            this.checkDeletedAssignment(id, (ReferenceField)field, (ObjId)newObj);
+
         // Get new value
         final byte[] key = field.buildKey(id);
         final byte[] newValue = field.encode(newObj);
@@ -1707,6 +1775,44 @@ public class Transaction {
                 listener.onSimpleFieldChange(tx, this.id, (SimpleField<Object>)field, path, referrers, oldObj, newObj);
             }
         });
+    }
+
+    /**
+     * Check for an invalid assignment to the given reference field of a deleted object.
+     *
+     * @param id referring object
+     * @param field reference field in referring object
+     * @param targetId referred-to object that should exist
+     * @throws DeletedObjectException if assignment is invalid
+     */
+    void checkDeletedAssignment(ObjId id, ReferenceField field, ObjId targetId) {
+
+        // Allow null
+        if (targetId == null)
+            return;
+
+        // It's possible for target to be the same object during a copy of a self-referencing object; allow it
+        if (targetId.equals(id))
+            return;
+
+        // Is deleted assignment disallowed for this field?
+        if ((this instanceof SnapshotTransaction) ? field.allowDeletedSnapshot : field.allowDeleted)
+            return;
+
+        // Is the target a deleted object?
+        if (this.exists(targetId))
+            return;
+
+        // Are we copying? If so defer the check
+        if (this.deletedAssignments != null) {
+            this.deletedAssignments.put(targetId, field);
+            return;
+        }
+
+        // Not allowed
+        throw new DeletedObjectException(targetId, "illegal assignment to " + field + " in object " + id
+          + " (" + this.getTypeDescription(id) + ") of reference to deleted object " + targetId
+          + " (" + this.getTypeDescription(targetId) + ")");
     }
 
     /**

@@ -99,6 +99,10 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         if (oldValue == null)
             throw new IndexOutOfBoundsException("index = " + index);
 
+        // Check for deleted assignement
+        if (this.field.elementField instanceof ReferenceField)
+            this.tx.checkDeletedAssignment(this.id, (ReferenceField)this.field.elementField, (ObjId)newElem);
+
         // Optimize if no change
         if (Arrays.equals(newValue, oldValue))
             return newElem;
@@ -151,9 +155,17 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
 
     private boolean doAddAll(int index, Collection<? extends E> elems0) {
 
-        // Encode elements
+        // Copy array
         final ArrayList<E> elems = new ArrayList<>(elems0);
         final int numElems = elems.size();
+
+        // Check for deleted assignement
+        if (this.field.elementField instanceof ReferenceField) {
+            for (E elem : elems)
+                this.tx.checkDeletedAssignment(this.id, (ReferenceField)this.field.elementField, (ObjId)elem);
+        }
+
+        // Encode elements
         final ArrayList<byte[]> values = new ArrayList<>(numElems);
         for (E elem : elems)
             values.add(this.buildValue(elem));

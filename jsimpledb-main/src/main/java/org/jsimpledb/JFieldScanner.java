@@ -61,12 +61,19 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
     }
 
     public static final JField getDefaultJField(final JSimpleClass jsimpleClass) {
-        return new DefaultJField();
+        return new DefaultJField(jsimpleClass);
     }
 
 // DefaultJField
 
     public static class DefaultJField implements JField {
+
+        private JSimpleClass jsimpleClass;
+
+        DefaultJField(JSimpleClass jsimpleClass) {
+            this.jsimpleClass = jsimpleClass;
+        }
+
         @Override
         public Class<JField> annotationType() {
             return JField.class;
@@ -106,6 +113,14 @@ class JFieldScanner<T> extends AbstractFieldScanner<T, JField> {
         @Override
         public boolean cascadeDelete() {
             return false;
+        }
+        @Override
+        public boolean allowDeleted() {
+            return this.jsimpleClass.autogenAllowDeleted();
+        }
+        @Override
+        public boolean allowDeletedSnapshot() {
+            return this.jsimpleClass.autogenAllowDeletedSnapshot();
         }
     };
 }

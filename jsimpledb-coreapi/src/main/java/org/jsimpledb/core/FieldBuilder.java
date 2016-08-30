@@ -63,8 +63,8 @@ class FieldBuilder extends SchemaFieldSwitchAdapter<Field<?>> {
     @Override
     public SimpleField<?> caseReferenceSchemaField(ReferenceSchemaField field) {
         Preconditions.checkArgument(field.getEncodingSignature() == 0, "encoding signature must be zero");
-        return new ReferenceField(field.getName(), field.getStorageId(),
-          this.schema, field.getOnDelete(), field.isCascadeDelete(), field.getObjectTypes());
+        return new ReferenceField(field.getName(), field.getStorageId(), this.schema, field.getOnDelete(),
+          field.isCascadeDelete(), field.isAllowDeleted(), field.isAllowDeletedSnapshot(), field.getObjectTypes());
     }
 
     @Override

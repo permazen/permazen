@@ -61,6 +61,10 @@ class JSSet<E> extends FieldTypeSet<E> {
 
     private boolean doAdd(final E newValue, byte[] key) {
 
+        // Check for deleted assignement
+        if (this.field.elementField instanceof ReferenceField)
+            this.tx.checkDeletedAssignment(this.id, (ReferenceField)this.field.elementField, (ObjId)newValue);
+
         // Check if already added
         if (this.tx.kvt.get(key) != null)
             return false;

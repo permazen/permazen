@@ -14,7 +14,10 @@ import java.util.TreeMap;
 
 import net.jcip.annotations.NotThreadSafe;
 
+import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.ReferenceField;
+import org.jsimpledb.core.util.ObjIdMap;
 import org.jsimpledb.core.util.ObjIdSet;
 
 /**
@@ -28,6 +31,9 @@ import org.jsimpledb.core.util.ObjIdSet;
  */
 @NotThreadSafe
 public class CopyState implements Cloneable {
+
+    // Hitch-hiker used by JTransaction.copyTo(). Maps referred-to-but-deleted object -> referring object & field
+    /*final*/ ObjIdMap<DeletedAssignment> deletedAssignments = new ObjIdMap<>();
 
     private final TreeMap<int[], ObjIdSet> traversedMap = new TreeMap<>(Ints.lexicographicalComparator());
     private /*final*/ ObjIdSet copied;
@@ -107,6 +113,24 @@ public class CopyState implements Cloneable {
         return true;
     }
 
+    // Check for any remaining deleted assignments, and remove the deletedAssignments field
+    void checkDeletedAssignments(JTransaction jtx) {
+
+        // Get an arbitrary remaining deleted assignment (if any)
+        if (this.deletedAssignments.isEmpty())
+            return;
+        final Map.Entry<ObjId, DeletedAssignment> entry = this.deletedAssignments.entrySet().iterator().next();
+
+        // Throw exception
+        final DeletedAssignment deletedAssignment = entry.getValue();
+        final ObjId id = deletedAssignment.getId();
+        final ReferenceField field = deletedAssignment.getField();
+        final ObjId targetId = entry.getKey();
+        throw new DeletedObjectException(targetId, "illegal assignment of deleted object " + targetId
+          + " (" + jtx.tx.getTypeDescription(targetId) + ") to " + field + " in object " + id
+          + " (" + jtx.tx.getTypeDescription(id) + ")");
+    }
+
 // Cloneable
 
     @Override
@@ -120,6 +144,7 @@ public class CopyState implements Cloneable {
         for (Map.Entry<int[], ObjIdSet> entry : this.traversedMap.entrySet())
             clone.traversedMap.put(entry.getKey(), entry.getValue().clone());
         clone.copied = this.copied.clone();
+        clone.deletedAssignments = new ObjIdMap<>();                // does not go along
         return clone;
     }
 }

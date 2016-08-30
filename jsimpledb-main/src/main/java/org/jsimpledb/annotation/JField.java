@@ -241,5 +241,55 @@ public @interface JField {
      * @see #uniqueExclude
      */
     boolean uniqueExcludeNull() default false;
+
+    /**
+     * Allow assignment to deleted objects in normal transactions.
+     *
+     * <p>
+     * For non-reference fields, this property must be equal to its default value.
+     *
+     * <p>
+     * For reference fields, when true this property prevents setting this field to reference a deleted object,
+     * causing a {@link DeletedObjectException} to be thrown instead. Used together with {@link DeleteAction#EXCEPTION}
+     * (see {@link #onDelete}), this guarantees this field won't contain any dangling references.
+     *
+     * <p>
+     * This property only controls validation in regular (non-snapshot transactions); {@link #allowDeletedSnapshot}
+     * separately controls validation for {@link org.jsimpledb.SnapshotJTransaction}s.
+     *
+     * <p>
+     * For consistency, this property must be set to true when {@link #onDelete} is set to {@link DeleteAction#NOTHING}.
+     *
+     * @return whether the reference field should allow assignment to deleted objects in normal transactions
+     * @see #onDelete
+     * @see #allowDeletedSnapshot
+     * @see JSimpleClass#autogenAllowDeleted
+     * @see org.jsimpledb.ValidReferenceConstraints
+     */
+    boolean allowDeleted() default false;
+
+    /**
+     * Allow assignment to deleted objects in snapshot transactions.
+     *
+     * <p>
+     * For non-reference fields, this property must be equal to its default value.
+     *
+     * <p>
+     * This property is equivalent to {@link #allowDeleted}, but applies to {@link org.jsimpledb.SnapshotJTransaction}s
+     * instead of normal {@link org.jsimpledb.JTransaction}s; see {@link #allowDeleted} for details.
+     *
+     * <p>
+     * Snapshot transactions typically hold a copy of some small portion of the database. If this property is set to false,
+     * then it effectively creates a requirement that this "small portion" be transitively closed under object references.
+     *
+     * <p>
+     * For consistency, this property must be set to true when {@link #onDelete} is set to {@link DeleteAction#NOTHING}.
+     *
+     * @return whether the reference field should allow assignment to deleted objects in snapshot transactions
+     * @see #onDelete
+     * @see #allowDeleted
+     * @see JSimpleClass#autogenAllowDeletedSnapshot
+     */
+    boolean allowDeletedSnapshot() default true;
 }
 

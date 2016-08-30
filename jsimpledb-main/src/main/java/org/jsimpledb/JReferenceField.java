@@ -28,12 +28,16 @@ public class JReferenceField extends JSimpleField {
 
     final DeleteAction onDelete;
     final boolean cascadeDelete;
+    final boolean allowDeleted;
+    final boolean allowDeletedSnapshot;
 
     JReferenceField(JSimpleDB jdb, String name, int storageId, String description, TypeToken<?> typeToken,
       org.jsimpledb.annotation.JField annotation, Method getter, Method setter) {
         super(jdb, name, storageId, typeToken, new ReferenceFieldType(), true, annotation, description, getter, setter);
         this.onDelete = annotation.onDelete();
         this.cascadeDelete = annotation.cascadeDelete();
+        this.allowDeleted = annotation.allowDeleted();
+        this.allowDeletedSnapshot = annotation.allowDeletedSnapshot();
     }
 
     @Override
@@ -87,6 +91,8 @@ public class JReferenceField extends JSimpleField {
         super.initialize(jdb, schemaField);
         schemaField.setOnDelete(this.onDelete);
         schemaField.setCascadeDelete(this.cascadeDelete);
+        schemaField.setAllowDeleted(this.allowDeleted);
+        schemaField.setAllowDeletedSnapshot(this.allowDeletedSnapshot);
         final TreeSet<Integer> objectTypes = new TreeSet<>();
         for (JClass<?> jclass : jdb.getJClasses(this.typeToken.getRawType()))
             objectTypes.add(jclass.storageId);

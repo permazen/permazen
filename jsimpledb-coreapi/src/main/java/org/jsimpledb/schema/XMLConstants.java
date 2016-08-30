@@ -28,6 +28,8 @@ public interface XMLConstants {
     QName SIMPLE_FIELD_TAG = new QName("SimpleField");
 
     // Attributes
+    QName ALLOW_DELETED_ATTRIBUTE = new QName("allowDeleted");
+    QName ALLOW_DELETED_SNAPSHOT_ATTRIBUTE = new QName("allowDeletedSnapshot");
     QName CASCADE_DELETE_ATTRIBUTE = new QName("cascadeDelete");
     QName ENCODING_SIGNATURE_ATTRIBUTE = new QName("encodingSignature");
     QName FORMAT_VERSION_ATTRIBUTE = new QName("formatVersion");

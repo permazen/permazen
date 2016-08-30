@@ -1,5 +1,10 @@
 Version Next
 
+    - Added detection of assignment of references to deleted objects:
+      - Added JField.allowDeleted() and JField.allowDeletedSnapshot()
+      - NOTE: JField.allowDeleted() is enabled by default; for old behavior:
+        - Set autogenAllowDeleted() = false on all @JSimpleClass's
+        - Set allowDeleted() = false on all reference field @JField's
     - Added @OnChange support for explicit wildcards, e.g. "foo.bar.*"
     - Added CLI commands set-history-file, show-imports, show-variables
     - Added CLI function session()
