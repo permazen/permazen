@@ -189,6 +189,8 @@ public class Transaction {
     @GuardedBy("this")
     boolean stale;
     @GuardedBy("this")
+    boolean ending;
+    @GuardedBy("this")
     boolean readOnly;
     @GuardedBy("this")
     boolean rollbackOnly;
@@ -321,6 +323,8 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             throw new StaleTransactionException(this);
+        if (this.ending)
+            throw new StaleTransactionException(this, "commit() invoked re-entrantly from commit callback");
 
         // Rollback only?
         if (this.rollbackOnly) {
@@ -328,23 +332,32 @@ public class Transaction {
             this.rollback();
             throw new RollbackOnlyTransactionException(this);
         }
-        this.stale = true;
+        this.ending = true;
 
-        // Do before completion callbacks
+        // Do beforeCommit() and beforeCompletion() callbacks
         if (this.log.isTraceEnabled())
             this.log.trace("commit() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
         Callback failedCallback = null;
         try {
             for (Callback callback : this.callbacks) {
                 failedCallback = callback;
+                if (this.log.isTraceEnabled())
+                    this.log.trace("commit() invoking beforeCommit() on transaction " + this + " callback " + callback);
                 callback.beforeCommit(this.readOnly);
             }
             failedCallback = null;
         } finally {
+
+            // TX operations no longer permitted
+            this.stale = true;
+
+            // Log the offending callback, if any
             if (failedCallback != null) {
                 this.log.warn("error invoking beforeCommit() method on transaction "
                   + this + " callback " + failedCallback + ", rolling back");
             }
+
+            // Do before completion callback
             this.triggerBeforeCompletion();
             if (failedCallback != null) {
                 try {
@@ -360,7 +373,6 @@ public class Transaction {
         }
 
         // Commit KVTransaction and trigger after completion callbacks
-        failedCallback = null;
         try {
             if (this.readOnly)
                 this.kvt.rollback();
@@ -368,12 +380,18 @@ public class Transaction {
                 this.kvt.commit();
             for (Callback callback : this.callbacks) {
                 failedCallback = callback;
+                if (this.log.isTraceEnabled())
+                    this.log.trace("commit() invoking afterCommit() on transaction " + this + " callback " + callback);
                 callback.afterCommit();
             }
             failedCallback = null;
         } finally {
+
+            // Log the offending callback, if any
             if (failedCallback != null)
                 this.log.warn("error invoking afterCommit() method on transaction " + this + " callback " + failedCallback);
+
+            // Do after completion callback
             this.triggerAfterCompletion(true);
         }
     }
@@ -390,12 +408,20 @@ public class Transaction {
         // Sanity check
         if (this.stale)
             return;
-        this.stale = true;
+        if (this.ending) {
+            this.log.warn("rollback() invoked re-entrantly from commit callback (ignoring)");
+            return;
+        }
+        this.ending = true;
         if (this.log.isTraceEnabled())
             this.log.trace("rollback() invoked on" + (this.readOnly ? " read-only" : "") + " transaction " + this);
 
         // Do before completion callbacks
-        this.triggerBeforeCompletion();
+        try {
+            this.triggerBeforeCompletion();
+        } finally {
+            this.stale = true;
+        }
 
         // Roll back KVTransaction and trigger after completion callbacks
         try {
@@ -407,20 +433,26 @@ public class Transaction {
 
     private /*synchronized*/ void triggerBeforeCompletion() {
         for (Callback callback : this.callbacks) {
+            if (this.log.isTraceEnabled())
+                this.log.trace("invoking beforeCompletion() on transaction " + this + " callback " + callback);
             try {
                 callback.beforeCompletion();
             } catch (Throwable t) {
-                this.log.error("error invoking beforeCompletion() method on transaction callback " + callback, t);
+                this.log.error("error from beforeCompletion() method of transaction "
+                  + this + " callback " + callback + " (ignoring)", t);
             }
         }
     }
 
     private /*synchronized*/ void triggerAfterCompletion(boolean committed) {
         for (Callback callback : this.callbacks) {
+            if (this.log.isTraceEnabled())
+                this.log.trace("invoking afterCompletion() on transaction " + this + " callback " + callback);
             try {
                 callback.afterCompletion(committed);
             } catch (Throwable t) {
-                this.log.error("error invoking afterCompletion() method on transaction callback " + callback, t);
+                this.log.error("error from afterCompletion() method of transaction "
+                  + this + " callback " + callback + " (ignoring)", t);
             }
         }
     }
@@ -509,7 +541,7 @@ public class Transaction {
      */
     public synchronized void addCallback(Callback callback) {
         Preconditions.checkArgument(callback != null, "null callback");
-        if (this.stale)
+        if (this.stale || this.ending)
             throw new StaleTransactionException(this);
         this.callbacks.add(callback);
     }

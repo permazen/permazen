@@ -20,5 +20,16 @@ public class StaleTransactionException extends TransactionException {
     public StaleTransactionException(Transaction tx) {
         super(tx, "transaction cannot be accessed because it is no longer usable");
     }
+
+    /**
+     * Constructor.
+     *
+     * @param tx the stale transaction
+     * @param message exception message
+     * @throws IllegalArgumentException if {@code tx} is null
+     */
+    public StaleTransactionException(Transaction tx, String message) {
+        super(tx, message);
+    }
 }
 

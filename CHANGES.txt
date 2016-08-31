@@ -1,5 +1,6 @@
 Version 2.2.1
 
+    - Fixed bug where beforeCommit() callbacks could not access transaction
     - Added subclass method JSimpleDBTransactionManager.createTransaction()
 
 Version 2.2.0 Released August 30, 2016
