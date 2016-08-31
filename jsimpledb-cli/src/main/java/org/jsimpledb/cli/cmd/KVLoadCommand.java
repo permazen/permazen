@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.jsimpledb.SessionMode;
 import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.kv.KVTransaction;
 import org.jsimpledb.kv.util.XMLSerializer;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.util.ParseContext;
@@ -20,7 +21,7 @@ import org.jsimpledb.util.ParseContext;
 public class KVLoadCommand extends AbstractKVCommand {
 
     public KVLoadCommand() {
-        super("kvload file.xml:file");
+        super("kvload -R:reset file.xml:file");
     }
 
     @Override
@@ -30,8 +31,8 @@ public class KVLoadCommand extends AbstractKVCommand {
 
     @Override
     public String getHelpDetail() {
-        return "Imports key/value pairs from an XML file created previously via `kvsave'. Does not remove any key/value pairs"
-          + "already in the database."
+        return "Imports key/value pairs from an XML file created previously via `kvsave'. Does NOT remove any key/value pairs"
+          + "already in the database unless the `-R' flag is given, in which case the database is completely wiped first."
           + "\n\nWARNING: this command can corrupt a JSimpleDB database.";
     }
 
@@ -47,13 +48,17 @@ public class KVLoadCommand extends AbstractKVCommand {
 
     @Override
     public CliSession.Action getAction(CliSession session, ParseContext ctx, boolean complete, Map<String, Object> params) {
+        final boolean reset = params.containsKey("reset");
         final File file = (File)params.get("file.xml");
         return new CliSession.TransactionalAction() {
             @Override
             public void run(CliSession session) throws Exception {
+                final KVTransaction kvt = session.getKVTransaction();
+                if (reset)
+                    kvt.removeRange(null, null);
                 final int count;
                 try (BufferedInputStream input = new BufferedInputStream(new FileInputStream(file))) {
-                    count = new XMLSerializer(session.getKVTransaction()).read(input);
+                    count = new XMLSerializer(kvt).read(input);
                 }
                 session.getWriter().println("Read " + count + " key/value pairs from `" + file + "'");
             }
