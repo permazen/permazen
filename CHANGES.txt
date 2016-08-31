@@ -1,3 +1,7 @@
+Version 2.2.1
+
+    - Added subclass method JSimpleDBTransactionManager.createTransaction()
+
 Version 2.2.0 Released August 30, 2016
 
     - Added detection of assignment of references to deleted objects:
