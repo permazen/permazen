@@ -189,7 +189,7 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
         // Create JSimpleDB transaction
         final JTransaction jtx;
         try {
-            jtx = this.jdb.createTransaction(this.allowNewSchema, this.validationMode, options);
+            jtx = this.createTransaction(options);
         } catch (DatabaseException e) {
             throw new CannotCreateTransactionException("error creating new JSimpleDB transaction", e);
         }
@@ -215,6 +215,21 @@ public class JSimpleDBTransactionManager extends AbstractPlatformTransactionMana
 
         // Done
         tx.setJTransaction(jtx);
+    }
+
+    /**
+     * Create the underlying {@link JTransaction} for a new transaction.
+     *
+     * <p>
+     * The implementation in {@link JSimpleDBTransactionManager} just delegates to
+     * {@link JTransaction#createTransaction(boolean, ValidationMode, Map)} using this instance's configured
+     * settings for validation mode and allowing new schema versions.
+     *
+     * @param options transaction options
+     * @throws DatabaseException if an error occurs
+     */
+    protected JTransaction createTransaction(Map<String, Object> options) {
+        return this.jdb.createTransaction(this.allowNewSchema, this.validationMode, options);
     }
 
     /**
