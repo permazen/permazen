@@ -95,8 +95,8 @@ public interface KVTransaction extends KVStore {
      * <p>
      * A key watch is only guaranteed to be valid if the transaction in which it was created successfully commits.
      * In particular, nothing is specified about how or whether {@link Future}s associated with failed transactions complete,
-     * so the use of {@link Future}s returned by this method should normally be deferred until after commit using a
-     * transaction callback.
+     * so the {@link Future}s returned by this method should not be relied on until after a successful commit (perhaps with
+     * the help of a {@linkplain org.jsimpledb.core.Transaction#addCallback transaction callback}).
      *
      * <p>
      * Key watch support is optional; instances that don't support key watches throw {@link UnsupportedOperationException}.
