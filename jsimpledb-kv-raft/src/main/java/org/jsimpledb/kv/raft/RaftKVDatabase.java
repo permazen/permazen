@@ -710,10 +710,11 @@ public class RaftKVDatabase implements KVDatabase {
      * <p>
      * The returned map is a copy; changes have no effect on this instance.
      *
-     * @return current configuration mapping from node identity to network address, or empty if this node is unconfigured
+     * @return current configuration mapping from node identity to network address,
+     *  or empty if this node is not started or unconfigured
      */
     public synchronized Map<String, String> getCurrentConfig() {
-        return new TreeMap<>(this.currentConfig);
+        return this.currentConfig != null ? new TreeMap<String, String>(this.currentConfig) : new TreeMap<String, String>();
     }
 
     /**
@@ -723,7 +724,7 @@ public class RaftKVDatabase implements KVDatabase {
      * A node is configured if and only if it has at least one log entry. The first log entry always
      * includes a configuration change that adds the node that created it to the (previously empty) cluster.
      *
-     * @return true if this instance is configured, otherwise false
+     * @return true if this instance is started and configured, otherwise false
      */
     public synchronized boolean isConfigured() {
         return this.lastAppliedIndex > 0 || !this.raftLog.isEmpty();
@@ -733,7 +734,7 @@ public class RaftKVDatabase implements KVDatabase {
      * Determine whether this node thinks that it is part of its cluster, as determined by its
      * {@linkplain #getCurrentConfig current configuration}.
      *
-     * @return true if this instance is part of the cluster, otherwise false
+     * @return true if this instance is started and part of the cluster, otherwise false
      */
     public synchronized boolean isClusterMember() {
         return this.isClusterMember(this.identity);
@@ -744,10 +745,10 @@ public class RaftKVDatabase implements KVDatabase {
      * {@linkplain #getCurrentConfig current configuration}.
      *
      * @param node node identity
-     * @return true if the specified node is part of the cluster, otherwise false
+     * @return true if this instance is started and the specified node is part of the cluster, otherwise false
      */
     public synchronized boolean isClusterMember(String node) {
-        return this.currentConfig.containsKey(node);
+        return this.currentConfig != null ? this.currentConfig.containsKey(node) : false;
     }
 
     /**
@@ -762,7 +763,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Get this instance's current term.
      *
-     * @return current term
+     * @return current term, or zero if not running
      */
     public synchronized long getCurrentTerm() {
         return this.currentTerm;
@@ -780,7 +781,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Get this instance's current commit index..
      *
-     * @return current commit index
+     * @return current commit index, or zero if not running
      */
     public synchronized long getCommitIndex() {
         return this.commitIndex;
@@ -789,7 +790,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Get this instance's last applied log entry term.
      *
-     * @return last applied term
+     * @return last applied term, or zero if not running
      */
     public synchronized long getLastAppliedTerm() {
         return this.lastAppliedTerm;
@@ -798,7 +799,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Get this instance's last applied log entry index.
      *
-     * @return last applied index
+     * @return last applied index, or zero if not running
      */
     public synchronized long getLastAppliedIndex() {
         return this.lastAppliedIndex;
@@ -819,7 +820,7 @@ public class RaftKVDatabase implements KVDatabase {
     /**
      * Get the estimated total memory used by unapplied log entries.
      *
-     * @return unapplied log entry memory usage
+     * @return unapplied log entry memory usage, or zero if this instance is not running
      */
     public synchronized long getUnappliedLogMemoryUsage() {
         long total = 0;
