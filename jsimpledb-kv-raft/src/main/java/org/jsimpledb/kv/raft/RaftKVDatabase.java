@@ -1758,7 +1758,7 @@ public class RaftKVDatabase implements KVDatabase {
 // Object
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return this.getClass().getSimpleName()
           + "[identity=" + (this.identity != null ? "\"" + this.identity + "\"" : null)
           + ",logDir=" + this.logDir

@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import net.jcip.annotations.GuardedBy;
+
 import org.dellroad.stuff.io.ByteBufferOutputStream;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
@@ -40,16 +42,26 @@ import org.jsimpledb.kv.util.PrefixKVStore;
  */
 public class FollowerRole extends NonLeaderRole {
 
+    @GuardedBy("raft")
     private String leader;                                                          // our leader, if known
+    @GuardedBy("raft")
     private String leaderAddress;                                                   // our leader's network address
+    @GuardedBy("raft")
     private String votedFor;                                                        // the candidate we voted for this term
+    @GuardedBy("raft")
     private SnapshotReceive snapshotReceive;                                        // in-progress snapshot install, if any
+    @GuardedBy("raft")
     private final HashMap<Long, PendingRequest> pendingRequests = new HashMap<>();  // wait for CommitResponse or log entry
+    @GuardedBy("raft")
     private final HashMap<Long, PendingWrite> pendingWrites = new HashMap<>();      // wait for AppendRequest with null data
+    @GuardedBy("raft")
     private final HashMap<Long, Timestamp> commitLeaderLeaseTimeoutMap              // tx's waiting for leaderLeaseTimeout's
       = new HashMap<>();
+    @GuardedBy("raft")
     private Timestamp lastLeaderMessageTime;                                        // time of most recent rec'd AppendRequest
+    @GuardedBy("raft")
     private Timestamp leaderLeaseTimeout;                                           // latest rec'd leader lease timeout
+    @GuardedBy("raft")
     private HashMap<String, Timestamp> probeTimestamps;                             // used only when probing majority
 
 // Constructors
@@ -131,6 +143,7 @@ public class FollowerRole extends NonLeaderRole {
 // Probing mode
 
     private int calculateProbedNodes() {
+        assert Thread.holdsLock(this.raft);
         assert this.probeTimestamps != null;
         int numProbed = this.raft.isClusterMember() ? 1 : 0;
         final Timestamp now = new Timestamp();
@@ -149,6 +162,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void setup() {
+        assert Thread.holdsLock(this.raft);
         super.setup();
         if (this.log.isDebugEnabled()) {
             this.debug("entering follower role in term " + this.raft.currentTerm
@@ -159,6 +173,7 @@ public class FollowerRole extends NonLeaderRole {
 
     @Override
     void shutdown() {
+        assert Thread.holdsLock(this.raft);
         super.shutdown();
 
         // Cancel any in-progress snapshot install

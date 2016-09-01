@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
 
+import net.jcip.annotations.GuardedBy;
+
 import org.dellroad.stuff.io.ByteBufferInputStream;
 import org.jsimpledb.kv.KVTransactionException;
 import org.jsimpledb.kv.RetryTransactionException;
@@ -43,9 +45,11 @@ public class LeaderRole extends Role {
     private static final int TIMESTAMP_SCRUB_INTERVAL = 24 * 60 * 60 * 1000;            // once a day
 
     // Our followers
+    @GuardedBy("raft")
     private final HashMap<String, Follower> followerMap = new HashMap<>();
 
     // Our leadership "lease" timeout - i.e., the earliest time another leader could possibly be elected
+    @GuardedBy("raft")
     private Timestamp leaseTimeout;
 
     // Service tasks
@@ -150,6 +154,7 @@ public class LeaderRole extends Role {
 
     @Override
     void setup() {
+        assert Thread.holdsLock(this.raft);
         super.setup();
         if (this.log.isDebugEnabled())
             this.debug("entering leader role in term " + this.raft.currentTerm);
@@ -180,6 +185,7 @@ public class LeaderRole extends Role {
 
     @Override
     void shutdown() {
+        assert Thread.holdsLock(this.raft);
         super.shutdown();
         for (Follower follower : this.followerMap.values())
             follower.cleanup();
@@ -191,6 +197,7 @@ public class LeaderRole extends Role {
 
     @Override
     void outputQueueEmpty(String address) {
+        assert Thread.holdsLock(this.raft);
 
         // Find matching follower(s) and update them if needed
         for (Follower follower : this.followerMap.values()) {
@@ -204,6 +211,7 @@ public class LeaderRole extends Role {
 
     @Override
     void applyCommittedLogEntries() {
+        assert Thread.holdsLock(this.raft);
         super.applyCommittedLogEntries();
 
         // Stop check apply timer if there are none left
@@ -274,6 +282,7 @@ public class LeaderRole extends Role {
 
     // We have to periodically check if we can apply log entries, because the condition is time-dependent
     private void checkApplyEntries() {
+        assert Thread.holdsLock(this.raft);
         this.raft.requestService(this.applyCommittedLogEntriesService);
         if (!this.raft.raftLog.isEmpty())
             this.checkApplyTimer.timeoutAfter(this.raft.maxTransactionDuration);
@@ -291,6 +300,7 @@ public class LeaderRole extends Role {
      * </ul>
      */
     private void updateLeaderCommitIndex() {
+        assert Thread.holdsLock(this.raft);
 
         // Find highest index for which a majority of cluster members have ack'd the corresponding log entry from my term
         final int totalCount = this.raft.currentConfig.size();                          // total possible nodes
@@ -420,6 +430,7 @@ public class LeaderRole extends Role {
      * This should be invoked periodically, e.g., once a day.
      */
     private void scrubTimestamps() {
+        assert Thread.holdsLock(this.raft);
         if (this.log.isTraceEnabled())
             this.trace("scrubbing timestamps");
         for (Follower follower : this.followerMap.values()) {
@@ -456,6 +467,7 @@ public class LeaderRole extends Role {
      * </ul>
      */
     private void updateKnownFollowers() {
+        assert Thread.holdsLock(this.raft);
 
         // Compare known followers with the current config and determine who needs to be be added or removed
         final HashSet<String> adds = new HashSet<>(this.raft.currentConfig.keySet());
@@ -489,7 +501,7 @@ public class LeaderRole extends Role {
         // Add new followers
         for (String peer : adds) {
             final String address = this.raft.currentConfig.get(peer);
-            final Follower follower = new Follower(peer, address, this.raft.getLastLogIndex());
+            final Follower follower = new Follower(this.raft, peer, address, this.raft.getLastLogIndex());
             if (this.log.isDebugEnabled())
                 this.debug("adding new follower \"" + peer + "\" at " + address);
             follower.setUpdateTimer(new Timer(this.raft, "update timer for \"" + peer + "\"", new UpdateFollowerService(follower)));
@@ -668,6 +680,7 @@ public class LeaderRole extends Role {
     }
 
     private void updateAllSynchronizedFollowersNow() {
+        assert Thread.holdsLock(this.raft);
         for (Follower follower : this.followerMap.values()) {
             if (follower.isSynced())
                 follower.updateNow();
@@ -749,6 +762,7 @@ public class LeaderRole extends Role {
 
     // Determine whether it's safe to append a log entry with a configuration change
     private boolean mayApplyNewConfigChange() {
+        assert Thread.holdsLock(this.raft);
 
         // Rule #1: this leader must have committed at least one log entry in this term
         assert this.raft.commitIndex >= this.raft.lastAppliedIndex;
@@ -769,11 +783,13 @@ public class LeaderRole extends Role {
 
     @Override
     void caseAppendRequest(AppendRequest msg) {
+        assert Thread.holdsLock(this.raft);
         this.failDuplicateLeader(msg);
     }
 
     @Override
     void caseAppendResponse(AppendResponse msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Find follower
         final Follower follower = this.findFollower(msg);
@@ -839,6 +855,7 @@ public class LeaderRole extends Role {
 
     @Override
     void caseCommitRequest(CommitRequest msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Find follower
         final Follower follower = this.findFollower(msg);
@@ -932,16 +949,19 @@ public class LeaderRole extends Role {
 
     @Override
     void caseCommitResponse(CommitResponse msg) {
+        assert Thread.holdsLock(this.raft);
         this.failDuplicateLeader(msg);
     }
 
     @Override
     void caseInstallSnapshot(InstallSnapshot msg) {
+        assert Thread.holdsLock(this.raft);
         this.failDuplicateLeader(msg);
     }
 
     @Override
     void caseRequestVote(RequestVote msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Too late dude, I already won the election
         if (this.log.isDebugEnabled())
@@ -950,6 +970,7 @@ public class LeaderRole extends Role {
 
     @Override
     void caseGrantVote(GrantVote msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Thanks and all, but I already won the election
         if (this.log.isDebugEnabled())
@@ -972,15 +993,18 @@ public class LeaderRole extends Role {
 
     @Override
     public String toString() {
-        return this.toStringPrefix()
-          + ",followerMap=" + this.followerMap
-          + "]";
+        synchronized (this.raft) {
+            return this.toStringPrefix()
+              + ",followerMap=" + this.followerMap
+              + "]";
+        }
     }
 
 // Debug
 
     @Override
     boolean checkState() {
+        assert Thread.holdsLock(this.raft);
         if (!super.checkState())
             return false;
         assert this.checkApplyTimer.isRunning() == !this.raft.raftLog.isEmpty();
@@ -1011,6 +1035,7 @@ public class LeaderRole extends Role {
      * @return most recent matching log entry, or zero if none found
      */
     private long findMostRecentConfigChangeMatching(Predicate<String[]> predicate) {
+        assert Thread.holdsLock(this.raft);
         for (long index = this.raft.getLastLogIndex(); index > this.raft.lastAppliedIndex; index--) {
             final String[] configChange = this.raft.getLogEntryAtIndex(index).getConfigChange();
             if (configChange != null && predicate.apply(configChange))
@@ -1021,6 +1046,7 @@ public class LeaderRole extends Role {
 
     // Apply a new log entry to the Raft log; if operation fails, cancel() newLogEntry
     private LogEntry applyNewLogEntry(NewLogEntry newLogEntry) throws Exception {
+        assert Thread.holdsLock(this.raft);
 
         // Create log entry
         final LogEntry logEntry;
@@ -1081,6 +1107,7 @@ public class LeaderRole extends Role {
      * @return error message on failure, null for success
      */
     private String checkConflicts(long baseTerm, long baseIndex, Reads reads) {
+        assert Thread.holdsLock(this.raft);
 
         // Validate the index of the log entry on which the transaction is based
         final long minIndex = this.raft.lastAppliedIndex;
@@ -1111,6 +1138,7 @@ public class LeaderRole extends Role {
     }
 
     private Follower findFollower(Message msg) {
+        assert Thread.holdsLock(this.raft);
         final Follower follower = this.followerMap.get(msg.getSenderId());
         if (follower == null)
             this.warn("rec'd " + msg + " from unknown follower \"" + msg.getSenderId() + "\", ignoring");

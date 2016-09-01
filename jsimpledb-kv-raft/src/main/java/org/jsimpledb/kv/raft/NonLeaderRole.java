@@ -66,6 +66,7 @@ public abstract class NonLeaderRole extends Role {
 
     @Override
     void setup() {
+        assert Thread.holdsLock(this.raft);
         super.setup();
         if (this.startElectionTimer)
             this.restartElectionTimer();
@@ -73,6 +74,7 @@ public abstract class NonLeaderRole extends Role {
 
     @Override
     void shutdown() {
+        assert Thread.holdsLock(this.raft);
         super.shutdown();
         this.electionTimer.cancel();
     }
@@ -81,6 +83,7 @@ public abstract class NonLeaderRole extends Role {
 
     // Check for an election timeout
     private void checkElectionTimeout() {
+        assert Thread.holdsLock(this.raft);
         if (this.electionTimer.pollForTimeout()) {
             if (this.log.isDebugEnabled())
                 this.debug("election timeout while in " + this);
@@ -107,11 +110,13 @@ public abstract class NonLeaderRole extends Role {
 
     @Override
     void caseAppendResponse(AppendResponse msg) {
+        assert Thread.holdsLock(this.raft);
         this.failUnexpectedMessage(msg);
     }
 
     @Override
     void caseCommitRequest(CommitRequest msg) {
+        assert Thread.holdsLock(this.raft);
         this.failUnexpectedMessage(msg);
     }
 }

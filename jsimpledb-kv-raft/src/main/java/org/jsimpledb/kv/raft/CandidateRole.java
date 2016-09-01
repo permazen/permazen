@@ -7,6 +7,8 @@ package org.jsimpledb.kv.raft;
 
 import java.util.HashSet;
 
+import net.jcip.annotations.GuardedBy;
+
 import org.jsimpledb.kv.raft.msg.AppendRequest;
 import org.jsimpledb.kv.raft.msg.CommitResponse;
 import org.jsimpledb.kv.raft.msg.GrantVote;
@@ -18,6 +20,7 @@ import org.jsimpledb.kv.raft.msg.RequestVote;
  */
 public class CandidateRole extends NonLeaderRole {
 
+    @GuardedBy("raft")
     private final HashSet<String> votes = new HashSet<>();
     private final Service checkElectionResultService = new Service(this, "check election result") {
         @Override
@@ -60,6 +63,7 @@ public class CandidateRole extends NonLeaderRole {
 
     @Override
     void setup() {
+        assert Thread.holdsLock(this.raft);
         super.setup();
 
         // Increment term
@@ -84,15 +88,18 @@ public class CandidateRole extends NonLeaderRole {
 
     @Override
     void outputQueueEmpty(String address) {
+        assert Thread.holdsLock(this.raft);
         // nothing to do
     }
 
     @Override
     void handleElectionTimeout() {
+        assert Thread.holdsLock(this.raft);
         this.raft.changeRole(new CandidateRole(this.raft));
     }
 
     private void checkElectionResult() {
+        assert Thread.holdsLock(this.raft);
 
         // Tally votes
         final int allVotes = this.raft.currentConfig.size();
@@ -125,6 +132,7 @@ public class CandidateRole extends NonLeaderRole {
 
     @Override
     void caseAppendRequest(AppendRequest msg) {
+        assert Thread.holdsLock(this.raft);
         if (this.log.isDebugEnabled())
             this.debug("rec'd " + msg + " in " + this + "; reverting to follower");
         this.raft.changeRole(new FollowerRole(this.raft, msg.getSenderId(), this.raft.returnAddress));
@@ -135,16 +143,19 @@ public class CandidateRole extends NonLeaderRole {
 
     @Override
     void caseCommitResponse(CommitResponse msg) {
+        assert Thread.holdsLock(this.raft);
         this.failUnexpectedMessage(msg);                    // we could not have ever sent a CommitRequest in this term
     }
 
     @Override
     void caseInstallSnapshot(InstallSnapshot msg) {
+        assert Thread.holdsLock(this.raft);
         this.failUnexpectedMessage(msg);                    // we could not have ever sent an AppendResponse in this term
     }
 
     @Override
     void caseRequestVote(RequestVote msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Ignore - we are also a candidate and have already voted for ourself
         if (this.log.isDebugEnabled())
@@ -153,6 +164,7 @@ public class CandidateRole extends NonLeaderRole {
 
     @Override
     void caseGrantVote(GrantVote msg) {
+        assert Thread.holdsLock(this.raft);
 
         // Record vote
         this.votes.add(msg.getSenderId());
@@ -167,15 +179,18 @@ public class CandidateRole extends NonLeaderRole {
 
     @Override
     public String toString() {
-        return this.toStringPrefix()
-          + ",votes=" + this.votes
-          + "]";
+        synchronized (this.raft) {
+            return this.toStringPrefix()
+              + ",votes=" + this.votes
+              + "]";
+        }
     }
 
 // Debug
 
     @Override
     boolean checkState() {
+        assert Thread.holdsLock(this.raft);
         if (!super.checkState())
             return false;
         assert this.electionTimer.isRunning();

@@ -146,11 +146,9 @@ public class FallbackKVTransaction extends ForwardingKVStore implements KVTransa
     }
 
     private void retryIfMigrating() {
-        synchronized (this.db) {
-            if (this.db.isMigrating() || this.migrationCount != this.db.getMigrationCount()) {
-                this.rollback();
-                throw new RetryTransactionException(this, "fallback migration in progress");
-            }
+        if (!this.db.checkNoMigration(this.migrationCount)) {
+            this.rollback();
+            throw new RetryTransactionException(this, "fallback migration in progress");
         }
     }
 }

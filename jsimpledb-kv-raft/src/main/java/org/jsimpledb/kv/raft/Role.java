@@ -104,6 +104,7 @@ public abstract class Role {
      * Check transactions in the {@link TxState#COMMIT_READY} state to see if we can advance them.
      */
     void checkReadyTransactions() {
+        assert Thread.holdsLock(this.raft);
         for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
             new CheckReadyTransactionService(this, tx).run();
     }
@@ -113,6 +114,7 @@ public abstract class Role {
      * We invoke this service method whenever our {@code commitIndex} advances.
      */
     void checkWaitingTransactions() {
+        assert Thread.holdsLock(this.raft);
         for (RaftKVTransaction tx : new ArrayList<RaftKVTransaction>(this.raft.openTransactions.values()))
             new CheckWaitingTransactionService(this, tx).run();
     }
@@ -212,6 +214,7 @@ public abstract class Role {
     void triggerKeyWatches() {
 
         // Sanity check
+        assert Thread.holdsLock(this.raft);
         assert this.raft.commitIndex >= this.raft.lastAppliedIndex;
         assert this.raft.commitIndex <= this.raft.lastAppliedIndex + this.raft.raftLog.size();
         assert this.raft.keyWatchIndex <= this.raft.commitIndex;
@@ -251,6 +254,9 @@ public abstract class Role {
      * @throws KVTransactionException if an error occurs
      */
     void checkReadyTransaction(RaftKVTransaction tx) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
 
         // Get transaction mutations
         final Writes writes = tx.getMutableView().getWrites();
@@ -300,6 +306,7 @@ public abstract class Role {
     void advanceReadyTransaction(RaftKVTransaction tx, long commitTerm, long commitIndex) {
 
         // Sanity check
+        assert Thread.holdsLock(this.raft);
         assert tx.getState().equals(TxState.COMMIT_READY);
 
         // Set commit term & index and update state
@@ -333,6 +340,9 @@ public abstract class Role {
      * @throws KVTransactionException if an error occurs
      */
     void checkWaitingTransaction(RaftKVTransaction tx) {
+
+        // Sanity check
+        assert Thread.holdsLock(this.raft);
 
         // Handle the case the transaction's committed log index has already been applied to the state machine
         final long commitIndex = tx.getCommitIndex();
@@ -380,6 +390,7 @@ public abstract class Role {
      * @param tx the transaction
      */
     void cleanupForTransaction(RaftKVTransaction tx) {
+        assert Thread.holdsLock(this.raft);
     }
 
 // Messages
@@ -394,11 +405,13 @@ public abstract class Role {
     abstract void caseRequestVote(RequestVote msg);
 
     void casePingRequest(PingRequest msg) {
+        assert Thread.holdsLock(this.raft);
         this.raft.sendMessage(new PingResponse(this.raft.clusterId,
           this.raft.identity, msg.getSenderId(), this.raft.currentTerm, msg.getTimestamp()));
     }
 
     void casePingResponse(PingResponse msg) {
+        assert Thread.holdsLock(this.raft);
         // ignore by default
     }
 
@@ -464,6 +477,7 @@ public abstract class Role {
     public abstract String toString();
 
     String toStringPrefix() {
+        assert Thread.holdsLock(this.raft);
         return this.getClass().getSimpleName()
           + "[term=" + this.raft.currentTerm
           + ",applied=" + this.raft.lastAppliedIndex + "t" + this.raft.lastAppliedTerm

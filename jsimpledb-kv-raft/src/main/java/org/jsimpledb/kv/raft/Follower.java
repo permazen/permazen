@@ -11,6 +11,8 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.jcip.annotations.GuardedBy;
+
 /**
  * Contains information maintained by leaders about followers.
  */
@@ -26,30 +28,43 @@ public class Follower {
         }
     };
 
+    private final RaftKVDatabase raft;
     private final String identity;                      // follower's unique identity
     private final String address;                       // follower's network address
+
+    @GuardedBy("raft")
     private Timer updateTimer;                          // heartbeat/update timer
 
     // Used to avoid sending data for log entry back to the follower if the follower, as the originator, already has the data
+    @GuardedBy("raft")
     private final HashSet<LogEntry> skipDataLogEntries = new HashSet<>();
 
     // Used to keep track of which leader lease timeouts this follower is waiting on to commit (read-only) transactions.
     // This is so when the leaderLeaseTimeout exceeds one of these values, we know to immediately notify the follower.
+    @GuardedBy("raft")
     private final TreeSet<Timestamp> commitLeaseTimeouts = new TreeSet<>();
 
+    @GuardedBy("raft")
     private long nextIndex;                             // index of the next log entry to send to peer
+    @GuardedBy("raft")
     private long matchIndex;                            // index of highest log entry in follower that we know matches ours
+    @GuardedBy("raft")
     private long leaderCommit;                          // highest leaderCommit we have sent to this follower
+    @GuardedBy("raft")
     private Timestamp leaderTimestamp;                  // most recent leaderTimestamp received in any AppendResponse
+    @GuardedBy("raft")
     private boolean synced;                             // if previous AppendEntryRequest was successful
+    @GuardedBy("raft")
     private SnapshotTransmit snapshotTransmit;          // in-progress snapshot transfer, if any
 
 // Construtors
 
-    Follower(String identity, String address, long lastLogIndex) {
+    Follower(RaftKVDatabase raft, String identity, String address, long lastLogIndex) {
+        assert raft != null;
         assert identity != null;
         assert address != null;
         assert lastLogIndex >= 0;
+        this.raft = raft;
         this.identity = identity;
         this.address = address;
         this.nextIndex = lastLogIndex + 1;
@@ -63,7 +78,9 @@ public class Follower {
      * @return follower identity
      */
     public String getIdentity() {
-        return this.identity;
+        synchronized (this.raft) {
+            return this.identity;
+        }
     }
 
     /**
@@ -72,7 +89,9 @@ public class Follower {
      * @return follower address
      */
     public String getAddress() {
-        return this.address;
+        synchronized (this.raft) {
+            return this.address;
+        }
     }
 
     /**
@@ -81,9 +100,12 @@ public class Follower {
      * @return follower next index
      */
     public long getNextIndex() {
-        return this.nextIndex;
+        synchronized (this.raft) {
+            return this.nextIndex;
+        }
     }
     void setNextIndex(long nextIndex) {
+        assert Thread.holdsLock(this.raft);
         this.nextIndex = nextIndex;
     }
 
@@ -93,9 +115,12 @@ public class Follower {
      * @return follower next index
      */
     public long getMatchIndex() {
-        return this.matchIndex;
+        synchronized (this.raft) {
+            return this.matchIndex;
+        }
     }
     void setMatchIndex(long matchIndex) {
+        assert Thread.holdsLock(this.raft);
         this.matchIndex = matchIndex;
     }
 
@@ -105,9 +130,12 @@ public class Follower {
      * @return follower leader timestamp, or null if no response has been received yet from this follower
      */
     public Timestamp getLeaderTimestamp() {
-        return this.leaderTimestamp;
+        synchronized (this.raft) {
+            return this.leaderTimestamp;
+        }
     }
     void setLeaderTimestamp(Timestamp leaderTimestamp) {
+        assert Thread.holdsLock(this.raft);
         this.leaderTimestamp = leaderTimestamp;
     }
 
@@ -117,9 +145,12 @@ public class Follower {
      * @return follower leader commit index
      */
     public long getLeaderCommit() {
-        return this.leaderCommit;
+        synchronized (this.raft) {
+            return this.leaderCommit;
+        }
     }
     void setLeaderCommit(long leaderCommit) {
+        assert Thread.holdsLock(this.raft);
         this.leaderCommit = leaderCommit;
     }
 
@@ -133,9 +164,12 @@ public class Follower {
      * @return true if synchronized
      */
     public boolean isSynced() {
-        return this.synced;
+        synchronized (this.raft) {
+            return this.synced;
+        }
     }
     void setSynced(boolean synced) {
+        assert Thread.holdsLock(this.raft);
         this.synced = synced;
     }
 
@@ -145,38 +179,48 @@ public class Follower {
      * @return true if snapshot install is in progress
      */
     public boolean isReceivingSnapshot() {
-        return this.snapshotTransmit != null;
+        synchronized (this.raft) {
+            return this.snapshotTransmit != null;
+        }
     }
 
 // Package-access methods
 
     SnapshotTransmit getSnapshotTransmit() {
+        assert Thread.holdsLock(this.raft);
         return this.snapshotTransmit;
     }
     void setSnapshotTransmit(SnapshotTransmit snapshotTransmit) {
+        assert Thread.holdsLock(this.raft);
         this.snapshotTransmit = snapshotTransmit;
     }
 
     Set<LogEntry> getSkipDataLogEntries() {
+        assert Thread.holdsLock(this.raft);
         return this.skipDataLogEntries;
     }
 
     NavigableSet<Timestamp> getCommitLeaseTimeouts() {
+        assert Thread.holdsLock(this.raft);
         return this.commitLeaseTimeouts;
     }
 
     Timer getUpdateTimer() {
+        assert Thread.holdsLock(this.raft);
         return this.updateTimer;
     }
     void setUpdateTimer(Timer updateTimer) {
+        assert Thread.holdsLock(this.raft);
         this.updateTimer = updateTimer;
     }
 
     void updateNow() {
+        assert Thread.holdsLock(this.raft);
         this.updateTimer.timeoutNow();
     }
 
     void cancelSnapshotTransmit() {
+        assert Thread.holdsLock(this.raft);
         if (this.snapshotTransmit != null)  {
             this.matchIndex = Math.min(this.matchIndex, this.snapshotTransmit.getSnapshotIndex());
             this.snapshotTransmit.close();
@@ -188,6 +232,7 @@ public class Follower {
 // Clean up this follower
 
     void cleanup() {
+        assert Thread.holdsLock(this.raft);
         this.cancelSnapshotTransmit();
         this.updateTimer.cancel();
     }
@@ -196,17 +241,18 @@ public class Follower {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName()
-          + "[identity=\"" + this.identity + "\""
-          + ",nextIndex=" + this.nextIndex
-          + ",matchIndex=" + this.matchIndex
-          + ",leaderCommit=" + this.leaderCommit
-          + (this.leaderTimestamp != null ?
-            ",leaderTimestamp=" + String.format("%+dms", this.leaderTimestamp.offsetFromNow()) : "")
-          + ",synced=" + this.synced
-          + (!this.skipDataLogEntries.isEmpty() ? ",skipDataLogEntries=" + this.skipDataLogEntries : "")
-          + (this.snapshotTransmit != null ? ",snapshotTransmit=" + this.snapshotTransmit : "")
-          + "]";
+        synchronized (this.raft) {
+            return this.getClass().getSimpleName()
+              + "[identity=\"" + this.identity + "\""
+              + ",nextIndex=" + this.nextIndex
+              + ",matchIndex=" + this.matchIndex
+              + ",leaderCommit=" + this.leaderCommit
+              + (this.leaderTimestamp != null ?
+                ",leaderTimestamp=" + String.format("%+dms", this.leaderTimestamp.offsetFromNow()) : "")
+              + ",synced=" + this.synced
+              + (!this.skipDataLogEntries.isEmpty() ? ",skipDataLogEntries=" + this.skipDataLogEntries : "")
+              + (this.snapshotTransmit != null ? ",snapshotTransmit=" + this.snapshotTransmit : "")
+              + "]";
+        }
     }
 }
-

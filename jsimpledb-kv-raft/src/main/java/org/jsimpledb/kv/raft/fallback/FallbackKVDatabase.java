@@ -33,6 +33,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.jcip.annotations.GuardedBy;
+
 import org.dellroad.stuff.io.AtomicUpdateFileOutputStream;
 import org.jsimpledb.kv.KVDatabase;
 import org.jsimpledb.kv.KVTransaction;
@@ -86,21 +88,35 @@ public class FallbackKVDatabase implements KVDatabase {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     // Configured state
+    @GuardedBy("this")
     private final ArrayList<FallbackTarget> targets = new ArrayList<>();
+    @GuardedBy("this")
     private File stateFile;
+    @GuardedBy("this")
     private KVDatabase standaloneKV;
+    @GuardedBy("this")
     private int initialTargetIndex = Integer.MAX_VALUE;
+    @GuardedBy("this")
     private int maximumTargetIndex = Integer.MAX_VALUE;
 
     // Runtime state
+    @GuardedBy("this")
     private boolean migrating;
+    @GuardedBy("this")
     private int migrationCount;
+    @GuardedBy("this")
     private ScheduledExecutorService executor;
+    @GuardedBy("this")
     private ScheduledFuture<?> migrationCheckFuture;
+    @GuardedBy("this")
     private int startCount;
+    @GuardedBy("this")
     private boolean started;
+    @GuardedBy("this")
     private int currentTargetIndex;                     // index of current target, or -1 in standalone mode
+    @GuardedBy("this")
     private Date lastStandaloneActiveTime;
+    @GuardedBy("this")
     private final HashSet<FallbackFuture> futures = new HashSet<>();
 
 // Methods
@@ -221,7 +237,7 @@ public class FallbackKVDatabase implements KVDatabase {
      *
      * @return initial target index, with -1 meaning standalone mode
      */
-    public int getInitialTargetIndex() {
+    public synchronized int getInitialTargetIndex() {
         return this.initialTargetIndex;
     }
 
@@ -236,7 +252,7 @@ public class FallbackKVDatabase implements KVDatabase {
      *
      * @param initialTargetIndex initial target index, -1 meaning standalone mode; out of range values will be clipped
      */
-    public void setInitialTargetIndex(int initialTargetIndex) {
+    public synchronized void setInitialTargetIndex(int initialTargetIndex) {
         this.initialTargetIndex = initialTargetIndex;
     }
 
@@ -468,20 +484,14 @@ public class FallbackKVDatabase implements KVDatabase {
 
 // Package methods
 
-    boolean isMigrating() {
-        assert Thread.holdsLock(this);
-        return this.migrating;
-    }
-
-    int getMigrationCount() {
-        assert Thread.holdsLock(this);
-        return this.migrationCount;
+    synchronized boolean checkNoMigration(int migrationCount) {
+        return !this.migrating && migrationCount == this.migrationCount;
     }
 
     synchronized boolean registerFallbackFutures(List<FallbackFuture> futureList, int migrationCount) {
 
         // Check freshness
-        if (this.migrating || migrationCount != this.migrationCount)
+        if (!this.checkNoMigration(migrationCount))
             return false;
 
         // Record these futures
@@ -493,6 +503,9 @@ public class FallbackKVDatabase implements KVDatabase {
 
     // Perform availability check on the specified target
     private void performCheck(FallbackTarget target, final int startCount) {
+
+        // Should NOT be locked when invoked
+        assert !Thread.holdsLock(this);
 
         // Check for shutdown race condition
         final boolean wasAvailable;
@@ -535,11 +548,13 @@ public class FallbackKVDatabase implements KVDatabase {
                 return;
 
             // Update availability and schedule an immediate migration check
-            this.log.info(target + " has become " + (available ? "" : "un") + "available");
             target.available = available;
             target.lastChangeTimestamp = new Timestamp();
             this.executor.submit(new MigrationCheckTask());
         }
+
+        // Log result
+        this.log.info(target + " has become " + (available ? "" : "un") + "available");
     }
 
     // Perform migration if necessary
