@@ -1572,8 +1572,10 @@ public class RaftKVDatabase implements KVDatabase {
         this.lastAppliedIndex = index;
         this.lastAppliedConfig = config;
         this.commitIndex = this.lastAppliedIndex;
+        final TreeMap<String, String> previousConfig = new TreeMap<>(this.currentConfig);
         this.currentConfig = this.buildCurrentConfig();
-        this.info("new cluster configuration: " + this.currentConfig);
+        if (!this.currentConfig.equals(previousConfig))
+            this.info("apply new cluster configuration after snapshot install: " + this.currentConfig);
 
         // Discard the flip-flopped state machine
         this.discardFlipFloppedStateMachine();
@@ -1726,7 +1728,7 @@ public class RaftKVDatabase implements KVDatabase {
 
         // Update current config
         if (logEntry.applyConfigChange(this.currentConfig))
-            this.info("new cluster configuration: " + this.currentConfig);
+            this.info("applying new cluster configuration from log entry " + logEntry + ": " + this.currentConfig);
 
         // Done
         return logEntry;
