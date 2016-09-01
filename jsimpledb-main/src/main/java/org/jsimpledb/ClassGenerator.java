@@ -250,7 +250,7 @@ class ClassGenerator<T> {
     private void outputFields(ClassWriter cw) {
 
         // Output "tx" field
-        final FieldVisitor fv = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL,
+        final FieldVisitor fv = cw.visitField(Opcodes.ACC_PROTECTED | Opcodes.ACC_FINAL | Opcodes.ACC_TRANSIENT,
           TX_FIELD_NAME, Type.getDescriptor(JTransaction.class), null, null);
         fv.visitEnd();
 
