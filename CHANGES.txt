@@ -1,7 +1,7 @@
 Version 2.2.1
 
     - Fixed bug where beforeCommit() callbacks could not access transaction
-    - Fixed race conditiongs in some toString() methods of Raft classes
+    - Fixed race conditions in some toString() methods of Raft classes
     - Added subclass method JSimpleDBTransactionManager.createTransaction()
 
 Version 2.2.0 Released August 30, 2016
