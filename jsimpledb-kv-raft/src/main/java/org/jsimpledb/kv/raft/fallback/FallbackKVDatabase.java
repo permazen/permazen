@@ -462,6 +462,21 @@ public class FallbackKVDatabase implements KVDatabase {
     }
 
     /**
+     * Subclass hook to veto an impending migration. This is invoked just prior to starting a migration.
+     * If this method returns false, the migration is deferred.
+     *
+     * <p>
+     * The implementation in {@link FallbackKVDatabase} always returns true.
+     *
+     * @param currTargetIndex current fallback target list index (before migration), or -1 for standalone mode
+     * @param nextTargetIndex next fallback target list index (after migration), or -1 for standalone mode
+     * @return true to allow migration to proceed, false to defer migration until later
+     */
+    protected boolean isMigrationAllowed(int currTargetIndex, int nextTargetIndex) {
+        return true;
+    }
+
+    /**
      * Subclass hook to be notified when a migration occurs. This method is invoked after each successful target change.
      *
      * <p>
@@ -616,6 +631,13 @@ public class FallbackKVDatabase implements KVDatabase {
             // Get targets
             currTarget = currIndex != -1 ? this.targets.get(currIndex) : null;
             bestTarget = bestIndex != -1 ? this.targets.get(bestIndex) : null;
+
+            // Ask subclass if migration is allowed right now
+            if (!this.isMigrationAllowed(currIndex, bestIndex)) {
+                if (this.log.isTraceEnabled())
+                    this.log.trace("migration canceled: denied by " + this.getClass().getSimpleName() + ".isMigrationAllowed()");
+                return;
+            }
 
             // Start migration
             this.migrating = true;
