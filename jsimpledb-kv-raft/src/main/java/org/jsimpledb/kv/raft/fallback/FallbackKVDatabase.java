@@ -821,6 +821,7 @@ public class FallbackKVDatabase implements KVDatabase {
 
         @Override
         protected boolean set(Void value) {
+            this.forget();
             try {
                 return super.set(value);
             } catch (Throwable t2) {
@@ -831,6 +832,7 @@ public class FallbackKVDatabase implements KVDatabase {
 
         @Override
         protected boolean setException(Throwable t) {
+            this.forget();
             try {
                 return super.setException(t);
             } catch (Throwable t2) {
@@ -846,6 +848,7 @@ public class FallbackKVDatabase implements KVDatabase {
         }
 
         private void notifyAsync(final Throwable t) {
+            this.forget();
             final ScheduledExecutorService notifyExecutor;
             synchronized (FallbackKVDatabase.this) {
                 notifyExecutor = FallbackKVDatabase.this.executor;
@@ -855,7 +858,6 @@ public class FallbackKVDatabase implements KVDatabase {
             notifyExecutor.submit(new Runnable() {
                 @Override
                 public void run() {
-                    FallbackFuture.this.forget();
                     FallbackFuture.this.notify(t);
                 }
             });
