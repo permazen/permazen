@@ -406,7 +406,8 @@ public abstract class Role {
 
     void casePingRequest(PingRequest msg) {
         assert Thread.holdsLock(this.raft);
-        this.raft.sendMessage(new PingResponse(this.raft.clusterId,
+        final int responseClusterId = this.raft.clusterId != 0 ? this.raft.clusterId : msg.getClusterId();
+        this.raft.sendMessage(new PingResponse(responseClusterId,
           this.raft.identity, msg.getSenderId(), this.raft.currentTerm, msg.getTimestamp()));
     }
 
