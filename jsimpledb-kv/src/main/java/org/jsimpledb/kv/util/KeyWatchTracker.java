@@ -380,7 +380,8 @@ public class KeyWatchTracker implements Closeable {
     private class KeyInfo {
 
         private final byte[] key;
-        private final HashSet<KeyFuture> futures = new HashSet<>(1);        // protected by synchronized (this)
+        @GuardedBy("this")
+        private final HashSet<KeyFuture> futures = new HashSet<>(1);
 
         KeyInfo(byte[] key) {
             assert key != null;
