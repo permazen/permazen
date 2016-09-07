@@ -8,10 +8,14 @@ package org.jsimpledb.kv.raft.fallback;
 import com.google.common.base.Preconditions;
 
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 
 import org.jsimpledb.kv.KVTransaction;
+import org.jsimpledb.kv.raft.Follower;
+import org.jsimpledb.kv.raft.LeaderRole;
 import org.jsimpledb.kv.raft.RaftKVDatabase;
+import org.jsimpledb.kv.raft.Role;
 import org.jsimpledb.kv.raft.Timestamp;
 import org.jsimpledb.util.ByteUtil;
 import org.slf4j.Logger;
@@ -61,6 +65,8 @@ public class FallbackTarget implements Cloneable {
      * @see #setMinUnavailableTime setMinUnavailableTime()
      */
     public static final int DEFAULT_MIN_UNAVAILABLE_TIME = 30 * 1000;
+
+    private static final int MAX_2NODE_FOLLOWER_STALENESS = DEFAULT_TRANSACTION_TIMEOUT * 2;
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -328,13 +334,35 @@ public class FallbackTarget implements Cloneable {
             this.log.trace("availability transaction on " + this.raft + " completed in "
               + duration + "ms (" + (timedOut ? "failed" : "successful") + ")");
         }
-        if (timedOut && this.log.isDebugEnabled()) {
-            this.log.debug("availability transaction on " + this.raft + " completed in "
-              + duration + " > " + this.transactionTimeout + " ms, returning unavailable");
+        if (timedOut) {
+            if (this.log.isDebugEnabled()) {
+                this.log.debug("availability transaction on " + this.raft + " completed in "
+                  + duration + " > " + this.transactionTimeout + " ms, returning unavailable");
+            }
+            return false;
+        }
+
+        // If we're the leader of a two node cluster, read-only TX's on a broken network will continue to work until a read-write
+        // transaction happens, because any new leader would require our vote, so we know we're still leader. Detect this case
+        // and fail the check if so.
+        final Role role = this.raft.getCurrentRole();
+        if (role instanceof LeaderRole) {
+            final List<Follower> followerList = ((LeaderRole)role).getFollowers();
+            if (followerList.size() == 1) {
+                final Follower follower = followerList.get(0);
+                final Timestamp leaderTimestamp = follower.getLeaderTimestamp();
+                if (leaderTimestamp == null || -leaderTimestamp.offsetFromNow() > MAX_2NODE_FOLLOWER_STALENESS) {
+                    if (this.log.isDebugEnabled()) {
+                        this.log.debug("single follower's leader timestamp is " + -leaderTimestamp.offsetFromNow()
+                          + " > " + MAX_2NODE_FOLLOWER_STALENESS + " ms stale, returning unavailable");
+                        return false;
+                    }
+                }
+            }
         }
 
         // Done
-        return !timedOut;
+        return true;
     }
 
 // Cloneable

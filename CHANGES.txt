@@ -3,6 +3,7 @@ Version 2.2.1
     - Fixed bug where beforeCommit() callbacks could not access transaction
     - Fixed race conditions in some toString() methods of Raft classes
     - Fixed Raft bug where pings to an unconfigured node failed an assertion
+    - Treat a single out-of-date follower as unavailable in Raft fallback
     - Added subclass method JSimpleDBTransactionManager.createTransaction()
     - Added subclass method FallbackKVDatabase.isMigrationAllowed()
 
