@@ -373,6 +373,23 @@ public class FallbackKVDatabase implements KVDatabase {
         this.cleanup();
     }
 
+    /**
+     * Create the service thread used by this instance.
+     *
+     * <p>
+     * The implementation in {@link FallbackKVDatabase} simply instantiates a thread and sets the name.
+     * Subclasses may override to set priority, etc.
+     *
+     * @param action thread entry point
+     * @param uniqueId unique ID for the thread which increments each time this instance is (re)started
+     * @return service thread for this instance
+     */
+    protected Thread createExecutorThread(Runnable action, int uniqueId) {
+        final Thread thread = new Thread(action);
+        thread.setName("Executor#" + uniqueId + " for " + FallbackKVDatabase.class.getSimpleName());
+        return thread;
+    }
+
     private void cleanup() {
 
         // Sanity check
@@ -879,15 +896,13 @@ public class FallbackKVDatabase implements KVDatabase {
 
 // ExecutorThreadFactory
 
-    private static class ExecutorThreadFactory implements ThreadFactory {
+    private class ExecutorThreadFactory implements ThreadFactory {
 
         private final AtomicInteger id = new AtomicInteger();
 
         @Override
         public Thread newThread(Runnable action) {
-            final Thread thread = new Thread(action);
-            thread.setName("Executor#" + this.id.incrementAndGet() + " for " + FallbackKVDatabase.class.getSimpleName());
-            return thread;
+            return FallbackKVDatabase.this.createExecutorThread(action, this.id.incrementAndGet());
         }
     }
 
