@@ -460,7 +460,7 @@ public class JTransaction {
      * into the specified destination transaction.
      *
      * <p>
-     * If the target object already exists, it's schema version will be updated to match the source object if necessary,
+     * If the target object already exists, its schema version will be updated to match the source object if necessary,
      * otherwise it will be created.  {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
      * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly

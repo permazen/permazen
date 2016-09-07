@@ -948,7 +948,7 @@ public class Transaction {
      * <p>
      * Only the object's fields are copied; any other objects they reference are not copied. If the {@code target} object
      * does not exist in {@code dest}, it will be created first (and {@link CreateListener}s notified); if {@code target}
-     * does exist in {@code dest}, it's schema version will be upgraded if necessary to match {@code source} (and any registered
+     * does exist in {@code dest}, its schema version will be upgraded if necessary to match {@code source} (and any registered
      * {@link VersionChangeListener}s notified).
      * (Meaningful) changes to {@code target}'s fields generate change listener notifications.
      *
