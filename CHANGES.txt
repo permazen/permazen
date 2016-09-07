@@ -1,4 +1,4 @@
-Version 2.2.1
+Version 2.2.1 Released September 7, 2016
 
     - Fixed bug where beforeCommit() callbacks could not access transaction
     - Fixed race conditions in some toString() methods of Raft classes
