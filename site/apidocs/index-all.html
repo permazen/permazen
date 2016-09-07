@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Index (JSimpleDB 2.2.0 API)</title>
+<title>Index (JSimpleDB 2.2.1 API)</title>
 <link rel="stylesheet" type="text/css" href="./stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (JSimpleDB 2.2.0 API)";
+        parent.document.title="Index (JSimpleDB 2.2.1 API)";
     }
 //-->
 </script>
@@ -2456,11 +2456,18 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)">copy(ObjId, ObjId, Transaction, boolean)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
+<div class="block"><span class="strong">Deprecated.</span>
+<div class="block"><i>Replaced by <a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, boolean, org.jsimpledb.core.util.ObjIdMap)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap)</code></a></i></div>
+</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, boolean)">copy(ObjId, ObjId, Transaction, boolean, boolean)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
+<dd>
 <div class="block">Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.</div>
 </dd>
-<dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, org.jsimpledb.core.util.ObjIdMap)">copy(ObjId, ObjId, Transaction, boolean, ObjIdMap&lt;ReferenceField&gt;)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
+<dt><span class="strong"><a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, boolean, org.jsimpledb.core.util.ObjIdMap)">copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap&lt;ReferenceField&gt;)</a></span> - Method in class org.jsimpledb.core.<a href="./org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a></dt>
 <dd>
-<div class="block">Variant of <a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean)</code></a> that allows, but tracks, deleted assignments.</div>
+<div class="block">Variant of <a href="./org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean)</code></a> that allows, but tracks, deleted assignments,
+ and supports disabling create and change notifications.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/JObject.html#copyIn(java.lang.String...)">copyIn(String...)</a></span> - Method in interface org.jsimpledb.<a href="./org/jsimpledb/JObject.html" title="interface in org.jsimpledb">JObject</a></dt>
 <dd>
@@ -2611,6 +2618,10 @@
 <dt><span class="strong"><a href="./org/jsimpledb/EnumConverter.html#createEnumConverter(java.lang.Class)">createEnumConverter(Class&lt;? extends Enum&lt;?&gt;&gt;)</a></span> - Static method in class org.jsimpledb.<a href="./org/jsimpledb/EnumConverter.html" title="class in org.jsimpledb">EnumConverter</a></dt>
 <dd>
 <div class="block">Convenience "constructor" allowing wildcard caller <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Enum.html?is-external=true" title="class or interface in java.lang"><code>Enum</code></a> types.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#createExecutorThread(java.lang.Runnable, int)">createExecutorThread(Runnable, int)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVDatabase</a></dt>
+<dd>
+<div class="block">Create the service thread used by this instance.</div>
 </dd>
 <dt><a href="./org/jsimpledb/parse/func/CreateFunction.html" title="class in org.jsimpledb.parse.func"><span class="strong">CreateFunction</span></a> - Class in <a href="./org/jsimpledb/parse/func/package-summary.html">org.jsimpledb.parse.func</a></dt>
 <dd>&nbsp;</dd>
@@ -2869,6 +2880,10 @@
 <dd>&nbsp;</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/util/PrefixKVDatabase.html#createTransaction()">createTransaction()</a></span> - Method in class org.jsimpledb.kv.util.<a href="./org/jsimpledb/kv/util/PrefixKVDatabase.html" title="class in org.jsimpledb.kv.util">PrefixKVDatabase</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html#createTransaction(java.util.Map)">createTransaction(Map&lt;String, Object&gt;)</a></span> - Method in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager</a></dt>
+<dd>
+<div class="block">Create the underlying <a href="./org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> for a new transaction.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html#createTransactionConnection()">createTransactionConnection()</a></span> - Method in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></dt>
 <dd>
 <div class="block">Create a <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql"><code>Connection</code></a> for a new transaction.</div>
@@ -7609,6 +7624,10 @@
 <dd>
 <div class="block">Determine if the given lock owner holds a lock on the specified range.</div>
 </dd>
+<dt><span class="strong"><a href="./org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#isMigrationAllowed(int, int)">isMigrationAllowed(int, int)</a></span> - Method in class org.jsimpledb.kv.raft.fallback.<a href="./org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVDatabase</a></dt>
+<dd>
+<div class="block">Subclass hook to veto an impending migration.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html#ISOLATION_OPTION">ISOLATION_OPTION</a></span> - Static variable in class org.jsimpledb.spring.<a href="./org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring">JSimpleDBTransactionManager</a></dt>
 <dd>
 <div class="block">The name of the transaction option passed to
@@ -7708,6 +7727,11 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/cli/telnet/TelnetConsole.ForwardingTerminal.html#isSupported()">isSupported()</a></span> - Method in class org.jsimpledb.cli.telnet.<a href="./org/jsimpledb/cli/telnet/TelnetConsole.ForwardingTerminal.html" title="class in org.jsimpledb.cli.telnet">TelnetConsole.ForwardingTerminal</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/CopyState.html#isSuppressNotifications()">isSuppressNotifications()</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a></dt>
+<dd>
+<div class="block">Determine whether to suppress <a href="./org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> and
+ <a href="./org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/raft/Follower.html#isSynced()">isSynced()</a></span> - Method in class org.jsimpledb.kv.raft.<a href="./org/jsimpledb/kv/raft/Follower.html" title="class in org.jsimpledb.kv.raft">Follower</a></dt>
 <dd>
 <div class="block">Determine whether we believe this follower is "synchronized".</div>
@@ -12016,6 +12040,11 @@
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/ant/SchemaGeneratorTask.html#setStorageIdGeneratorClass(java.lang.String)">setStorageIdGeneratorClass(String)</a></span> - Method in class org.jsimpledb.ant.<a href="./org/jsimpledb/ant/SchemaGeneratorTask.html" title="class in org.jsimpledb.ant">SchemaGeneratorTask</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/CopyState.html#setSuppressNotifications(boolean)">setSuppressNotifications(boolean)</a></span> - Method in class org.jsimpledb.<a href="./org/jsimpledb/CopyState.html" title="class in org.jsimpledb">CopyState</a></dt>
+<dd>
+<div class="block">Configure whether to suppress <a href="./org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> and
+ <a href="./org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.</div>
+</dd>
 <dt><span class="strong"><a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html#setTableName(java.lang.String)">setTableName(String)</a></span> - Method in class org.jsimpledb.kv.sql.<a href="./org/jsimpledb/kv/sql/SQLKVDatabase.html" title="class in org.jsimpledb.kv.sql">SQLKVDatabase</a></dt>
 <dd>
 <div class="block">Set the name of the key/value table.</div>
@@ -12543,6 +12572,10 @@
 <div class="block">Thrown when a transaction that has been committed, rolled back, or otherwise invalidated is accessed.</div>
 </dd>
 <dt><span class="strong"><a href="./org/jsimpledb/core/StaleTransactionException.html#StaleTransactionException(org.jsimpledb.core.Transaction)">StaleTransactionException(Transaction)</a></span> - Constructor for exception org.jsimpledb.core.<a href="./org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></dt>
+<dd>
+<div class="block">Constructor.</div>
+</dd>
+<dt><span class="strong"><a href="./org/jsimpledb/core/StaleTransactionException.html#StaleTransactionException(org.jsimpledb.core.Transaction, java.lang.String)">StaleTransactionException(Transaction, String)</a></span> - Constructor for exception org.jsimpledb.core.<a href="./org/jsimpledb/core/StaleTransactionException.html" title="class in org.jsimpledb.core">StaleTransactionException</a></dt>
 <dd>
 <div class="block">Constructor.</div>
 </dd>

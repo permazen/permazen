@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>FallbackKVDatabase (JSimpleDB 2.2.0 API)</title>
+<title>FallbackKVDatabase (JSimpleDB 2.2.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="FallbackKVDatabase (JSimpleDB 2.2.0 API)";
+        parent.document.title="FallbackKVDatabase (JSimpleDB 2.2.1 API)";
     }
 //-->
 </script>
@@ -188,63 +188,77 @@ implements <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="inte
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html?is-external=true" title="class or interface in java.lang">Thread</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#createExecutorThread(java.lang.Runnable, int)">createExecutorThread</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action,
+                    int&nbsp;uniqueId)</code>
+<div class="block">Create the service thread used by this instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVTransaction.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVTransaction</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#createTransaction()">createTransaction</a></strong>()</code>
 <div class="block">Create a new transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVTransaction.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackKVTransaction</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,?&gt;&nbsp;options)</code>
 <div class="block">Create a new transaction with the specified options.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#getCurrentTargetIndex()">getCurrentTargetIndex</a></strong>()</code>
 <div class="block">Get the index of the currently active database.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackTarget</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#getFallbackTarget()">getFallbackTarget</a></strong>()</code>
 <div class="block">Get most preferred <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackTarget</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback">FallbackTarget</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#getFallbackTargets()">getFallbackTargets</a></strong>()</code>
 <div class="block">Get the <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackTarget</code></a>(s).</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#getInitialTargetIndex()">getInitialTargetIndex</a></strong>()</code>
 <div class="block">Get the configured target index to use when starting up for the very first time.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#getLastStandaloneActiveTime()">getLastStandaloneActiveTime</a></strong>()</code>
 <div class="block">Get the last time the standalone database was active.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#getMaximumTargetIndex()">getMaximumTargetIndex</a></strong>()</code>
 <div class="block">Get the maximum allowed target index.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#getStandaloneTarget()">getStandaloneTarget</a></strong>()</code>
 <div class="block">Get the configured "standalone mode" <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv"><code>KVDatabase</code></a> to be used when all <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackTarget.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackTarget</code></a>s are unavailable.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#getStateFile()">getStateFile</a></strong>()</code>
 <div class="block">Get this instance's persistent state file.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html#isMigrationAllowed(int, int)">isMigrationAllowed</a></strong>(int&nbsp;currTargetIndex,
+                  int&nbsp;nextTargetIndex)</code>
+<div class="block">Subclass hook to veto an impending migration.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -593,6 +607,23 @@ implements <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="inte
 </dl>
 </li>
 </ul>
+<a name="createExecutorThread(java.lang.Runnable, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createExecutorThread</h4>
+<pre>protected&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html?is-external=true" title="class or interface in java.lang">Thread</a>&nbsp;createExecutorThread(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang">Runnable</a>&nbsp;action,
+                          int&nbsp;uniqueId)</pre>
+<div class="block">Create the service thread used by this instance.
+
+ <p>
+ The implementation in <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackKVDatabase</code></a> simply instantiates a thread and sets the name.
+ Subclasses may override to set priority, etc.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>action</code> - thread entry point</dd><dd><code>uniqueId</code> - unique ID for the thread which increments each time this instance is (re)started</dd>
+<dt><span class="strong">Returns:</span></dt><dd>service thread for this instance</dd></dl>
+</li>
+</ul>
 <a name="createTransaction()">
 <!--   -->
 </a>
@@ -622,6 +653,23 @@ implements <a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="inte
 <dd><code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html#createTransaction(java.util.Map)">createTransaction</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jsimpledb/kv/KVDatabase.html" title="interface in org.jsimpledb.kv">KVDatabase</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - optional transaction options; may be null</dd>
 <dt><span class="strong">Returns:</span></dt><dd>newly created transaction</dd></dl>
+</li>
+</ul>
+<a name="isMigrationAllowed(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isMigrationAllowed</h4>
+<pre>protected&nbsp;boolean&nbsp;isMigrationAllowed(int&nbsp;currTargetIndex,
+                         int&nbsp;nextTargetIndex)</pre>
+<div class="block">Subclass hook to veto an impending migration. This is invoked just prior to starting a migration.
+ If this method returns false, the migration is deferred.
+
+ <p>
+ The implementation in <a href="../../../../../org/jsimpledb/kv/raft/fallback/FallbackKVDatabase.html" title="class in org.jsimpledb.kv.raft.fallback"><code>FallbackKVDatabase</code></a> always returns true.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>currTargetIndex</code> - current fallback target list index (before migration), or -1 for standalone mode</dd><dd><code>nextTargetIndex</code> - next fallback target list index (after migration), or -1 for standalone mode</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true to allow migration to proceed, false to defer migration until later</dd></dl>
 </li>
 </ul>
 <a name="migrationCompleted(int, int)">

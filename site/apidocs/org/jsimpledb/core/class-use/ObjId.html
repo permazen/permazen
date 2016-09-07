@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>Uses of Class org.jsimpledb.core.ObjId (JSimpleDB 2.2.0 API)</title>
+<title>Uses of Class org.jsimpledb.core.ObjId (JSimpleDB 2.2.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Uses of Class org.jsimpledb.core.ObjId (JSimpleDB 2.2.0 API)";
+        parent.document.title="Uses of Class org.jsimpledb.core.ObjId (JSimpleDB 2.2.1 API)";
     }
 //-->
 </script>
@@ -477,148 +477,162 @@
     <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
     <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;dest,
     boolean&nbsp;updateVersion)</code>
-<div class="block">Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.</div>
+<div class="block"><strong>Deprecated.</strong>&nbsp;
+<div class="block"><i>Replaced by <a href="../../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, boolean, org.jsimpledb.core.util.ObjIdMap)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap)</code></a></i></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, org.jsimpledb.core.util.ObjIdMap)">copy</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;source,
+<td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, boolean)">copy</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;source,
     <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
     <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;dest,
     boolean&nbsp;updateVersion,
-    <a href="../../../../org/jsimpledb/core/util/ObjIdMap.html" title="class in org.jsimpledb.core.util">ObjIdMap</a>&lt;<a href="../../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core">ReferenceField</a>&gt;&nbsp;deletedAssignments)</code>
-<div class="block">Variant of <a href="../../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean)</code></a> that allows, but tracks, deleted assignments.</div>
+    boolean&nbsp;notifyListeners)</code>
+<div class="block">Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean, boolean, org.jsimpledb.core.util.ObjIdMap)">copy</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;source,
+    <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;target,
+    <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;dest,
+    boolean&nbsp;updateVersion,
+    boolean&nbsp;notifyListeners,
+    <a href="../../../../org/jsimpledb/core/util/ObjIdMap.html" title="class in org.jsimpledb.core.util">ObjIdMap</a>&lt;<a href="../../../../org/jsimpledb/core/ReferenceField.html" title="class in org.jsimpledb.core">ReferenceField</a>&gt;&nbsp;deletedAssignments)</code>
+<div class="block">Variant of <a href="../../../../org/jsimpledb/core/Transaction.html#copy(org.jsimpledb.core.ObjId, org.jsimpledb.core.ObjId, org.jsimpledb.core.Transaction, boolean)"><code>Transaction.copy(ObjId, ObjId, Transaction, boolean)</code></a> that allows, but tracks, deleted assignments,
+ and supports disabling create and change notifications.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#create(org.jsimpledb.core.ObjId)">create</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Create a new object with the given object ID, if it doesn't already exist.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#create(org.jsimpledb.core.ObjId, int)">create</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
       int&nbsp;versionNumber)</code>
 <div class="block">Create a new object with the given object ID, if it doesn't already exist.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#delete(org.jsimpledb.core.ObjId)">delete</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Delete an object.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#exists(org.jsimpledb.core.ObjId)">exists</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Determine if an object exists.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId)">getKey</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Get the <code>byte[]</code> key in the underlying key/value store corresponding to the specified object.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#getKey(org.jsimpledb.core.ObjId, int)">getKey</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
       int&nbsp;storageId)</code>
 <div class="block">Get the <code>byte[]</code> key in the underlying key/value store corresponding to the specified field in the specified object.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#getSchemaVersion(org.jsimpledb.core.ObjId)">getSchemaVersion</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Read the current schema version of the given object.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#getTypeDescription(org.jsimpledb.core.ObjId)">getTypeDescription</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Get a description of the given object's type.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../../org/jsimpledb/core/SimpleField.html" title="type parameter in SimpleField">T</a></code></td>
 <td class="colLast"><span class="strong">SimpleField.</span><code><strong><a href="../../../../org/jsimpledb/core/SimpleField.html#getValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">getValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../../org/jsimpledb/core/SetField.html" title="type parameter in SetField">E</a>&gt;</code></td>
 <td class="colLast"><span class="strong">SetField.</span><code><strong><a href="../../../../org/jsimpledb/core/SetField.html#getValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">getValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;<a href="../../../../org/jsimpledb/core/MapField.html" title="type parameter in MapField">K</a>,<a href="../../../../org/jsimpledb/core/MapField.html" title="type parameter in MapField">V</a>&gt;</code></td>
 <td class="colLast"><span class="strong">MapField.</span><code><strong><a href="../../../../org/jsimpledb/core/MapField.html#getValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">getValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../../org/jsimpledb/core/ListField.html" title="type parameter in ListField">E</a>&gt;</code></td>
 <td class="colLast"><span class="strong">ListField.</span><code><strong><a href="../../../../org/jsimpledb/core/ListField.html#getValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">getValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../../org/jsimpledb/core/Field.html" title="type parameter in Field">T</a></code></td>
 <td class="colLast"><span class="strong">Field.</span><code><strong><a href="../../../../org/jsimpledb/core/Field.html#getValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">getValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Get the value of this field in the given object.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Long.html?is-external=true" title="class or interface in java.lang">Long</a></code></td>
 <td class="colLast"><span class="strong">CounterField.</span><code><strong><a href="../../../../org/jsimpledb/core/CounterField.html#getValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">getValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../../org/jsimpledb/core/CollectionField.html" title="type parameter in CollectionField">C</a></code></td>
 <td class="colLast"><span class="strong">CollectionField.</span><code><strong><a href="../../../../org/jsimpledb/core/CollectionField.html#getValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">getValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">SimpleField.</span><code><strong><a href="../../../../org/jsimpledb/core/SimpleField.html#hasDefaultValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">hasDefaultValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">MapField.</span><code><strong><a href="../../../../org/jsimpledb/core/MapField.html#hasDefaultValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">hasDefaultValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><span class="strong">Field.</span><code><strong><a href="../../../../org/jsimpledb/core/Field.html#hasDefaultValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">hasDefaultValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Determine if this field in the specified object has its default value in the specified <a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core"><code>Transaction</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">CounterField.</span><code><strong><a href="../../../../org/jsimpledb/core/CounterField.html#hasDefaultValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">hasDefaultValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">CollectionField.</span><code><strong><a href="../../../../org/jsimpledb/core/CollectionField.html#hasDefaultValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">hasDefaultValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">CreateListener.</span><code><strong><a href="../../../../org/jsimpledb/core/CreateListener.html#onCreate(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">onCreate</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Receive notification of a new object being created.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">DeleteListener.</span><code><strong><a href="../../../../org/jsimpledb/core/DeleteListener.html#onDelete(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId)">onDelete</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Receive notification of an object being deleted.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>&lt;E&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">ListFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/ListFieldChangeListener.html#onListFieldAdd(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.ListField, int[], java.util.NavigableSet, int, E)">onListFieldAdd</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
               <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -630,7 +644,7 @@
 <div class="block">Receive notification of the addition (or insertion) of an element to a <a href="../../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">ListFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/ListFieldChangeListener.html#onListFieldClear(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.ListField, int[], java.util.NavigableSet)">onListFieldClear</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                 <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -640,7 +654,7 @@
 <div class="block">Receive notification of the clearing of a <a href="../../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>&lt;E&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">ListFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/ListFieldChangeListener.html#onListFieldRemove(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.ListField, int[], java.util.NavigableSet, int, E)">onListFieldRemove</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                  <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -652,7 +666,7 @@
 <div class="block">Receive notification of a removal of an element from a <a href="../../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>&lt;E&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">ListFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/ListFieldChangeListener.html#onListFieldReplace(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.ListField, int[], java.util.NavigableSet, int, E, E)">onListFieldReplace</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                   <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -665,7 +679,7 @@
 <div class="block">Receive notification of the change in element at a specific position in a <a href="../../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>&lt;K,V&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">MapFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/MapFieldChangeListener.html#onMapFieldAdd(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.MapField, int[], java.util.NavigableSet, K, V)">onMapFieldAdd</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
              <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -677,7 +691,7 @@
 <div class="block">Receive notification of the addition of a new key/value pair into a <a href="../../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">MapFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/MapFieldChangeListener.html#onMapFieldClear(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.MapField, int[], java.util.NavigableSet)">onMapFieldClear</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -687,7 +701,7 @@
 <div class="block">Receive notification of the clearing of a <a href="../../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>&lt;K,V&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">MapFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/MapFieldChangeListener.html#onMapFieldRemove(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.MapField, int[], java.util.NavigableSet, K, V)">onMapFieldRemove</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                 <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -699,7 +713,7 @@
 <div class="block">Receive notification of the removal of an entry from a <a href="../../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>&lt;K,V&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">MapFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/MapFieldChangeListener.html#onMapFieldReplace(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.MapField, int[], java.util.NavigableSet, K, V, V)">onMapFieldReplace</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                  <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -712,7 +726,7 @@
 <div class="block">Receive notification of the change in value of an existing entry in a <a href="../../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>&lt;E&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">SetFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/SetFieldChangeListener.html#onSetFieldAdd(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.SetField, int[], java.util.NavigableSet, E)">onSetFieldAdd</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
              <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -723,7 +737,7 @@
 <div class="block">Receive notification of the addition of a new element to a <a href="../../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">SetFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/SetFieldChangeListener.html#onSetFieldClear(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.SetField, int[], java.util.NavigableSet)">onSetFieldClear</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -733,7 +747,7 @@
 <div class="block">Receive notification of the clearing of a <a href="../../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>&lt;E&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">SetFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/SetFieldChangeListener.html#onSetFieldRemove(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.SetField, int[], java.util.NavigableSet, E)">onSetFieldRemove</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                 <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -744,7 +758,7 @@
 <div class="block">Receive notification of the removal of an element from a <a href="../../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>&lt;V&gt;&nbsp;void</code></td>
 <td class="colLast"><span class="strong">SimpleFieldChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/SimpleFieldChangeListener.html#onSimpleFieldChange(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, org.jsimpledb.core.SimpleField, int[], java.util.NavigableSet, V, V)">onSimpleFieldChange</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                    <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -756,7 +770,7 @@
 <div class="block">Receive notification of a change in the value of a <a href="../../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> in an object.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">VersionChangeListener.</span><code><strong><a href="../../../../org/jsimpledb/core/VersionChangeListener.html#onVersionChange(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, int, int, java.util.Map)">onVersionChange</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
                <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -766,7 +780,7 @@
 <div class="block">Receive notification of an object schema version change.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#readCounterField(org.jsimpledb.core.ObjId, int, boolean)">readCounterField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                 int&nbsp;storageId,
@@ -774,7 +788,7 @@
 <div class="block">Read the value of a <a href="../../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> from an object, optionally updating the object's schema version.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;?&gt;</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#readListField(org.jsimpledb.core.ObjId, int, boolean)">readListField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
              int&nbsp;storageId,
@@ -782,7 +796,7 @@
 <div class="block">Access a <a href="../../../../org/jsimpledb/core/ListField.html" title="class in org.jsimpledb.core"><code>ListField</code></a> associated with an object, optionally updating the object's schema version.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableMap.html?is-external=true" title="class or interface in java.util">NavigableMap</a>&lt;?,?&gt;</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#readMapField(org.jsimpledb.core.ObjId, int, boolean)">readMapField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
             int&nbsp;storageId,
@@ -790,7 +804,7 @@
 <div class="block">Access a <a href="../../../../org/jsimpledb/core/MapField.html" title="class in org.jsimpledb.core"><code>MapField</code></a> associated with an object, optionally updating the object's schema version.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/util/NavigableSet.html?is-external=true" title="class or interface in java.util">NavigableSet</a>&lt;?&gt;</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#readSetField(org.jsimpledb.core.ObjId, int, boolean)">readSetField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
             int&nbsp;storageId,
@@ -798,7 +812,7 @@
 <div class="block">Access a <a href="../../../../org/jsimpledb/core/SetField.html" title="class in org.jsimpledb.core"><code>SetField</code></a> associated with an object, optionally updating the object's schema version.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#readSimpleField(org.jsimpledb.core.ObjId, int, boolean)">readSimpleField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                int&nbsp;storageId,
@@ -806,7 +820,7 @@
 <div class="block">Read the value of a <a href="../../../../org/jsimpledb/core/SimpleField.html" title="class in org.jsimpledb.core"><code>SimpleField</code></a> from an object, optionally updating the object's schema version.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">SimpleField.</span><code><strong><a href="../../../../org/jsimpledb/core/SimpleField.html#setValue(org.jsimpledb.core.Transaction, org.jsimpledb.core.ObjId, T)">setValue</a></strong>(<a href="../../../../org/jsimpledb/core/Transaction.html" title="class in org.jsimpledb.core">Transaction</a>&nbsp;tx,
         <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
@@ -814,19 +828,19 @@
 <div class="block">Set the value of this field in the given object.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#updateSchemaVersion(org.jsimpledb.core.ObjId)">updateSchemaVersion</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
 <div class="block">Change the schema version of the specified object, if necessary, so that its version matches
  <a href="../../../../org/jsimpledb/core/Transaction.html#getSchema()">the schema version associated with this transaction</a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">ReferenceFieldType.</span><code><strong><a href="../../../../org/jsimpledb/core/ReferenceFieldType.html#write(org.jsimpledb.util.ByteWriter, org.jsimpledb.core.ObjId)">write</a></strong>(<a href="../../../../org/jsimpledb/util/ByteWriter.html" title="class in org.jsimpledb.util">ByteWriter</a>&nbsp;writer,
      <a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#writeCounterField(org.jsimpledb.core.ObjId, int, long, boolean)">writeCounterField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                  int&nbsp;storageId,
@@ -835,7 +849,7 @@
 <div class="block">Set the value of a <a href="../../../../org/jsimpledb/core/CounterField.html" title="class in org.jsimpledb.core"><code>CounterField</code></a> in an object, optionally updating the object's schema version.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="strong">Transaction.</span><code><strong><a href="../../../../org/jsimpledb/core/Transaction.html#writeSimpleField(org.jsimpledb.core.ObjId, int, java.lang.Object, boolean)">writeSimpleField</a></strong>(<a href="../../../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
                 int&nbsp;storageId,

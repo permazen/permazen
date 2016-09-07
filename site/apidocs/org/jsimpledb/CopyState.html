@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>CopyState (JSimpleDB 2.2.0 API)</title>
+<title>CopyState (JSimpleDB 2.2.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="CopyState (JSimpleDB 2.2.0 API)";
+        parent.document.title="CopyState (JSimpleDB 2.2.1 API)";
     }
 //-->
 </script>
@@ -163,15 +163,29 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><strong><a href="../../org/jsimpledb/CopyState.html#markCopied(org.jsimpledb.core.ObjId)">markCopied</a></strong>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
-<div class="block">Determine if an object has already been copied, and if not mark it so.</div>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/CopyState.html#isSuppressNotifications()">isSuppressNotifications</a></strong>()</code>
+<div class="block">Determine whether to suppress <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> and
+ <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/CopyState.html#markCopied(org.jsimpledb.core.ObjId)">markCopied</a></strong>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id)</code>
+<div class="block">Determine if an object has already been copied, and if not mark it so.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><strong><a href="../../org/jsimpledb/CopyState.html#markTraversed(org.jsimpledb.core.ObjId, int[])">markTraversed</a></strong>(<a href="../../org/jsimpledb/core/ObjId.html" title="class in org.jsimpledb.core">ObjId</a>&nbsp;id,
              int[]&nbsp;fields)</code>
 <div class="block">Determine if the specified reference path has already been traversed starting at the given object, and if not mark it so.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jsimpledb/CopyState.html#setSuppressNotifications(boolean)">setSuppressNotifications</a></strong>(boolean&nbsp;suppressNotifications)</code>
+<div class="block">Configure whether to suppress <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> and
+ <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.</div>
 </td>
 </tr>
 </table>
@@ -252,6 +266,40 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Cloneable
 <dl><dt><span class="strong">Returns:</span></dt><dd>true if <code>id</code> has been marked copied, otherwise false</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <code>id</code> is null</dd></dl>
+</li>
+</ul>
+<a name="isSuppressNotifications()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSuppressNotifications</h4>
+<pre>public&nbsp;boolean&nbsp;isSuppressNotifications()</pre>
+<div class="block">Determine whether to suppress <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> and
+ <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.
+
+ <p>
+ Note that for notifications to be delivered in a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>, these annotations must
+ also have <code>snapshotTransactions = true</code>, even if this property is set to false.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> and
+  <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications should be suppressed, otherwise false</dd></dl>
+</li>
+</ul>
+<a name="setSuppressNotifications(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSuppressNotifications</h4>
+<pre>public&nbsp;void&nbsp;setSuppressNotifications(boolean&nbsp;suppressNotifications)</pre>
+<div class="block">Configure whether to suppress <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> and
+ <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications in the destination transaction.
+
+ <p>
+ Note that for notifications to be delivered in a <a href="../../org/jsimpledb/SnapshotJTransaction.html" title="class in org.jsimpledb"><code>SnapshotJTransaction</code></a>, these annotations must
+ also have <code>snapshotTransactions = true</code>, even if this property is set to false.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>suppressNotifications</code> - true if <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnCreate</code></a> and
+  <a href="../../org/jsimpledb/annotation/OnCreate.html" title="annotation in org.jsimpledb.annotation"><code>&#64;OnChange</code></a> notifications should be suppressed, otherwise false</dd></dl>
 </li>
 </ul>
 <a name="markTraversed(org.jsimpledb.core.ObjId, int[])">

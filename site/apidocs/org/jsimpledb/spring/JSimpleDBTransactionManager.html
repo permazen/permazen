@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>JSimpleDBTransactionManager (JSimpleDB 2.2.0 API)</title>
+<title>JSimpleDBTransactionManager (JSimpleDB 2.2.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="JSimpleDBTransactionManager (JSimpleDB 2.2.0 API)";
+        parent.document.title="JSimpleDBTransactionManager (JSimpleDB 2.2.1 API)";
     }
 //-->
 </script>
@@ -252,86 +252,92 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#createTransaction(java.util.Map)">createTransaction</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;options)</code>
+<div class="block">Create the underlying <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> for a new transaction.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#doBegin(java.lang.Object, org.springframework.transaction.TransactionDefinition)">doBegin</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;txObj,
        <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/TransactionDefinition.html?is-external=true" title="class or interface in org.springframework.transaction">TransactionDefinition</a>&nbsp;txDef)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#doCleanupAfterCompletion(java.lang.Object)">doCleanupAfterCompletion</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;txObj)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#doCommit(org.springframework.transaction.support.DefaultTransactionStatus)">doCommit</a></strong>(<a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/DefaultTransactionStatus.html?is-external=true" title="class or interface in org.springframework.transaction.support">DefaultTransactionStatus</a>&nbsp;status)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#doGetTransaction()">doGetTransaction</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#doResume(java.lang.Object, java.lang.Object)">doResume</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;txObj,
         <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;suspendedResources)</code>
 <div class="block">Resume a previously suspended transaction.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#doRollback(org.springframework.transaction.support.DefaultTransactionStatus)">doRollback</a></strong>(<a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/DefaultTransactionStatus.html?is-external=true" title="class or interface in org.springframework.transaction.support">DefaultTransactionStatus</a>&nbsp;status)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#doSetRollbackOnly(org.springframework.transaction.support.DefaultTransactionStatus)">doSetRollbackOnly</a></strong>(<a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/DefaultTransactionStatus.html?is-external=true" title="class or interface in org.springframework.transaction.support">DefaultTransactionStatus</a>&nbsp;status)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#doSuspend(java.lang.Object)">doSuspend</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;txObj)</code>
 <div class="block">Suspend the current transaction.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#getCurrent()">getCurrent</a></strong>()</code>
 <div class="block">Like <a href="../../../org/jsimpledb/JTransaction.html#getCurrent()"><code>JTransaction.getCurrent()</code></a>, but returns null instead of throwing <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang"><code>IllegalStateException</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#getResourceFactory()">getResourceFactory</a></strong>()</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#isExistingTransaction(java.lang.Object)">isExistingTransaction</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;txObj)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#prepareForCommit(org.springframework.transaction.support.DefaultTransactionStatus)">prepareForCommit</a></strong>(<a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/DefaultTransactionStatus.html?is-external=true" title="class or interface in org.springframework.transaction.support">DefaultTransactionStatus</a>&nbsp;status)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#registerAfterCompletionWithExistingTransaction(java.lang.Object, java.util.List)">registerAfterCompletionWithExistingTransaction</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;txObj,
                                               <a href="http://docs.oracle.com/javase/7/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/TransactionSynchronization.html?is-external=true" title="class or interface in org.springframework.transaction.support">TransactionSynchronization</a>&gt;&nbsp;synchronizations)</code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#setAllowNewSchema(boolean)">setAllowNewSchema</a></strong>(boolean&nbsp;allowNewSchema)</code>
 <div class="block">Configure whether a new schema version may be created.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#setJSimpleDB(org.jsimpledb.JSimpleDB)">setJSimpleDB</a></strong>(<a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb">JSimpleDB</a>&nbsp;jdb)</code>
 <div class="block">Configure the <a href="../../../org/jsimpledb/JSimpleDB.html" title="class in org.jsimpledb"><code>JSimpleDB</code></a> that this instance will operate on.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#setValidateBeforeCommit(boolean)">setValidateBeforeCommit</a></strong>(boolean&nbsp;validateBeforeCommit)</code>
 <div class="block">Configure whether to invoke <a href="../../../org/jsimpledb/JTransaction.html#validate()"><code>JTransaction.validate()</code></a> just prior to commit (and prior to any
  synchronization callbacks).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html#setValidationMode(org.jsimpledb.ValidationMode)">setValidationMode</a></strong>(<a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb">ValidationMode</a>&nbsp;validationMode)</code>
 <div class="block">Configure the <a href="../../../org/jsimpledb/ValidationMode.html" title="enum in org.jsimpledb"><code>ValidationMode</code></a> to use for transactions.</div>
@@ -577,6 +583,24 @@ implements <a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/AbstractPlatformTransactionManager.html?is-external=true#doBegin(java.lang.Object, org.springframework.transaction.TransactionDefinition)" title="class or interface in org.springframework.transaction.support">doBegin</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.spring.io/spring/docs/4.1.9.RELEASE/javadoc-api/org/springframework/transaction/support/AbstractPlatformTransactionManager.html?is-external=true" title="class or interface in org.springframework.transaction.support">AbstractPlatformTransactionManager</a></code></dd>
 </dl>
+</li>
+</ul>
+<a name="createTransaction(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createTransaction</h4>
+<pre>protected&nbsp;<a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb">JTransaction</a>&nbsp;createTransaction(<a href="http://docs.oracle.com/javase/7/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</a>&lt;<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;options)</pre>
+<div class="block">Create the underlying <a href="../../../org/jsimpledb/JTransaction.html" title="class in org.jsimpledb"><code>JTransaction</code></a> for a new transaction.
+
+ <p>
+ The implementation in <a href="../../../org/jsimpledb/spring/JSimpleDBTransactionManager.html" title="class in org.jsimpledb.spring"><code>JSimpleDBTransactionManager</code></a> just delegates to
+ <code>JTransaction#createTransaction(boolean, ValidationMode, Map)</code> using this instance's configured
+ settings for validation mode and allowing new schema versions.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>options</code> - transaction options</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="../../../org/jsimpledb/core/DatabaseException.html" title="class in org.jsimpledb.core">DatabaseException</a></code> - if an error occurs</dd></dl>
 </li>
 </ul>
 <a name="doSuspend(java.lang.Object)">

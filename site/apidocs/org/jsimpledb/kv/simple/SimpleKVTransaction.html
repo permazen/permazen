@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>SimpleKVTransaction (JSimpleDB 2.2.0 API)</title>
+<title>SimpleKVTransaction (JSimpleDB 2.2.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="SimpleKVTransaction (JSimpleDB 2.2.0 API)";
+        parent.document.title="SimpleKVTransaction (JSimpleDB 2.2.1 API)";
     }
 //-->
 </script>
@@ -372,8 +372,8 @@ implements <a href="../../../../org/jsimpledb/kv/KVTransaction.html" title="inte
  <p>
  A key watch is only guaranteed to be valid if the transaction in which it was created successfully commits.
  In particular, nothing is specified about how or whether <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a>s associated with failed transactions complete,
- so the use of <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a>s returned by this method should normally be deferred until after commit using a
- transaction callback.
+ so the <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent"><code>Future</code></a>s returned by this method should not be relied on until after a successful commit (perhaps with
+ the help of a <a href="../../../../org/jsimpledb/core/Transaction.html#addCallback(org.jsimpledb.core.Transaction.Callback)">transaction callback</a>).
 
  <p>
  Key watch support is optional; instances that don't support key watches throw <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.

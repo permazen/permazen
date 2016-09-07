@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-<title>RaftKVDatabase (JSimpleDB 2.2.0 API)</title>
+<title>RaftKVDatabase (JSimpleDB 2.2.1 API)</title>
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 </head>
 <body>
 <script type="text/javascript"><!--
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="RaftKVDatabase (JSimpleDB 2.2.0 API)";
+        parent.document.title="RaftKVDatabase (JSimpleDB 2.2.1 API)";
     }
 //-->
 </script>
@@ -1134,7 +1134,8 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 
  <p>
  The returned map is a copy; changes have no effect on this instance.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>current configuration mapping from node identity to network address, or empty if this node is unconfigured</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>current configuration mapping from node identity to network address,
+  or empty if this node is not started or unconfigured</dd></dl>
 </li>
 </ul>
 <a name="isConfigured()">
@@ -1149,7 +1150,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
  <p>
  A node is configured if and only if it has at least one log entry. The first log entry always
  includes a configuration change that adds the node that created it to the (previously empty) cluster.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is configured, otherwise false</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is started and configured, otherwise false</dd></dl>
 </li>
 </ul>
 <a name="isClusterMember()">
@@ -1161,7 +1162,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <pre>public&nbsp;boolean&nbsp;isClusterMember()</pre>
 <div class="block">Determine whether this node thinks that it is part of its cluster, as determined by its
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentConfig()">current configuration</a>.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is part of the cluster, otherwise false</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if this instance is started and part of the cluster, otherwise false</dd></dl>
 </li>
 </ul>
 <a name="isClusterMember(java.lang.String)">
@@ -1174,7 +1175,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <div class="block">Determine whether this node thinks that the specified node is part of the cluster, as determined by its
  <a href="../../../../org/jsimpledb/kv/raft/RaftKVDatabase.html#getCurrentConfig()">current configuration</a>.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>node</code> - node identity</dd>
-<dt><span class="strong">Returns:</span></dt><dd>true if the specified node is part of the cluster, otherwise false</dd></dl>
+<dt><span class="strong">Returns:</span></dt><dd>true if this instance is started and the specified node is part of the cluster, otherwise false</dd></dl>
 </li>
 </ul>
 <a name="getCurrentRole()">
@@ -1196,7 +1197,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <h4>getCurrentTerm</h4>
 <pre>public&nbsp;long&nbsp;getCurrentTerm()</pre>
 <div class="block">Get this instance's current term.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>current term</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>current term, or zero if not running</dd></dl>
 </li>
 </ul>
 <a name="getCurrentTermStartTime()">
@@ -1218,7 +1219,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <h4>getCommitIndex</h4>
 <pre>public&nbsp;long&nbsp;getCommitIndex()</pre>
 <div class="block">Get this instance's current commit index..</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>current commit index</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>current commit index, or zero if not running</dd></dl>
 </li>
 </ul>
 <a name="getLastAppliedTerm()">
@@ -1229,7 +1230,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <h4>getLastAppliedTerm</h4>
 <pre>public&nbsp;long&nbsp;getLastAppliedTerm()</pre>
 <div class="block">Get this instance's last applied log entry term.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>last applied term</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>last applied term, or zero if not running</dd></dl>
 </li>
 </ul>
 <a name="getLastAppliedIndex()">
@@ -1240,7 +1241,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <h4>getLastAppliedIndex</h4>
 <pre>public&nbsp;long&nbsp;getLastAppliedIndex()</pre>
 <div class="block">Get this instance's last applied log entry index.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>last applied index</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>last applied index, or zero if not running</dd></dl>
 </li>
 </ul>
 <a name="getUnappliedLog()">
@@ -1265,7 +1266,7 @@ implements <a href="../../../../org/jsimpledb/kv/KVDatabase.html" title="interfa
 <h4>getUnappliedLogMemoryUsage</h4>
 <pre>public&nbsp;long&nbsp;getUnappliedLogMemoryUsage()</pre>
 <div class="block">Get the estimated total memory used by unapplied log entries.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>unapplied log entry memory usage</dd></dl>
+<dl><dt><span class="strong">Returns:</span></dt><dd>unapplied log entry memory usage, or zero if this instance is not running</dd></dl>
 </li>
 </ul>
 <a name="getOpenTransactions()">
