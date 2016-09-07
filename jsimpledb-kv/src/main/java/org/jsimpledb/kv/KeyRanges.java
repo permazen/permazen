@@ -713,22 +713,29 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
     //  - Sorted according to KeyRange.SORT_BY_MIN
     //  - No overlapping ranges
     //  - Adjacent ranges consolidated into a single range
+    // Note that 'ranges' parameter is modified by this method.
     private static ArrayList<KeyRange> minimize(ArrayList<KeyRange> ranges) {
 
-        // Create array
-        final ArrayList<KeyRange> sortedRanges = new ArrayList<>(ranges);
-
-        // Remove empty ranges
-        for (Iterator<KeyRange> i = sortedRanges.iterator(); i.hasNext(); ) {
-            if (i.next().isEmpty())
+        // Remove empty ranges and check whether already sorted
+        boolean sorted = true;
+        KeyRange prevRange = null;
+        for (Iterator<KeyRange> i = ranges.iterator(); i.hasNext(); ) {
+            final KeyRange range = i.next();
+            if (range.isEmpty()) {
                 i.remove();
+                continue;
+            }
+            if (sorted && prevRange != null && KeyRange.SORT_BY_MIN.compare(prevRange, range) > 0)
+                sorted = false;
+            prevRange = range;
         }
 
         // Sort remaining ranges by min, then max
-        Collections.sort(sortedRanges, KeyRange.SORT_BY_MIN);
+        if (!sorted)
+            Collections.sort(ranges, KeyRange.SORT_BY_MIN);
 
         // Proceed
-        return KeyRanges.minimizeSortedByMinNoEmpty(sortedRanges);
+        return KeyRanges.minimizeSortedByMinNoEmpty(ranges);
     }
 
     private static ArrayList<KeyRange> minimizeSortedByMinNoEmpty(ArrayList<KeyRange> ranges) {

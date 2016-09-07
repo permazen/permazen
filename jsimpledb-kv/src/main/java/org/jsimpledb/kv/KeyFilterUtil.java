@@ -36,27 +36,20 @@ public final class KeyFilterUtil {
         case 0:
             throw new IllegalArgumentException("empty keyFilters");
         case 1:
+            Preconditions.checkArgument(keyFilters[0] != null, "null keyFilter");
             return keyFilters[0];
         default:
             break;
         }
 
-        // Optimize when all are KeyRanges instances
-        boolean allKeyRanges = true;
-        for (KeyFilter keyFilter : keyFilters) {
-            Preconditions.checkArgument(keyFilter != null, "null keyFilter");
-            if (!(keyFilter instanceof KeyRanges))
-                allKeyRanges = false;
+        // Try to optimize, assuming all KeyFilters are actually KeyRanges instances
+        final KeyRanges[] keyRanges = new KeyRanges[keyFilters.length - 1];
+        try {
+            System.arraycopy(keyFilters, 1, keyRanges, 0, keyRanges.length);
+            return ((KeyRanges)keyFilters[0]).union(keyRanges);
+        } catch (ClassCastException | ArrayStoreException e) {
+            return new UnionKeyFilter(keyFilters);
         }
-        if (allKeyRanges) {
-            KeyRanges union = (KeyRanges)keyFilters[0];
-            for (int i = 1; i < keyFilters.length; i++)
-                union = union.union((KeyRanges)keyFilters[i]);
-            return union;
-        }
-
-        // Can't optimize
-        return new UnionKeyFilter(keyFilters);
     }
 
     /**
@@ -73,27 +66,20 @@ public final class KeyFilterUtil {
         case 0:
             throw new IllegalArgumentException("empty keyFilters");
         case 1:
+            Preconditions.checkArgument(keyFilters[0] != null, "null keyFilter");
             return keyFilters[0];
         default:
             break;
         }
 
-        // Optimize when all are KeyRanges instances
-        boolean allKeyRanges = true;
-        for (KeyFilter keyFilter : keyFilters) {
-            Preconditions.checkArgument(keyFilter != null, "null keyFilter");
-            if (!(keyFilter instanceof KeyRanges))
-                allKeyRanges = false;
+        // Try to optimize, assuming all KeyFilters are actually KeyRanges instances
+        final KeyRanges[] keyRanges = new KeyRanges[keyFilters.length - 1];
+        try {
+            System.arraycopy(keyFilters, 1, keyRanges, 0, keyRanges.length);
+            return ((KeyRanges)keyFilters[0]).intersection(keyRanges);
+        } catch (ClassCastException | ArrayStoreException e) {
+            return new IntersectionKeyFilter(keyFilters);
         }
-        if (allKeyRanges) {
-            KeyRanges intersection = (KeyRanges)keyFilters[0];
-            for (int i = 1; i < keyFilters.length; i++)
-                intersection = intersection.intersection((KeyRanges)keyFilters[i]);
-            return intersection;
-        }
-
-        // Can't optimize
-        return new IntersectionKeyFilter(keyFilters);
     }
 
     /**
