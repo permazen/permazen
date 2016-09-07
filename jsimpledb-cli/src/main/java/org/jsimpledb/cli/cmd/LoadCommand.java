@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.util.Map;
 
 import org.jsimpledb.cli.CliSession;
+import org.jsimpledb.core.ObjId;
+import org.jsimpledb.core.Transaction;
 import org.jsimpledb.core.util.XMLObjectSerializer;
 import org.jsimpledb.parse.Parser;
 import org.jsimpledb.util.ParseContext;
