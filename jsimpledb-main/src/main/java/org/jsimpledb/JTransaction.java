@@ -460,12 +460,11 @@ public class JTransaction {
      * into the specified destination transaction.
      *
      * <p>
-     * If the target object already exists, its schema version will be updated to match the source object if necessary,
-     * otherwise it will be created.  {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly
-     * (however, for create and change notifications in {@code dest}, these annotations must have
-     * {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
+     * If the target object does not exist, it will be created, otherwise its schema version will be updated to match the source
+     * object if necessary (with resulting {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange} notifications).
+     * If {@link CopyState.isSuppressNotifications()} returns false, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate}
+     * and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will also be delivered; however,
+     * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
      * Circular references are handled properly: if an object is encountered more than once, it is not copied again.
@@ -589,13 +588,11 @@ public class JTransaction {
      * Copy the objects in the specified {@link Iterable} into the specified destination transaction.
      *
      * <p>
-     * The source instances will be {@link JObject#upgrade}ed if necessary. If a target object already exists,
-     * it's schema version will be updated to match the source object if needed.
-     * {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange},
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
-     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will be delivered accordingly
-     * (however, for create and change notifications in {@code dest}, these annotations must have
-     * {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
+     * If a target object does not exist, it will be created, otherwise its schema version will be updated to match the source
+     * object if necessary (with resulting {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange} notifications).
+     * If {@link CopyState.isSuppressNotifications()} returns false, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate}
+     * and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will also be delivered; however,
+     * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
      * <p>
      * The {@code copyState} parameter tracks which objects that have already been copied. For a "fresh" copy operation,
@@ -666,7 +663,7 @@ public class JTransaction {
             final ObjIdMap<ReferenceField> coreDeletedAssignments = new ObjIdMap<>();
             boolean exists = true;
             try {
-                this.tx.copy(srcId, dstId, dest.tx, true, coreDeletedAssignments);
+                this.tx.copy(srcId, dstId, dest.tx, true, !copyState.isSuppressNotifications(), coreDeletedAssignments);
             } catch (DeletedObjectException e) {
                 if (required)
                     throw e;

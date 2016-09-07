@@ -194,6 +194,8 @@ public class Transaction {
     boolean readOnly;
     @GuardedBy("this")
     boolean rollbackOnly;
+    @GuardedBy("this")
+    boolean disableListenerNotifications;
 
     @GuardedBy("this")
     private final ThreadLocal<TreeMap<Integer, ArrayList<FieldChangeNotifier>>> pendingNotifications = new ThreadLocal<>();
@@ -748,8 +750,10 @@ public class Transaction {
             this.kvt.put(Transaction.buildDefaultCompositeIndexEntry(id, index), ByteUtil.EMPTY);
 
         // Notify listeners
-        for (CreateListener listener : this.createListeners.toArray(new CreateListener[this.createListeners.size()]))
-            listener.onCreate(this, id);
+        if (!this.disableListenerNotifications) {
+            for (CreateListener listener : this.createListeners.toArray(new CreateListener[this.createListeners.size()]))
+                listener.onCreate(this, id);
+        }
     }
 
     /**
@@ -838,8 +842,10 @@ public class Transaction {
             this.objInfoCache.put(id, new ObjInfo(this, id, info.getVersion(), true, info.schema, info.objType));
 
             // Issue delete notifications and retry
-            for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
-                listener.onDelete(this, id);
+            if (!this.disableListenerNotifications) {
+                for (DeleteListener listener : this.deleteListeners.toArray(new DeleteListener[this.deleteListeners.size()]))
+                    listener.onDelete(this, id);
+            }
         }
 
         // Find all objects referred to by a reference field with cascadeDelete = true and add them to deletables
@@ -940,6 +946,20 @@ public class Transaction {
      * Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
      *
      * <p>
+     * This method variant is deprecated, replaced by {@link #copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap)}.
+     * The implementation in {@link Transaction} just invokes {@code copy(source, target, dest, updateVersion, true, null)}.
+     *
+     * @deprecated Replaced by {@link #copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap)}
+     */
+    @Deprecated
+    public boolean copy(ObjId source, ObjId target, Transaction dest, boolean updateVersion) {
+        return this.copy(source, target, dest, updateVersion, true, null);
+    }
+
+    /**
+     * Copy all of an object's fields onto a target object in a (possibly) different transaction, replacing any previous values.
+     *
+     * <p>
      * If {@code updateVersion} is true, the {@code source} object is first upgraded to
      * {@linkplain #getSchema() the schema version associated with this transaction}.
      * In any case, the schema version associated with {@code source} when copied must be identical
@@ -956,7 +976,7 @@ public class Transaction {
      * If {@code source} contains references to any objects that don't exist in {@code dest} through fields configured
      * to {@linkplain ReferenceField#isAllowDeleted disallow deleted assignments}, then a {@link DeletedObjectException}
      * is thrown and no copy is performed. To perform a copy that allows such deleted assignments, use
-     * {@link #copy(ObjId, ObjId, Transaction, boolean, ObjIdMap)}.
+     * {@link #copy(ObjId, ObjId, Transaction, boolean, boolean, ObjIdMap)}.
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
@@ -966,10 +986,15 @@ public class Transaction {
      * If {@code dest} is this instance, and {@code source} equals {@code target}, no fields are changed and false is returned;
      * however, a schema update may occur (if {@code updateVersion} is true), and deleted assignment checks are applied.
      *
+     * <p>
+     * The {@code notifyListeners} flag controls whether notifications are delivered to {@link CreateListener}s
+     * and field change listeners as objects are created and modified in {@code dest}.
+     *
      * @param source object ID of the source object in this transaction
      * @param target object ID of the target object in {@code dest}
      * @param dest destination transaction containing {@code target} (possibly same as this transaction)
      * @param updateVersion true to first automatically update {@code source}'s schema version, false to not change it
+     * @param notifyListeners whether to notify {@link CreateListener}s and field change listeners
      * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
      * @throws DeletedObjectException if no object with ID equal to {@code source} is found in this transaction
      * @throws DeletedObjectException if a non-null reference field in {@code source} that disallows deleted assignments
@@ -984,12 +1009,13 @@ public class Transaction {
      * @throws TypeNotInSchemaVersionException {@code updateVersion} is true and the object could not be updated because
      *   the object's type does not exist in the schema version associated with this transaction
      */
-    public boolean copy(ObjId source, ObjId target, Transaction dest, boolean updateVersion) {
-        return this.copy(source, target, dest, updateVersion, null);
+    public boolean copy(ObjId source, ObjId target, Transaction dest, boolean updateVersion, boolean notifyListeners) {
+        return this.copy(source, target, dest, updateVersion, notifyListeners, null);
     }
 
     /**
-     * Variant of {@link #copy(ObjId, ObjId, Transaction, boolean)} that allows, but tracks, deleted assignments.
+     * Variant of {@link #copy(ObjId, ObjId, Transaction, boolean)} that allows, but tracks, deleted assignments,
+     * and supports disabling create and change notifications.
      *
      * <p>
      * When multiple objects need to be copied, {@link #copy(ObjId, ObjId, Transaction, boolean) copy()} can throw a
@@ -1006,10 +1032,15 @@ public class Transaction {
      * If a null {@link deletedAssignments} is given, and any illegal deleted assignment would occur, then an immediate
      * {@link DeletedObjectException} is thrown and no copy is performed.
      *
+     * <p>
+     * The {@code notifyListeners} flag controls whether notifications are delivered to {@link CreateListener}s
+     * and field change listeners as objects are created and modified in {@code dest}.
+     *
      * @param source object ID of the source object in this transaction
      * @param target object ID of the target object in {@code dest}
      * @param dest destination transaction containing {@code target} (possibly same as this transaction)
      * @param updateVersion true to first automatically update {@code source}'s schema version, false to not change it
+     * @param notifyListeners whether to notify {@link CreateListener}s and field change listeners
      * @param deletedAssignments if not null, collect assignments to deleted objects here instead of throwing
      *  {@link DeletedObjectException}s, where the map key is the deleted object and the map value is some referring field
      * @return false if object already existed in {@code dest}, true if {@code target} did not exist in {@code dest}
@@ -1027,7 +1058,7 @@ public class Transaction {
      *   the object's type does not exist in the schema version associated with this transaction
      */
     public synchronized boolean copy(ObjId source, final ObjId target, final Transaction dest, final boolean updateVersion,
-      final ObjIdMap<ReferenceField> deletedAssignments) {
+      final boolean notifyListeners, final ObjIdMap<ReferenceField> deletedAssignments) {
 
         // Sanity check
         Preconditions.checkArgument(source != null, "null source");
@@ -1052,10 +1083,13 @@ public class Transaction {
                 public Boolean mutate() {
                     final ObjIdMap<ReferenceField> previousCopyDeletedAssignments = dest.deletedAssignments;
                     dest.deletedAssignments = deletedAssignments;
+                    final boolean previousDisableListenerNotifications = dest.disableListenerNotifications;
+                    dest.disableListenerNotifications = !notifyListeners;
                     try {
                         return Transaction.doCopyFields(srcInfo, target, Transaction.this, dest, updateVersion);
                     } finally {
                         dest.deletedAssignments = previousCopyDeletedAssignments;
+                        dest.disableListenerNotifications = previousDisableListenerNotifications;
                     }
                 }
             });
@@ -1798,15 +1832,17 @@ public class Transaction {
         }
 
         // Notify monitors
-        final Object oldObj = oldValue != null ?
-          field.fieldType.read(new ByteReader(oldValue)) : field.fieldType.getDefaultValueObject();
-        this.addFieldChangeNotification(new SimpleFieldChangeNotifier(field, id) {
-            @Override
-            @SuppressWarnings("unchecked")
-            public void notify(Transaction tx, SimpleFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onSimpleFieldChange(tx, this.id, (SimpleField<Object>)field, path, referrers, oldObj, newObj);
-            }
-        });
+        if (!this.disableListenerNotifications) {
+            final Object oldObj = oldValue != null ?
+              field.fieldType.read(new ByteReader(oldValue)) : field.fieldType.getDefaultValueObject();
+            this.addFieldChangeNotification(new SimpleFieldChangeNotifier(field, id) {
+                @Override
+                @SuppressWarnings("unchecked")
+                public void notify(Transaction tx, SimpleFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onSimpleFieldChange(tx, this.id, (SimpleField<Object>)field, path, referrers, oldObj, newObj);
+                }
+            });
+        }
     }
 
     /**
@@ -2478,8 +2514,12 @@ public class Transaction {
      * Add a pending notification for any {@link FieldMonitor}s watching the specified field in the specified object.
      * This method assumes only the appropriate type of monitor is registered as a listener on the field
      * and that the provided old and new values have the appropriate types.
+     *
+     * <p>
+     * This method should only be invoked if this.disableListenerNotifications is false.
      */
     void addFieldChangeNotification(FieldChangeNotifier notifier) {
+        assert !this.disableListenerNotifications;
 
         // Does anybody care?
         final int storageId = notifier.getStorageId();

@@ -6,6 +6,7 @@ Version 2.2.1
     - Treat a single out-of-date follower as unavailable in Raft fallback
     - Added subclass method JSimpleDBTransactionManager.createTransaction()
     - Added subclass method FallbackKVDatabase.isMigrationAllowed()
+    - Added option for suppressing notifications when copying objects
 
 Version 2.2.0 Released August 30, 2016
 

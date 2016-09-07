@@ -174,7 +174,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
 
         // ref1 - self reference should be OK!
         stx.writeSimpleField(id1, 10, id1, true);
-        stx.copy(id1, id1, tx, true, null);
+        stx.copy(id1, id1, tx, true, false, null);
 
         // ref1
         stx.delete(id1);
@@ -183,14 +183,14 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         stx.writeSimpleField(id1, 10, deleted1, true);
         try {
             this.log.info("doing copy #1: id=" + id1 + " tx=" + tx + " stx=" + stx);
-            stx.copy(id1, id1, tx, true, null);
+            stx.copy(id1, id1, tx, true, false, null);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected exception:\n  " + e);
         }
         assert !tx.exists(id1);
         final ObjIdMap<ReferenceField> deletedAssignments = new ObjIdMap<>();
-        stx.copy(id1, id1, tx, true, deletedAssignments);
+        stx.copy(id1, id1, tx, true, false, deletedAssignments);
         assert tx.exists(id1);
         this.log.info("deletedAssignments = " + deletedAssignments);
         checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(10, true)));
@@ -200,14 +200,14 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         tx.delete(id1);
         stx.create(id1);
         stx.writeSimpleField(id1, 11, deleted1, true);
-        stx.copy(id1, id1, tx, true, null);
+        stx.copy(id1, id1, tx, true, false, null);
 
         // list1 - self reference should be OK!
         stx.delete(id1);
         tx.delete(id1);
         stx.create(id1);
         ((List)stx.readListField(id1, 30, true)).add(id1);
-        stx.copy(id1, id1, tx, true, null);
+        stx.copy(id1, id1, tx, true, false, null);
 
         // list1
         stx.delete(id1);
@@ -215,14 +215,14 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         stx.create(id1);
         ((List)stx.readListField(id1, 30, true)).add(deleted1);
         try {
-            stx.copy(id1, id1, tx, true, null);
+            stx.copy(id1, id1, tx, true, false, null);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected exception:\n  " + e);
         }
         assert !tx.exists(id1);
         deletedAssignments.clear();
-        stx.copy(id1, id1, tx, true, deletedAssignments);
+        stx.copy(id1, id1, tx, true, false, deletedAssignments);
         assert tx.exists(id1);
         checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(32, true)));
 
@@ -231,7 +231,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         tx.delete(id1);
         stx.create(id1);
         ((List)stx.readListField(id1, 31, true)).add(deleted1);
-        stx.copy(id1, id1, tx, true, null);
+        stx.copy(id1, id1, tx, true, false, null);
 
         // set1
         stx.delete(id1);
@@ -239,14 +239,14 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         stx.create(id1);
         ((Set)stx.readSetField(id1, 20, true)).add(deleted1);
         try {
-            stx.copy(id1, id1, tx, true, null);
+            stx.copy(id1, id1, tx, true, false, null);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected exception:\n  " + e);
         }
         assert !tx.exists(id1);
         deletedAssignments.clear();
-        stx.copy(id1, id1, tx, true, deletedAssignments);
+        stx.copy(id1, id1, tx, true, false, deletedAssignments);
         assert tx.exists(id1);
         checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(22, true)));
 
@@ -255,7 +255,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         tx.delete(id1);
         stx.create(id1);
         ((Set)stx.readSetField(id1, 21, true)).add(deleted1);
-        stx.copy(id1, id1, tx, true, null);
+        stx.copy(id1, id1, tx, true, false, null);
 
         // set2 with deletedAssignments
         stx.delete(id1);
@@ -263,7 +263,7 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         stx.create(id1);
         ((Set)stx.readSetField(id1, 21, true)).add(deleted1);
         deletedAssignments.clear();
-        stx.copy(id1, id1, tx, true, deletedAssignments);
+        stx.copy(id1, id1, tx, true, false, deletedAssignments);
         checkMap(deletedAssignments, buildMap());
 
         // map1
@@ -272,14 +272,14 @@ public class AllowDeletedTest extends CoreAPITestSupport {
         stx.create(id1);
         ((Map)stx.readMapField(id1, 40, true)).put(deleted1, id1);
         try {
-            stx.copy(id1, id1, tx, true, null);
+            stx.copy(id1, id1, tx, true, false, null);
             assert false;
         } catch (DeletedObjectException e) {
             this.log.info("got expected exception:\n  " + e);
         }
         assert !tx.exists(id1);
         deletedAssignments.clear();
-        stx.copy(id1, id1, tx, true, deletedAssignments);
+        stx.copy(id1, id1, tx, true, false, deletedAssignments);
         assert tx.exists(id1);
         checkMap(deletedAssignments, buildMap(deleted1, tx.getSchema().getObjType(1).getField(42, true)));
 

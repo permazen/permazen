@@ -118,12 +118,14 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         }
 
         // Notify field monitors
-        this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
-            @Override
-            void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onListFieldReplace(tx, this.getId(), JSList.this.field, path, referrers, index, oldElem, newElem);
-            }
-        });
+        if (!this.tx.disableListenerNotifications) {
+            this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
+                @Override
+                void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onListFieldReplace(tx, this.getId(), JSList.this.field, path, referrers, index, oldElem, newElem);
+                }
+            });
+        }
 
         // Return previous entry
         return oldElem;
@@ -188,13 +190,15 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
                 this.field.addIndexEntry(this.tx, this.id, this.field.elementField, key, value);
 
             // Notify field monitors
-            final int index2 = index;
-            this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
-                @Override
-                void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    listener.onListFieldAdd(tx, this.getId(), JSList.this.field, path, referrers, index2, elem);
-                }
-            });
+            if (!this.tx.disableListenerNotifications) {
+                final int index2 = index;
+                this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
+                    @Override
+                    void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                        listener.onListFieldAdd(tx, this.getId(), JSList.this.field, path, referrers, index2, elem);
+                    }
+                });
+            }
 
             // Advance index
             index++;
@@ -229,12 +233,14 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
         this.field.deleteContent(this.tx, this.id);
 
         // Notify field monitors
-        this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
-            @Override
-            void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onListFieldClear(tx, this.getId(), JSList.this.field, path, referrers);
-            }
-        });
+        if (!this.tx.disableListenerNotifications) {
+            this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
+                @Override
+                void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onListFieldClear(tx, this.getId(), JSList.this.field, path, referrers);
+                }
+            });
+        }
     }
 
     @Override
@@ -273,25 +279,27 @@ class JSList<E> extends AbstractList<E> implements RandomAccess {
             this.deleteIndexEntries(min, max);
 
         // Notify field monitors
-        for (int i = min; i < max; i++) {
-            final byte[] value = this.tx.kvt.get(this.buildKey(i));
-            if (value == null)
-                throw new InconsistentDatabaseException("list entry at index " + i + " not found");
-            final int i2 = i;
-            this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
+        if (!this.tx.disableListenerNotifications) {
+            for (int i = min; i < max; i++) {
+                final byte[] value = this.tx.kvt.get(this.buildKey(i));
+                if (value == null)
+                    throw new InconsistentDatabaseException("list entry at index " + i + " not found");
+                final int i2 = i;
+                this.tx.addFieldChangeNotification(new ListFieldChangeNotifier() {
 
-                private boolean decoded;
-                private E elem;
+                    private boolean decoded;
+                    private E elem;
 
-                @Override
-                void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                    if (!this.decoded) {
-                        this.elem = JSList.this.elementType.read(new ByteReader(value));
-                        this.decoded = true;
+                    @Override
+                    void notify(Transaction tx, ListFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                        if (!this.decoded) {
+                            this.elem = JSList.this.elementType.read(new ByteReader(value));
+                            this.decoded = true;
+                        }
+                        listener.onListFieldRemove(tx, this.getId(), JSList.this.field, path, referrers, i2, elem);
                     }
-                    listener.onListFieldRemove(tx, this.getId(), JSList.this.field, path, referrers, i2, elem);
-                }
-            });
+                });
+            }
         }
 
         // Shift

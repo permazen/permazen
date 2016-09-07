@@ -37,6 +37,7 @@ public class CopyState implements Cloneable {
 
     private final TreeMap<int[], ObjIdSet> traversedMap = new TreeMap<>(Ints.lexicographicalComparator());
     private /*final*/ ObjIdSet copied;
+    private boolean suppressNotifications;
 
     /**
      * Default constructor.
@@ -77,6 +78,36 @@ public class CopyState implements Cloneable {
     public boolean isCopied(ObjId id) {
         Preconditions.checkArgument(id != null, "null id");
         return this.copied.contains(id);
+    }
+
+    /**
+     * Determine whether to suppress {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications in the destination transaction.
+     *
+     * <p>
+     * Note that for notifications to be delivered in a {@link SnapshotJTransaction}, these annotations must
+     * also have {@code snapshotTransactions = true}, even if this property is set to false.
+     *
+     * @return true if {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     *  {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications should be suppressed, otherwise false
+     */
+    public boolean isSuppressNotifications() {
+        return this.suppressNotifications;
+    }
+
+    /**
+     * Configure whether to suppress {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     * {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications in the destination transaction.
+     *
+     * <p>
+     * Note that for notifications to be delivered in a {@link SnapshotJTransaction}, these annotations must
+     * also have {@code snapshotTransactions = true}, even if this property is set to false.
+     *
+     * @param suppressNotifications true if {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate} and
+     *  {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications should be suppressed, otherwise false
+     */
+    public void setSuppressNotifications(boolean suppressNotifications) {
+        this.suppressNotifications = suppressNotifications;
     }
 
     /**

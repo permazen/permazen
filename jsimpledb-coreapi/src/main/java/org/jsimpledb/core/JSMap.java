@@ -104,17 +104,19 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
             this.field.addIndexEntry(this.tx, this.id, this.field.valueField, key, newValue);
 
         // Notify field monitors
-        this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
-            @Override
-            void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                if (oldValue == null)
-                    listener.onMapFieldAdd(tx, this.getId(), JSMap.this.field, path, referrers, keyObj, newValueObj);
-                else {
-                    listener.onMapFieldReplace(tx, this.getId(),
-                      JSMap.this.field, path, referrers, keyObj, oldValueObj, newValueObj);
+        if (!this.tx.disableListenerNotifications) {
+            this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
+                @Override
+                void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    if (oldValue == null)
+                        listener.onMapFieldAdd(tx, this.getId(), JSMap.this.field, path, referrers, keyObj, newValueObj);
+                    else {
+                        listener.onMapFieldReplace(tx, this.getId(),
+                          JSMap.this.field, path, referrers, keyObj, oldValueObj, newValueObj);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // Done
         return oldValueObj;
@@ -152,12 +154,14 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
             this.field.removeIndexEntry(this.tx, this.id, this.field.valueField, key, oldValue);
 
         // Notify field monitors
-        this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
-            @Override
-            void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onMapFieldRemove(tx, this.getId(), JSMap.this.field, path, referrers, keyObj, valueObj);
-            }
-        });
+        if (!this.tx.disableListenerNotifications) {
+            this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
+                @Override
+                void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onMapFieldRemove(tx, this.getId(), JSMap.this.field, path, referrers, keyObj, valueObj);
+                }
+            });
+        }
 
         // Done
         return valueObj;
@@ -205,12 +209,14 @@ class JSMap<K, V> extends FieldTypeMap<K, V> {
         this.field.deleteContent(this.tx, rangeMinKey, rangeMaxKey);
 
         // Notify field monitors
-        this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
-            @Override
-            void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onMapFieldClear(tx, this.getId(), JSMap.this.field, path, referrers);
-            }
-        });
+        if (!this.tx.disableListenerNotifications) {
+            this.tx.addFieldChangeNotification(new MapFieldChangeNotifier() {
+                @Override
+                void notify(Transaction tx, MapFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onMapFieldClear(tx, this.getId(), JSMap.this.field, path, referrers);
+                }
+            });
+        }
     }
 
     @Override

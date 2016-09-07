@@ -75,12 +75,14 @@ class JSSet<E> extends FieldTypeSet<E> {
             this.field.addIndexEntry(this.tx, this.id, this.field.elementField, key, null);
 
         // Notify field monitors
-        this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
-            @Override
-            void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onSetFieldAdd(tx, this.getId(), JSSet.this.field, path, referrers, newValue);
-            }
-        });
+        if (!this.tx.disableListenerNotifications) {
+            this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
+                @Override
+                void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onSetFieldAdd(tx, this.getId(), JSSet.this.field, path, referrers, newValue);
+                }
+            });
+        }
 
         // Done
         return true;
@@ -126,12 +128,14 @@ class JSSet<E> extends FieldTypeSet<E> {
         this.field.deleteContent(this.tx, rangeMinKey, rangeMaxKey);
 
         // Notify field monitors
-        this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
-            @Override
-            void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onSetFieldClear(tx, this.getId(), JSSet.this.field, path, referrers);
-            }
-        });
+        if (!this.tx.disableListenerNotifications) {
+            this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
+                @Override
+                void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onSetFieldClear(tx, this.getId(), JSSet.this.field, path, referrers);
+                }
+            });
+        }
     }
 
     @Override
@@ -160,12 +164,14 @@ class JSSet<E> extends FieldTypeSet<E> {
             this.field.removeIndexEntry(this.tx, this.id, this.field.elementField, key, null);
 
         // Notify field monitors
-        this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
-            @Override
-            void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
-                listener.onSetFieldRemove(tx, this.getId(), JSSet.this.field, path, referrers, oldValue);
-            }
-        });
+        if (!this.tx.disableListenerNotifications) {
+            this.tx.addFieldChangeNotification(new SetFieldChangeNotifier() {
+                @Override
+                void notify(Transaction tx, SetFieldChangeListener listener, int[] path, NavigableSet<ObjId> referrers) {
+                    listener.onSetFieldRemove(tx, this.getId(), JSSet.this.field, path, referrers, oldValue);
+                }
+            });
+        }
 
         // Done
         return true;

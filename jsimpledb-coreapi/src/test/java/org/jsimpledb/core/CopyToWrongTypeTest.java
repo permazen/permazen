@@ -43,7 +43,7 @@ public class CopyToWrongTypeTest extends CoreAPITestSupport {
         tx.writeSimpleField(bar, 4, UUID.randomUUID(), false);
 
         try {
-            tx.copy(bar, foo, tx, false);
+            tx.copy(bar, foo, tx, false, false);
             assert false : "copied foo to bar!";
         } catch (IllegalArgumentException e) {
             // expected
