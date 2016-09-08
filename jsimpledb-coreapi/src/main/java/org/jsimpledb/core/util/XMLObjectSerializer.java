@@ -36,6 +36,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.dellroad.stuff.xml.IndentXMLStreamWriter;
 import org.jsimpledb.core.CollectionField;
 import org.jsimpledb.core.CounterField;
+import org.jsimpledb.core.DeletedObjectException;
 import org.jsimpledb.core.Field;
 import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ListField;
@@ -137,6 +138,7 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     private final HashMap<Integer, NameIndex> nameIndexMap = new HashMap<>();
 
     private GeneratedIdCache generatedIdCache = new GeneratedIdCache();
+    private final ObjIdMap<ReferenceField> unresolvedReferences = new ObjIdMap<>();
     private int fieldTruncationLength = -1;
 
     /**
@@ -188,6 +190,21 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
     }
 
     /**
+     * Get all unresolved forward object references.
+     *
+     * <p>
+     * When {@link #read(InputStream, boolean) read()} is invoked with {@code allowUnresolvedReferences = true},
+     * unresolved forward object references do not trigger an exception; this allows forward references to span
+     * multiple invocations. Instead, these references are collected and made available to the caller in the returned map.
+     * Callers may also modify the returned map as desired between invocations.
+     *
+     * @return mapping from unresolved forward object reference to some referring field
+     */
+    public ObjIdMap<ReferenceField> getUnresolvedReferences() {
+        return this.unresolvedReferences;
+    }
+
+    /**
      * Get the {@link GeneratedIdCache} associated with this instance.
      *
      * @return the associated {@link GeneratedIdCache}
@@ -211,7 +228,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * Import objects pairs into the {@link Transaction} associated with this instance from the given XML input.
      *
      * <p>
-     * The input format is auto-detected for each {@code <object>} based on the presense of the {@code "type"} attribute.
+     * This is a convenience method, equivalent to:
+     * <blockquote><pre>
+     * read(input, false)
+     * </pre></blockquote>
      *
      * @param input XML input
      * @return the number of objects read
@@ -219,8 +239,36 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
      * @throws IllegalArgumentException if {@code input} is null
      */
     public int read(InputStream input) throws XMLStreamException {
+        return this.read(input, false);
+    }
+
+    /**
+     * Import objects pairs into the {@link Transaction} associated with this instance from the given XML input.
+     *
+     * <p>
+     * The input format is auto-detected for each {@code <object>} based on the presense of the {@code "type"} attribute.
+     *
+     * <p>
+     * Can optionally check for unresolved object references after reading is complete. If this checking is enabled,
+     * an exception is thrown if any unresolved references remain. In any case, the unresolved references are available
+     * via {@link #getUnresolvedReferences}.
+     *
+     * @param input XML input
+     * @param allowUnresolvedReferences true to allow unresolved references, false to throw an exception
+     * @return the number of objects read
+     * @throws XMLStreamException if an error occurs
+     * @throws IllegalArgumentException if {@code input} is null
+     * @throws DeletedObjectException if {@code allowUnresolvedReferences} is true and any unresolved references
+     *  remain when loading is complete
+     */
+    public int read(InputStream input, boolean allowUnresolvedReferences) throws XMLStreamException {
         Preconditions.checkArgument(input != null, "null input");
-        return this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
+        final int count = this.read(XMLInputFactory.newFactory().createXMLStreamReader(input));
+        if (!allowUnresolvedReferences && !this.unresolvedReferences.isEmpty()) {
+            throw new DeletedObjectException(this.unresolvedReferences.keySet().iterator().next(),
+              this.unresolvedReferences.size() + " unresolved reference(s) remain");
+        }
+        return count;
     }
 
     /**
@@ -437,7 +485,10 @@ public class XMLObjectSerializer extends AbstractXMLStreaming {
             }
 
             // Copy over object, replacing any previous
-            snapshot.copy(id, id, this.tx, false, false);
+            snapshot.copy(id, id, this.tx, false, false, this.unresolvedReferences);
+
+            // Removed the copied object from deleted assignments, as any forward reference to it is now resolved
+            this.unresolvedReferences.remove(id);
         }
 
         // Done
