@@ -84,7 +84,8 @@ import org.slf4j.LoggerFactory;
  *  <li>{@link #create(int) create()} - Create a database object</li>
  *  <li>{@link #delete delete()} - Delete a database object</li>
  *  <li>{@link #exists exists()} - Test whether a database object exists</li>
- *  <li>{@link #copy copy()} - Copy an object's fields onto another object in a (possibly) different transaction</li>
+ *  <li>{@link #copy(ObjId, ObjId, Transaction, boolean, boolean) copy()} - Copy an object's fields
+ *      onto another object in a (possibly) different transaction</li>
  *  <li>{@link #addCreateListener addCreateListener()} - Register a {@link CreateListener} for notifications about new objects</li>
  *  <li>{@link #removeCreateListener removeCreateListener()} - Unregister a {@link CreateListener}</li>
  *  <li>{@link #addDeleteListener addDeleteListener()} - Register a {@link DeleteListener} for notifications
