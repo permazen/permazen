@@ -1146,7 +1146,7 @@ public class Transaction {
         // Do field-by-field copy if there are change listeners, otherwise do fast copy of key/value pairs directly
         final ObjType srcType = srcSchema.getObjType(typeStorageId);
         final ObjType dstType = dstSchema.getObjType(typeStorageId);
-        if (dstTx.hasFieldMonitor(dstType)) {
+        if (!dstTx.disableListenerNotifications && dstTx.hasFieldMonitor(dstType)) {
 
             // Create destination object if it does not exist
             if (!existed)
@@ -1769,7 +1769,8 @@ public class Transaction {
         //  - The field is indexed -> we need the old value so we can remove the old index entry
         // If neither of the above is true, then there's no need to read the old value.
         byte[] oldValue = null;
-        if (field.indexed || field.compositeIndexMap != null || this.hasFieldMonitor(id, field)) {
+        if (field.indexed || field.compositeIndexMap != null
+          || (!this.disableListenerNotifications && this.hasFieldMonitor(id, field))) {
 
             // Get old value
             oldValue = this.kvt.get(key);
