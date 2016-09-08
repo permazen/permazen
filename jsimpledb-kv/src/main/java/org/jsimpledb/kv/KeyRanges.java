@@ -224,8 +224,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         final KeyRange first = this.ranges.get(0);
         int i = 0;
         byte[] lastMax;
-        if (first.getMin().length == 0) {
-            if ((lastMax = first.getMax()) == null) {
+        if (first.min.length == 0) {
+            if ((lastMax = first.max) == null) {
                 assert this.ranges.size() == 1;
                 return KeyRanges.EMPTY;
             }
@@ -238,8 +238,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
                 break;
             }
             final KeyRange next = this.ranges.get(i++);
-            list.add(new KeyRange(lastMax, next.getMin()));
-            if ((lastMax = next.getMax()) == null) {
+            list.add(new KeyRange(lastMax, next.min));
+            if ((lastMax = next.max) == null) {
                 assert i == this.ranges.size();
                 break;
             }
@@ -270,7 +270,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
      */
     public boolean contains(KeyRange range) {
         Preconditions.checkArgument(range != null, "null range");
-        final int[] pair = this.findKeyIndex(range.getMin());
+        final int[] pair = this.findKeyIndex(range.min);
         if (pair[0] != pair[1] || pair[0] == -1)
             return false;
         return this.ranges.get(pair[0]).contains(range);
@@ -358,27 +358,27 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         assert !rangeList.isEmpty();
 
         // Find where to start replacing ranges with new consolidated interval
-        byte[] minKey = range.getMin();
+        byte[] minKey = range.min;
         final int[] minFind = this.findKeyIndex(minKey);
         int replaceIndexMin;
         if (minFind[0] == minFind[1]
-          || (minFind[0] != -1 && Arrays.equals(minKey, rangeList.get(minFind[0]).getMax()))) {
+          || (minFind[0] != -1 && Arrays.equals(minKey, rangeList.get(minFind[0]).max))) {
             assert minFind[0] != -1;
             replaceIndexMin = minFind[0];
-            minKey = rangeList.get(replaceIndexMin).getMin();
+            minKey = rangeList.get(replaceIndexMin).min;
         } else
             replaceIndexMin = minFind[0] + 1;               // works even if minFind[0] == -1
 
         // Find where to stop replacing ranges with new consolidated interval
-        byte[] maxKey = range.getMax();
+        byte[] maxKey = range.max;
         final int lastIndex = this.ranges.size() - 1;
         final int[] maxFind = maxKey != null ? this.findKeyIndex(maxKey) :
-          new int[] { lastIndex, this.ranges.get(lastIndex).getMax() != null ? -1 : lastIndex };
+          new int[] { lastIndex, this.ranges.get(lastIndex).max != null ? -1 : lastIndex };
         int replaceIndexMax;
         if (maxFind[0] == maxFind[1]) {
             assert maxFind[1] != -1;
             replaceIndexMax = maxFind[1] + 1;
-            maxKey = rangeList.get(maxFind[1]).getMax();
+            maxKey = rangeList.get(maxFind[1]).max;
         } else
             replaceIndexMax = maxFind[1] != -1 ? maxFind[1] : lastIndex + 1;
 
@@ -415,15 +415,15 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         assert !rangeList.isEmpty();
 
         // Find where remove range's endpoints intersect our range list
-        final byte[] minKey = range.getMin();
+        final byte[] minKey = range.min;
         final int[] minFind = this.findKeyIndex(minKey);
         int imin = minFind[1];                                  // index of our range containing, or to the right of, minKey
         if (imin == -1)                                         // all our ranges are to the left of minKey, nothing to do
             return this;
-        final byte[] maxKey = range.getMax();
+        final byte[] maxKey = range.max;
         final int lastIndex = this.ranges.size() - 1;
         final int[] maxFind = maxKey != null ? this.findKeyIndex(maxKey) :
-          new int[] { lastIndex, this.ranges.get(lastIndex).getMax() != null ? -1 : lastIndex };
+          new int[] { lastIndex, this.ranges.get(lastIndex).max != null ? -1 : lastIndex };
         int imax = maxFind[0];                                  // index of our range containing, or to the left of, maxKey
         if (imax == -1)                                         // all our ranges are to the right of maxKey, nothing to do
             return this;
@@ -432,13 +432,13 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
 
         // Split rmin in two if it contains minKey
         final KeyRange rmin = rangeList.get(imin);
-        if (ByteUtil.compare(rmin.getMin(), minKey) < 0) {
-            rangeList.set(imin, new KeyRange(rmin.getMin(), minKey));
+        if (ByteUtil.compare(rmin.min, minKey) < 0) {
+            rangeList.set(imin, new KeyRange(rmin.min, minKey));
 
             // Handle the case were rmin and rmax are the same range
             if (imax == imin) {
-                if (maxKey != null && (rmin.getMax() == null || ByteUtil.compare(maxKey, rmin.getMax()) < 0))
-                    rangeList.add(imin + 1, new KeyRange(maxKey, rmin.getMax()));
+                if (maxKey != null && (rmin.max == null || ByteUtil.compare(maxKey, rmin.max) < 0))
+                    rangeList.add(imin + 1, new KeyRange(maxKey, rmin.max));
                 return new KeyRanges(rangeList);
             }
             imin++;
@@ -446,8 +446,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
 
         // Split rmax in two if it contains maxKey
         final KeyRange rmax = rangeList.get(imax);
-        if (maxKey != null && (rmax.getMax() == null || ByteUtil.compare(maxKey, rmax.getMax()) < 0))
-            rangeList.set(imax--, new KeyRange(maxKey, rmax.getMax()));
+        if (maxKey != null && (rmax.max == null || ByteUtil.compare(maxKey, rmax.max) < 0))
+            rangeList.set(imax--, new KeyRange(maxKey, rmax.max));
 
         // Remove all ranges from rmin through rmax
         rangeList.subList(imin, imax + 1).clear();
@@ -528,8 +528,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         UnsignedIntEncoder.write(out, this.ranges.size());
         byte[] prev = null;
         for (KeyRange range : this.ranges) {
-            final byte[] min = range.getMin();
-            final byte[] max = range.getMax();
+            final byte[] min = range.min;
+            final byte[] max = range.max;
             assert max != null || range == this.ranges.get(this.ranges.size() - 1);
             KeyListEncoder.write(out, min, prev);
             KeyListEncoder.write(out, max != null ? max : min, min);            // map final [min, null) to [min, min]
@@ -546,8 +546,8 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         long total = UnsignedIntEncoder.encodeLength(this.ranges.size());
         byte[] prev = null;
         for (KeyRange range : this.ranges) {
-            final byte[] min = range.getMin();
-            final byte[] max = range.getMax();
+            final byte[] min = range.min;
+            final byte[] max = range.max;
             total += KeyListEncoder.writeLength(min, prev);
             total += KeyListEncoder.writeLength(max != null ? max : min, min);
             prev = max;
@@ -759,17 +759,17 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
             }
 
             // Compare to previous range
-            final int diff1 = KeyRange.compare(range.getMin(), prev.getMin());
+            final int diff1 = KeyRange.compare(range.min, prev.min);
             assert diff1 >= 0;
             if (diff1 == 0) {                           // range contains prev -> discard prev
                 assert range.contains(prev);
                 prev = range;
                 continue;
             }
-            final int diff2 = KeyRange.compare(range.getMin(), prev.getMax());
+            final int diff2 = KeyRange.compare(range.min, prev.max);
             if (diff2 <= 0) {                           // prev and range overlap -> take their union
-                final byte[] max = KeyRange.compare(range.getMax(), prev.getMax()) > 0 ? range.getMax() : prev.getMax();
-                prev = new KeyRange(prev.getMin(), max);
+                final byte[] max = KeyRange.compare(range.max, prev.max) > 0 ? range.max : prev.max;
+                prev = new KeyRange(prev.min, max);
                 continue;
             }
 
@@ -790,7 +790,7 @@ public class KeyRanges implements Iterable<KeyRange>, KeyFilter, SizeEstimating 
         for (KeyRange range : ranges) {
             if (range.isEmpty())
                 return false;
-            if (prev != null && KeyRange.compare(prev.getMax(), range.getMin()) >= 0)
+            if (prev != null && KeyRange.compare(prev.max, range.min) >= 0)
                 return false;
             prev = range;
         }
