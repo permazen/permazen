@@ -158,6 +158,11 @@ public class FieldTypeRegistry {
     static final ObjIdType OBJ_ID = new ObjIdType();
 
     /**
+     * Type for unsigned integers. Used internally.
+     */
+    static final UnsignedIntType UNSIGNED_INT = new UnsignedIntType();
+
+    /**
      * Type for object references with no restriction (null values are allowed).
      */
     static final ReferenceFieldType REFERENCE = new ReferenceFieldType();

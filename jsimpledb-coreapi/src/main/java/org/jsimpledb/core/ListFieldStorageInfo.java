@@ -21,7 +21,7 @@ class ListFieldStorageInfo<E> extends CollectionFieldStorageInfo<List<E>, E> {
     CoreIndex2<E, ObjId, Integer> getElementFieldIndex(Transaction tx) {
         return new CoreIndex2<E, ObjId, Integer>(tx,
           new Index2View<E, ObjId, Integer>(this.elementField.storageId,
-           this.elementField.fieldType, FieldTypeRegistry.OBJ_ID, new UnsignedIntType()));
+           this.elementField.fieldType, FieldTypeRegistry.OBJ_ID, FieldTypeRegistry.UNSIGNED_INT));
     }
 
     @Override
