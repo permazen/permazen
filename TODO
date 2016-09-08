@@ -2,6 +2,8 @@
 SHORT TERM
 ==========
 
+- Improve efficiency of KeyRanges and MutableView reads tracking
+
 - Don't @OnCreate or @OnChange during a copyTo() ?
 
 - Relax requirement for consistent storage ID type if there are no indexes?
