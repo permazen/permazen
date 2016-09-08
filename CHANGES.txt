@@ -1,6 +1,7 @@
 Version 2.2.2
 
     - Fixed bug where XMLObjectSerializer.load() failed on forward references
+    - Improved speed of Transaction.copy() when notifications are disabled
 
 Version 2.2.1 Released September 7, 2016
 
