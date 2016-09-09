@@ -5,6 +5,7 @@
 
 package org.jsimpledb.core;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
@@ -16,6 +17,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.jsimpledb.kv.KeyRange;
+import org.jsimpledb.kv.KeyRanges;
 
 /**
  * Contains the set of all {@link Schema}s of objects visible in a {@link Transaction}.
@@ -32,6 +36,7 @@ public class Schemas {
     final TreeMap<Integer, StorageInfo> storageInfos = new TreeMap<>();
     final TreeMap<Integer, TreeSet<Integer>> indexedFieldToContainingTypesMap = new TreeMap<>();
     final TreeSet<Integer> objTypeStorageIds = new TreeSet<>();
+    KeyRanges objTypesKeyRanges;
 
     Schemas(SortedMap<Integer, Schema> versions) {
         this.initialize(versions);
@@ -100,6 +105,15 @@ public class Schemas {
                 }
             }
         }
+
+        // Calculate the KeyRanges containing all object types
+        this.objTypesKeyRanges = new KeyRanges(Iterables.transform(this.objTypeStorageIds, new Function<Integer, KeyRange>() {
+            @Override
+            public KeyRange apply(Integer storageId) {
+                assert storageId != null;
+                return ObjId.getKeyRange(storageId);
+            }
+        }));
     }
 
     /**

@@ -5,14 +5,10 @@
 
 package org.jsimpledb.core;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-
 import java.util.NavigableSet;
 
 import org.jsimpledb.kv.KeyFilter;
 import org.jsimpledb.kv.KeyRange;
-import org.jsimpledb.kv.KeyRanges;
 import org.jsimpledb.util.Bounds;
 import org.jsimpledb.util.ByteUtil;
 
@@ -39,7 +35,7 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
      * @param tx transaction
      */
     ObjTypeSet(Transaction tx) {
-        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, null, ObjTypeSet.getKeyRanges(tx), new Bounds<ObjId>());
+        super(tx, FieldTypeRegistry.OBJ_ID, true, false, ByteUtil.EMPTY, null, tx.schemas.objTypesKeyRanges, new Bounds<ObjId>());
     }
 
     /**
@@ -70,16 +66,6 @@ final class ObjTypeSet extends FieldTypeSet<ObjId> {
     protected NavigableSet<ObjId> createSubSet(boolean newReversed,
       KeyRange newKeyRange, KeyFilter newKeyFilter, Bounds<ObjId> newBounds) {
         return new ObjTypeSet(this.tx, newReversed, this.prefix, newKeyRange, newKeyFilter, newBounds);
-    }
-
-    private static KeyRanges getKeyRanges(Transaction tx) {
-        return new KeyRanges(Iterables.transform(tx.schemas.objTypeStorageIds, new Function<Integer, KeyRange>() {
-            @Override
-            public KeyRange apply(Integer storageId) {
-                assert storageId != null;
-                return ObjId.getKeyRange(storageId);
-            }
-        }));
     }
 }
 
