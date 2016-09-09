@@ -659,11 +659,19 @@ public class JTransaction {
         // Copy current instance unless already copied, upgrading it in the process
         if (copyState.markCopied(dstId)) {
 
+            // See if we can disable listener notifications
+            boolean disableListenerNotifications = copyState.isSuppressNotifications();
+            if (!disableListenerNotifications && dest.isSnapshot()) {
+                final JClass<?> jclass = this.jdb.jclasses.get(dstId.getStorageId());
+                if (jclass != null)
+                    disableListenerNotifications = !jclass.hasSnapshotCreateOrChangeMethods;
+            }
+
             // Copy at the core API level
             final ObjIdMap<ReferenceField> coreDeletedAssignments = new ObjIdMap<>();
             boolean exists = true;
             try {
-                this.tx.copy(srcId, dstId, dest.tx, true, !copyState.isSuppressNotifications(), coreDeletedAssignments);
+                this.tx.copy(srcId, dstId, dest.tx, true, !disableListenerNotifications, coreDeletedAssignments);
             } catch (DeletedObjectException e) {
                 if (required)
                     throw e;

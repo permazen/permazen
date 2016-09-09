@@ -57,6 +57,7 @@ public class JClass<T> extends JSchemaObject {
     ArrayList<OnVersionChangeScanner<T>.MethodInfo> onVersionChangeMethods;
 
     boolean requiresDefaultValidation;
+    boolean hasSnapshotCreateOrChangeMethods;
     AnnotatedElement elementRequiringJSR303Validation;
 
     /**
@@ -391,6 +392,20 @@ public class JClass<T> extends JSchemaObject {
         final OnVersionChangeScanner<T> onVersionChangeScanner = new OnVersionChangeScanner<T>(this);
         this.onVersionChangeMethods = new ArrayList<>(onVersionChangeScanner.findAnnotatedMethods());
         Collections.sort(this.onVersionChangeMethods, onVersionChangeScanner);
+
+        // Determine if we need to enable notifications when copying into snapshot transactions
+        for (OnCreateScanner<T>.MethodInfo methodInfo : this.onCreateMethods) {
+            if (methodInfo.getAnnotation().snapshotTransactions()) {
+                this.hasSnapshotCreateOrChangeMethods = true;
+                break;
+            }
+        }
+        for (OnChangeScanner<T>.MethodInfo methodInfo : this.onChangeMethods) {
+            if (methodInfo.getAnnotation().snapshotTransactions()) {
+                this.hasSnapshotCreateOrChangeMethods = true;
+                break;
+            }
+        }
     }
 
     void calculateValidationRequirement() {
