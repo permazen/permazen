@@ -270,5 +270,19 @@ public interface JObject {
      * @see #copyOut copyOut()
      */
     JObject copyIn(String... refPaths);
+
+    /**
+     * Reset cached simple field values.
+     *
+     * <p>
+     * {@link JObject}s instances may cache simple field values after they have been read from the underlying
+     * key/value store for efficiency. This method causes any such cached values to be forgotten, so they will
+     * be re-read from the underlying key/value store on the next read of the field.
+     *
+     * <p>
+     * Normally this method does not need to be used. It may be needed to maintain consistency
+     * in exotic situations, for example, where the underlying key/value store is being modified directly.
+     */
+    void resetCachedFieldValues();
 }
 

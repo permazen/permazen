@@ -6,6 +6,8 @@
 package org.jsimpledb;
 
 import com.google.common.base.Converter;
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.Ints;
 
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
@@ -43,6 +45,7 @@ class ClassGenerator<T> {
     static final String TX_FIELD_NAME = "$tx";
     static final String ID_FIELD_NAME = "$id";
     static final String JFIELD_FIELD_PREFIX = "$f";
+    static final String CACHED_FIELD_PREFIX = "$fc";
     static final String ENUM_CONVERTER_FIELD_PREFIX = "$ec";
 
     // JObject method handles
@@ -58,6 +61,7 @@ class ClassGenerator<T> {
     static final Method JOBJECT_COPY_OUT_METHOD;
     static final Method JOBJECT_COPY_IN_METHOD;
     static final Method JOBJECT_COPY_TO_METHOD;
+    static final Method JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD;
 
     // JTransaction method handles
     static final Method GET_CURRENT_METHOD;
@@ -108,6 +112,7 @@ class ClassGenerator<T> {
               JTransaction.class, ObjId.class, CopyState.class, String[].class);
             JOBJECT_COPY_OUT_METHOD = JObject.class.getMethod("copyOut", String[].class);
             JOBJECT_COPY_IN_METHOD = JObject.class.getMethod("copyIn", String[].class);
+            JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD = JObject.class.getMethod("resetCachedFieldValues");
 
             // JTransaction methods
             GET_CURRENT_METHOD = JTransaction.class.getMethod("getCurrent");
@@ -265,6 +270,21 @@ class ClassGenerator<T> {
         if (this.jclass != null) {
             for (JField jfield : this.jclass.jfields.values())
                 jfield.outputFields(this, cw);
+        }
+
+        // Output field(s) for cached simple field flags
+        if (this.jclass != null) {
+            final int[] simpleFieldStorageIds = this.jclass.simpleFieldStorageIds;
+            String lastFieldName = null;
+            for (int i = 0; i < simpleFieldStorageIds.length; i++) {
+                final String fieldName = this.getCachedFlagFieldName(i);
+                if (fieldName.equals(lastFieldName))
+                    continue;
+                final FieldVisitor flagsField = cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT,
+                  fieldName, Type.getDescriptor(this.getCachedFlagFieldType(i)), null, null);
+                flagsField.visitEnd();
+                lastFieldName = fieldName;
+            }
         }
     }
 
@@ -460,6 +480,27 @@ class ClassGenerator<T> {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
+        // Add JOBject.resetCachedFieldValues()
+        mv = this.startMethod(cw, JOBJECT_RESET_CACHED_FIELD_VALUES_METHOD);
+        mv.visitCode();
+        if (this.jclass != null) {
+            final int[] simpleFieldStorageIds = this.jclass.simpleFieldStorageIds;
+            String lastFieldName = null;
+            for (int i = 0; i < simpleFieldStorageIds.length; i++) {
+                final String fieldName = this.getCachedFlagFieldName(i);
+                if (fieldName.equals(lastFieldName))
+                    continue;
+                mv.visitVarInsn(Opcodes.ALOAD, 0);
+                mv.visitInsn(Opcodes.ICONST_0);
+                mv.visitFieldInsn(Opcodes.PUTFIELD, this.getClassName(),
+                  fieldName, Type.getDescriptor(this.getCachedFlagFieldType(i)));
+                lastFieldName = fieldName;
+            }
+        }
+        mv.visitInsn(Opcodes.RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
         // If no associated JClass, we're done
         if (this.jclass == null)
             return;
@@ -543,6 +584,41 @@ class ClassGenerator<T> {
          * Output some method bytecode or whatever.
          */
         void emit(MethodVisitor mv);
+    }
+
+// Cached value flags field(s)
+
+    String getCachedFlagFieldName(JSimpleField jfield) {
+        return this.getCachedFlagFieldName(this.getCachedFlagIndex(jfield));
+    }
+
+    int getCachedFlagBit(JSimpleField jfield) {
+        return 1 << (this.getCachedFlagIndex(jfield) % 32);
+    }
+
+    Class<?> getCachedFlagFieldType(JSimpleField jfield) {
+        return this.getCachedFlagFieldType(this.getCachedFlagIndex(jfield));
+    }
+
+    private Class<?> getCachedFlagFieldType(int simpleFieldIndex) {
+        final int numSimpleFields = this.jclass.simpleFieldStorageIds.length;
+        Preconditions.checkArgument(simpleFieldIndex >= 0 && simpleFieldIndex < numSimpleFields);
+        if (simpleFieldIndex / 32 < numSimpleFields / 32)
+            return int.class;
+        final int tail = numSimpleFields % 32;
+        return tail <= 8 ? byte.class : tail <= 16 ? short.class : int.class;
+    }
+
+    private String getCachedFlagFieldName(int simpleFieldIndex) {
+        Preconditions.checkArgument(simpleFieldIndex >= 0 && simpleFieldIndex < this.jclass.simpleFieldStorageIds.length);
+        return ClassGenerator.CACHED_FIELD_PREFIX + (simpleFieldIndex / 32);
+    }
+
+    private int getCachedFlagIndex(JSimpleField jfield) {
+        Preconditions.checkArgument(jfield.parent == this.jclass);
+        final int simpleFieldIndex = Ints.indexOf(this.jclass.simpleFieldStorageIds, jfield.storageId);
+        Preconditions.checkArgument(simpleFieldIndex != -1);
+        return simpleFieldIndex;
     }
 }
 

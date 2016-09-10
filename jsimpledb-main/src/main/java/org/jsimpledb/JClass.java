@@ -6,6 +6,7 @@
 package org.jsimpledb;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Ints;
 import com.google.common.reflect.TypeToken;
 
 import java.lang.reflect.AnnotatedElement;
@@ -59,6 +60,7 @@ public class JClass<T> extends JSchemaObject {
     boolean requiresDefaultValidation;
     boolean hasSnapshotCreateOrChangeMethods;
     AnnotatedElement elementRequiringJSR303Validation;
+    int[] simpleFieldStorageIds;
 
     /**
      * Constructor.
@@ -141,7 +143,7 @@ public class JClass<T> extends JSchemaObject {
         // Auto-generate properties?
         final JSimpleClass jsimpleClass = this.type.getAnnotation(JSimpleClass.class);
 
-        // Scan for Simple fields
+        // Scan for Simple and Counter fields
         final JFieldScanner<T> simpleFieldScanner = new JFieldScanner<T>(this, jsimpleClass);
         for (JFieldScanner<T>.MethodInfo info : simpleFieldScanner.findAnnotatedMethods()) {
 
@@ -344,6 +346,14 @@ public class JClass<T> extends JSchemaObject {
         // Calculate which fields require default validation
         for (JField jfield : this.jfields.values())
             jfield.calculateRequiresDefaultValidation();
+
+        // Gather simple field storage ID's
+        final ArrayList<Integer> simpleFieldStorageIdList = new ArrayList<>(this.jfields.size());
+        for (JField jfield : this.jfields.values()) {
+            if (jfield instanceof JSimpleField)
+                simpleFieldStorageIdList.add(jfield.storageId);
+        }
+        this.simpleFieldStorageIds = Ints.toArray(simpleFieldStorageIdList);
     }
 
     void addCompositeIndex(JSimpleDB jdb, org.jsimpledb.annotation.JCompositeIndex annotation) {

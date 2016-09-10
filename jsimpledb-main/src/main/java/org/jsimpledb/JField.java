@@ -152,11 +152,11 @@ public abstract class JField extends JSchemaObject {
         mv.visitEnd();
     }
 
-    private String getCachedValueFieldName() {
+    String getCachedValueFieldName() {
         return ClassGenerator.JFIELD_FIELD_PREFIX + this.storageId;
     }
 
-    private Class<?> getCachedValueFieldType() {
+    Class<?> getCachedValueFieldType() {
         return this.getter.getReturnType();
     }
 }

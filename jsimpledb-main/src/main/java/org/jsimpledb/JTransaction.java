@@ -669,6 +669,11 @@ public class JTransaction {
                     disableListenerNotifications = !jclass.hasSnapshotCreateOrChangeMethods;
             }
 
+            // Reset any cached fields in the destination object
+            final JObject dstObject = dest.jobjectCache.getIfExists(dstId);
+            if (dstObject != null)
+                dstObject.resetCachedFieldValues();
+
             // Copy at the core API level
             final ObjIdMap<ReferenceField> coreDeletedAssignments = new ObjIdMap<>();
             boolean exists = true;
@@ -846,6 +851,10 @@ public class JTransaction {
                 this.validationQueue.remove(id);
             }
         }
+
+        // Reset cached field values
+        if (deleted)
+            jobj.resetCachedFieldValues();
 
         // Done
         return deleted;

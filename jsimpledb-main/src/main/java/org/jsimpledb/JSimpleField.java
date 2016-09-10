@@ -19,6 +19,7 @@ import org.jsimpledb.core.FieldType;
 import org.jsimpledb.core.ObjId;
 import org.jsimpledb.schema.SimpleSchemaField;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -201,31 +202,137 @@ public class JSimpleField extends JField {
 // Bytecode generation
 
     @Override
+    void outputFields(ClassGenerator<?> generator, ClassWriter cw) {
+
+        // Output cached value field
+        this.outputCachedValueField(generator, cw);
+    }
+
+    @Override
     void outputMethods(final ClassGenerator<?> generator, ClassWriter cw) {
 
-        // Get field info
-        final TypeToken<?> propertyType = TypeToken.of(this.getter.getReturnType());
+        // Get field type
+        final String className = generator.getClassName();
+        final Class<?> propertyType = this.typeToken.getRawType();
+        final boolean wide = propertyType.isPrimitive() && (Primitive.get(propertyType).getSize() == 8);
 
-        // Getter
+        // Get 'cached' flags field and bit offset
+        final String cachedFlagFieldName = generator.getCachedFlagFieldName(this);
+        final int cachedFlagBit = generator.getCachedFlagBit(this);
+
+        // Start getter
         MethodVisitor mv = cw.visitMethod(
           this.getter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
           this.getter.getName(), Type.getMethodDescriptor(this.getter), null, generator.getExceptionNames(this.getter));
+
+        // Return the cached value, if any
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, className, cachedFlagFieldName,
+          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        switch (cachedFlagBit) {
+        case 1:
+            mv.visitInsn(Opcodes.ICONST_1);
+            break;
+        case 2:
+            mv.visitInsn(Opcodes.ICONST_2);
+            break;
+        case 4:
+            mv.visitInsn(Opcodes.ICONST_4);
+            break;
+        default:
+            mv.visitLdcInsn(cachedFlagBit);
+            break;
+        }
+        mv.visitInsn(Opcodes.IAND);
+        final Label notCached = new Label();
+        mv.visitJumpInsn(Opcodes.IFEQ, notCached);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, className, this.getCachedValueFieldName(), Type.getDescriptor(propertyType));
+        mv.visitInsn(Type.getType(propertyType).getOpcode(Opcodes.IRETURN));
+        mv.visitLabel(notCached);
+        mv.visitFrame(Opcodes.F_SAME, 0, new Object[0], 0, new Object[0]);
+
+        // Retrieve (and unwrap if necessary) the value
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
         this.outputReadCoreValueBytecode(generator, mv);
-        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(propertyType.wrap().getRawType()));
+        mv.visitTypeInsn(Opcodes.CHECKCAST, Type.getInternalName(this.typeToken.wrap().getRawType()));
         if (propertyType.isPrimitive())
-            generator.unwrap(mv, Primitive.get(propertyType.getRawType()));
-        mv.visitInsn(Type.getType(this.getter.getReturnType()).getOpcode(Opcodes.IRETURN));
+            generator.unwrap(mv, Primitive.get(propertyType));
+
+        // Cache the retrieved value
+        mv.visitInsn(wide ? Opcodes.DUP2_X1 : Opcodes.DUP_X1);
+        mv.visitFieldInsn(Opcodes.PUTFIELD, className, this.getCachedValueFieldName(), Type.getDescriptor(propertyType));
+
+        // Set the flag indicating cached value is valid
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitFieldInsn(Opcodes.GETFIELD, className, cachedFlagFieldName,
+          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        switch (cachedFlagBit) {
+        case 1:
+            mv.visitInsn(Opcodes.ICONST_1);
+            break;
+        case 2:
+            mv.visitInsn(Opcodes.ICONST_2);
+            break;
+        case 4:
+            mv.visitInsn(Opcodes.ICONST_4);
+            break;
+        default:
+            mv.visitLdcInsn(cachedFlagBit);
+            break;
+        }
+        mv.visitInsn(Opcodes.IOR);
+        mv.visitFieldInsn(Opcodes.PUTFIELD, className, cachedFlagFieldName,
+          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+
+        // Done with getter
+        mv.visitInsn(Type.getType(propertyType).getOpcode(Opcodes.IRETURN));
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // Setter
+        // Start setter
         mv = cw.visitMethod(
           this.setter.getModifiers() & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED),
           this.setter.getName(), Type.getMethodDescriptor(this.setter), null, generator.getExceptionNames(this.setter));
-        mv.visitVarInsn(Type.getType(this.typeToken.getRawType()).getOpcode(Opcodes.ILOAD), 1);
+
+        // Get new value and prepare stack for PUTFIELD
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitVarInsn(Type.getType(propertyType).getOpcode(Opcodes.ILOAD), 1);
+
+        // Wrap (if necessary) and write the value to the field
+        mv.visitInsn(wide ? Opcodes.DUP2 : Opcodes.DUP);
         if (this.typeToken.isPrimitive())
-            generator.wrap(mv, Primitive.get(this.typeToken.getRawType()));
+            generator.wrap(mv, Primitive.get(propertyType));
         this.outputWriteCoreValueBytecode(generator, mv);
+
+        // Now cache the value - only after a successful write
+        mv.visitFieldInsn(Opcodes.PUTFIELD, className, this.getCachedValueFieldName(), Type.getDescriptor(propertyType));
+
+        // Set the flag indicating cached value is valid
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitInsn(Opcodes.DUP);
+        mv.visitFieldInsn(Opcodes.GETFIELD, className, cachedFlagFieldName,
+          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+        switch (cachedFlagBit) {
+        case 1:
+            mv.visitInsn(Opcodes.ICONST_1);
+            break;
+        case 2:
+            mv.visitInsn(Opcodes.ICONST_2);
+            break;
+        case 4:
+            mv.visitInsn(Opcodes.ICONST_4);
+            break;
+        default:
+            mv.visitLdcInsn(cachedFlagBit);
+            break;
+        }
+        mv.visitInsn(Opcodes.IOR);
+        mv.visitFieldInsn(Opcodes.PUTFIELD, className, cachedFlagFieldName,
+          Type.getDescriptor(generator.getCachedFlagFieldType(this)));
+
+        // Done with setter
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

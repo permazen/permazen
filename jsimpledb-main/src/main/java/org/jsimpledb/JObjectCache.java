@@ -47,7 +47,30 @@ class JObjectCache {
     }
 
     /**
-     * Get the Java model object corresponding to the given object ID.
+     * Get the Java model object corresponding to the given object ID if it exists.
+     *
+     * @param id object ID
+     * @return Java model object, or null if object not created yet
+     * @throws IllegalArgumentException if {@code id} is null
+     */
+    public JObject getIfExists(ObjId id) {
+
+        // Sanity check
+        Preconditions.checkArgument(id != null, "null id");
+
+        // Check for existing entry
+        synchronized (this.cache) {
+            final JObjRef ref = this.cache.get(id);
+            if (ref != null)
+                return ref.get();
+        }
+
+        // Does not exist - or is currently being instantiated
+        return null;
+    }
+
+    /**
+     * Get the Java model object corresponding to the given object ID, creating it if necessary.
      *
      * @param id object ID
      * @return Java model object
