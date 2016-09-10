@@ -124,7 +124,7 @@ public @interface JSimpleClass {
      * <p>
      * If {@link #autogenFields} is false, this property is ignored. Otherwise, if this property is true,
      * any auto-generated reference fields will allow assignment to deleted objects in normal transactions.
-     * In other words, they will behave as if they had a {@link &#64;JField} annotation with {@link JField#allowDeleted}
+     * In other words, they will behave as if they had a {@link JField &#64;JField} annotation with {@link JField#allowDeleted}
      * set to true.
      *
      * @return whether auto-generated reference fields should allow assignment to a deleted object in normal transactions
@@ -139,8 +139,8 @@ public @interface JSimpleClass {
      * <p>
      * If {@link #autogenFields} is false, this property is ignored. Otherwise, if this property is true,
      * any auto-generated reference fields will allow assignment to deleted objects in snapshot transactions.
-     * In other words, they will behave as if they had a {@link &#64;JField} annotation with {@link JField#allowDeletedSnapshot}
-     * set to true.
+     * In other words, they will behave as if they had a {@link JField &#64;JField} annotation with
+     * {@link JField#allowDeletedSnapshot} set to true.
      *
      * @return whether auto-generated reference fields should allow assignment to a deleted object in snapshot transactions
      * @see JField#allowDeletedSnapshot

@@ -462,7 +462,7 @@ public class JTransaction {
      * <p>
      * If the target object does not exist, it will be created, otherwise its schema version will be updated to match the source
      * object if necessary (with resulting {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange} notifications).
-     * If {@link CopyState.isSuppressNotifications()} returns false, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate}
+     * If {@link CopyState#isSuppressNotifications()} returns false, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate}
      * and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will also be delivered; however,
      * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
@@ -479,10 +479,11 @@ public class JTransaction {
      * must be identical in both transactions.
      *
      * <p>
-     * If any copied objects contain reference fields configured with {@link JField#allowDeleted}{@code = false},
+     * If any copied objects contain reference fields configured with
+     * {@link org.jsimpledb.annotation.JField#allowDeleted}{@code = false},
      * then any objects referenced by those fields must also be copied, or else must already exist in {@code dest}
-     * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link JField#allowDeletedSnapshot} applies instead).
-     * Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
+     * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link org.jsimpledb.annotation.JField#allowDeletedSnapshot}
+     * applies instead). Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
@@ -590,7 +591,7 @@ public class JTransaction {
      * <p>
      * If a target object does not exist, it will be created, otherwise its schema version will be updated to match the source
      * object if necessary (with resulting {@link org.jsimpledb.annotation.OnVersionChange &#64;OnVersionChange} notifications).
-     * If {@link CopyState.isSuppressNotifications()} returns false, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate}
+     * If {@link CopyState#isSuppressNotifications()} returns false, {@link org.jsimpledb.annotation.OnCreate &#64;OnCreate}
      * and {@link org.jsimpledb.annotation.OnCreate &#64;OnChange} notifications will also be delivered; however,
      * these annotations must also have {@code snapshotTransactions = true} if {@code dest} is a {@link SnapshotJTransaction}).
      *
@@ -604,10 +605,11 @@ public class JTransaction {
      * must be identical in both transactions.
      *
      * <p>
-     * If any copied objects contain reference fields configured with {@link JField#allowDeleted}{@code = false},
+     * If any copied objects contain reference fields configured with
+     * {@link org.jsimpledb.annotation.JField#allowDeleted}{@code = false},
      * then any objects referenced by those fields must also be copied, or else must already exist in {@code dest}
-     * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link JField#allowDeletedSnapshot} applies instead).
-     * Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
+     * (if {@code dest} is a {@link SnapshotJTransaction}, then {@link org.jsimpledb.annotation.JField#allowDeletedSnapshot}
+     * applies instead). Otherwise, a {@link DeletedObjectException} is thrown and it is indeterminate which objects were copied.
      *
      * <p>
      * Note: if two threads attempt to copy objects between the same two transactions at the same time but in opposite directions,
